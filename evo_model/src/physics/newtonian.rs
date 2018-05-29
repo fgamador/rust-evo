@@ -1,7 +1,7 @@
 use physics::state_vars::*;
 
 pub trait Newtonian {
-    fn x(&self) -> f64;
+    fn position(&self) -> &Position;
     fn vx(&self) -> f64;
     //    fn add_force(&self, fx: f64);
     fn step(&mut self);
@@ -20,8 +20,8 @@ impl NewtonianState {
 }
 
 impl Newtonian for NewtonianState {
-    fn x(&self) -> f64 {
-        self.position.x()
+    fn position(&self) -> &Position {
+        &self.position
     }
 
     fn vx(&self) -> f64 {
@@ -41,7 +41,7 @@ mod tests {
     fn stationary() {
         let mut subject = SimpleNewtonian::new(0.0, 0.0);
         subject.step();
-        assert_eq!(0.0, subject.x());
+        assert_eq!(0.0, subject.position().x());
         assert_eq!(0.0, subject.vx());
     }
 
@@ -49,7 +49,7 @@ mod tests {
     fn coasting() {
         let mut subject = SimpleNewtonian::new(0.0, 1.0);
         subject.step();
-        assert_eq!(1.0, subject.x());
+        assert_eq!(1.0, subject.position().x());
         assert_eq!(1.0, subject.vx());
     }
 
@@ -66,8 +66,8 @@ mod tests {
     }
 
     impl Newtonian for SimpleNewtonian {
-        fn x(&self) -> f64 {
-            self.state.x()
+        fn position(&self) -> &Position {
+            self.state.position()
         }
 
         fn vx(&self) -> f64 {

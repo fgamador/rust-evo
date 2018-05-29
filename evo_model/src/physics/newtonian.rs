@@ -10,6 +10,12 @@ pub struct Position {
     pub y: f64,
 }
 
+impl Position {
+    fn new(x: f64) -> Position {
+        Position { x, y: 0.0 }
+    }
+}
+
 //pub struct Velocity {
 //    pub x: f64,
 //    pub y: f64,
@@ -32,7 +38,7 @@ pub struct NewtonianState {
 
 impl NewtonianState {
     fn new(x: f64, vx: f64) -> NewtonianState {
-        NewtonianState { position: Position { x, y: 0.0 }, vx }
+        NewtonianState { position: Position::new(x), vx }
     }
 }
 

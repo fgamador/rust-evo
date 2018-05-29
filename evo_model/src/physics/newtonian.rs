@@ -29,6 +29,22 @@ impl Newtonian for NewtonianState {
 mod tests {
     use super::*;
 
+    #[test]
+    fn stationary() {
+        let mut body = SimpleNewtonian { state: NewtonianState { x: 0.0, vx: 0.0 } };
+        body.step();
+        assert_eq!(0.0, body.x());
+        assert_eq!(0.0, body.vx());
+    }
+
+    #[test]
+    fn coasting() {
+        let mut body = SimpleNewtonian { state: NewtonianState { x: 0.0, vx: 1.0 } };
+        body.step();
+        assert_eq!(1.0, body.x());
+        assert_eq!(1.0, body.vx());
+    }
+
     struct SimpleNewtonian {
         state: NewtonianState,
     }
@@ -45,21 +61,5 @@ mod tests {
         fn step(&mut self) {
             self.state.step();
         }
-    }
-
-    #[test]
-    fn stationary() {
-        let mut body = SimpleNewtonian { state: NewtonianState { x: 0.0, vx: 0.0 } };
-        body.step();
-        assert_eq!(0.0, body.x());
-        assert_eq!(0.0, body.vx());
-    }
-
-    #[test]
-    fn coasting() {
-        let mut body = SimpleNewtonian { state: NewtonianState { x: 0.0, vx: 1.0 } };
-        body.step();
-        assert_eq!(1.0, body.x());
-        assert_eq!(1.0, body.vx());
     }
 }

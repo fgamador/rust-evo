@@ -5,6 +5,25 @@ pub trait Newtonian {
     fn step(&mut self);
 }
 
+//pub struct Position {
+//    pub x: f64,
+//    pub y: f64,
+//}
+//
+//pub struct Velocity {
+//    pub x: f64,
+//    pub y: f64,
+//}
+//
+//impl Position {
+//    fn plus(&self, v: &Velocity) -> Position {
+//        Position {
+//            x: self.x + v.x,
+//            y: self.y + v.y,
+//        }
+//    }
+//}
+
 pub struct NewtonianState {
     pub x: f64,
     pub vx: f64,
@@ -31,7 +50,7 @@ mod tests {
 
     #[test]
     fn stationary() {
-        let mut body = SimpleNewtonian { state: NewtonianState { x: 0.0, vx: 0.0 } };
+        let mut body = SimpleNewtonian::new(0.0, 0.0);
         body.step();
         assert_eq!(0.0, body.x());
         assert_eq!(0.0, body.vx());
@@ -39,7 +58,7 @@ mod tests {
 
     #[test]
     fn coasting() {
-        let mut body = SimpleNewtonian { state: NewtonianState { x: 0.0, vx: 1.0 } };
+        let mut body = SimpleNewtonian::new(0.0, 1.0);
         body.step();
         assert_eq!(1.0, body.x());
         assert_eq!(1.0, body.vx());
@@ -47,6 +66,14 @@ mod tests {
 
     struct SimpleNewtonian {
         state: NewtonianState,
+    }
+
+    impl SimpleNewtonian {
+        fn new(x: f64, vx: f64) -> SimpleNewtonian {
+            SimpleNewtonian {
+                state: NewtonianState { x, vx },
+            }
+        }
     }
 
     impl Newtonian for SimpleNewtonian {

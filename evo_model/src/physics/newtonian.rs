@@ -1,3 +1,5 @@
+//use physics::newtonian::state_vars::Position;
+
 pub trait Newtonian {
     fn x(&self) -> f64;
     fn vx(&self) -> f64;
@@ -5,16 +7,31 @@ pub trait Newtonian {
     fn step(&mut self);
 }
 
+//mod state_vars {
 pub struct Position {
     x: f64,
 }
 
 impl Position {
-    fn new(x: f64) -> Position {
+    pub fn new(x: f64) -> Position {
         Position { x }
     }
 
-    fn x(&self) -> f64 {
+    pub fn x(&self) -> f64 {
+        self.x
+    }
+}
+
+pub struct Velocity {
+    x: f64,
+}
+
+impl Velocity {
+    pub fn new(x: f64) -> Velocity {
+        Velocity { x }
+    }
+
+    pub fn x(&self) -> f64 {
         self.x
     }
 }
@@ -32,16 +49,17 @@ impl Position {
 //        }
 //    }
 //}
+//}
 
 pub struct NewtonianState {
     pub position: Position,
-    pub vx: f64,
+    pub velocity: Velocity,
 //    pub mass: f64,
 }
 
 impl NewtonianState {
     fn new(x: f64, vx: f64) -> NewtonianState {
-        NewtonianState { position: Position::new(x), vx }
+        NewtonianState { position: Position::new(x), velocity: Velocity::new(vx) }
     }
 }
 
@@ -51,11 +69,11 @@ impl Newtonian for NewtonianState {
     }
 
     fn vx(&self) -> f64 {
-        self.vx
+        self.velocity.x()
     }
 
     fn step(&mut self) {
-        self.position.x += self.vx;
+        self.position.x += self.velocity.x();
     }
 }
 

@@ -7,12 +7,11 @@ pub trait Newtonian {
 
 pub struct Position {
     pub x: f64,
-    pub y: f64,
 }
 
 impl Position {
     fn new(x: f64) -> Position {
-        Position { x, y: 0.0 }
+        Position { x }
     }
 }
 

@@ -6,12 +6,16 @@ pub trait Newtonian {
 }
 
 pub struct Position {
-    pub x: f64,
+    x: f64,
 }
 
 impl Position {
     fn new(x: f64) -> Position {
         Position { x }
+    }
+
+    fn x(&self) -> f64 {
+        self.x
     }
 }
 
@@ -43,7 +47,7 @@ impl NewtonianState {
 
 impl Newtonian for NewtonianState {
     fn x(&self) -> f64 {
-        self.position.x
+        self.position.x()
     }
 
     fn vx(&self) -> f64 {

@@ -50,18 +50,18 @@ mod tests {
 
     #[test]
     fn stationary() {
-        let mut body = SimpleNewtonian::new(0.0, 0.0);
-        body.step();
-        assert_eq!(0.0, body.x());
-        assert_eq!(0.0, body.vx());
+        let mut subject = SimpleNewtonian::new(0.0, 0.0);
+        subject.step();
+        assert_eq!(0.0, subject.x());
+        assert_eq!(0.0, subject.vx());
     }
 
     #[test]
     fn coasting() {
-        let mut body = SimpleNewtonian::new(0.0, 1.0);
-        body.step();
-        assert_eq!(1.0, body.x());
-        assert_eq!(1.0, body.vx());
+        let mut subject = SimpleNewtonian::new(0.0, 1.0);
+        subject.step();
+        assert_eq!(1.0, subject.x());
+        assert_eq!(1.0, subject.vx());
     }
 
     struct SimpleNewtonian {

@@ -12,6 +12,10 @@ pub struct Position {
     x: f64,
 }
 
+pub struct Velocity {
+    x: f64,
+}
+
 impl Position {
     pub fn new(x: f64) -> Position {
         Position { x }
@@ -20,10 +24,10 @@ impl Position {
     pub fn x(&self) -> f64 {
         self.x
     }
-}
 
-pub struct Velocity {
-    x: f64,
+    fn plus(&self, v: &Velocity) -> Position {
+        Position::new(self.x + v.x)
+    }
 }
 
 impl Velocity {
@@ -35,20 +39,6 @@ impl Velocity {
         self.x
     }
 }
-
-//pub struct Velocity {
-//    pub x: f64,
-//    pub y: f64,
-//}
-//
-//impl Position {
-//    fn plus(&self, v: &Velocity) -> Position {
-//        Position {
-//            x: self.x + v.x,
-//            y: self.y + v.y,
-//        }
-//    }
-//}
 //}
 
 pub struct NewtonianState {

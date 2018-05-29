@@ -63,7 +63,7 @@ impl Newtonian for NewtonianState {
     }
 
     fn step(&mut self) {
-        self.position.x += self.velocity.x();
+        self.position = self.position.plus(&self.velocity);
     }
 }
 

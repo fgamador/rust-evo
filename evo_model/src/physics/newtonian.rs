@@ -5,11 +5,11 @@ pub trait Newtonian {
     fn step(&mut self);
 }
 
-//pub struct Position {
-//    pub x: f64,
-//    pub y: f64,
-//}
-//
+pub struct Position {
+    pub x: f64,
+    pub y: f64,
+}
+
 //pub struct Velocity {
 //    pub x: f64,
 //    pub y: f64,
@@ -25,20 +25,20 @@ pub trait Newtonian {
 //}
 
 pub struct NewtonianState {
-    pub x: f64,
+    pub position: Position,
     pub vx: f64,
 //    pub mass: f64,
 }
 
 impl NewtonianState {
     fn new(x: f64, vx: f64) -> NewtonianState {
-        NewtonianState { x, vx }
+        NewtonianState { position: Position { x, y: 0.0 }, vx }
     }
 }
 
 impl Newtonian for NewtonianState {
     fn x(&self) -> f64 {
-        self.x
+        self.position.x
     }
 
     fn vx(&self) -> f64 {
@@ -46,7 +46,7 @@ impl Newtonian for NewtonianState {
     }
 
     fn step(&mut self) {
-        self.x += self.vx;
+        self.position.x += self.vx;
     }
 }
 

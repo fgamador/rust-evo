@@ -30,6 +30,12 @@ pub struct NewtonianState {
 //    pub mass: f64,
 }
 
+impl NewtonianState {
+    fn new(x: f64, vx: f64) -> NewtonianState {
+        NewtonianState { x, vx }
+    }
+}
+
 impl Newtonian for NewtonianState {
     fn x(&self) -> f64 {
         self.x
@@ -71,7 +77,7 @@ mod tests {
     impl SimpleNewtonian {
         fn new(x: f64, vx: f64) -> SimpleNewtonian {
             SimpleNewtonian {
-                state: NewtonianState { x, vx },
+                state: NewtonianState::new(x, vx)
             }
         }
     }

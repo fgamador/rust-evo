@@ -1,8 +1,8 @@
 use physics::state_vars::*;
 
 pub trait Newtonian {
-    fn position(&self) -> &Position;
-    fn velocity(&self) -> &Velocity;
+    fn position(&self) -> Position;
+    fn velocity(&self) -> Velocity;
     //    fn add_force(&self, fx: f64);
     fn step(&mut self);
 }
@@ -14,22 +14,22 @@ pub struct NewtonianState {
 }
 
 impl NewtonianState {
-    fn new(x: f64, vx: f64) -> NewtonianState {
-        NewtonianState { position: Position::new(x), velocity: Velocity::new(vx) }
+    fn new(position: Position, velocity: Velocity) -> NewtonianState {
+        NewtonianState { position, velocity }
     }
 }
 
 impl Newtonian for NewtonianState {
-    fn position(&self) -> &Position {
-        &self.position
+    fn position(&self) -> Position {
+        self.position
     }
 
-    fn velocity(&self) -> &Velocity {
-        &self.velocity
+    fn velocity(&self) -> Velocity {
+        self.velocity
     }
 
     fn step(&mut self) {
-        self.position = self.position.plus(&self.velocity);
+        self.position = self.position.plus(self.velocity);
     }
 }
 
@@ -60,17 +60,17 @@ mod tests {
     impl SimpleNewtonian {
         fn new(x: f64, vx: f64) -> SimpleNewtonian {
             SimpleNewtonian {
-                state: NewtonianState::new(x, vx)
+                state: NewtonianState::new(Position::new(x), Velocity::new(vx))
             }
         }
     }
 
     impl Newtonian for SimpleNewtonian {
-        fn position(&self) -> &Position {
+        fn position(&self) -> Position {
             self.state.position()
         }
 
-        fn velocity(&self) -> &Velocity {
+        fn velocity(&self) -> Velocity {
             self.state.velocity()
         }
 

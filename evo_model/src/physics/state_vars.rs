@@ -1,7 +1,9 @@
+#[derive(Clone, Copy, Debug)]
 pub struct Position {
     x: f64,
 }
 
+#[derive(Clone, Copy, Debug)]
 pub struct Velocity {
     x: f64,
 }
@@ -15,7 +17,7 @@ impl Position {
         self.x
     }
 
-    pub fn plus(&self, v: &Velocity) -> Position {
+    pub fn plus(&self, v: Velocity) -> Position {
         Position::new(self.x + v.x)
     }
 }

@@ -1,4 +1,4 @@
-use physics::state_vars::*;
+use physics::quantities::*;
 
 pub trait Newtonian {
     fn position(&self) -> Position;

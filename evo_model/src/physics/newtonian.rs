@@ -8,19 +8,19 @@ pub trait Newtonian {
     fn move_for(&mut self, duration: Duration);
 }
 
-pub struct NewtonianState {
+pub struct NewtonianImpl {
     pub position: Position,
     pub velocity: Velocity,
 //    pub mass: f64,
 }
 
-impl NewtonianState {
-    fn new(position: Position, velocity: Velocity) -> NewtonianState {
-        NewtonianState { position, velocity }
+impl NewtonianImpl {
+    fn new(position: Position, velocity: Velocity) -> NewtonianImpl {
+        NewtonianImpl { position, velocity }
     }
 }
 
-impl Newtonian for NewtonianState {
+impl Newtonian for NewtonianImpl {
     fn position(&self) -> Position {
         self.position
     }
@@ -55,13 +55,13 @@ mod tests {
     }
 
     struct SimpleNewtonian {
-        state: NewtonianState,
+        state: NewtonianImpl,
     }
 
     impl SimpleNewtonian {
         fn new(x: f64, vx: f64) -> SimpleNewtonian {
             SimpleNewtonian {
-                state: NewtonianState::new(Position::new(x), Velocity::new(vx))
+                state: NewtonianImpl::new(Position::new(x), Velocity::new(vx))
             }
         }
     }

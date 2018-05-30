@@ -46,14 +46,6 @@ mod tests {
     }
 
     #[test]
-    fn coasting() {
-        let mut subject = SimpleNewtonian::new(0.0, 1.0);
-        subject.move_for(Duration::new(1.0));
-        assert_eq!(1.0, subject.position().x());
-        assert_eq!(1.0, subject.velocity().x());
-    }
-
-    #[test]
     fn coasting_for_non_unit_duration() {
         let mut subject = SimpleNewtonian::new(0.0, 1.0);
         subject.move_for(Duration::new(0.5));

@@ -55,28 +55,28 @@ mod tests {
     }
 
     struct SimpleNewtonian {
-        state: NewtonianImpl,
+        newtonian: NewtonianImpl,
     }
 
     impl SimpleNewtonian {
         fn new(x: f64, vx: f64) -> SimpleNewtonian {
             SimpleNewtonian {
-                state: NewtonianImpl::new(Position::new(x), Velocity::new(vx))
+                newtonian: NewtonianImpl::new(Position::new(x), Velocity::new(vx))
             }
         }
     }
 
     impl Newtonian for SimpleNewtonian {
         fn position(&self) -> Position {
-            self.state.position()
+            self.newtonian.position()
         }
 
         fn velocity(&self) -> Velocity {
-            self.state.velocity()
+            self.newtonian.velocity()
         }
 
         fn move_for(&mut self, duration: Duration) {
-            self.state.move_for(duration);
+            self.newtonian.move_for(duration);
         }
     }
 }

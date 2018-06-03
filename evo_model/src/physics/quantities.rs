@@ -18,6 +18,11 @@ pub struct Velocity {
     x: f64,
 }
 
+#[derive(Clone, Copy, Debug, PartialEq)]
+pub struct Impulse {
+    x: f64,
+}
+
 impl Position {
     pub fn new(x: f64) -> Position {
         Position { x }
@@ -67,6 +72,17 @@ impl Velocity {
 
     pub fn to_displacement(&self, duration: Duration) -> Displacement {
         Displacement::new(self.x * duration.value)
+    }
+}
+
+impl Impulse {
+    pub fn new(x: f64) -> Impulse {
+        Impulse { x }
+    }
+
+    #[allow(dead_code)]
+    pub fn x(&self) -> f64 {
+        self.x
     }
 }
 

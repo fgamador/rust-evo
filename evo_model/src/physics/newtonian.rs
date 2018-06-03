@@ -6,6 +6,7 @@ pub trait Newtonian {
     // fn add_force(&mut self, force: Force);
     // fn clear_forces(&mut self);
     fn move_for(&mut self, duration: Duration);
+    fn kick(&mut self, impulse: Impulse);
 }
 
 #[derive(Debug, PartialEq)]
@@ -33,6 +34,10 @@ impl Newtonian for NewtonianState {
     fn move_for(&mut self, duration: Duration) {
         self.position = self.position.plus(self.velocity.to_displacement(duration));
     }
+
+    fn kick(&mut self, impulse: Impulse) {
+//        self.velocity = self.velocity.plus(impulse.to_delta_v(self.mass));
+    }
 }
 
 #[cfg(test)]
@@ -44,6 +49,14 @@ mod tests {
         let mut subject = SimpleNewtonian::new(Position::new(-1.0), Velocity::new(1.0));
         subject.move_for(Duration::new(0.5));
         assert_eq!(NewtonianState::new(Position::new(-0.5), Velocity::new(1.0)), *subject.state());
+    }
+
+    #[test]
+    #[ignore]
+    fn kicked() {
+        let mut subject = SimpleNewtonian::new(Position::new(-1.0), Velocity::new(1.0));
+        subject.kick(Impulse::new(0.5));
+        assert_eq!(NewtonianState::new(Position::new(-1.0), Velocity::new(1.5)), *subject.state());
     }
 
     struct SimpleNewtonian {
@@ -73,6 +86,10 @@ mod tests {
 
         fn move_for(&mut self, duration: Duration) {
             self.state.move_for(duration);
+        }
+
+        fn kick(&mut self, impulse: Impulse) {
+            self.state.kick(impulse);
         }
     }
 }

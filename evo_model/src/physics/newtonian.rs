@@ -13,12 +13,12 @@ pub trait Newtonian {
 pub struct NewtonianState {
     pub position: Position,
     pub velocity: Velocity,
-//    pub mass: f64,
+    pub mass: Mass,
 }
 
 impl NewtonianState {
     fn new(position: Position, velocity: Velocity) -> NewtonianState {
-        NewtonianState { position, velocity }
+        NewtonianState { position, velocity, mass: Mass::new(1.0) }
     }
 }
 
@@ -36,7 +36,7 @@ impl Newtonian for NewtonianState {
     }
 
     fn kick(&mut self, impulse: Impulse) {
-//        self.velocity = self.velocity.plus(impulse.to_delta_v(self.mass));
+        self.velocity = self.velocity.plus(impulse.to_delta_v(self.mass));
     }
 }
 
@@ -52,7 +52,6 @@ mod tests {
     }
 
     #[test]
-    #[ignore]
     fn kicked() {
         let mut subject = SimpleNewtonian::new(Position::new(-1.0), Velocity::new(1.0));
         subject.kick(Impulse::new(0.5));

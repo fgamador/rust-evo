@@ -33,6 +33,11 @@ pub struct Mass {
     value: f64,
 }
 
+#[derive(Clone, Copy, Debug, PartialEq)]
+pub struct Force {
+    x: f64,
+}
+
 impl Position {
     pub fn new(x: f64) -> Position {
         Position { x }
@@ -126,6 +131,21 @@ impl Mass {
     }
 }
 
+impl Force {
+    pub fn new(x: f64) -> Force {
+        Force { x }
+    }
+
+    #[allow(dead_code)]
+    pub fn x(&self) -> f64 {
+        self.x
+    }
+
+    pub fn to_impulse(&self, d: Duration) -> Impulse {
+        Impulse::new(self.x * d.value)
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -152,5 +172,11 @@ mod tests {
     fn impulse_to_delta_v() {
         let subject = Impulse::new(1.5);
         assert_eq!(DeltaV::new(0.75), subject.to_delta_v(Mass::new(2.0)));
+    }
+
+    #[test]
+    fn force_to_impulse() {
+        let subject = Force::new(1.5);
+        assert_eq!(Impulse::new(0.75), subject.to_impulse(Duration::new(0.5)));
     }
 }

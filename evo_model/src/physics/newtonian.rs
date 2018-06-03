@@ -8,6 +8,7 @@ pub trait Newtonian {
     fn move_for(&mut self, duration: Duration);
 }
 
+#[derive(Debug, PartialEq)]
 pub struct NewtonianState {
     pub position: Position,
     pub velocity: Velocity,
@@ -55,28 +56,32 @@ mod tests {
     }
 
     struct SimpleNewtonian {
-        newtonian: NewtonianState,
+        state: NewtonianState,
     }
 
     impl SimpleNewtonian {
         fn new(position: Position, velocity: Velocity) -> SimpleNewtonian {
             SimpleNewtonian {
-                newtonian: NewtonianState::new(position, velocity)
+                state: NewtonianState::new(position, velocity)
             }
+        }
+
+        fn state(&self) -> &NewtonianState {
+            &self.state
         }
     }
 
     impl Newtonian for SimpleNewtonian {
         fn position(&self) -> Position {
-            self.newtonian.position()
+            self.state.position()
         }
 
         fn velocity(&self) -> Velocity {
-            self.newtonian.velocity()
+            self.state.velocity()
         }
 
         fn move_for(&mut self, duration: Duration) {
-            self.newtonian.move_for(duration);
+            self.state.move_for(duration);
         }
     }
 }

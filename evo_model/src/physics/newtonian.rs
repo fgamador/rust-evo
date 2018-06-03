@@ -17,8 +17,8 @@ pub struct NewtonianState {
 }
 
 impl NewtonianState {
-    fn new(position: Position, velocity: Velocity) -> NewtonianState {
-        NewtonianState { position, velocity, mass: Mass::new(1.0) }
+    fn new(position: Position, velocity: Velocity, mass: Mass) -> NewtonianState {
+        NewtonianState { position, velocity, mass }
     }
 }
 
@@ -46,16 +46,16 @@ mod tests {
 
     #[test]
     fn coasting() {
-        let mut subject = SimpleNewtonian::new(Position::new(-1.0), Velocity::new(1.0));
+        let mut subject = SimpleNewtonian::new(Position::new(-1.0), Velocity::new(1.0), Mass::new(2.0));
         subject.move_for(Duration::new(0.5));
-        assert_eq!(NewtonianState::new(Position::new(-0.5), Velocity::new(1.0)), *subject.state());
+        assert_eq!(NewtonianState::new(Position::new(-0.5), Velocity::new(1.0), Mass::new(2.0)), *subject.state());
     }
 
     #[test]
     fn kicked() {
-        let mut subject = SimpleNewtonian::new(Position::new(-1.0), Velocity::new(1.0));
+        let mut subject = SimpleNewtonian::new(Position::new(-1.0), Velocity::new(1.0), Mass::new(2.0));
         subject.kick(Impulse::new(0.5));
-        assert_eq!(NewtonianState::new(Position::new(-1.0), Velocity::new(1.5)), *subject.state());
+        assert_eq!(NewtonianState::new(Position::new(-1.0), Velocity::new(1.25), Mass::new(2.0)), *subject.state());
     }
 
     struct SimpleNewtonian {
@@ -63,9 +63,9 @@ mod tests {
     }
 
     impl SimpleNewtonian {
-        fn new(position: Position, velocity: Velocity) -> SimpleNewtonian {
+        fn new(position: Position, velocity: Velocity, mass: Mass) -> SimpleNewtonian {
             SimpleNewtonian {
-                state: NewtonianState::new(position, velocity)
+                state: NewtonianState::new(position, velocity, mass)
             }
         }
 

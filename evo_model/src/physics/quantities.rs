@@ -28,6 +28,11 @@ pub struct Impulse {
     x: f64,
 }
 
+#[derive(Clone, Copy, Debug, PartialEq)]
+pub struct Mass {
+    value: f64,
+}
+
 impl Position {
     pub fn new(x: f64) -> Position {
         Position { x }
@@ -104,6 +109,21 @@ impl Impulse {
     pub fn x(&self) -> f64 {
         self.x
     }
+
+    pub fn to_delta_v(&self, mass: Mass) -> DeltaV {
+        DeltaV::new(self.x / mass.value)
+    }
+}
+
+impl Mass {
+    pub fn new(value: f64) -> Mass {
+        Mass { value }
+    }
+
+    #[allow(dead_code)]
+    pub fn value(&self) -> f64 {
+        self.value
+    }
 }
 
 #[cfg(test)]
@@ -126,5 +146,11 @@ mod tests {
     fn velocity_to_displacement() {
         let subject = Velocity::new(1.5);
         assert_eq!(Displacement::new(0.75), subject.to_displacement(Duration::new(0.5)));
+    }
+
+    #[test]
+    fn impulse_to_delta_v() {
+        let subject = Impulse::new(1.5);
+        assert_eq!(DeltaV::new(0.75), subject.to_delta_v(Mass::new(2.0)));
     }
 }

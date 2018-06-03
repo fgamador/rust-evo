@@ -65,3 +65,20 @@ impl Velocity {
         Displacement::new(self.x * duration.value)
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn displaced_position() {
+        let mut subject = Position::new(1.5);
+        assert_eq!(Position::new(2.0), subject.plus(Displacement::new(0.5)));
+    }
+
+    #[test]
+    fn velocity_to_displacement() {
+        let mut subject = Velocity::new(1.5);
+        assert_eq!(Displacement::new(0.75), subject.to_displacement(Duration::new(0.5)));
+    }
+}

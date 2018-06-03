@@ -41,9 +41,9 @@ mod tests {
 
     #[test]
     fn coasting() {
-        let mut subject = SimpleNewtonian::new(Position::new(0.0), Velocity::new(1.0));
+        let mut subject = SimpleNewtonian::new(Position::new(-1.0), Velocity::new(1.0));
         subject.move_for(Duration::new(0.5));
-        assert_eq!(NewtonianState::new(Position::new(0.5), Velocity::new(1.0)), *subject.state());
+        assert_eq!(NewtonianState::new(Position::new(-0.5), Velocity::new(1.0)), *subject.state());
     }
 
     struct SimpleNewtonian {

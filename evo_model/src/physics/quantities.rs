@@ -19,6 +19,11 @@ pub struct Velocity {
 }
 
 #[derive(Clone, Copy, Debug, PartialEq)]
+pub struct DeltaV {
+    x: f64,
+}
+
+#[derive(Clone, Copy, Debug, PartialEq)]
 pub struct Impulse {
     x: f64,
 }
@@ -70,8 +75,23 @@ impl Velocity {
         self.x
     }
 
+    pub fn plus(&self, dv: DeltaV) -> Velocity {
+        Velocity::new(self.x + dv.x)
+    }
+
     pub fn to_displacement(&self, duration: Duration) -> Displacement {
         Displacement::new(self.x * duration.value)
+    }
+}
+
+impl DeltaV {
+    pub fn new(x: f64) -> DeltaV {
+        DeltaV { x }
+    }
+
+    #[allow(dead_code)]
+    pub fn x(&self) -> f64 {
+        self.x
     }
 }
 
@@ -91,9 +111,15 @@ mod tests {
     use super::*;
 
     #[test]
-    fn displaced_position() {
+    fn displace_position() {
         let subject = Position::new(1.5);
         assert_eq!(Position::new(2.0), subject.plus(Displacement::new(0.5)));
+    }
+
+    #[test]
+    fn change_velocity() {
+        let subject = Velocity::new(1.5);
+        assert_eq!(Velocity::new(1.0), subject.plus(DeltaV::new(-0.5)));
     }
 
     #[test]

@@ -40,7 +40,7 @@ mod tests {
 
     #[test]
     fn stationary() {
-        let mut subject = SimpleNewtonian::new(0.0, 0.0);
+        let mut subject = SimpleNewtonian::new(Position::new(0.0), Velocity::new(0.0));
         subject.move_for(Duration::new(1.0));
         assert_eq!(0.0, subject.position().x());
         assert_eq!(0.0, subject.velocity().x());
@@ -48,7 +48,7 @@ mod tests {
 
     #[test]
     fn coasting_for_non_unit_duration() {
-        let mut subject = SimpleNewtonian::new(0.0, 1.0);
+        let mut subject = SimpleNewtonian::new(Position::new(0.0), Velocity::new(1.0));
         subject.move_for(Duration::new(0.5));
         assert_eq!(0.5, subject.position().x());
         assert_eq!(1.0, subject.velocity().x());
@@ -59,9 +59,9 @@ mod tests {
     }
 
     impl SimpleNewtonian {
-        fn new(x: f64, vx: f64) -> SimpleNewtonian {
+        fn new(position: Position, velocity: Velocity) -> SimpleNewtonian {
             SimpleNewtonian {
-                newtonian: NewtonianImpl::new(Position::new(x), Velocity::new(vx))
+                newtonian: NewtonianImpl::new(position, velocity)
             }
         }
     }

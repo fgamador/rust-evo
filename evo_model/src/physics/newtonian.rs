@@ -40,14 +40,7 @@ mod tests {
     use super::*;
 
     #[test]
-    fn stationary() {
-        let mut subject = SimpleNewtonian::new(Position::new(0.0), Velocity::new(0.0));
-        subject.move_for(Duration::new(1.0));
-        assert_eq!(NewtonianState::new(Position::new(0.0), Velocity::new(0.0)), *subject.state());
-    }
-
-    #[test]
-    fn coasting_for_non_unit_duration() {
+    fn coasting() {
         let mut subject = SimpleNewtonian::new(Position::new(0.0), Velocity::new(1.0));
         subject.move_for(Duration::new(0.5));
         assert_eq!(NewtonianState::new(Position::new(0.5), Velocity::new(1.0)), *subject.state());

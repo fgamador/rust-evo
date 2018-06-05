@@ -46,16 +46,16 @@ mod tests {
 
     #[test]
     fn coasting() {
-        let mut subject = SimpleNewtonian::new(Position::new(-1.0), Velocity::new(1.0), Mass::new(2.0));
+        let mut subject = SimpleNewtonian::new(Position::new(-1.0, 0.0), Velocity::new(1.0, 0.0), Mass::new(2.0));
         subject.move_for(Duration::new(0.5));
-        assert_eq!(NewtonianState::new(Position::new(-0.5), Velocity::new(1.0), Mass::new(2.0)), *subject.state());
+        assert_eq!(NewtonianState::new(Position::new(-0.5, 0.0), Velocity::new(1.0, 0.0), Mass::new(2.0)), *subject.state());
     }
 
     #[test]
     fn kicked() {
-        let mut subject = SimpleNewtonian::new(Position::new(-1.0), Velocity::new(1.0), Mass::new(2.0));
+        let mut subject = SimpleNewtonian::new(Position::new(-1.0, 0.0), Velocity::new(1.0, 0.0), Mass::new(2.0));
         subject.kick(Impulse::new(0.5));
-        assert_eq!(NewtonianState::new(Position::new(-1.0), Velocity::new(1.25), Mass::new(2.0)), *subject.state());
+        assert_eq!(NewtonianState::new(Position::new(-1.0, 0.0), Velocity::new(1.25, 0.0), Mass::new(2.0)), *subject.state());
     }
 
     struct SimpleNewtonian {

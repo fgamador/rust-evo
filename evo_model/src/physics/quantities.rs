@@ -39,7 +39,7 @@ pub struct Force {
 }
 
 impl Position {
-    pub fn new(x: f64) -> Position {
+    pub fn new(x: f64, y: f64) -> Position {
         Position { x }
     }
 
@@ -49,7 +49,7 @@ impl Position {
     }
 
     pub fn plus(&self, d: Displacement) -> Position {
-        Position::new(self.x + d.x)
+        Position::new(self.x + d.x, 0.0)
     }
 }
 
@@ -76,7 +76,7 @@ impl Duration {
 }
 
 impl Velocity {
-    pub fn new(x: f64) -> Velocity {
+    pub fn new(x: f64, y: f64) -> Velocity {
         Velocity { x }
     }
 
@@ -86,7 +86,7 @@ impl Velocity {
     }
 
     pub fn plus(&self, dv: DeltaV) -> Velocity {
-        Velocity::new(self.x + dv.x)
+        Velocity::new(self.x + dv.x, 0.0)
     }
 
     pub fn to_displacement(&self, duration: Duration) -> Displacement {
@@ -152,19 +152,19 @@ mod tests {
 
     #[test]
     fn displace_position() {
-        let subject = Position::new(1.5);
-        assert_eq!(Position::new(2.0), subject.plus(Displacement::new(0.5)));
+        let subject = Position::new(1.5, 0.0);
+        assert_eq!(Position::new(2.0, 0.0), subject.plus(Displacement::new(0.5)));
     }
 
     #[test]
     fn change_velocity() {
-        let subject = Velocity::new(1.5);
-        assert_eq!(Velocity::new(1.0), subject.plus(DeltaV::new(-0.5)));
+        let subject = Velocity::new(1.5, 0.0);
+        assert_eq!(Velocity::new(1.0, 0.0), subject.plus(DeltaV::new(-0.5)));
     }
 
     #[test]
     fn velocity_to_displacement() {
-        let subject = Velocity::new(1.5);
+        let subject = Velocity::new(1.5, 0.0);
         assert_eq!(Displacement::new(0.75), subject.to_displacement(Duration::new(0.5)));
     }
 

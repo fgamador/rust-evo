@@ -54,7 +54,7 @@ mod tests {
     #[test]
     fn kicked() {
         let mut subject = SimpleNewtonian::new(Position::new(-1.0, 0.0), Velocity::new(1.0, 0.0), Mass::new(2.0));
-        subject.kick(Impulse::new(0.5));
+        subject.kick(Impulse::new(0.5, 0.0));
         assert_eq!(NewtonianState::new(Position::new(-1.0, 0.0), Velocity::new(1.25, 0.0), Mass::new(2.0)), *subject.state());
     }
 

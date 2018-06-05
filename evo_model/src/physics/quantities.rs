@@ -108,7 +108,7 @@ impl DeltaV {
 }
 
 impl Impulse {
-    pub fn new(x: f64) -> Impulse {
+    pub fn new(x: f64, y: f64) -> Impulse {
         Impulse { x }
     }
 
@@ -134,7 +134,7 @@ impl Mass {
 }
 
 impl Force {
-    pub fn new(x: f64) -> Force {
+    pub fn new(x: f64, y: f64) -> Force {
         Force { x }
     }
 
@@ -144,7 +144,7 @@ impl Force {
     }
 
     pub fn to_impulse(&self, d: Duration) -> Impulse {
-        Impulse::new(self.x * d.value)
+        Impulse::new(self.x * d.value, 0.0)
     }
 }
 
@@ -172,13 +172,13 @@ mod tests {
 
     #[test]
     fn impulse_to_delta_v() {
-        let subject = Impulse::new(1.5);
+        let subject = Impulse::new(1.5, 0.0);
         assert_eq!(DeltaV::new(0.75, 0.0), subject.to_delta_v(Mass::new(2.0)));
     }
 
     #[test]
     fn force_to_impulse() {
-        let subject = Force::new(1.5);
-        assert_eq!(Impulse::new(0.75), subject.to_impulse(Duration::new(0.5)));
+        let subject = Force::new(1.5, 0.0);
+        assert_eq!(Impulse::new(0.75, 0.0), subject.to_impulse(Duration::new(0.5)));
     }
 }

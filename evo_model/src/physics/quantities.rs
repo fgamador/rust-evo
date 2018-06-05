@@ -177,6 +177,10 @@ impl Force {
         self.y
     }
 
+    pub fn plus(&self, f: Force) -> Force {
+        Force::new(self.x + f.x, self.y + f.y)
+    }
+
     pub fn to_impulse(&self, d: Duration) -> Impulse {
         Impulse::new(self.x * d.value, self.y * d.value)
     }
@@ -214,5 +218,11 @@ mod tests {
     fn force_to_impulse() {
         let subject = Force::new(1.5, -0.5);
         assert_eq!(Impulse::new(0.75, -0.25), subject.to_impulse(Duration::new(0.5)));
+    }
+
+    #[test]
+    fn add_forces() {
+        let subject = Force::new(1.5, -0.5);
+        assert_eq!(Force::new(0.75, -0.25), subject.plus(Force::new(-0.75, 0.25)));
     }
 }

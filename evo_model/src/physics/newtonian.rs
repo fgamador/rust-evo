@@ -16,6 +16,11 @@ pub struct NewtonianState {
     pub mass: Mass,
 }
 
+#[derive(Debug, PartialEq)]
+pub struct Forces {
+    pub net_force: Force,
+}
+
 impl NewtonianState {
     fn new(position: Position, velocity: Velocity, mass: Mass) -> NewtonianState {
         NewtonianState { position, velocity, mass }
@@ -40,6 +45,20 @@ impl Newtonian for NewtonianState {
     }
 }
 
+impl Forces {
+    fn new(initial_x: f64, initial_y: f64) -> Forces {
+        Forces { net_force: Force::new(initial_x, initial_y) }
+    }
+
+    fn add_force(&mut self, f: Force) {
+        self.net_force = self.net_force.plus(f);
+    }
+
+    fn net_force(&self) -> Force {
+        self.net_force
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -56,6 +75,13 @@ mod tests {
         let mut subject = SimpleNewtonian::new(Position::new(-1.0, 2.0), Velocity::new(1.0, -1.0), Mass::new(2.0));
         subject.kick(Impulse::new(0.5, 0.5));
         assert_eq!(NewtonianState::new(Position::new(-1.0, 2.0), Velocity::new(1.25, -0.75), Mass::new(2.0)), *subject.state());
+    }
+
+    #[test]
+    fn net_force() {
+        let mut subject = Forces::new(1.5, -0.5);
+        subject.add_force(Force::new(0.25, -0.5));
+        assert_eq!(Force::new(1.75, -1.0), subject.net_force());
     }
 
     struct SimpleNewtonian {

@@ -54,19 +54,19 @@ impl Position {
         self.x
     }
 
+    #[allow(dead_code)]
+    pub fn y(&self) -> f64 {
+        self.y
+    }
+
     pub fn plus(&self, d: Displacement) -> Position {
-        Position::new(self.x + d.x, 0.0)
+        Position::new(self.x + d.x, self.y + d.y)
     }
 }
 
 impl Displacement {
     pub fn new(x: f64, y: f64) -> Displacement {
         Displacement { x, y }
-    }
-
-    #[allow(dead_code)]
-    pub fn x(&self) -> f64 {
-        self.x
     }
 }
 
@@ -158,8 +158,8 @@ mod tests {
 
     #[test]
     fn displace_position() {
-        let subject = Position::new(1.5, 0.0);
-        assert_eq!(Position::new(2.0, 0.0), subject.plus(Displacement::new(0.5, 0.0)));
+        let subject = Position::new(1.5, 1.5);
+        assert_eq!(Position::new(2.0, 1.0), subject.plus(Displacement::new(0.5, -0.5)));
     }
 
     #[test]

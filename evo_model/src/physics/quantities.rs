@@ -68,6 +68,16 @@ impl Displacement {
     pub fn new(x: f64, y: f64) -> Displacement {
         Displacement { x, y }
     }
+
+    #[allow(dead_code)]
+    pub fn x(&self) -> f64 {
+        self.x
+    }
+
+    #[allow(dead_code)]
+    pub fn y(&self) -> f64 {
+        self.y
+    }
 }
 
 impl Duration {
@@ -91,12 +101,17 @@ impl Velocity {
         self.x
     }
 
+    #[allow(dead_code)]
+    pub fn y(&self) -> f64 {
+        self.y
+    }
+
     pub fn plus(&self, dv: DeltaV) -> Velocity {
-        Velocity::new(self.x + dv.x, 0.0)
+        Velocity::new(self.x + dv.x, self.y + dv.y)
     }
 
     pub fn to_displacement(&self, duration: Duration) -> Displacement {
-        Displacement::new(self.x * duration.value, 0.0)
+        Displacement::new(self.x * duration.value, self.y * duration.value)
     }
 }
 
@@ -164,14 +179,14 @@ mod tests {
 
     #[test]
     fn change_velocity() {
-        let subject = Velocity::new(1.5, 0.0);
-        assert_eq!(Velocity::new(1.0, 0.0), subject.plus(DeltaV::new(-0.5, 0.0)));
+        let subject = Velocity::new(1.5, 1.5);
+        assert_eq!(Velocity::new(1.0, 2.0), subject.plus(DeltaV::new(-0.5, 0.5)));
     }
 
     #[test]
     fn velocity_to_displacement() {
-        let subject = Velocity::new(1.5, 0.0);
-        assert_eq!(Displacement::new(0.75, 0.0), subject.to_displacement(Duration::new(0.5)));
+        let subject = Velocity::new(1.5, -0.5);
+        assert_eq!(Displacement::new(0.75, -0.25), subject.to_displacement(Duration::new(0.5)));
     }
 
     #[test]

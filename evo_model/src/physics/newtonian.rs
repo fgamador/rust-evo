@@ -16,11 +16,6 @@ pub struct NewtonianState {
     pub mass: Mass,
 }
 
-#[derive(Debug, PartialEq)]
-pub struct Forces {
-    pub net_force: Force,
-}
-
 impl NewtonianState {
     fn new(position: Position, velocity: Velocity, mass: Mass) -> NewtonianState {
         NewtonianState { position, velocity, mass }
@@ -43,6 +38,11 @@ impl Newtonian for NewtonianState {
     fn kick(&mut self, impulse: Impulse) {
         self.velocity = self.velocity.plus(impulse.to_delta_v(self.mass));
     }
+}
+
+#[derive(Debug, PartialEq)]
+pub struct Forces {
+    pub net_force: Force,
 }
 
 impl Forces {

@@ -4,46 +4,6 @@ pub struct Position {
     y: f64,
 }
 
-#[derive(Clone, Copy, Debug, PartialEq)]
-pub struct Displacement {
-    x: f64,
-    y: f64,
-}
-
-#[derive(Clone, Copy, Debug, PartialEq)]
-pub struct Duration {
-    value: f64,
-}
-
-#[derive(Clone, Copy, Debug, PartialEq)]
-pub struct Velocity {
-    x: f64,
-    y: f64,
-}
-
-#[derive(Clone, Copy, Debug, PartialEq)]
-pub struct DeltaV {
-    x: f64,
-    y: f64,
-}
-
-#[derive(Clone, Copy, Debug, PartialEq)]
-pub struct Impulse {
-    x: f64,
-    y: f64,
-}
-
-#[derive(Clone, Copy, Debug, PartialEq)]
-pub struct Mass {
-    value: f64,
-}
-
-#[derive(Clone, Copy, Debug, PartialEq)]
-pub struct Force {
-    x: f64,
-    y: f64,
-}
-
 impl Position {
     pub fn new(x: f64, y: f64) -> Position {
         Position { x, y }
@@ -64,6 +24,12 @@ impl Position {
     }
 }
 
+#[derive(Clone, Copy, Debug, PartialEq)]
+pub struct Displacement {
+    x: f64,
+    y: f64,
+}
+
 impl Displacement {
     pub fn new(x: f64, y: f64) -> Displacement {
         Displacement { x, y }
@@ -80,6 +46,11 @@ impl Displacement {
     }
 }
 
+#[derive(Clone, Copy, Debug, PartialEq)]
+pub struct Duration {
+    value: f64,
+}
+
 impl Duration {
     pub fn new(value: f64) -> Duration {
         Duration { value }
@@ -89,6 +60,12 @@ impl Duration {
     pub fn value(&self) -> f64 {
         self.value
     }
+}
+
+#[derive(Clone, Copy, Debug, PartialEq)]
+pub struct Velocity {
+    x: f64,
+    y: f64,
 }
 
 impl Velocity {
@@ -115,6 +92,12 @@ impl Velocity {
     }
 }
 
+#[derive(Clone, Copy, Debug, PartialEq)]
+pub struct DeltaV {
+    x: f64,
+    y: f64,
+}
+
 impl DeltaV {
     pub fn new(x: f64, y: f64) -> DeltaV {
         DeltaV { x, y }
@@ -129,6 +112,12 @@ impl DeltaV {
     pub fn y(&self) -> f64 {
         self.y
     }
+}
+
+#[derive(Clone, Copy, Debug, PartialEq)]
+pub struct Impulse {
+    x: f64,
+    y: f64,
 }
 
 impl Impulse {
@@ -151,6 +140,11 @@ impl Impulse {
     }
 }
 
+#[derive(Clone, Copy, Debug, PartialEq)]
+pub struct Mass {
+    value: f64,
+}
+
 impl Mass {
     pub fn new(value: f64) -> Mass {
         Mass { value }
@@ -160,6 +154,12 @@ impl Mass {
     pub fn value(&self) -> f64 {
         self.value
     }
+}
+
+#[derive(Clone, Copy, Debug, PartialEq)]
+pub struct Force {
+    x: f64,
+    y: f64,
 }
 
 impl Force {

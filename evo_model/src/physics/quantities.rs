@@ -1,6 +1,7 @@
 #[derive(Clone, Copy, Debug, PartialEq)]
 pub struct Position {
     x: f64,
+    y: f64,
 }
 
 #[derive(Clone, Copy, Debug, PartialEq)]
@@ -16,6 +17,7 @@ pub struct Duration {
 #[derive(Clone, Copy, Debug, PartialEq)]
 pub struct Velocity {
     x: f64,
+    y: f64,
 }
 
 #[derive(Clone, Copy, Debug, PartialEq)]
@@ -40,7 +42,7 @@ pub struct Force {
 
 impl Position {
     pub fn new(x: f64, y: f64) -> Position {
-        Position { x }
+        Position { x, y }
     }
 
     #[allow(dead_code)]
@@ -77,7 +79,7 @@ impl Duration {
 
 impl Velocity {
     pub fn new(x: f64, y: f64) -> Velocity {
-        Velocity { x }
+        Velocity { x, y }
     }
 
     #[allow(dead_code)]

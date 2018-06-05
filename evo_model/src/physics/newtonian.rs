@@ -42,7 +42,7 @@ impl Newtonian for NewtonianState {
 
 #[derive(Debug, PartialEq)]
 pub struct Forces {
-    pub net_force: Force,
+    net_force: Force,
 }
 
 impl Forces {
@@ -52,6 +52,10 @@ impl Forces {
 
     fn add_force(&mut self, f: Force) {
         self.net_force = self.net_force.plus(f);
+    }
+
+    fn clear(&mut self) {
+        self.net_force = Force::new(0.0, 0.0);
     }
 
     fn net_force(&self) -> Force {
@@ -82,6 +86,13 @@ mod tests {
         let mut subject = Forces::new(1.5, -0.5);
         subject.add_force(Force::new(0.25, -0.5));
         assert_eq!(Force::new(1.75, -1.0), subject.net_force());
+    }
+
+    #[test]
+    fn clear_net_force() {
+        let mut subject = Forces::new(1.5, -0.5);
+        subject.clear();
+        assert_eq!(Force::new(0.0, 0.0), subject.net_force());
     }
 
     struct SimpleNewtonian {

@@ -1,7 +1,6 @@
-[package]
-name = "evo"
-version = "0.1.0"
-authors = ["Franz Amador <franzamador@gmail.com>"]
+[workspace]
 
-[dependencies]
-evo_model = { path = "evo_model" }
+members = [
+    "evo_main",
+    "evo_model",
+]

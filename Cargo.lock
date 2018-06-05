@@ -1,5 +1,5 @@
 [[package]]
-name = "evo"
+name = "evo_main"
 version = "0.1.0"
 dependencies = [
  "evo_model 0.1.0",

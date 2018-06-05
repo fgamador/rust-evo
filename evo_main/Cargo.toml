@@ -1,0 +1,8 @@
+[package]
+name = "evo_main"
+version = "0.1.0"
+authors = ["Franz Amador <franzamador@gmail.com>"]
+
+[dependencies]
+
+evo_model = { path = "../evo_model" }

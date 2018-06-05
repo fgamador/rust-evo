@@ -7,6 +7,7 @@ pub struct Position {
 #[derive(Clone, Copy, Debug, PartialEq)]
 pub struct Displacement {
     x: f64,
+    y: f64,
 }
 
 #[derive(Clone, Copy, Debug, PartialEq)]
@@ -23,11 +24,13 @@ pub struct Velocity {
 #[derive(Clone, Copy, Debug, PartialEq)]
 pub struct DeltaV {
     x: f64,
+    y: f64,
 }
 
 #[derive(Clone, Copy, Debug, PartialEq)]
 pub struct Impulse {
     x: f64,
+    y: f64,
 }
 
 #[derive(Clone, Copy, Debug, PartialEq)]
@@ -38,6 +41,7 @@ pub struct Mass {
 #[derive(Clone, Copy, Debug, PartialEq)]
 pub struct Force {
     x: f64,
+    y: f64,
 }
 
 impl Position {
@@ -57,7 +61,7 @@ impl Position {
 
 impl Displacement {
     pub fn new(x: f64, y: f64) -> Displacement {
-        Displacement { x }
+        Displacement { x, y }
     }
 
     #[allow(dead_code)]
@@ -98,7 +102,7 @@ impl Velocity {
 
 impl DeltaV {
     pub fn new(x: f64, y: f64) -> DeltaV {
-        DeltaV { x }
+        DeltaV { x, y }
     }
 
     #[allow(dead_code)]
@@ -109,7 +113,7 @@ impl DeltaV {
 
 impl Impulse {
     pub fn new(x: f64, y: f64) -> Impulse {
-        Impulse { x }
+        Impulse { x, y }
     }
 
     #[allow(dead_code)]
@@ -135,7 +139,7 @@ impl Mass {
 
 impl Force {
     pub fn new(x: f64, y: f64) -> Force {
-        Force { x }
+        Force { x, y }
     }
 
     #[allow(dead_code)]

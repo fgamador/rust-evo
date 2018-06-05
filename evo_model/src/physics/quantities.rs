@@ -147,7 +147,7 @@ impl Impulse {
     }
 
     pub fn to_delta_v(&self, mass: Mass) -> DeltaV {
-        DeltaV::new(self.x / mass.value, 0.0)
+        DeltaV::new(self.x / mass.value, self.y / mass.value)
     }
 }
 
@@ -206,8 +206,8 @@ mod tests {
 
     #[test]
     fn impulse_to_delta_v() {
-        let subject = Impulse::new(1.5, 0.0);
-        assert_eq!(DeltaV::new(0.75, 0.0), subject.to_delta_v(Mass::new(2.0)));
+        let subject = Impulse::new(1.5, -0.5);
+        assert_eq!(DeltaV::new(0.75, -0.25), subject.to_delta_v(Mass::new(2.0)));
     }
 
     #[test]

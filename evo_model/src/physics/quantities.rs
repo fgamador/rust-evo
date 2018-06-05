@@ -56,7 +56,7 @@ impl Position {
 }
 
 impl Displacement {
-    pub fn new(x: f64) -> Displacement {
+    pub fn new(x: f64, y: f64) -> Displacement {
         Displacement { x }
     }
 
@@ -92,12 +92,12 @@ impl Velocity {
     }
 
     pub fn to_displacement(&self, duration: Duration) -> Displacement {
-        Displacement::new(self.x * duration.value)
+        Displacement::new(self.x * duration.value, 0.0)
     }
 }
 
 impl DeltaV {
-    pub fn new(x: f64) -> DeltaV {
+    pub fn new(x: f64, y: f64) -> DeltaV {
         DeltaV { x }
     }
 
@@ -118,7 +118,7 @@ impl Impulse {
     }
 
     pub fn to_delta_v(&self, mass: Mass) -> DeltaV {
-        DeltaV::new(self.x / mass.value)
+        DeltaV::new(self.x / mass.value, 0.0)
     }
 }
 
@@ -155,25 +155,25 @@ mod tests {
     #[test]
     fn displace_position() {
         let subject = Position::new(1.5, 0.0);
-        assert_eq!(Position::new(2.0, 0.0), subject.plus(Displacement::new(0.5)));
+        assert_eq!(Position::new(2.0, 0.0), subject.plus(Displacement::new(0.5, 0.0)));
     }
 
     #[test]
     fn change_velocity() {
         let subject = Velocity::new(1.5, 0.0);
-        assert_eq!(Velocity::new(1.0, 0.0), subject.plus(DeltaV::new(-0.5)));
+        assert_eq!(Velocity::new(1.0, 0.0), subject.plus(DeltaV::new(-0.5, 0.0)));
     }
 
     #[test]
     fn velocity_to_displacement() {
         let subject = Velocity::new(1.5, 0.0);
-        assert_eq!(Displacement::new(0.75), subject.to_displacement(Duration::new(0.5)));
+        assert_eq!(Displacement::new(0.75, 0.0), subject.to_displacement(Duration::new(0.5)));
     }
 
     #[test]
     fn impulse_to_delta_v() {
         let subject = Impulse::new(1.5);
-        assert_eq!(DeltaV::new(0.75), subject.to_delta_v(Mass::new(2.0)));
+        assert_eq!(DeltaV::new(0.75, 0.0), subject.to_delta_v(Mass::new(2.0)));
     }
 
     #[test]

@@ -124,6 +124,11 @@ impl DeltaV {
     pub fn x(&self) -> f64 {
         self.x
     }
+
+    #[allow(dead_code)]
+    pub fn y(&self) -> f64 {
+        self.y
+    }
 }
 
 impl Impulse {
@@ -134,6 +139,11 @@ impl Impulse {
     #[allow(dead_code)]
     pub fn x(&self) -> f64 {
         self.x
+    }
+
+    #[allow(dead_code)]
+    pub fn y(&self) -> f64 {
+        self.y
     }
 
     pub fn to_delta_v(&self, mass: Mass) -> DeltaV {
@@ -160,6 +170,11 @@ impl Force {
     #[allow(dead_code)]
     pub fn x(&self) -> f64 {
         self.x
+    }
+
+    #[allow(dead_code)]
+    pub fn y(&self) -> f64 {
+        self.y
     }
 
     pub fn to_impulse(&self, d: Duration) -> Impulse {

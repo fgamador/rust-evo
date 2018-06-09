@@ -17,7 +17,7 @@ pub struct State {
 }
 
 impl State {
-    fn new(position: Position, velocity: Velocity, mass: Mass) -> State {
+    pub fn new(position: Position, velocity: Velocity, mass: Mass) -> State {
         State { position, velocity, mass }
     }
 }
@@ -46,19 +46,19 @@ pub struct Forces {
 }
 
 impl Forces {
-    fn new(initial_x: f64, initial_y: f64) -> Forces {
+    pub fn new(initial_x: f64, initial_y: f64) -> Forces {
         Forces { net_force: Force::new(initial_x, initial_y) }
     }
 
-    fn add_force(&mut self, f: Force) {
+    pub fn add_force(&mut self, f: Force) {
         self.net_force = self.net_force.plus(f);
     }
 
-    fn clear(&mut self) {
+    pub fn clear(&mut self) {
         self.net_force = Force::new(0.0, 0.0);
     }
 
-    fn net_force(&self) -> Force {
+    pub fn net_force(&self) -> Force {
         self.net_force
     }
 }

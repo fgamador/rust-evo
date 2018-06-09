@@ -1,6 +1,6 @@
 use physics::quantities::*;
 
-pub trait Newtonian {
+pub trait Body {
     fn position(&self) -> Position;
     fn velocity(&self) -> Velocity;
     // fn add_force(&mut self, force: Force);
@@ -10,19 +10,19 @@ pub trait Newtonian {
 }
 
 #[derive(Debug, PartialEq)]
-pub struct NewtonianState {
+pub struct State {
     pub position: Position,
     pub velocity: Velocity,
     pub mass: Mass,
 }
 
-impl NewtonianState {
-    fn new(position: Position, velocity: Velocity, mass: Mass) -> NewtonianState {
-        NewtonianState { position, velocity, mass }
+impl State {
+    fn new(position: Position, velocity: Velocity, mass: Mass) -> State {
+        State { position, velocity, mass }
     }
 }
 
-impl Newtonian for NewtonianState {
+impl Body for State {
     fn position(&self) -> Position {
         self.position
     }
@@ -69,16 +69,16 @@ mod tests {
 
     #[test]
     fn coasting() {
-        let mut subject = SimpleNewtonian::new(Position::new(-1.0, 1.5), Velocity::new(1.0, 2.0), Mass::new(2.0));
+        let mut subject = SimpleBody::new(Position::new(-1.0, 1.5), Velocity::new(1.0, 2.0), Mass::new(2.0));
         subject.move_for(Duration::new(0.5));
-        assert_eq!(NewtonianState::new(Position::new(-0.5, 2.5), Velocity::new(1.0, 2.0), Mass::new(2.0)), *subject.state());
+        assert_eq!(State::new(Position::new(-0.5, 2.5), Velocity::new(1.0, 2.0), Mass::new(2.0)), *subject.state());
     }
 
     #[test]
     fn kicked() {
-        let mut subject = SimpleNewtonian::new(Position::new(-1.0, 2.0), Velocity::new(1.0, -1.0), Mass::new(2.0));
+        let mut subject = SimpleBody::new(Position::new(-1.0, 2.0), Velocity::new(1.0, -1.0), Mass::new(2.0));
         subject.kick(Impulse::new(0.5, 0.5));
-        assert_eq!(NewtonianState::new(Position::new(-1.0, 2.0), Velocity::new(1.25, -0.75), Mass::new(2.0)), *subject.state());
+        assert_eq!(State::new(Position::new(-1.0, 2.0), Velocity::new(1.25, -0.75), Mass::new(2.0)), *subject.state());
     }
 
     #[test]
@@ -95,23 +95,23 @@ mod tests {
         assert_eq!(Force::new(0.0, 0.0), subject.net_force());
     }
 
-    struct SimpleNewtonian {
-        state: NewtonianState,
+    struct SimpleBody {
+        state: State,
     }
 
-    impl SimpleNewtonian {
-        fn new(position: Position, velocity: Velocity, mass: Mass) -> SimpleNewtonian {
-            SimpleNewtonian {
-                state: NewtonianState::new(position, velocity, mass)
+    impl SimpleBody {
+        fn new(position: Position, velocity: Velocity, mass: Mass) -> SimpleBody {
+            SimpleBody {
+                state: State::new(position, velocity, mass)
             }
         }
 
-        fn state(&self) -> &NewtonianState {
+        fn state(&self) -> &State {
             &self.state
         }
     }
 
-    impl Newtonian for SimpleNewtonian {
+    impl Body for SimpleBody {
         fn position(&self) -> Position {
             self.state.position()
         }

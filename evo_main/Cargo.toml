@@ -8,5 +8,6 @@ evo_model = { path = "../evo_model" }
 conrod = "0.60.0"
 
 [features]
+default = [ "glium", "winit" ]
 glium = ["conrod/glium"]
 winit = ["conrod/winit"]

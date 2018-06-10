@@ -19,26 +19,27 @@ pub struct Overlap<'a> {
 }
 
 impl<'a> Overlap<'a> {
-    pub fn new(circle: &Circle,
-               overlap: Displacement) -> Overlap {
+    pub fn new(circle: &Circle, overlap: Displacement) -> Overlap {
         Overlap { circle, overlap }
     }
 }
 
-pub struct Walls<'a> {
+pub struct Walls {
     min_corner: Position,
     max_corner: Position,
-    overlaps: Vec<Overlap<'a>>,
 }
 
-impl<'a> Walls<'a> {
-    pub fn new(min_corner: Position,
-               max_corner: Position) -> Walls<'a> {
-        Walls { min_corner, max_corner, overlaps: vec![] }
+impl Walls {
+    pub fn new(min_corner: Position, max_corner: Position) -> Walls {
+        Walls { min_corner, max_corner }
     }
 
-    pub fn find_overlaps(&self, circles: &Vec<Circle>) -> &Vec<Overlap> {
-        &self.overlaps
+    pub fn find_overlaps<'a>(&self, circles: &'a Vec<Circle>) -> Vec<Overlap<'a>> {
+        let mut overlaps = vec![];
+        for ref circle in circles {
+            overlaps.push(Overlap::new(circle, Displacement::new(0.0, 0.0)));
+        }
+        overlaps
     }
 }
 
@@ -59,7 +60,7 @@ mod tests {
         let subject = Walls::new(Position::new(-10.0, -5.0), Position::new(10.0, 2.0));
         let circles = vec![Circle::new(Position::new(9.5, 1.6), Length::new(1.0))];
         let overlaps = subject.find_overlaps(&circles);
-//        assert_eq!(1, overlaps.len());
+        assert_eq!(1, overlaps.len());
 //        assert_eq!(Overlap::new(&circles[0], Displacement::new(-0.5, -0.4)), overlaps[0]);
     }
 }

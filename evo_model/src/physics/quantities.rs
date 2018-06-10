@@ -42,6 +42,10 @@ impl Position {
     pub fn plus(&self, d: Displacement) -> Position {
         Position::new(self.x + d.x, self.y + d.y)
     }
+
+    pub fn minus(&self, pos: Position) -> Displacement {
+        Displacement::new(self.x - pos.x, self.y - pos.y)
+    }
 }
 
 #[derive(Clone, Copy, Debug, PartialEq)]
@@ -63,6 +67,10 @@ impl Displacement {
     #[allow(dead_code)]
     pub fn y(&self) -> f64 {
         self.y
+    }
+
+    pub fn plus(&self, d: Displacement) -> Displacement {
+        Displacement::new(self.x + d.x, self.y + d.y)
     }
 }
 
@@ -220,6 +228,18 @@ mod tests {
     fn displace_position() {
         let subject = Position::new(1.5, 1.5);
         assert_eq!(Position::new(2.0, 1.0), subject.plus(Displacement::new(0.5, -0.5)));
+    }
+
+    #[test]
+    fn subtract_positions() {
+        let subject = Position::new(2.0, 1.0);
+        assert_eq!(Displacement::new(0.5, -0.5), subject.minus(Position::new(1.5, 1.5)));
+    }
+
+    #[test]
+    fn add_displacements() {
+        let subject = Displacement::new(1.5, 1.5);
+        assert_eq!(Displacement::new(2.0, 1.0), subject.plus(Displacement::new(0.5, -0.5)));
     }
 
     #[test]

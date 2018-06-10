@@ -4,5 +4,9 @@ version = "0.1.0"
 authors = ["Franz Amador <franzamador@gmail.com>"]
 
 [dependencies]
-
 evo_model = { path = "../evo_model" }
+conrod = "0.60.0"
+
+[features]
+glium = ["conrod/glium"]
+winit = ["conrod/winit"]

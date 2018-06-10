@@ -1,4 +1,24 @@
 #[derive(Clone, Copy, Debug, PartialEq)]
+pub struct Length {
+    value: f64,
+}
+
+impl Length {
+    pub fn new(value: f64) -> Length {
+        if value < 0.0 {
+            panic!("Negative length: {}", value);
+        }
+
+        Length { value }
+    }
+
+    #[allow(dead_code)]
+    pub fn value(&self) -> f64 {
+        self.value
+    }
+}
+
+#[derive(Clone, Copy, Debug, PartialEq)]
 pub struct Position {
     x: f64,
     y: f64,
@@ -189,6 +209,12 @@ impl Force {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    #[should_panic]
+    fn negative_length() {
+        Length::new(-1.0);
+    }
 
     #[test]
     fn displace_position() {

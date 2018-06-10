@@ -61,24 +61,14 @@ impl Walls {
 
     pub fn find_overlaps<'a>(&self, circles: &'a Vec<Circle>) -> Vec<Overlap<'a>> {
         let mut overlaps = vec![];
+        let zero = Displacement::new(0.0, 0.0);
         for ref circle in circles {
-            let mut overlap_x = 0.0;
-            let mut overlap_y = 0.0;
             let circle_box = circle.to_bounding_box();
-            if circle_box.min_corner().x() < self.min_corner.x() {
-                overlap_x += self.min_corner.x() - circle_box.min_corner().x();
-            }
-            if circle_box.min_corner().y() < self.min_corner.y() {
-                overlap_y += self.min_corner.y() - circle_box.min_corner().y();
-            }
-            if circle_box.max_corner().x() > self.max_corner.x() {
-                overlap_x += self.max_corner.x() - circle_box.max_corner().x();
-            }
-            if circle_box.max_corner().y() > self.max_corner.y() {
-                overlap_y += self.max_corner.y() - circle_box.max_corner().y();
-            }
-            if overlap_x != 0.0 || overlap_y != 0.0 {
-                overlaps.push(Overlap::new(circle, Displacement::new(overlap_x, overlap_y)));
+            let min_corner_overlap = self.min_corner.minus(circle_box.min_corner()).max(zero);
+            let max_corner_overlap = self.max_corner.minus(circle_box.max_corner()).min(zero);
+            let overlap = min_corner_overlap.plus(max_corner_overlap);
+            if overlap != zero {
+                overlaps.push(Overlap::new(circle, overlap));
             }
         }
         overlaps

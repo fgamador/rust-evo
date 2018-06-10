@@ -77,7 +77,9 @@ impl Walls {
             if circle_box.min_corner().y() < self.min_corner.y() {
                 overlap_y += self.min_corner.y() - circle_box.min_corner().y();
             }
-            overlaps.push(Overlap::new(circle, Displacement::new(overlap_x, overlap_y)));
+            if overlap_x != 0.0 || overlap_y != 0.0 {
+                overlaps.push(Overlap::new(circle, Displacement::new(overlap_x, overlap_y)));
+            }
         }
         overlaps
     }
@@ -90,15 +92,15 @@ mod tests {
     #[test]
     fn circle_bounding_box() {
         let subject = Circle::new(Position::new(-0.5, 0.5), Length::new(1.0));
-        assert_eq!(BoundingBox::new(Position::new(-1.5, -0.5), Position::new(0.5, 1.5)),
+        assert_eq!(BoundingBox::new(Position::new(-1.5, -0.5),
+                                    Position::new(0.5, 1.5)),
                    subject.to_bounding_box());
     }
 
-    // TODO no_overlaps
     #[test]
-    fn no_circles() {
+    fn no_overlaps() {
         let subject = Walls::new(Position::new(-10.0, -5.0), Position::new(10.0, 2.0));
-        let circles = vec![];
+        let circles = vec![Circle::new(Position::new(8.5, 0.75), Length::new(1.0))];
         let overlaps = subject.find_overlaps(&circles);
         assert!(overlaps.is_empty());
     }

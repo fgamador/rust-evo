@@ -152,11 +152,18 @@ dependencies = [
 ]
 
 [[package]]
-name = "evo_main"
+name = "evo_conrod"
 version = "0.1.0"
 dependencies = [
  "conrod 0.60.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "evo_model 0.1.0",
+]
+
+[[package]]
+name = "evo_main"
+version = "0.1.0"
+dependencies = [
+ "evo_conrod 0.1.0",
 ]
 
 [[package]]

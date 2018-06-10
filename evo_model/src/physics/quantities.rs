@@ -72,6 +72,14 @@ impl Displacement {
     pub fn plus(&self, d: Displacement) -> Displacement {
         Displacement::new(self.x + d.x, self.y + d.y)
     }
+
+    pub fn max(&self, d: Displacement) -> Displacement {
+        Displacement::new(self.x.max(d.x), self.y.max(d.y))
+    }
+
+    pub fn min(&self, d: Displacement) -> Displacement {
+        Displacement::new(self.x.min(d.x), self.y.min(d.y))
+    }
 }
 
 #[derive(Clone, Copy, Debug, PartialEq)]
@@ -240,6 +248,18 @@ mod tests {
     fn add_displacements() {
         let subject = Displacement::new(1.5, 1.5);
         assert_eq!(Displacement::new(2.0, 1.0), subject.plus(Displacement::new(0.5, -0.5)));
+    }
+
+    #[test]
+    fn displacement_max() {
+        let subject = Displacement::new(1.5, -0.5);
+        assert_eq!(Displacement::new(1.5, -0.25), subject.max(Displacement::new(0.5, -0.25)));
+    }
+
+    #[test]
+    fn displacement_min() {
+        let subject = Displacement::new(1.5, -0.25);
+        assert_eq!(Displacement::new(0.5, -0.5), subject.min(Displacement::new(0.5, -0.5)));
     }
 
     #[test]

@@ -112,7 +112,7 @@ mod feature {
         // The background canvas upon which we'll place our widgets.
         Canvas::new().pad(80.0).set(ids.canvas, ui);
 
-        Circle::fill_with(10.0, color::rgb(0.5, 1.0, 0.5)).x_y(20.0, 20.0).set(ids.circle, ui);
+        Circle::fill_with(20.0, color::rgb(0.5, 1.0, 0.5)).x_y(-200.0, 200.0).set(ids.circle, ui);
     }
 }
 

@@ -106,14 +106,12 @@ mod feature {
 
     fn set_ui(ref mut ui: conrod::UiCell, ids: &Ids) {
         use conrod::{Positionable, Widget};
-        use conrod::widget::{Canvas, Circle, Line};
+        use conrod::widget::{Canvas, Circle};
 
         // The background canvas upon which we'll place our widgets.
         Canvas::new().pad(80.0).set(ids.canvas, ui);
 
-        Line::centred([-40.0, -40.0], [40.0, 40.0]).top_left_of(ids.canvas).set(ids.line, ui);
-
-        Circle::fill(40.0).down(100.0).align_middle_x().set(ids.circle, ui);
+        Circle::fill(40.0).top_left_of(ids.canvas).set(ids.circle, ui);
     }
 }
 

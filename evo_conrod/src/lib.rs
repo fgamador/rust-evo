@@ -1,13 +1,18 @@
-#[cfg(all(feature="winit", feature="glium"))] #[macro_use] extern crate conrod;
-#[cfg(all(feature="winit", feature="glium"))] mod support;
+#[cfg(all(feature = "winit", feature = "glium"))]
+#[macro_use]
+extern crate conrod;
+
+#[cfg(all(feature = "winit", feature = "glium"))]
+mod support;
 
 pub fn main() {
     feature::main();
 }
 
-#[cfg(all(feature="winit", feature="glium"))]
+#[cfg(all(feature = "winit", feature = "glium"))]
 mod feature {
     extern crate find_folder;
+
     use conrod;
     use conrod::backend::glium::glium;
     use conrod::backend::glium::glium::Surface;
@@ -101,40 +106,18 @@ mod feature {
 
     fn set_ui(ref mut ui: conrod::UiCell, ids: &Ids) {
         use conrod::{Positionable, Widget};
-        use conrod::widget::{Canvas, Circle, Line, Oval, PointPath, Polygon, Rectangle};
-        use std::iter::once;
+        use conrod::widget::{Canvas, Circle, Line};
 
         // The background canvas upon which we'll place our widgets.
         Canvas::new().pad(80.0).set(ids.canvas, ui);
 
         Line::centred([-40.0, -40.0], [40.0, 40.0]).top_left_of(ids.canvas).set(ids.line, ui);
 
-        let left = [-40.0, -40.0];
-        let top = [0.0, 40.0];
-        let right = [40.0, -40.0];
-        let points = once(left).chain(once(top)).chain(once(right));
-        PointPath::centred(points).down(80.0).set(ids.point_path, ui);
-
-        Rectangle::fill([80.0, 80.0]).down(80.0).set(ids.rectangle_fill, ui);
-
-        Rectangle::outline([80.0, 80.0]).down(80.0).set(ids.rectangle_outline, ui);
-
-        let bl = [-40.0, -40.0];
-        let tl = [-20.0, 40.0];
-        let tr = [20.0, 40.0];
-        let br = [40.0, -40.0];
-        let points = once(bl).chain(once(tl)).chain(once(tr)).chain(once(br));
-        Polygon::centred_fill(points).right_from(ids.line, 80.0).set(ids.trapezoid, ui);
-
-        Oval::fill([40.0, 80.0]).down(80.0).align_middle_x().set(ids.oval_fill, ui);
-
-        Oval::outline([80.0, 40.0]).down(100.0).align_middle_x().set(ids.oval_outline, ui);
-
         Circle::fill(40.0).down(100.0).align_middle_x().set(ids.circle, ui);
     }
 }
 
-#[cfg(not(all(feature="winit", feature="glium")))]
+#[cfg(not(all(feature = "winit", feature = "glium")))]
 mod feature {
     pub fn main() {
         println!("This example requires the `winit` and `glium` features. \

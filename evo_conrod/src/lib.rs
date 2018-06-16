@@ -1,4 +1,5 @@
 #[cfg(all(feature="winit", feature="glium"))] #[macro_use] extern crate conrod;
+#[cfg(all(feature="winit", feature="glium"))] mod support;
 
 pub fn main() {
     feature::main();
@@ -6,18 +7,35 @@ pub fn main() {
 
 #[cfg(all(feature="winit", feature="glium"))]
 mod feature {
-    use conrod::{self, color, widget, Widget};
-    use conrod::widget::triangles::Triangle;
-    use conrod::backend::glium::glium::{self, Surface};
+    extern crate find_folder;
+    use conrod;
+    use conrod::backend::glium::glium;
+    use conrod::backend::glium::glium::Surface;
+    use support;
+
+    // Generate a type that will produce a unique `widget::Id` for each widget.
+    widget_ids! {
+        struct Ids {
+            canvas,
+            line,
+            point_path,
+            rectangle_fill,
+            rectangle_outline,
+            trapezoid,
+            oval_fill,
+            oval_outline,
+            circle,
+        }
+    }
 
     pub fn main() {
-        const WIDTH: u32 = 700;
-        const HEIGHT: u32 = 400;
+        const WIDTH: u32 = 400;
+        const HEIGHT: u32 = 720;
 
         // Build the window.
         let mut events_loop = glium::glutin::EventsLoop::new();
         let window = glium::glutin::WindowBuilder::new()
-            .with_title("Triangles!")
+            .with_title("Primitive Widgets Demo")
             .with_dimensions(WIDTH, HEIGHT);
         let context = glium::glutin::ContextBuilder::new()
             .with_vsync(true)
@@ -27,14 +45,8 @@ mod feature {
         // construct our `Ui`.
         let mut ui = conrod::UiBuilder::new([WIDTH as f64, HEIGHT as f64]).build();
 
-        // Generate the widget identifiers.
-        widget_ids!(struct Ids { triangles });
+        // A unique identifier for each widget.
         let ids = Ids::new(ui.widget_id_generator());
-
-        // Add a `Font` to the `Ui`'s `font::Map` from file.
-        const FONT_PATH: &'static str =
-            concat!(env!("CARGO_MANIFEST_DIR"), "/assets/fonts/NotoSans/NotoSans-Regular.ttf");
-        ui.fonts.insert_from_file(FONT_PATH).unwrap();
 
         // A type used for converting `conrod::render::Primitives` into `Command`s that can be used
         // for drawing to the glium `Surface`.
@@ -43,53 +55,39 @@ mod feature {
         // The image map describing each of our widget->image mappings (in our case, none).
         let image_map = conrod::image::Map::<glium::texture::Texture2d>::new();
 
-        events_loop.run_forever(|event| {
+        // Poll events from the window.
+        let mut event_loop = support::EventLoop::new();
+        'main: loop {
 
-            match event.clone() {
-                glium::glutin::Event::WindowEvent { event, .. } => match event {
+            // Handle all events.
+            for event in event_loop.next(&mut events_loop) {
 
-                    // Break from the loop upon `Escape` or closed window.
-                    glium::glutin::WindowEvent::Closed |
-                    glium::glutin::WindowEvent::KeyboardInput {
-                        input: glium::glutin::KeyboardInput {
-                            virtual_keycode: Some(glium::glutin::VirtualKeyCode::Escape),
+                // Use the `winit` backend feature to convert the winit event to a conrod one.
+                if let Some(event) = conrod::backend::winit::convert_event(event.clone(), &display) {
+                    ui.handle_event(event);
+                    event_loop.needs_update();
+                }
+
+                match event {
+                    glium::glutin::Event::WindowEvent { event, .. } => match event {
+                        // Break from the loop upon `Escape`.
+                        glium::glutin::WindowEvent::Closed |
+                        glium::glutin::WindowEvent::KeyboardInput {
+                            input: glium::glutin::KeyboardInput {
+                                virtual_keycode: Some(glium::glutin::VirtualKeyCode::Escape),
+                                ..
+                            },
                             ..
-                        },
-                        ..
-                    } => return glium::glutin::ControlFlow::Break,
-
+                        } => break 'main,
+                        _ => (),
+                    },
                     _ => (),
-                },
-                _ => (),
+                }
             }
 
-            // Use the `winit` backend feature to convert the winit event to a conrod one.
-            let input = match conrod::backend::winit::convert_event(event, &display) {
-                None => return glium::glutin::ControlFlow::Continue,
-                Some(input) => input,
-            };
+            set_ui(ui.set_widgets(), &ids);
 
-            // Handle the input with the `Ui`.
-            ui.handle_event(input);
-
-            // Set the triangle widget.
-            {
-                let ui = &mut ui.set_widgets();
-                let rect = ui.rect_of(ui.window).unwrap();
-                let (l, r, b, t) = rect.l_r_b_t();
-                let (c1, c2, c3) = (color::RED.to_rgb(), color::GREEN.to_rgb(), color::BLUE.to_rgb());
-
-                let triangles = [
-                    Triangle([([l, b], c1), ([l, t], c2), ([r, t], c3)]),
-                    Triangle([([r, t], c1), ([r, b], c2), ([l, b], c3)]),
-                ];
-
-                widget::Triangles::multi_color(triangles.iter().cloned())
-                    .with_bounding_rect(rect)
-                    .set(ids.triangles, ui);
-            }
-
-            // Draw the `Ui` if it has changed.
+            // Render the `Ui` and then display it on the screen.
             if let Some(primitives) = ui.draw_if_changed() {
                 renderer.fill(&display, primitives, &image_map);
                 let mut target = display.draw();
@@ -97,9 +95,42 @@ mod feature {
                 renderer.draw(&display, &mut target, &image_map).unwrap();
                 target.finish().unwrap();
             }
+        }
+    }
 
-            glium::glutin::ControlFlow::Continue
-        });
+
+    fn set_ui(ref mut ui: conrod::UiCell, ids: &Ids) {
+        use conrod::{Positionable, Widget};
+        use conrod::widget::{Canvas, Circle, Line, Oval, PointPath, Polygon, Rectangle};
+        use std::iter::once;
+
+        // The background canvas upon which we'll place our widgets.
+        Canvas::new().pad(80.0).set(ids.canvas, ui);
+
+        Line::centred([-40.0, -40.0], [40.0, 40.0]).top_left_of(ids.canvas).set(ids.line, ui);
+
+        let left = [-40.0, -40.0];
+        let top = [0.0, 40.0];
+        let right = [40.0, -40.0];
+        let points = once(left).chain(once(top)).chain(once(right));
+        PointPath::centred(points).down(80.0).set(ids.point_path, ui);
+
+        Rectangle::fill([80.0, 80.0]).down(80.0).set(ids.rectangle_fill, ui);
+
+        Rectangle::outline([80.0, 80.0]).down(80.0).set(ids.rectangle_outline, ui);
+
+        let bl = [-40.0, -40.0];
+        let tl = [-20.0, 40.0];
+        let tr = [20.0, 40.0];
+        let br = [40.0, -40.0];
+        let points = once(bl).chain(once(tl)).chain(once(tr)).chain(once(br));
+        Polygon::centred_fill(points).right_from(ids.line, 80.0).set(ids.trapezoid, ui);
+
+        Oval::fill([40.0, 80.0]).down(80.0).align_middle_x().set(ids.oval_fill, ui);
+
+        Oval::outline([80.0, 40.0]).down(100.0).align_middle_x().set(ids.oval_outline, ui);
+
+        Circle::fill(40.0).down(100.0).align_middle_x().set(ids.circle, ui);
     }
 }
 
@@ -107,14 +138,6 @@ mod feature {
 mod feature {
     pub fn main() {
         println!("This example requires the `winit` and `glium` features. \
-                 Try running `cargo run --release --features=\"winit glium\"`");
-    }
-}
-
-#[cfg(test)]
-mod tests {
-    #[test]
-    fn it_works() {
-        assert_eq!(2 + 2, 4);
+                 Try running `cargo run --release --features=\"winit glium\" --example <example_name>`");
     }
 }

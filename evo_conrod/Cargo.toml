@@ -6,6 +6,8 @@ authors = ["Franz Amador <franzamador@gmail.com>"]
 [dependencies]
 evo_model = { path = "../evo_model" }
 conrod = "0.60.0"
+find_folder = "0.3.0"
+rand = "0.5"
 
 [features]
 default = [ "glium", "winit" ]

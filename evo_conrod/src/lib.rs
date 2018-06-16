@@ -35,12 +35,12 @@ mod feature {
 
     pub fn main() {
         const WIDTH: u32 = 400;
-        const HEIGHT: u32 = 720;
+        const HEIGHT: u32 = 400;
 
         // Build the window.
         let mut events_loop = glium::glutin::EventsLoop::new();
         let window = glium::glutin::WindowBuilder::new()
-            .with_title("Primitive Widgets Demo")
+            .with_title("Evo")
             .with_dimensions(WIDTH, HEIGHT);
         let context = glium::glutin::ContextBuilder::new()
             .with_vsync(true)
@@ -112,7 +112,7 @@ mod feature {
         // The background canvas upon which we'll place our widgets.
         Canvas::new().pad(80.0).set(ids.canvas, ui);
 
-        Circle::fill_with(40.0, color::rgb(0.5, 0.7, 0.5)).top_left_of(ids.canvas).set(ids.circle, ui);
+        Circle::fill_with(10.0, color::rgb(0.5, 1.0, 0.5)).x_y(20.0, 20.0).set(ids.circle, ui);
     }
 }
 

@@ -40,12 +40,12 @@ impl BoundingBox {
 #[derive(Clone, Copy, Debug, PartialEq)]
 pub struct Overlap<'a> {
     circle: &'a Circle,
-    overlap: Displacement,
+    incursion: Displacement,
 }
 
 impl<'a> Overlap<'a> {
     pub fn new(circle: &Circle, overlap: Displacement) -> Overlap {
-        Overlap { circle, overlap }
+        Overlap { circle, incursion: overlap }
     }
 }
 

@@ -30,6 +30,7 @@ mod feature {
             oval_fill,
             oval_outline,
             circle,
+            circles[],
         }
     }
 
@@ -51,7 +52,7 @@ mod feature {
         let mut ui = conrod::UiBuilder::new([WIDTH as f64, HEIGHT as f64]).build();
 
         // A unique identifier for each widget.
-        let ids = Ids::new(ui.widget_id_generator());
+        let mut ids = Ids::new(ui.widget_id_generator());
 
         // A type used for converting `conrod::render::Primitives` into `Command`s that can be used
         // for drawing to the glium `Surface`.
@@ -90,7 +91,7 @@ mod feature {
                 }
             }
 
-            set_ui(ui.set_widgets(), &ids);
+            set_ui(ui.set_widgets(), &mut ids);
 
             // Render the `Ui` and then display it on the screen.
             if let Some(primitives) = ui.draw_if_changed() {
@@ -104,7 +105,7 @@ mod feature {
     }
 
 
-    fn set_ui(ref mut ui: conrod::UiCell, ids: &Ids) {
+    fn set_ui(ref mut ui: conrod::UiCell, ids: &mut Ids) {
         use conrod::{Positionable, Widget};
         use conrod::color;
         use conrod::widget::{Canvas, Circle};
@@ -112,7 +113,16 @@ mod feature {
         // The background canvas upon which we'll place our widgets.
         Canvas::new().pad(80.0).set(ids.canvas, ui);
 
-        Circle::fill_with(20.0, color::rgb(0.5, 1.0, 0.5)).x_y(-200.0, 200.0).set(ids.circle, ui);
+        //ids.circles.resize(4, &mut ui.widget_id_generator());
+        let mut walker = ids.circles.walk();
+        let mut x = -100.0;
+        let mut y = 100.0;
+        for _i in 0..4 {
+            let id = walker.next(&mut ids.circles, &mut ui.widget_id_generator());
+            Circle::fill_with(20.0, color::rgb(0.5, 1.0, 0.5)).x_y(x, y).set(id, ui);
+            x += 50.0;
+            y -= 50.0;
+        }
     }
 }
 

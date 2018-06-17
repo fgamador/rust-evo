@@ -22,14 +22,6 @@ mod feature {
     widget_ids! {
         struct Ids {
             canvas,
-            line,
-            point_path,
-            rectangle_fill,
-            rectangle_outline,
-            trapezoid,
-            oval_fill,
-            oval_outline,
-            circle,
             circles[],
         }
     }
@@ -113,7 +105,6 @@ mod feature {
         // The background canvas upon which we'll place our widgets.
         Canvas::new().pad(80.0).set(ids.canvas, ui);
 
-        //ids.circles.resize(4, &mut ui.widget_id_generator());
         let mut walker = ids.circles.walk();
         let mut x = -100.0;
         let mut y = 100.0;

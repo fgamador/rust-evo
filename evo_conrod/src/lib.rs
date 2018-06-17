@@ -66,20 +66,8 @@ mod feature {
                     event_loop.needs_update();
                 }
 
-                match event {
-                    glium::glutin::Event::WindowEvent { event, .. } => match event {
-                        // Break from the loop upon `Escape`.
-                        glium::glutin::WindowEvent::Closed |
-                        glium::glutin::WindowEvent::KeyboardInput {
-                            input: glium::glutin::KeyboardInput {
-                                virtual_keycode: Some(glium::glutin::VirtualKeyCode::Escape),
-                                ..
-                            },
-                            ..
-                        } => break 'main,
-                        _ => (),
-                    },
-                    _ => (),
+                if is_window_close(event) {
+                    break 'main;
                 }
             }
 
@@ -96,6 +84,23 @@ mod feature {
         }
     }
 
+    fn is_window_close(event: glium::glutin::Event) -> bool {
+        match event {
+            glium::glutin::Event::WindowEvent { event, .. } => match event {
+                // Break from the loop upon `Escape`.
+                glium::glutin::WindowEvent::Closed |
+                glium::glutin::WindowEvent::KeyboardInput {
+                    input: glium::glutin::KeyboardInput {
+                        virtual_keycode: Some(glium::glutin::VirtualKeyCode::Escape),
+                        ..
+                    },
+                    ..
+                } => true,
+                _ => false,
+            },
+            _ => false,
+        }
+    }
 
     fn set_ui(ref mut ui: conrod::UiCell, ids: &mut Ids) {
         use conrod::{Positionable, Widget};

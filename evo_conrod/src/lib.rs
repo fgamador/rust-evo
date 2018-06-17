@@ -23,6 +23,7 @@ mod feature {
         struct Ids {
             canvas,
             circles[],
+            moving_circle,
         }
     }
 
@@ -53,6 +54,9 @@ mod feature {
         // The image map describing each of our widget->image mappings (in our case, none).
         let image_map = conrod::image::Map::<glium::texture::Texture2d>::new();
 
+        let mut moving_x = -150.0;
+        let mut moving_y = -150.0;
+
         // Poll events from the window.
         let mut event_loop = support::EventLoop::new();
         'main: loop {
@@ -71,7 +75,7 @@ mod feature {
                 }
             }
 
-            set_ui(ui.set_widgets(), &mut ids);
+            set_ui(ui.set_widgets(), &mut ids, moving_x, moving_y);
 
             // Render the `Ui` and then display it on the screen.
             if let Some(primitives) = ui.draw_if_changed() {
@@ -81,6 +85,10 @@ mod feature {
                 renderer.draw(&display, &mut target, &image_map).unwrap();
                 target.finish().unwrap();
             }
+
+            moving_x += 1.0;
+            moving_y += 1.0;
+            event_loop.needs_update();
         }
     }
 
@@ -102,13 +110,17 @@ mod feature {
         }
     }
 
-    fn set_ui(ref mut ui: conrod::UiCell, ids: &mut Ids) {
+    fn set_ui(ref mut ui: conrod::UiCell, ids: &mut Ids, moving_x: f64, moving_y: f64) {
         use conrod::{Positionable, Widget};
         use conrod::color;
         use conrod::widget::{Canvas, Circle};
 
         // The background canvas upon which we'll place our widgets.
         Canvas::new().pad(80.0).set(ids.canvas, ui);
+
+        Circle::fill_with(20.0, color::rgb(0.5, 1.0, 0.5))
+            .x_y(moving_x, moving_y)
+            .set(ids.moving_circle, ui);
 
         let mut walker = ids.circles.walk();
         let mut x = -100.0;

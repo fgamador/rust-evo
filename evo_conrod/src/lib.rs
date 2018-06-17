@@ -66,7 +66,7 @@ mod feature {
                     event_loop.needs_update();
                 }
 
-                if is_window_close(event) {
+                if is_window_close(&event) {
                     break 'main;
                 }
             }
@@ -84,7 +84,7 @@ mod feature {
         }
     }
 
-    fn is_window_close(event: glium::glutin::Event) -> bool {
+    fn is_window_close(event: &glium::glutin::Event) -> bool {
         match event {
             glium::glutin::Event::WindowEvent { event, .. } => match event {
                 // Break from the loop upon `Escape`.

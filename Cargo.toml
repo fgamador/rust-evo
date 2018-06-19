@@ -4,4 +4,5 @@ members = [
     "evo_conrod",
     "evo_main",
     "evo_model",
+    "evo_view_model",
 ]

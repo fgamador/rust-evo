@@ -42,14 +42,10 @@ impl ViewModel {
         for event in events {
             match event {
                 Event::Rendered => {
-                    if !self.render_done_listeners.is_empty() {
-                        let listener = self.render_done_listeners[0].clone();
+                    let listeners = self.render_done_listeners.clone();
+                    for listener in listeners {
                         listener(self);
                     }
-                    //let listeners = &self.render_done_listeners.clone();
-//                    for listener in &self.render_done_listeners {
-//                        listener(&mut self.updated);
-//                    }
                 }
 //                Event::Updated => {
 //                    // TODO

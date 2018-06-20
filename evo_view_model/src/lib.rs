@@ -3,7 +3,7 @@ type BoxedCallback = Box<Fn(&mut bool)>;
 #[derive(Clone)]
 enum Event {
     Rendered,
-    Updated,
+    //Updated,
 }
 
 pub struct ViewModel {
@@ -40,14 +40,18 @@ impl ViewModel {
         for event in events {
             match event {
                 Event::Rendered => {
-                    //let listeners = &self.render_done_listeners.clone();
-                    for listener in &self.render_done_listeners {
+                    if !self.render_done_listeners.is_empty() {
+                        let listener = &self.render_done_listeners[0];
                         listener(&mut self.updated);
                     }
+                    //let listeners = &self.render_done_listeners.clone();
+//                    for listener in &self.render_done_listeners {
+//                        listener(&mut self.updated);
+//                    }
                 }
-                Event::Updated => {
-                    // TODO
-                }
+//                Event::Updated => {
+//                    // TODO
+//                }
             }
         }
     }

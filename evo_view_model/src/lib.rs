@@ -1,4 +1,6 @@
-type BoxedCallback = Box<Fn(&mut bool)>;
+use std::rc::Rc;
+
+type BoxedCallback = Rc<Fn(&mut ViewModel) -> ()>;
 
 #[derive(Clone)]
 enum Event {
@@ -26,9 +28,9 @@ impl ViewModel {
     }
 
     pub fn add_render_done_listener<T>(&mut self, listener: T)
-        where T: Fn(&mut bool) + 'static
+        where T: Fn(&mut ViewModel) + 'static
     {
-        self.render_done_listeners.push(Box::new(listener));
+        self.render_done_listeners.push(Rc::new(listener));
     }
 
     pub fn render_done(&mut self) {
@@ -41,8 +43,8 @@ impl ViewModel {
             match event {
                 Event::Rendered => {
                     if !self.render_done_listeners.is_empty() {
-                        let listener = &self.render_done_listeners[0];
-                        listener(&mut self.updated);
+                        let listener = self.render_done_listeners[0].clone();
+                        listener(self);
                     }
                     //let listeners = &self.render_done_listeners.clone();
 //                    for listener in &self.render_done_listeners {
@@ -76,7 +78,7 @@ mod tests {
     #[test]
     fn render_done_callback() {
         let mut view_model = ViewModel::new();
-        view_model.add_render_done_listener(|updated| { *updated = true });
+        view_model.add_render_done_listener(|view_model| { view_model.updated = true });
         view_model.render_done();
         assert!(!view_model.updated);
         view_model.fire_events();

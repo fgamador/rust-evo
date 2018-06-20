@@ -61,4 +61,15 @@ mod tests {
         view_model.update_done();
         assert!(view_model.rendered);
     }
+
+    #[test]
+    fn callbacks_do_not_call_each_other() {
+        let mut view_model = ViewModel::new();
+        view_model.add_render_done_listener(|updated| { *updated = true });
+        view_model.add_update_done_listener(|rendered| { *rendered = true });
+
+        view_model.render_done();
+
+        assert!(view_model.updated);
+    }
 }

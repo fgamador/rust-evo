@@ -11,6 +11,7 @@ pub enum Event {
 }
 
 pub struct ViewModel {
+    event_manager: EventManager<Event, ViewModel>,
     pub updated: bool,
     pub rendered: bool,
     events: Vec<Event>,
@@ -20,6 +21,7 @@ pub struct ViewModel {
 impl ViewModel {
     pub fn new() -> ViewModel {
         ViewModel {
+            event_manager: EventManager::new(),
             updated: false,
             rendered: false,
             events: Vec::new(),
@@ -30,21 +32,36 @@ impl ViewModel {
     pub fn add_render_done_listener<T>(&mut self, listener: T)
         where T: Fn(&mut ViewModel) + 'static
     {
+        //self.event_manager.add_listener(Event::Rendered, listener);
         self.add_listener(Event::Rendered, listener);
     }
 
     pub fn add_update_done_listener<T>(&mut self, listener: T)
         where T: Fn(&mut ViewModel) + 'static
     {
+        //self.event_manager.add_listener(Event::Updated, listener);
         self.add_listener(Event::Updated, listener);
     }
 
     pub fn render_done(&mut self) {
+        //self.event_manager.add_event(Event::Rendered);
         self.add_event(Event::Rendered);
     }
 
     pub fn update_done(&mut self) {
+        //self.event_manager.add_event(Event::Updated);
         self.add_event(Event::Updated);
+    }
+
+    pub fn fire_events(&mut self) {
+        //self.event_manager.fire_events(self);
+        while !self.events.is_empty() {
+            let events = self.events.clone();
+            self.events.clear();
+            for event in events {
+                self.fire_event(event)
+            }
+        }
     }
 }
 
@@ -58,16 +75,6 @@ impl ViewModel {
     pub fn add_event(&mut self, event: Event)
     {
         self.events.push(event);
-    }
-
-    pub fn fire_events(&mut self) {
-        while !self.events.is_empty() {
-            let events = self.events.clone();
-            self.events.clear();
-            for event in events {
-                self.fire_event(event)
-            }
-        }
     }
 
     fn fire_event(&mut self, event: Event) {

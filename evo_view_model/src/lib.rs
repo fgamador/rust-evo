@@ -1,5 +1,6 @@
-use std::rc::Rc;
 use std::collections::HashMap;
+use std::hash::Hash;
+use std::rc::Rc;
 
 type BoxedCallback = Rc<Fn(&mut ViewModel) -> ()>;
 
@@ -79,6 +80,51 @@ impl ViewModel {
     }
 
     fn notify_listeners(source: &mut ViewModel, listeners: Vec<BoxedCallback>) {
+        for listener in listeners {
+            listener(source);
+        }
+    }
+}
+
+type Callback<S> = Rc<Fn(&mut S) -> ()>;
+
+pub struct EventManager<E, S> where E: Eq + Hash {
+    events: Vec<E>,
+    listeners: HashMap<E, Vec<Callback<S>>>,
+}
+
+impl<E, S> EventManager<E, S> where E: Eq + Hash {
+    pub fn add_listener<C>(&mut self, event: E, listener: C)
+        where C: Fn(&mut S) + 'static
+    {
+        self.listeners.entry(event).or_insert(Vec::new()).push(Rc::new(listener));
+    }
+
+    pub fn add_event(&mut self, event: E)
+    {
+        self.events.push(event);
+    }
+
+//    pub fn fire_events(&mut self) {
+//        while !self.events.is_empty() {
+//            let events = self.events.clone();
+//            self.events.clear();
+//            for event in events {
+//                self.fire_event(event)
+//            }
+//        }
+//    }
+//
+//    fn fire_event(&mut self, event: Event) {
+//        let listeners = self.clone_listeners(event);
+//        ViewModel::notify_listeners(self, listeners);
+//    }
+
+    fn clone_listeners(&self, event: E) -> Vec<Callback<S>> {
+        self.listeners.get(&event).unwrap().clone()
+    }
+
+    fn notify_listeners(source: &mut S, listeners: Vec<Callback<S>>) {
         for listener in listeners {
             listener(source);
         }

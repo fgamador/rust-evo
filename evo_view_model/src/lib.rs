@@ -38,18 +38,23 @@ impl ViewModel {
         self.add_listener(Event::Updated, listener);
     }
 
+    pub fn render_done(&mut self) {
+        self.add_event(Event::Rendered);
+    }
+
+    pub fn update_done(&mut self) {
+        self.add_event(Event::Updated);
+    }
+
     fn add_listener<T>(&mut self, event: Event, listener: T)
         where T: Fn(&mut ViewModel) + 'static
     {
         self.listeners.entry(event).or_insert(Vec::new()).push(Rc::new(listener));
     }
 
-    pub fn render_done(&mut self) {
-        self.events.push(Event::Rendered);
-    }
-
-    pub fn update_done(&mut self) {
-        self.events.push(Event::Updated);
+    fn add_event(&mut self, event: Event)
+    {
+        self.events.push(event);
     }
 
     pub fn fire_events(&mut self) {

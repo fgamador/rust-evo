@@ -45,7 +45,9 @@ impl ViewModel {
     pub fn update_done(&mut self) {
         self.add_event(Event::Updated);
     }
+}
 
+impl ViewModel {
     pub fn add_listener<T>(&mut self, event: Event, listener: T)
         where T: Fn(&mut ViewModel) + 'static
     {

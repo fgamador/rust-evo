@@ -48,8 +48,7 @@ impl ViewModel {
     }
 
     pub fn fire_events(&mut self) {
-        let events = self.events.clone();
-        for event in events {
+        for event in self.events.clone() {
             self.fire_event(event)
         }
     }

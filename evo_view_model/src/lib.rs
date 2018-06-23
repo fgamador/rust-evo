@@ -11,7 +11,7 @@ pub enum Event {
 }
 
 pub struct ViewModel {
-    event_manager: EventManager<Event, ViewModel>,
+    //    event_manager: EventManager<Event, ViewModel>,
     pub updated: bool,
     pub rendered: bool,
     events: Vec<Event>,
@@ -21,7 +21,7 @@ pub struct ViewModel {
 impl ViewModel {
     pub fn new() -> ViewModel {
         ViewModel {
-            event_manager: EventManager::new(),
+//            event_manager: EventManager::new(),
             updated: false,
             rendered: false,
             events: Vec::new(),
@@ -32,24 +32,24 @@ impl ViewModel {
     pub fn add_render_done_listener<T>(&mut self, listener: T)
         where T: Fn(&mut ViewModel) + 'static
     {
-        //self.event_manager.add_listener(Event::Rendered, listener);
+//        self.event_manager.add_listener(Event::Rendered, listener);
         self.add_listener(Event::Rendered, listener);
     }
 
     pub fn add_update_done_listener<T>(&mut self, listener: T)
         where T: Fn(&mut ViewModel) + 'static
     {
-        //self.event_manager.add_listener(Event::Updated, listener);
+//        self.event_manager.add_listener(Event::Updated, listener);
         self.add_listener(Event::Updated, listener);
     }
 
     pub fn render_done(&mut self) {
-        //self.event_manager.add_event(Event::Rendered);
+//        self.event_manager.add_event(Event::Rendered);
         self.add_event(Event::Rendered);
     }
 
     pub fn update_done(&mut self) {
-        //self.event_manager.add_event(Event::Updated);
+//        self.event_manager.add_event(Event::Updated);
         self.add_event(Event::Updated);
     }
 
@@ -119,28 +119,28 @@ impl<E, S> EventManager<E, S> where E: Clone + Copy + Eq + Hash {
         self.events.push(event);
     }
 
-    pub fn fire_events(&mut self, source: &mut S) {
+    pub fn fire_events(&mut self, subject: &mut S) {
         while !self.events.is_empty() {
             let events = self.events.clone();
             self.events.clear();
             for event in events {
-                self.fire_event(source, event)
+                self.fire_event(subject, event)
             }
         }
     }
 
-    fn fire_event(&mut self, source: &mut S, event: E) {
+    fn fire_event(&mut self, subject: &mut S, event: E) {
         let listeners = self.clone_listeners(event);
-        Self::notify_listeners(source, listeners);
+        Self::notify_listeners(subject, listeners);
     }
 
     fn clone_listeners(&self, event: E) -> Vec<Callback<S>> {
         self.listeners.get(&event).unwrap().clone()
     }
 
-    fn notify_listeners(source: &mut S, listeners: Vec<Callback<S>>) {
+    fn notify_listeners(subject: &mut S, listeners: Vec<Callback<S>>) {
         for listener in listeners {
-            listener(source);
+            listener(subject);
         }
     }
 }

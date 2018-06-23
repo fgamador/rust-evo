@@ -48,8 +48,12 @@ impl ViewModel {
     }
 
     pub fn fire_events(&mut self) {
-        for event in self.events.clone() {
-            self.fire_event(event)
+        while !self.events.is_empty() {
+            let events = self.events.clone();
+            self.events.clear();
+            for event in events {
+                self.fire_event(event)
+            }
         }
     }
 

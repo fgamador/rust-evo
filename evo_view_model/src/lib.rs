@@ -88,12 +88,12 @@ impl ViewModel {
 
 type Callback<S> = Rc<Fn(&mut S) -> ()>;
 
-pub struct EventManager<E, S> where E: Eq + Hash {
+pub struct EventManager<E, S> where E: Clone + Eq + Hash {
     events: Vec<E>,
     listeners: HashMap<E, Vec<Callback<S>>>,
 }
 
-impl<E, S> EventManager<E, S> where E: Eq + Hash {
+impl<E, S> EventManager<E, S> where E: Clone + Eq + Hash {
     pub fn add_listener<C>(&mut self, event: E, listener: C)
         where C: Fn(&mut S) + 'static
     {
@@ -105,15 +105,15 @@ impl<E, S> EventManager<E, S> where E: Eq + Hash {
         self.events.push(event);
     }
 
-//    pub fn fire_events(&mut self) {
-//        while !self.events.is_empty() {
-//            let events = self.events.clone();
-//            self.events.clear();
-//            for event in events {
-//                self.fire_event(event)
-//            }
-//        }
-//    }
+    pub fn fire_events(&mut self, source: &mut S) {
+        while !self.events.is_empty() {
+            let events = self.events.clone();
+            self.events.clear();
+            for event in events {
+                self.fire_event(source, event)
+            }
+        }
+    }
 
     fn fire_event(&mut self, source: &mut S, event: E) {
         let listeners = self.clone_listeners(event);

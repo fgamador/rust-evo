@@ -71,16 +71,16 @@ impl ViewModel {
 
     fn fire_event(&mut self, event: Event) {
         let listeners = self.clone_listeners(event);
-        self.notify_listeners(listeners);
+        ViewModel::notify_listeners(self, listeners);
     }
 
     fn clone_listeners(&mut self, event: Event) -> Vec<BoxedCallback> {
         self.listeners.get(&event).unwrap().clone()
     }
 
-    fn notify_listeners(&mut self, listeners: Vec<BoxedCallback>) {
+    fn notify_listeners(source: &mut ViewModel, listeners: Vec<BoxedCallback>) {
         for listener in listeners {
-            listener(self);
+            listener(source);
         }
     }
 }

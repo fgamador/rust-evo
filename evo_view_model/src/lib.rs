@@ -3,7 +3,7 @@ use std::collections::HashMap;
 
 type BoxedCallback = Rc<Fn(&mut ViewModel) -> ()>;
 
-#[derive(Clone, PartialEq, Eq, Hash)]
+#[derive(Clone, Copy, Eq, Hash, PartialEq)]
 enum Event {
     Rendered,
     Updated,
@@ -29,19 +29,23 @@ impl ViewModel {
     pub fn add_render_done_listener<T>(&mut self, listener: T)
         where T: Fn(&mut ViewModel) + 'static
     {
-        let event = Event::Rendered;
-        self.listeners.entry(event).or_insert(Vec::new()).push(Rc::new(listener));
-    }
-
-    pub fn render_done(&mut self) {
-        self.events.push(Event::Rendered);
+        self.add_listener(Event::Rendered, listener);
     }
 
     pub fn add_update_done_listener<T>(&mut self, listener: T)
         where T: Fn(&mut ViewModel) + 'static
     {
-        let event = Event::Updated;
+        self.add_listener(Event::Updated, listener);
+    }
+
+    fn add_listener<T>(&mut self, event: Event, listener: T)
+        where T: Fn(&mut ViewModel) + 'static
+    {
         self.listeners.entry(event).or_insert(Vec::new()).push(Rc::new(listener));
+    }
+
+    pub fn render_done(&mut self) {
+        self.events.push(Event::Rendered);
     }
 
     pub fn update_done(&mut self) {

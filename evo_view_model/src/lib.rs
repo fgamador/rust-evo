@@ -77,7 +77,7 @@ mod tests {
     #[test]
     fn render_done_callback() {
         let mut view_model = ViewModel::new();
-        view_model.add_render_done_listener(|view_model| { view_model.updated = true });
+        view_model.add_render_done_listener(|view_model| { view_model.updated = true; });
         view_model.render_done();
         assert!(!view_model.updated);
         view_model.fire_events();
@@ -87,9 +87,22 @@ mod tests {
     #[test]
     fn update_done_callback() {
         let mut view_model = ViewModel::new();
-        view_model.add_update_done_listener(|view_model| { view_model.rendered = true });
+        view_model.add_update_done_listener(|view_model| { view_model.rendered = true; });
         view_model.update_done();
         assert!(!view_model.rendered);
+        view_model.fire_events();
+        assert!(view_model.rendered);
+    }
+
+    #[test]
+    fn chained_callbacks() {
+        let mut view_model = ViewModel::new();
+        view_model.add_render_done_listener(|view_model| {
+            view_model.updated = true;
+            view_model.update_done();
+        });
+        view_model.add_update_done_listener(|view_model| { view_model.rendered = true; });
+        view_model.render_done();
         view_model.fire_events();
         assert!(view_model.rendered);
     }

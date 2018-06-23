@@ -13,8 +13,6 @@ pub struct ViewModel {
     pub updated: bool,
     pub rendered: bool,
     events: Vec<Event>,
-    render_done_listeners: Vec<BoxedCallback>,
-    update_done_listeners: Vec<BoxedCallback>,
     listeners: HashMap<Event, Vec<BoxedCallback>>,
 }
 
@@ -24,8 +22,6 @@ impl ViewModel {
             updated: false,
             rendered: false,
             events: Vec::new(),
-            render_done_listeners: Vec::new(),
-            update_done_listeners: Vec::new(),
             listeners: HashMap::new(),
         }
     }
@@ -33,10 +29,8 @@ impl ViewModel {
     pub fn add_render_done_listener<T>(&mut self, listener: T)
         where T: Fn(&mut ViewModel) + 'static
     {
-        self.render_done_listeners.push(Rc::new(listener));
-
-        //let event = Event::Rendered;
-        //self.listeners.entry(event).or_insert(Vec::new()).push(Rc::new(listener));
+        let event = Event::Rendered;
+        self.listeners.entry(event).or_insert(Vec::new()).push(Rc::new(listener));
     }
 
     pub fn render_done(&mut self) {
@@ -46,7 +40,8 @@ impl ViewModel {
     pub fn add_update_done_listener<T>(&mut self, listener: T)
         where T: Fn(&mut ViewModel) + 'static
     {
-        self.update_done_listeners.push(Rc::new(listener));
+        let event = Event::Updated;
+        self.listeners.entry(event).or_insert(Vec::new()).push(Rc::new(listener));
     }
 
     pub fn update_done(&mut self) {
@@ -69,15 +64,7 @@ impl ViewModel {
     }
 
     fn clone_listeners(&mut self, event: Event) -> Vec<BoxedCallback> {
-        match event {
-            Event::Rendered => {
-                self.render_done_listeners.clone()
-                //self.listeners.get(&event).unwrap().clone()
-            }
-            Event::Updated => {
-                self.update_done_listeners.clone()
-            }
-        }
+        self.listeners.get(&event).unwrap().clone()
     }
 
     pub fn notify_listeners(&mut self, listeners: Vec<BoxedCallback>) {

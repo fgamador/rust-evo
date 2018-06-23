@@ -4,7 +4,7 @@ use std::collections::HashMap;
 type BoxedCallback = Rc<Fn(&mut ViewModel) -> ()>;
 
 #[derive(Clone, Copy, Eq, Hash, PartialEq)]
-enum Event {
+pub enum Event {
     Rendered,
     Updated,
 }
@@ -46,13 +46,13 @@ impl ViewModel {
         self.add_event(Event::Updated);
     }
 
-    fn add_listener<T>(&mut self, event: Event, listener: T)
+    pub fn add_listener<T>(&mut self, event: Event, listener: T)
         where T: Fn(&mut ViewModel) + 'static
     {
         self.listeners.entry(event).or_insert(Vec::new()).push(Rc::new(listener));
     }
 
-    fn add_event(&mut self, event: Event)
+    pub fn add_event(&mut self, event: Event)
     {
         self.events.push(event);
     }

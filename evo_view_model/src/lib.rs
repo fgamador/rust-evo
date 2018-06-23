@@ -72,6 +72,7 @@ impl ViewModel {
         match event {
             Event::Rendered => {
                 self.render_done_listeners.clone()
+                //self.listeners.get(&event).unwrap().clone()
             }
             Event::Updated => {
                 self.update_done_listeners.clone()

@@ -74,7 +74,7 @@ impl ViewModel {
         ViewModel::notify_listeners(self, listeners);
     }
 
-    fn clone_listeners(&mut self, event: Event) -> Vec<BoxedCallback> {
+    fn clone_listeners(&self, event: Event) -> Vec<BoxedCallback> {
         self.listeners.get(&event).unwrap().clone()
     }
 

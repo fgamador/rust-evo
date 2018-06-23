@@ -58,16 +58,16 @@ impl ViewModel {
     }
 
     fn fire_event(&mut self, event: Event) {
+        let listeners;
         match event {
             Event::Rendered => {
-                let listeners = self.render_done_listeners.clone();
-                self.notify_listeners(listeners);
+                listeners = self.render_done_listeners.clone();
             }
             Event::Updated => {
-                let listeners = self.update_done_listeners.clone();
-                self.notify_listeners(listeners);
+                listeners = self.update_done_listeners.clone();
             }
         }
+        self.notify_listeners(listeners);
     }
 
     pub fn notify_listeners(&mut self, listeners: Vec<BoxedCallback>) {

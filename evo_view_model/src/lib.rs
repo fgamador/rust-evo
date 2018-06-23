@@ -50,15 +50,19 @@ impl ViewModel {
     pub fn fire_events(&mut self) {
         let events = self.events.clone();
         for event in events {
-            match event {
-                Event::Rendered => {
-                    let listeners = self.render_done_listeners.clone();
-                    self.notify_listeners(listeners);
-                }
-                Event::Updated => {
-                    let listeners = self.update_done_listeners.clone();
-                    self.notify_listeners(listeners);
-                }
+            self.fire_event(event)
+        }
+    }
+
+    fn fire_event(&mut self, event: Event) {
+        match event {
+            Event::Rendered => {
+                let listeners = self.render_done_listeners.clone();
+                self.notify_listeners(listeners);
+            }
+            Event::Updated => {
+                let listeners = self.update_done_listeners.clone();
+                self.notify_listeners(listeners);
             }
         }
     }

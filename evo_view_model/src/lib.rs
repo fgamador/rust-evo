@@ -76,7 +76,7 @@ impl ViewModel {
         self.listeners.get(&event).unwrap().clone()
     }
 
-    pub fn notify_listeners(&mut self, listeners: Vec<BoxedCallback>) {
+    fn notify_listeners(&mut self, listeners: Vec<BoxedCallback>) {
         for listener in listeners {
             listener(self);
         }

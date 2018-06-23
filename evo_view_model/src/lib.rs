@@ -114,11 +114,11 @@ impl<E, S> EventManager<E, S> where E: Eq + Hash {
 //            }
 //        }
 //    }
-//
-//    fn fire_event(&mut self, event: Event) {
-//        let listeners = self.clone_listeners(event);
-//        ViewModel::notify_listeners(self, listeners);
-//    }
+
+    fn fire_event(&mut self, source: &mut S, event: E) {
+        let listeners = self.clone_listeners(event);
+        Self::notify_listeners(source, listeners);
+    }
 
     fn clone_listeners(&self, event: E) -> Vec<Callback<S>> {
         self.listeners.get(&event).unwrap().clone()

@@ -43,14 +43,19 @@ impl ViewModel {
             match event {
                 Event::Rendered => {
                     let listeners = self.render_done_listeners.clone();
-                    for listener in listeners {
-                        listener(self);
-                    }
+                    self.notify_listeners(listeners);
                 }
 //                Event::Updated => {
 //                    // TODO
 //                }
             }
+        }
+    }
+
+    pub fn notify_listeners(&mut self, listeners: Vec<BoxedCallback>) {
+        //let listeners = listeners.clone();
+        for listener in listeners {
+            listener(self);
         }
     }
 

@@ -6,14 +6,40 @@ type Callback<M, S> = Fn(&mut M, &mut S) -> ();
 type CallbackVec<E, S> = Vec<Rc<Callback<EventManager<E, S>, S>>>;
 
 pub struct EventManager<E, S> {
-    events: Vec<E>,
+    events: EventQueue<E>,
     listeners: HashMap<E, CallbackVec<E, S>>,
+}
+
+pub struct EventQueue<E> {
+    events: Vec<E>,
+}
+
+impl<E> EventQueue<E> where E: Clone + Copy {
+    fn new() -> Self {
+        EventQueue {
+            events: Vec::new(),
+        }
+    }
+
+    pub fn is_empty(&self) -> bool {
+        self.events.is_empty()
+    }
+
+    pub fn push(&mut self, event: E) {
+        self.events.push(event);
+    }
+
+    fn clone_and_clear_events(&mut self) -> Vec<E> {
+        let cloned = self.events.clone();
+        self.events.clear();
+        cloned
+    }
 }
 
 impl<E, S> EventManager<E, S> where E: Clone + Copy + Eq + Hash {
     pub fn new() -> Self {
         EventManager {
-            events: Vec::new(),
+            events: EventQueue::new(),
             listeners: HashMap::new(),
         }
     }
@@ -31,8 +57,7 @@ impl<E, S> EventManager<E, S> where E: Clone + Copy + Eq + Hash {
 
     pub fn fire_events(&mut self, subject: &mut S) {
         while !self.events.is_empty() {
-            let events = self.events.clone();
-            self.events.clear();
+            let events = self.events.clone_and_clear_events();
             for event in events {
                 self.fire_event(subject, event)
             }

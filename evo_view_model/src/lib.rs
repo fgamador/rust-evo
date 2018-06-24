@@ -106,4 +106,18 @@ mod tests {
         event_manager.fire_events(&mut view_model);
         assert!(view_model.rendered);
     }
+
+//    #[test]
+//    fn callback_with_closure() {
+//        let mut event_manager: EventManager<Event, ViewModel> = EventManager::new();
+//        let mut view_model = ViewModel::new();
+//        let mut callback_ran = false;
+//        event_manager.add_listener(Event::Rendered, |_, _| {
+//            callback_ran = true;
+//        });
+//        event_manager.add_event(Event::Rendered);
+//        assert!(!callback_ran);
+//        event_manager.fire_events(&mut view_model);
+//        assert!(callback_ran);
+//    }
 }

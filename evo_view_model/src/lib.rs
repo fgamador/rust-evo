@@ -129,7 +129,7 @@ mod tests {
 //        event_manager.add_listener(Event::Rendered, |_, _| {
 //            callback_ran = true;
 //        });
-//        event_manager.event_queue().push(Event::Rendered);
+//        event_manager.events().push(Event::Rendered);
 //        assert!(!callback_ran);
 //        event_manager.fire_events(&mut view_model);
 //        assert!(callback_ran);

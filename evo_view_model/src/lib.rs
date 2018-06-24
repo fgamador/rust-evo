@@ -1,9 +1,8 @@
 use std::collections::HashMap;
 use std::hash::Hash;
-use std::rc::Rc;
 
 type Callback<Q, S> = Fn(&mut Q, &mut S) -> ();
-type CallbackVec<E, S> = Vec<Rc<Callback<EventQueue<E>, S>>>;
+type CallbackVec<E, S> = Vec<Box<Callback<EventQueue<E>, S>>>;
 
 pub struct EventManager<E, S> {
     events: EventQueue<E>,
@@ -47,7 +46,7 @@ impl<E, S> EventManager<E, S> where E: Clone + Copy + Eq + Hash {
     pub fn add_listener<C>(&mut self, event: E, listener: C)
         where C: Fn(&mut EventQueue<E>, &mut S) + 'static
     {
-        self.listeners.entry(event).or_insert(Vec::new()).push(Rc::new(listener));
+        self.listeners.entry(event).or_insert(Vec::new()).push(Box::new(listener));
     }
 
     pub fn events(&mut self) -> &mut EventQueue<E> {

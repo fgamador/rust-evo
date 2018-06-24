@@ -75,7 +75,7 @@ mod tests {
     #[test]
     fn single_callback() {
         let mut event_manager: EventManager<Event, EventSubject> = EventManager::new();
-        let mut event_subject = EventSubject::new();
+        let mut event_subject = EventSubject { updated: false };
         event_manager.add_listener(Event::Event1, |_, subject| {
             subject.updated = true;
         });
@@ -88,7 +88,7 @@ mod tests {
     #[test]
     fn chained_callbacks() {
         let mut event_manager: EventManager<Event, EventSubject> = EventManager::new();
-        let mut event_subject = EventSubject::new();
+        let mut event_subject = EventSubject { updated: false };
         event_manager.add_listener(Event::Event1, |event_queue, _| {
             event_queue.push(Event::Event2);
         });
@@ -108,13 +108,5 @@ mod tests {
 
     pub struct EventSubject {
         pub updated: bool,
-    }
-
-    impl EventSubject {
-        pub fn new() -> EventSubject {
-            EventSubject {
-                updated: false,
-            }
-        }
     }
 }

@@ -9,32 +9,6 @@ pub struct EventManager<E, S> {
     listeners: HashMap<E, CallbackVec<E, S>>,
 }
 
-pub struct EventQueue<E> {
-    events: Vec<E>,
-}
-
-impl<E> EventQueue<E> where E: Clone + Copy {
-    fn new() -> Self {
-        EventQueue {
-            events: Vec::new(),
-        }
-    }
-
-    pub fn is_empty(&self) -> bool {
-        self.events.is_empty()
-    }
-
-    pub fn push(&mut self, event: E) {
-        self.events.push(event);
-    }
-
-    fn clone_and_clear_events(&mut self) -> Vec<E> {
-        let cloned = self.events.clone();
-        self.events.clear();
-        cloned
-    }
-}
-
 impl<E, S> EventManager<E, S> where E: Clone + Copy + Eq + Hash {
     pub fn new() -> Self {
         EventManager {
@@ -67,6 +41,32 @@ impl<E, S> EventManager<E, S> where E: Clone + Copy + Eq + Hash {
                 listener(&mut self.events, subject);
             }
         }
+    }
+}
+
+pub struct EventQueue<E> {
+    events: Vec<E>,
+}
+
+impl<E> EventQueue<E> where E: Clone + Copy {
+    fn new() -> Self {
+        EventQueue {
+            events: Vec::new(),
+        }
+    }
+
+    pub fn is_empty(&self) -> bool {
+        self.events.is_empty()
+    }
+
+    pub fn push(&mut self, event: E) {
+        self.events.push(event);
+    }
+
+    fn clone_and_clear_events(&mut self) -> Vec<E> {
+        let cloned = self.events.clone();
+        self.events.clear();
+        cloned
     }
 }
 

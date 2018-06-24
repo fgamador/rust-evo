@@ -56,8 +56,7 @@ impl<E, S> EventManager<E, S> where E: Clone + Copy + Eq + Hash {
 
     pub fn fire_events(&mut self, subject: &mut S) {
         while !self.events.is_empty() {
-            let events = self.events.clone_and_clear_events();
-            for event in events {
+            for event in self.events.clone_and_clear_events() {
                 self.fire_event(subject, event)
             }
         }

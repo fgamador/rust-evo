@@ -84,7 +84,7 @@ mod tests {
     }
 
     #[test]
-    fn single_callback() {
+    fn event_with_single_callback() {
         let mut event_manager: EventManager<Event, EventSubject> = EventManager::new();
         let mut event_subject = EventSubject { updated: false };
         event_manager.add_listener(Event::Event1, |_, subject| {
@@ -97,7 +97,7 @@ mod tests {
     }
 
     #[test]
-    fn chained_callbacks() {
+    fn event_with_chained_callbacks() {
         let mut event_manager: EventManager<Event, EventSubject> = EventManager::new();
         let mut event_subject = EventSubject { updated: false };
         event_manager.add_listener(Event::Event1, |event_queue, _| {

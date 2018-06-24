@@ -68,24 +68,6 @@ impl<E, S> EventManager<E, S> where E: Clone + Copy + Eq + Hash {
     }
 }
 
-#[derive(Clone, Copy, Eq, Hash, PartialEq)]
-pub enum Event {
-    Event1,
-    Event2,
-}
-
-pub struct EventSubject {
-    pub updated: bool,
-}
-
-impl EventSubject {
-    pub fn new() -> EventSubject {
-        EventSubject {
-            updated: false,
-        }
-    }
-}
-
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -131,4 +113,22 @@ mod tests {
 //        event_manager.fire_events(&mut view_model);
 //        assert!(callback_ran);
 //    }
+
+    #[derive(Clone, Copy, Eq, Hash, PartialEq)]
+    pub enum Event {
+        Event1,
+        Event2,
+    }
+
+    pub struct EventSubject {
+        pub updated: bool,
+    }
+
+    impl EventSubject {
+        pub fn new() -> EventSubject {
+            EventSubject {
+                updated: false,
+            }
+        }
+    }
 }

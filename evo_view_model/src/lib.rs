@@ -152,11 +152,14 @@ mod tests {
 
     #[test]
     fn render_done_callback() {
+        let mut event_manager: EventManager<Event, ViewModel> = EventManager::new();
         let mut view_model = ViewModel::new();
-        view_model.add_render_done_listener(|view_model| { view_model.updated = true; });
-        view_model.render_done();
+        event_manager.add_listener(Event::Rendered, |_, view_model| {
+            view_model.updated = true;
+        });
+        event_manager.add_event(Event::Rendered);
         assert!(!view_model.updated);
-        view_model.fire_events();
+        event_manager.fire_events(&mut view_model);
         assert!(view_model.updated);
     }
 

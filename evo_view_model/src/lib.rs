@@ -181,4 +181,18 @@ mod tests {
         view_model.fire_events();
         assert!(view_model.rendered);
     }
+
+//    #[test]
+//    fn event_manager() {
+//        let mut event_manager: EventManager<Event, ViewModel> = EventManager::new();
+//        let mut view_model = ViewModel::new();
+//        event_manager.add_listener(Event::Rendered, |view_model| {
+//            view_model.updated = true;
+//            event_manager.add_event(Event::Updated);
+//        });
+//        event_manager.add_listener(Event::Updated, |view_model| { view_model.rendered = true; });
+//        event_manager.add_event(Event::Rendered);
+//        event_manager.fire_events(&mut view_model);
+//        assert!(view_model.rendered);
+//    }
 }

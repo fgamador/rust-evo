@@ -65,16 +65,7 @@ impl<E, S> EventManager<E, S> where E: Clone + Copy + Eq + Hash {
     }
 
     fn fire_event(&mut self, subject: &mut S, event: E) {
-        let listeners = self.clone_listeners(event);
-        self.notify_listeners(subject, listeners);
-    }
-
-    fn clone_listeners(&self, event: E) -> CallbackVec<E, S> {
-        self.listeners.get(&event).unwrap().clone()
-    }
-
-    fn notify_listeners(&mut self, subject: &mut S, listeners: CallbackVec<E, S>) {
-        for listener in listeners {
+        for listener in self.listeners.get(&event).unwrap() {
             listener(&mut self.events, subject);
         }
     }

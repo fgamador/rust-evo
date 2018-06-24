@@ -62,8 +62,10 @@ impl<E, S> EventManager<E, S> where E: Clone + Copy + Eq + Hash {
     }
 
     fn fire_event(&mut self, subject: &mut S, event: E) {
-        for listener in self.listeners.get(&event).unwrap() {
-            listener(&mut self.events, subject);
+        if let Some(listeners) = self.listeners.get(&event) {
+            for listener in listeners {
+                listener(&mut self.events, subject);
+            }
         }
     }
 }
@@ -71,6 +73,15 @@ impl<E, S> EventManager<E, S> where E: Clone + Copy + Eq + Hash {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn event_with_no_callback() {
+        let mut event_manager: EventManager<Event, EventSubject> = EventManager::new();
+        let mut event_subject = EventSubject { updated: false };
+        event_manager.events().push(Event::Event1);
+        event_manager.fire_events(&mut event_subject);
+        assert!(!event_subject.updated);
+    }
 
     #[test]
     fn single_callback() {

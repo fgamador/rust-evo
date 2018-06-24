@@ -167,8 +167,7 @@ mod tests {
     fn chained_callbacks() {
         let mut event_manager: EventManager<Event, ViewModel> = EventManager::new();
         let mut view_model = ViewModel::new();
-        event_manager.add_listener(Event::Rendered, |event_manager, view_model| {
-            view_model.updated = true;
+        event_manager.add_listener(Event::Rendered, |event_manager, _| {
             event_manager.add_event(Event::Updated);
         });
         event_manager.add_listener(Event::Updated, |_, view_model| {

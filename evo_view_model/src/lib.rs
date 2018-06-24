@@ -95,7 +95,7 @@ impl ViewModel {
 
 type Callback<S> = Rc<Fn(&mut S) -> ()>;
 
-pub struct EventManager<E, S> where E: Clone + Copy + Eq + Hash {
+pub struct EventManager<E, S> {
     events: Vec<E>,
     listeners: HashMap<E, Vec<Callback<S>>>,
 }

@@ -75,20 +75,20 @@ mod tests {
     #[test]
     fn single_callback() {
         let mut event_manager: EventManager<Event, EventSubject> = EventManager::new();
-        let mut view_model = EventSubject::new();
+        let mut event_subject = EventSubject::new();
         event_manager.add_listener(Event::Event1, |_, subject| {
             subject.updated = true;
         });
         event_manager.events().push(Event::Event1);
-        assert!(!view_model.updated);
-        event_manager.fire_events(&mut view_model);
-        assert!(view_model.updated);
+        assert!(!event_subject.updated);
+        event_manager.fire_events(&mut event_subject);
+        assert!(event_subject.updated);
     }
 
     #[test]
     fn chained_callbacks() {
         let mut event_manager: EventManager<Event, EventSubject> = EventManager::new();
-        let mut view_model = EventSubject::new();
+        let mut event_subject = EventSubject::new();
         event_manager.add_listener(Event::Event1, |event_queue, _| {
             event_queue.push(Event::Event2);
         });
@@ -96,14 +96,14 @@ mod tests {
             subject.updated = true;
         });
         event_manager.events().push(Event::Event1);
-        event_manager.fire_events(&mut view_model);
-        assert!(view_model.updated);
+        event_manager.fire_events(&mut event_subject);
+        assert!(event_subject.updated);
     }
 
 //    #[test]
 //    fn callback_with_closure() {
 //        let mut event_manager: EventManager<Event, ViewModel> = EventManager::new();
-//        let mut view_model = ViewModel::new();
+//        let mut event_subject = EventSubject::new();
 //        let mut callback_ran = false;
 //        event_manager.add_listener(Event::Rendered, |_, _| {
 //            callback_ran = true;

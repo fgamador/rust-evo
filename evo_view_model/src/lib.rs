@@ -2,8 +2,8 @@ use std::collections::HashMap;
 use std::hash::Hash;
 use std::rc::Rc;
 
-type Callback<M, S> = Fn(&mut M, &mut S) -> ();
-type CallbackVec<E, S> = Vec<Rc<Callback<EventManager<E, S>, S>>>;
+type Callback<Q, S> = Fn(&mut Q, &mut S) -> ();
+type CallbackVec<E, S> = Vec<Rc<Callback<EventQueue<E>, S>>>;
 
 pub struct EventManager<E, S> {
     events: EventQueue<E>,
@@ -45,7 +45,7 @@ impl<E, S> EventManager<E, S> where E: Clone + Copy + Eq + Hash {
     }
 
     pub fn add_listener<C>(&mut self, event: E, listener: C)
-        where C: Fn(&mut EventManager<E, S>, &mut S) + 'static
+        where C: Fn(&mut EventQueue<E>, &mut S) + 'static
     {
         self.listeners.entry(event).or_insert(Vec::new()).push(Rc::new(listener));
     }
@@ -75,7 +75,7 @@ impl<E, S> EventManager<E, S> where E: Clone + Copy + Eq + Hash {
 
     fn notify_listeners(&mut self, subject: &mut S, listeners: CallbackVec<E, S>) {
         for listener in listeners {
-            listener(self, subject);
+            listener(&mut self.events, subject);
         }
     }
 }
@@ -121,8 +121,8 @@ mod tests {
     fn chained_callbacks() {
         let mut event_manager: EventManager<Event, ViewModel> = EventManager::new();
         let mut view_model = ViewModel::new();
-        event_manager.add_listener(Event::Rendered, |event_manager, _| {
-            event_manager.add_event(Event::Updated);
+        event_manager.add_listener(Event::Rendered, |event_queue, _| {
+            event_queue.push(Event::Updated);
         });
         event_manager.add_listener(Event::Updated, |_, view_model| {
             view_model.rendered = true;

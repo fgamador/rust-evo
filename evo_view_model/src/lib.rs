@@ -93,11 +93,11 @@ impl ViewModel {
     }
 }
 
-type Callback<S> = Rc<Fn(&mut S) -> ()>;
+type Callback<M, S> = Rc<Fn(&mut M, &mut S) -> ()>;
 
 pub struct EventManager<E, S> {
     events: Vec<E>,
-    listeners: HashMap<E, Vec<Callback<S>>>,
+    listeners: HashMap<E, Vec<Callback<EventManager<E, S>, S>>>,
 }
 
 impl<E, S> EventManager<E, S> where E: Clone + Copy + Eq + Hash {
@@ -109,7 +109,7 @@ impl<E, S> EventManager<E, S> where E: Clone + Copy + Eq + Hash {
     }
 
     pub fn add_listener<C>(&mut self, event: E, listener: C)
-        where C: Fn(&mut S) + 'static
+        where C: Fn(&mut EventManager<E, S>, &mut S) + 'static
     {
         self.listeners.entry(event).or_insert(Vec::new()).push(Rc::new(listener));
     }
@@ -131,16 +131,16 @@ impl<E, S> EventManager<E, S> where E: Clone + Copy + Eq + Hash {
 
     fn fire_event(&mut self, subject: &mut S, event: E) {
         let listeners = self.clone_listeners(event);
-        Self::notify_listeners(subject, listeners);
+        self.notify_listeners(subject, listeners);
     }
 
-    fn clone_listeners(&self, event: E) -> Vec<Callback<S>> {
+    fn clone_listeners(&self, event: E) -> Vec<Callback<EventManager<E, S>, S>> {
         self.listeners.get(&event).unwrap().clone()
     }
 
-    fn notify_listeners(subject: &mut S, listeners: Vec<Callback<S>>) {
+    fn notify_listeners(&mut self, subject: &mut S, listeners: Vec<Callback<EventManager<E, S>, S>>) {
         for listener in listeners {
-            listener(subject);
+            listener(self, subject);
         }
     }
 }
@@ -182,17 +182,19 @@ mod tests {
         assert!(view_model.rendered);
     }
 
-//    #[test]
-//    fn event_manager() {
-//        let mut event_manager: EventManager<Event, ViewModel> = EventManager::new();
-//        let mut view_model = ViewModel::new();
-//        event_manager.add_listener(Event::Rendered, |view_model| {
-//            view_model.updated = true;
-//            event_manager.add_event(Event::Updated);
-//        });
-//        event_manager.add_listener(Event::Updated, |view_model| { view_model.rendered = true; });
-//        event_manager.add_event(Event::Rendered);
-//        event_manager.fire_events(&mut view_model);
-//        assert!(view_model.rendered);
-//    }
+    #[test]
+    fn event_manager() {
+        let mut event_manager: EventManager<Event, ViewModel> = EventManager::new();
+        let mut view_model = ViewModel::new();
+        event_manager.add_listener(Event::Rendered, |event_manager, view_model| {
+            view_model.updated = true;
+            event_manager.add_event(Event::Updated);
+        });
+        event_manager.add_listener(Event::Updated, |_, view_model| {
+            view_model.rendered = true;
+        });
+        event_manager.add_event(Event::Rendered);
+        event_manager.fire_events(&mut view_model);
+        assert!(view_model.rendered);
+    }
 }

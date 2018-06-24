@@ -50,7 +50,7 @@ impl<E, S> EventManager<E, S> where E: Clone + Copy + Eq + Hash {
         self.listeners.entry(event).or_insert(Vec::new()).push(Rc::new(listener));
     }
 
-    pub fn event_queue(&mut self) -> &mut EventQueue<E> {
+    pub fn events(&mut self) -> &mut EventQueue<E> {
         &mut self.events
     }
 
@@ -100,7 +100,7 @@ mod tests {
         event_manager.add_listener(Event::Rendered, |_, view_model| {
             view_model.updated = true;
         });
-        event_manager.event_queue().push(Event::Rendered);
+        event_manager.events().push(Event::Rendered);
         assert!(!view_model.updated);
         event_manager.fire_events(&mut view_model);
         assert!(view_model.updated);
@@ -116,7 +116,7 @@ mod tests {
         event_manager.add_listener(Event::Updated, |_, view_model| {
             view_model.rendered = true;
         });
-        event_manager.event_queue().push(Event::Rendered);
+        event_manager.events().push(Event::Rendered);
         event_manager.fire_events(&mut view_model);
         assert!(view_model.rendered);
     }

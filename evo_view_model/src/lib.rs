@@ -151,7 +151,7 @@ mod tests {
     use super::*;
 
     #[test]
-    fn render_done_callback() {
+    fn single_callback() {
         let mut event_manager: EventManager<Event, ViewModel> = EventManager::new();
         let mut view_model = ViewModel::new();
         event_manager.add_listener(Event::Rendered, |_, view_model| {
@@ -164,30 +164,7 @@ mod tests {
     }
 
     #[test]
-    fn update_done_callback() {
-        let mut view_model = ViewModel::new();
-        view_model.add_update_done_listener(|view_model| { view_model.rendered = true; });
-        view_model.update_done();
-        assert!(!view_model.rendered);
-        view_model.fire_events();
-        assert!(view_model.rendered);
-    }
-
-    #[test]
     fn chained_callbacks() {
-        let mut view_model = ViewModel::new();
-        view_model.add_render_done_listener(|view_model| {
-            view_model.updated = true;
-            view_model.update_done();
-        });
-        view_model.add_update_done_listener(|view_model| { view_model.rendered = true; });
-        view_model.render_done();
-        view_model.fire_events();
-        assert!(view_model.rendered);
-    }
-
-    #[test]
-    fn event_manager() {
         let mut event_manager: EventManager<Event, ViewModel> = EventManager::new();
         let mut view_model = ViewModel::new();
         event_manager.add_listener(Event::Rendered, |event_manager, view_model| {

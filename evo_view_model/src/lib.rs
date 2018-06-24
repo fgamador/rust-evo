@@ -70,18 +70,18 @@ impl<E, S> EventManager<E, S> where E: Clone + Copy + Eq + Hash {
 
 #[derive(Clone, Copy, Eq, Hash, PartialEq)]
 pub enum Event {
-    Rendered,
-    Updated,
+    Event1,
+    Event2,
 }
 
-pub struct ViewModel {
+pub struct EventSubject {
     pub updated: bool,
     pub rendered: bool,
 }
 
-impl ViewModel {
-    pub fn new() -> ViewModel {
-        ViewModel {
+impl EventSubject {
+    pub fn new() -> EventSubject {
+        EventSubject {
             updated: false,
             rendered: false,
         }
@@ -94,12 +94,12 @@ mod tests {
 
     #[test]
     fn single_callback() {
-        let mut event_manager: EventManager<Event, ViewModel> = EventManager::new();
-        let mut view_model = ViewModel::new();
-        event_manager.add_listener(Event::Rendered, |_, view_model| {
-            view_model.updated = true;
+        let mut event_manager: EventManager<Event, EventSubject> = EventManager::new();
+        let mut view_model = EventSubject::new();
+        event_manager.add_listener(Event::Event1, |_, subject| {
+            subject.updated = true;
         });
-        event_manager.events().push(Event::Rendered);
+        event_manager.events().push(Event::Event1);
         assert!(!view_model.updated);
         event_manager.fire_events(&mut view_model);
         assert!(view_model.updated);
@@ -107,15 +107,15 @@ mod tests {
 
     #[test]
     fn chained_callbacks() {
-        let mut event_manager: EventManager<Event, ViewModel> = EventManager::new();
-        let mut view_model = ViewModel::new();
-        event_manager.add_listener(Event::Rendered, |event_queue, _| {
-            event_queue.push(Event::Updated);
+        let mut event_manager: EventManager<Event, EventSubject> = EventManager::new();
+        let mut view_model = EventSubject::new();
+        event_manager.add_listener(Event::Event1, |event_queue, _| {
+            event_queue.push(Event::Event2);
         });
-        event_manager.add_listener(Event::Updated, |_, view_model| {
-            view_model.rendered = true;
+        event_manager.add_listener(Event::Event2, |_, subject| {
+            subject.rendered = true;
         });
-        event_manager.events().push(Event::Rendered);
+        event_manager.events().push(Event::Event1);
         event_manager.fire_events(&mut view_model);
         assert!(view_model.rendered);
     }

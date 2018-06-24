@@ -100,20 +100,6 @@ mod tests {
         assert!(event_subject.updated);
     }
 
-//    #[test]
-//    fn callback_with_closure() {
-//        let mut event_manager: EventManager<Event, ViewModel> = EventManager::new();
-//        let mut event_subject = EventSubject::new();
-//        let mut callback_ran = false;
-//        event_manager.add_listener(Event::Rendered, |_, _| {
-//            callback_ran = true;
-//        });
-//        event_manager.events().push(Event::Rendered);
-//        assert!(!callback_ran);
-//        event_manager.fire_events(&mut view_model);
-//        assert!(callback_ran);
-//    }
-
     #[derive(Clone, Copy, Eq, Hash, PartialEq)]
     pub enum Event {
         Event1,

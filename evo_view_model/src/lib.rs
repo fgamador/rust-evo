@@ -2,26 +2,6 @@ use std::collections::HashMap;
 use std::hash::Hash;
 use std::rc::Rc;
 
-#[derive(Clone, Copy, Eq, Hash, PartialEq)]
-pub enum Event {
-    Rendered,
-    Updated,
-}
-
-pub struct ViewModel {
-    pub updated: bool,
-    pub rendered: bool,
-}
-
-impl ViewModel {
-    pub fn new() -> ViewModel {
-        ViewModel {
-            updated: false,
-            rendered: false,
-        }
-    }
-}
-
 type Callback<M, S> = Fn(&mut M, &mut S) -> ();
 type CallbackVec<E, S> = Vec<Rc<Callback<EventManager<E, S>, S>>>;
 
@@ -71,6 +51,26 @@ impl<E, S> EventManager<E, S> where E: Clone + Copy + Eq + Hash {
     fn notify_listeners(&mut self, subject: &mut S, listeners: CallbackVec<E, S>) {
         for listener in listeners {
             listener(self, subject);
+        }
+    }
+}
+
+#[derive(Clone, Copy, Eq, Hash, PartialEq)]
+pub enum Event {
+    Rendered,
+    Updated,
+}
+
+pub struct ViewModel {
+    pub updated: bool,
+    pub rendered: bool,
+}
+
+impl ViewModel {
+    pub fn new() -> ViewModel {
+        ViewModel {
+            updated: false,
+            rendered: false,
         }
     }
 }

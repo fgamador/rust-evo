@@ -76,14 +76,12 @@ pub enum Event {
 
 pub struct EventSubject {
     pub updated: bool,
-    pub rendered: bool,
 }
 
 impl EventSubject {
     pub fn new() -> EventSubject {
         EventSubject {
             updated: false,
-            rendered: false,
         }
     }
 }
@@ -113,11 +111,11 @@ mod tests {
             event_queue.push(Event::Event2);
         });
         event_manager.add_listener(Event::Event2, |_, subject| {
-            subject.rendered = true;
+            subject.updated = true;
         });
         event_manager.events().push(Event::Event1);
         event_manager.fire_events(&mut view_model);
-        assert!(view_model.rendered);
+        assert!(view_model.updated);
     }
 
 //    #[test]

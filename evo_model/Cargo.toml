@@ -4,3 +4,4 @@ version = "0.1.0"
 authors = ["Franz Amador <franzamador@gmail.com>"]
 
 [dependencies]
+evo_view_model = { path = "../evo_view_model" }

@@ -9,3 +9,15 @@ pub enum Event {
 pub struct ViewModel {
     pub updated: bool,
 }
+
+impl ViewModel {
+    pub fn update(&mut self) {
+        self.updated = true;
+        println!("Updated");
+    }
+
+    pub fn render(&mut self) {
+        self.updated = false;
+        println!("Rendered");
+    }
+}

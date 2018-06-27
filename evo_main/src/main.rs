@@ -5,10 +5,14 @@ extern crate evo_view_model;
 use evo_view_model::Event;
 use evo_view_model::ViewModel;
 use evo_view_model::events::EventManager;
+use std::thread;
+use std::time::{Duration, Instant};
 
 struct Model {}
 
-struct View {}
+struct View {
+    next_tick: Instant,
+}
 
 struct MVVM(Model, View, ViewModel);
 
@@ -47,10 +51,22 @@ impl Model {
 
 impl View {
     pub fn new() -> Self {
-        View {}
+        View {
+            next_tick: Instant::now(),
+        }
     }
 
     pub fn render(&mut self, view_model: &mut ViewModel) {
+        self.await_next_tick();
         evo_conrod::render(view_model);
+    }
+
+    fn await_next_tick(&mut self) {
+        let mut now = Instant::now();
+        if now < self.next_tick {
+            thread::sleep(self.next_tick - now);
+            now = Instant::now();
+        }
+        self.next_tick = now + Duration::from_millis(16);
     }
 }

@@ -27,10 +27,7 @@ fn main() {
         event_queue.push(Event::Rendered);
     });
 
-    let model = Model {};
-    let view = View {};
-    let view_model = ViewModel::new();
-    let mut mvvm = MVVM(model, view, view_model);
+    let mut mvvm = MVVM(Model::new(), View::new(), ViewModel::new());
 
     event_manager.events().push(Event::Rendered);
     event_manager.fire_events(&mut mvvm);
@@ -39,12 +36,20 @@ fn main() {
 }
 
 impl Model {
+    pub fn new() -> Self {
+        Model {}
+    }
+
     pub fn tick(&mut self, view_model: &mut ViewModel) {
         evo_model::tick(view_model);
     }
 }
 
 impl View {
+    pub fn new() -> Self {
+        View {}
+    }
+
     pub fn render(&mut self, view_model: &mut ViewModel) {
         evo_conrod::render(view_model);
     }

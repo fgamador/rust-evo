@@ -16,14 +16,14 @@ fn main() {
     let mut event_manager: EventManager<Event, MVVM> = EventManager::new();
 
     event_manager.add_listener(Event::Rendered, |event_queue, subject| {
-        let MVVM(_, _, ref mut view_model) = subject;
-        evo_model::tick(view_model);
+        let MVVM(ref mut model, _, ref mut view_model) = subject;
+        model.tick(view_model);
         event_queue.push(Event::Updated);
     });
 
     event_manager.add_listener(Event::Updated, |event_queue, subject| {
-        let MVVM(_, _, ref mut view_model) = subject;
-        evo_conrod::render(view_model);
+        let MVVM(_, ref mut view, ref mut view_model) = subject;
+        view.render(view_model);
         event_queue.push(Event::Rendered);
     });
 
@@ -36,4 +36,16 @@ fn main() {
     event_manager.fire_events(&mut mvvm);
 
     //evo_conrod::main();
+}
+
+impl Model {
+    pub fn tick(&mut self, view_model: &mut ViewModel) {
+        evo_model::tick(view_model);
+    }
+}
+
+impl View {
+    pub fn render(&mut self, view_model: &mut ViewModel) {
+        evo_conrod::render(view_model);
+    }
 }

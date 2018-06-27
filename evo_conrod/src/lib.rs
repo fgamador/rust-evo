@@ -1,6 +1,13 @@
 #[cfg(all(feature = "winit", feature = "glium"))]
 #[macro_use]
 extern crate conrod;
+extern crate evo_view_model;
+
+use evo_view_model::ViewModel;
+
+pub fn render(view_model: &mut ViewModel) {
+    println!("({}, {})", view_model.circle.x, view_model.circle.y);
+}
 
 #[cfg(all(feature = "winit", feature = "glium"))]
 mod support;

@@ -43,6 +43,8 @@ mod feature {
         ids: Ids,
         image_map: conrod::image::Map<glium::texture::Texture2d>,
         event_loop: support::EventLoop,
+        moving_x: f64,
+        moving_y: f64,
     }
 
     impl View {
@@ -70,15 +72,12 @@ mod feature {
                 image_map: conrod::image::Map::<glium::texture::Texture2d>::new(),
                 ids,
                 event_loop: support::EventLoop::new(),
+                moving_x: -150.0,
+                moving_y: -150.0,
             }
         }
 
         pub fn main(&mut self) {
-            // A unique identifier for each widget.
-
-            let mut moving_x = -150.0;
-            let mut moving_y = -150.0;
-
             // Poll events from the window.
             'main: loop {
 
@@ -96,7 +95,7 @@ mod feature {
                     }
                 }
 
-                set_ui(self.ui.set_widgets(), &mut self.ids, moving_x, moving_y);
+                set_ui(self.ui.set_widgets(), &mut self.ids, self.moving_x, self.moving_y);
 
                 // Render the `Ui` and then display it on the screen.
                 if let Some(primitives) = self.ui.draw_if_changed() {
@@ -107,8 +106,8 @@ mod feature {
                     target.finish().unwrap();
                 }
 
-                moving_x += 1.0;
-                moving_y += 1.0;
+                self.moving_x += 1.0;
+                self.moving_y += 1.0;
                 self.event_loop.needs_update();
             }
         }

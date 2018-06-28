@@ -82,10 +82,23 @@ mod feature {
         }
 
         pub fn once(&mut self) -> bool {
-            // Handle all events.
+            if !self.handle_events() {
+                return false;
+            }
+
+            set_ui(self.ui.set_widgets(), &mut self.ids, self.moving_x, self.moving_y);
+
+            self.render_and_display_ui();
+
+            self.moving_x += 1.0;
+            self.moving_y += 1.0;
+
+            true
+        }
+
+        fn handle_events(&mut self) -> bool {
             self.event_loop.needs_update();
             for event in self.event_loop.next(&mut self.events_loop) {
-
                 // Use the `winit` backend feature to convert the winit event to a conrod one.
                 if let Some(event) = conrod::backend::winit::convert_event(event.clone(), &self.display) {
                     self.ui.handle_event(event);
@@ -96,14 +109,6 @@ mod feature {
                     return false;
                 }
             }
-
-            set_ui(self.ui.set_widgets(), &mut self.ids, self.moving_x, self.moving_y);
-
-            self.render_and_display_ui();
-
-            self.moving_x += 1.0;
-            self.moving_y += 1.0;
-
             true
         }
 

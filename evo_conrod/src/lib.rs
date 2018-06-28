@@ -40,6 +40,7 @@ mod feature {
         events_loop: glium::glutin::EventsLoop,
         renderer: conrod::backend::glium::Renderer,
         ui: conrod::Ui,
+        ids: Ids,
         image_map: conrod::image::Map<glium::texture::Texture2d>,
         event_loop: support::EventLoop,
     }
@@ -58,25 +59,22 @@ mod feature {
             let events_loop = glium::glutin::EventsLoop::new();
             let display = glium::Display::new(window, context, &events_loop).unwrap();
             let renderer = conrod::backend::glium::Renderer::new(&display).unwrap();
+            let mut ui = conrod::UiBuilder::new([Self::WIDTH as f64, Self::HEIGHT as f64]).build();
+            let ids = Ids::new(ui.widget_id_generator());
 
             View {
                 display,
                 events_loop,
                 renderer,
-                ui: conrod::UiBuilder::new([Self::WIDTH as f64, Self::HEIGHT as f64]).build(),
+                ui,
                 image_map: conrod::image::Map::<glium::texture::Texture2d>::new(),
+                ids,
                 event_loop: support::EventLoop::new(),
             }
         }
 
         pub fn main(&mut self) {
             // A unique identifier for each widget.
-            let mut ids = Ids::new(self.ui.widget_id_generator());
-
-            // A type used for converting `conrod::render::Primitives` into `Command`s that can be used
-            // for drawing to the glium `Surface`.
-
-            // The image map describing each of our widget->image mappings (in our case, none).
 
             let mut moving_x = -150.0;
             let mut moving_y = -150.0;
@@ -98,7 +96,7 @@ mod feature {
                     }
                 }
 
-                set_ui(self.ui.set_widgets(), &mut ids, moving_x, moving_y);
+                set_ui(self.ui.set_widgets(), &mut self.ids, moving_x, moving_y);
 
                 // Render the `Ui` and then display it on the screen.
                 if let Some(primitives) = self.ui.draw_if_changed() {

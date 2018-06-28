@@ -38,6 +38,7 @@ mod feature {
     pub struct View {
         events_loop: glium::glutin::EventsLoop,
         ui: conrod::Ui,
+        event_loop: support::EventLoop,
     }
 
     impl View {
@@ -48,6 +49,7 @@ mod feature {
             View {
                 events_loop: glium::glutin::EventsLoop::new(),
                 ui: conrod::UiBuilder::new([Self::WIDTH as f64, Self::HEIGHT as f64]).build(),
+                event_loop: support::EventLoop::new(),
             }
         }
 
@@ -75,16 +77,15 @@ mod feature {
             let mut moving_y = -150.0;
 
             // Poll events from the window.
-            let mut event_loop = support::EventLoop::new();
             'main: loop {
 
                 // Handle all events.
-                for event in event_loop.next(&mut self.events_loop) {
+                for event in self.event_loop.next(&mut self.events_loop) {
 
                     // Use the `winit` backend feature to convert the winit event to a conrod one.
                     if let Some(event) = conrod::backend::winit::convert_event(event.clone(), &display) {
                         self.ui.handle_event(event);
-                        event_loop.needs_update();
+                        self.event_loop.needs_update();
                     }
 
                     if is_window_close(&event) {
@@ -105,7 +106,7 @@ mod feature {
 
                 moving_x += 1.0;
                 moving_y += 1.0;
-                event_loop.needs_update();
+                self.event_loop.needs_update();
             }
         }
     }

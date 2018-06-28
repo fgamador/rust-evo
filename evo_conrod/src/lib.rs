@@ -13,7 +13,8 @@ pub fn render(view_model: &mut ViewModel) {
 mod support;
 
 pub fn main() {
-    feature::main();
+    let mut view = feature::View::new();
+    view.main();
 }
 
 #[cfg(all(feature = "winit", feature = "glium"))]
@@ -34,68 +35,76 @@ mod feature {
         }
     }
 
-    pub fn main() {
-        const WIDTH: u32 = 400;
-        const HEIGHT: u32 = 400;
+    pub struct View {}
 
-        // Build the window.
-        let mut events_loop = glium::glutin::EventsLoop::new();
-        let window = glium::glutin::WindowBuilder::new()
-            .with_title("Evo")
-            .with_dimensions(WIDTH, HEIGHT);
-        let context = glium::glutin::ContextBuilder::new()
-            .with_vsync(true)
-            .with_multisampling(4);
-        let display = glium::Display::new(window, context, &events_loop).unwrap();
+    impl View {
+        pub fn new() -> Self {
+            View {}
+        }
 
-        // construct our `Ui`.
-        let mut ui = conrod::UiBuilder::new([WIDTH as f64, HEIGHT as f64]).build();
+        pub fn main(&mut self) {
+            const WIDTH: u32 = 400;
+            const HEIGHT: u32 = 400;
 
-        // A unique identifier for each widget.
-        let mut ids = Ids::new(ui.widget_id_generator());
+            // Build the window.
+            let mut events_loop = glium::glutin::EventsLoop::new();
+            let window = glium::glutin::WindowBuilder::new()
+                .with_title("Evo")
+                .with_dimensions(WIDTH, HEIGHT);
+            let context = glium::glutin::ContextBuilder::new()
+                .with_vsync(true)
+                .with_multisampling(4);
+            let display = glium::Display::new(window, context, &events_loop).unwrap();
 
-        // A type used for converting `conrod::render::Primitives` into `Command`s that can be used
-        // for drawing to the glium `Surface`.
-        let mut renderer = conrod::backend::glium::Renderer::new(&display).unwrap();
+            // construct our `Ui`.
+            let mut ui = conrod::UiBuilder::new([WIDTH as f64, HEIGHT as f64]).build();
 
-        // The image map describing each of our widget->image mappings (in our case, none).
-        let image_map = conrod::image::Map::<glium::texture::Texture2d>::new();
+            // A unique identifier for each widget.
+            let mut ids = Ids::new(ui.widget_id_generator());
 
-        let mut moving_x = -150.0;
-        let mut moving_y = -150.0;
+            // A type used for converting `conrod::render::Primitives` into `Command`s that can be used
+            // for drawing to the glium `Surface`.
+            let mut renderer = conrod::backend::glium::Renderer::new(&display).unwrap();
 
-        // Poll events from the window.
-        let mut event_loop = support::EventLoop::new();
-        'main: loop {
+            // The image map describing each of our widget->image mappings (in our case, none).
+            let image_map = conrod::image::Map::<glium::texture::Texture2d>::new();
 
-            // Handle all events.
-            for event in event_loop.next(&mut events_loop) {
+            let mut moving_x = -150.0;
+            let mut moving_y = -150.0;
 
-                // Use the `winit` backend feature to convert the winit event to a conrod one.
-                if let Some(event) = conrod::backend::winit::convert_event(event.clone(), &display) {
-                    ui.handle_event(event);
-                    event_loop.needs_update();
+            // Poll events from the window.
+            let mut event_loop = support::EventLoop::new();
+            'main: loop {
+
+                // Handle all events.
+                for event in event_loop.next(&mut events_loop) {
+
+                    // Use the `winit` backend feature to convert the winit event to a conrod one.
+                    if let Some(event) = conrod::backend::winit::convert_event(event.clone(), &display) {
+                        ui.handle_event(event);
+                        event_loop.needs_update();
+                    }
+
+                    if is_window_close(&event) {
+                        break 'main;
+                    }
                 }
 
-                if is_window_close(&event) {
-                    break 'main;
+                set_ui(ui.set_widgets(), &mut ids, moving_x, moving_y);
+
+                // Render the `Ui` and then display it on the screen.
+                if let Some(primitives) = ui.draw_if_changed() {
+                    renderer.fill(&display, primitives, &image_map);
+                    let mut target = display.draw();
+                    target.clear_color(0.0, 0.0, 0.0, 1.0);
+                    renderer.draw(&display, &mut target, &image_map).unwrap();
+                    target.finish().unwrap();
                 }
+
+                moving_x += 1.0;
+                moving_y += 1.0;
+                event_loop.needs_update();
             }
-
-            set_ui(ui.set_widgets(), &mut ids, moving_x, moving_y);
-
-            // Render the `Ui` and then display it on the screen.
-            if let Some(primitives) = ui.draw_if_changed() {
-                renderer.fill(&display, primitives, &image_map);
-                let mut target = display.draw();
-                target.clear_color(0.0, 0.0, 0.0, 1.0);
-                renderer.draw(&display, &mut target, &image_map).unwrap();
-                target.finish().unwrap();
-            }
-
-            moving_x += 1.0;
-            moving_y += 1.0;
-            event_loop.needs_update();
         }
     }
 

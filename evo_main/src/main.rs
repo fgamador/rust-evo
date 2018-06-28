@@ -34,9 +34,9 @@ fn main() {
     let mut mvvm = MVVM(Model::new(), View::new(), ViewModel::new());
 
     event_manager.events().push(Event::Rendered);
-    event_manager.fire_events(&mut mvvm);
+    //event_manager.fire_events(&mut mvvm);
 
-    //evo_conrod::main();
+    evo_conrod::main();
 }
 
 impl Model {

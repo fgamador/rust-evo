@@ -37,6 +37,7 @@ mod feature {
 
     pub struct View {
         events_loop: glium::glutin::EventsLoop,
+        ui: conrod::Ui,
     }
 
     impl View {
@@ -46,6 +47,7 @@ mod feature {
         pub fn new() -> Self {
             View {
                 events_loop: glium::glutin::EventsLoop::new(),
+                ui: conrod::UiBuilder::new([Self::WIDTH as f64, Self::HEIGHT as f64]).build(),
             }
         }
 
@@ -59,11 +61,8 @@ mod feature {
                 .with_multisampling(4);
             let display = glium::Display::new(window, context, &self.events_loop).unwrap();
 
-            // construct our `Ui`.
-            let mut ui = conrod::UiBuilder::new([Self::WIDTH as f64, Self::HEIGHT as f64]).build();
-
             // A unique identifier for each widget.
-            let mut ids = Ids::new(ui.widget_id_generator());
+            let mut ids = Ids::new(self.ui.widget_id_generator());
 
             // A type used for converting `conrod::render::Primitives` into `Command`s that can be used
             // for drawing to the glium `Surface`.
@@ -84,7 +83,7 @@ mod feature {
 
                     // Use the `winit` backend feature to convert the winit event to a conrod one.
                     if let Some(event) = conrod::backend::winit::convert_event(event.clone(), &display) {
-                        ui.handle_event(event);
+                        self.ui.handle_event(event);
                         event_loop.needs_update();
                     }
 
@@ -93,10 +92,10 @@ mod feature {
                     }
                 }
 
-                set_ui(ui.set_widgets(), &mut ids, moving_x, moving_y);
+                set_ui(self.ui.set_widgets(), &mut ids, moving_x, moving_y);
 
                 // Render the `Ui` and then display it on the screen.
-                if let Some(primitives) = ui.draw_if_changed() {
+                if let Some(primitives) = self.ui.draw_if_changed() {
                     renderer.fill(&display, primitives, &image_map);
                     let mut target = display.draw();
                     target.clear_color(0.0, 0.0, 0.0, 1.0);

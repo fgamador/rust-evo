@@ -78,38 +78,40 @@ mod feature {
         }
 
         pub fn main(&mut self) {
-            // Poll events from the window.
-            'main: loop {
+            while self.once() {}
+        }
 
-                // Handle all events.
-                for event in self.event_loop.next(&mut self.events_loop) {
+        pub fn once(&mut self) -> bool {
+            // Handle all events.
+            for event in self.event_loop.next(&mut self.events_loop) {
 
-                    // Use the `winit` backend feature to convert the winit event to a conrod one.
-                    if let Some(event) = conrod::backend::winit::convert_event(event.clone(), &self.display) {
-                        self.ui.handle_event(event);
-                        self.event_loop.needs_update();
-                    }
-
-                    if is_window_close(&event) {
-                        break 'main;
-                    }
+                // Use the `winit` backend feature to convert the winit event to a conrod one.
+                if let Some(event) = conrod::backend::winit::convert_event(event.clone(), &self.display) {
+                    self.ui.handle_event(event);
+                    self.event_loop.needs_update();
                 }
 
-                set_ui(self.ui.set_widgets(), &mut self.ids, self.moving_x, self.moving_y);
-
-                // Render the `Ui` and then display it on the screen.
-                if let Some(primitives) = self.ui.draw_if_changed() {
-                    self.renderer.fill(&self.display, primitives, &self.image_map);
-                    let mut target = self.display.draw();
-                    target.clear_color(0.0, 0.0, 0.0, 1.0);
-                    self.renderer.draw(&self.display, &mut target, &self.image_map).unwrap();
-                    target.finish().unwrap();
+                if is_window_close(&event) {
+                    return false;
                 }
-
-                self.moving_x += 1.0;
-                self.moving_y += 1.0;
-                self.event_loop.needs_update();
             }
+
+            set_ui(self.ui.set_widgets(), &mut self.ids, self.moving_x, self.moving_y);
+
+            // Render the `Ui` and then display it on the screen.
+            if let Some(primitives) = self.ui.draw_if_changed() {
+                self.renderer.fill(&self.display, primitives, &self.image_map);
+                let mut target = self.display.draw();
+                target.clear_color(0.0, 0.0, 0.0, 1.0);
+                self.renderer.draw(&self.display, &mut target, &self.image_map).unwrap();
+                target.finish().unwrap();
+            }
+
+            self.moving_x += 1.0;
+            self.moving_y += 1.0;
+            self.event_loop.needs_update();
+
+            true
         }
     }
 

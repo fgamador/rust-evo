@@ -38,26 +38,26 @@ mod feature {
     pub struct View {}
 
     impl View {
+        const WIDTH: u32 = 400;
+        const HEIGHT: u32 = 400;
+
         pub fn new() -> Self {
             View {}
         }
 
         pub fn main(&mut self) {
-            const WIDTH: u32 = 400;
-            const HEIGHT: u32 = 400;
-
             // Build the window.
             let mut events_loop = glium::glutin::EventsLoop::new();
             let window = glium::glutin::WindowBuilder::new()
                 .with_title("Evo")
-                .with_dimensions(WIDTH, HEIGHT);
+                .with_dimensions(Self::WIDTH, Self::HEIGHT);
             let context = glium::glutin::ContextBuilder::new()
                 .with_vsync(true)
                 .with_multisampling(4);
             let display = glium::Display::new(window, context, &events_loop).unwrap();
 
             // construct our `Ui`.
-            let mut ui = conrod::UiBuilder::new([WIDTH as f64, HEIGHT as f64]).build();
+            let mut ui = conrod::UiBuilder::new([Self::WIDTH as f64, Self::HEIGHT as f64]).build();
 
             // A unique identifier for each widget.
             let mut ids = Ids::new(ui.widget_id_generator());

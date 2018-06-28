@@ -40,6 +40,7 @@ mod feature {
         events_loop: glium::glutin::EventsLoop,
         renderer: conrod::backend::glium::Renderer,
         ui: conrod::Ui,
+        image_map: conrod::image::Map<glium::texture::Texture2d>,
         event_loop: support::EventLoop,
     }
 
@@ -63,6 +64,7 @@ mod feature {
                 events_loop,
                 renderer,
                 ui: conrod::UiBuilder::new([Self::WIDTH as f64, Self::HEIGHT as f64]).build(),
+                image_map: conrod::image::Map::<glium::texture::Texture2d>::new(),
                 event_loop: support::EventLoop::new(),
             }
         }
@@ -75,7 +77,6 @@ mod feature {
             // for drawing to the glium `Surface`.
 
             // The image map describing each of our widget->image mappings (in our case, none).
-            let image_map = conrod::image::Map::<glium::texture::Texture2d>::new();
 
             let mut moving_x = -150.0;
             let mut moving_y = -150.0;
@@ -101,10 +102,10 @@ mod feature {
 
                 // Render the `Ui` and then display it on the screen.
                 if let Some(primitives) = self.ui.draw_if_changed() {
-                    self.renderer.fill(&self.display, primitives, &image_map);
+                    self.renderer.fill(&self.display, primitives, &self.image_map);
                     let mut target = self.display.draw();
                     target.clear_color(0.0, 0.0, 0.0, 1.0);
-                    self.renderer.draw(&self.display, &mut target, &image_map).unwrap();
+                    self.renderer.draw(&self.display, &mut target, &self.image_map).unwrap();
                     target.finish().unwrap();
                 }
 

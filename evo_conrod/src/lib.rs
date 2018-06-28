@@ -83,6 +83,7 @@ mod feature {
 
         pub fn once(&mut self) -> bool {
             // Handle all events.
+            self.event_loop.needs_update();
             for event in self.event_loop.next(&mut self.events_loop) {
 
                 // Use the `winit` backend feature to convert the winit event to a conrod one.
@@ -102,7 +103,6 @@ mod feature {
 
             self.moving_x += 1.0;
             self.moving_y += 1.0;
-            self.event_loop.needs_update();
 
             true
         }

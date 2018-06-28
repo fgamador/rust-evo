@@ -38,6 +38,7 @@ mod feature {
     pub struct View {
         display: glium::Display,
         events_loop: glium::glutin::EventsLoop,
+        renderer: conrod::backend::glium::Renderer,
         ui: conrod::Ui,
         event_loop: support::EventLoop,
     }
@@ -54,10 +55,13 @@ mod feature {
                 .with_vsync(true)
                 .with_multisampling(4);
             let events_loop = glium::glutin::EventsLoop::new();
+            let display = glium::Display::new(window, context, &events_loop).unwrap();
+            let renderer = conrod::backend::glium::Renderer::new(&display).unwrap();
 
             View {
-                display: glium::Display::new(window, context, &events_loop).unwrap(),
+                display,
                 events_loop,
+                renderer,
                 ui: conrod::UiBuilder::new([Self::WIDTH as f64, Self::HEIGHT as f64]).build(),
                 event_loop: support::EventLoop::new(),
             }
@@ -69,7 +73,6 @@ mod feature {
 
             // A type used for converting `conrod::render::Primitives` into `Command`s that can be used
             // for drawing to the glium `Surface`.
-            let mut renderer = conrod::backend::glium::Renderer::new(&self.display).unwrap();
 
             // The image map describing each of our widget->image mappings (in our case, none).
             let image_map = conrod::image::Map::<glium::texture::Texture2d>::new();
@@ -98,10 +101,10 @@ mod feature {
 
                 // Render the `Ui` and then display it on the screen.
                 if let Some(primitives) = self.ui.draw_if_changed() {
-                    renderer.fill(&self.display, primitives, &image_map);
+                    self.renderer.fill(&self.display, primitives, &image_map);
                     let mut target = self.display.draw();
                     target.clear_color(0.0, 0.0, 0.0, 1.0);
-                    renderer.draw(&self.display, &mut target, &image_map).unwrap();
+                    self.renderer.draw(&self.display, &mut target, &image_map).unwrap();
                     target.finish().unwrap();
                 }
 

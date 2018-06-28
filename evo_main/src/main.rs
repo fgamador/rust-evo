@@ -11,6 +11,7 @@ use std::time::{Duration, Instant};
 struct Model {}
 
 struct View {
+    view: evo_conrod::feature::View,
     next_tick: Instant,
 }
 
@@ -27,16 +28,15 @@ fn main() {
 
     event_manager.add_listener(Event::Updated, |event_queue, subject| {
         let MVVM(_, ref mut view, ref mut view_model) = subject;
-        view.render(view_model);
-        event_queue.push(Event::Rendered);
+        if view.render(view_model) {
+            event_queue.push(Event::Rendered);
+        }
     });
 
     let mut mvvm = MVVM(Model::new(), View::new(), ViewModel::new());
 
     event_manager.events().push(Event::Rendered);
-    //event_manager.fire_events(&mut mvvm);
-
-    evo_conrod::main();
+    event_manager.fire_events(&mut mvvm);
 }
 
 impl Model {
@@ -52,13 +52,14 @@ impl Model {
 impl View {
     pub fn new() -> Self {
         View {
+            view: evo_conrod::feature::View::new(),
             next_tick: Instant::now(),
         }
     }
 
-    pub fn render(&mut self, view_model: &mut ViewModel) {
+    pub fn render(&mut self, _view_model: &mut ViewModel) -> bool {
         self.await_next_tick();
-        evo_conrod::render(view_model);
+        self.view.once()
     }
 
     fn await_next_tick(&mut self) {

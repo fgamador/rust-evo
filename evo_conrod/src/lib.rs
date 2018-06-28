@@ -18,7 +18,7 @@ pub fn main() {
 }
 
 #[cfg(all(feature = "winit", feature = "glium"))]
-mod feature {
+pub mod feature {
     extern crate find_folder;
 
     use conrod;

@@ -98,7 +98,16 @@ mod feature {
 
             set_ui(self.ui.set_widgets(), &mut self.ids, self.moving_x, self.moving_y);
 
-            // Render the `Ui` and then display it on the screen.
+            self.render_and_display_ui();
+
+            self.moving_x += 1.0;
+            self.moving_y += 1.0;
+            self.event_loop.needs_update();
+
+            true
+        }
+
+        fn render_and_display_ui(&mut self) {
             if let Some(primitives) = self.ui.draw_if_changed() {
                 self.renderer.fill(&self.display, primitives, &self.image_map);
                 let mut target = self.display.draw();
@@ -106,12 +115,6 @@ mod feature {
                 self.renderer.draw(&self.display, &mut target, &self.image_map).unwrap();
                 target.finish().unwrap();
             }
-
-            self.moving_x += 1.0;
-            self.moving_y += 1.0;
-            self.event_loop.needs_update();
-
-            true
         }
     }
 

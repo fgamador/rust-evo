@@ -36,6 +36,7 @@ mod feature {
     }
 
     pub struct View {
+        display: glium::Display,
         events_loop: glium::glutin::EventsLoop,
         ui: conrod::Ui,
         event_loop: support::EventLoop,
@@ -46,29 +47,29 @@ mod feature {
         const HEIGHT: u32 = 400;
 
         pub fn new() -> Self {
-            View {
-                events_loop: glium::glutin::EventsLoop::new(),
-                ui: conrod::UiBuilder::new([Self::WIDTH as f64, Self::HEIGHT as f64]).build(),
-                event_loop: support::EventLoop::new(),
-            }
-        }
-
-        pub fn main(&mut self) {
-            // Build the window.
             let window = glium::glutin::WindowBuilder::new()
                 .with_title("Evo")
                 .with_dimensions(Self::WIDTH, Self::HEIGHT);
             let context = glium::glutin::ContextBuilder::new()
                 .with_vsync(true)
                 .with_multisampling(4);
-            let display = glium::Display::new(window, context, &self.events_loop).unwrap();
+            let events_loop = glium::glutin::EventsLoop::new();
 
+            View {
+                display: glium::Display::new(window, context, &events_loop).unwrap(),
+                events_loop,
+                ui: conrod::UiBuilder::new([Self::WIDTH as f64, Self::HEIGHT as f64]).build(),
+                event_loop: support::EventLoop::new(),
+            }
+        }
+
+        pub fn main(&mut self) {
             // A unique identifier for each widget.
             let mut ids = Ids::new(self.ui.widget_id_generator());
 
             // A type used for converting `conrod::render::Primitives` into `Command`s that can be used
             // for drawing to the glium `Surface`.
-            let mut renderer = conrod::backend::glium::Renderer::new(&display).unwrap();
+            let mut renderer = conrod::backend::glium::Renderer::new(&self.display).unwrap();
 
             // The image map describing each of our widget->image mappings (in our case, none).
             let image_map = conrod::image::Map::<glium::texture::Texture2d>::new();
@@ -83,7 +84,7 @@ mod feature {
                 for event in self.event_loop.next(&mut self.events_loop) {
 
                     // Use the `winit` backend feature to convert the winit event to a conrod one.
-                    if let Some(event) = conrod::backend::winit::convert_event(event.clone(), &display) {
+                    if let Some(event) = conrod::backend::winit::convert_event(event.clone(), &self.display) {
                         self.ui.handle_event(event);
                         self.event_loop.needs_update();
                     }
@@ -97,10 +98,10 @@ mod feature {
 
                 // Render the `Ui` and then display it on the screen.
                 if let Some(primitives) = self.ui.draw_if_changed() {
-                    renderer.fill(&display, primitives, &image_map);
-                    let mut target = display.draw();
+                    renderer.fill(&self.display, primitives, &image_map);
+                    let mut target = self.display.draw();
                     target.clear_color(0.0, 0.0, 0.0, 1.0);
-                    renderer.draw(&display, &mut target, &image_map).unwrap();
+                    renderer.draw(&self.display, &mut target, &image_map).unwrap();
                     target.finish().unwrap();
                 }
 

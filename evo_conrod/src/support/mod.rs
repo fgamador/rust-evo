@@ -1,6 +1,7 @@
 #![allow(dead_code)]
 
-#[cfg(feature="glium")] use conrod::backend::glium::glium;
+#[cfg(feature = "glium")]
+use conrod::backend::glium::glium;
 
 /// In most of the examples the `glutin` crate is used for providing the window context and
 /// events while the `glium` crate is used for displaying `conrod::render::Primitives` to the
@@ -8,14 +9,13 @@
 /// 
 /// This `Iterator`-like type simplifies some of the boilerplate involved in setting up a
 /// glutin+glium event loop that works efficiently with conrod.
-#[cfg(feature="glium")]
+#[cfg(feature = "glium")]
 pub struct EventLoop {
     ui_needs_update: bool,
 }
 
-#[cfg(feature="glium")]
+#[cfg(feature = "glium")]
 impl EventLoop {
-
     pub fn new() -> Self {
         EventLoop {
             ui_needs_update: true,
@@ -49,5 +49,4 @@ impl EventLoop {
     pub fn needs_update(&mut self) {
         self.ui_needs_update = true;
     }
-
 }

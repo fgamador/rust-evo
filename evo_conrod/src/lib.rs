@@ -3,12 +3,6 @@
 extern crate conrod;
 extern crate evo_view_model;
 
-use evo_view_model::ViewModel;
-
-pub fn render(view_model: &mut ViewModel) {
-    println!("({}, {})", view_model.circle.x, view_model.circle.y);
-}
-
 #[cfg(all(feature = "winit", feature = "glium"))]
 mod support;
 
@@ -20,6 +14,8 @@ pub fn main() {
 #[cfg(all(feature = "winit", feature = "glium"))]
 pub mod feature {
     extern crate find_folder;
+
+    use evo_view_model::ViewModel;
 
     use conrod;
     use conrod::backend::glium::glium;
@@ -43,8 +39,6 @@ pub mod feature {
         ids: Ids,
         image_map: conrod::image::Map<glium::texture::Texture2d>,
         event_loop: support::EventLoop,
-        moving_x: f64,
-        moving_y: f64,
     }
 
     impl View {
@@ -72,26 +66,21 @@ pub mod feature {
                 image_map: conrod::image::Map::<glium::texture::Texture2d>::new(),
                 ids,
                 event_loop: support::EventLoop::new(),
-                moving_x: -150.0,
-                moving_y: -150.0,
             }
         }
 
         pub fn main(&mut self) {
-            while self.once() {}
+            //while self.once() {}
         }
 
-        pub fn once(&mut self) -> bool {
+        pub fn once(&mut self, view_model: &mut ViewModel) -> bool {
             if !self.handle_events() {
                 return false;
             }
 
-            set_ui(self.ui.set_widgets(), &mut self.ids, self.moving_x, self.moving_y);
+            set_ui(self.ui.set_widgets(), &mut self.ids, view_model.circle.x, view_model.circle.y);
 
             self.render_and_display_ui();
-
-            self.moving_x += 1.0;
-            self.moving_y += 1.0;
 
             true
         }

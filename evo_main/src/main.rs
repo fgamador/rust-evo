@@ -57,9 +57,9 @@ impl View {
         }
     }
 
-    pub fn render(&mut self, _view_model: &mut ViewModel) -> bool {
+    pub fn render(&mut self, view_model: &mut ViewModel) -> bool {
         self.await_next_tick();
-        self.view.once()
+        self.view.once(view_model)
     }
 
     fn await_next_tick(&mut self) {

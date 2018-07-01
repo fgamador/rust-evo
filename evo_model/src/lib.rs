@@ -5,6 +5,11 @@ use evo_view_model::ViewModel;
 pub mod physics;
 
 pub fn tick(view_model: &mut ViewModel) {
-    view_model.circle.x += 1.0;
-    view_model.circle.y += 1.0;
+    let circle = &mut view_model.circle;
+    circle.x += 1.0;
+    circle.y += 1.0;
+    if circle.x > 100.0 {
+        circle.x = -100.0;
+        circle.y = -100.0;
+    }
 }

@@ -11,14 +11,14 @@ pub trait Body {
 
 #[derive(Debug, PartialEq)]
 pub struct State {
+    pub mass: Mass,
     pub position: Position,
     pub velocity: Velocity,
-    pub mass: Mass,
 }
 
 impl State {
-    pub fn new(position: Position, velocity: Velocity, mass: Mass) -> State {
-        State { position, velocity, mass }
+    pub fn new(mass: Mass, position: Position, velocity: Velocity) -> State {
+        State { mass, position, velocity }
     }
 }
 
@@ -69,16 +69,16 @@ mod tests {
 
     #[test]
     fn coasting() {
-        let mut subject = SimpleBody::new(Position::new(-1.0, 1.5), Velocity::new(1.0, 2.0), Mass::new(2.0));
+        let mut subject = SimpleBody::new(Mass::new(2.0), Position::new(-1.0, 1.5), Velocity::new(1.0, 2.0));
         subject.move_for(Duration::new(0.5));
-        assert_eq!(State::new(Position::new(-0.5, 2.5), Velocity::new(1.0, 2.0), Mass::new(2.0)), *subject.state());
+        assert_eq!(State::new(Mass::new(2.0), Position::new(-0.5, 2.5), Velocity::new(1.0, 2.0)), *subject.state());
     }
 
     #[test]
     fn kicked() {
-        let mut subject = SimpleBody::new(Position::new(-1.0, 2.0), Velocity::new(1.0, -1.0), Mass::new(2.0));
+        let mut subject = SimpleBody::new(Mass::new(2.0), Position::new(-1.0, 2.0), Velocity::new(1.0, -1.0));
         subject.kick(Impulse::new(0.5, 0.5));
-        assert_eq!(State::new(Position::new(-1.0, 2.0), Velocity::new(1.25, -0.75), Mass::new(2.0)), *subject.state());
+        assert_eq!(State::new(Mass::new(2.0), Position::new(-1.0, 2.0), Velocity::new(1.25, -0.75)), *subject.state());
     }
 
     #[test]
@@ -100,9 +100,9 @@ mod tests {
     }
 
     impl SimpleBody {
-        fn new(position: Position, velocity: Velocity, mass: Mass) -> SimpleBody {
+        fn new(mass: Mass, position: Position, velocity: Velocity) -> SimpleBody {
             SimpleBody {
-                state: State::new(position, velocity, mass)
+                state: State::new(mass, position, velocity)
             }
         }
 

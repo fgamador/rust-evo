@@ -6,9 +6,9 @@ struct Ball {
 }
 
 impl Ball {
-    fn new(position: Position, velocity: Velocity, mass: Mass) -> Ball {
+    fn new(mass: Mass, position: Position, velocity: Velocity) -> Ball {
         Ball {
-            state: newtonian::State::new(position, velocity, mass)
+            state: newtonian::State::new(mass, position, velocity)
         }
     }
 

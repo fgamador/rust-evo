@@ -5,11 +5,11 @@ trait Circle {
 
     fn center(&self) -> Position;
 
-    fn to_bounding_box(&self) -> BoundingBox {
-        BoundingBox::new(Position::new(self.center().x() - self.radius().value(),
-                                       self.center().y() - self.radius().value()),
-                         Position::new(self.center().x() + self.radius().value(),
-                                       self.center().y() + self.radius().value()))
+    fn to_bounding_box(&self) -> Rectangle {
+        Rectangle::new(Position::new(self.center().x() - self.radius().value(),
+                                     self.center().y() - self.radius().value()),
+                       Position::new(self.center().x() + self.radius().value(),
+                                     self.center().y() + self.radius().value()))
     }
 }
 
@@ -36,14 +36,14 @@ impl Circle for SimpleCircle {
 }
 
 #[derive(Clone, Copy, Debug, PartialEq)]
-pub struct BoundingBox {
+pub struct Rectangle {
     min_corner: Position,
     max_corner: Position,
 }
 
-impl BoundingBox {
-    pub fn new(min_corner: Position, max_corner: Position) -> BoundingBox {
-        BoundingBox { min_corner, max_corner }
+impl Rectangle {
+    pub fn new(min_corner: Position, max_corner: Position) -> Rectangle {
+        Rectangle { min_corner, max_corner }
     }
 
     pub fn min_corner(&self) -> Position {
@@ -100,8 +100,8 @@ mod tests {
     #[test]
     fn circle_bounding_box() {
         let subject = SimpleCircle::new(Position::new(-0.5, 0.5), Length::new(1.0));
-        assert_eq!(BoundingBox::new(Position::new(-1.5, -0.5),
-                                    Position::new(0.5, 1.5)),
+        assert_eq!(Rectangle::new(Position::new(-1.5, -0.5),
+                                  Position::new(0.5, 1.5)),
                    subject.to_bounding_box());
     }
 

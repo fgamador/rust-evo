@@ -1,38 +1,6 @@
 use physics::quantities::*;
+use physics::shapes::*;
 use std::fmt::Debug;
-
-pub trait Circle {
-    fn radius(&self) -> Length;
-
-    fn center(&self) -> Position;
-
-    fn to_bounding_box(&self) -> Rectangle {
-        Rectangle::new(Position::new(self.center().x() - self.radius().value(),
-                                     self.center().y() - self.radius().value()),
-                       Position::new(self.center().x() + self.radius().value(),
-                                     self.center().y() + self.radius().value()))
-    }
-}
-
-#[derive(Clone, Copy, Debug, PartialEq)]
-pub struct Rectangle {
-    min_corner: Position,
-    max_corner: Position,
-}
-
-impl Rectangle {
-    pub fn new(min_corner: Position, max_corner: Position) -> Rectangle {
-        Rectangle { min_corner, max_corner }
-    }
-
-    pub fn min_corner(&self) -> Position {
-        self.min_corner
-    }
-
-    pub fn max_corner(&self) -> Position {
-        self.max_corner
-    }
-}
 
 #[derive(Clone, Copy, Debug, PartialEq)]
 pub struct Overlap<'a, C>
@@ -81,14 +49,6 @@ impl Walls {
 #[cfg(test)]
 mod tests {
     use super::*;
-
-    #[test]
-    fn circle_bounding_box() {
-        let subject = SimpleCircle::new(Position::new(-0.5, 0.5), Length::new(1.0));
-        assert_eq!(Rectangle::new(Position::new(-1.5, -0.5),
-                                  Position::new(0.5, 1.5)),
-                   subject.to_bounding_box());
-    }
 
     #[test]
     fn no_overlaps() {

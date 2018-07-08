@@ -1,10 +1,16 @@
 use physics::quantities::*;
 use std::fmt::Debug;
+use std::f64::consts::PI;
 
 pub trait Circle {
     fn radius(&self) -> Length;
 
     fn center(&self) -> Position;
+
+    fn area(&self) -> f64 {
+        let radius = self.radius().value();
+        PI * radius * radius
+    }
 
     fn to_bounding_box(&self) -> Rectangle {
         Rectangle::new(Position::new(self.center().x() - self.radius().value(),
@@ -59,6 +65,13 @@ impl Circle for SimpleCircle {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use std::f64::consts::PI;
+
+    #[test]
+    fn circle_knows_area() {
+        let subject = SimpleCircle::new(Position::new(0.0, 0.0), Length::new(2.0));
+        assert_eq!(PI * 4.0, subject.area());
+    }
 
     #[test]
     fn circle_bounding_box() {

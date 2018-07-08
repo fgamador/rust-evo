@@ -1,4 +1,5 @@
 use std::ops::Add;
+use std::ops::Div;
 use std::ops::Mul;
 use std::ops::Sub;
 
@@ -238,9 +239,13 @@ impl Impulse {
     pub fn y(&self) -> f64 {
         self.y
     }
+}
 
-    pub fn to_delta_v(&self, mass: Mass) -> DeltaV {
-        DeltaV::new(self.x / mass.value, self.y / mass.value)
+impl Div<Mass> for Impulse {
+    type Output = DeltaV;
+
+    fn div(self, rhs: Mass) -> Self::Output {
+        DeltaV::new(self.x / rhs.value, self.y / rhs.value)
     }
 }
 
@@ -369,7 +374,7 @@ mod tests {
     #[test]
     fn impulse_to_delta_v() {
         let subject = Impulse::new(1.5, -0.5);
-        assert_eq!(DeltaV::new(0.75, -0.25), subject.to_delta_v(Mass::new(2.0)));
+        assert_eq!(DeltaV::new(0.75, -0.25), subject / Mass::new(2.0));
     }
 
     #[test]

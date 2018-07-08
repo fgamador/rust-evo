@@ -36,7 +36,7 @@ impl Body for State {
     }
 
     fn kick(&mut self, impulse: Impulse) {
-        self.velocity = self.velocity + impulse.to_delta_v(self.mass);
+        self.velocity = self.velocity + impulse / self.mass;
     }
 }
 

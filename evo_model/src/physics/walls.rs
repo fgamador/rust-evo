@@ -2,22 +2,6 @@ use physics::quantities::*;
 use physics::shapes::*;
 use std::fmt::Debug;
 
-#[derive(Clone, Copy, Debug, PartialEq)]
-pub struct Overlap<'a, C>
-    where C: 'a + Circle + Debug + PartialEq
-{
-    circle: &'a C,
-    incursion: Displacement,
-}
-
-impl<'a, C> Overlap<'a, C>
-    where C: 'a + Circle + Debug + PartialEq
-{
-    pub fn new(circle: &C, incursion: Displacement) -> Overlap<C> {
-        Overlap { circle, incursion }
-    }
-}
-
 pub struct Walls {
     min_corner: Position,
     max_corner: Position,
@@ -43,6 +27,22 @@ impl Walls {
             }
         }
         overlaps
+    }
+}
+
+#[derive(Clone, Copy, Debug, PartialEq)]
+pub struct Overlap<'a, C>
+    where C: 'a + Circle + Debug + PartialEq
+{
+    circle: &'a C,
+    incursion: Displacement,
+}
+
+impl<'a, C> Overlap<'a, C>
+    where C: 'a + Circle + Debug + PartialEq
+{
+    pub fn new(circle: &C, incursion: Displacement) -> Overlap<C> {
+        Overlap { circle, incursion }
     }
 }
 

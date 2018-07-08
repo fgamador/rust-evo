@@ -4,12 +4,36 @@ pub struct Length {
 }
 
 impl Length {
-    pub fn new(value: f64) -> Length {
+    pub fn new(value: f64) -> Self {
         if value < 0.0 {
             panic!("Negative length: {}", value);
         }
 
         Length { value }
+    }
+
+    #[allow(dead_code)]
+    pub fn value(&self) -> f64 {
+        self.value
+    }
+
+    pub fn times(&self, len: Length) -> Area {
+        Area::new(self.value * len.value)
+    }
+}
+
+#[derive(Clone, Copy, Debug, PartialEq)]
+pub struct Area {
+    value: f64,
+}
+
+impl Area {
+    pub fn new(value: f64) -> Self {
+        if value < 0.0 {
+            panic!("Negative area: {}", value);
+        }
+
+        Area { value }
     }
 
     #[allow(dead_code)]
@@ -25,7 +49,7 @@ pub struct Position {
 }
 
 impl Position {
-    pub fn new(x: f64, y: f64) -> Position {
+    pub fn new(x: f64, y: f64) -> Self {
         Position { x, y }
     }
 
@@ -55,7 +79,7 @@ pub struct Displacement {
 }
 
 impl Displacement {
-    pub fn new(x: f64, y: f64) -> Displacement {
+    pub fn new(x: f64, y: f64) -> Self {
         Displacement { x, y }
     }
 
@@ -88,7 +112,7 @@ pub struct Duration {
 }
 
 impl Duration {
-    pub fn new(value: f64) -> Duration {
+    pub fn new(value: f64) -> Self {
         Duration { value }
     }
 
@@ -105,7 +129,7 @@ pub struct Velocity {
 }
 
 impl Velocity {
-    pub fn new(x: f64, y: f64) -> Velocity {
+    pub fn new(x: f64, y: f64) -> Self {
         Velocity { x, y }
     }
 
@@ -135,7 +159,7 @@ pub struct DeltaV {
 }
 
 impl DeltaV {
-    pub fn new(x: f64, y: f64) -> DeltaV {
+    pub fn new(x: f64, y: f64) -> Self {
         DeltaV { x, y }
     }
 
@@ -157,7 +181,7 @@ pub struct Impulse {
 }
 
 impl Impulse {
-    pub fn new(x: f64, y: f64) -> Impulse {
+    pub fn new(x: f64, y: f64) -> Self {
         Impulse { x, y }
     }
 
@@ -182,7 +206,7 @@ pub struct Mass {
 }
 
 impl Mass {
-    pub fn new(value: f64) -> Mass {
+    pub fn new(value: f64) -> Self {
         Mass { value }
     }
 
@@ -199,7 +223,7 @@ pub struct Force {
 }
 
 impl Force {
-    pub fn new(x: f64, y: f64) -> Force {
+    pub fn new(x: f64, y: f64) -> Self {
         Force { x, y }
     }
 
@@ -230,6 +254,18 @@ mod tests {
     #[should_panic]
     fn negative_length() {
         Length::new(-1.0);
+    }
+
+    #[test]
+    #[should_panic]
+    fn negative_area() {
+        Area::new(-1.0);
+    }
+
+    #[test]
+    fn multiply_lengths() {
+        let subject = Length::new(2.0);
+        assert_eq!(Area::new(3.0), subject.times(Length::new(1.5)));
     }
 
     #[test]

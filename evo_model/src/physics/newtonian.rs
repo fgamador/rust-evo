@@ -3,8 +3,6 @@ use physics::quantities::*;
 pub trait Body {
     fn position(&self) -> Position;
     fn velocity(&self) -> Velocity;
-    // fn add_force(&mut self, force: Force);
-    // fn clear_forces(&mut self);
     fn move_for(&mut self, duration: Duration);
     fn kick(&mut self, impulse: Impulse);
 }

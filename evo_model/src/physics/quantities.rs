@@ -321,79 +321,76 @@ mod tests {
 
     #[test]
     fn multiply_lengths() {
-        let subject = Length::new(2.0);
-        assert_eq!(Area::new(3.0), subject * Length::new(1.5));
+        assert_eq!(Area::new(3.0), Length::new(2.0) * Length::new(1.5));
     }
 
     #[test]
     fn multiply_length_by_scalar() {
-        let subject = Length::new(2.0);
-        assert_eq!(Length::new(3.0), subject * 1.5);
+        assert_eq!(Length::new(3.0), Length::new(2.0) * 1.5);
     }
 
     #[test]
     fn multiply_area_by_scalar() {
-        let subject = Area::new(2.0);
-        assert_eq!(Area::new(3.0), subject * 1.5);
+        assert_eq!(Area::new(3.0), Area::new(2.0) * 1.5);
     }
 
     #[test]
     fn displace_position() {
-        let subject = Position::new(1.5, 1.5);
-        assert_eq!(Position::new(2.0, 1.0), subject + Displacement::new(0.5, -0.5));
+        assert_eq!(Position::new(2.0, 1.0),
+                   Position::new(1.5, 1.5) + Displacement::new(0.5, -0.5));
     }
 
     #[test]
     fn subtract_positions() {
-        let subject = Position::new(2.0, 1.0);
-        assert_eq!(Displacement::new(0.5, -0.5), subject - Position::new(1.5, 1.5));
+        assert_eq!(Displacement::new(0.5, -0.5),
+                   Position::new(2.0, 1.0) - Position::new(1.5, 1.5));
     }
 
     #[test]
     fn add_displacements() {
-        let subject = Displacement::new(1.5, 1.5);
-        assert_eq!(Displacement::new(2.0, 1.0), subject + Displacement::new(0.5, -0.5));
+        assert_eq!(Displacement::new(2.0, 1.0),
+                   Displacement::new(1.5, 1.5) + Displacement::new(0.5, -0.5));
     }
 
     #[test]
     fn displacement_max() {
-        let subject = Displacement::new(1.5, -0.5);
-        assert_eq!(Displacement::new(1.5, -0.25), subject.max(Displacement::new(0.5, -0.25)));
+        assert_eq!(Displacement::new(1.5, -0.25),
+                   Displacement::new(1.5, -0.5).max(Displacement::new(0.5, -0.25)));
     }
 
     #[test]
     fn displacement_min() {
-        let subject = Displacement::new(1.5, -0.25);
-        assert_eq!(Displacement::new(0.5, -0.5), subject.min(Displacement::new(0.5, -0.5)));
+        assert_eq!(Displacement::new(0.5, -0.5),
+                   Displacement::new(1.5, -0.25).min(Displacement::new(0.5, -0.5)));
     }
 
     #[test]
     fn change_velocity() {
-        let subject = Velocity::new(1.5, 1.5);
-        assert_eq!(Velocity::new(1.0, 2.0), subject + DeltaV::new(-0.5, 0.5));
+        assert_eq!(Velocity::new(1.0, 2.0),
+                   Velocity::new(1.5, 1.5) + DeltaV::new(-0.5, 0.5));
     }
 
     #[test]
     fn velocity_to_displacement() {
-        let subject = Velocity::new(1.5, -0.5);
-        assert_eq!(Displacement::new(0.75, -0.25), subject * Duration::new(0.5));
+        assert_eq!(Displacement::new(0.75, -0.25),
+                   Velocity::new(1.5, -0.5) * Duration::new(0.5));
     }
 
     #[test]
     fn impulse_to_delta_v() {
-        let subject = Impulse::new(1.5, -0.5);
-        assert_eq!(DeltaV::new(0.75, -0.25), subject / Mass::new(2.0));
+        assert_eq!(DeltaV::new(0.75, -0.25),
+                   Impulse::new(1.5, -0.5) / Mass::new(2.0));
     }
 
     #[test]
     fn add_forces() {
-        let subject = Force::new(1.5, -0.5);
-        assert_eq!(Force::new(0.75, -0.25), subject + Force::new(-0.75, 0.25));
+        assert_eq!(Force::new(0.75, -0.25),
+                   Force::new(1.5, -0.5) + Force::new(-0.75, 0.25));
     }
 
     #[test]
     fn force_to_impulse() {
-        let subject = Force::new(1.5, -0.5);
-        assert_eq!(Impulse::new(0.75, -0.25), subject * Duration::new(0.5));
+        assert_eq!(Impulse::new(0.75, -0.25),
+                   Force::new(1.5, -0.5) * Duration::new(0.5));
     }
 }

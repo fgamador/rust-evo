@@ -1,4 +1,5 @@
 use std::ops::Add;
+use std::ops::AddAssign;
 use std::ops::Div;
 use std::ops::Mul;
 use std::ops::Sub;
@@ -295,6 +296,13 @@ impl Add for Force {
     }
 }
 
+impl AddAssign for Force {
+    fn add_assign(&mut self, rhs: Force) {
+        self.x += rhs.x;
+        self.y += rhs.y;
+    }
+}
+
 impl Mul<Duration> for Force {
     type Output = Impulse;
 
@@ -386,6 +394,13 @@ mod tests {
     fn add_forces() {
         assert_eq!(Force::new(0.75, -0.25),
                    Force::new(1.5, -0.5) + Force::new(-0.75, 0.25));
+    }
+
+    #[test]
+    fn increase_force() {
+        let mut subject = Force::new(1.5, -0.5);
+        subject += Force::new(-0.75, 0.25);
+        assert_eq!(Force::new(0.75, -0.25), subject);
     }
 
     #[test]

@@ -1,5 +1,18 @@
 use physics::quantities::*;
 
+trait Circle {
+    fn radius(&self) -> Length;
+
+    fn center(&self) -> Position;
+
+    fn to_bounding_box(&self) -> BoundingBox {
+        BoundingBox::new(Position::new(self.center().x() - self.radius().value(),
+                                       self.center().y() - self.radius().value()),
+                         Position::new(self.center().x() + self.radius().value(),
+                                       self.center().y() + self.radius().value()))
+    }
+}
+
 #[derive(Debug, PartialEq)]
 pub struct SimpleCircle {
     pub center: Position,
@@ -10,20 +23,15 @@ impl SimpleCircle {
     pub fn new(center: Position, radius: Length) -> SimpleCircle {
         SimpleCircle { center, radius }
     }
+}
 
-    pub fn radius(&self) -> Length {
+impl Circle for SimpleCircle {
+    fn radius(&self) -> Length {
         return self.radius;
     }
 
-    pub fn center(&self) -> Position {
+    fn center(&self) -> Position {
         return self.center;
-    }
-
-    pub fn to_bounding_box(&self) -> BoundingBox {
-        BoundingBox::new(Position::new(self.center().x() - self.radius().value(),
-                                       self.center().y() - self.radius().value()),
-                         Position::new(self.center().x() + self.radius().value(),
-                                       self.center().y() + self.radius().value()))
     }
 }
 

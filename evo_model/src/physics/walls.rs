@@ -1,6 +1,7 @@
 use physics::quantities::*;
+use std::fmt::Debug;
 
-trait Circle {
+pub trait Circle {
     fn radius(&self) -> Length;
 
     fn center(&self) -> Position;
@@ -17,22 +18,6 @@ trait Circle {
 pub struct SimpleCircle {
     pub center: Position,
     pub radius: Length,
-}
-
-impl SimpleCircle {
-    pub fn new(center: Position, radius: Length) -> SimpleCircle {
-        SimpleCircle { center, radius }
-    }
-}
-
-impl Circle for SimpleCircle {
-    fn radius(&self) -> Length {
-        return self.radius;
-    }
-
-    fn center(&self) -> Position {
-        return self.center;
-    }
 }
 
 #[derive(Clone, Copy, Debug, PartialEq)]
@@ -56,14 +41,18 @@ impl Rectangle {
 }
 
 #[derive(Clone, Copy, Debug, PartialEq)]
-pub struct Overlap<'a> {
-    circle: &'a SimpleCircle,
+pub struct Overlap<'a, C>
+    where C: 'a + Circle + Debug + PartialEq
+{
+    circle: &'a C,
     incursion: Displacement,
 }
 
-impl<'a> Overlap<'a> {
-    pub fn new(circle: &SimpleCircle, overlap: Displacement) -> Overlap {
-        Overlap { circle, incursion: overlap }
+impl<'a, C> Overlap<'a, C>
+    where C: 'a + Circle + Debug + PartialEq
+{
+    pub fn new(circle: &C, incursion: Displacement) -> Overlap<C> {
+        Overlap { circle, incursion }
     }
 }
 
@@ -77,7 +66,9 @@ impl Walls {
         Walls { min_corner, max_corner }
     }
 
-    pub fn find_overlaps<'a>(&self, circles: &'a Vec<SimpleCircle>) -> Vec<Overlap<'a>> {
+    pub fn find_overlaps<'a, C>(&self, circles: &'a Vec<C>) -> Vec<Overlap<'a, C>>
+        where C: 'a + Circle + Debug + PartialEq
+    {
         let mut overlaps = vec![];
         let zero = Displacement::new(0.0, 0.0);
         for ref circle in circles {
@@ -86,7 +77,7 @@ impl Walls {
             let max_corner_overlap = self.max_corner.minus(circle_box.max_corner()).min(zero);
             let overlap = min_corner_overlap.plus(max_corner_overlap);
             if overlap != zero {
-                overlaps.push(Overlap::new(circle, overlap));
+                overlaps.push(Overlap::new(*circle, overlap));
             }
         }
         overlaps
@@ -129,5 +120,21 @@ mod tests {
         let overlaps = subject.find_overlaps(&circles);
         assert_eq!(1, overlaps.len());
         assert_eq!(Overlap::new(&circles[0], Displacement::new(-0.5, -0.75)), overlaps[0]);
+    }
+
+    impl SimpleCircle {
+        pub fn new(center: Position, radius: Length) -> SimpleCircle {
+            SimpleCircle { center, radius }
+        }
+    }
+
+    impl Circle for SimpleCircle {
+        fn radius(&self) -> Length {
+            return self.radius;
+        }
+
+        fn center(&self) -> Position {
+            return self.center;
+        }
     }
 }

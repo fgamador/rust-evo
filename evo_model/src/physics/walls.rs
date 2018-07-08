@@ -75,26 +75,4 @@ mod tests {
         assert_eq!(1, overlaps.len());
         assert_eq!(Overlap::new(&circles[0], Displacement::new(-0.5, -0.75)), overlaps[0]);
     }
-
-    #[derive(Debug, PartialEq)]
-    pub struct SimpleCircle {
-        pub center: Position,
-        pub radius: Length,
-    }
-
-    impl SimpleCircle {
-        pub fn new(center: Position, radius: Length) -> SimpleCircle {
-            SimpleCircle { center, radius }
-        }
-    }
-
-    impl Circle for SimpleCircle {
-        fn radius(&self) -> Length {
-            return self.radius;
-        }
-
-        fn center(&self) -> Position {
-            return self.center;
-        }
-    }
 }

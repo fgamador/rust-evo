@@ -29,10 +29,10 @@ impl Mul for Length {
 }
 
 impl Mul<f64> for Length {
-    type Output = Area;
+    type Output = Length;
 
     fn mul(self, rhs: f64) -> Self::Output {
-        Area::new(self.value * rhs)
+        Length::new(self.value * rhs)
     }
 }
 
@@ -53,6 +53,14 @@ impl Area {
     #[allow(dead_code)]
     pub fn value(&self) -> f64 {
         self.value
+    }
+}
+
+impl Mul<f64> for Area {
+    type Output = Area;
+
+    fn mul(self, rhs: f64) -> Self::Output {
+        Area::new(self.value * rhs)
     }
 }
 
@@ -285,6 +293,12 @@ mod tests {
     #[test]
     fn multiply_length_by_scalar() {
         let subject = Length::new(2.0);
+        assert_eq!(Length::new(3.0), subject * 1.5);
+    }
+
+    #[test]
+    fn multiply_area_by_scalar() {
+        let subject = Area::new(2.0);
         assert_eq!(Area::new(3.0), subject * 1.5);
     }
 

@@ -1,3 +1,5 @@
+use std::ops::Mul;
+
 #[derive(Clone, Copy, Debug, PartialEq)]
 pub struct Length {
     value: f64,
@@ -16,9 +18,13 @@ impl Length {
     pub fn value(&self) -> f64 {
         self.value
     }
+}
 
-    pub fn times(&self, len: Length) -> Area {
-        Area::new(self.value * len.value)
+impl Mul for Length {
+    type Output = Area;
+
+    fn mul(self, rhs: Self) -> Self::Output {
+        Area::new(self.value * rhs.value)
     }
 }
 
@@ -265,7 +271,7 @@ mod tests {
     #[test]
     fn multiply_lengths() {
         let subject = Length::new(2.0);
-        assert_eq!(Area::new(3.0), subject.times(Length::new(1.5)));
+        assert_eq!(Area::new(3.0), subject * Length::new(1.5));
     }
 
     #[test]

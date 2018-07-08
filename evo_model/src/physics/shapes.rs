@@ -7,7 +7,7 @@ pub trait Circle {
     fn center(&self) -> Position;
 
     fn area(&self) -> Area {
-        Area::new(PI * (self.radius() * self.radius()).value())
+        self.radius() * self.radius() * PI
     }
 
     fn to_bounding_box(&self) -> Rectangle {

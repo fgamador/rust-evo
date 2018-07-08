@@ -7,9 +7,8 @@ pub trait Circle {
 
     fn center(&self) -> Position;
 
-    fn area(&self) -> f64 {
-        let radius = self.radius().value();
-        PI * radius * radius
+    fn area(&self) -> Area {
+        Area::new(PI * self.radius().times(self.radius()).value())
     }
 
     fn to_bounding_box(&self) -> Rectangle {
@@ -70,7 +69,7 @@ mod tests {
     #[test]
     fn circle_knows_area() {
         let subject = SimpleCircle::new(Position::new(0.0, 0.0), Length::new(2.0));
-        assert_eq!(PI * 4.0, subject.area());
+        assert_eq!(Area::new(PI * 4.0), subject.area());
     }
 
     #[test]

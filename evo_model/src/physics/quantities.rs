@@ -179,12 +179,16 @@ impl Velocity {
         self.y
     }
 
-    pub fn plus(&self, dv: DeltaV) -> Velocity {
-        Velocity::new(self.x + dv.x, self.y + dv.y)
-    }
-
     pub fn to_displacement(&self, duration: Duration) -> Displacement {
         Displacement::new(self.x * duration.value, self.y * duration.value)
+    }
+}
+
+impl Add<DeltaV> for Velocity {
+    type Output = Velocity;
+
+    fn add(self, rhs: DeltaV) -> Self::Output {
+        Velocity::new(self.x + rhs.x, self.y + rhs.y)
     }
 }
 
@@ -349,7 +353,7 @@ mod tests {
     #[test]
     fn change_velocity() {
         let subject = Velocity::new(1.5, 1.5);
-        assert_eq!(Velocity::new(1.0, 2.0), subject.plus(DeltaV::new(-0.5, 0.5)));
+        assert_eq!(Velocity::new(1.0, 2.0), subject + DeltaV::new(-0.5, 0.5));
     }
 
     #[test]

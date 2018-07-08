@@ -11,9 +11,15 @@ impl Circle {
         Circle { center, radius }
     }
 
+    pub fn center(&self) -> Position {
+        return self.center;
+    }
+
     pub fn to_bounding_box(&self) -> BoundingBox {
-        BoundingBox::new(Position::new(self.center.x() - self.radius.value(), self.center.y() - self.radius.value()),
-                         Position::new(self.center.x() + self.radius.value(), self.center.y() + self.radius.value()))
+        BoundingBox::new(Position::new(self.center().x() - self.radius.value(),
+                                       self.center().y() - self.radius.value()),
+                         Position::new(self.center().x() + self.radius.value(),
+                                       self.center().y() + self.radius.value()))
     }
 }
 

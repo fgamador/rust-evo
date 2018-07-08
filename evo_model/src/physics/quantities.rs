@@ -86,10 +86,6 @@ impl Position {
     pub fn y(&self) -> f64 {
         self.y
     }
-
-    pub fn minus(&self, pos: Position) -> Displacement {
-        Displacement::new(self.x - pos.x, self.y - pos.y)
-    }
 }
 
 impl Add<Displacement> for Position {
@@ -97,6 +93,14 @@ impl Add<Displacement> for Position {
 
     fn add(self, rhs: Displacement) -> Self::Output {
         Position::new(self.x + rhs.x, self.y + rhs.y)
+    }
+}
+
+impl Sub for Position {
+    type Output = Displacement;
+
+    fn sub(self, rhs: Position) -> Self::Output {
+        Displacement::new(self.x - rhs.x, self.y - rhs.y)
     }
 }
 
@@ -317,7 +321,7 @@ mod tests {
     #[test]
     fn subtract_positions() {
         let subject = Position::new(2.0, 1.0);
-        assert_eq!(Displacement::new(0.5, -0.5), subject.minus(Position::new(1.5, 1.5)));
+        assert_eq!(Displacement::new(0.5, -0.5), subject - Position::new(1.5, 1.5));
     }
 
     #[test]

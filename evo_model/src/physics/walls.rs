@@ -19,8 +19,8 @@ impl Walls {
         let zero = Displacement::new(0.0, 0.0);
         for circle in circles {
             let circle_box = circle.to_bounding_box();
-            let min_corner_overlap = self.min_corner.minus(circle_box.min_corner()).max(zero);
-            let max_corner_overlap = self.max_corner.minus(circle_box.max_corner()).min(zero);
+            let min_corner_overlap = (self.min_corner - circle_box.min_corner()).max(zero);
+            let max_corner_overlap = (self.max_corner - circle_box.max_corner()).min(zero);
             let overlap = min_corner_overlap.plus(max_corner_overlap);
             if overlap != zero {
                 overlaps.push(Overlap::new(circle, overlap));

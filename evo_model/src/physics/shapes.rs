@@ -1,5 +1,4 @@
 use physics::quantities::*;
-use std::fmt::Debug;
 use std::f64::consts::PI;
 
 pub trait Circle {

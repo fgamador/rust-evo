@@ -28,6 +28,14 @@ impl Mul for Length {
     }
 }
 
+impl Mul<f64> for Length {
+    type Output = Area;
+
+    fn mul(self, rhs: f64) -> Self::Output {
+        Area::new(self.value * rhs)
+    }
+}
+
 #[derive(Clone, Copy, Debug, PartialEq)]
 pub struct Area {
     value: f64,
@@ -272,6 +280,12 @@ mod tests {
     fn multiply_lengths() {
         let subject = Length::new(2.0);
         assert_eq!(Area::new(3.0), subject * Length::new(1.5));
+    }
+
+    #[test]
+    fn multiply_length_by_scalar() {
+        let subject = Length::new(2.0);
+        assert_eq!(Area::new(3.0), subject * 1.5);
     }
 
     #[test]

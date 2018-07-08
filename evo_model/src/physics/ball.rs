@@ -1,7 +1,9 @@
 use physics::newtonian;
 use physics::quantities::*;
-use physics::walls::Walls;
+use physics::shapes::*;
+use physics::walls::*;
 
+#[derive(Debug, PartialEq)]
 struct Ball {
     radius: Length,
     state: newtonian::State,
@@ -17,6 +19,16 @@ impl Ball {
 
     fn state(&self) -> &newtonian::State {
         &self.state
+    }
+}
+
+impl Circle for Ball {
+    fn radius(&self) -> Length {
+        self.radius
+    }
+
+    fn center(&self) -> Position {
+        self.state.position
     }
 }
 
@@ -47,8 +59,9 @@ mod tests {
         let subject = Ball::new(Length::new(1.0), Mass::new(2.0), Position::new(-9.5, 1.75), Velocity::new(1.0, 2.0));
         let walls = Walls::new(Position::new(-10.0, -5.0), Position::new(10.0, 2.0));
         let circles = vec![subject];
-//        let overlaps = walls.find_overlaps(&circles);
-//        assert_eq!(1, overlaps.len());
-//        assert_eq!(Overlap::new(&circles[0], Displacement::new(0.5, 0.25)), overlaps[0]);
+        let overlaps = walls.find_overlaps(&circles);
+        assert_eq!(1, overlaps.len());
+        assert_eq!(Overlap::new(&circles[0], Displacement::new(0.5, -0.75)), overlaps[0]);
+        // TODO
     }
 }

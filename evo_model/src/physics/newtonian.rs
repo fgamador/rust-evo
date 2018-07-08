@@ -32,7 +32,7 @@ impl Body for State {
     }
 
     fn move_for(&mut self, duration: Duration) {
-        self.position = self.position + self.velocity.to_displacement(duration);
+        self.position = self.position + self.velocity * duration;
     }
 
     fn kick(&mut self, impulse: Impulse) {

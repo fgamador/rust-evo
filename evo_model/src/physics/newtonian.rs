@@ -51,7 +51,7 @@ impl Forces {
     }
 
     pub fn add_force(&mut self, f: Force) {
-        self.net_force = self.net_force.plus(f);
+        self.net_force = self.net_force + f;
     }
 
     pub fn clear(&mut self) {

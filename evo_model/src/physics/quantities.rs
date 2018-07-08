@@ -285,10 +285,6 @@ impl Force {
     pub fn y(&self) -> f64 {
         self.y
     }
-
-    pub fn to_impulse(&self, d: Duration) -> Impulse {
-        Impulse::new(self.x * d.value, self.y * d.value)
-    }
 }
 
 impl Add for Force {
@@ -296,6 +292,14 @@ impl Add for Force {
 
     fn add(self, rhs: Force) -> Self::Output {
         Force::new(self.x + rhs.x, self.y + rhs.y)
+    }
+}
+
+impl Mul<Duration> for Force {
+    type Output = Impulse;
+
+    fn mul(self, rhs: Duration) -> Self::Output {
+        Impulse::new(self.x * rhs.value, self.y * rhs.value)
     }
 }
 
@@ -390,6 +394,6 @@ mod tests {
     #[test]
     fn force_to_impulse() {
         let subject = Force::new(1.5, -0.5);
-        assert_eq!(Impulse::new(0.75, -0.25), subject.to_impulse(Duration::new(0.5)));
+        assert_eq!(Impulse::new(0.75, -0.25), subject * Duration::new(0.5));
     }
 }

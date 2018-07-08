@@ -1,4 +1,6 @@
+use std::ops::Add;
 use std::ops::Mul;
+use std::ops::Sub;
 
 #[derive(Clone, Copy, Debug, PartialEq)]
 pub struct Length {
@@ -85,12 +87,16 @@ impl Position {
         self.y
     }
 
-    pub fn plus(&self, d: Displacement) -> Position {
-        Position::new(self.x + d.x, self.y + d.y)
-    }
-
     pub fn minus(&self, pos: Position) -> Displacement {
         Displacement::new(self.x - pos.x, self.y - pos.y)
+    }
+}
+
+impl Add<Displacement> for Position {
+    type Output = Position;
+
+    fn add(self, rhs: Displacement) -> Self::Output {
+        Position::new(self.x + rhs.x, self.y + rhs.y)
     }
 }
 
@@ -305,7 +311,7 @@ mod tests {
     #[test]
     fn displace_position() {
         let subject = Position::new(1.5, 1.5);
-        assert_eq!(Position::new(2.0, 1.0), subject.plus(Displacement::new(0.5, -0.5)));
+        assert_eq!(Position::new(2.0, 1.0), subject + Displacement::new(0.5, -0.5));
     }
 
     #[test]

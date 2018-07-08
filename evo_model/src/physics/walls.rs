@@ -14,12 +14,6 @@ pub trait Circle {
     }
 }
 
-#[derive(Debug, PartialEq)]
-pub struct SimpleCircle {
-    pub center: Position,
-    pub radius: Length,
-}
-
 #[derive(Clone, Copy, Debug, PartialEq)]
 pub struct Rectangle {
     min_corner: Position,
@@ -120,6 +114,12 @@ mod tests {
         let overlaps = subject.find_overlaps(&circles);
         assert_eq!(1, overlaps.len());
         assert_eq!(Overlap::new(&circles[0], Displacement::new(-0.5, -0.75)), overlaps[0]);
+    }
+
+    #[derive(Debug, PartialEq)]
+    pub struct SimpleCircle {
+        pub center: Position,
+        pub radius: Length,
     }
 
     impl SimpleCircle {

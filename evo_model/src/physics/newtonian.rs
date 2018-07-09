@@ -107,10 +107,6 @@ mod tests {
                 state: State::new(mass, position, velocity)
             }
         }
-
-        fn state(&self) -> &State {
-            &self.state
-        }
     }
 
     impl Body for SimpleBody {

@@ -16,10 +16,6 @@ impl Ball {
             state: newtonian::State::new(mass, position, velocity),
         }
     }
-
-    fn state(&self) -> &newtonian::State {
-        &self.state
-    }
 }
 
 impl Circle for Ball {

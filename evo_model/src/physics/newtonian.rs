@@ -69,14 +69,16 @@ mod tests {
     fn coasting() {
         let mut subject = SimpleBody::new(Mass::new(2.0), Position::new(-1.0, 1.5), Velocity::new(1.0, 2.0));
         subject.move_for(Duration::new(0.5));
-        assert_eq!(State::new(Mass::new(2.0), Position::new(-0.5, 2.5), Velocity::new(1.0, 2.0)), *subject.state());
+        assert_eq!(Position::new(-0.5, 2.5), subject.position());
+        assert_eq!(Velocity::new(1.0, 2.0), subject.velocity());
     }
 
     #[test]
     fn kicked() {
         let mut subject = SimpleBody::new(Mass::new(2.0), Position::new(-1.0, 2.0), Velocity::new(1.0, -1.0));
         subject.kick(Impulse::new(0.5, 0.5));
-        assert_eq!(State::new(Mass::new(2.0), Position::new(-1.0, 2.0), Velocity::new(1.25, -0.75)), *subject.state());
+        assert_eq!(Position::new(-1.0, 2.0), subject.position());
+        assert_eq!(Velocity::new(1.25, -0.75), subject.velocity());
     }
 
     #[test]

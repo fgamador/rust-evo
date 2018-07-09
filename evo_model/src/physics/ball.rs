@@ -2,8 +2,9 @@ use physics::newtonian;
 use physics::quantities::*;
 use physics::shapes::*;
 use physics::walls::*;
+use std::ptr;
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug)]
 struct Ball {
     radius: Length,
     state: newtonian::State,
@@ -15,6 +16,12 @@ impl Ball {
             radius,
             state: newtonian::State::new(mass, position, velocity),
         }
+    }
+}
+
+impl PartialEq for Ball {
+    fn eq(&self, other: &Self) -> bool {
+        ptr::eq(self, other)
     }
 }
 
@@ -49,6 +56,14 @@ impl newtonian::Body for Ball {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn balls_use_pointer_equality() {
+        let ball1 = Ball::new(Length::new(1.0), Mass::new(1.0), Position::new(1.0, 1.0), Velocity::new(1.0, 1.0));
+        let ball2 = Ball::new(Length::new(1.0), Mass::new(1.0), Position::new(1.0, 1.0), Velocity::new(1.0, 1.0));
+        assert_eq!(ball1, ball1);
+        assert_ne!(ball1, ball2);
+    }
 
     #[test]
     fn wall_corner_overlap_adds_force() {

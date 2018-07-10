@@ -5,7 +5,7 @@ use physics::walls::*;
 use std::ptr;
 
 #[derive(Debug)]
-struct Ball {
+pub struct Ball {
     radius: Length,
     state: newtonian::State,
 }
@@ -53,6 +53,17 @@ impl newtonian::Body for Ball {
     }
 }
 
+//#[derive(Debug)]
+//pub struct BallEnvironment<'a> {
+//    overlaps: Vec<&'a Overlap<'a, Circle>>,
+//}
+//
+//impl<'a> BallEnvironment<'a> {
+//    fn add_overlap(&mut self, overlap: &'a Overlap<'a, Circle>) {
+//        self.overlaps.push(overlap);
+//    }
+//}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -77,5 +88,6 @@ mod tests {
         assert_eq!(1, overlaps.len());
         let subject = &circles[0];
         assert_eq!(Overlap::new(subject, Displacement::new(0.5, -0.75)), overlaps[0]);
+//        subject.environment().add_overlap(&overlaps[0]);
     }
 }

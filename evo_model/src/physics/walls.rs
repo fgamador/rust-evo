@@ -30,6 +30,8 @@ impl Walls {
     }
 }
 
+// TODO add width to Overlap, or maybe make incursion an Area
+
 #[derive(Clone, Copy, Debug, PartialEq)]
 pub struct Overlap<'a, C>
     where C: 'a + Circle + Debug + PartialEq

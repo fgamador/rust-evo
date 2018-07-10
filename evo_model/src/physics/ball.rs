@@ -59,15 +59,18 @@ mod tests {
 
     #[test]
     fn balls_use_pointer_equality() {
-        let ball1 = Ball::new(Length::new(1.0), Mass::new(1.0), Position::new(1.0, 1.0), Velocity::new(1.0, 1.0));
-        let ball2 = Ball::new(Length::new(1.0), Mass::new(1.0), Position::new(1.0, 1.0), Velocity::new(1.0, 1.0));
+        let ball1 = Ball::new(Length::new(1.0), Mass::new(1.0),
+                              Position::new(1.0, 1.0), Velocity::new(1.0, 1.0));
+        let ball2 = Ball::new(Length::new(1.0), Mass::new(1.0),
+                              Position::new(1.0, 1.0), Velocity::new(1.0, 1.0));
         assert_eq!(ball1, ball1);
         assert_ne!(ball1, ball2);
     }
 
     #[test]
     fn wall_corner_overlap_adds_force() {
-        let subject = Ball::new(Length::new(1.0), Mass::new(2.0), Position::new(-9.5, 1.75), Velocity::new(1.0, 2.0));
+        let subject = Ball::new(Length::new(1.0), Mass::new(2.0),
+                                Position::new(-9.5, 1.75), Velocity::new(1.0, 2.0));
         let walls = Walls::new(Position::new(-10.0, -5.0), Position::new(10.0, 2.0));
         let circles = vec![subject];
         let overlaps = walls.find_overlaps(&circles);

@@ -75,7 +75,7 @@ mod tests {
         let circles = vec![subject];
         let overlaps = walls.find_overlaps(&circles);
         assert_eq!(1, overlaps.len());
-        assert_eq!(Overlap::new(&circles[0], Displacement::new(0.5, -0.75)), overlaps[0]);
-        // TODO
+        let subject = &circles[0];
+        assert_eq!(Overlap::new(subject, Displacement::new(0.5, -0.75)), overlaps[0]);
     }
 }

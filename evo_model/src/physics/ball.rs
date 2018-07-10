@@ -69,9 +69,9 @@ mod tests {
 
     #[test]
     fn wall_corner_overlap_adds_force() {
+        let walls = Walls::new(Position::new(-10.0, -5.0), Position::new(10.0, 2.0));
         let subject = Ball::new(Length::new(1.0), Mass::new(2.0),
                                 Position::new(-9.5, 1.75), Velocity::new(1.0, 2.0));
-        let walls = Walls::new(Position::new(-10.0, -5.0), Position::new(10.0, 2.0));
         let circles = vec![subject];
         let overlaps = walls.find_overlaps(&circles);
         assert_eq!(1, overlaps.len());

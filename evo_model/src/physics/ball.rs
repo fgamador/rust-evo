@@ -83,10 +83,10 @@ mod tests {
         let walls = Walls::new(Position::new(-10.0, -5.0), Position::new(10.0, 2.0));
         let subject = Ball::new(Length::new(1.0), Mass::new(2.0),
                                 Position::new(-9.5, 1.75), Velocity::new(1.0, 2.0));
-        let circles = vec![subject];
-        let overlaps = walls.find_overlaps(&circles);
+        let balls = vec![subject];
+        let overlaps = walls.find_overlaps(&balls);
         assert_eq!(1, overlaps.len());
-        let subject = &circles[0];
+        let subject = &balls[0];
         assert_eq!(Overlap::new(subject, Displacement::new(0.5, -0.75)), overlaps[0]);
 //        subject.environment().add_overlap(&overlaps[0]);
     }

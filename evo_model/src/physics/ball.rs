@@ -8,6 +8,7 @@ use std::ptr;
 pub struct Ball {
     radius: Length,
     state: newtonian::State,
+    environment: BallEnvironment,
 }
 
 impl Ball {
@@ -15,7 +16,12 @@ impl Ball {
         Ball {
             radius,
             state: newtonian::State::new(mass, position, velocity),
+            environment: BallEnvironment::new(),
         }
+    }
+
+    fn environment(&mut self) -> &mut BallEnvironment {
+        &mut self.environment
     }
 }
 

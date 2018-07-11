@@ -54,16 +54,16 @@ impl newtonian::Body for Ball {
 }
 
 #[derive(Debug)]
-pub struct BallEnvironment<'a> {
-    overlaps: Vec<Overlap<'a, Ball>>,
+pub struct BallEnvironment {
+    overlaps: Vec<Overlap>,
 }
 
-impl<'a> BallEnvironment<'a> {
+impl<'a> BallEnvironment {
     fn new() -> Self {
         BallEnvironment { overlaps: vec![] }
     }
 
-    fn add_overlap(&mut self, overlap: Overlap<'a, Ball>) {
+    fn add_overlap(&mut self, overlap: Overlap) {
         self.overlaps.push(overlap);
     }
 }
@@ -92,7 +92,7 @@ mod tests {
         assert_eq!(1, overlaps.len());
         let overlap = overlaps.pop().unwrap();
         let subject = &balls[0];
-        assert_eq!((subject, Overlap::new(subject, Displacement::new(0.5, -0.75))), overlap);
+        assert_eq!((subject, Overlap::new(Displacement::new(0.5, -0.75))), overlap);
 //        let mut env = BallEnvironment::new();
 //        env.add_overlap(overlap);
 //        subject.environment().add_overlap(overlap);

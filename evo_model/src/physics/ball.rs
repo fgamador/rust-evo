@@ -58,7 +58,7 @@ pub struct BallEnvironment {
     overlaps: Vec<Overlap>,
 }
 
-impl<'a> BallEnvironment {
+impl BallEnvironment {
     fn new() -> Self {
         BallEnvironment { overlaps: vec![] }
     }

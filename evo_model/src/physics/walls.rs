@@ -14,7 +14,7 @@ impl Walls {
     }
 
     pub fn find_overlaps<'a, C>(&self, circles: &'a Vec<C>) -> Vec<(&'a C, Overlap)>
-        where C: 'a + Circle + Debug + PartialEq
+        where C: 'a + Circle
     {
         let mut overlaps = vec![];
         let zero = Displacement::new(0.0, 0.0);

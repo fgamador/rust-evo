@@ -77,6 +77,22 @@ impl BallEnvironment {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use std::collections::HashMap;
+    use std::string::String;
+
+    #[test]
+    fn foobar() {
+        let mut map: HashMap<String, String> = HashMap::new();
+        let key = "key".to_string();
+        let val = "val".to_string();
+        map.insert(key.clone(), val);
+        let val2 = get_mut(&mut map, &key);
+        *val2 = "val2".to_string();
+    }
+
+    fn get_mut<'a>(map: &'a mut HashMap<String, String>, key: &String) -> &'a mut String {
+        map.get_mut(key).unwrap()
+    }
 
     #[test]
     fn balls_use_pointer_equality() {

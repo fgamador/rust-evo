@@ -1,6 +1,5 @@
 use physics::quantities::*;
 use physics::shapes::*;
-use std::fmt::Debug;
 
 #[derive(Debug)]
 pub struct Walls {

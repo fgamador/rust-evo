@@ -12,7 +12,7 @@ impl Walls {
         Walls { min_corner, max_corner }
     }
 
-    pub fn find_overlaps<'a, C>(&self, circles: &'a Vec<C>) -> Vec<(&'a C, Overlap)>
+    pub fn find_overlaps<'a, C>(&self, circles: &'a mut Vec<C>) -> Vec<(&'a mut C, Overlap)>
         where C: Circle
     {
         let mut overlaps = vec![];
@@ -52,26 +52,26 @@ mod tests {
     #[test]
     fn no_overlaps() {
         let subject = Walls::new(Position::new(-10.0, -5.0), Position::new(10.0, 2.0));
-        let circles = vec![SimpleCircle::new(Position::new(8.5, 0.75), Length::new(1.0))];
-        let overlaps = subject.find_overlaps(&circles);
+        let mut circles = vec![SimpleCircle::new(Position::new(8.5, 0.75), Length::new(1.0))];
+        let overlaps = subject.find_overlaps(&mut circles);
         assert!(overlaps.is_empty());
     }
 
     #[test]
     fn min_corner_overlap() {
         let subject = Walls::new(Position::new(-10.0, -5.0), Position::new(10.0, 2.0));
-        let circles = vec![SimpleCircle::new(Position::new(-9.5, -4.25), Length::new(1.0))];
-        let overlaps = subject.find_overlaps(&circles);
+        let mut circles = vec![SimpleCircle::new(Position::new(-9.5, -4.25), Length::new(1.0))];
+        let overlaps = subject.find_overlaps(&mut circles);
         assert_eq!(1, overlaps.len());
-        assert_eq!((&circles[0], Overlap::new(Displacement::new(0.5, 0.25))), overlaps[0]);
+        assert_eq!(Overlap::new(Displacement::new(0.5, 0.25)), overlaps[0].1);
     }
 
     #[test]
     fn max_corner_overlap() {
         let subject = Walls::new(Position::new(-10.0, -5.0), Position::new(10.0, 2.0));
-        let circles = vec![SimpleCircle::new(Position::new(9.5, 1.75), Length::new(1.0))];
-        let overlaps = subject.find_overlaps(&circles);
+        let mut circles = vec![SimpleCircle::new(Position::new(9.5, 1.75), Length::new(1.0))];
+        let overlaps = subject.find_overlaps(&mut circles);
         assert_eq!(1, overlaps.len());
-        assert_eq!((&circles[0], Overlap::new(Displacement::new(-0.5, -0.75))), overlaps[0]);
+        assert_eq!(Overlap::new(Displacement::new(-0.5, -0.75)), overlaps[0].1);
     }
 }

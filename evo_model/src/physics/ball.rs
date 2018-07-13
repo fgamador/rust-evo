@@ -113,10 +113,10 @@ mod tests {
         let mut overlaps = walls.find_overlaps(&balls);
         assert_eq!(1, overlaps.len());
         let (overlapped, overlap) = overlaps.pop().unwrap();
-        let subject = &balls[0];
-        assert_eq!((subject, Overlap::new(Displacement::new(0.5, -0.75))), (overlapped, overlap));
+        let ball = &balls[0];
+        assert_eq!((ball, Overlap::new(Displacement::new(0.5, -0.75))), (overlapped, overlap));
         let mut env = BallEnvironment::new();
         env.add_overlap(overlap);
-//        ball.environment().add_overlap(overlap);
+        //ball.environment().add_overlap(overlap);
     }
 }

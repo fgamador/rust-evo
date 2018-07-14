@@ -81,20 +81,6 @@ mod tests {
     use std::string::String;
 
     #[test]
-    fn foobar() {
-        let mut map: HashMap<String, String> = HashMap::new();
-        let key = "key".to_string();
-        let val = "val".to_string();
-        map.insert(key.clone(), val);
-        let val2 = get_mut(&mut map, &key);
-        *val2 = "val2".to_string();
-    }
-
-    fn get_mut<'a>(map: &'a mut HashMap<String, String>, key: &String) -> &'a mut String {
-        map.get_mut(key).unwrap()
-    }
-
-    #[test]
     fn balls_use_pointer_equality() {
         let ball1 = Ball::new(Length::new(1.0), Mass::new(1.0),
                               Position::new(1.0, 1.0), Velocity::new(1.0, 1.0));

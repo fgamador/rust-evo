@@ -82,11 +82,12 @@ mod tests {
     pub struct OverlappableCircle {
         pub center: Position,
         pub radius: Length,
+        pub overlap: Overlap,
     }
 
     impl OverlappableCircle {
         pub fn new(center: Position, radius: Length) -> OverlappableCircle {
-            OverlappableCircle { center, radius }
+            OverlappableCircle { center, radius, overlap: Overlap::new(Displacement::new(0.0, 0.0)) }
         }
     }
 

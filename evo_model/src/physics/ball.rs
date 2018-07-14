@@ -77,8 +77,6 @@ impl BallEnvironment {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use std::collections::HashMap;
-    use std::string::String;
 
     #[test]
     fn balls_use_pointer_equality() {

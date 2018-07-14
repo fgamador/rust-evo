@@ -30,14 +30,13 @@ impl World {
             ball.mut_environment().add_overlap(overlap);
         });
 
-//        for ball in &mut self.balls {
-//            for overlap in ball.environment().overlaps() {
-//                ball.mut_forces().add_force(to_force(overlap));
-//            }
-//        }
+        for ball in &mut self.balls {
+            ball.add_overlap_forces();
+        }
 
         let tick_duration = Duration::new(1.0);
         for ball in &mut self.balls {
+            ball.exert_forces(tick_duration);
             ball.move_for(tick_duration);
         }
 
@@ -72,11 +71,11 @@ mod tests {
         assert!(ball.environment().overlaps().is_empty());
     }
 
-    //    #[test]
+    #[test]
     fn balls_bounce_off_walls() {
         let mut world = World::new(Position::new(-10.0, -10.0), Position::new(10.0, 10.0));
         world.add_ball(Ball::new(Length::new(1.0), Mass::new(1.0),
-                                 Position::new(9.0, 9.0), Velocity::new(1.0, 1.0)));
+                                 Position::new(9.5, 9.5), Velocity::new(1.0, 1.0)));
         world.tick();
         let ball = &world.balls()[0];
         assert!(ball.velocity().x() < 1.0);

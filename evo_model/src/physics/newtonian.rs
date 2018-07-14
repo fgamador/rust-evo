@@ -38,6 +38,7 @@ impl Body for State {
     }
 }
 
+// TODO move to quantities?
 #[derive(Debug, PartialEq)]
 pub struct Forces {
     net_force: Force,

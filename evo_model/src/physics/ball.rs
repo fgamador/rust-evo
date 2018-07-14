@@ -1,4 +1,6 @@
 use physics::newtonian;
+use physics::newtonian::Body;
+use physics::newtonian::Forces;
 use physics::quantities::*;
 use physics::shapes::*;
 use physics::walls::*;
@@ -9,6 +11,7 @@ pub struct Ball {
     radius: Length,
     state: newtonian::State,
     environment: BallEnvironment,
+    forces: Forces,
 }
 
 impl Ball {
@@ -17,6 +20,7 @@ impl Ball {
             radius,
             state: newtonian::State::new(mass, position, velocity),
             environment: BallEnvironment::new(),
+            forces: Forces::new(0.0, 0.0),
         }
     }
 
@@ -26,6 +30,25 @@ impl Ball {
 
     pub fn mut_environment(&mut self) -> &mut BallEnvironment {
         &mut self.environment
+    }
+
+    pub fn forces(&self) -> &Forces {
+        &self.forces
+    }
+
+    pub fn mut_forces(&mut self) -> &mut Forces {
+        &mut self.forces
+    }
+
+    pub fn add_overlap_forces(&mut self) {
+        for overlap in self.environment.overlaps() {
+            self.forces.add_force(overlap.to_force());
+        }
+    }
+
+    pub fn exert_forces(&mut self, duration: Duration) {
+        let impulse = self.forces.net_force() * duration;
+        self.kick(impulse);
     }
 }
 
@@ -107,6 +130,24 @@ mod tests {
         ball.mut_environment().add_overlap(Overlap::new(Displacement::new(1.0, 1.0)));
         ball.mut_environment().clear();
         assert!(ball.environment().overlaps().is_empty());
+    }
+
+    #[test]
+    fn add_overlap_forces() {
+        let mut ball = Ball::new(Length::new(1.0), Mass::new(1.0),
+                                 Position::new(1.0, 1.0), Velocity::new(1.0, 1.0));
+        ball.mut_environment().add_overlap(Overlap::new(Displacement::new(1.0, 1.0)));
+        ball.add_overlap_forces();
+        assert_eq!(Force::new(1.0, 1.0), ball.forces().net_force());
+    }
+
+    #[test]
+    fn exert_forces() {
+        let mut ball = Ball::new(Length::new(1.0), Mass::new(1.0),
+                                 Position::new(1.0, 1.0), Velocity::new(1.0, 1.0));
+        ball.mut_forces().add_force(Force::new(1.0, 1.0));
+        ball.exert_forces(Duration::new(1.0));
+        assert_eq!(Velocity::new(2.0, 2.0), ball.velocity());
     }
 
     #[test]

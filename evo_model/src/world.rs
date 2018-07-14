@@ -10,7 +10,9 @@ pub struct World {
 
 impl World {
     pub fn new(min_corner: Position, max_corner: Position) -> Self {
-        World { balls: vec![] }
+        World {
+            balls: vec![],
+        }
     }
 
     pub fn add_ball(&mut self, ball: Ball) {
@@ -22,8 +24,9 @@ impl World {
     }
 
     pub fn tick(&mut self) {
+        let tick_duration = Duration::new(1.0);
         for ball in &mut self.balls {
-            ball.move_for(Duration::new(1.0));
+            ball.move_for(tick_duration);
         }
     }
 }

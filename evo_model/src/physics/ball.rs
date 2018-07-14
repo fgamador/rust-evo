@@ -12,7 +12,7 @@ pub struct Ball {
 }
 
 impl Ball {
-    fn new(radius: Length, mass: Mass, position: Position, velocity: Velocity) -> Ball {
+    pub fn new(radius: Length, mass: Mass, position: Position, velocity: Velocity) -> Ball {
         Ball {
             radius,
             state: newtonian::State::new(mass, position, velocity),
@@ -20,7 +20,7 @@ impl Ball {
         }
     }
 
-    fn environment(&mut self) -> &mut BallEnvironment {
+    pub fn environment(&mut self) -> &mut BallEnvironment {
         &mut self.environment
     }
 }
@@ -65,11 +65,11 @@ pub struct BallEnvironment {
 }
 
 impl BallEnvironment {
-    fn new() -> Self {
+    pub fn new() -> Self {
         BallEnvironment { overlaps: vec![] }
     }
 
-    fn add_overlap(&mut self, overlap: Overlap) {
+    pub fn add_overlap(&mut self, overlap: Overlap) {
         self.overlaps.push(overlap);
     }
 }

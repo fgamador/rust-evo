@@ -105,7 +105,7 @@ mod tests {
     }
 
     #[test]
-    fn wall_corner_overlap_adds_force() {
+    fn walls_add_overlap() {
         let walls = Walls::new(Position::new(-10.0, -5.0), Position::new(10.0, 2.0));
         let ball = Ball::new(Length::new(1.0), Mass::new(2.0),
                              Position::new(-9.5, 1.75), Velocity::new(1.0, 2.0));
@@ -113,5 +113,7 @@ mod tests {
         walls.find_overlaps(&mut balls, |ball, overlap| {
             ball.environment().add_overlap(overlap);
         });
+        assert_eq!(1, balls[0].environment().overlaps.len());
+        assert_eq!(Overlap::new(Displacement::new(0.5, -0.75)), balls[0].environment().overlaps[0]);
     }
 }

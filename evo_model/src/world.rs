@@ -46,12 +46,13 @@ mod tests {
     }
 
 //    #[test]
-//    fn balls_bounce_off_walls() {
-//        let mut world = World::new(Position::new(0.0, -5.0), Position::new(10.0, 1.0));
-//        world.add_ball(Ball::new(Length::new(1.0), Mass::new(1.0),
-//                                 Position::new(8.0, -1.0), Velocity::new(1.0, 1.0)));
-//        for i in 0..3 {
-//            world.tick();
-//        }
-//    }
+    fn balls_bounce_off_walls() {
+        let mut world = World::new(Position::new(0.0, 0.0), Position::new(10.0, 10.0));
+        world.add_ball(Ball::new(Length::new(1.0), Mass::new(1.0),
+                                 Position::new(9.0, 9.0), Velocity::new(1.0, 1.0)));
+        world.tick();
+        let ball = &world.balls()[0];
+        assert!(ball.velocity().x() < 1.0);
+        assert!(ball.velocity().y() < 1.0);
+    }
 }

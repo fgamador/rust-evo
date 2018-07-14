@@ -53,7 +53,7 @@ mod tests {
     #[test]
     fn no_overlaps() {
         let subject = Walls::new(Position::new(-10.0, -5.0), Position::new(10.0, 2.0));
-        let mut circles = vec![SimpleCircle::new(Position::new(8.5, 0.75), Length::new(1.0))];
+        let mut circles = vec![OverlappableCircle::new(Position::new(8.5, 0.75), Length::new(1.0))];
         let overlaps = subject.find_overlaps(&mut circles, on_overlap);
         assert!(overlaps.is_empty());
     }
@@ -61,7 +61,7 @@ mod tests {
     #[test]
     fn min_corner_overlap() {
         let subject = Walls::new(Position::new(-10.0, -5.0), Position::new(10.0, 2.0));
-        let mut circles = vec![SimpleCircle::new(Position::new(-9.5, -4.25), Length::new(1.0))];
+        let mut circles = vec![OverlappableCircle::new(Position::new(-9.5, -4.25), Length::new(1.0))];
         let overlaps = subject.find_overlaps(&mut circles, on_overlap);
         assert_eq!(1, overlaps.len());
         assert_eq!(Overlap::new(Displacement::new(0.5, 0.25)), overlaps[0].1);
@@ -70,27 +70,27 @@ mod tests {
     #[test]
     fn max_corner_overlap() {
         let subject = Walls::new(Position::new(-10.0, -5.0), Position::new(10.0, 2.0));
-        let mut circles = vec![SimpleCircle::new(Position::new(9.5, 1.75), Length::new(1.0))];
+        let mut circles = vec![OverlappableCircle::new(Position::new(9.5, 1.75), Length::new(1.0))];
         let overlaps = subject.find_overlaps(&mut circles, on_overlap);
         assert_eq!(1, overlaps.len());
         assert_eq!(Overlap::new(Displacement::new(-0.5, -0.75)), overlaps[0].1);
     }
 
-    fn on_overlap(circle: &mut SimpleCircle, overlap: Overlap) {}
+    fn on_overlap(circle: &mut OverlappableCircle, overlap: Overlap) {}
 
     #[derive(Clone, Copy, Debug, PartialEq)]
-    pub struct SimpleCircle {
+    pub struct OverlappableCircle {
         pub center: Position,
         pub radius: Length,
     }
 
-    impl SimpleCircle {
-        pub fn new(center: Position, radius: Length) -> SimpleCircle {
-            SimpleCircle { center, radius }
+    impl OverlappableCircle {
+        pub fn new(center: Position, radius: Length) -> OverlappableCircle {
+            OverlappableCircle { center, radius }
         }
     }
 
-    impl Circle for SimpleCircle {
+    impl Circle for OverlappableCircle {
         fn radius(&self) -> Length {
             return self.radius;
         }

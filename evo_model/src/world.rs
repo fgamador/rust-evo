@@ -30,6 +30,12 @@ impl World {
             ball.mut_environment().add_overlap(overlap);
         });
 
+//        for ball in &mut self.balls {
+//            for overlap in ball.environment().overlaps() {
+//                ball.mut_forces().add_force(to_force(overlap));
+//            }
+//        }
+
         let tick_duration = Duration::new(1.0);
         for ball in &mut self.balls {
             ball.move_for(tick_duration);

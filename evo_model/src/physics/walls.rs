@@ -41,6 +41,12 @@ impl Overlap
     pub fn new(incursion: Displacement) -> Self {
         Overlap { incursion }
     }
+
+    // TODO move this to a Spring class
+    pub fn to_force(&self) -> Force {
+        const SPRING_CONSTANT: f64 = 1.0;
+        Force::new(self.incursion.x() * SPRING_CONSTANT, self.incursion.y() * SPRING_CONSTANT)
+    }
 }
 
 #[cfg(test)]
@@ -69,6 +75,12 @@ mod tests {
         let mut circles = vec![OverlappableCircle::new(Position::new(9.5, 1.75), Length::new(1.0))];
         subject.find_overlaps(&mut circles, on_overlap);
         assert_eq!(Overlap::new(Displacement::new(-0.5, -0.75)), circles[0].overlap);
+    }
+
+    #[test]
+    fn overlap_to_force() {
+        let overlap = Overlap::new(Displacement::new(2.0, -3.0));
+        assert_eq!(Force::new(2.0, -3.0), overlap.to_force());
     }
 
     fn on_overlap(circle: &mut OverlappableCircle, overlap: Overlap) {

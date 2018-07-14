@@ -42,6 +42,7 @@ impl World {
 
         for ball in &mut self.balls {
             ball.mut_environment().clear();
+            ball.mut_forces().clear();
         }
     }
 }
@@ -69,6 +70,16 @@ mod tests {
         world.tick();
         let ball = &world.balls()[0];
         assert!(ball.environment().overlaps().is_empty());
+    }
+
+    #[test]
+    fn forces_do_not_persist() {
+        let mut world = World::new(Position::new(-10.0, -10.0), Position::new(10.0, 10.0));
+        world.add_ball(Ball::new(Length::new(1.0), Mass::new(1.0),
+                                 Position::new(9.5, 9.5), Velocity::new(0.0, 0.0)));
+        world.tick();
+        let ball = &world.balls()[0];
+        assert_eq!(Force::new(0.0, 0.0), ball.forces().net_force());
     }
 
     #[test]

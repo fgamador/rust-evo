@@ -54,17 +54,16 @@ mod tests {
     fn no_overlaps() {
         let subject = Walls::new(Position::new(-10.0, -5.0), Position::new(10.0, 2.0));
         let mut circles = vec![OverlappableCircle::new(Position::new(8.5, 0.75), Length::new(1.0))];
-        let overlaps = subject.find_overlaps(&mut circles, on_overlap);
-        assert!(overlaps.is_empty());
+        subject.find_overlaps(&mut circles, on_overlap);
+        assert_eq!(Overlap::new(Displacement::new(0.0, 0.0)), circles[0].overlap);
     }
 
     #[test]
     fn min_corner_overlap() {
         let subject = Walls::new(Position::new(-10.0, -5.0), Position::new(10.0, 2.0));
         let mut circles = vec![OverlappableCircle::new(Position::new(-9.5, -4.25), Length::new(1.0))];
-        let overlaps = subject.find_overlaps(&mut circles, on_overlap);
-        assert_eq!(1, overlaps.len());
-        assert_eq!(Overlap::new(Displacement::new(0.5, 0.25)), overlaps[0].1);
+        subject.find_overlaps(&mut circles, on_overlap);
+        assert_eq!(Overlap::new(Displacement::new(0.5, 0.25)), circles[0].overlap);
     }
 
     #[test]

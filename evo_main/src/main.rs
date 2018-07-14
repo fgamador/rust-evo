@@ -2,13 +2,18 @@ extern crate evo_conrod;
 extern crate evo_model;
 extern crate evo_view_model;
 
+use evo_model::physics::ball::Ball;
+use evo_model::physics::quantities::*;
+use evo_model::world::World;
 use evo_view_model::Event;
 use evo_view_model::ViewModel;
 use evo_view_model::events::EventManager;
 use std::thread;
 use std::time::{Duration, Instant};
 
-struct Model {}
+struct Model {
+    world: World,
+}
 
 struct View {
     view: evo_conrod::feature::View,
@@ -41,11 +46,16 @@ fn main() {
 
 impl Model {
     pub fn new() -> Self {
-        Model {}
+        let mut world = World::new(Position::new(-200.0, -200.0), Position::new(200.0, 200.0));
+        world.add_ball(Ball::new(Length::new(20.0), Mass::new(1.0),
+                                 Position::new(-100.0, -100.0), Velocity::new(1.0, 1.0)));
+        Model {
+            world
+        }
     }
 
     pub fn tick(&mut self, view_model: &mut ViewModel) {
-        evo_model::tick(view_model);
+        evo_model::tick(&mut self.world, view_model);
     }
 }
 

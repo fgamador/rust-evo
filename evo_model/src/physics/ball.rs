@@ -102,7 +102,7 @@ mod tests {
                                  Position::new(1.0, 1.0), Velocity::new(1.0, 1.0));
         ball.environment().add_overlap(Overlap::new(Displacement::new(1.0, 1.0)));
         ball.environment().clear();
-        assert_eq!(0, ball.environment().overlaps().len());
+        assert!(ball.environment().overlaps().is_empty());
     }
 
     #[test]

@@ -27,7 +27,7 @@ impl World {
 
     pub fn tick(&mut self) {
         self.walls.find_overlaps(&mut self.balls, |ball, overlap| {
-            ball.environment().add_overlap(overlap);
+            ball.mut_environment().add_overlap(overlap);
         });
 
         let tick_duration = Duration::new(1.0);

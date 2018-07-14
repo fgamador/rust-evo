@@ -20,7 +20,11 @@ impl Ball {
         }
     }
 
-    pub fn environment(&mut self) -> &mut BallEnvironment {
+    pub fn environment(&self) -> &BallEnvironment {
+        &self.environment
+    }
+
+    pub fn mut_environment(&mut self) -> &mut BallEnvironment {
         &mut self.environment
     }
 }
@@ -100,8 +104,8 @@ mod tests {
     fn clear_ball_environment() {
         let mut ball = Ball::new(Length::new(1.0), Mass::new(1.0),
                                  Position::new(1.0, 1.0), Velocity::new(1.0, 1.0));
-        ball.environment().add_overlap(Overlap::new(Displacement::new(1.0, 1.0)));
-        ball.environment().clear();
+        ball.mut_environment().add_overlap(Overlap::new(Displacement::new(1.0, 1.0)));
+        ball.mut_environment().clear();
         assert!(ball.environment().overlaps().is_empty());
     }
 
@@ -111,7 +115,7 @@ mod tests {
         let mut balls = vec![Ball::new(Length::new(1.0), Mass::new(2.0),
                                        Position::new(-9.5, 1.75), Velocity::new(1.0, 2.0))];
         walls.find_overlaps(&mut balls, |ball, overlap| {
-            ball.environment().add_overlap(overlap);
+            ball.mut_environment().add_overlap(overlap);
         });
         assert_eq!(1, balls[0].environment().overlaps().len());
         assert_eq!(Overlap::new(Displacement::new(0.5, -0.75)), balls[0].environment().overlaps()[0]);

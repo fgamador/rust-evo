@@ -91,9 +91,8 @@ mod tests {
     #[test]
     fn walls_add_overlap() {
         let walls = Walls::new(Position::new(-10.0, -5.0), Position::new(10.0, 2.0));
-        let ball = Ball::new(Length::new(1.0), Mass::new(2.0),
-                             Position::new(-9.5, 1.75), Velocity::new(1.0, 2.0));
-        let mut balls = vec![ball];
+        let mut balls = vec![Ball::new(Length::new(1.0), Mass::new(2.0),
+                                       Position::new(-9.5, 1.75), Velocity::new(1.0, 2.0))];
         walls.find_overlaps(&mut balls, |ball, overlap| {
             ball.environment().add_overlap(overlap);
         });

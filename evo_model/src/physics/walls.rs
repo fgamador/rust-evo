@@ -23,6 +23,7 @@ impl Walls {
             let max_corner_overlap = (self.max_corner - circle_box.max_corner()).min(zero);
             let overlap = min_corner_overlap + max_corner_overlap;
             if overlap != zero {
+                //on_overlap(circle, Overlap::new(overlap));
                 overlaps.push((circle, Overlap::new(overlap)));
             }
         }
@@ -76,4 +77,26 @@ mod tests {
     }
 
     fn on_overlap(circle: &mut SimpleCircle, overlap: Overlap) {}
+
+    #[derive(Clone, Copy, Debug, PartialEq)]
+    pub struct SimpleCircle {
+        pub center: Position,
+        pub radius: Length,
+    }
+
+    impl SimpleCircle {
+        pub fn new(center: Position, radius: Length) -> SimpleCircle {
+            SimpleCircle { center, radius }
+        }
+    }
+
+    impl Circle for SimpleCircle {
+        fn radius(&self) -> Length {
+            return self.radius;
+        }
+
+        fn center(&self) -> Position {
+            return self.center;
+        }
+    }
 }

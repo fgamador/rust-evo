@@ -34,6 +34,10 @@ impl World {
         for ball in &mut self.balls {
             ball.move_for(tick_duration);
         }
+
+        for ball in &mut self.balls {
+            ball.mut_environment().clear();
+        }
     }
 }
 
@@ -50,6 +54,16 @@ mod tests {
         let ball = &world.balls()[0];
         assert!(ball.position().x() > 0.0);
         assert!(ball.position().y() > 0.0);
+    }
+
+    #[test]
+    fn overlaps_do_not_persist() {
+        let mut world = World::new(Position::new(-10.0, -10.0), Position::new(10.0, 10.0));
+        world.add_ball(Ball::new(Length::new(1.0), Mass::new(1.0),
+                                 Position::new(9.5, 9.5), Velocity::new(0.0, 0.0)));
+        world.tick();
+        let ball = &world.balls()[0];
+        assert!(ball.environment().overlaps().is_empty());
     }
 
     //    #[test]

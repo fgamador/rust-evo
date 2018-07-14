@@ -37,16 +37,16 @@ mod tests {
 
     #[test]
     fn tick_moves_balls() {
-        let mut world = World::new(Position::new(0.0, -5.0), Position::new(10.0, 1.0));
+        let mut world = World::new(Position::new(0.0, 0.0), Position::new(10.0, 10.0));
         world.add_ball(Ball::new(Length::new(1.0), Mass::new(1.0),
-                                 Position::new(5.0, -2.0), Velocity::new(1.0, 1.0)));
+                                 Position::new(5.0, 5.0), Velocity::new(1.0, 1.0)));
         world.tick();
         let ball = &world.balls()[0];
-        assert_eq!(Position::new(6.0, -1.0), ball.position());
+        assert_eq!(Position::new(6.0, 6.0), ball.position());
     }
 
 //    #[test]
-//    fn wall_bounce() {
+//    fn balls_bounce_off_walls() {
 //        let mut world = World::new(Position::new(0.0, -5.0), Position::new(10.0, 1.0));
 //        world.add_ball(Ball::new(Length::new(1.0), Mass::new(1.0),
 //                                 Position::new(8.0, -1.0), Velocity::new(1.0, 1.0)));

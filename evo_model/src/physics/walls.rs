@@ -12,10 +12,9 @@ impl Walls {
         Walls { min_corner, max_corner }
     }
 
-    pub fn find_overlaps<'a, C>(&self, circles: &'a mut Vec<C>, on_overlap: fn(&mut C, Overlap)) -> Vec<(&'a mut C, Overlap)>
+    pub fn find_overlaps<'a, C>(&self, circles: &'a mut Vec<C>, on_overlap: fn(&mut C, Overlap))
         where C: Circle
     {
-        let mut overlaps = vec![];
         let zero = Displacement::new(0.0, 0.0);
         for circle in circles {
             let circle_box = circle.to_bounding_box();
@@ -24,10 +23,8 @@ impl Walls {
             let overlap = min_corner_overlap + max_corner_overlap;
             if overlap != zero {
                 on_overlap(circle, Overlap::new(overlap));
-                overlaps.push((circle, Overlap::new(overlap)));
             }
         }
-        overlaps
     }
 }
 

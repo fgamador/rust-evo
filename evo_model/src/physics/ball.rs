@@ -72,6 +72,14 @@ impl BallEnvironment {
     pub fn add_overlap(&mut self, overlap: Overlap) {
         self.overlaps.push(overlap);
     }
+
+    pub fn overlaps(&self) -> &Vec<Overlap> {
+        &self.overlaps
+    }
+
+    pub fn clear(&mut self) {
+        self.overlaps.clear();
+    }
 }
 
 #[cfg(test)]
@@ -86,6 +94,15 @@ mod tests {
                               Position::new(1.0, 1.0), Velocity::new(1.0, 1.0));
         assert_eq!(ball1, ball1);
         assert_ne!(ball1, ball2);
+    }
+
+    #[test]
+    fn clear_ball_environment() {
+        let mut ball = Ball::new(Length::new(1.0), Mass::new(1.0),
+                                 Position::new(1.0, 1.0), Velocity::new(1.0, 1.0));
+        ball.environment().add_overlap(Overlap::new(Displacement::new(1.0, 1.0)));
+        ball.environment().clear();
+        assert_eq!(0, ball.environment().overlaps().len());
     }
 
     #[test]

@@ -6,12 +6,14 @@ use physics::walls::*;
 #[derive(Debug)]
 pub struct World {
     balls: Vec<Ball>,
+    walls: Walls,
 }
 
 impl World {
     pub fn new(min_corner: Position, max_corner: Position) -> Self {
         World {
             balls: vec![],
+            walls: Walls::new(min_corner, max_corner),
         }
     }
 
@@ -24,6 +26,10 @@ impl World {
     }
 
     pub fn tick(&mut self) {
+        self.walls.find_overlaps(&mut self.balls, |ball, overlap| {
+            ball.environment().add_overlap(overlap);
+        });
+
         let tick_duration = Duration::new(1.0);
         for ball in &mut self.balls {
             ball.move_for(tick_duration);

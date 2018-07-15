@@ -73,11 +73,10 @@ impl View {
     }
 
     fn await_next_tick(&mut self) {
-        let mut now = Instant::now();
+        let now = Instant::now();
         if now < self.next_tick {
             thread::sleep(self.next_tick - now);
-            now = Instant::now();
         }
-        self.next_tick = now + Duration::from_millis(16);
+        self.next_tick += Duration::from_millis(16);
     }
 }

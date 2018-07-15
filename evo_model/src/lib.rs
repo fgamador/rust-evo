@@ -4,14 +4,17 @@ pub mod physics;
 pub mod world;
 
 use evo_view_model::ViewModel;
-use physics::newtonian::Body;
+use physics::shapes::Circle;
 use world::World;
 
 pub fn tick(world: &mut World, view_model: &mut ViewModel) {
     world.tick();
 
-    let ball = &world.balls()[0];
-    let circle = &mut view_model.circle;
-    circle.x = ball.position().x();
-    circle.y = ball.position().y();
+    for ball in world.balls() {
+        view_model.circles.push(evo_view_model::Circle {
+            x: ball.center().x(),
+            y: ball.center().y(),
+            radius: ball.radius().value(),
+        });
+    }
 }

@@ -26,6 +26,7 @@ pub mod feature {
     widget_ids! {
         struct Ids {
             canvas,
+            circle,
             circles[],
         }
     }
@@ -136,12 +137,12 @@ pub mod feature {
 
         Canvas::new().pad(80.0).set(ids.canvas, ui);
 
-        let mut walker = ids.circles.walk();
-        for _i in 0..1 {
-            let id = walker.next(&mut ids.circles, &mut ui.widget_id_generator());
-            Circle::fill_with(view_model.circle.radius, color::rgb(0.5, 1.0, 0.5))
-                .x_y(view_model.circle.x, view_model.circle.y)
-                .set(id, ui);
+//        let mut walker = ids.circles.walk();
+        for circle in &view_model.circles {
+//            let id = walker.next(&mut ids.circles, &mut ui.widget_id_generator());
+            Circle::fill_with(circle.radius, color::rgb(0.5, 1.0, 0.5))
+                .x_y(circle.x, circle.y)
+                .set(ids.circle, ui);
         }
     }
 }

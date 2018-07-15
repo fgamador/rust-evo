@@ -13,17 +13,13 @@ pub struct Circle {
 }
 
 pub struct ViewModel {
-    pub circle: Circle,
+    pub circles: Vec<Circle>,
 }
 
 impl ViewModel {
     pub fn new() -> Self {
         ViewModel {
-            circle: Circle {
-                x: 0.0,
-                y: 0.0,
-                radius: 10.0,
-            }
+            circles: vec![],
         }
     }
 }

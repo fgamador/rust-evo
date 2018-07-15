@@ -138,7 +138,7 @@ pub mod feature {
         // The background canvas upon which we'll place our widgets.
         Canvas::new().pad(80.0).set(ids.canvas, ui);
 
-        Circle::fill_with(20.0, color::rgb(0.5, 1.0, 0.5))
+        Circle::fill_with(view_model.circle.radius, color::rgb(0.5, 1.0, 0.5))
             .x_y(view_model.circle.x, view_model.circle.y)
             .set(ids.moving_circle, ui);
 

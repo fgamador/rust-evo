@@ -1,11 +1,12 @@
 pub mod events;
 
-#[derive(Clone, Copy, Eq, Hash, PartialEq)]
+#[derive(Clone, Copy, Debug, Eq, Hash, PartialEq)]
 pub enum Event {
     Rendered,
     Updated,
 }
 
+#[derive(Clone, Copy, Debug)]
 pub struct Circle {
     pub x: f64,
     pub y: f64,

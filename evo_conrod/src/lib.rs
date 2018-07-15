@@ -73,12 +73,12 @@ pub mod feature {
             //while self.once() {}
         }
 
-        pub fn once(&mut self, view_model: &mut ViewModel) -> bool {
+        pub fn once(&mut self, view_model: &ViewModel) -> bool {
             if !self.handle_events() {
                 return false;
             }
 
-            set_ui(self.ui.set_widgets(), &mut self.ids, view_model.circle.x, view_model.circle.y);
+            set_ui(self.ui.set_widgets(), &mut self.ids, view_model);
 
             self.render_and_display_ui();
 
@@ -130,7 +130,7 @@ pub mod feature {
         }
     }
 
-    fn set_ui(ref mut ui: conrod::UiCell, ids: &mut Ids, moving_x: f64, moving_y: f64) {
+    fn set_ui(ref mut ui: conrod::UiCell, ids: &mut Ids, view_model: &ViewModel) {
         use conrod::{Positionable, Widget};
         use conrod::color;
         use conrod::widget::{Canvas, Circle};
@@ -139,7 +139,7 @@ pub mod feature {
         Canvas::new().pad(80.0).set(ids.canvas, ui);
 
         Circle::fill_with(20.0, color::rgb(0.5, 1.0, 0.5))
-            .x_y(moving_x, moving_y)
+            .x_y(view_model.circle.x, view_model.circle.y)
             .set(ids.moving_circle, ui);
 
         let mut walker = ids.circles.walk();

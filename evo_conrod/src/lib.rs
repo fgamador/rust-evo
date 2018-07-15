@@ -27,7 +27,6 @@ pub mod feature {
         struct Ids {
             canvas,
             circles[],
-            moving_circle,
         }
     }
 
@@ -135,21 +134,14 @@ pub mod feature {
         use conrod::color;
         use conrod::widget::{Canvas, Circle};
 
-        // The background canvas upon which we'll place our widgets.
         Canvas::new().pad(80.0).set(ids.canvas, ui);
 
-        Circle::fill_with(view_model.circle.radius, color::rgb(0.5, 1.0, 0.5))
-            .x_y(view_model.circle.x, view_model.circle.y)
-            .set(ids.moving_circle, ui);
-
         let mut walker = ids.circles.walk();
-        let mut x = -100.0;
-        let mut y = 100.0;
-        for _i in 0..4 {
+        for _i in 0..1 {
             let id = walker.next(&mut ids.circles, &mut ui.widget_id_generator());
-            Circle::fill_with(20.0, color::rgb(0.5, 1.0, 0.5)).x_y(x, y).set(id, ui);
-            x += 50.0;
-            y -= 50.0;
+            Circle::fill_with(view_model.circle.radius, color::rgb(0.5, 1.0, 0.5))
+                .x_y(view_model.circle.x, view_model.circle.y)
+                .set(id, ui);
         }
     }
 }

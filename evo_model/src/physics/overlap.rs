@@ -49,9 +49,45 @@ impl Walls {
     }
 }
 
+pub struct CirclesSortedByMinX<C: Circle> {
+    circles: Vec<C>
+}
+
+impl<C: Circle> CirclesSortedByMinX<C> {
+    pub fn new() -> Self {
+        CirclesSortedByMinX { circles: vec![] }
+    }
+
+    pub fn add(&mut self, circle: C) {
+        self.circles.push(circle);
+    }
+
+    pub fn len(&self) -> usize {
+        self.circles.len()
+    }
+
+    pub fn get(&self, index: usize) -> &C {
+        &self.circles[index]
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    //#[test]
+    fn add_to_sorted_circles_stays_sorted() {
+        let mut subject = CirclesSortedByMinX::new();
+        let circle1 = OverlappableCircle::new(Position::new(1.0, 0.0), Length::new(1.0));
+        let circle2 = OverlappableCircle::new(Position::new(2.0, 0.0), Length::new(1.0));
+
+        subject.add(circle2);
+        subject.add(circle1);
+
+        assert_eq!(2, subject.len());
+        assert_eq!(circle1, *subject.get(0));
+        assert_eq!(circle2, *subject.get(1));
+    }
 
     #[test]
     fn no_wall_overlaps() {

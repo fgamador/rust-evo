@@ -1,5 +1,6 @@
 use physics::quantities::*;
 use physics::shapes::*;
+use std::cmp::Ordering;
 
 // TODO add width to Overlap, or maybe make incursion magnitude an Area
 
@@ -60,6 +61,7 @@ impl<C: Circle> CirclesSortedByMinX<C> {
 
     pub fn add(&mut self, circle: C) {
         self.circles.push(circle);
+        self.sort();
     }
 
     pub fn len(&self) -> usize {
@@ -69,13 +71,25 @@ impl<C: Circle> CirclesSortedByMinX<C> {
     pub fn get(&self, index: usize) -> &C {
         &self.circles[index]
     }
+
+    fn sort(&mut self) {
+        self.circles.sort_unstable_by(|c1, c2| Self::cmp_by_min_x(c1, c2));
+    }
+
+    fn cmp_by_min_x(c1: &C, c2: &C) -> Ordering {
+        Self::min_x(c1).partial_cmp(&Self::min_x(c2)).unwrap()
+    }
+
+    fn min_x(c: &C) -> f64 {
+        c.center().x() - c.radius().value()
+    }
 }
 
 #[cfg(test)]
 mod tests {
     use super::*;
 
-    //#[test]
+    #[test]
     fn add_to_sorted_circles_stays_sorted() {
         let mut subject = CirclesSortedByMinX::new();
         let circle1 = OverlappableCircle::new(Position::new(1.0, 0.0), Length::new(1.0));

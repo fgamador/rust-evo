@@ -54,7 +54,7 @@ mod tests {
     use super::*;
 
     #[test]
-    fn no_overlaps() {
+    fn no_wall_overlaps() {
         let subject = Walls::new(Position::new(-10.0, -5.0), Position::new(10.0, 2.0));
         let mut circles = vec![OverlappableCircle::new(Position::new(8.5, 0.75), Length::new(1.0))];
         subject.find_overlaps(&mut circles, on_overlap);
@@ -62,7 +62,7 @@ mod tests {
     }
 
     #[test]
-    fn min_corner_overlap() {
+    fn min_corner_wall_overlap() {
         let subject = Walls::new(Position::new(-10.0, -5.0), Position::new(10.0, 2.0));
         let mut circles = vec![OverlappableCircle::new(Position::new(-9.5, -4.25), Length::new(1.0))];
         subject.find_overlaps(&mut circles, on_overlap);
@@ -70,7 +70,7 @@ mod tests {
     }
 
     #[test]
-    fn max_corner_overlap() {
+    fn max_corner_wall_overlap() {
         let subject = Walls::new(Position::new(-10.0, -5.0), Position::new(10.0, 2.0));
         let mut circles = vec![OverlappableCircle::new(Position::new(9.5, 1.75), Length::new(1.0))];
         subject.find_overlaps(&mut circles, on_overlap);

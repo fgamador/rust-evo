@@ -1,6 +1,27 @@
 use physics::quantities::*;
 use physics::shapes::*;
 
+// TODO add width to Overlap, or maybe make incursion magnitude an Area
+
+#[derive(Clone, Copy, Debug, PartialEq)]
+pub struct Overlap
+{
+    incursion: Displacement,
+}
+
+impl Overlap
+{
+    pub fn new(incursion: Displacement) -> Self {
+        Overlap { incursion }
+    }
+
+    // TODO move this to a Spring class
+    pub fn to_force(&self) -> Force {
+        const SPRING_CONSTANT: f64 = 1.0;
+        Force::new(self.incursion.x() * SPRING_CONSTANT, self.incursion.y() * SPRING_CONSTANT)
+    }
+}
+
 #[derive(Debug)]
 pub struct Walls {
     min_corner: Position,
@@ -25,27 +46,6 @@ impl Walls {
                 on_overlap(circle, Overlap::new(overlap));
             }
         }
-    }
-}
-
-// TODO add width to Overlap, or maybe make incursion magnitude an Area
-
-#[derive(Clone, Copy, Debug, PartialEq)]
-pub struct Overlap
-{
-    incursion: Displacement,
-}
-
-impl Overlap
-{
-    pub fn new(incursion: Displacement) -> Self {
-        Overlap { incursion }
-    }
-
-    // TODO move this to a Spring class
-    pub fn to_force(&self) -> Force {
-        const SPRING_CONSTANT: f64 = 1.0;
-        Force::new(self.incursion.x() * SPRING_CONSTANT, self.incursion.y() * SPRING_CONSTANT)
     }
 }
 

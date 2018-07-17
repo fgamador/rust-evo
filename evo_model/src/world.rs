@@ -1,7 +1,7 @@
 use physics::ball::*;
 use physics::newtonian::Body;
 use physics::quantities::*;
-use physics::walls::*;
+use physics::overlap::*;
 
 #[derive(Debug)]
 pub struct World {

@@ -3,7 +3,7 @@ use physics::newtonian::Body;
 use physics::newtonian::Forces;
 use physics::quantities::*;
 use physics::shapes::*;
-use physics::walls::*;
+use physics::overlap::*;
 use std::ptr;
 
 #[derive(Debug)]

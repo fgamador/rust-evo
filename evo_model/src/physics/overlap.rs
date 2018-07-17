@@ -77,11 +77,7 @@ impl<C: Circle> CirclesSortedByMinX<C> {
     }
 
     fn cmp_by_min_x(c1: &C, c2: &C) -> Ordering {
-        Self::min_x(c1).partial_cmp(&Self::min_x(c2)).unwrap()
-    }
-
-    fn min_x(c: &C) -> f64 {
-        c.center().x() - c.radius().value()
+        c1.min_x().partial_cmp(&c2.min_x()).unwrap()
     }
 }
 

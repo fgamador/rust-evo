@@ -65,6 +65,11 @@ impl<C: Circle> CirclesSortedByMinX<C> {
         self.sort();
     }
 
+    pub fn add_all(&mut self, circles: &mut Vec<C>) {
+        self.circles.append(circles);
+        self.sort();
+    }
+
     pub fn len(&self) -> usize {
         self.circles.len()
     }
@@ -111,6 +116,31 @@ mod tests {
 
         assert_eq!(&subject as &[OverlappableCircle], &vec![circle1, circle2] as &[OverlappableCircle]);
     }
+
+    #[test]
+    fn add_all_to_sorted_circles_stays_sorted() {
+        let mut subject = CirclesSortedByMinX::new();
+        let circle1 = OverlappableCircle::new(Position::new(1.0, 0.0), Length::new(1.0));
+        let circle2 = OverlappableCircle::new(Position::new(2.0, 0.0), Length::new(1.0));
+        let circle3 = OverlappableCircle::new(Position::new(3.0, 0.0), Length::new(1.0));
+
+        subject.add_all(&mut vec![circle3, circle2, circle1]);
+
+        assert_eq!(&subject as &[OverlappableCircle], &vec![circle1, circle2, circle3] as &[OverlappableCircle]);
+    }
+
+//    #[test]
+//    fn sort_sorted_circles_after_movement() {
+//        let mut subject = CirclesSortedByMinX::new();
+//        let circle1 = OverlappableCircle::new(Position::new(3.0, 0.0), Length::new(1.0));
+//        let circle2 = OverlappableCircle::new(Position::new(2.0, 0.0), Length::new(1.0));
+//        let circle3 = OverlappableCircle::new(Position::new(1.0, 0.0), Length::new(1.0));
+//
+//        subject.add(circle2);
+//        subject.add(circle1);
+//
+//        assert_eq!(&subject as &[OverlappableCircle], &vec![circle1, circle2] as &[OverlappableCircle]);
+//    }
 
     #[test]
     fn no_wall_overlaps() {

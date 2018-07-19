@@ -1,6 +1,7 @@
 use physics::quantities::*;
 use physics::shapes::*;
 use std::cmp::Ordering;
+use std::ops;
 
 // TODO add width to Overlap, or maybe make incursion magnitude an Area
 
@@ -81,6 +82,20 @@ impl<C: Circle> CirclesSortedByMinX<C> {
     }
 }
 
+impl<C: Circle> ops::Deref for CirclesSortedByMinX<C> {
+    type Target = [C];
+
+    fn deref(&self) -> &[C] {
+        &self.circles
+    }
+}
+
+impl<C: Circle> ops::DerefMut for CirclesSortedByMinX<C> {
+    fn deref_mut(&mut self) -> &mut [C] {
+        &mut self.circles
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -94,9 +109,7 @@ mod tests {
         subject.add(circle2);
         subject.add(circle1);
 
-        assert_eq!(2, subject.len());
-        assert_eq!(circle1, *subject.get(0));
-        assert_eq!(circle2, *subject.get(1));
+        assert_eq!(&subject as &[OverlappableCircle], &vec![circle1, circle2] as &[OverlappableCircle]);
     }
 
     #[test]

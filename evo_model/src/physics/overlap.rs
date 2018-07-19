@@ -78,7 +78,7 @@ impl<C: Circle> CirclesSortedByMinX<C> {
         &self.circles[index]
     }
 
-    fn sort(&mut self) {
+    pub fn sort(&mut self) {
         self.circles.sort_unstable_by(|c1, c2| Self::cmp_by_min_x(c1, c2));
     }
 
@@ -128,19 +128,6 @@ mod tests {
 
         assert_eq!(&subject as &[OverlappableCircle], &vec![circle1, circle2, circle3] as &[OverlappableCircle]);
     }
-
-//    #[test]
-//    fn sort_sorted_circles_after_movement() {
-//        let mut subject = CirclesSortedByMinX::new();
-//        let circle1 = OverlappableCircle::new(Position::new(3.0, 0.0), Length::new(1.0));
-//        let circle2 = OverlappableCircle::new(Position::new(2.0, 0.0), Length::new(1.0));
-//        let circle3 = OverlappableCircle::new(Position::new(1.0, 0.0), Length::new(1.0));
-//
-//        subject.add(circle2);
-//        subject.add(circle1);
-//
-//        assert_eq!(&subject as &[OverlappableCircle], &vec![circle1, circle2] as &[OverlappableCircle]);
-//    }
 
     #[test]
     fn no_wall_overlaps() {

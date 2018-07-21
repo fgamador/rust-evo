@@ -108,31 +108,31 @@ mod tests {
     #[test]
     fn add_to_sorted_circles_stays_sorted() {
         let mut subject = CirclesSortedByMinX::new();
-        let circle1 = OverlappableCircle::new(Position::new(1.0, 0.0), Length::new(1.0));
-        let circle2 = OverlappableCircle::new(Position::new(2.0, 0.0), Length::new(1.0));
+        let circle1 = SpyCircle::new(Position::new(1.0, 0.0), Length::new(1.0));
+        let circle2 = SpyCircle::new(Position::new(2.0, 0.0), Length::new(1.0));
 
         subject.add(circle2);
         subject.add(circle1);
 
-        assert_eq!(&subject as &[OverlappableCircle], &vec![circle1, circle2] as &[OverlappableCircle]);
+        assert_eq!(&subject as &[SpyCircle], &vec![circle1, circle2] as &[SpyCircle]);
     }
 
     #[test]
     fn add_all_to_sorted_circles_stays_sorted() {
         let mut subject = CirclesSortedByMinX::new();
-        let circle1 = OverlappableCircle::new(Position::new(1.0, 0.0), Length::new(1.0));
-        let circle2 = OverlappableCircle::new(Position::new(2.0, 0.0), Length::new(1.0));
-        let circle3 = OverlappableCircle::new(Position::new(3.0, 0.0), Length::new(1.0));
+        let circle1 = SpyCircle::new(Position::new(1.0, 0.0), Length::new(1.0));
+        let circle2 = SpyCircle::new(Position::new(2.0, 0.0), Length::new(1.0));
+        let circle3 = SpyCircle::new(Position::new(3.0, 0.0), Length::new(1.0));
 
         subject.add_all(&mut vec![circle3, circle2, circle1]);
 
-        assert_eq!(&subject as &[OverlappableCircle], &vec![circle1, circle2, circle3] as &[OverlappableCircle]);
+        assert_eq!(&subject as &[SpyCircle], &vec![circle1, circle2, circle3] as &[SpyCircle]);
     }
 
     #[test]
     fn no_wall_overlaps() {
         let subject = Walls::new(Position::new(-10.0, -5.0), Position::new(10.0, 2.0));
-        let mut circles = vec![OverlappableCircle::new(Position::new(8.5, 0.75), Length::new(1.0))];
+        let mut circles = vec![SpyCircle::new(Position::new(8.5, 0.75), Length::new(1.0))];
         subject.find_overlaps(&mut circles, on_overlap);
         assert_eq!(Overlap::new(Displacement::new(0.0, 0.0)), circles[0].overlap);
     }
@@ -140,7 +140,7 @@ mod tests {
     #[test]
     fn min_corner_wall_overlap() {
         let subject = Walls::new(Position::new(-10.0, -5.0), Position::new(10.0, 2.0));
-        let mut circles = vec![OverlappableCircle::new(Position::new(-9.5, -4.25), Length::new(1.0))];
+        let mut circles = vec![SpyCircle::new(Position::new(-9.5, -4.25), Length::new(1.0))];
         subject.find_overlaps(&mut circles, on_overlap);
         assert_eq!(Overlap::new(Displacement::new(0.5, 0.25)), circles[0].overlap);
     }
@@ -148,7 +148,7 @@ mod tests {
     #[test]
     fn max_corner_wall_overlap() {
         let subject = Walls::new(Position::new(-10.0, -5.0), Position::new(10.0, 2.0));
-        let mut circles = vec![OverlappableCircle::new(Position::new(9.5, 1.75), Length::new(1.0))];
+        let mut circles = vec![SpyCircle::new(Position::new(9.5, 1.75), Length::new(1.0))];
         subject.find_overlaps(&mut circles, on_overlap);
         assert_eq!(Overlap::new(Displacement::new(-0.5, -0.75)), circles[0].overlap);
     }
@@ -159,24 +159,24 @@ mod tests {
         assert_eq!(Force::new(2.0, -3.0), overlap.to_force());
     }
 
-    fn on_overlap(circle: &mut OverlappableCircle, overlap: Overlap) {
+    fn on_overlap(circle: &mut SpyCircle, overlap: Overlap) {
         circle.overlap = overlap;
     }
 
     #[derive(Clone, Copy, Debug, PartialEq)]
-    pub struct OverlappableCircle {
+    pub struct SpyCircle {
         pub center: Position,
         pub radius: Length,
         pub overlap: Overlap,
     }
 
-    impl OverlappableCircle {
-        pub fn new(center: Position, radius: Length) -> OverlappableCircle {
-            OverlappableCircle { center, radius, overlap: Overlap::new(Displacement::new(0.0, 0.0)) }
+    impl SpyCircle {
+        pub fn new(center: Position, radius: Length) -> SpyCircle {
+            SpyCircle { center, radius, overlap: Overlap::new(Displacement::new(0.0, 0.0)) }
         }
     }
 
-    impl Circle for OverlappableCircle {
+    impl Circle for SpyCircle {
         fn radius(&self) -> Length {
             return self.radius;
         }

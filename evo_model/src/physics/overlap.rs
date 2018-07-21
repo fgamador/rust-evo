@@ -101,6 +101,13 @@ impl<C: Circle> ops::DerefMut for CirclesSortedByMinX<C> {
     }
 }
 
+pub fn find_pair_overlaps<'a, C>(circles: &'a mut CirclesSortedByMinX<C>,
+                                 on_pair_overlap: fn(&mut C, &mut C, Overlap))
+    where C: Circle
+{
+    // TODO
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -154,6 +161,19 @@ mod tests {
     }
 
     #[test]
+    fn no_pair_overlap() {
+        let mut circles = CirclesSortedByMinX::new();
+        circles.add_all(&mut vec![
+            SpyCircle::new(Position::new(0.0, 0.0), Length::new(1.0)),
+            SpyCircle::new(Position::new(3.0, -3.0), Length::new(1.0))]);
+
+        find_pair_overlaps(&mut circles, on_pair_overlap);
+
+        assert_eq!(Overlap::new(Displacement::new(0.0, 0.0)), circles[0].overlap);
+        assert_eq!(Overlap::new(Displacement::new(0.0, 0.0)), circles[1].overlap);
+    }
+
+    #[test]
     fn overlap_to_force() {
         let overlap = Overlap::new(Displacement::new(2.0, -3.0));
         assert_eq!(Force::new(2.0, -3.0), overlap.to_force());
@@ -161,6 +181,11 @@ mod tests {
 
     fn on_overlap(circle: &mut SpyCircle, overlap: Overlap) {
         circle.overlap = overlap;
+    }
+
+    fn on_pair_overlap(circle1: &mut SpyCircle, circle2: &mut SpyCircle, overlap1: Overlap) {
+        //circle1.overlap = overlap1;
+        //circle2.overlap = -overlap1;
     }
 
     #[derive(Clone, Copy, Debug, PartialEq)]

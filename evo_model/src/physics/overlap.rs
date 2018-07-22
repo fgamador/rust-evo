@@ -176,10 +176,9 @@ mod tests {
 
     #[test]
     fn no_pair_overlap() {
-        let mut circles = CirclesSortedByMinX::new();
-        circles.add_all(&mut vec![
+        let mut circles = vec![
             SpyCircle::new(Position::new(0.0, 0.0), Length::new(1.0)),
-            SpyCircle::new(Position::new(3.0, -3.0), Length::new(1.0))]);
+            SpyCircle::new(Position::new(3.0, -3.0), Length::new(1.0))];
 
         find_pair_overlaps(&mut circles, on_overlap);
 
@@ -189,10 +188,9 @@ mod tests {
 
     #[test]
     fn pair_x_overlap() {
-        let mut circles = CirclesSortedByMinX::new();
-        circles.add_all(&mut vec![
+        let mut circles = vec![
             SpyCircle::new(Position::new(0.0, 0.0), Length::new(1.0)),
-            SpyCircle::new(Position::new(1.5, 0.0), Length::new(1.0))]);
+            SpyCircle::new(Position::new(1.5, 0.0), Length::new(1.0))];
 
         find_pair_overlaps(&mut circles, on_overlap);
 

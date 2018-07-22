@@ -104,7 +104,7 @@ impl<C: Circle> ops::DerefMut for CirclesSortedByMinX<C> {
 pub fn find_pair_overlaps<'a, C>(circles: &'a mut [C], on_overlap: fn(&mut C, Overlap))
     where C: Circle
 {
-    let mut overlaps: Vec<(usize, Overlap)> = vec![];
+    let mut overlaps: Vec<(usize, Overlap)> = Vec::with_capacity(circles.len() * 2);
     for (i, circle1) in circles.iter().enumerate() {
         for (j, circle2) in (&circles[(i + 1)..]).iter().enumerate() {
 //            if (circle2.min_x()) >= circle1.max_x() {
@@ -118,7 +118,6 @@ pub fn find_pair_overlaps<'a, C>(circles: &'a mut [C], on_overlap: fn(&mut C, Ov
         }
     }
     for (index, overlap) in overlaps {
-        println!("on_overlap: {}: {:?}", index, overlap);
         on_overlap(&mut circles[index], overlap);
     }
 }

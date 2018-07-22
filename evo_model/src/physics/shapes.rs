@@ -11,14 +11,24 @@ pub trait Circle {
     }
 
     fn to_bounding_box(&self) -> Rectangle {
-        Rectangle::new(Position::new(self.min_x(),
-                                     self.center().y() - self.radius().value()),
-                       Position::new(self.center().x() + self.radius().value(),
-                                     self.center().y() + self.radius().value()))
+        Rectangle::new(Position::new(self.min_x(), self.min_y()),
+                       Position::new(self.max_x(), self.max_y()))
     }
 
     fn min_x(&self) -> f64 {
         self.center().x() - self.radius().value()
+    }
+
+    fn max_x(&self) -> f64 {
+        self.center().x() + self.radius().value()
+    }
+
+    fn min_y(&self) -> f64 {
+        self.center().y() - self.radius().value()
+    }
+
+    fn max_y(&self) -> f64 {
+        self.center().y() + self.radius().value()
     }
 }
 

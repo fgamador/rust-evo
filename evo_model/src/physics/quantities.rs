@@ -2,6 +2,7 @@ use std::ops::Add;
 use std::ops::AddAssign;
 use std::ops::Div;
 use std::ops::Mul;
+use std::ops::Neg;
 use std::ops::Sub;
 
 #[derive(Clone, Copy, Debug, PartialEq)]
@@ -141,6 +142,14 @@ impl Add for Displacement {
 
     fn add(self, rhs: Displacement) -> Self::Output {
         Displacement::new(self.x + rhs.x, self.y + rhs.y)
+    }
+}
+
+impl Neg for Displacement {
+    type Output = Displacement;
+
+    fn neg(self) -> Self::Output {
+        Displacement::new(-self.x, -self.y)
     }
 }
 
@@ -358,6 +367,11 @@ mod tests {
     fn add_displacements() {
         assert_eq!(Displacement::new(2.0, 1.0),
                    Displacement::new(1.5, 1.5) + Displacement::new(0.5, -0.5));
+    }
+
+    #[test]
+    fn negate_displacement() {
+        assert_eq!(Displacement::new(-1.0, 1.0), -Displacement::new(1.0, -1.0));
     }
 
     #[test]

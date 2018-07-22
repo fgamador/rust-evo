@@ -113,11 +113,12 @@ pub fn find_pair_overlaps<'a, C>(circles: &'a mut [C], on_overlap: fn(&mut C, Ov
             if circle1.max_x() > circle2.min_x() && circle1.min_x() < circle2.max_x() {
                 let overlap = Displacement::new(circle2.min_x() - circle1.max_x(), 0.0);
                 overlaps.push((i, Overlap::new(overlap)));
-                overlaps.push((j, Overlap::new(overlap)));
+                overlaps.push((i + 1 + j, Overlap::new(-overlap)));
             }
         }
     }
     for (index, overlap) in overlaps {
+        println!("on_overlap: {}: {:?}", index, overlap);
         on_overlap(&mut circles[index], overlap);
     }
 }
@@ -195,7 +196,7 @@ mod tests {
         find_pair_overlaps(&mut circles, on_overlap);
 
         assert_eq!(Overlap::new(Displacement::new(-0.5, 0.0)), circles[0].overlap);
-        //assert_eq!(Overlap::new(Displacement::new(0.5, 0.0)), circles[1].overlap);
+        assert_eq!(Overlap::new(Displacement::new(0.5, 0.0)), circles[1].overlap);
     }
 
     #[test]

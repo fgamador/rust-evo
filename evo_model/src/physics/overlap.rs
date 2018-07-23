@@ -211,6 +211,18 @@ mod tests {
         assert_eq!(Overlap::new(Displacement::new(0.0, 0.0)), circles[1].overlap);
     }
 
+    //#[test]
+    fn pair_x_and_y_overlap_without_circle_overlap() {
+        let mut circles = vec![
+            SpyCircle::new(Position::new(0.0, 0.0), Length::new(1.0)),
+            SpyCircle::new(Position::new(1.5, 1.5), Length::new(1.0))];
+
+        find_pair_overlaps(&mut circles, on_overlap);
+
+        assert_eq!(Overlap::new(Displacement::new(0.0, 0.0)), circles[0].overlap);
+        assert_eq!(Overlap::new(Displacement::new(0.0, 0.0)), circles[1].overlap);
+    }
+
     #[test]
     fn overlap_to_force() {
         let overlap = Overlap::new(Displacement::new(2.0, -3.0));

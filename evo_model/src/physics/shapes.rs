@@ -52,6 +52,26 @@ impl Rectangle {
     }
 }
 
+#[derive(Clone, Copy, Debug, PartialEq)]
+pub struct FloatRange {
+    min: f64,
+    max: f64,
+}
+
+impl FloatRange {
+    pub fn new(min: f64, max: f64) -> Self {
+        if min > max {
+            panic!("Min {} is greater than max {}", min, max);
+        }
+
+        FloatRange { min, max }
+    }
+
+    pub fn overlaps(&self, other: FloatRange) -> bool {
+        self.max > other.min && self.min < other.max
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -70,6 +90,30 @@ mod tests {
                                   Position::new(0.5, 1.5)),
                    subject.to_bounding_box());
     }
+
+    #[test]
+    fn float_range_overlap() {
+        assert!(!FloatRange::new(0.0, 0.9).overlaps(FloatRange::new(1.0, 2.0)));
+        assert!(!FloatRange::new(0.0, 1.0).overlaps(FloatRange::new(1.0, 2.0)));
+        assert!(FloatRange::new(0.0, 1.1).overlaps(FloatRange::new(1.0, 2.0)));
+        assert!(FloatRange::new(1.1, 1.9).overlaps(FloatRange::new(1.0, 2.0)));
+        assert!(FloatRange::new(1.9, 3.0).overlaps(FloatRange::new(1.0, 2.0)));
+        assert!(!FloatRange::new(2.0, 3.0).overlaps(FloatRange::new(1.0, 2.0)));
+        assert!(!FloatRange::new(2.1, 3.0).overlaps(FloatRange::new(1.0, 2.0)));
+    }
+
+//    #[test]
+//    fn rectangles_that_overlap() {
+//        let rect1 = Rectangle::new(Position::new(0.0, 0.0),
+//                                   Position::new(0.0, 0.0));
+//        let rect2 = Rectangle::new(Position::new(0.0, 0.0),
+//                                   Position::new(0.0, 0.0));
+//
+//        let subject = SimpleCircle::new(Position::new(-0.5, 0.5), Length::new(1.0));
+//        assert_eq!(Rectangle::new(Position::new(-1.5, -0.5),
+//                                  Position::new(0.5, 1.5)),
+//                   subject.to_bounding_box());
+//    }
 
     #[derive(Clone, Copy, Debug, PartialEq)]
     pub struct SimpleCircle {

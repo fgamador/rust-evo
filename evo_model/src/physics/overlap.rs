@@ -208,11 +208,6 @@ mod tests {
         circle.overlap = overlap;
     }
 
-    fn on_pair_overlap(circle1: &mut SpyCircle, overlap1: Overlap, circle2: &mut SpyCircle, overlap2: Overlap) {
-        circle1.overlap = overlap1;
-        circle2.overlap = overlap2;
-    }
-
     #[derive(Clone, Copy, Debug, PartialEq)]
     pub struct SpyCircle {
         pub center: Position,

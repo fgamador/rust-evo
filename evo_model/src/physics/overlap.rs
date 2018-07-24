@@ -113,7 +113,7 @@ pub fn find_pair_overlaps<'a, C>(circles: &'a mut [C], on_overlap: fn(&mut C, Ov
 //            if circle1.max_x() > circle2.min_x() && circle1.min_x() < circle2.max_x() &&
 //                circle1.max_y() > circle2.min_y() && circle1.min_y() < circle2.max_y() {
 //                // TODO wrong
-            let overlap = Displacement::new(-4.0, -3.0);
+            let overlap = Displacement::new(-3.0, -4.0);
             overlaps.push((i, Overlap::new(overlap)));
             overlaps.push((i + 1 + j, Overlap::new(-overlap)));
 //            }
@@ -178,14 +178,16 @@ mod tests {
 
     #[test]
     fn pair_overlap() {
+        // {3, 4, 5} triangle (as {6, 8, 10})
         let mut circles = vec![
             SpyCircle::new(Position::new(0.0, 0.0), Length::new(7.0)),
-            SpyCircle::new(Position::new(8.0, 6.0), Length::new(8.0))];
+            SpyCircle::new(Position::new(6.0, 8.0), Length::new(8.0))];
 
         find_pair_overlaps(&mut circles, on_overlap);
 
-        assert_eq!(Overlap::new(Displacement::new(-4.0, -3.0)), circles[0].overlap);
-        assert_eq!(Overlap::new(Displacement::new(4.0, 3.0)), circles[1].overlap);
+        // overlap/hypotenuse of 5
+        assert_eq!(Overlap::new(Displacement::new(-3.0, -4.0)), circles[0].overlap);
+        assert_eq!(Overlap::new(Displacement::new(3.0, 4.0)), circles[1].overlap);
     }
 
 //    #[test]

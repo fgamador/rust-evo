@@ -105,15 +105,21 @@ pub fn find_pair_overlaps<'a, C>(circles: &'a mut [C], on_overlap: fn(&mut C, Ov
     where C: Circle
 {
     let mut overlaps: Vec<(usize, Overlap)> = Vec::with_capacity(circles.len() * 2);
-    for (i, _circle1) in circles.iter().enumerate() {
-        for (j, _circle2) in (&circles[(i + 1)..]).iter().enumerate() {
+    for (i, circle1) in circles.iter().enumerate() {
+        for (j, circle2) in (&circles[(i + 1)..]).iter().enumerate() {
 //            if (circle2.min_x()) >= circle1.max_x() {
 //                break;
 //            }
 //            if circle1.max_x() > circle2.min_x() && circle1.min_x() < circle2.max_x() &&
 //                circle1.max_y() > circle2.min_y() && circle1.min_y() < circle2.max_y() {
-//                // TODO wrong
-            let overlap = Displacement::new(-3.0, -4.0);
+            let x_offset = circle1.center().x() - circle2.center().x();
+            let y_offset = circle1.center().y() - circle2.center().y();
+            let center_sep_sqr = sqr(x_offset) + sqr(y_offset);
+            let center_sep = center_sep_sqr.sqrt();
+            let overlap_mag = circle1.radius().value() + circle2.radius().value() - center_sep;
+            let x_incursion = (x_offset / center_sep) * overlap_mag;
+            let y_incursion = (y_offset / center_sep) * overlap_mag;
+            let overlap = Displacement::new(x_incursion, y_incursion);
             overlaps.push((i, Overlap::new(overlap)));
             overlaps.push((i + 1 + j, Overlap::new(-overlap)));
 //            }
@@ -122,6 +128,10 @@ pub fn find_pair_overlaps<'a, C>(circles: &'a mut [C], on_overlap: fn(&mut C, Ov
     for (index, overlap) in overlaps {
         on_overlap(&mut circles[index], overlap);
     }
+}
+
+fn sqr(x: f64) -> f64 {
+    x * x
 }
 
 #[cfg(test)]

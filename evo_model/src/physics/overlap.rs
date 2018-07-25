@@ -115,6 +115,10 @@ pub fn find_pair_overlaps<'a, C>(circles: &'a mut [C], on_overlap: fn(&mut C, Ov
             let x_offset = circle1.center().x() - circle2.center().x();
             let y_offset = circle1.center().y() - circle2.center().y();
             let center_sep_sqr = sqr(x_offset) + sqr(y_offset);
+            if center_sep_sqr >= sqr(circle1.radius().value() + circle2.radius().value()) {
+                continue;
+            }
+
             let center_sep = center_sep_sqr.sqrt();
             let overlap_mag = circle1.radius().value() + circle2.radius().value() - center_sep;
             let x_incursion = (x_offset / center_sep) * overlap_mag;
@@ -200,7 +204,7 @@ mod tests {
         assert_eq!(Overlap::new(Displacement::new(3.0, 4.0)), circles[1].overlap);
     }
 
-    //#[test]
+    #[test]
     fn pair_x_and_y_overlap_without_circle_overlap() {
         let mut circles = vec![
             SpyCircle::new(Position::new(0.0, 0.0), Length::new(1.0)),

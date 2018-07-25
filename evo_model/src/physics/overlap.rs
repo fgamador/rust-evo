@@ -167,7 +167,7 @@ mod tests {
         let subject = Walls::new(Position::new(-10.0, -5.0), Position::new(10.0, 2.0));
         let mut circles = vec![SpyCircle::new(Position::new(8.5, 0.75), Length::new(1.0))];
         subject.find_overlaps(&mut circles, on_overlap);
-        assert_eq!(Overlap::new(Displacement::new(0.0, 0.0)), circles[0].overlap);
+        assert!(!circles[0].overlapped);
     }
 
     #[test]
@@ -200,53 +200,17 @@ mod tests {
         assert_eq!(Overlap::new(Displacement::new(3.0, 4.0)), circles[1].overlap);
     }
 
-//    #[test]
-//    fn no_pair_overlap() {
-//        let mut circles = vec![
-//            SpyCircle::new(Position::new(0.0, 0.0), Length::new(1.0)),
-//            SpyCircle::new(Position::new(3.0, -3.0), Length::new(1.0))];
-//
-//        find_pair_overlaps(&mut circles, on_overlap);
-//
-//        assert_eq!(Overlap::new(Displacement::new(0.0, 0.0)), circles[0].overlap);
-//        assert_eq!(Overlap::new(Displacement::new(0.0, 0.0)), circles[1].overlap);
-//    }
+    //#[test]
+    fn pair_x_and_y_overlap_without_circle_overlap() {
+        let mut circles = vec![
+            SpyCircle::new(Position::new(0.0, 0.0), Length::new(1.0)),
+            SpyCircle::new(Position::new(1.5, 1.5), Length::new(1.0))];
 
-//    #[test]
-//    fn pair_x_overlap() {
-//        let mut circles = vec![
-//            SpyCircle::new(Position::new(0.0, 0.0), Length::new(1.0)),
-//            SpyCircle::new(Position::new(1.5, 0.0), Length::new(1.0))];
-//
-//        find_pair_overlaps(&mut circles, on_overlap);
-//
-//        assert_eq!(Overlap::new(Displacement::new(-0.5, 0.0)), circles[0].overlap);
-//        assert_eq!(Overlap::new(Displacement::new(0.5, 0.0)), circles[1].overlap);
-//    }
+        find_pair_overlaps(&mut circles, on_overlap);
 
-//    #[test]
-//    fn pair_x_overlap_without_y_overlap() {
-//        let mut circles = vec![
-//            SpyCircle::new(Position::new(0.0, 0.0), Length::new(1.0)),
-//            SpyCircle::new(Position::new(1.0, 2.0), Length::new(1.0))];
-//
-//        find_pair_overlaps(&mut circles, on_overlap);
-//
-//        assert_eq!(Overlap::new(Displacement::new(0.0, 0.0)), circles[0].overlap);
-//        assert_eq!(Overlap::new(Displacement::new(0.0, 0.0)), circles[1].overlap);
-//    }
-
-//    #[test]
-//    fn pair_x_and_y_overlap_without_circle_overlap() {
-//        let mut circles = vec![
-//            SpyCircle::new(Position::new(0.0, 0.0), Length::new(1.0)),
-//            SpyCircle::new(Position::new(1.5, 1.5), Length::new(1.0))];
-//
-//        find_pair_overlaps(&mut circles, on_overlap);
-//
-//        assert_eq!(Overlap::new(Displacement::new(0.0, 0.0)), circles[0].overlap);
-//        assert_eq!(Overlap::new(Displacement::new(0.0, 0.0)), circles[1].overlap);
-//    }
+        assert!(!circles[0].overlapped);
+        assert!(!circles[1].overlapped);
+    }
 
     #[test]
     fn overlap_to_force() {
@@ -255,6 +219,7 @@ mod tests {
     }
 
     fn on_overlap(circle: &mut SpyCircle, overlap: Overlap) {
+        circle.overlapped = true;
         circle.overlap = overlap;
     }
 
@@ -262,12 +227,13 @@ mod tests {
     pub struct SpyCircle {
         pub center: Position,
         pub radius: Length,
+        pub overlapped: bool,
         pub overlap: Overlap,
     }
 
     impl SpyCircle {
         pub fn new(center: Position, radius: Length) -> SpyCircle {
-            SpyCircle { center, radius, overlap: Overlap::new(Displacement::new(0.0, 0.0)) }
+            SpyCircle { center, radius, overlapped: false, overlap: Overlap::new(Displacement::new(0.0, 0.0)) }
         }
     }
 

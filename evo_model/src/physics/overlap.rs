@@ -112,23 +112,25 @@ pub fn find_pair_overlaps<'a, C>(circles: &'a mut [C], on_overlap: fn(&mut C, Ov
                 break;
             }
 
-//            if circle1.max_x() > circle2.min_x() && circle1.min_x() < circle2.max_x() &&
-//                circle1.max_y() > circle2.min_y() && circle1.min_y() < circle2.max_y() {
             let x_offset = circle1.center().x() - circle2.center().x();
             let y_offset = circle1.center().y() - circle2.center().y();
+            let just_touching_center_sep = circle1.radius().value() + circle2.radius().value();
+            if x_offset.abs() >= just_touching_center_sep || y_offset.abs() >= just_touching_center_sep {
+                continue;
+            }
+
             let center_sep_sqr = sqr(x_offset) + sqr(y_offset);
-            if center_sep_sqr >= sqr(circle1.radius().value() + circle2.radius().value()) {
+            if center_sep_sqr >= sqr(just_touching_center_sep) {
                 continue;
             }
 
             let center_sep = center_sep_sqr.sqrt();
-            let overlap_mag = circle1.radius().value() + circle2.radius().value() - center_sep;
+            let overlap_mag = just_touching_center_sep - center_sep;
             let x_incursion = (x_offset / center_sep) * overlap_mag;
             let y_incursion = (y_offset / center_sep) * overlap_mag;
             let overlap = Displacement::new(x_incursion, y_incursion);
             overlaps.push((i, Overlap::new(overlap)));
             overlaps.push((i + 1 + j, Overlap::new(-overlap)));
-//            }
         }
     }
     for (index, overlap) in overlaps {

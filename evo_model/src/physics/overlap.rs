@@ -105,11 +105,13 @@ pub fn find_pair_overlaps<'a, C>(circles: &'a mut [C], on_overlap: fn(&mut C, Ov
     where C: Circle
 {
     let mut overlaps: Vec<(usize, Overlap)> = Vec::with_capacity(circles.len() * 2);
+    sort_by_min_x(circles);
     for (i, circle1) in circles.iter().enumerate() {
         for (j, circle2) in (&circles[(i + 1)..]).iter().enumerate() {
-//            if (circle2.min_x()) >= circle1.max_x() {
-//                break;
-//            }
+            if (circle2.min_x()) >= circle1.max_x() {
+                break;
+            }
+
 //            if circle1.max_x() > circle2.min_x() && circle1.min_x() < circle2.max_x() &&
 //                circle1.max_y() > circle2.min_y() && circle1.min_y() < circle2.max_y() {
             let x_offset = circle1.center().x() - circle2.center().x();
@@ -132,6 +134,14 @@ pub fn find_pair_overlaps<'a, C>(circles: &'a mut [C], on_overlap: fn(&mut C, Ov
     for (index, overlap) in overlaps {
         on_overlap(&mut circles[index], overlap);
     }
+}
+
+fn sort_by_min_x<C: Circle>(circles: &mut [C]) {
+    circles.sort_unstable_by(|c1, c2| cmp_by_min_x(c1, c2));
+}
+
+fn cmp_by_min_x<C: Circle>(c1: &C, c2: &C) -> Ordering {
+    c1.min_x().partial_cmp(&c2.min_x()).unwrap()
 }
 
 fn sqr(x: f64) -> f64 {
@@ -214,6 +224,21 @@ mod tests {
 
         assert!(!circles[0].overlapped);
         assert!(!circles[1].overlapped);
+    }
+
+    #[test]
+    fn pairs_overlap_after_movement() {
+        let mut circles = vec![
+            SpyCircle::new(Position::new(0.0, 0.0), Length::new(1.0)),
+            SpyCircle::new(Position::new(3.0, 0.0), Length::new(1.0)),
+            SpyCircle::new(Position::new(6.0, 0.0), Length::new(1.0))];
+
+        circles[2].center = Position::new(1.5, 0.0);
+        find_pair_overlaps(&mut circles, on_overlap);
+
+        assert!(circles[0].overlapped);
+        assert!(circles[1].overlapped);
+        assert!(circles[2].overlapped);
     }
 
     #[test]

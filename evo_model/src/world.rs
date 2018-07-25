@@ -30,6 +30,10 @@ impl World {
             ball.mut_environment().add_overlap(overlap);
         });
 
+        find_pair_overlaps(&mut self.balls, |ball, overlap| {
+            ball.mut_environment().add_overlap(overlap);
+        });
+
         for ball in &mut self.balls {
             ball.add_overlap_forces();
         }

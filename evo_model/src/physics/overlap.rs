@@ -139,6 +139,7 @@ pub fn find_pair_overlaps<'a, C>(circles: &'a mut [C], on_overlap: fn(&mut C, Ov
 }
 
 fn sort_by_min_x<C: Circle>(circles: &mut [C]) {
+    // TODO convert this to insertion sort
     circles.sort_unstable_by(|c1, c2| cmp_by_min_x(c1, c2));
 }
 

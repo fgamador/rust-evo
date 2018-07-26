@@ -1,4 +1,5 @@
 use physics::ball::*;
+use physics::bond::*;
 use physics::newtonian::Body;
 use physics::quantities::*;
 use physics::overlap::*;
@@ -6,6 +7,7 @@ use physics::overlap::*;
 #[derive(Debug)]
 pub struct World {
     balls: Vec<Ball>,
+    bonds: Vec<Bond>,
     walls: Walls,
 }
 
@@ -13,6 +15,7 @@ impl World {
     pub fn new(min_corner: Position, max_corner: Position) -> Self {
         World {
             balls: vec![],
+            bonds: vec![],
             walls: Walls::new(min_corner, max_corner),
         }
     }
@@ -21,8 +24,8 @@ impl World {
         self.balls.push(ball);
     }
 
-    pub fn add_bond(&mut self, _ball1: BallId, _ball2: BallId) {
-        //self.bonds.push(Bond::new(TODO, TODO));
+    pub fn add_bond(&mut self, ball1: BallId, ball2: BallId) {
+        self.bonds.push(Bond::new(ball1, ball2));
     }
 
     pub fn balls(&self) -> &[Ball] {

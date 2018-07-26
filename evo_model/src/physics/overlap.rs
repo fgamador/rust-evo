@@ -1,7 +1,6 @@
 use physics::quantities::*;
 use physics::shapes::*;
 use std::cmp::Ordering;
-use std::ops;
 
 // TODO add width to Overlap, or maybe make incursion magnitude an Area
 
@@ -48,56 +47,6 @@ impl Walls {
                 on_overlap(circle, Overlap::new(overlap));
             }
         }
-    }
-}
-
-pub struct CirclesSortedByMinX<C: Circle> {
-    circles: Vec<C>
-}
-
-impl<C: Circle> CirclesSortedByMinX<C> {
-    pub fn new() -> Self {
-        CirclesSortedByMinX { circles: vec![] }
-    }
-
-    pub fn add(&mut self, circle: C) {
-        self.circles.push(circle);
-        self.sort();
-    }
-
-    pub fn add_all(&mut self, circles: &mut Vec<C>) {
-        self.circles.append(circles);
-        self.sort();
-    }
-
-    pub fn len(&self) -> usize {
-        self.circles.len()
-    }
-
-    pub fn get(&self, index: usize) -> &C {
-        &self.circles[index]
-    }
-
-    pub fn sort(&mut self) {
-        self.circles.sort_unstable_by(|c1, c2| Self::cmp_by_min_x(c1, c2));
-    }
-
-    fn cmp_by_min_x(c1: &C, c2: &C) -> Ordering {
-        c1.min_x().partial_cmp(&c2.min_x()).unwrap()
-    }
-}
-
-impl<C: Circle> ops::Deref for CirclesSortedByMinX<C> {
-    type Target = [C];
-
-    fn deref(&self) -> &[C] {
-        &self.circles
-    }
-}
-
-impl<C: Circle> ops::DerefMut for CirclesSortedByMinX<C> {
-    fn deref_mut(&mut self) -> &mut [C] {
-        &mut self.circles
     }
 }
 
@@ -154,30 +103,6 @@ fn sqr(x: f64) -> f64 {
 #[cfg(test)]
 mod tests {
     use super::*;
-
-    #[test]
-    fn add_to_sorted_circles_stays_sorted() {
-        let mut subject = CirclesSortedByMinX::new();
-        let circle1 = SpyCircle::new(Position::new(1.0, 0.0), Length::new(1.0));
-        let circle2 = SpyCircle::new(Position::new(2.0, 0.0), Length::new(1.0));
-
-        subject.add(circle2);
-        subject.add(circle1);
-
-        assert_eq!(&subject as &[SpyCircle], &vec![circle1, circle2] as &[SpyCircle]);
-    }
-
-    #[test]
-    fn add_all_to_sorted_circles_stays_sorted() {
-        let mut subject = CirclesSortedByMinX::new();
-        let circle1 = SpyCircle::new(Position::new(1.0, 0.0), Length::new(1.0));
-        let circle2 = SpyCircle::new(Position::new(2.0, 0.0), Length::new(1.0));
-        let circle3 = SpyCircle::new(Position::new(3.0, 0.0), Length::new(1.0));
-
-        subject.add_all(&mut vec![circle3, circle2, circle1]);
-
-        assert_eq!(&subject as &[SpyCircle], &vec![circle1, circle2, circle3] as &[SpyCircle]);
-    }
 
     #[test]
     fn no_wall_overlaps() {

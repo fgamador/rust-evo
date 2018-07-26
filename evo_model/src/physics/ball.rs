@@ -24,6 +24,10 @@ impl Ball {
         }
     }
 
+    pub fn id(&self) -> BallId {
+        BallId { value: 0 }
+    }
+
     pub fn environment(&self) -> &BallEnvironment {
         &self.environment
     }
@@ -84,6 +88,11 @@ impl newtonian::Body for Ball {
     fn kick(&mut self, impulse: Impulse) {
         self.state.kick(impulse);
     }
+}
+
+#[derive(Clone, Copy, Debug, PartialEq)]
+pub struct BallId {
+    value: u64,
 }
 
 #[derive(Debug)]

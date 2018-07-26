@@ -21,6 +21,10 @@ impl World {
         self.balls.push(ball);
     }
 
+    pub fn add_bond(&mut self, _ball1: BallId, _ball2: BallId) {
+        //self.bonds.push(Bond::new(TODO, TODO));
+    }
+
     pub fn balls(&self) -> &[Ball] {
         &self.balls
     }
@@ -115,5 +119,26 @@ mod tests {
         let ball2 = &world.balls()[1];
         assert!(ball2.velocity().x() > -1.0);
         assert!(ball2.velocity().y() > -1.0);
+    }
+
+    //#[test]
+    fn _bond_pulls_balls_together() {
+        let mut world = World::new(Position::new(-10.0, -10.0), Position::new(10.0, 10.0));
+        world.add_ball(Ball::new(Length::new(1.0), Mass::new(1.0),
+                                 Position::new(0.0, 0.0), Velocity::new(-1.0, -1.0)));
+        world.add_ball(Ball::new(Length::new(1.0), Mass::new(1.0),
+                                 Position::new(1.5, 1.5), Velocity::new(1.0, 1.0)));
+        let ball1 = world.balls()[0].id();
+        let ball2 = world.balls()[1].id();
+        world.add_bond(ball1, ball2);
+
+        world.tick();
+
+        let ball1 = &world.balls()[0];
+        let ball2 = &world.balls()[1];
+        assert!(ball1.velocity().x() > -1.0);
+        assert!(ball1.velocity().y() > -1.0);
+        assert!(ball2.velocity().x() < 1.0);
+        assert!(ball2.velocity().y() < 1.0);
     }
 }

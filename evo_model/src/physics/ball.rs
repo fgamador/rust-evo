@@ -95,6 +95,12 @@ pub struct BallId {
     value: u64,
 }
 
+impl BallId {
+    pub fn new(value: u64) -> Self {
+        BallId { value }
+    }
+}
+
 #[derive(Debug)]
 pub struct BallEnvironment {
     overlaps: Vec<Overlap>,

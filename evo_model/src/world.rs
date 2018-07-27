@@ -6,6 +6,7 @@ use physics::overlap::*;
 
 #[derive(Debug)]
 pub struct World {
+    balls: Vec<Box<Ball>>,
     balls_old: Vec<Ball>,
     bonds: Vec<Bond>,
     walls: Walls,
@@ -14,6 +15,7 @@ pub struct World {
 impl World {
     pub fn new(min_corner: Position, max_corner: Position) -> Self {
         World {
+            balls: vec![],
             balls_old: vec![],
             bonds: vec![],
             walls: Walls::new(min_corner, max_corner),
@@ -21,7 +23,8 @@ impl World {
     }
 
     pub fn add_ball(&mut self, ball: Ball) {
-        self.balls_old.push(ball);
+        self.balls_old.push(ball.clone());
+        self.balls.push(Box::new(ball));
     }
 
     pub fn add_bond(&mut self, ball1: BallId, ball2: BallId) {

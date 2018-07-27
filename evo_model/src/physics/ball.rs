@@ -6,7 +6,7 @@ use physics::shapes::*;
 use physics::overlap::*;
 use std::ptr;
 
-#[derive(Debug)]
+#[derive(Clone, Debug)]
 pub struct Ball {
     radius: Length,
     state: newtonian::State,
@@ -101,7 +101,7 @@ impl BallId {
     }
 }
 
-#[derive(Debug)]
+#[derive(Clone, Debug)]
 pub struct BallEnvironment {
     overlaps: Vec<Overlap>,
 }

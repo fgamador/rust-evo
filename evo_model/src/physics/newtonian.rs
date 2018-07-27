@@ -7,7 +7,7 @@ pub trait Body {
     fn kick(&mut self, impulse: Impulse);
 }
 
-#[derive(Debug, PartialEq)]
+#[derive(Clone, Debug, PartialEq)]
 pub struct State {
     pub mass: Mass,
     pub position: Position,
@@ -39,7 +39,7 @@ impl Body for State {
 }
 
 // TODO move to quantities?
-#[derive(Debug, PartialEq)]
+#[derive(Clone, Copy, Debug, PartialEq)]
 pub struct Forces {
     net_force: Force,
 }

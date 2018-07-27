@@ -6,7 +6,7 @@ use physics::overlap::*;
 
 #[derive(Debug)]
 pub struct World {
-    balls: Vec<Ball>,
+    balls_old: Vec<Ball>,
     bonds: Vec<Bond>,
     walls: Walls,
 }
@@ -14,14 +14,14 @@ pub struct World {
 impl World {
     pub fn new(min_corner: Position, max_corner: Position) -> Self {
         World {
-            balls: vec![],
+            balls_old: vec![],
             bonds: vec![],
             walls: Walls::new(min_corner, max_corner),
         }
     }
 
     pub fn add_ball(&mut self, ball: Ball) {
-        self.balls.push(ball);
+        self.balls_old.push(ball);
     }
 
     pub fn add_bond(&mut self, ball1: BallId, ball2: BallId) {
@@ -29,29 +29,29 @@ impl World {
     }
 
     pub fn balls(&self) -> &[Ball] {
-        &self.balls
+        &self.balls_old
     }
 
     pub fn tick(&mut self) {
-        self.walls.find_overlaps(&mut self.balls, |ball, overlap| {
+        self.walls.find_overlaps(&mut self.balls_old, |ball, overlap| {
             ball.mut_environment().add_overlap(overlap);
         });
 
-        find_pair_overlaps(&mut self.balls, |ball, overlap| {
+        find_pair_overlaps(&mut self.balls_old, |ball, overlap| {
             ball.mut_environment().add_overlap(overlap);
         });
 
-        for ball in &mut self.balls {
+        for ball in &mut self.balls_old {
             ball.add_overlap_forces();
         }
 
         let tick_duration = Duration::new(1.0);
-        for ball in &mut self.balls {
+        for ball in &mut self.balls_old {
             ball.exert_forces(tick_duration);
             ball.move_for(tick_duration);
         }
 
-        for ball in &mut self.balls {
+        for ball in &mut self.balls_old {
             ball.mut_environment().clear();
             ball.mut_forces().clear();
         }

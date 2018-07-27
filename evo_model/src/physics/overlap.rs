@@ -34,7 +34,7 @@ impl Walls {
         Walls { min_corner, max_corner }
     }
 
-    pub fn find_overlaps<'a, C>(&self, circles: &'a mut [C], on_overlap: fn(&mut C, Overlap))
+    pub fn find_overlaps<'a, C>(&self, circles: &'a mut [C], _boxed_circles: &'a mut [Box<C>], on_overlap: fn(&mut C, Overlap))
         where C: Circle
     {
         let zero = Displacement::new(0.0, 0.0);
@@ -107,24 +107,30 @@ mod tests {
     #[test]
     fn no_wall_overlaps() {
         let subject = Walls::new(Position::new(-10.0, -5.0), Position::new(10.0, 2.0));
-        let mut circles = vec![SpyCircle::new(Position::new(8.5, 0.75), Length::new(1.0))];
-        subject.find_overlaps(&mut circles, on_overlap);
+        let circle = SpyCircle::new(Position::new(8.5, 0.75), Length::new(1.0));
+        let mut circles = vec![circle];
+        let mut boxed_circles = vec![Box::new(circle)];
+        subject.find_overlaps(&mut circles, &mut boxed_circles, on_overlap);
         assert!(!circles[0].overlapped);
     }
 
     #[test]
     fn min_corner_wall_overlap() {
         let subject = Walls::new(Position::new(-10.0, -5.0), Position::new(10.0, 2.0));
-        let mut circles = vec![SpyCircle::new(Position::new(-9.5, -4.25), Length::new(1.0))];
-        subject.find_overlaps(&mut circles, on_overlap);
+        let circle = SpyCircle::new(Position::new(-9.5, -4.25), Length::new(1.0));
+        let mut circles = vec![circle];
+        let mut boxed_circles = vec![Box::new(circle)];
+        subject.find_overlaps(&mut circles, &mut boxed_circles, on_overlap);
         assert_eq!(Overlap::new(Displacement::new(0.5, 0.25)), circles[0].overlap);
     }
 
     #[test]
     fn max_corner_wall_overlap() {
         let subject = Walls::new(Position::new(-10.0, -5.0), Position::new(10.0, 2.0));
-        let mut circles = vec![SpyCircle::new(Position::new(9.5, 1.75), Length::new(1.0))];
-        subject.find_overlaps(&mut circles, on_overlap);
+        let circle = SpyCircle::new(Position::new(9.5, 1.75), Length::new(1.0));
+        let mut circles = vec![circle];
+        let mut boxed_circles = vec![Box::new(circle)];
+        subject.find_overlaps(&mut circles, &mut boxed_circles, on_overlap);
         assert_eq!(Overlap::new(Displacement::new(-0.5, -0.75)), circles[0].overlap);
     }
 

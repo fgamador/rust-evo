@@ -31,8 +31,12 @@ impl World {
         self.bonds.push(Bond::new(ball1, ball2));
     }
 
-    pub fn balls(&self) -> &[Ball] {
+    pub fn balls(&self) -> &Balls {
         &self.balls
+    }
+
+    pub fn boxed_balls(&self) -> &BoxedBalls {
+        &self.boxed_balls
     }
 
     pub fn tick(&mut self) {

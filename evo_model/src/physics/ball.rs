@@ -6,6 +6,9 @@ use physics::shapes::*;
 use physics::overlap::*;
 use std::ptr;
 
+pub type Balls = [Ball];
+pub type BoxedBalls = [Box<Ball>];
+
 #[derive(Clone, Debug)]
 pub struct Ball {
     radius: Length,

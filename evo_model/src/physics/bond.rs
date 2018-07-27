@@ -22,7 +22,7 @@ mod tests {
 
     #[test]
     fn create() {
-        let bond = Bond::new(BallId::new(0), BallId::new(0));
+        let _bond = Bond::new(BallId::new(0), BallId::new(0));
         // TODO
     }
 }

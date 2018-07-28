@@ -52,28 +52,33 @@ impl World {
             ball.add_overlap_forces();
         }
 
+        self.box_balls();
+
         let tick_duration = Duration::new(1.0);
-        for ball in &mut self.balls {
+        for ball in &mut self.boxed_balls {
             ball.exert_forces(tick_duration);
             ball.move_for(tick_duration);
-        }
-
-        self.box_balls();
-        for ball in &mut self.balls {
-            ball.mut_environment().clear();
-            ball.mut_forces().clear();
         }
 
         for ball in &mut self.boxed_balls {
             ball.mut_environment().clear();
             ball.mut_forces().clear();
         }
+
+        self.unbox_balls();
     }
 
     fn box_balls(&mut self) {
         self.boxed_balls.clear();
         for ball in &self.balls {
             self.boxed_balls.push(Box::new(ball.clone()));
+        }
+    }
+
+    fn unbox_balls(&mut self) {
+        self.balls.clear();
+        for ball in &self.boxed_balls {
+            self.balls.push((**ball).clone());
         }
     }
 }

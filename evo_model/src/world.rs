@@ -35,11 +35,11 @@ impl World {
     }
 
     pub fn tick(&mut self) {
-        self.unbox_balls();
-
         self.walls.find_overlaps(&mut self.balls, &mut self.boxed_balls, |ball, overlap| {
             ball.mut_environment().add_overlap(overlap);
         });
+
+        self.unbox_balls();
 
         find_pair_overlaps(&mut self.balls, |ball, overlap| {
             ball.mut_environment().add_overlap(overlap);

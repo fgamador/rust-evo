@@ -34,11 +34,11 @@ impl Walls {
         Walls { min_corner, max_corner }
     }
 
-    pub fn find_overlaps<'a, C>(&self, circles: &'a mut [C], _boxed_circles: &'a mut [Box<C>], on_overlap: fn(&mut C, Overlap))
+    pub fn find_overlaps<'a, C>(&self, _circles: &'a mut [C], boxed_circles: &'a mut [Box<C>], on_overlap: fn(&mut C, Overlap))
         where C: Circle
     {
         let zero = Displacement::new(0.0, 0.0);
-        for circle in circles {
+        for circle in boxed_circles {
             let circle_box = circle.to_bounding_box();
             let min_corner_overlap = (self.min_corner - circle_box.min_corner()).max(zero);
             let max_corner_overlap = (self.max_corner - circle_box.max_corner()).min(zero);
@@ -111,7 +111,7 @@ mod tests {
         let mut circles = vec![circle];
         let mut boxed_circles = vec![Box::new(circle)];
         subject.find_overlaps(&mut circles, &mut boxed_circles, on_overlap);
-        assert!(!circles[0].overlapped);
+        assert!(!boxed_circles[0].overlapped);
     }
 
     #[test]
@@ -121,7 +121,7 @@ mod tests {
         let mut circles = vec![circle];
         let mut boxed_circles = vec![Box::new(circle)];
         subject.find_overlaps(&mut circles, &mut boxed_circles, on_overlap);
-        assert_eq!(Overlap::new(Displacement::new(0.5, 0.25)), circles[0].overlap);
+        assert_eq!(Overlap::new(Displacement::new(0.5, 0.25)), boxed_circles[0].overlap);
     }
 
     #[test]
@@ -131,7 +131,7 @@ mod tests {
         let mut circles = vec![circle];
         let mut boxed_circles = vec![Box::new(circle)];
         subject.find_overlaps(&mut circles, &mut boxed_circles, on_overlap);
-        assert_eq!(Overlap::new(Displacement::new(-0.5, -0.75)), circles[0].overlap);
+        assert_eq!(Overlap::new(Displacement::new(-0.5, -0.75)), boxed_circles[0].overlap);
     }
 
     #[test]

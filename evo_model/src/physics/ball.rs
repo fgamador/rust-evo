@@ -177,7 +177,7 @@ mod tests {
         walls.find_overlaps(&mut balls, &mut boxed_balls, |ball, overlap| {
             ball.mut_environment().add_overlap(overlap);
         });
-        assert_eq!(1, balls[0].environment().overlaps().len());
-        assert_eq!(Overlap::new(Displacement::new(0.5, -0.75)), balls[0].environment().overlaps()[0]);
+        assert_eq!(1, boxed_balls[0].environment().overlaps().len());
+        assert_eq!(Overlap::new(Displacement::new(0.5, -0.75)), boxed_balls[0].environment().overlaps()[0]);
     }
 }

@@ -58,12 +58,16 @@ impl World {
             ball.move_for(tick_duration);
         }
 
+        self.box_balls();
         for ball in &mut self.balls {
             ball.mut_environment().clear();
             ball.mut_forces().clear();
         }
 
-        self.box_balls();
+        for ball in &mut self.boxed_balls {
+            ball.mut_environment().clear();
+            ball.mut_forces().clear();
+        }
     }
 
     fn box_balls(&mut self) {

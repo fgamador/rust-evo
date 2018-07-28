@@ -34,11 +34,11 @@ impl Walls {
         Walls { min_corner, max_corner }
     }
 
-    pub fn find_overlaps<'a, C>(&self, boxed_circles: &'a mut [Box<C>], on_overlap: fn(&mut C, Overlap))
+    pub fn find_overlaps<'a, C>(&self, circles: &'a mut [Box<C>], on_overlap: fn(&mut C, Overlap))
         where C: Circle
     {
         let zero = Displacement::new(0.0, 0.0);
-        for circle in boxed_circles {
+        for circle in circles {
             let circle_box = circle.to_bounding_box();
             let min_corner_overlap = (self.min_corner - circle_box.min_corner()).max(zero);
             let max_corner_overlap = (self.max_corner - circle_box.max_corner()).min(zero);

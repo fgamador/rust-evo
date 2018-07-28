@@ -50,7 +50,7 @@ impl Walls {
     }
 }
 
-pub fn find_pair_overlaps<'a, C>(circles: &'a mut [C], on_overlap: fn(&mut C, Overlap))
+pub fn find_pair_overlaps<'a, C>(circles: &'a mut [Box<C>], on_overlap: fn(&mut C, Overlap))
     where C: Circle
 {
     let mut overlaps: Vec<(usize, Overlap)> = Vec::with_capacity(circles.len() * 2);
@@ -87,9 +87,9 @@ pub fn find_pair_overlaps<'a, C>(circles: &'a mut [C], on_overlap: fn(&mut C, Ov
     }
 }
 
-fn sort_by_min_x<C: Circle>(circles: &mut [C]) {
+fn sort_by_min_x<C: Circle>(circles: &mut [Box<C>]) {
     // TODO convert this to insertion sort
-    circles.sort_unstable_by(|c1, c2| cmp_by_min_x(c1, c2));
+    circles.sort_unstable_by(|c1, c2| cmp_by_min_x(&**c1, &**c2));
 }
 
 fn cmp_by_min_x<C: Circle>(c1: &C, c2: &C) -> Ordering {
@@ -135,8 +135,8 @@ mod tests {
     fn pair_overlap() {
         // {3, 4, 5} triangle (as {6, 8, 10})
         let mut circles = vec![
-            SpyCircle::new(Position::new(0.0, 0.0), Length::new(7.0)),
-            SpyCircle::new(Position::new(6.0, 8.0), Length::new(8.0))];
+            Box::new(SpyCircle::new(Position::new(0.0, 0.0), Length::new(7.0))),
+            Box::new(SpyCircle::new(Position::new(6.0, 8.0), Length::new(8.0)))];
 
         find_pair_overlaps(&mut circles, on_overlap);
 
@@ -148,8 +148,8 @@ mod tests {
     #[test]
     fn pair_x_and_y_overlap_without_circle_overlap() {
         let mut circles = vec![
-            SpyCircle::new(Position::new(0.0, 0.0), Length::new(1.0)),
-            SpyCircle::new(Position::new(1.5, 1.5), Length::new(1.0))];
+            Box::new(SpyCircle::new(Position::new(0.0, 0.0), Length::new(1.0))),
+            Box::new(SpyCircle::new(Position::new(1.5, 1.5), Length::new(1.0)))];
 
         find_pair_overlaps(&mut circles, on_overlap);
 
@@ -160,9 +160,9 @@ mod tests {
     #[test]
     fn pairs_overlap_after_movement() {
         let mut circles = vec![
-            SpyCircle::new(Position::new(0.0, 0.0), Length::new(1.0)),
-            SpyCircle::new(Position::new(3.0, 0.0), Length::new(1.0)),
-            SpyCircle::new(Position::new(6.0, 0.0), Length::new(1.0))];
+            Box::new(SpyCircle::new(Position::new(0.0, 0.0), Length::new(1.0))),
+            Box::new(SpyCircle::new(Position::new(3.0, 0.0), Length::new(1.0))),
+            Box::new(SpyCircle::new(Position::new(6.0, 0.0), Length::new(1.0)))];
 
         circles[2].center = Position::new(1.5, 0.0);
         find_pair_overlaps(&mut circles, on_overlap);

@@ -39,13 +39,9 @@ impl World {
             ball.mut_environment().add_overlap(overlap);
         });
 
-        self.unbox_balls();
-
-        find_pair_overlaps(&mut self.balls, |ball, overlap| {
+        find_pair_overlaps(&mut self.boxed_balls, |ball, overlap| {
             ball.mut_environment().add_overlap(overlap);
         });
-
-        self.box_balls();
 
         for ball in &mut self.boxed_balls {
             ball.add_overlap_forces();
@@ -60,20 +56,6 @@ impl World {
         for ball in &mut self.boxed_balls {
             ball.mut_environment().clear();
             ball.mut_forces().clear();
-        }
-    }
-
-    fn box_balls(&mut self) {
-        self.boxed_balls.clear();
-        for ball in &self.balls {
-            self.boxed_balls.push(Box::new(ball.clone()));
-        }
-    }
-
-    fn unbox_balls(&mut self) {
-        self.balls.clear();
-        for ball in &self.boxed_balls {
-            self.balls.push((**ball).clone());
         }
     }
 }

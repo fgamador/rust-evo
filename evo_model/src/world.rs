@@ -24,15 +24,11 @@ impl World {
 
     pub fn add_ball(&mut self, ball: Ball) {
         self.balls.push(ball.clone());
-        //self.boxed_balls.push(Box::new(ball));
+        self.boxed_balls.push(Box::new(ball));
     }
 
     pub fn add_bond(&mut self, ball1: BallId, ball2: BallId) {
         self.bonds.push(Bond::new(ball1, ball2));
-    }
-
-    pub fn balls(&self) -> &Balls {
-        &self.balls
     }
 
     pub fn boxed_balls(&self) -> &BoxedBalls {
@@ -156,8 +152,8 @@ mod tests {
                                  Position::new(0.0, 0.0), Velocity::new(-1.0, -1.0)));
         world.add_ball(Ball::new(Length::new(1.0), Mass::new(1.0),
                                  Position::new(1.5, 1.5), Velocity::new(1.0, 1.0)));
-        let ball1 = world.balls()[0].id();
-        let ball2 = world.balls()[1].id();
+        let ball1 = world.boxed_balls()[0].id();
+        let ball2 = world.boxed_balls()[1].id();
         world.add_bond(ball1, ball2);
 
         world.tick();

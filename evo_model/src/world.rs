@@ -23,7 +23,6 @@ impl World {
     }
 
     pub fn add_ball(&mut self, ball: Ball) {
-        self.balls.push(ball.clone());
         self.boxed_balls.push(Box::new(ball));
     }
 
@@ -36,6 +35,8 @@ impl World {
     }
 
     pub fn tick(&mut self) {
+        self.unbox_balls();
+
         self.walls.find_overlaps(&mut self.balls, &mut self.boxed_balls, |ball, overlap| {
             ball.mut_environment().add_overlap(overlap);
         });
@@ -60,8 +61,6 @@ impl World {
             ball.mut_environment().clear();
             ball.mut_forces().clear();
         }
-
-        self.unbox_balls();
     }
 
     fn box_balls(&mut self) {

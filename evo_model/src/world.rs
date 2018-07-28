@@ -24,7 +24,7 @@ impl World {
 
     pub fn add_ball(&mut self, ball: Ball) {
         self.balls.push(ball.clone());
-        self.boxed_balls.push(Box::new(ball));
+        //self.boxed_balls.push(Box::new(ball));
     }
 
     pub fn add_bond(&mut self, ball1: BallId, ball2: BallId) {
@@ -62,6 +62,15 @@ impl World {
             ball.mut_environment().clear();
             ball.mut_forces().clear();
         }
+
+        self.box_balls();
+    }
+
+    fn box_balls(&mut self) {
+        self.boxed_balls.clear();
+        for ball in &self.balls {
+            self.boxed_balls.push(Box::new(ball.clone()));
+        }
     }
 }
 
@@ -75,7 +84,7 @@ mod tests {
         world.add_ball(Ball::new(Length::new(1.0), Mass::new(1.0),
                                  Position::new(0.0, 0.0), Velocity::new(1.0, 1.0)));
         world.tick();
-        let ball = &world.balls()[0];
+        let ball = &world.boxed_balls()[0];
         assert!(ball.position().x() > 0.0);
         assert!(ball.position().y() > 0.0);
     }
@@ -86,7 +95,7 @@ mod tests {
         world.add_ball(Ball::new(Length::new(1.0), Mass::new(1.0),
                                  Position::new(9.5, 9.5), Velocity::new(0.0, 0.0)));
         world.tick();
-        let ball = &world.balls()[0];
+        let ball = &world.boxed_balls()[0];
         assert!(ball.environment().overlaps().is_empty());
     }
 
@@ -96,7 +105,7 @@ mod tests {
         world.add_ball(Ball::new(Length::new(1.0), Mass::new(1.0),
                                  Position::new(9.5, 9.5), Velocity::new(0.0, 0.0)));
         world.tick();
-        let ball = &world.balls()[0];
+        let ball = &world.boxed_balls()[0];
         assert_eq!(Force::new(0.0, 0.0), ball.forces().net_force());
     }
 
@@ -108,7 +117,7 @@ mod tests {
 
         world.tick();
 
-        let ball = &world.balls()[0];
+        let ball = &world.boxed_balls()[0];
         assert!(ball.velocity().x() < 1.0);
         assert!(ball.velocity().y() < 1.0);
     }
@@ -123,10 +132,10 @@ mod tests {
 
         world.tick();
 
-        let ball1 = &world.balls()[0];
+        let ball1 = &world.boxed_balls()[0];
         assert!(ball1.velocity().x() < 1.0);
         assert!(ball1.velocity().y() < 1.0);
-        let ball2 = &world.balls()[1];
+        let ball2 = &world.boxed_balls()[1];
         assert!(ball2.velocity().x() > -1.0);
         assert!(ball2.velocity().y() > -1.0);
     }
@@ -144,8 +153,8 @@ mod tests {
 
         world.tick();
 
-        let ball1 = &world.balls()[0];
-        let ball2 = &world.balls()[1];
+        let ball1 = &world.boxed_balls()[0];
+        let ball2 = &world.boxed_balls()[1];
         assert!(ball1.velocity().x() > -1.0);
         assert!(ball1.velocity().y() > -1.0);
         assert!(ball2.velocity().x() < 1.0);

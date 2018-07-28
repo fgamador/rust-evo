@@ -11,9 +11,8 @@ pub fn tick(world: &mut World, view_model: &mut ViewModel) {
     world.tick();
 
     view_model.circles.clear();
-    view_model.circles.reserve(world.balls().len());
 
-    for ball in world.balls() {
+    for ball in world.boxed_balls() {
         view_model.circles.push(evo_view_model::Circle {
             x: ball.center().x(),
             y: ball.center().y(),

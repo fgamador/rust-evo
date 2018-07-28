@@ -48,11 +48,11 @@ impl World {
             ball.mut_environment().add_overlap(overlap);
         });
 
-        for ball in &mut self.balls {
+        self.box_balls();
+
+        for ball in &mut self.boxed_balls {
             ball.add_overlap_forces();
         }
-
-        self.box_balls();
 
         let tick_duration = Duration::new(1.0);
         for ball in &mut self.boxed_balls {

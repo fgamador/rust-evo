@@ -57,10 +57,8 @@ pub fn find_pair_overlaps<'a, C>(circles: &'a mut [Box<C>], on_overlap: fn(&mut 
 
     let mut overlaps: Vec<(usize, Overlap)> = Vec::with_capacity(circles.len() * 2);
 
-    for i in 0..circles.len() {
-        for j in (i + 1)..circles.len() {
-            let index1 = i;
-            let index2 = j;
+    for index1 in 0..circles.len() {
+        for index2 in (index1 + 1)..circles.len() {
             let circle1 = &*circles[index1];
             let circle2 = &*circles[index2];
 

@@ -61,30 +61,35 @@ pub fn find_pair_overlaps<'a, C>(circles: &'a mut [Box<C>], on_overlap: fn(&mut 
                 break;
             }
 
-            let x_offset = circle1.center().x() - circle2.center().x();
-            let y_offset = circle1.center().y() - circle2.center().y();
-            let just_touching_center_sep = circle1.radius().value() + circle2.radius().value();
-            if x_offset.abs() >= just_touching_center_sep || y_offset.abs() >= just_touching_center_sep {
-                continue;
+            if let Some(overlap) = get_overlap(circle1, circle2) {
+                overlaps.push((i, Overlap::new(overlap)));
+                overlaps.push((i + 1 + j, Overlap::new(-overlap)));
             }
-
-            let center_sep_sqr = sqr(x_offset) + sqr(y_offset);
-            if center_sep_sqr >= sqr(just_touching_center_sep) {
-                continue;
-            }
-
-            let center_sep = center_sep_sqr.sqrt();
-            let overlap_mag = just_touching_center_sep - center_sep;
-            let x_incursion = (x_offset / center_sep) * overlap_mag;
-            let y_incursion = (y_offset / center_sep) * overlap_mag;
-            let overlap = Displacement::new(x_incursion, y_incursion);
-            overlaps.push((i, Overlap::new(overlap)));
-            overlaps.push((i + 1 + j, Overlap::new(-overlap)));
         }
     }
     for (index, overlap) in overlaps {
         on_overlap(&mut circles[index], overlap);
     }
+}
+
+fn get_overlap<C: Circle>(circle1: &Box<C>, circle2: &Box<C>) -> Option<Displacement> {
+    let x_offset = circle1.center().x() - circle2.center().x();
+    let y_offset = circle1.center().y() - circle2.center().y();
+    let just_touching_center_sep = circle1.radius().value() + circle2.radius().value();
+    if x_offset.abs() >= just_touching_center_sep || y_offset.abs() >= just_touching_center_sep {
+        return None;
+    }
+
+    let center_sep_sqr = sqr(x_offset) + sqr(y_offset);
+    if center_sep_sqr >= sqr(just_touching_center_sep) {
+        return None;
+    }
+
+    let center_sep = center_sep_sqr.sqrt();
+    let overlap_mag = just_touching_center_sep - center_sep;
+    let x_incursion = (x_offset / center_sep) * overlap_mag;
+    let y_incursion = (y_offset / center_sep) * overlap_mag;
+    Some(Displacement::new(x_incursion, y_incursion))
 }
 
 fn sort_by_min_x<C: Circle>(circles: &mut [Box<C>]) {

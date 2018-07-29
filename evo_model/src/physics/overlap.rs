@@ -56,13 +56,11 @@ pub fn find_pair_overlaps<'a, C>(circles: &'a mut [C], on_overlap: fn(&mut C, Ov
     let mut indexes: Vec<usize> = (0..circles.len()).collect();
     indexes.sort_unstable_by(|i1, i2| cmp_by_min_x(&circles[*i1], &circles[*i2]));
 
-    sort_by_min_x(circles);
-
     let mut overlaps: Vec<(usize, Overlap)> = Vec::with_capacity(circles.len() * 2);
 
-    for index1 in 0..circles.len() {
-        for index2 in (index1 + 1)..circles.len() {
-            add_overlaps(circles, index1, index2, &mut overlaps)
+    for (i, index1) in indexes.iter().enumerate() {
+        for index2 in &indexes[(i + 1)..] {
+            add_overlaps(circles, *index1, *index2, &mut overlaps)
         }
     }
 

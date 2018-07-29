@@ -50,7 +50,7 @@ impl Walls {
     }
 }
 
-pub fn find_pair_overlaps<'a, C>(circles: &'a mut [C], on_overlap: fn(&mut C, Overlap))
+pub fn find_pair_overlaps_outer<'a, C>(circles: &'a mut [C], on_overlap: fn(&mut C, Overlap))
     where C: Circle
 {
     let mut indexes: Vec<usize> = (0..circles.len()).collect();
@@ -157,7 +157,7 @@ mod tests {
             SpyCircle::new(Position::new(0.0, 0.0), Length::new(7.0)),
             SpyCircle::new(Position::new(6.0, 8.0), Length::new(8.0))];
 
-        find_pair_overlaps(&mut circles, on_overlap);
+        find_pair_overlaps_outer(&mut circles, on_overlap);
 
         // overlap/hypotenuse of 5
         assert_eq!(Overlap::new(Displacement::new(-3.0, -4.0)), circles[0].overlap);
@@ -170,7 +170,7 @@ mod tests {
             SpyCircle::new(Position::new(0.0, 0.0), Length::new(1.0)),
             SpyCircle::new(Position::new(1.5, 1.5), Length::new(1.0))];
 
-        find_pair_overlaps(&mut circles, on_overlap);
+        find_pair_overlaps_outer(&mut circles, on_overlap);
 
         assert!(!circles[0].overlapped);
         assert!(!circles[1].overlapped);
@@ -184,7 +184,7 @@ mod tests {
             SpyCircle::new(Position::new(6.0, 0.0), Length::new(1.0))];
 
         circles[2].center = Position::new(1.5, 0.0);
-        find_pair_overlaps(&mut circles, on_overlap);
+        find_pair_overlaps_outer(&mut circles, on_overlap);
 
         assert!(circles[0].overlapped);
         assert!(circles[1].overlapped);

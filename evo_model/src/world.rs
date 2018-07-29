@@ -28,7 +28,7 @@ impl World {
         self.bonds.push(Bond::new(ball1, ball2));
     }
 
-    pub fn boxed_balls(&self) -> &BoxedBalls {
+    pub fn balls(&self) -> &BoxedBalls {
         &self.balls
     }
 
@@ -68,7 +68,7 @@ mod tests {
         world.add_ball(Ball::new(Length::new(1.0), Mass::new(1.0),
                                  Position::new(0.0, 0.0), Velocity::new(1.0, 1.0)));
         world.tick();
-        let ball = &world.boxed_balls()[0];
+        let ball = &world.balls()[0];
         assert!(ball.position().x() > 0.0);
         assert!(ball.position().y() > 0.0);
     }
@@ -79,7 +79,7 @@ mod tests {
         world.add_ball(Ball::new(Length::new(1.0), Mass::new(1.0),
                                  Position::new(9.5, 9.5), Velocity::new(0.0, 0.0)));
         world.tick();
-        let ball = &world.boxed_balls()[0];
+        let ball = &world.balls()[0];
         assert!(ball.environment().overlaps().is_empty());
     }
 
@@ -89,7 +89,7 @@ mod tests {
         world.add_ball(Ball::new(Length::new(1.0), Mass::new(1.0),
                                  Position::new(9.5, 9.5), Velocity::new(0.0, 0.0)));
         world.tick();
-        let ball = &world.boxed_balls()[0];
+        let ball = &world.balls()[0];
         assert_eq!(Force::new(0.0, 0.0), ball.forces().net_force());
     }
 
@@ -101,7 +101,7 @@ mod tests {
 
         world.tick();
 
-        let ball = &world.boxed_balls()[0];
+        let ball = &world.balls()[0];
         assert!(ball.velocity().x() < 1.0);
         assert!(ball.velocity().y() < 1.0);
     }
@@ -116,10 +116,10 @@ mod tests {
 
         world.tick();
 
-        let ball1 = &world.boxed_balls()[0];
+        let ball1 = &world.balls()[0];
         assert!(ball1.velocity().x() < 1.0);
         assert!(ball1.velocity().y() < 1.0);
-        let ball2 = &world.boxed_balls()[1];
+        let ball2 = &world.balls()[1];
         assert!(ball2.velocity().x() > -1.0);
         assert!(ball2.velocity().y() > -1.0);
     }
@@ -131,14 +131,14 @@ mod tests {
                                  Position::new(0.0, 0.0), Velocity::new(-1.0, -1.0)));
         world.add_ball(Ball::new(Length::new(1.0), Mass::new(1.0),
                                  Position::new(1.5, 1.5), Velocity::new(1.0, 1.0)));
-        let ball1 = world.boxed_balls()[0].id();
-        let ball2 = world.boxed_balls()[1].id();
+        let ball1 = world.balls()[0].id();
+        let ball2 = world.balls()[1].id();
         world.add_bond(ball1, ball2);
 
         world.tick();
 
-        let ball1 = &world.boxed_balls()[0];
-        let ball2 = &world.boxed_balls()[1];
+        let ball1 = &world.balls()[0];
+        let ball2 = &world.balls()[1];
         assert!(ball1.velocity().x() > -1.0);
         assert!(ball1.velocity().y() > -1.0);
         assert!(ball2.velocity().x() < 1.0);

@@ -59,22 +59,25 @@ pub fn find_pair_overlaps<'a, C>(circles: &'a mut [Box<C>], on_overlap: fn(&mut 
 
     for index1 in 0..circles.len() {
         for index2 in (index1 + 1)..circles.len() {
-            let circle1 = &*circles[index1];
-            let circle2 = &*circles[index2];
-
-            if (circle2.min_x()) >= circle1.max_x() {
-                break;
-            }
-
-            if let Some(overlap) = get_overlap(circle1, circle2) {
-                overlaps.push((index1, Overlap::new(overlap)));
-                overlaps.push((index2, Overlap::new(-overlap)));
-            }
+            add_overlaps(circles, index1, index2, &mut overlaps)
         }
     }
 
     for (index, overlap) in overlaps {
         on_overlap(&mut circles[index], overlap);
+    }
+}
+
+fn add_overlaps<C: Circle>(circles: &[Box<C>], index1: usize, index2: usize, overlaps: &mut Vec<(usize, Overlap)>) {
+    let circle1 = &*circles[index1];
+    let circle2 = &*circles[index2];
+    if (circle2.min_x()) >= circle1.max_x() {
+        return;
+    }
+
+    if let Some(overlap) = get_overlap(circle1, circle2) {
+        overlaps.push((index1, Overlap::new(overlap)));
+        overlaps.push((index2, Overlap::new(-overlap)));
     }
 }
 

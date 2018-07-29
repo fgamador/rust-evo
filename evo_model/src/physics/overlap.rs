@@ -71,6 +71,8 @@ pub fn find_pair_overlaps<'a, C>(circles: &'a mut [Box<C>], on_overlap: fn(&mut 
 fn add_overlaps<C: Circle>(circles: &[Box<C>], index1: usize, index2: usize, overlaps: &mut Vec<(usize, Overlap)>) {
     let circle1 = &*circles[index1];
     let circle2 = &*circles[index2];
+
+    // crucial optimization that works only if we are iterating through circles in min_x order
     if (circle2.min_x()) >= circle1.max_x() {
         return;
     }

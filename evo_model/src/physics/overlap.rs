@@ -73,6 +73,7 @@ fn add_overlaps<C: Circle>(circles: &[Box<C>], index1: usize, index2: usize, ove
     let circle2 = &*circles[index2];
 
     // crucial optimization that works only if we are iterating through circles in min_x order
+    debug_assert!(circle2.min_x() >= circle1.min_x());
     if (circle2.min_x()) >= circle1.max_x() {
         return;
     }

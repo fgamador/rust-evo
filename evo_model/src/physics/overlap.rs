@@ -61,12 +61,14 @@ pub fn find_pair_overlaps<'a, C>(circles: &'a mut [Box<C>], on_overlap: fn(&mut 
         for (j, circle2) in (&circles[(i + 1)..]).iter().enumerate() {
             let index1 = i;
             let index2 = i + 1 + j;
+            let circle1 = &*circles[index1];
+            let circle2 = &*circles[index2];
 
             if (circle2.min_x()) >= circle1.max_x() {
                 break;
             }
 
-            if let Some(overlap) = get_overlap(&**circle1, &**circle2) {
+            if let Some(overlap) = get_overlap(circle1, circle2) {
                 overlaps.push((index1, Overlap::new(overlap)));
                 overlaps.push((index2, Overlap::new(-overlap)));
             }

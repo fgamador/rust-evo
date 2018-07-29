@@ -50,13 +50,6 @@ impl Walls {
     }
 }
 
-pub fn find_pair_overlaps_outer<'a, C>(circles: &'a mut [C], on_overlap: fn(&mut C, Overlap))
-    where C: Circle
-{
-    let mut indexes: Vec<usize> = (0..circles.len()).collect();
-    find_pair_overlaps(circles, &mut indexes, on_overlap);
-}
-
 pub fn find_pair_overlaps<'a, C>(circles: &'a mut [C], mut indexes: &'a mut Vec<usize>, on_overlap: fn(&mut C, Overlap))
     where C: Circle
 {
@@ -194,6 +187,13 @@ mod tests {
         assert!(circles[0].overlapped);
         assert!(circles[1].overlapped);
         assert!(circles[2].overlapped);
+    }
+
+    fn find_pair_overlaps_outer<'a, C>(circles: &'a mut [C], on_overlap: fn(&mut C, Overlap))
+        where C: Circle
+    {
+        let mut indexes: Vec<usize> = (0..circles.len()).collect();
+        find_pair_overlaps(circles, &mut indexes, on_overlap);
     }
 
     #[test]

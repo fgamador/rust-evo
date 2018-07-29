@@ -55,7 +55,7 @@ pub fn find_pair_overlaps<'a, C>(circles: &'a mut [C], on_overlap: fn(&mut C, Ov
 {
     let mut indexes: Vec<usize> = (0..circles.len()).collect();
 
-    sort_by_min_x(&mut indexes, &circles);
+    sort_by_min_x(&circles, &mut indexes);
 
     let mut overlaps: Vec<(usize, Overlap)> = Vec::with_capacity(circles.len() * 2);
 
@@ -70,7 +70,7 @@ pub fn find_pair_overlaps<'a, C>(circles: &'a mut [C], on_overlap: fn(&mut C, Ov
     }
 }
 
-fn sort_by_min_x<C: Circle>(indexes: &mut [usize], circles: &[C]) {
+fn sort_by_min_x<C: Circle>(circles: &[C], indexes: &mut [usize]) {
     // TODO convert this to insertion sort
     indexes.sort_unstable_by(|i1, i2| cmp_by_min_x(&circles[*i1], &circles[*i2]));
 }

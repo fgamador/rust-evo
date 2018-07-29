@@ -34,7 +34,7 @@ impl Walls {
         Walls { min_corner, max_corner }
     }
 
-    pub fn find_overlaps<'a, C>(&self, circles: &'a mut [Box<C>], on_overlap: fn(&mut C, Overlap))
+    pub fn find_overlaps<'a, C>(&self, circles: &'a mut [C], on_overlap: fn(&mut C, Overlap))
         where C: Circle
     {
         let zero = Displacement::new(0.0, 0.0);
@@ -50,7 +50,7 @@ impl Walls {
     }
 }
 
-pub fn find_pair_overlaps<'a, C>(circles: &'a mut [Box<C>], on_overlap: fn(&mut C, Overlap))
+pub fn find_pair_overlaps<'a, C>(circles: &'a mut [C], on_overlap: fn(&mut C, Overlap))
     where C: Circle
 {
     sort_by_min_x(circles);
@@ -68,9 +68,9 @@ pub fn find_pair_overlaps<'a, C>(circles: &'a mut [Box<C>], on_overlap: fn(&mut 
     }
 }
 
-fn add_overlaps<C: Circle>(circles: &[Box<C>], index1: usize, index2: usize, overlaps: &mut Vec<(usize, Overlap)>) {
-    let circle1 = &*circles[index1];
-    let circle2 = &*circles[index2];
+fn add_overlaps<C: Circle>(circles: &[C], index1: usize, index2: usize, overlaps: &mut Vec<(usize, Overlap)>) {
+    let circle1 = &circles[index1];
+    let circle2 = &circles[index2];
 
     // crucial optimization that works only if we are iterating through circles in min_x order
     assert!(circle2.min_x() >= circle1.min_x());
@@ -104,9 +104,9 @@ fn get_overlap<C: Circle>(circle1: &C, circle2: &C) -> Option<Displacement> {
     Some(Displacement::new(x_incursion, y_incursion))
 }
 
-fn sort_by_min_x<C: Circle>(circles: &mut [Box<C>]) {
+fn sort_by_min_x<C: Circle>(circles: &mut [C]) {
     // TODO convert this to insertion sort
-    circles.sort_unstable_by(|c1, c2| cmp_by_min_x(&**c1, &**c2));
+    circles.sort_unstable_by(|c1, c2| cmp_by_min_x(c1, c2));
 }
 
 fn cmp_by_min_x<C: Circle>(c1: &C, c2: &C) -> Ordering {
@@ -125,35 +125,35 @@ mod tests {
     fn no_wall_overlaps() {
         let subject = Walls::new(Position::new(-10.0, -5.0), Position::new(10.0, 2.0));
         let circle = SpyCircle::new(Position::new(8.5, 0.75), Length::new(1.0));
-        let mut boxed_circles = vec![Box::new(circle)];
-        subject.find_overlaps(&mut boxed_circles, on_overlap);
-        assert!(!boxed_circles[0].overlapped);
+        let mut circles = vec![circle];
+        subject.find_overlaps(&mut circles, on_overlap);
+        assert!(!circles[0].overlapped);
     }
 
     #[test]
     fn min_corner_wall_overlap() {
         let subject = Walls::new(Position::new(-10.0, -5.0), Position::new(10.0, 2.0));
         let circle = SpyCircle::new(Position::new(-9.5, -4.25), Length::new(1.0));
-        let mut boxed_circles = vec![Box::new(circle)];
-        subject.find_overlaps(&mut boxed_circles, on_overlap);
-        assert_eq!(Overlap::new(Displacement::new(0.5, 0.25)), boxed_circles[0].overlap);
+        let mut circles = vec![circle];
+        subject.find_overlaps(&mut circles, on_overlap);
+        assert_eq!(Overlap::new(Displacement::new(0.5, 0.25)), circles[0].overlap);
     }
 
     #[test]
     fn max_corner_wall_overlap() {
         let subject = Walls::new(Position::new(-10.0, -5.0), Position::new(10.0, 2.0));
         let circle = SpyCircle::new(Position::new(9.5, 1.75), Length::new(1.0));
-        let mut boxed_circles = vec![Box::new(circle)];
-        subject.find_overlaps(&mut boxed_circles, on_overlap);
-        assert_eq!(Overlap::new(Displacement::new(-0.5, -0.75)), boxed_circles[0].overlap);
+        let mut circles = vec![circle];
+        subject.find_overlaps(&mut circles, on_overlap);
+        assert_eq!(Overlap::new(Displacement::new(-0.5, -0.75)), circles[0].overlap);
     }
 
     #[test]
     fn pair_overlap() {
         // {3, 4, 5} triangle (as {6, 8, 10})
         let mut circles = vec![
-            Box::new(SpyCircle::new(Position::new(0.0, 0.0), Length::new(7.0))),
-            Box::new(SpyCircle::new(Position::new(6.0, 8.0), Length::new(8.0)))];
+            SpyCircle::new(Position::new(0.0, 0.0), Length::new(7.0)),
+            SpyCircle::new(Position::new(6.0, 8.0), Length::new(8.0))];
 
         find_pair_overlaps(&mut circles, on_overlap);
 
@@ -165,8 +165,8 @@ mod tests {
     #[test]
     fn pair_x_and_y_overlap_without_circle_overlap() {
         let mut circles = vec![
-            Box::new(SpyCircle::new(Position::new(0.0, 0.0), Length::new(1.0))),
-            Box::new(SpyCircle::new(Position::new(1.5, 1.5), Length::new(1.0)))];
+            SpyCircle::new(Position::new(0.0, 0.0), Length::new(1.0)),
+            SpyCircle::new(Position::new(1.5, 1.5), Length::new(1.0))];
 
         find_pair_overlaps(&mut circles, on_overlap);
 
@@ -177,9 +177,9 @@ mod tests {
     #[test]
     fn pairs_overlap_after_movement() {
         let mut circles = vec![
-            Box::new(SpyCircle::new(Position::new(0.0, 0.0), Length::new(1.0))),
-            Box::new(SpyCircle::new(Position::new(3.0, 0.0), Length::new(1.0))),
-            Box::new(SpyCircle::new(Position::new(6.0, 0.0), Length::new(1.0)))];
+            SpyCircle::new(Position::new(0.0, 0.0), Length::new(1.0)),
+            SpyCircle::new(Position::new(3.0, 0.0), Length::new(1.0)),
+            SpyCircle::new(Position::new(6.0, 0.0), Length::new(1.0))];
 
         circles[2].center = Position::new(1.5, 0.0);
         find_pair_overlaps(&mut circles, on_overlap);

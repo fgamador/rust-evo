@@ -6,7 +6,7 @@ use physics::overlap::*;
 
 #[derive(Debug)]
 pub struct World {
-    balls: Vec<Box<Ball>>,
+    balls: Vec<Ball>,
     bonds: Vec<Bond>,
     walls: Walls,
 }
@@ -21,14 +21,14 @@ impl World {
     }
 
     pub fn add_ball(&mut self, ball: Ball) {
-        self.balls.push(Box::new(ball));
+        self.balls.push(ball);
     }
 
     pub fn add_bond(&mut self, ball1: BallId, ball2: BallId) {
         self.bonds.push(Bond::new(ball1, ball2));
     }
 
-    pub fn balls(&self) -> &BoxedBalls {
+    pub fn balls(&self) -> &[Ball] {
         &self.balls
     }
 

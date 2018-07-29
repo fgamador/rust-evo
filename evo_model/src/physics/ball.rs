@@ -6,9 +6,6 @@ use physics::shapes::*;
 use physics::overlap::*;
 use std::ptr;
 
-pub type Balls = [Ball];
-pub type BoxedBalls = [Box<Ball>];
-
 #[derive(Clone, Debug)]
 pub struct Ball {
     radius: Length,
@@ -172,11 +169,11 @@ mod tests {
     fn walls_add_overlap() {
         let walls = Walls::new(Position::new(-10.0, -5.0), Position::new(10.0, 2.0));
         let ball = Ball::new(Length::new(1.0), Mass::new(2.0), Position::new(-9.5, 1.75), Velocity::new(1.0, 2.0));
-        let mut boxed_balls = vec![Box::new(ball)];
-        walls.find_overlaps(&mut boxed_balls, |ball, overlap| {
+        let mut balls = vec![ball];
+        walls.find_overlaps(&mut balls, |ball, overlap| {
             ball.mut_environment().add_overlap(overlap);
         });
-        assert_eq!(1, boxed_balls[0].environment().overlaps().len());
-        assert_eq!(Overlap::new(Displacement::new(0.5, -0.75)), boxed_balls[0].environment().overlaps()[0]);
+        assert_eq!(1, balls[0].environment().overlaps().len());
+        assert_eq!(Overlap::new(Displacement::new(0.5, -0.75)), balls[0].environment().overlaps()[0]);
     }
 }

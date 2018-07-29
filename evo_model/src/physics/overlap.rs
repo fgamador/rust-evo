@@ -53,6 +53,9 @@ impl Walls {
 pub fn find_pair_overlaps<'a, C>(circles: &'a mut [C], on_overlap: fn(&mut C, Overlap))
     where C: Circle
 {
+    let mut indexes: Vec<usize> = (0..circles.len()).collect();
+    indexes.sort_unstable_by(|i1, i2| cmp_by_min_x(&circles[*i1], &circles[*i2]));
+
     sort_by_min_x(circles);
 
     let mut overlaps: Vec<(usize, Overlap)> = Vec::with_capacity(circles.len() * 2);

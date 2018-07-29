@@ -70,6 +70,15 @@ pub fn find_pair_overlaps<'a, C>(circles: &'a mut [C], on_overlap: fn(&mut C, Ov
     }
 }
 
+fn sort_by_min_x<C: Circle>(indexes: &mut [usize], circles: &[C]) {
+    // TODO convert this to insertion sort
+    indexes.sort_unstable_by(|i1, i2| cmp_by_min_x(&circles[*i1], &circles[*i2]));
+}
+
+fn cmp_by_min_x<C: Circle>(c1: &C, c2: &C) -> Ordering {
+    c1.min_x().partial_cmp(&c2.min_x()).unwrap()
+}
+
 fn add_overlaps<C: Circle>(circles: &[C], index1: usize, index2: usize, overlaps: &mut Vec<(usize, Overlap)>) {
     let circle1 = &circles[index1];
     let circle2 = &circles[index2];
@@ -104,15 +113,6 @@ fn get_overlap<C: Circle>(circle1: &C, circle2: &C) -> Option<Displacement> {
     let x_incursion = (x_offset / center_sep) * overlap_mag;
     let y_incursion = (y_offset / center_sep) * overlap_mag;
     Some(Displacement::new(x_incursion, y_incursion))
-}
-
-fn sort_by_min_x<C: Circle>(indexes: &mut [usize], circles: &[C]) {
-    // TODO convert this to insertion sort
-    indexes.sort_unstable_by(|i1, i2| cmp_by_min_x(&circles[*i1], &circles[*i2]));
-}
-
-fn cmp_by_min_x<C: Circle>(c1: &C, c2: &C) -> Ordering {
-    c1.min_x().partial_cmp(&c2.min_x()).unwrap()
 }
 
 fn sqr(x: f64) -> f64 {

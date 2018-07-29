@@ -37,7 +37,8 @@ impl World {
             ball.mut_environment().add_overlap(overlap);
         });
 
-        find_pair_overlaps_outer(&mut self.balls, |ball, overlap| {
+        let mut indexes: Vec<usize> = (0..self.balls.len()).collect();
+        find_pair_overlaps(&mut self.balls, &mut indexes, |ball, overlap| {
             ball.mut_environment().add_overlap(overlap);
         });
 

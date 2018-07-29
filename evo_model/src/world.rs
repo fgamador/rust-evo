@@ -7,6 +7,7 @@ use physics::overlap::*;
 #[derive(Debug)]
 pub struct World {
     balls: Vec<Ball>,
+    indexes: Vec<usize>,
     bonds: Vec<Bond>,
     walls: Walls,
 }
@@ -15,12 +16,14 @@ impl World {
     pub fn new(min_corner: Position, max_corner: Position) -> Self {
         World {
             balls: vec![],
+            indexes: vec![],
             bonds: vec![],
             walls: Walls::new(min_corner, max_corner),
         }
     }
 
     pub fn add_ball(&mut self, ball: Ball) {
+        self.indexes.push(self.balls.len());
         self.balls.push(ball);
     }
 
@@ -37,8 +40,7 @@ impl World {
             ball.mut_environment().add_overlap(overlap);
         });
 
-        let mut indexes: Vec<usize> = (0..self.balls.len()).collect();
-        find_pair_overlaps(&mut self.balls, &mut indexes, |ball, overlap| {
+        find_pair_overlaps(&mut self.balls, &mut self.indexes, |ball, overlap| {
             ball.mut_environment().add_overlap(overlap);
         });
 

@@ -25,7 +25,7 @@ impl Ball {
     }
 
     pub fn id(&self) -> BallId {
-        BallId { value: 0 }
+        BallId { index: 0 }
     }
 
     pub fn environment(&self) -> &BallEnvironment {
@@ -92,12 +92,12 @@ impl newtonian::Body for Ball {
 
 #[derive(Clone, Copy, Debug, PartialEq)]
 pub struct BallId {
-    value: u64,
+    index: usize,
 }
 
 impl BallId {
-    pub fn new(value: u64) -> Self {
-        BallId { value }
+    pub fn new(index: usize) -> Self {
+        BallId { index }
     }
 }
 

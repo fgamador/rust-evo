@@ -61,7 +61,7 @@ pub fn find_pair_overlaps<'a, C>(circles: &'a mut [Box<C>], on_overlap: fn(&mut 
                 break;
             }
 
-            if let Some(overlap) = get_overlap(circle1, circle2) {
+            if let Some(overlap) = get_overlap(&**circle1, &**circle2) {
                 overlaps.push((i, Overlap::new(overlap)));
                 overlaps.push((i + 1 + j, Overlap::new(-overlap)));
             }
@@ -72,7 +72,7 @@ pub fn find_pair_overlaps<'a, C>(circles: &'a mut [Box<C>], on_overlap: fn(&mut 
     }
 }
 
-fn get_overlap<C: Circle>(circle1: &Box<C>, circle2: &Box<C>) -> Option<Displacement> {
+fn get_overlap<C: Circle>(circle1: &C, circle2: &C) -> Option<Displacement> {
     let x_offset = circle1.center().x() - circle2.center().x();
     let y_offset = circle1.center().y() - circle2.center().y();
     let just_touching_center_sep = circle1.radius().value() + circle2.radius().value();

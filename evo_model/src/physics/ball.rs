@@ -8,6 +8,7 @@ use std::ptr;
 
 #[derive(Clone, Debug)]
 pub struct Ball {
+    id: BallId,
     radius: Length,
     state: newtonian::State,
     environment: BallEnvironment,
@@ -17,6 +18,7 @@ pub struct Ball {
 impl Ball {
     pub fn new(radius: Length, mass: Mass, position: Position, velocity: Velocity) -> Ball {
         Ball {
+            id: BallId::new(0),
             radius,
             state: newtonian::State::new(mass, position, velocity),
             environment: BallEnvironment::new(),
@@ -25,7 +27,7 @@ impl Ball {
     }
 
     pub fn id(&self) -> BallId {
-        BallId { index: 0 }
+        self.id
     }
 
     pub fn environment(&self) -> &BallEnvironment {

@@ -27,8 +27,8 @@ impl World {
         self.balls.push(ball);
     }
 
-    pub fn add_bond(&mut self, ball1: BallId, ball2: BallId) {
-        self.bonds.push(Bond::new(ball1, ball2));
+    pub fn add_bond(&mut self, bond: Bond) {
+        self.bonds.push(bond);
     }
 
     pub fn balls(&self) -> &[Ball] {
@@ -134,9 +134,8 @@ mod tests {
                                  Position::new(0.0, 0.0), Velocity::new(-1.0, -1.0)));
         world.add_ball(Ball::new(Length::new(1.0), Mass::new(1.0),
                                  Position::new(1.5, 1.5), Velocity::new(1.0, 1.0)));
-        let ball1 = world.balls()[0].id();
-        let ball2 = world.balls()[1].id();
-        world.add_bond(ball1, ball2);
+        let bond = Bond::new(&world.balls()[0], &world.balls()[1]);
+        world.add_bond(bond);
 
         world.tick();
 

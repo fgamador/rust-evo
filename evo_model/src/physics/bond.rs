@@ -1,5 +1,4 @@
 use physics::ball::*;
-use physics::quantities::*;
 
 #[derive(Clone, Copy, Debug, PartialEq)]
 pub struct Bond {
@@ -13,17 +12,18 @@ impl Bond {
     }
 
     pub fn ball1<'a>(&self, balls: &'a [Ball]) -> &'a Ball {
-        &balls[self.ball1_id.index]
+        self.ball1_id.ball(balls)
     }
 
     pub fn ball2<'a>(&self, balls: &'a [Ball]) -> &'a Ball {
-        &balls[self.ball2_id.index]
+        self.ball2_id.ball(balls)
     }
 }
 
 #[cfg(test)]
 mod tests {
     use super::*;
+    use physics::quantities::*;
 
     #[test]
     fn create_bond() {
@@ -31,7 +31,7 @@ mod tests {
                                   Position::new(1.0, 1.0), Velocity::new(1.0, 1.0));
         ball1.set_id(BallId::new(0));
         let mut ball2 = Ball::new(Length::new(1.0), Mass::new(1.0),
-                              Position::new(1.0, 1.0), Velocity::new(1.0, 1.0));
+                                  Position::new(1.0, 1.0), Velocity::new(1.0, 1.0));
         ball2.set_id(BallId::new(1));
         let balls = vec![ball1, ball2];
 

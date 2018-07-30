@@ -98,12 +98,16 @@ impl newtonian::Body for Ball {
 
 #[derive(Clone, Copy, Debug, PartialEq)]
 pub struct BallId {
-    pub index: usize,
+    index: usize,
 }
 
 impl BallId {
     pub fn new(index: usize) -> Self {
         BallId { index }
+    }
+
+    pub fn ball<'a>(&self, balls: &'a [Ball]) -> &'a Ball {
+        &balls[self.index]
     }
 }
 

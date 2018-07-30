@@ -30,6 +30,10 @@ impl Ball {
         self.id
     }
 
+    pub fn set_id(&mut self, id: BallId) {
+        self.id = id;
+    }
+
     pub fn environment(&self) -> &BallEnvironment {
         &self.environment
     }
@@ -94,7 +98,7 @@ impl newtonian::Body for Ball {
 
 #[derive(Clone, Copy, Debug, PartialEq)]
 pub struct BallId {
-    index: usize,
+    pub index: usize,
 }
 
 impl BallId {

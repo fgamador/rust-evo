@@ -81,6 +81,7 @@ fn add_overlaps<C: Circle>(circles: &[C], index1: usize, index2: usize, overlaps
     let circle1 = &circles[index1];
     let circle2 = &circles[index2];
 
+    // TODO d'oh! This needs to be out in find_pair_overlaps, so we can break out of the inner loop
     // crucial optimization that works only if we are iterating through circles in min_x order
     assert!(circle2.min_x() >= circle1.min_x());
     if (circle2.min_x()) >= circle1.max_x() {

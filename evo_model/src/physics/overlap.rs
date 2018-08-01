@@ -59,7 +59,19 @@ pub fn find_pair_overlaps<'a, C>(circles: &'a mut [C], mut indexes: &'a mut Vec<
 
     for (i, index1) in indexes.iter().enumerate() {
         for index2 in &indexes[(i + 1)..] {
-            add_overlaps(circles, *index1, *index2, &mut overlaps)
+            let circle1 = &circles[*index1];
+            let circle2 = &circles[*index2];
+
+            // crucial optimization that works only if we are iterating through circles in min_x order
+            assert!(circle2.min_x() >= circle1.min_x());
+            if (circle2.min_x()) >= circle1.max_x() {
+                break;
+            }
+
+            if let Some(overlap) = get_overlap(circle1, circle2) {
+                overlaps.push((*index1, Overlap::new(overlap)));
+                overlaps.push((*index2, Overlap::new(-overlap)));
+            }
         }
     }
 
@@ -75,23 +87,6 @@ fn sort_by_min_x<C: Circle>(circles: &[C], indexes: &mut [usize]) {
 
 fn cmp_by_min_x<C: Circle>(c1: &C, c2: &C) -> Ordering {
     c1.min_x().partial_cmp(&c2.min_x()).unwrap()
-}
-
-fn add_overlaps<C: Circle>(circles: &[C], index1: usize, index2: usize, overlaps: &mut Vec<(usize, Overlap)>) {
-    let circle1 = &circles[index1];
-    let circle2 = &circles[index2];
-
-    // TODO d'oh! This needs to be out in find_pair_overlaps, so we can break out of the inner loop
-    // crucial optimization that works only if we are iterating through circles in min_x order
-    assert!(circle2.min_x() >= circle1.min_x());
-    if (circle2.min_x()) >= circle1.max_x() {
-        return;
-    }
-
-    if let Some(overlap) = get_overlap(circle1, circle2) {
-        overlaps.push((index1, Overlap::new(overlap)));
-        overlaps.push((index2, Overlap::new(-overlap)));
-    }
 }
 
 fn get_overlap<C: Circle>(circle1: &C, circle2: &C) -> Option<Displacement> {

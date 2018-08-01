@@ -19,6 +19,19 @@ impl BallGraph {
             bonds: vec![],
         }
     }
+
+    pub fn add_ball(&mut self, ball: Ball) {
+        self.indexes.push(self.balls.len());
+        self.balls.push(ball);
+    }
+
+    pub fn add_bond(&mut self, bond: Bond) {
+        self.bonds.push(bond);
+    }
+
+    pub fn balls(&self) -> &[Ball] {
+        &self.balls
+    }
 }
 
 #[derive(Debug)]
@@ -36,16 +49,15 @@ impl World {
     }
 
     pub fn add_ball(&mut self, ball: Ball) {
-        self.ball_graph.indexes.push(self.ball_graph.balls.len());
-        self.ball_graph.balls.push(ball);
+        self.ball_graph.add_ball(ball);
     }
 
     pub fn add_bond(&mut self, bond: Bond) {
-        self.ball_graph.bonds.push(bond);
+        self.ball_graph.add_bond(bond);
     }
 
     pub fn balls(&self) -> &[Ball] {
-        &self.ball_graph.balls
+        &self.ball_graph.balls()
     }
 
     pub fn tick(&mut self) {

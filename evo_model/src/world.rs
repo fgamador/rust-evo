@@ -5,56 +5,69 @@ use physics::quantities::*;
 use physics::overlap::*;
 
 #[derive(Debug)]
-pub struct World {
+pub struct BallGraph {
     balls: Vec<Ball>,
     indexes: Vec<usize>,
     bonds: Vec<Bond>,
+}
+
+impl BallGraph {
+    pub fn new() -> Self {
+        BallGraph {
+            balls: vec![],
+            indexes: vec![],
+            bonds: vec![],
+        }
+    }
+}
+
+#[derive(Debug)]
+pub struct World {
+    ball_graph: BallGraph,
     walls: Walls,
 }
 
 impl World {
     pub fn new(min_corner: Position, max_corner: Position) -> Self {
         World {
-            balls: vec![],
-            indexes: vec![],
-            bonds: vec![],
+            ball_graph: BallGraph::new(),
             walls: Walls::new(min_corner, max_corner),
         }
     }
 
     pub fn add_ball(&mut self, ball: Ball) {
-        self.indexes.push(self.balls.len());
-        self.balls.push(ball);
+        self.ball_graph.indexes.push(self.ball_graph.balls.len());
+        self.ball_graph.balls.push(ball);
     }
 
     pub fn add_bond(&mut self, bond: Bond) {
-        self.bonds.push(bond);
+        self.ball_graph.bonds.push(bond);
     }
 
     pub fn balls(&self) -> &[Ball] {
-        &self.balls
+        &self.ball_graph.balls
     }
 
     pub fn tick(&mut self) {
-        self.walls.find_overlaps(&mut self.balls, |ball, overlap| {
+        self.walls.find_overlaps(&mut self.ball_graph.balls, |ball, overlap| {
             ball.mut_environment().add_overlap(overlap);
         });
 
-        find_pair_overlaps(&mut self.balls, &mut self.indexes, |ball, overlap| {
+        find_pair_overlaps(&mut self.ball_graph.balls, &mut self.ball_graph.indexes, |ball, overlap| {
             ball.mut_environment().add_overlap(overlap);
         });
 
-        for ball in &mut self.balls {
+        for ball in &mut self.ball_graph.balls {
             ball.add_overlap_forces();
         }
 
         let tick_duration = Duration::new(1.0);
-        for ball in &mut self.balls {
+        for ball in &mut self.ball_graph.balls {
             ball.exert_forces(tick_duration);
             ball.move_for(tick_duration);
         }
 
-        for ball in &mut self.balls {
+        for ball in &mut self.ball_graph.balls {
             ball.mut_environment().clear();
             ball.mut_forces().clear();
         }

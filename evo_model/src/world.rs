@@ -1,42 +1,9 @@
 use physics::ball::*;
+use physics::ball_graph::*;
 use physics::bond::*;
 use physics::newtonian::Body;
 use physics::quantities::*;
 use physics::overlap::*;
-
-#[derive(Debug)]
-pub struct BallGraph {
-    balls: Vec<Ball>,
-    indexes: Vec<usize>,
-    bonds: Vec<Bond>,
-}
-
-impl BallGraph {
-    pub fn new() -> Self {
-        BallGraph {
-            balls: vec![],
-            indexes: vec![],
-            bonds: vec![],
-        }
-    }
-
-    pub fn add_ball(&mut self, ball: Ball) {
-        self.indexes.push(self.balls.len());
-        self.balls.push(ball);
-    }
-
-    pub fn add_bond(&mut self, bond: Bond) {
-        self.bonds.push(bond);
-    }
-
-    pub fn balls(&self) -> &[Ball] {
-        &self.balls
-    }
-
-    pub fn balls_mut(&mut self) -> &mut [Ball] {
-        &mut self.balls
-    }
-}
 
 #[derive(Debug)]
 pub struct World {

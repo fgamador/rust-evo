@@ -1,14 +1,13 @@
-use physics::ball::*;
 use physics::bond::*;
 
 #[derive(Debug)]
-pub struct BallGraph {
-    pub balls: Vec<Ball>,
+pub struct BallGraph<B> {
+    pub balls: Vec<B>,
     pub indexes: Vec<usize>,
     bonds: Vec<Bond>,
 }
 
-impl BallGraph {
+impl<B> BallGraph<B> {
     pub fn new() -> Self {
         BallGraph {
             balls: vec![],
@@ -17,7 +16,7 @@ impl BallGraph {
         }
     }
 
-    pub fn add_ball(&mut self, ball: Ball) {
+    pub fn add_ball(&mut self, ball: B) {
         self.indexes.push(self.balls.len());
         self.balls.push(ball);
     }
@@ -26,11 +25,11 @@ impl BallGraph {
         self.bonds.push(bond);
     }
 
-    pub fn balls(&self) -> &[Ball] {
+    pub fn balls(&self) -> &[B] {
         &self.balls
     }
 
-    pub fn balls_mut(&mut self) -> &mut [Ball] {
+    pub fn balls_mut(&mut self) -> &mut [B] {
         &mut self.balls
     }
 }

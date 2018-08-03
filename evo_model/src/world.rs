@@ -7,14 +7,14 @@ use physics::overlap::*;
 
 #[derive(Debug)]
 pub struct World {
-    ball_graph: BallGraph<Ball>,
+    ball_graph: SortableGraph<Ball>,
     walls: Walls,
 }
 
 impl World {
     pub fn new(min_corner: Position, max_corner: Position) -> Self {
         World {
-            ball_graph: BallGraph::new(),
+            ball_graph: SortableGraph::new(),
             walls: Walls::new(min_corner, max_corner),
         }
     }

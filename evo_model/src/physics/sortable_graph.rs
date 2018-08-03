@@ -1,15 +1,15 @@
 use physics::bond::*;
 
 #[derive(Debug)]
-pub struct BallGraph<B> {
+pub struct SortableGraph<B> {
     pub balls: Vec<B>,
     pub indexes: Vec<usize>,
     bonds: Vec<Bond>,
 }
 
-impl<B> BallGraph<B> {
+impl<B> SortableGraph<B> {
     pub fn new() -> Self {
-        BallGraph {
+        SortableGraph {
             balls: vec![],
             indexes: vec![],
             bonds: vec![],

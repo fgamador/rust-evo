@@ -19,8 +19,8 @@ impl<N, E> SortableGraph<N, E> {
         self.nodes.push(node);
     }
 
-    pub fn add_edge(&mut self, bond: E) {
-        self.edges.push(bond);
+    pub fn add_edge(&mut self, edge: E) {
+        self.edges.push(edge);
     }
 
     pub fn nodes(&self) -> &[N] {

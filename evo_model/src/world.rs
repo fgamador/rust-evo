@@ -20,7 +20,7 @@ impl World {
     }
 
     pub fn add_ball(&mut self, ball: Ball) {
-        self.ball_graph.add_ball(ball);
+        self.ball_graph.add_node(ball);
     }
 
     pub fn add_bond(&mut self, bond: Bond) {

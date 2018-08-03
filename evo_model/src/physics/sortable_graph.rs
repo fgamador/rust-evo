@@ -1,13 +1,13 @@
 use physics::bond::*;
 
 #[derive(Debug)]
-pub struct SortableGraph<T> {
-    pub nodes: Vec<T>,
+pub struct SortableGraph<N> {
+    pub nodes: Vec<N>,
     pub node_indexes: Vec<usize>,
     bonds: Vec<Bond>,
 }
 
-impl<T> SortableGraph<T> {
+impl<N> SortableGraph<N> {
     pub fn new() -> Self {
         SortableGraph {
             nodes: vec![],
@@ -16,7 +16,7 @@ impl<T> SortableGraph<T> {
         }
     }
 
-    pub fn add_node(&mut self, node: T) {
+    pub fn add_node(&mut self, node: N) {
         self.node_indexes.push(self.nodes.len());
         self.nodes.push(node);
     }
@@ -25,11 +25,11 @@ impl<T> SortableGraph<T> {
         self.bonds.push(bond);
     }
 
-    pub fn nodes(&self) -> &[T] {
+    pub fn nodes(&self) -> &[N] {
         &self.nodes
     }
 
-    pub fn nodes_mut(&mut self) -> &mut [T] {
+    pub fn nodes_mut(&mut self) -> &mut [N] {
         &mut self.nodes
     }
 }

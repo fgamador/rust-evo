@@ -36,7 +36,7 @@ impl World {
             ball.environment_mut().add_overlap(overlap);
         });
 
-        find_pair_overlaps(&mut self.ball_graph.nodes, &mut self.ball_graph.node_indexes, |ball, overlap| {
+        find_graph_pair_overlaps(&mut self.ball_graph, |ball, overlap| {
             ball.environment_mut().add_overlap(overlap);
         });
 

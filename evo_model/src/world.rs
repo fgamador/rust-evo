@@ -1,5 +1,5 @@
 use physics::ball::*;
-use physics::ball_graph::*;
+use physics::sortable_graph::*;
 use physics::bond::*;
 use physics::newtonian::Body;
 use physics::quantities::*;

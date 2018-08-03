@@ -25,11 +25,11 @@ impl<T> SortableGraph<T> {
         self.bonds.push(bond);
     }
 
-    pub fn balls(&self) -> &[T] {
+    pub fn nodes(&self) -> &[T] {
         &self.nodes
     }
 
-    pub fn balls_mut(&mut self) -> &mut [T] {
+    pub fn nodes_mut(&mut self) -> &mut [T] {
         &mut self.nodes
     }
 }

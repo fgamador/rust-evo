@@ -28,11 +28,11 @@ impl World {
     }
 
     pub fn balls(&self) -> &[Ball] {
-        &self.ball_graph.balls()
+        &self.ball_graph.nodes()
     }
 
     pub fn tick(&mut self) {
-        self.walls.find_overlaps(self.ball_graph.balls_mut(), |ball, overlap| {
+        self.walls.find_overlaps(self.ball_graph.nodes_mut(), |ball, overlap| {
             ball.environment_mut().add_overlap(overlap);
         });
 
@@ -40,17 +40,17 @@ impl World {
             ball.environment_mut().add_overlap(overlap);
         });
 
-        for ball in self.ball_graph.balls_mut() {
+        for ball in self.ball_graph.nodes_mut() {
             ball.add_overlap_forces();
         }
 
         let tick_duration = Duration::new(1.0);
-        for ball in self.ball_graph.balls_mut() {
+        for ball in self.ball_graph.nodes_mut() {
             ball.exert_forces(tick_duration);
             ball.move_for(tick_duration);
         }
 
-        for ball in self.ball_graph.balls_mut() {
+        for ball in self.ball_graph.nodes_mut() {
             ball.environment_mut().clear();
             ball.forces_mut().clear();
         }

@@ -173,7 +173,7 @@ mod tests {
 
         let overlap = get_overlap(&circle1, &circle2).unwrap();
 
-        // overlap/hypotenuse of 5
+        // overlap/hypotenuse 5 has legs 3 and 4
         assert_eq!(Displacement::new(-3.0, -4.0), overlap);
     }
 

@@ -168,16 +168,13 @@ mod tests {
     #[test]
     fn pair_overlap() {
         // {3, 4, 5} triangle (as {6, 8, 10})
-        let mut circles = vec![
-            SpyCircle::new(Position::new(0.0, 0.0), Length::new(7.0)),
-            SpyCircle::new(Position::new(6.0, 8.0), Length::new(8.0))];
+        let circle1 = SpyCircle::new(Position::new(0.0, 0.0), Length::new(7.0));
+        let circle2 = SpyCircle::new(Position::new(6.0, 8.0), Length::new(8.0));
 
-        let mut indexes: Vec<usize> = (0..circles.len()).collect();
-        find_pair_overlaps(&mut circles, &mut indexes, on_overlap);
+        let overlap = get_overlap(&circle1, &circle2).unwrap();
 
         // overlap/hypotenuse of 5
-        assert_eq!(Overlap::new(Displacement::new(-3.0, -4.0)), circles[0].overlap);
-        assert_eq!(Overlap::new(Displacement::new(3.0, 4.0)), circles[1].overlap);
+        assert_eq!(Displacement::new(-3.0, -4.0), overlap);
     }
 
     #[test]

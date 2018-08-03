@@ -151,6 +151,7 @@ mod tests {
         assert_eq!(Overlap::new(Displacement::new(-0.5, -0.75)), circles[0].overlap);
     }
 
+    // TODO narrow this to testing just the graph iteration part
     #[test]
     fn graph_pair_overlap() {
         let mut graph: SortableGraph<SpyCircle, DummyBond> = SortableGraph::new();

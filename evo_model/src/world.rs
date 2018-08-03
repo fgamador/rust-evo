@@ -33,11 +33,11 @@ impl World {
 
     pub fn tick(&mut self) {
         self.walls.find_overlaps(self.ball_graph.balls_mut(), |ball, overlap| {
-            ball.mut_environment().add_overlap(overlap);
+            ball.environment_mut().add_overlap(overlap);
         });
 
         find_pair_overlaps(&mut self.ball_graph.balls, &mut self.ball_graph.indexes, |ball, overlap| {
-            ball.mut_environment().add_overlap(overlap);
+            ball.environment_mut().add_overlap(overlap);
         });
 
         for ball in self.ball_graph.balls_mut() {
@@ -51,8 +51,8 @@ impl World {
         }
 
         for ball in self.ball_graph.balls_mut() {
-            ball.mut_environment().clear();
-            ball.mut_forces().clear();
+            ball.environment_mut().clear();
+            ball.forces_mut().clear();
         }
     }
 }

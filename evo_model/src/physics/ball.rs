@@ -38,7 +38,7 @@ impl Ball {
         &self.environment
     }
 
-    pub fn mut_environment(&mut self) -> &mut BallEnvironment {
+    pub fn environment_mut(&mut self) -> &mut BallEnvironment {
         &mut self.environment
     }
 
@@ -46,7 +46,7 @@ impl Ball {
         &self.forces
     }
 
-    pub fn mut_forces(&mut self) -> &mut Forces {
+    pub fn forces_mut(&mut self) -> &mut Forces {
         &mut self.forces
     }
 
@@ -152,8 +152,8 @@ mod tests {
     fn clear_ball_environment() {
         let mut ball = Ball::new(Length::new(1.0), Mass::new(1.0),
                                  Position::new(1.0, 1.0), Velocity::new(1.0, 1.0));
-        ball.mut_environment().add_overlap(Overlap::new(Displacement::new(1.0, 1.0)));
-        ball.mut_environment().clear();
+        ball.environment_mut().add_overlap(Overlap::new(Displacement::new(1.0, 1.0)));
+        ball.environment_mut().clear();
         assert!(ball.environment().overlaps().is_empty());
     }
 
@@ -161,7 +161,7 @@ mod tests {
     fn add_overlap_forces() {
         let mut ball = Ball::new(Length::new(1.0), Mass::new(1.0),
                                  Position::new(1.0, 1.0), Velocity::new(1.0, 1.0));
-        ball.mut_environment().add_overlap(Overlap::new(Displacement::new(1.0, 1.0)));
+        ball.environment_mut().add_overlap(Overlap::new(Displacement::new(1.0, 1.0)));
         ball.add_overlap_forces();
         assert_eq!(Force::new(1.0, 1.0), ball.forces().net_force());
     }
@@ -170,7 +170,7 @@ mod tests {
     fn exert_forces() {
         let mut ball = Ball::new(Length::new(1.0), Mass::new(1.0),
                                  Position::new(1.0, 1.0), Velocity::new(1.0, 1.0));
-        ball.mut_forces().add_force(Force::new(1.0, 1.0));
+        ball.forces_mut().add_force(Force::new(1.0, 1.0));
         ball.exert_forces(Duration::new(1.0));
         assert_eq!(Velocity::new(2.0, 2.0), ball.velocity());
     }
@@ -181,7 +181,7 @@ mod tests {
         let ball = Ball::new(Length::new(1.0), Mass::new(2.0), Position::new(-9.5, 1.75), Velocity::new(1.0, 2.0));
         let mut balls = vec![ball];
         walls.find_overlaps(&mut balls, |ball, overlap| {
-            ball.mut_environment().add_overlap(overlap);
+            ball.environment_mut().add_overlap(overlap);
         });
         assert_eq!(1, balls[0].environment().overlaps().len());
         assert_eq!(Overlap::new(Displacement::new(0.5, -0.75)), balls[0].environment().overlaps()[0]);

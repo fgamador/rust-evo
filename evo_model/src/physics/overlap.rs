@@ -1,5 +1,6 @@
 use physics::quantities::*;
 use physics::shapes::*;
+use physics::sortable_graph::*;
 use std::cmp::Ordering;
 
 // TODO add width to Overlap, or maybe make incursion magnitude an Area
@@ -48,6 +49,12 @@ impl Walls {
             }
         }
     }
+}
+
+pub fn find_graph_pair_overlaps<'a, C, E>(graph: &'a mut SortableGraph<C, E>, on_overlap: fn(&mut C, Overlap))
+    where C: Circle
+{
+    find_pair_overlaps(&mut graph.nodes, &mut graph.node_indexes, on_overlap);
 }
 
 pub fn find_pair_overlaps<'a, C>(circles: &'a mut [C], mut indexes: &'a mut Vec<usize>, on_overlap: fn(&mut C, Overlap))
@@ -145,6 +152,20 @@ mod tests {
     }
 
     #[test]
+    fn graph_pair_overlap() {
+        let mut graph: SortableGraph<SpyCircle, DummyBond> = SortableGraph::new();
+        // {3, 4, 5} triangle (as {6, 8, 10})
+        graph.add_node(SpyCircle::new(Position::new(0.0, 0.0), Length::new(7.0)));
+        graph.add_node(SpyCircle::new(Position::new(6.0, 8.0), Length::new(8.0)));
+
+        find_graph_pair_overlaps(&mut graph, on_overlap);
+
+        // overlap/hypotenuse of 5
+        assert_eq!(Overlap::new(Displacement::new(-3.0, -4.0)), graph.nodes()[0].overlap);
+        assert_eq!(Overlap::new(Displacement::new(3.0, 4.0)), graph.nodes[1].overlap);
+    }
+
+    #[test]
     fn pair_overlap() {
         // {3, 4, 5} triangle (as {6, 8, 10})
         let mut circles = vec![
@@ -223,4 +244,6 @@ mod tests {
             return self.center;
         }
     }
+
+    struct DummyBond {}
 }

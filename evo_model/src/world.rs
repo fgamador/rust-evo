@@ -7,7 +7,7 @@ use physics::overlap::*;
 
 #[derive(Debug)]
 pub struct World {
-    ball_graph: SortableGraph<Ball>,
+    ball_graph: SortableGraph<Ball, Bond>,
     walls: Walls,
 }
 

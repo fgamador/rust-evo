@@ -16,9 +16,9 @@ impl<T> SortableGraph<T> {
         }
     }
 
-    pub fn add_node(&mut self, ball: T) {
+    pub fn add_node(&mut self, node: T) {
         self.node_indexes.push(self.nodes.len());
-        self.nodes.push(ball);
+        self.nodes.push(node);
     }
 
     pub fn add_bond(&mut self, bond: Bond) {

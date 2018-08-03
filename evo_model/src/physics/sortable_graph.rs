@@ -2,7 +2,7 @@
 pub struct SortableGraph<N, E> {
     pub nodes: Vec<N>,
     pub node_indexes: Vec<usize>,
-    bonds: Vec<E>,
+    edges: Vec<E>,
 }
 
 impl<N, E> SortableGraph<N, E> {
@@ -10,7 +10,7 @@ impl<N, E> SortableGraph<N, E> {
         SortableGraph {
             nodes: vec![],
             node_indexes: vec![],
-            bonds: vec![],
+            edges: vec![],
         }
     }
 
@@ -20,7 +20,7 @@ impl<N, E> SortableGraph<N, E> {
     }
 
     pub fn add_bond(&mut self, bond: E) {
-        self.bonds.push(bond);
+        self.edges.push(bond);
     }
 
     pub fn nodes(&self) -> &[N] {

@@ -24,7 +24,7 @@ impl World {
     }
 
     pub fn add_bond(&mut self, bond: Bond) {
-        self.ball_graph.add_bond(bond);
+        self.ball_graph.add_edge(bond);
     }
 
     pub fn balls(&self) -> &[Ball] {

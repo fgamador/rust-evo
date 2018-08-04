@@ -60,9 +60,8 @@ pub fn find_graph_pair_overlaps<'a, C, E>(graph: &'a mut SortableGraph<C, E>, on
 
     for (i, index1) in graph.node_indexes().iter().enumerate() {
         for index2 in &graph.node_indexes()[(i + 1)..] {
-            let circles = &graph.nodes;
-            let circle1 = &circles[*index1];
-            let circle2 = &circles[*index2];
+            let circle1 = graph.node(*index1);
+            let circle2 = graph.node(*index2);
 
             // crucial optimization that works only if we are iterating through circles in min_x order
             assert!(circle2.min_x() >= circle1.min_x());

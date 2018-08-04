@@ -4,6 +4,7 @@ use std::cmp::Ordering;
 pub struct SortableGraph<N, E> {
     nodes: Vec<N>,
     node_indexes: Vec<usize>,
+    node_handles: Vec<NodeHandle>,
     edges: Vec<E>,
 }
 
@@ -12,12 +13,14 @@ impl<N, E> SortableGraph<N, E> {
         SortableGraph {
             nodes: vec![],
             node_indexes: vec![],
+            node_handles: vec![],
             edges: vec![],
         }
     }
 
     pub fn add_node(&mut self, node: N) {
         self.node_indexes.push(self.nodes.len());
+        self.node_handles.push(NodeHandle { index: self.nodes.len() });
         self.nodes.push(node);
     }
 
@@ -51,4 +54,9 @@ impl<N, E> SortableGraph<N, E> {
     pub fn node_mut(&mut self, index: usize) -> &mut N {
         &mut self.nodes[index]
     }
+}
+
+#[derive(Clone, Copy, Debug, PartialEq)]
+pub struct NodeHandle {
+    index: usize
 }

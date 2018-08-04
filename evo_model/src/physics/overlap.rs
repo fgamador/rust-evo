@@ -56,7 +56,7 @@ pub fn find_graph_pair_overlaps<'a, C, E>(graph: &'a mut SortableGraph<C, E>, on
 {
     graph.sort(cmp_by_min_x);
 
-    let mut overlaps: Vec<(usize, Overlap)> = Vec::with_capacity(graph.nodes().len() * 2);
+    let mut overlaps: Vec<(NodeHandle, Overlap)> = Vec::with_capacity(graph.nodes().len() * 2);
 
     for (i, handle1) in graph.node_handles().iter().enumerate() {
         for handle2 in &graph.node_handles()[(i + 1)..] {
@@ -70,14 +70,14 @@ pub fn find_graph_pair_overlaps<'a, C, E>(graph: &'a mut SortableGraph<C, E>, on
             }
 
             if let Some(overlap) = get_overlap(circle1, circle2) {
-                overlaps.push((handle1.index, Overlap::new(overlap)));
-                overlaps.push((handle2.index, Overlap::new(-overlap)));
+                overlaps.push((*handle1, Overlap::new(overlap)));
+                overlaps.push((*handle2, Overlap::new(-overlap)));
             }
         }
     }
 
-    for (index, overlap) in overlaps {
-        on_overlap(graph.node_mut(index), overlap);
+    for (handle, overlap) in overlaps {
+        on_overlap(graph.node2_mut(handle), overlap);
     }
 }
 

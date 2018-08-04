@@ -58,6 +58,5 @@ impl<N, E> SortableGraph<N, E> {
 
 #[derive(Clone, Copy, Debug, PartialEq)]
 pub struct NodeHandle {
-    // TODO remove pub
-    pub index: usize
+    index: usize
 }

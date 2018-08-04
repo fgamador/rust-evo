@@ -97,23 +97,43 @@ fn cmp_by_min_x<C: Circle>(c1: &C, c2: &C) -> Ordering {
 }
 
 fn get_overlap<C: Circle>(circle1: &C, circle2: &C) -> Option<Displacement> {
-    let x_offset = circle1.center().x() - circle2.center().x();
-    let y_offset = circle1.center().y() - circle2.center().y();
-    let just_touching_center_sep = circle1.radius().value() + circle2.radius().value();
-    if x_offset.abs() >= just_touching_center_sep || y_offset.abs() >= just_touching_center_sep {
+    let mut pair = PossibleCirclePairOverlap::new();
+
+    pair.x_offset = circle1.center().x() - circle2.center().x();
+    pair.y_offset = circle1.center().y() - circle2.center().y();
+    pair.just_touching_center_sep = circle1.radius().value() + circle2.radius().value();
+    if pair.x_offset.abs() >= pair.just_touching_center_sep || pair.y_offset.abs() >= pair.just_touching_center_sep {
         return None;
     }
 
-    let center_sep_sqr = sqr(x_offset) + sqr(y_offset);
-    if center_sep_sqr >= sqr(just_touching_center_sep) {
+    pair.center_sep_sqr = sqr(pair.x_offset) + sqr(pair.y_offset);
+    if pair.center_sep_sqr >= sqr(pair.just_touching_center_sep) {
         return None;
     }
 
-    let center_sep = center_sep_sqr.sqrt();
-    let overlap_mag = just_touching_center_sep - center_sep;
-    let x_incursion = (x_offset / center_sep) * overlap_mag;
-    let y_incursion = (y_offset / center_sep) * overlap_mag;
+    let center_sep = pair.center_sep_sqr.sqrt();
+    let overlap_mag = pair.just_touching_center_sep - center_sep;
+    let x_incursion = (pair.x_offset / center_sep) * overlap_mag;
+    let y_incursion = (pair.y_offset / center_sep) * overlap_mag;
     Some(Displacement::new(x_incursion, y_incursion))
+}
+
+struct PossibleCirclePairOverlap {
+    x_offset: f64,
+    y_offset: f64,
+    just_touching_center_sep: f64,
+    center_sep_sqr: f64,
+}
+
+impl PossibleCirclePairOverlap {
+    fn new() -> Self {
+        PossibleCirclePairOverlap {
+            x_offset: 0.0,
+            y_offset: 0.0,
+            just_touching_center_sep: 0.0,
+            center_sep_sqr: 0.0,
+        }
+    }
 }
 
 fn sqr(x: f64) -> f64 {

@@ -47,11 +47,11 @@ impl<N, E> SortableGraph<N, E> {
         &mut self.nodes
     }
 
-    pub fn node2(&self, handle: NodeHandle) -> &N {
+    pub fn node(&self, handle: NodeHandle) -> &N {
         &self.nodes[handle.index]
     }
 
-    pub fn node2_mut(&mut self, handle: NodeHandle) -> &mut N {
+    pub fn node_mut(&mut self, handle: NodeHandle) -> &mut N {
         &mut self.nodes[handle.index]
     }
 }

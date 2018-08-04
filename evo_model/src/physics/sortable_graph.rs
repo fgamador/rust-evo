@@ -23,6 +23,11 @@ impl<N, E> SortableGraph<N, E> {
         self.edges.push(edge);
     }
 
+    // TODO temporary, I hope
+    pub fn node_indexes(&self) -> &[usize] {
+        &self.node_indexes
+    }
+
     pub fn nodes(&self) -> &[N] {
         &self.nodes
     }

@@ -77,8 +77,7 @@ pub fn find_graph_pair_overlaps<'a, C, E>(graph: &'a mut SortableGraph<C, E>, on
     }
 
     for (index, overlap) in overlaps {
-        let circles = &mut graph.nodes;
-        on_overlap(&mut circles[index], overlap);
+        on_overlap(graph.node_mut(index), overlap);
     }
 }
 

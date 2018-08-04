@@ -103,8 +103,7 @@ fn get_overlap<C: Circle>(circle1: &C, circle2: &C) -> Option<Displacement> {
         return None;
     }
 
-    pair.center_sep_sqr = sqr(pair.x_offset) + sqr(pair.y_offset);
-    if pair.center_sep_sqr >= sqr(pair.just_touching_center_sep) {
+    if !pair.circles_overlap() {
         return None;
     }
 
@@ -134,6 +133,11 @@ impl PossibleCirclePairOverlap {
 
     fn bounding_boxes_overlap(&self) -> bool {
         self.x_offset.abs() < self.just_touching_center_sep && self.y_offset.abs() < self.just_touching_center_sep
+    }
+
+    fn circles_overlap(&mut self) -> bool {
+        self.center_sep_sqr = sqr(self.x_offset) + sqr(self.y_offset);
+        self.center_sep_sqr < sqr(self.just_touching_center_sep)
     }
 }
 

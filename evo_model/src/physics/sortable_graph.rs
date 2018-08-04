@@ -30,4 +30,12 @@ impl<N, E> SortableGraph<N, E> {
     pub fn nodes_mut(&mut self) -> &mut [N] {
         &mut self.nodes
     }
+
+    pub fn node(&self, index: usize) -> &N {
+        &self.nodes[index]
+    }
+
+    pub fn node_mut(&mut self, index: usize) -> &mut N {
+        &mut self.nodes[index]
+    }
 }

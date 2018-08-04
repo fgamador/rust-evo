@@ -107,11 +107,7 @@ fn get_overlap<C: Circle>(circle1: &C, circle2: &C) -> Option<Displacement> {
         return None;
     }
 
-    let center_sep = pair.center_sep_sqr.sqrt();
-    let overlap_mag = pair.just_touching_center_sep - center_sep;
-    let x_incursion = (pair.x_offset / center_sep) * overlap_mag;
-    let y_incursion = (pair.y_offset / center_sep) * overlap_mag;
-    Some(Displacement::new(x_incursion, y_incursion))
+    Some(pair.get_incursion())
 }
 
 struct PossibleCirclePairOverlap {
@@ -138,6 +134,14 @@ impl PossibleCirclePairOverlap {
     fn circles_overlap(&mut self) -> bool {
         self.center_sep_sqr = sqr(self.x_offset) + sqr(self.y_offset);
         self.center_sep_sqr < sqr(self.just_touching_center_sep)
+    }
+
+    fn get_incursion(&self) -> Displacement {
+        let center_sep = self.center_sep_sqr.sqrt();
+        let overlap_mag = self.just_touching_center_sep - center_sep;
+        let x_incursion = (self.x_offset / center_sep) * overlap_mag;
+        let y_incursion = (self.y_offset / center_sep) * overlap_mag;
+        Displacement::new(x_incursion, y_incursion)
     }
 }
 

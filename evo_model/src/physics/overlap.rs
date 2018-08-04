@@ -151,19 +151,16 @@ mod tests {
         assert_eq!(Overlap::new(Displacement::new(-0.5, -0.75)), circles[0].overlap);
     }
 
-    // TODO narrow this to testing just the graph iteration part
     #[test]
     fn graph_pair_overlap() {
         let mut graph: SortableGraph<SpyCircle, DummyBond> = SortableGraph::new();
-        // {3, 4, 5} triangle (as {6, 8, 10})
-        graph.add_node(SpyCircle::new(Position::new(0.0, 0.0), Length::new(7.0)));
-        graph.add_node(SpyCircle::new(Position::new(6.0, 8.0), Length::new(8.0)));
+        graph.add_node(SpyCircle::new(Position::new(0.0, 0.0), Length::new(1.0)));
+        graph.add_node(SpyCircle::new(Position::new(1.5, 0.0), Length::new(1.0)));
 
         find_graph_pair_overlaps(&mut graph, on_overlap);
 
-        // overlap/hypotenuse of 5
-        assert_eq!(Overlap::new(Displacement::new(-3.0, -4.0)), graph.nodes()[0].overlap);
-        assert_eq!(Overlap::new(Displacement::new(3.0, 4.0)), graph.nodes[1].overlap);
+        assert!(graph.nodes()[0].overlapped);
+        assert!(graph.nodes()[1].overlapped);
     }
 
     #[test]

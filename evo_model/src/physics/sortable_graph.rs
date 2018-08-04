@@ -31,7 +31,7 @@ impl<N, E> SortableGraph<N, E> {
     pub fn sort(&mut self, cmp: fn(&N, &N) -> Ordering) {
         let nodes = &self.nodes;
         // TODO convert this to insertion sort (and rename fn to insertion_sort)
-        self.node_indexes.sort_unstable_by(|i1, i2| cmp(&nodes[*i1], &nodes[*i2]));
+        self.node_handles.sort_unstable_by(|h1, h2| cmp(&nodes[h1.index], &nodes[h2.index]));
     }
 
     // TODO temporary, I hope
@@ -69,5 +69,6 @@ impl<N, E> SortableGraph<N, E> {
 
 #[derive(Clone, Copy, Debug, PartialEq)]
 pub struct NodeHandle {
-    index: usize
+    // TODO remove pub
+    pub index: usize
 }

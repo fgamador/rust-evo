@@ -38,6 +38,9 @@ impl<N, E> SortableGraph<N, E> {
     pub fn node_indexes(&self) -> &[usize] {
         &self.node_indexes
     }
+    pub fn node_handles(&self) -> &[NodeHandle] {
+        &self.node_handles
+    }
 
     pub fn nodes(&self) -> &[N] {
         &self.nodes

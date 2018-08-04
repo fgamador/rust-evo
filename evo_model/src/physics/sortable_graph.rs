@@ -35,9 +35,6 @@ impl<N, E> SortableGraph<N, E> {
     }
 
     // TODO temporary, I hope
-    pub fn node_indexes(&self) -> &[usize] {
-        &self.node_indexes
-    }
     pub fn node_handles(&self) -> &[NodeHandle] {
         &self.node_handles
     }
@@ -48,14 +45,6 @@ impl<N, E> SortableGraph<N, E> {
 
     pub fn nodes_mut(&mut self) -> &mut [N] {
         &mut self.nodes
-    }
-
-    pub fn node(&self, index: usize) -> &N {
-        &self.nodes[index]
-    }
-
-    pub fn node_mut(&mut self, index: usize) -> &mut N {
-        &mut self.nodes[index]
     }
 
     pub fn node2(&self, handle: NodeHandle) -> &N {

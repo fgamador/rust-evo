@@ -82,13 +82,7 @@ pub fn find_graph_pair_overlaps<'a, C, E>(graph: &'a mut SortableGraph<C, E>, on
 }
 
 fn sort_by_min_x<C: Circle, E>(graph: &mut SortableGraph<C, E>) {
-    sort(graph, cmp_by_min_x);
-}
-
-fn sort<N, E>(graph: &mut SortableGraph<N, E>, cmp: fn(&N, &N) -> Ordering) {
-    let nodes = &mut graph.nodes;
-    // TODO convert this to insertion sort
-    graph.node_indexes.sort_unstable_by(|i1, i2| cmp(&nodes[*i1], &nodes[*i2]));
+    graph.sort(cmp_by_min_x);
 }
 
 fn cmp_by_min_x<C: Circle>(c1: &C, c2: &C) -> Ordering {

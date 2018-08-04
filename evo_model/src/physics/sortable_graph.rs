@@ -1,3 +1,5 @@
+use std::cmp::Ordering;
+
 #[derive(Debug)]
 pub struct SortableGraph<N, E> {
     pub nodes: Vec<N>,
@@ -21,6 +23,12 @@ impl<N, E> SortableGraph<N, E> {
 
     pub fn add_edge(&mut self, edge: E) {
         self.edges.push(edge);
+    }
+
+    pub fn sort(&mut self, cmp: fn(&N, &N) -> Ordering) {
+        let nodes = &mut self.nodes;
+        // TODO convert this to insertion sort
+        self.node_indexes.sort_unstable_by(|i1, i2| cmp(&nodes[*i1], &nodes[*i2]));
     }
 
     // TODO temporary, I hope

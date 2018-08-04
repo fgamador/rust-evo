@@ -152,18 +152,6 @@ mod tests {
     }
 
     #[test]
-    fn graph_pair_overlap() {
-        let mut graph: SortableGraph<SpyCircle, DummyBond> = SortableGraph::new();
-        graph.add_node(SpyCircle::new(Position::new(0.0, 0.0), Length::new(1.0)));
-        graph.add_node(SpyCircle::new(Position::new(1.5, 0.0), Length::new(1.0)));
-
-        find_graph_pair_overlaps(&mut graph, on_overlap);
-
-        assert!(graph.nodes()[0].overlapped);
-        assert!(graph.nodes()[1].overlapped);
-    }
-
-    #[test]
     fn pair_overlap() {
         // {3, 4, 5} triangle (as {6, 8, 10})
         let circle1 = SpyCircle::new(Position::new(0.0, 0.0), Length::new(7.0));
@@ -203,6 +191,18 @@ mod tests {
         assert!(circles[0].overlapped);
         assert!(circles[1].overlapped);
         assert!(circles[2].overlapped);
+    }
+
+    #[test]
+    fn graph_pair_overlap() {
+        let mut graph: SortableGraph<SpyCircle, DummyBond> = SortableGraph::new();
+        graph.add_node(SpyCircle::new(Position::new(0.0, 0.0), Length::new(1.0)));
+        graph.add_node(SpyCircle::new(Position::new(1.5, 0.0), Length::new(1.0)));
+
+        find_graph_pair_overlaps(&mut graph, on_overlap);
+
+        assert!(graph.nodes()[0].overlapped);
+        assert!(graph.nodes()[1].overlapped);
     }
 
     #[test]

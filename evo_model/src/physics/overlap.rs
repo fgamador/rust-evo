@@ -98,16 +98,11 @@ fn cmp_by_min_x<C: Circle>(c1: &C, c2: &C) -> Ordering {
 
 fn get_overlap<C: Circle>(circle1: &C, circle2: &C) -> Option<Displacement> {
     let mut pair = PossibleCirclePairOverlap::new(circle1, circle2);
-
-    if !pair.bounding_boxes_overlap() {
-        return None;
+    if pair.bounding_boxes_overlap() && pair.circles_overlap() {
+        Some(pair.get_incursion())
+    } else {
+        None
     }
-
-    if !pair.circles_overlap() {
-        return None;
-    }
-
-    Some(pair.get_incursion())
 }
 
 struct PossibleCirclePairOverlap {

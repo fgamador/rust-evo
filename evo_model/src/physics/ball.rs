@@ -3,12 +3,14 @@ use physics::newtonian::Body;
 use physics::newtonian::Forces;
 use physics::quantities::*;
 use physics::shapes::*;
+use physics::sortable_graph::*;
 use physics::overlap::*;
 use std::ptr;
 
 #[derive(Clone, Debug)]
 pub struct Ball {
     id: BallId,
+    handle: NodeHandle,
     radius: Length,
     state: newtonian::State,
     environment: BallEnvironment,
@@ -19,6 +21,7 @@ impl Ball {
     pub fn new(radius: Length, mass: Mass, position: Position, velocity: Velocity) -> Ball {
         Ball {
             id: BallId::new(0),
+            handle: NodeHandle::unset(),
             radius,
             state: newtonian::State::new(mass, position, velocity),
             environment: BallEnvironment::new(),
@@ -93,6 +96,16 @@ impl newtonian::Body for Ball {
 
     fn kick(&mut self, impulse: Impulse) {
         self.state.kick(impulse);
+    }
+}
+
+impl GraphNode for Ball {
+    fn handle(&self) -> NodeHandle {
+        self.handle
+    }
+
+    fn handle_mut(&mut self) -> &mut NodeHandle {
+        &mut self.handle
     }
 }
 

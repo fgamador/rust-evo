@@ -1,4 +1,5 @@
 use std::cmp::Ordering;
+use std::usize;
 
 #[derive(Debug)]
 pub struct SortableGraph<N, E> {
@@ -53,7 +54,19 @@ impl<N, E> SortableGraph<N, E> {
     }
 }
 
+pub trait GraphNode {
+    fn handle(&self) -> NodeHandle;
+
+    fn handle_mut(&mut self) -> &mut NodeHandle;
+}
+
 #[derive(Clone, Copy, Debug, PartialEq)]
 pub struct NodeHandle {
     index: usize
+}
+
+impl NodeHandle {
+    pub fn unset() -> Self {
+        NodeHandle { index: usize::MAX }
+    }
 }

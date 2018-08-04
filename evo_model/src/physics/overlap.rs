@@ -58,11 +58,9 @@ pub fn find_graph_pair_overlaps<'a, C, E>(graph: &'a mut SortableGraph<C, E>, on
 
     let mut overlaps: Vec<(usize, Overlap)> = Vec::with_capacity(graph.nodes().len() * 2);
 
-    let circles = &mut graph.nodes;
-    let indexes = &mut graph.node_indexes;
-
-    for (i, index1) in indexes.iter().enumerate() {
-        for index2 in &indexes[(i + 1)..] {
+    for (i, index1) in graph.node_indexes().iter().enumerate() {
+        for index2 in &graph.node_indexes()[(i + 1)..] {
+            let circles = &graph.nodes;
             let circle1 = &circles[*index1];
             let circle2 = &circles[*index2];
 
@@ -80,6 +78,7 @@ pub fn find_graph_pair_overlaps<'a, C, E>(graph: &'a mut SortableGraph<C, E>, on
     }
 
     for (index, overlap) in overlaps {
+        let circles = &mut graph.nodes;
         on_overlap(&mut circles[index], overlap);
     }
 }

@@ -129,14 +129,11 @@ impl<'a, C: Circle> PossibleCirclePairOverlap<'a, C> {
         let mut pair = PossibleCirclePairOverlap {
             circle1,
             circle2,
-            x_offset: 0.0,
-            y_offset: 0.0,
-            just_touching_center_sep: 0.0,
+            x_offset: circle1.center().x() - circle2.center().x(),
+            y_offset: circle1.center().y() - circle2.center().y(),
+            just_touching_center_sep: circle1.radius().value() + circle2.radius().value(),
             center_sep_sqr: 0.0,
         };
-        pair.x_offset = circle1.center().x() - circle2.center().x();
-        pair.y_offset = circle1.center().y() - circle2.center().y();
-        pair.just_touching_center_sep = circle1.radius().value() + circle2.radius().value();
         pair
     }
 }

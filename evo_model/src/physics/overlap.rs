@@ -99,7 +99,7 @@ fn cmp_by_min_x<C: Circle>(c1: &C, c2: &C) -> Ordering {
 fn get_overlap<C: Circle>(circle1: &C, circle2: &C) -> Option<Displacement> {
     let mut pair = PossibleCirclePairOverlap::new(circle1, circle2);
 
-    if pair.x_offset.abs() >= pair.just_touching_center_sep || pair.y_offset.abs() >= pair.just_touching_center_sep {
+    if !pair.bounding_boxes_overlap() {
         return None;
     }
 
@@ -134,6 +134,10 @@ impl<'a, C: Circle> PossibleCirclePairOverlap<'a, C> {
             just_touching_center_sep: circle1.radius().value() + circle2.radius().value(),
             center_sep_sqr: 0.0,
         }
+    }
+
+    fn bounding_boxes_overlap(&self) -> bool {
+        self.x_offset.abs() < self.just_touching_center_sep && self.y_offset.abs() < self.just_touching_center_sep
     }
 }
 

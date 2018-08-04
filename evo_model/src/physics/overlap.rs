@@ -165,15 +165,12 @@ mod tests {
 
     #[test]
     fn pair_x_and_y_overlap_without_circle_overlap() {
-        let mut circles = vec![
-            SpyCircle::new(Position::new(0.0, 0.0), Length::new(1.0)),
-            SpyCircle::new(Position::new(1.5, 1.5), Length::new(1.0))];
+        let circle1 = SpyCircle::new(Position::new(0.0, 0.0), Length::new(1.0));
+        let circle2 = SpyCircle::new(Position::new(1.5, 1.5), Length::new(1.0));
 
-        let mut indexes: Vec<usize> = (0..circles.len()).collect();
-        find_pair_overlaps(&mut circles, &mut indexes, on_overlap);
+        let overlap = get_overlap(&circle1, &circle2);
 
-        assert!(!circles[0].overlapped);
-        assert!(!circles[1].overlapped);
+        assert_eq!(None, overlap);
     }
 
     #[test]

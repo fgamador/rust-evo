@@ -57,6 +57,14 @@ impl<N, E> SortableGraph<N, E> {
     pub fn node_mut(&mut self, index: usize) -> &mut N {
         &mut self.nodes[index]
     }
+
+    pub fn node2(&self, handle: NodeHandle) -> &N {
+        &self.nodes[handle.index]
+    }
+
+    pub fn node2_mut(&mut self, handle: NodeHandle) -> &mut N {
+        &mut self.nodes[handle.index]
+    }
 }
 
 #[derive(Clone, Copy, Debug, PartialEq)]

@@ -18,6 +18,9 @@ impl<N, E> SortableGraph<N, E> {
     }
 
     pub fn add_node(&mut self, node: N) {
+//        node.handle_mut().index = self.nodes.len();
+//        self.node_handles.push(node.handle());
+
         self.node_handles.push(NodeHandle { index: self.nodes.len() });
         self.nodes.push(node);
     }
@@ -69,4 +72,43 @@ impl NodeHandle {
     pub fn unset() -> Self {
         NodeHandle { index: usize::MAX }
     }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    //#[test]
+    fn added_node_has_correct_handle() {
+        let mut graph: SortableGraph<SpyNode, SpyEdge> = SortableGraph::new();
+        graph.add_node(SpyNode::new());
+        let node = &graph.nodes()[0];
+        assert_eq!(node, graph.node(node.handle()));
+    }
+
+    #[derive(Debug, PartialEq)]
+    struct SpyNode {
+        pub handle: NodeHandle
+    }
+
+    impl SpyNode {
+        fn new() -> Self {
+            SpyNode {
+                handle: NodeHandle::unset()
+            }
+        }
+    }
+
+    impl GraphNode for SpyNode {
+        fn handle(&self) -> NodeHandle {
+            self.handle
+        }
+
+        fn handle_mut(&mut self) -> &mut NodeHandle {
+            &mut self.handle
+        }
+    }
+
+    #[derive(Debug, PartialEq)]
+    struct SpyEdge {}
 }

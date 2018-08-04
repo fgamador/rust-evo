@@ -2,8 +2,8 @@ use std::cmp::Ordering;
 
 #[derive(Debug)]
 pub struct SortableGraph<N, E> {
-    pub nodes: Vec<N>,
-    pub node_indexes: Vec<usize>,
+    nodes: Vec<N>,
+    node_indexes: Vec<usize>,
     edges: Vec<E>,
 }
 

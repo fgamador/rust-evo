@@ -54,10 +54,10 @@ impl Walls {
 pub fn find_graph_pair_overlaps<'a, C, E>(graph: &'a mut SortableGraph<C, E>, on_overlap: fn(&mut C, Overlap))
     where C: Circle
 {
+    sort_by_min_x(graph);
+
     let circles = &mut graph.nodes;
     let indexes = &mut graph.node_indexes;
-
-    sort_by_min_x(circles, indexes);
 
     let mut overlaps: Vec<(usize, Overlap)> = Vec::with_capacity(circles.len() * 2);
 
@@ -84,7 +84,9 @@ pub fn find_graph_pair_overlaps<'a, C, E>(graph: &'a mut SortableGraph<C, E>, on
     }
 }
 
-fn sort_by_min_x<C: Circle>(circles: &[C], indexes: &mut [usize]) {
+fn sort_by_min_x<C: Circle, E>(graph: &mut SortableGraph<C, E>) {
+    let circles = &mut graph.nodes;
+    let indexes = &mut graph.node_indexes;
     // TODO convert this to insertion sort
     indexes.sort_unstable_by(|i1, i2| cmp_by_min_x(&circles[*i1], &circles[*i2]));
 }

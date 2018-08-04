@@ -27,7 +27,7 @@ impl<N, E> SortableGraph<N, E> {
 
     pub fn sort(&mut self, cmp: fn(&N, &N) -> Ordering) {
         let nodes = &mut self.nodes;
-        // TODO convert this to insertion sort
+        // TODO convert this to insertion sort (and rename fn to insertion_sort)
         self.node_indexes.sort_unstable_by(|i1, i2| cmp(&nodes[*i1], &nodes[*i2]));
     }
 

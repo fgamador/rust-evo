@@ -198,23 +198,6 @@ mod tests {
     }
 
     #[test]
-    fn pairs_overlap_after_movement() {
-        let mut circles = vec![
-            SpyCircle::new(Position::new(0.0, 0.0), Length::new(1.0)),
-            SpyCircle::new(Position::new(3.0, 0.0), Length::new(1.0)),
-            SpyCircle::new(Position::new(6.0, 0.0), Length::new(1.0))];
-
-        circles[2].center = Position::new(1.5, 0.0);
-
-        let mut indexes: Vec<usize> = (0..circles.len()).collect();
-        find_pair_overlaps(&mut circles, &mut indexes, on_overlap);
-
-        assert!(circles[0].overlapped);
-        assert!(circles[1].overlapped);
-        assert!(circles[2].overlapped);
-    }
-
-    #[test]
     fn graph_pair_overlap() {
         let mut graph: SortableGraph<SpyCircle, DummyBond> = SortableGraph::new();
         graph.add_node(SpyCircle::new(Position::new(0.0, 0.0), Length::new(1.0)));
@@ -224,6 +207,22 @@ mod tests {
 
         assert!(graph.nodes()[0].overlapped);
         assert!(graph.nodes()[1].overlapped);
+    }
+
+    #[test]
+    fn graph_pairs_overlap_after_movement() {
+        let mut graph: SortableGraph<SpyCircle, DummyBond> = SortableGraph::new();
+        graph.add_node(SpyCircle::new(Position::new(0.0, 0.0), Length::new(1.0)));
+        graph.add_node(SpyCircle::new(Position::new(3.0, 0.0), Length::new(1.0)));
+        graph.add_node(SpyCircle::new(Position::new(6.0, 0.0), Length::new(1.0)));
+
+        graph.nodes_mut()[2].center = Position::new(1.5, 0.0);
+
+        find_graph_pair_overlaps(&mut graph, on_overlap);
+
+        assert!(graph.nodes()[0].overlapped);
+        assert!(graph.nodes()[1].overlapped);
+        assert!(graph.nodes()[2].overlapped);
     }
 
     #[test]

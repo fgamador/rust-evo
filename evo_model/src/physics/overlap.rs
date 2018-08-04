@@ -85,7 +85,8 @@ fn sort_by_min_x<C: Circle, E>(graph: &mut SortableGraph<C, E>) {
     let circles = &mut graph.nodes;
     let indexes = &mut graph.node_indexes;
     // TODO convert this to insertion sort
-    indexes.sort_unstable_by(|i1, i2| cmp_by_min_x(&circles[*i1], &circles[*i2]));
+    let cmp = cmp_by_min_x;
+    indexes.sort_unstable_by(|i1, i2| cmp(&circles[*i1], &circles[*i2]));
 }
 
 fn cmp_by_min_x<C: Circle>(c1: &C, c2: &C) -> Ordering {

@@ -115,20 +115,16 @@ fn get_overlap<C: Circle>(circle1: &C, circle2: &C) -> Option<Displacement> {
     Some(Displacement::new(x_incursion, y_incursion))
 }
 
-struct PossibleCirclePairOverlap<'a, C: 'a + Circle> {
-    circle1: &'a C,
-    circle2: &'a C,
+struct PossibleCirclePairOverlap {
     x_offset: f64,
     y_offset: f64,
     just_touching_center_sep: f64,
     center_sep_sqr: f64,
 }
 
-impl<'a, C: Circle> PossibleCirclePairOverlap<'a, C> {
-    fn new(circle1: &'a C, circle2: &'a C) -> Self {
+impl PossibleCirclePairOverlap {
+    fn new<C: Circle>(circle1: &C, circle2: &C) -> Self {
         PossibleCirclePairOverlap {
-            circle1,
-            circle2,
             x_offset: circle1.center().x() - circle2.center().x(),
             y_offset: circle1.center().y() - circle2.center().y(),
             just_touching_center_sep: circle1.radius().value() + circle2.radius().value(),

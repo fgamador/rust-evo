@@ -124,7 +124,7 @@ impl PossibleCirclePairOverlap {
 
     fn circles_overlap(&mut self) -> bool {
         self.center_sep_sqr = sqr(self.x_offset) + sqr(self.y_offset);
-        self.center_sep_sqr < sqr(self.just_touching_center_sep)
+        self.center_sep_sqr < sqr(self.just_touching_center_sep) && self.center_sep_sqr != 0.0
     }
 
     fn get_incursion(&self) -> Displacement {
@@ -181,6 +181,17 @@ mod tests {
 
         // overlap/hypotenuse 5 has legs 3 and 4
         assert_eq!(Displacement::new(-3.0, -4.0), overlap);
+    }
+
+    #[test]
+    fn pair_with_matching_centers() {
+        let circle1 = SpyCircle::new(Position::new(0.0, 0.0), Length::new(1.0));
+        let circle2 = SpyCircle::new(Position::new(0.0, 0.0), Length::new(1.0));
+
+        let overlap = get_overlap(&circle1, &circle2);
+
+        // what else could we do?
+        assert_eq!(None, overlap);
     }
 
     #[test]

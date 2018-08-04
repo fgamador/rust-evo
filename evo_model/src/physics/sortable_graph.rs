@@ -3,7 +3,6 @@ use std::cmp::Ordering;
 #[derive(Debug)]
 pub struct SortableGraph<N, E> {
     nodes: Vec<N>,
-    node_indexes: Vec<usize>,
     node_handles: Vec<NodeHandle>,
     edges: Vec<E>,
 }
@@ -12,14 +11,12 @@ impl<N, E> SortableGraph<N, E> {
     pub fn new() -> Self {
         SortableGraph {
             nodes: vec![],
-            node_indexes: vec![],
             node_handles: vec![],
             edges: vec![],
         }
     }
 
     pub fn add_node(&mut self, node: N) {
-        self.node_indexes.push(self.nodes.len());
         self.node_handles.push(NodeHandle { index: self.nodes.len() });
         self.nodes.push(node);
     }

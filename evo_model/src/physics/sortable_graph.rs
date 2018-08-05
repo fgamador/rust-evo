@@ -17,11 +17,9 @@ impl<N: GraphNode, E> SortableGraph<N, E> {
         }
     }
 
-    pub fn add_node(&mut self, node: N) {
-//        node.handle_mut().index = self.nodes.len();
-//        self.node_handles.push(node.handle());
-
-        self.node_handles.push(NodeHandle { index: self.nodes.len() });
+    pub fn add_node(&mut self, mut node: N) {
+        node.handle_mut().index = self.nodes.len();
+        self.node_handles.push(node.handle());
         self.nodes.push(node);
     }
 
@@ -78,7 +76,7 @@ impl NodeHandle {
 mod tests {
     use super::*;
 
-    //#[test]
+    #[test]
     fn added_node_has_correct_handle() {
         let mut graph: SortableGraph<SpyNode, SpyEdge> = SortableGraph::new();
 

@@ -1,14 +1,22 @@
 use physics::ball::*;
+use physics::sortable_graph::*;
 
 #[derive(Clone, Copy, Debug, PartialEq)]
 pub struct Bond {
     ball1_id: BallId,
     ball2_id: BallId,
+    handle1: NodeHandle,
+    handle2: NodeHandle,
 }
 
 impl Bond {
     pub fn new(ball1: &Ball, ball2: &Ball) -> Self {
-        Bond { ball1_id: ball1.id(), ball2_id: ball2.id() }
+        Bond {
+            ball1_id: ball1.id(),
+            ball2_id: ball2.id(),
+            handle1: NodeHandle::unset(),
+            handle2: NodeHandle::unset(),
+        }
     }
 
     pub fn ball1<'a>(&self, balls: &'a [Ball]) -> &'a Ball {
@@ -17,6 +25,24 @@ impl Bond {
 
     pub fn ball2<'a>(&self, balls: &'a [Ball]) -> &'a Ball {
         self.ball2_id.ball(balls)
+    }
+}
+
+impl GraphEdge for Bond {
+    fn handle1(&self) -> NodeHandle {
+        self.handle1
+    }
+
+    fn handle1_mut(&mut self) -> &mut NodeHandle {
+        &mut self.handle1
+    }
+
+    fn handle2(&self) -> NodeHandle {
+        self.handle2
+    }
+
+    fn handle2_mut(&mut self) -> &mut NodeHandle {
+        &mut self.handle2
     }
 }
 

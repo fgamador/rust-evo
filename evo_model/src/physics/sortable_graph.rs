@@ -60,6 +60,16 @@ pub trait GraphNode {
     fn handle_mut(&mut self) -> &mut NodeHandle;
 }
 
+pub trait GraphEdge {
+    fn handle1(&self) -> NodeHandle;
+
+    fn handle1_mut(&mut self) -> &mut NodeHandle;
+
+    fn handle2(&self) -> NodeHandle;
+
+    fn handle2_mut(&mut self) -> &mut NodeHandle;
+}
+
 #[derive(Clone, Copy, Debug, PartialEq)]
 pub struct NodeHandle {
     index: usize

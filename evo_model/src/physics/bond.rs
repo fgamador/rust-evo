@@ -3,8 +3,6 @@ use physics::sortable_graph::*;
 
 #[derive(Clone, Copy, Debug, PartialEq)]
 pub struct Bond {
-    ball1_id: BallId,
-    ball2_id: BallId,
     ball1_handle: NodeHandle,
     ball2_handle: NodeHandle,
 }
@@ -12,19 +10,9 @@ pub struct Bond {
 impl Bond {
     pub fn new(ball1: &Ball, ball2: &Ball) -> Self {
         Bond {
-            ball1_id: ball1.id(),
-            ball2_id: ball2.id(),
             ball1_handle: ball1.handle(),
             ball2_handle: ball2.handle(),
         }
-    }
-
-    pub fn ball1<'a>(&self, balls: &'a [Ball]) -> &'a Ball {
-        self.ball1_id.ball(balls)
-    }
-
-    pub fn ball2<'a>(&self, balls: &'a [Ball]) -> &'a Ball {
-        self.ball2_id.ball(balls)
     }
 }
 

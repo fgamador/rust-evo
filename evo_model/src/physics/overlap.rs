@@ -52,7 +52,7 @@ impl Walls {
 }
 
 pub fn find_graph_pair_overlaps<'a, C, E>(graph: &'a mut SortableGraph<C, E>, on_overlap: fn(&mut C, Overlap))
-    where C: Circle + GraphNode
+    where C: Circle + GraphNode, E: GraphEdge
 {
     graph.sort(cmp_by_min_x);
 

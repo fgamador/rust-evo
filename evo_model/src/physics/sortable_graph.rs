@@ -2,13 +2,13 @@ use std::cmp::Ordering;
 use std::usize;
 
 #[derive(Debug)]
-pub struct SortableGraph<N: GraphNode, E> {
+pub struct SortableGraph<N: GraphNode, E: GraphEdge> {
     nodes: Vec<N>,
     node_handles: Vec<NodeHandle>,
     edges: Vec<E>,
 }
 
-impl<N: GraphNode, E> SortableGraph<N, E> {
+impl<N: GraphNode, E: GraphEdge> SortableGraph<N, E> {
     pub fn new() -> Self {
         SortableGraph {
             nodes: vec![],

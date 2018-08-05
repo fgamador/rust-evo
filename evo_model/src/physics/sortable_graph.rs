@@ -52,6 +52,10 @@ impl<N: GraphNode, E> SortableGraph<N, E> {
     pub fn node_mut(&mut self, handle: NodeHandle) -> &mut N {
         &mut self.nodes[handle.index]
     }
+
+    pub fn edges(&self) -> &[E] {
+        &self.edges
+    }
 }
 
 pub trait GraphNode {
@@ -95,6 +99,23 @@ mod tests {
         assert_eq!(node, graph.node(node.handle()));
     }
 
+    #[test]
+    fn added_edge_has_correct_handles() {
+        let mut graph: SortableGraph<SpyNode, SpyEdge> = SortableGraph::new();
+
+        graph.add_node(SpyNode::new());
+        graph.add_node(SpyNode::new());
+
+        let edge = SpyEdge::new(&graph.nodes()[0], &graph.nodes()[1]);
+        graph.add_edge(edge);
+
+        let node1 = &graph.nodes()[0];
+        let node2 = &graph.nodes()[1];
+        let edge = &graph.edges()[0];
+        assert_eq!(node1, graph.node(edge.handle1()));
+        assert_eq!(node2, graph.node(edge.handle2()));
+    }
+
     #[derive(Debug, PartialEq)]
     struct SpyNode {
         pub handle: NodeHandle
@@ -119,5 +140,35 @@ mod tests {
     }
 
     #[derive(Debug, PartialEq)]
-    struct SpyEdge {}
+    struct SpyEdge {
+        pub handle1: NodeHandle,
+        pub handle2: NodeHandle,
+    }
+
+    impl SpyEdge {
+        pub fn new(node1: &SpyNode, node2: &SpyNode) -> Self {
+            SpyEdge {
+                handle1: node1.handle(),
+                handle2: node2.handle(),
+            }
+        }
+    }
+
+    impl GraphEdge for SpyEdge {
+        fn handle1(&self) -> NodeHandle {
+            self.handle1
+        }
+
+        fn handle1_mut(&mut self) -> &mut NodeHandle {
+            &mut self.handle1
+        }
+
+        fn handle2(&self) -> NodeHandle {
+            self.handle2
+        }
+
+        fn handle2_mut(&mut self) -> &mut NodeHandle {
+            &mut self.handle2
+        }
+    }
 }

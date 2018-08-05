@@ -9,7 +9,6 @@ use std::ptr;
 
 #[derive(Clone, Debug)]
 pub struct Ball {
-    id: BallId,
     handle: NodeHandle,
     radius: Length,
     state: newtonian::State,
@@ -20,21 +19,12 @@ pub struct Ball {
 impl Ball {
     pub fn new(radius: Length, mass: Mass, position: Position, velocity: Velocity) -> Ball {
         Ball {
-            id: BallId::new(0),
             handle: NodeHandle::unset(),
             radius,
             state: newtonian::State::new(mass, position, velocity),
             environment: BallEnvironment::new(),
             forces: Forces::new(0.0, 0.0),
         }
-    }
-
-    pub fn id(&self) -> BallId {
-        self.id
-    }
-
-    pub fn set_id(&mut self, id: BallId) {
-        self.id = id;
     }
 
     pub fn environment(&self) -> &BallEnvironment {
@@ -106,21 +96,6 @@ impl GraphNode for Ball {
 
     fn handle_mut(&mut self) -> &mut NodeHandle {
         &mut self.handle
-    }
-}
-
-#[derive(Clone, Copy, Debug, PartialEq)]
-pub struct BallId {
-    index: usize,
-}
-
-impl BallId {
-    pub fn new(index: usize) -> Self {
-        BallId { index }
-    }
-
-    pub fn ball<'a>(&self, balls: &'a [Ball]) -> &'a Ball {
-        &balls[self.index]
     }
 }
 

@@ -5,8 +5,8 @@ use physics::sortable_graph::*;
 pub struct Bond {
     ball1_id: BallId,
     ball2_id: BallId,
-    handle1: NodeHandle,
-    handle2: NodeHandle,
+    ball1_handle: NodeHandle,
+    ball2_handle: NodeHandle,
 }
 
 impl Bond {
@@ -14,8 +14,8 @@ impl Bond {
         Bond {
             ball1_id: ball1.id(),
             ball2_id: ball2.id(),
-            handle1: NodeHandle::unset(),
-            handle2: NodeHandle::unset(),
+            ball1_handle: ball1.handle(),
+            ball2_handle: ball2.handle(),
         }
     }
 
@@ -30,19 +30,19 @@ impl Bond {
 
 impl GraphEdge for Bond {
     fn handle1(&self) -> NodeHandle {
-        self.handle1
+        self.ball1_handle
     }
 
     fn handle1_mut(&mut self) -> &mut NodeHandle {
-        &mut self.handle1
+        &mut self.ball1_handle
     }
 
     fn handle2(&self) -> NodeHandle {
-        self.handle2
+        self.ball2_handle
     }
 
     fn handle2_mut(&mut self) -> &mut NodeHandle {
-        &mut self.handle2
+        &mut self.ball2_handle
     }
 }
 
@@ -52,18 +52,20 @@ mod tests {
     use physics::quantities::*;
 
     #[test]
-    fn create_bond() {
-        let mut ball1 = Ball::new(Length::new(1.0), Mass::new(1.0),
-                                  Position::new(1.0, 1.0), Velocity::new(1.0, 1.0));
-        ball1.set_id(BallId::new(0));
-        let mut ball2 = Ball::new(Length::new(1.0), Mass::new(1.0),
-                                  Position::new(1.0, 1.0), Velocity::new(1.0, 1.0));
-        ball2.set_id(BallId::new(1));
-        let balls = vec![ball1, ball2];
+    fn new_bond_has_correct_ball_handles() {
+        let mut graph: SortableGraph<Ball, Bond> = SortableGraph::new();
 
-        let bond = Bond::new(&balls[0], &balls[1]);
+        graph.add_node(Ball::new(Length::new(1.0), Mass::new(1.0),
+                                 Position::new(1.0, 1.0), Velocity::new(1.0, 1.0)));
+        graph.add_node(Ball::new(Length::new(1.0), Mass::new(1.0),
+                                 Position::new(1.0, 1.0), Velocity::new(1.0, 1.0)));
 
-        assert_eq!(BallId::new(0), bond.ball1(&balls).id());
-        assert_eq!(BallId::new(1), bond.ball2(&balls).id());
+        let ball1 = &graph.nodes()[0];
+        let ball2 = &graph.nodes()[1];
+
+        let bond = Bond::new(ball1, ball2);
+
+        assert_eq!(ball1, graph.node(bond.handle1()));
+        assert_eq!(ball2, graph.node(bond.handle2()));
     }
 }

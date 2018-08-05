@@ -69,6 +69,8 @@ pub fn find_graph_pair_overlaps<'a, C, E>(graph: &'a mut SortableGraph<C, E>, on
                 break;
             }
 
+            // TODO skip if graph says circles have edge?
+
             if let Some(overlap) = get_overlap(circle1, circle2) {
                 overlaps.push((*handle1, Overlap::new(overlap)));
                 overlaps.push((*handle2, Overlap::new(-overlap)));

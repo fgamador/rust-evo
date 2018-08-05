@@ -238,6 +238,7 @@ mod tests {
 
     #[derive(Clone, Copy, Debug, PartialEq)]
     pub struct SpyCircle {
+        pub handle: NodeHandle,
         pub center: Position,
         pub radius: Length,
         pub overlapped: bool,
@@ -246,7 +247,13 @@ mod tests {
 
     impl SpyCircle {
         pub fn new(center: Position, radius: Length) -> SpyCircle {
-            SpyCircle { center, radius, overlapped: false, overlap: Overlap::new(Displacement::new(0.0, 0.0)) }
+            SpyCircle {
+                handle: NodeHandle::unset(),
+                center,
+                radius,
+                overlapped: false,
+                overlap: Overlap::new(Displacement::new(0.0, 0.0)),
+            }
         }
     }
 
@@ -257,6 +264,16 @@ mod tests {
 
         fn center(&self) -> Position {
             return self.center;
+        }
+    }
+
+    impl GraphNode for SpyCircle {
+        fn handle(&self) -> NodeHandle {
+            self.handle
+        }
+
+        fn handle_mut(&mut self) -> &mut NodeHandle {
+            &mut self.handle
         }
     }
 

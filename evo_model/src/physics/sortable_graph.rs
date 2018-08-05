@@ -81,7 +81,9 @@ mod tests {
     //#[test]
     fn added_node_has_correct_handle() {
         let mut graph: SortableGraph<SpyNode, SpyEdge> = SortableGraph::new();
+
         graph.add_node(SpyNode::new());
+
         let node = &graph.nodes()[0];
         assert_eq!(node, graph.node(node.handle()));
     }

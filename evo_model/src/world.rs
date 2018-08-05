@@ -44,6 +44,10 @@ impl World {
             ball.add_overlap_forces();
         }
 
+        find_bond_stretch_forces(&mut self.ball_graph, |ball, force| {
+            ball.forces_mut().add_force(force);
+        });
+
         let tick_duration = Duration::new(1.0);
         for ball in self.ball_graph.nodes_mut() {
             ball.exert_forces(tick_duration);

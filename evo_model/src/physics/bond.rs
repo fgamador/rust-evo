@@ -1,4 +1,6 @@
 use physics::ball::*;
+use physics::quantities::*;
+use physics::shapes::*;
 use physics::sortable_graph::*;
 
 #[derive(Clone, Copy, Debug, PartialEq)]
@@ -32,6 +34,12 @@ impl GraphEdge for Bond {
     fn handle2_mut(&mut self) -> &mut NodeHandle {
         &mut self.ball2_handle
     }
+}
+
+pub fn find_bond_stretch_forces<'a, C, E>(graph: &'a mut SortableGraph<C, E>, on_stretch: fn(&mut C, Force))
+    where C: Circle + GraphNode, E: GraphEdge
+{
+    // TODO
 }
 
 #[cfg(test)]

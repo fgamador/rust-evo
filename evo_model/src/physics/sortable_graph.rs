@@ -33,7 +33,6 @@ impl<N: GraphNode, E> SortableGraph<N, E> {
         self.node_handles.sort_unstable_by(|h1, h2| cmp(&nodes[h1.index], &nodes[h2.index]));
     }
 
-    // TODO temporary, I hope
     pub fn node_handles(&self) -> &[NodeHandle] {
         &self.node_handles
     }

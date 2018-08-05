@@ -201,7 +201,7 @@ mod tests {
 
     #[test]
     fn graph_pair_overlap() {
-        let mut graph: SortableGraph<SpyCircle, DummyBond> = SortableGraph::new();
+        let mut graph: SortableGraph<SpyCircle, SpyCircleBond> = SortableGraph::new();
         graph.add_node(SpyCircle::new(Position::new(0.0, 0.0), Length::new(1.0)));
         graph.add_node(SpyCircle::new(Position::new(1.5, 0.0), Length::new(1.0)));
 
@@ -213,7 +213,7 @@ mod tests {
 
     #[test]
     fn graph_pairs_overlap_after_movement() {
-        let mut graph: SortableGraph<SpyCircle, DummyBond> = SortableGraph::new();
+        let mut graph: SortableGraph<SpyCircle, SpyCircleBond> = SortableGraph::new();
         graph.add_node(SpyCircle::new(Position::new(0.0, 0.0), Length::new(1.0)));
         graph.add_node(SpyCircle::new(Position::new(3.0, 0.0), Length::new(1.0)));
         graph.add_node(SpyCircle::new(Position::new(6.0, 0.0), Length::new(1.0)));
@@ -279,5 +279,36 @@ mod tests {
         }
     }
 
-    struct DummyBond {}
+    #[derive(Debug, PartialEq)]
+    struct SpyCircleBond {
+        pub handle1: NodeHandle,
+        pub handle2: NodeHandle,
+    }
+
+    impl SpyCircleBond {
+        pub fn new(node1: &SpyCircle, node2: &SpyCircle) -> Self {
+            SpyCircleBond {
+                handle1: node1.handle(),
+                handle2: node2.handle(),
+            }
+        }
+    }
+
+    impl GraphEdge for SpyCircleBond {
+        fn handle1(&self) -> NodeHandle {
+            self.handle1
+        }
+
+        fn handle1_mut(&mut self) -> &mut NodeHandle {
+            &mut self.handle1
+        }
+
+        fn handle2(&self) -> NodeHandle {
+            self.handle2
+        }
+
+        fn handle2_mut(&mut self) -> &mut NodeHandle {
+            &mut self.handle2
+        }
+    }
 }

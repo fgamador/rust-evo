@@ -211,6 +211,21 @@ mod tests {
         assert!(graph.nodes()[1].overlapped);
     }
 
+    // TODO #[test]
+    fn bonded_graph_pair_overlap_is_ignored() {
+        let mut graph: SortableGraph<SpyCircle, SimpleGraphEdge> = SortableGraph::new();
+        graph.add_node(SpyCircle::new(Position::new(0.0, 0.0), Length::new(1.0)));
+        graph.add_node(SpyCircle::new(Position::new(1.5, 0.0), Length::new(1.0)));
+
+        let edge = SimpleGraphEdge::new(&graph.nodes()[0], &graph.nodes()[1]);
+        graph.add_edge(edge);
+
+        find_graph_pair_overlaps(&mut graph, on_overlap);
+
+        assert!(!graph.nodes()[0].overlapped);
+        assert!(!graph.nodes()[1].overlapped);
+    }
+
     #[test]
     fn graph_pairs_overlap_after_movement() {
         let mut graph: SortableGraph<SpyCircle, SimpleGraphEdge> = SortableGraph::new();

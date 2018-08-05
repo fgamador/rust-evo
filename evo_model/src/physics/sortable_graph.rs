@@ -85,13 +85,46 @@ impl NodeHandle {
     }
 }
 
+#[derive(Debug, PartialEq)]
+pub struct SimpleGraphEdge {
+    pub handle1: NodeHandle,
+    pub handle2: NodeHandle,
+}
+
+impl SimpleGraphEdge {
+    pub fn new(node1: &GraphNode, node2: &GraphNode) -> Self {
+        SimpleGraphEdge {
+            handle1: node1.handle(),
+            handle2: node2.handle(),
+        }
+    }
+}
+
+impl GraphEdge for SimpleGraphEdge {
+    fn handle1(&self) -> NodeHandle {
+        self.handle1
+    }
+
+    fn handle1_mut(&mut self) -> &mut NodeHandle {
+        &mut self.handle1
+    }
+
+    fn handle2(&self) -> NodeHandle {
+        self.handle2
+    }
+
+    fn handle2_mut(&mut self) -> &mut NodeHandle {
+        &mut self.handle2
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
 
     #[test]
     fn added_node_has_correct_handle() {
-        let mut graph: SortableGraph<SpyNode, SpyEdge> = SortableGraph::new();
+        let mut graph: SortableGraph<SpyNode, SimpleGraphEdge> = SortableGraph::new();
 
         graph.add_node(SpyNode::new());
 
@@ -101,12 +134,12 @@ mod tests {
 
     #[test]
     fn added_edge_has_correct_handles() {
-        let mut graph: SortableGraph<SpyNode, SpyEdge> = SortableGraph::new();
+        let mut graph: SortableGraph<SpyNode, SimpleGraphEdge> = SortableGraph::new();
 
         graph.add_node(SpyNode::new());
         graph.add_node(SpyNode::new());
 
-        let edge = SpyEdge::new(&graph.nodes()[0], &graph.nodes()[1]);
+        let edge = SimpleGraphEdge::new(&graph.nodes()[0], &graph.nodes()[1]);
         graph.add_edge(edge);
 
         let node1 = &graph.nodes()[0];
@@ -136,39 +169,6 @@ mod tests {
 
         fn handle_mut(&mut self) -> &mut NodeHandle {
             &mut self.handle
-        }
-    }
-
-    #[derive(Debug, PartialEq)]
-    struct SpyEdge {
-        pub handle1: NodeHandle,
-        pub handle2: NodeHandle,
-    }
-
-    impl SpyEdge {
-        pub fn new(node1: &SpyNode, node2: &SpyNode) -> Self {
-            SpyEdge {
-                handle1: node1.handle(),
-                handle2: node2.handle(),
-            }
-        }
-    }
-
-    impl GraphEdge for SpyEdge {
-        fn handle1(&self) -> NodeHandle {
-            self.handle1
-        }
-
-        fn handle1_mut(&mut self) -> &mut NodeHandle {
-            &mut self.handle1
-        }
-
-        fn handle2(&self) -> NodeHandle {
-            self.handle2
-        }
-
-        fn handle2_mut(&mut self) -> &mut NodeHandle {
-            &mut self.handle2
         }
     }
 }

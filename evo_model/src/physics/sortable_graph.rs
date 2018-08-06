@@ -130,8 +130,16 @@ mod tests {
 
         let handle = graph.add_node(SpyNode::new());
 
-        let node = graph.node(handle);
-        assert_eq!(node, graph.node(node.handle()));
+        assert_eq!(handle, graph.nodes()[0].handle());
+    }
+
+    #[test]
+    fn can_fetch_node_by_handle() {
+        let mut graph: SortableGraph<SpyNode, SimpleGraphEdge> = SortableGraph::new();
+
+        let handle = graph.add_node(SpyNode::new());
+
+        assert_eq!(graph.nodes()[0], *graph.node(handle));
     }
 
     #[test]

@@ -36,7 +36,7 @@ impl GraphEdge for Bond {
     }
 }
 
-pub fn calc_bond_forces<'a, C, E>(graph: &'a mut SortableGraph<C, E>, on_stretch: fn(&mut C, Force))
+pub fn calc_bond_forces<'a, C, E>(graph: &'a mut SortableGraph<C, E>, on_force: fn(&mut C, Force))
     where C: Circle + GraphNode, E: GraphEdge
 {
     // TODO

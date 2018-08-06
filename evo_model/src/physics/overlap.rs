@@ -123,6 +123,7 @@ impl PossibleCirclePairOverlap {
     }
 
     fn get_incursion(&self) -> Displacement {
+        assert!(self.center_sep_sqr > 0.0);
         let center_sep = self.center_sep_sqr.sqrt();
         let overlap_mag = self.just_touching_center_sep - center_sep;
         let x_incursion = (self.x_offset / center_sep) * overlap_mag;

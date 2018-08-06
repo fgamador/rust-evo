@@ -5,34 +5,34 @@ use physics::sortable_graph::*;
 
 #[derive(Clone, Copy, Debug, PartialEq)]
 pub struct Bond {
-    ball1_handle: NodeHandle,
-    ball2_handle: NodeHandle,
+    handle1: NodeHandle,
+    handle2: NodeHandle,
 }
 
 impl Bond {
-    pub fn new(ball1: &Ball, ball2: &Ball) -> Self {
+    pub fn new(ball1: &GraphNode, ball2: &GraphNode) -> Self {
         Bond {
-            ball1_handle: ball1.handle(),
-            ball2_handle: ball2.handle(),
+            handle1: ball1.handle(),
+            handle2: ball2.handle(),
         }
     }
 }
 
 impl GraphEdge for Bond {
     fn handle1(&self) -> NodeHandle {
-        self.ball1_handle
+        self.handle1
     }
 
     fn handle1_mut(&mut self) -> &mut NodeHandle {
-        &mut self.ball1_handle
+        &mut self.handle1
     }
 
     fn handle2(&self) -> NodeHandle {
-        self.ball2_handle
+        self.handle2
     }
 
     fn handle2_mut(&mut self) -> &mut NodeHandle {
-        &mut self.ball2_handle
+        &mut self.handle2
     }
 }
 

@@ -51,16 +51,16 @@ mod tests {
     fn new_bond_has_correct_ball_handles() {
         let mut graph: SortableGraph<Ball, Bond> = SortableGraph::new();
 
-        graph.add_node(Ball::new(Length::new(1.0), Mass::new(1.0),
-                                 Position::new(1.0, 1.0), Velocity::new(1.0, 1.0)));
-        graph.add_node(Ball::new(Length::new(1.0), Mass::new(1.0),
-                                 Position::new(1.0, 1.0), Velocity::new(1.0, 1.0)));
+        let h1 = graph.add_node(Ball::new(Length::new(1.0), Mass::new(1.0),
+                                          Position::new(1.0, 1.0), Velocity::new(1.0, 1.0)));
+        let h2 = graph.add_node(Ball::new(Length::new(1.0), Mass::new(1.0),
+                                          Position::new(1.0, 1.0), Velocity::new(1.0, 1.0)));
+
+        let bond = Bond::new(graph.node(h1), graph.node(h2));
+        graph.add_edge(bond);
 
         let ball1 = &graph.nodes()[0];
         let ball2 = &graph.nodes()[1];
-
-        let bond = Bond::new(ball1, ball2);
-
         assert_eq!(ball1, graph.node(bond.handle1()));
         assert_eq!(ball2, graph.node(bond.handle2()));
     }

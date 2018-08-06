@@ -17,10 +17,12 @@ impl<N: GraphNode, E: GraphEdge> SortableGraph<N, E> {
         }
     }
 
-    pub fn add_node(&mut self, mut node: N) {
+    pub fn add_node(&mut self, mut node: N) -> NodeHandle {
         node.handle_mut().index = self.nodes.len();
-        self.node_handles.push(node.handle());
+        let handle = node.handle();
+        self.node_handles.push(handle);
         self.nodes.push(node);
+        handle
     }
 
     pub fn add_edge(&mut self, edge: E) {
@@ -126,9 +128,9 @@ mod tests {
     fn added_node_has_correct_handle() {
         let mut graph: SortableGraph<SpyNode, SimpleGraphEdge> = SortableGraph::new();
 
-        graph.add_node(SpyNode::new());
+        let handle = graph.add_node(SpyNode::new());
 
-        let node = &graph.nodes()[0];
+        let node = graph.node(handle);
         assert_eq!(node, graph.node(node.handle()));
     }
 

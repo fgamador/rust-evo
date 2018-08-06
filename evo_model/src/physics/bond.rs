@@ -48,6 +48,19 @@ mod tests {
     use physics::quantities::*;
 
     #[test]
+    fn bond_calculates_strain() {
+        let ball1 = Ball::new(Length::new(1.0), Mass::new(1.0),
+                              Position::new(0.0, 0.0), Velocity::new(0.0, 0.0));
+        let ball2 = Ball::new(Length::new(1.0), Mass::new(1.0),
+                              Position::new(1.0, 1.0), Velocity::new(1.0, 1.0));
+
+        let bond = Bond::new(&ball1, &ball2);
+
+        // TODO
+    }
+
+    // TODO redundant
+    #[test]
     fn new_bond_has_correct_ball_handles() {
         let mut graph: SortableGraph<Ball, Bond> = SortableGraph::new();
 

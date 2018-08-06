@@ -256,9 +256,9 @@ mod tests {
 
     #[derive(Clone, Copy, Debug, PartialEq)]
     pub struct SpyCircle {
-        pub handle: NodeHandle,
-        pub center: Position,
-        pub radius: Length,
+        handle: NodeHandle,
+        center: Position,
+        radius: Length,
         pub overlapped: bool,
         pub overlap: Overlap,
     }

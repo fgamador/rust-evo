@@ -44,7 +44,7 @@ impl World {
             ball.add_overlap_forces();
         }
 
-        find_bond_stretch_forces(&mut self.ball_graph, |ball, force| {
+        calc_bond_forces(&mut self.ball_graph, |ball, force| {
             ball.forces_mut().add_force(force);
         });
 

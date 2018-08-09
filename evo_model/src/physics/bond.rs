@@ -10,10 +10,10 @@ pub struct Bond {
 }
 
 impl Bond {
-    pub fn new(ball1: &GraphNode, ball2: &GraphNode) -> Self {
+    pub fn new(circle1: &GraphNode, circle2: &GraphNode) -> Self {
         Bond {
-            handle1: ball1.handle(),
-            handle2: ball2.handle(),
+            handle1: circle1.handle(),
+            handle2: circle2.handle(),
         }
     }
 
@@ -65,12 +65,12 @@ pub fn calc_bond_forces<'a, C>(graph: &'a mut SortableGraph<C, Bond>, on_force: 
     let mut strains: Vec<(NodeHandle, BondStrain)> = Vec::with_capacity(graph.edges().len() * 2);
 
     for bond in graph.edges() {
-        let ball1 = graph.node(bond.handle1());
-        let ball2 = graph.node(bond.handle2());
+        let circle1 = graph.node(bond.handle1());
+        let circle2 = graph.node(bond.handle2());
 
-        let strain = calc_bond_strain(ball1, ball2);
-        strains.push((ball1.handle(), BondStrain::new(strain)));
-        strains.push((ball2.handle(), BondStrain::new(-strain)));
+        let strain = calc_bond_strain(circle1, circle2);
+        strains.push((circle1.handle(), BondStrain::new(strain)));
+        strains.push((circle2.handle(), BondStrain::new(-strain)));
     }
 
     for (handle, strain) in strains {
@@ -78,7 +78,7 @@ pub fn calc_bond_forces<'a, C>(graph: &'a mut SortableGraph<C, Bond>, on_force: 
     }
 }
 
-fn calc_bond_strain<C>(ball1: &C, ball2: &C) -> Displacement
+fn calc_bond_strain<C>(circle1: &C, circle2: &C) -> Displacement
     where C: Circle
 {
     // TODO hard-coded
@@ -95,9 +95,8 @@ mod tests {
         // {3, 4, 5} triangle (as {6, 8, 10})
         let circle1 = SpyCircle::new(Position::new(0.0, 0.0), Length::new(2.0));
         let circle2 = SpyCircle::new(Position::new(6.0, 8.0), Length::new(3.0));
-        let bond = Bond::new(&circle1, &circle2);
 
-        let strain = bond.calc_strain();
+        let strain = calc_bond_strain(&circle1, &circle2);
 
         // overlap/hypotenuse 5 has legs 3 and 4
         assert_eq!(Displacement::new(3.0, 4.0), strain);
@@ -116,10 +115,10 @@ mod tests {
 //        let bond = Bond::new(graph.node(h1), graph.node(h2));
 //        graph.add_edge(bond);
 //
-//        let ball1 = &graph.nodes()[0];
-//        let ball2 = &graph.nodes()[1];
-//        assert_eq!(ball1, graph.node(bond.handle1()));
-//        assert_eq!(ball2, graph.node(bond.handle2()));
+//        let circle1 = &graph.nodes()[0];
+//        let circle2 = &graph.nodes()[1];
+//        assert_eq!(circle1, graph.node(bond.handle1()));
+//        assert_eq!(circle2, graph.node(bond.handle2()));
 //    }
 
     #[derive(Clone, Copy, Debug, PartialEq)]

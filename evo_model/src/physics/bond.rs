@@ -84,8 +84,7 @@ fn calc_bond_strain<C>(circle1: &C, circle2: &C) -> Displacement
     let x_offset = circle1.center().x() - circle2.center().x();
     let y_offset = circle1.center().y() - circle2.center().y();
     let just_touching_center_sep = circle1.radius().value() + circle2.radius().value();
-    let center_sep_sqr = sqr(x_offset) + sqr(y_offset);
-    let center_sep = center_sep_sqr.sqrt();
+    let center_sep = (sqr(x_offset) + sqr(y_offset)).sqrt();
     let overlap_mag = just_touching_center_sep - center_sep;
     let x_strain = (x_offset / center_sep) * overlap_mag;
     let y_strain = (y_offset / center_sep) * overlap_mag;

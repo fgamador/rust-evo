@@ -70,8 +70,8 @@ pub fn calc_bond_forces<'a, C>(graph: &'a mut SortableGraph<C, Bond>, on_force: 
 
         // TODO hard-coded
         let strain = Displacement::new(0.1, 0.1);
-        strains.push((bond.handle1(), BondStrain::new(strain)));
-        strains.push((bond.handle2(), BondStrain::new(-strain)));
+        strains.push((ball1.handle(), BondStrain::new(strain)));
+        strains.push((ball2.handle(), BondStrain::new(-strain)));
     }
 
     for (handle, strain) in strains {

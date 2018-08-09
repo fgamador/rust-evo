@@ -58,6 +58,10 @@ impl<N: GraphNode, E: GraphEdge> SortableGraph<N, E> {
     pub fn edges(&self) -> &[E] {
         &self.edges
     }
+
+    pub fn have_edge(&self, node1: &N, node2: &N) -> bool {
+        false
+    }
 }
 
 pub trait GraphNode {

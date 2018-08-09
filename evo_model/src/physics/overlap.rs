@@ -69,7 +69,9 @@ pub fn find_graph_pair_overlaps<'a, C, E>(graph: &'a mut SortableGraph<C, E>, on
                 break;
             }
 
-            // TODO skip if graph says circles have bond?
+            if graph.have_edge(circle1, circle2) {
+                continue;
+            }
 
             if let Some(overlap) = calc_overlap(circle1, circle2) {
                 overlaps.push((*handle1, Overlap::new(overlap)));
@@ -213,7 +215,7 @@ mod tests {
         assert!(graph.nodes()[1].overlapped);
     }
 
-    // TODO #[test]
+    //#[test]
     fn bonded_graph_pair_overlap_is_ignored() {
         let mut graph: SortableGraph<SpyCircle, SimpleGraphEdge> = SortableGraph::new();
         graph.add_node(SpyCircle::new(Position::new(0.0, 0.0), Length::new(1.0)));

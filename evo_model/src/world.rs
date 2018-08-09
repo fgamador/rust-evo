@@ -127,8 +127,8 @@ mod tests {
         assert!(ball2.velocity().y() > -1.0);
     }
 
-    //#[test]
-    fn _bond_pulls_balls_together() {
+    #[test]
+    fn bond_pulls_balls_together() {
         let mut world = World::new(Position::new(-10.0, -10.0), Position::new(10.0, 10.0));
         world.add_ball(Ball::new(Length::new(1.0), Mass::new(1.0),
                                  Position::new(0.0, 0.0), Velocity::new(-1.0, -1.0)));

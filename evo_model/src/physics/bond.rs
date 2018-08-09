@@ -1,4 +1,4 @@
-use physics::ball::*;
+//use physics::ball::*;
 use physics::quantities::*;
 use physics::shapes::*;
 use physics::sortable_graph::*;
@@ -40,10 +40,43 @@ impl GraphEdge for Bond {
     }
 }
 
-pub fn calc_bond_forces<'a, C, E>(graph: &'a mut SortableGraph<C, E>, on_force: fn(&mut C, Force))
-    where C: Circle + GraphNode, E: GraphEdge
+#[derive(Clone, Copy, Debug, PartialEq)]
+pub struct BondStrain
 {
-    // TODO
+    strain: Displacement,
+}
+
+impl BondStrain
+{
+    pub fn new(strain: Displacement) -> Self {
+        BondStrain { strain }
+    }
+
+    // TODO move this to a Spring class
+    pub fn to_force(&self) -> Force {
+        const SPRING_CONSTANT: f64 = 1.0;
+        Force::new(self.strain.x() * SPRING_CONSTANT, self.strain.y() * SPRING_CONSTANT)
+    }
+}
+
+pub fn calc_bond_forces<'a, C>(graph: &'a mut SortableGraph<C, Bond>, on_force: fn(&mut C, Force))
+    where C: Circle + GraphNode
+{
+    let mut strains: Vec<(NodeHandle, BondStrain)> = Vec::with_capacity(graph.edges().len() * 2);
+
+    for bond in graph.edges() {
+        let ball1 = graph.node(bond.handle1());
+        let ball2 = graph.node(bond.handle2());
+
+        // TODO hard-coded
+        let strain = Displacement::new(0.1, 0.1);
+        strains.push((bond.handle1(), BondStrain::new(strain)));
+        strains.push((bond.handle2(), BondStrain::new(-strain)));
+    }
+
+    for (handle, strain) in strains {
+        on_force(graph.node_mut(handle), strain.to_force());
+    }
 }
 
 #[cfg(test)]

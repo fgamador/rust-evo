@@ -69,7 +69,7 @@ pub fn find_graph_pair_overlaps<'a, C, E>(graph: &'a mut SortableGraph<C, E>, on
                 break;
             }
 
-            // TODO skip if graph says circles have edge?
+            // TODO skip if graph says circles have bond?
 
             if let Some(overlap) = get_overlap(circle1, circle2) {
                 overlaps.push((*handle1, Overlap::new(overlap)));

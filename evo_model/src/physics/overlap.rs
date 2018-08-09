@@ -132,6 +132,7 @@ impl PossibleCirclePairOverlap {
     }
 }
 
+// TODO find a better home
 fn sqr(x: f64) -> f64 {
     x * x
 }

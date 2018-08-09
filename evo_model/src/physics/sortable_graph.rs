@@ -60,6 +60,7 @@ impl<N: GraphNode, E: GraphEdge> SortableGraph<N, E> {
     }
 
     pub fn have_edge(&self, node1: &N, node2: &N) -> bool {
+        // TODO
         false
     }
 }
@@ -161,6 +162,22 @@ mod tests {
         let edge = &graph.edges()[0];
         assert_eq!(node1, graph.node(edge.handle1()));
         assert_eq!(node2, graph.node(edge.handle2()));
+    }
+
+    // TODO #[test]
+    fn have_edge() {
+        let mut graph: SortableGraph<SpyNode, SimpleGraphEdge> = SortableGraph::new();
+
+        graph.add_node(SpyNode::new());
+        graph.add_node(SpyNode::new());
+        graph.add_node(SpyNode::new());
+
+        let edge = SimpleGraphEdge::new(&graph.nodes()[0], &graph.nodes()[1]);
+        graph.add_edge(edge);
+
+        assert!(graph.have_edge(&graph.nodes()[0], &graph.nodes()[1]));
+        assert!(graph.have_edge(&graph.nodes()[1], &graph.nodes()[0]));
+        assert!(!graph.have_edge(&graph.nodes()[0], &graph.nodes()[2]));
     }
 
     #[derive(Debug, PartialEq)]

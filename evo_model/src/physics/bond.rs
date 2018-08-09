@@ -103,7 +103,6 @@ fn sqr(x: f64) -> f64 {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use physics::quantities::*;
 
     #[test]
     fn bond_calculates_strain() {

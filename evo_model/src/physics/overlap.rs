@@ -71,7 +71,7 @@ pub fn find_graph_pair_overlaps<'a, C, E>(graph: &'a mut SortableGraph<C, E>, on
 
             // TODO skip if graph says circles have bond?
 
-            if let Some(overlap) = get_overlap(circle1, circle2) {
+            if let Some(overlap) = calc_overlap(circle1, circle2) {
                 overlaps.push((*handle1, Overlap::new(overlap)));
                 overlaps.push((*handle2, Overlap::new(-overlap)));
             }
@@ -87,7 +87,7 @@ fn cmp_by_min_x<C: Circle>(c1: &C, c2: &C) -> Ordering {
     c1.min_x().partial_cmp(&c2.min_x()).unwrap()
 }
 
-fn get_overlap<C: Circle>(circle1: &C, circle2: &C) -> Option<Displacement> {
+fn calc_overlap<C: Circle>(circle1: &C, circle2: &C) -> Option<Displacement> {
     let mut pair = PossibleCirclePairOverlap::new(circle1, circle2);
     if pair.bounding_boxes_overlap() && pair.circles_overlap() {
         Some(pair.get_incursion())
@@ -174,7 +174,7 @@ mod tests {
         let circle1 = SpyCircle::new(Position::new(0.0, 0.0), Length::new(7.0));
         let circle2 = SpyCircle::new(Position::new(6.0, 8.0), Length::new(8.0));
 
-        let overlap = get_overlap(&circle1, &circle2).unwrap();
+        let overlap = calc_overlap(&circle1, &circle2).unwrap();
 
         // overlap/hypotenuse 5 has legs 3 and 4
         assert_eq!(Displacement::new(-3.0, -4.0), overlap);
@@ -185,7 +185,7 @@ mod tests {
         let circle1 = SpyCircle::new(Position::new(0.0, 0.0), Length::new(1.0));
         let circle2 = SpyCircle::new(Position::new(0.0, 0.0), Length::new(1.0));
 
-        let overlap = get_overlap(&circle1, &circle2);
+        let overlap = calc_overlap(&circle1, &circle2);
 
         // what else could we do?
         assert_eq!(None, overlap);
@@ -196,7 +196,7 @@ mod tests {
         let circle1 = SpyCircle::new(Position::new(0.0, 0.0), Length::new(1.0));
         let circle2 = SpyCircle::new(Position::new(1.5, 1.5), Length::new(1.0));
 
-        let overlap = get_overlap(&circle1, &circle2);
+        let overlap = calc_overlap(&circle1, &circle2);
 
         assert_eq!(None, overlap);
     }

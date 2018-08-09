@@ -113,7 +113,7 @@ mod tests {
 
         let strain = calc_bond_strain(&circle1, &circle2);
 
-        // overlap/hypotenuse 5 has legs 3 and 4
+        // strain/hypotenuse 5 has legs 3 and 4
         assert_eq!(Displacement::new(3.0, 4.0), strain);
     }
 

@@ -18,7 +18,7 @@ impl<N: GraphNode, E: GraphEdge> SortableGraph<N, E> {
     }
 
     pub fn add_node(&mut self, mut node: N) -> NodeHandle {
-        node.handle_mut().index = self.unsorted_nodes.len();
+        node.graph_node_data_mut().handle.index = self.unsorted_nodes.len();
         let handle = node.handle();
         self.sortable_node_handles.push(handle);
         self.unsorted_nodes.push(node);
@@ -68,9 +68,6 @@ impl<N: GraphNode, E: GraphEdge> SortableGraph<N, E> {
 pub trait GraphNode {
     fn handle(&self) -> NodeHandle;
 
-    // TODO remove
-    fn handle_mut(&mut self) -> &mut NodeHandle;
-
     fn graph_node_data(&self) -> &GraphNodeData;
 
     fn graph_node_data_mut(&mut self) -> &mut GraphNodeData;
@@ -108,6 +105,10 @@ impl GraphNodeData {
         GraphNodeData {
             handle: NodeHandle::unset()
         }
+    }
+
+    pub fn handle(&self) -> NodeHandle {
+        self.handle
     }
 }
 
@@ -201,14 +202,12 @@ mod tests {
 
     #[derive(Debug, PartialEq)]
     struct SpyNode {
-        pub handle: NodeHandle,
         pub graph_node_data: GraphNodeData,
     }
 
     impl SpyNode {
         fn new() -> Self {
             SpyNode {
-                handle: NodeHandle::unset(),
                 graph_node_data: GraphNodeData::new(),
             }
         }
@@ -216,11 +215,7 @@ mod tests {
 
     impl GraphNode for SpyNode {
         fn handle(&self) -> NodeHandle {
-            self.handle
-        }
-
-        fn handle_mut(&mut self) -> &mut NodeHandle {
-            &mut self.handle
+            self.graph_node_data.handle()
         }
 
         fn graph_node_data(&self) -> &GraphNodeData {

@@ -129,8 +129,6 @@ mod tests {
 
     #[derive(Clone, Copy, Debug, PartialEq)]
     pub struct SpyCircle {
-        // TODO remove
-        handle: NodeHandle,
         graph_node_data: GraphNodeData,
         center: Position,
         radius: Length,
@@ -140,7 +138,6 @@ mod tests {
     impl SpyCircle {
         pub fn new(center: Position, radius: Length) -> SpyCircle {
             SpyCircle {
-                handle: NodeHandle::unset(),
                 graph_node_data: GraphNodeData::new(),
                 center,
                 radius,
@@ -161,11 +158,7 @@ mod tests {
 
     impl GraphNode for SpyCircle {
         fn handle(&self) -> NodeHandle {
-            self.handle
-        }
-
-        fn handle_mut(&mut self) -> &mut NodeHandle {
-            &mut self.handle
+            self.graph_node_data.handle()
         }
 
         fn graph_node_data(&self) -> &GraphNodeData {

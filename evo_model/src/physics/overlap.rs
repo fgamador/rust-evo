@@ -259,7 +259,9 @@ mod tests {
 
     #[derive(Clone, Copy, Debug, PartialEq)]
     pub struct SpyCircle {
+        // TODO remove
         handle: NodeHandle,
+        graph_node_data: GraphNodeData,
         center: Position,
         radius: Length,
         pub overlapped: bool,
@@ -270,6 +272,7 @@ mod tests {
         pub fn new(center: Position, radius: Length) -> SpyCircle {
             SpyCircle {
                 handle: NodeHandle::unset(),
+                graph_node_data: GraphNodeData::new(),
                 center,
                 radius,
                 overlapped: false,
@@ -295,6 +298,14 @@ mod tests {
 
         fn handle_mut(&mut self) -> &mut NodeHandle {
             &mut self.handle
+        }
+
+        fn graph_node_data(&self) -> &GraphNodeData {
+            &self.graph_node_data
+        }
+
+        fn graph_node_data_mut(&mut self) -> &mut GraphNodeData {
+            &mut self.graph_node_data
         }
     }
 }

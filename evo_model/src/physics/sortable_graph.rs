@@ -68,7 +68,12 @@ impl<N: GraphNode, E: GraphEdge> SortableGraph<N, E> {
 pub trait GraphNode {
     fn handle(&self) -> NodeHandle;
 
+    // TODO remove
     fn handle_mut(&mut self) -> &mut NodeHandle;
+
+    fn graph_node_data(&self) -> &GraphNodeData;
+
+    fn graph_node_data_mut(&mut self) -> &mut GraphNodeData;
 }
 
 pub trait GraphEdge {
@@ -89,6 +94,20 @@ pub struct NodeHandle {
 impl NodeHandle {
     pub fn unset() -> Self {
         NodeHandle { index: usize::MAX }
+    }
+}
+
+// TODO Copy?
+#[derive(Clone, Copy, Debug, PartialEq)]
+pub struct GraphNodeData {
+    handle: NodeHandle
+}
+
+impl GraphNodeData {
+    pub fn new() -> Self {
+        GraphNodeData {
+            handle: NodeHandle::unset()
+        }
     }
 }
 
@@ -182,13 +201,15 @@ mod tests {
 
     #[derive(Debug, PartialEq)]
     struct SpyNode {
-        pub handle: NodeHandle
+        pub handle: NodeHandle,
+        pub graph_node_data: GraphNodeData,
     }
 
     impl SpyNode {
         fn new() -> Self {
             SpyNode {
-                handle: NodeHandle::unset()
+                handle: NodeHandle::unset(),
+                graph_node_data: GraphNodeData::new(),
             }
         }
     }
@@ -200,6 +221,14 @@ mod tests {
 
         fn handle_mut(&mut self) -> &mut NodeHandle {
             &mut self.handle
+        }
+
+        fn graph_node_data(&self) -> &GraphNodeData {
+            &self.graph_node_data
+        }
+
+        fn graph_node_data_mut(&mut self) -> &mut GraphNodeData {
+            &mut self.graph_node_data
         }
     }
 }

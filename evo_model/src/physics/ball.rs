@@ -9,7 +9,8 @@ use std::ptr;
 
 #[derive(Clone, Debug)]
 pub struct Ball {
-    handle: NodeHandle,
+    handle: NodeHandle, // TODO remove
+    graph_node_data: GraphNodeData,
     radius: Length,
     state: newtonian::State,
     environment: BallEnvironment,
@@ -20,6 +21,7 @@ impl Ball {
     pub fn new(radius: Length, mass: Mass, position: Position, velocity: Velocity) -> Ball {
         Ball {
             handle: NodeHandle::unset(),
+            graph_node_data: GraphNodeData::new(),
             radius,
             state: newtonian::State::new(mass, position, velocity),
             environment: BallEnvironment::new(),
@@ -96,6 +98,14 @@ impl GraphNode for Ball {
 
     fn handle_mut(&mut self) -> &mut NodeHandle {
         &mut self.handle
+    }
+
+    fn graph_node_data(&self) -> &GraphNodeData {
+        &self.graph_node_data
+    }
+
+    fn graph_node_data_mut(&mut self) -> &mut GraphNodeData {
+        &mut self.graph_node_data
     }
 }
 

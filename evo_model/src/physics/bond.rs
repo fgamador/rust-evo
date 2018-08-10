@@ -127,7 +127,7 @@ mod tests {
         assert_eq!(Displacement::new(0.0, 0.0), strain);
     }
 
-    #[derive(Clone, Copy, Debug, PartialEq)]
+    #[derive(Clone, Debug, PartialEq)]
     pub struct SpyCircle {
         graph_node_data: GraphNodeData,
         center: Position,

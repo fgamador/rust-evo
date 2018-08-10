@@ -94,8 +94,7 @@ impl NodeHandle {
     }
 }
 
-// TODO Copy?
-#[derive(Clone, Copy, Debug, PartialEq)]
+#[derive(Clone, Debug, PartialEq)]
 pub struct GraphNodeData {
     handle: NodeHandle
 }

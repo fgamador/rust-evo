@@ -3,25 +3,25 @@ use std::usize;
 
 #[derive(Debug)]
 pub struct SortableGraph<N: GraphNode, E: GraphEdge> {
-    nodes: Vec<N>,
-    node_handles: Vec<NodeHandle>,
+    unsorted_nodes: Vec<N>,
+    sortable_node_handles: Vec<NodeHandle>,
     edges: Vec<E>,
 }
 
 impl<N: GraphNode, E: GraphEdge> SortableGraph<N, E> {
     pub fn new() -> Self {
         SortableGraph {
-            nodes: vec![],
-            node_handles: vec![],
+            unsorted_nodes: vec![],
+            sortable_node_handles: vec![],
             edges: vec![],
         }
     }
 
     pub fn add_node(&mut self, mut node: N) -> NodeHandle {
-        node.handle_mut().index = self.nodes.len();
+        node.handle_mut().index = self.unsorted_nodes.len();
         let handle = node.handle();
-        self.node_handles.push(handle);
-        self.nodes.push(node);
+        self.sortable_node_handles.push(handle);
+        self.unsorted_nodes.push(node);
         handle
     }
 
@@ -30,29 +30,29 @@ impl<N: GraphNode, E: GraphEdge> SortableGraph<N, E> {
     }
 
     pub fn sort(&mut self, cmp: fn(&N, &N) -> Ordering) {
-        let nodes = &self.nodes;
+        let nodes = &self.unsorted_nodes;
         // TODO convert this to insertion sort (and rename fn to insertion_sort)
-        self.node_handles.sort_unstable_by(|h1, h2| cmp(&nodes[h1.index], &nodes[h2.index]));
+        self.sortable_node_handles.sort_unstable_by(|h1, h2| cmp(&nodes[h1.index], &nodes[h2.index]));
     }
 
     pub fn node_handles(&self) -> &[NodeHandle] {
-        &self.node_handles
+        &self.sortable_node_handles
     }
 
     pub fn nodes(&self) -> &[N] {
-        &self.nodes
+        &self.unsorted_nodes
     }
 
     pub fn nodes_mut(&mut self) -> &mut [N] {
-        &mut self.nodes
+        &mut self.unsorted_nodes
     }
 
     pub fn node(&self, handle: NodeHandle) -> &N {
-        &self.nodes[handle.index]
+        &self.unsorted_nodes[handle.index]
     }
 
     pub fn node_mut(&mut self, handle: NodeHandle) -> &mut N {
-        &mut self.nodes[handle.index]
+        &mut self.unsorted_nodes[handle.index]
     }
 
     pub fn edges(&self) -> &[E] {

@@ -11,8 +11,7 @@ use evo_model::world::World;
 use main_support::init_and_run;
 
 fn main() {
-    let world = create_world();
-    init_and_run(world);
+    init_and_run(create_world());
 }
 
 fn create_world() -> World {

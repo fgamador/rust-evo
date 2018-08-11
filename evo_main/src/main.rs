@@ -13,9 +13,10 @@ use evo_view_model::events::EventManager;
 use mvvm::*;
 
 fn main() {
+    let world = create_world();
     let mut event_manager: EventManager<Event, MVVM> = EventManager::new();
     wire_up_events(&mut event_manager);
-    let mvvm = MVVM(Model::new(create_world()), View::new(), ViewModel::new());
+    let mvvm = MVVM(Model::new(world), View::new(), ViewModel::new());
     run(event_manager, mvvm);
 }
 

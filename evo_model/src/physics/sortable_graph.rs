@@ -67,12 +67,9 @@ impl<N: GraphNode, E: GraphEdge> SortableGraph<N, E> {
     }
 
     fn has_edge_to(&self, node1: &N, node2: &N) -> bool {
-        for edge_handle in &node1.graph_node_data().edges {
-            if self.edges[edge_handle.index].handle2() == node2.handle() {
-                return true;
-            }
-        }
-        false
+        node1.graph_node_data().edges.iter()
+            .map(|edge_handle| { self.edges[edge_handle.index].handle2() })
+            .any(|node2_handle| { node2_handle == node2.handle() })
     }
 }
 

@@ -132,34 +132,34 @@ impl GraphNodeData {
 
 #[derive(Debug, PartialEq)]
 pub struct SimpleGraphEdge {
-    pub handle1: NodeHandle,
-    pub handle2: NodeHandle,
+    pub node1_handle: NodeHandle,
+    pub node2_handle: NodeHandle,
 }
 
 impl SimpleGraphEdge {
     pub fn new(node1: &GraphNode, node2: &GraphNode) -> Self {
         SimpleGraphEdge {
-            handle1: node1.handle(),
-            handle2: node2.handle(),
+            node1_handle: node1.handle(),
+            node2_handle: node2.handle(),
         }
     }
 }
 
 impl GraphEdge for SimpleGraphEdge {
     fn node1_handle(&self) -> NodeHandle {
-        self.handle1
+        self.node1_handle
     }
 
     fn node1_handle_mut(&mut self) -> &mut NodeHandle {
-        &mut self.handle1
+        &mut self.node1_handle
     }
 
     fn node2_handle(&self) -> NodeHandle {
-        self.handle2
+        self.node2_handle
     }
 
     fn node2_handle_mut(&mut self) -> &mut NodeHandle {
-        &mut self.handle2
+        &mut self.node2_handle
     }
 }
 

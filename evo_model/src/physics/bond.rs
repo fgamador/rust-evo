@@ -23,19 +23,19 @@ impl Bond {
 }
 
 impl GraphEdge for Bond {
-    fn handle1(&self) -> NodeHandle {
+    fn node1_handle(&self) -> NodeHandle {
         self.handle1
     }
 
-    fn handle1_mut(&mut self) -> &mut NodeHandle {
+    fn node1_handle_mut(&mut self) -> &mut NodeHandle {
         &mut self.handle1
     }
 
-    fn handle2(&self) -> NodeHandle {
+    fn node2_handle(&self) -> NodeHandle {
         self.handle2
     }
 
-    fn handle2_mut(&mut self) -> &mut NodeHandle {
+    fn node2_handle_mut(&mut self) -> &mut NodeHandle {
         &mut self.handle2
     }
 }
@@ -65,8 +65,8 @@ pub fn calc_bond_forces<'a, C>(graph: &'a mut SortableGraph<C, Bond>, on_bond_fo
     let mut strains: Vec<(NodeHandle, BondStrain)> = Vec::with_capacity(graph.edges().len() * 2);
 
     for bond in graph.edges() {
-        let circle1 = graph.node(bond.handle1());
-        let circle2 = graph.node(bond.handle2());
+        let circle1 = graph.node(bond.node1_handle());
+        let circle2 = graph.node(bond.node2_handle());
 
         let strain = calc_bond_strain(circle1, circle2);
         strains.push((circle1.handle(), BondStrain::new(strain)));

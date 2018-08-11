@@ -27,8 +27,8 @@ impl<N: GraphNode, E: GraphEdge> SortableGraph<N, E> {
 
     pub fn add_edge(&mut self, edge: E) {
         let edge_handle = EdgeHandle { index: self.edges.len() };
-        self.add_edge_to_node(edge.handle1(), edge_handle);
-        self.add_edge_to_node(edge.handle2(), edge_handle);
+        self.add_edge_to_node(edge.node1_handle(), edge_handle);
+        self.add_edge_to_node(edge.node2_handle(), edge_handle);
         self.edges.push(edge);
     }
 
@@ -72,7 +72,7 @@ impl<N: GraphNode, E: GraphEdge> SortableGraph<N, E> {
 
     fn has_edge_to(&self, node1: &N, node2: &N) -> bool {
         node1.graph_node_data().edge_handles.iter()
-            .map(|edge_handle| { self.edges[edge_handle.index].handle2() })
+            .map(|edge_handle| { self.edges[edge_handle.index].node2_handle() })
             .any(|node2_handle| { node2_handle == node2.handle() })
     }
 }
@@ -86,13 +86,13 @@ pub trait GraphNode {
 }
 
 pub trait GraphEdge {
-    fn handle1(&self) -> NodeHandle;
+    fn node1_handle(&self) -> NodeHandle;
 
-    fn handle1_mut(&mut self) -> &mut NodeHandle;
+    fn node1_handle_mut(&mut self) -> &mut NodeHandle;
 
-    fn handle2(&self) -> NodeHandle;
+    fn node2_handle(&self) -> NodeHandle;
 
-    fn handle2_mut(&mut self) -> &mut NodeHandle;
+    fn node2_handle_mut(&mut self) -> &mut NodeHandle;
 }
 
 #[derive(Clone, Copy, Debug, PartialEq)]
@@ -146,19 +146,19 @@ impl SimpleGraphEdge {
 }
 
 impl GraphEdge for SimpleGraphEdge {
-    fn handle1(&self) -> NodeHandle {
+    fn node1_handle(&self) -> NodeHandle {
         self.handle1
     }
 
-    fn handle1_mut(&mut self) -> &mut NodeHandle {
+    fn node1_handle_mut(&mut self) -> &mut NodeHandle {
         &mut self.handle1
     }
 
-    fn handle2(&self) -> NodeHandle {
+    fn node2_handle(&self) -> NodeHandle {
         self.handle2
     }
 
-    fn handle2_mut(&mut self) -> &mut NodeHandle {
+    fn node2_handle_mut(&mut self) -> &mut NodeHandle {
         &mut self.handle2
     }
 }
@@ -198,8 +198,8 @@ mod tests {
         let node1 = &graph.nodes()[0];
         let node2 = &graph.nodes()[1];
         let edge = &graph.edges()[0];
-        assert_eq!(node1, graph.node(edge.handle1()));
-        assert_eq!(node2, graph.node(edge.handle2()));
+        assert_eq!(node1, graph.node(edge.node1_handle()));
+        assert_eq!(node2, graph.node(edge.node2_handle()));
     }
 
     #[test]

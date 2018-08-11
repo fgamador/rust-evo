@@ -13,12 +13,9 @@ use evo_view_model::events::EventManager;
 use mvvm::*;
 
 fn main() {
-    let mut event_manager = wire_up_events();
-
-    let mut mvvm = MVVM(Model::new(create_world()), View::new(), ViewModel::new());
-
-    event_manager.events().push(Event::Rendered);
-    event_manager.fire_events(&mut mvvm);
+    let event_manager = wire_up_events();
+    let mvvm = MVVM(Model::new(create_world()), View::new(), ViewModel::new());
+    run(event_manager, mvvm);
 }
 
 fn wire_up_events() -> EventManager<Event, MVVM> {
@@ -35,6 +32,11 @@ fn wire_up_events() -> EventManager<Event, MVVM> {
         }
     });
     event_manager
+}
+
+fn run(mut event_manager: EventManager<Event, MVVM>, mut mvvm: MVVM) {
+    event_manager.events().push(Event::Rendered);
+    event_manager.fire_events(&mut mvvm);
 }
 
 fn create_world() -> World {

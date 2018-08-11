@@ -13,13 +13,13 @@ use evo_view_model::events::EventManager;
 use mvvm::*;
 
 fn main() {
-    let event_manager = wire_up_events();
+    let mut event_manager: EventManager<Event, MVVM> = EventManager::new();
+    wire_up_events(&mut event_manager);
     let mvvm = MVVM(Model::new(create_world()), View::new(), ViewModel::new());
     run(event_manager, mvvm);
 }
 
-fn wire_up_events() -> EventManager<Event, MVVM> {
-    let mut event_manager: EventManager<Event, MVVM> = EventManager::new();
+fn wire_up_events(event_manager: &mut EventManager<Event, MVVM>) {
     event_manager.add_listener(Event::Rendered, |event_queue, subject| {
         let MVVM(ref mut model, _, ref mut view_model) = subject;
         model.tick(view_model);
@@ -31,7 +31,6 @@ fn wire_up_events() -> EventManager<Event, MVVM> {
             event_queue.push(Event::Rendered);
         }
     });
-    event_manager
 }
 
 fn run(mut event_manager: EventManager<Event, MVVM>, mut mvvm: MVVM) {

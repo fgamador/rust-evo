@@ -14,6 +14,10 @@ use mvvm::*;
 
 fn main() {
     let world = create_world();
+    init_and_run(world);
+}
+
+fn init_and_run(world: World) {
     let mut event_manager: EventManager<Event, MVVM> = EventManager::new();
     wire_up_events(&mut event_manager);
     let mvvm = MVVM(Model::new(world), View::new(), ViewModel::new());

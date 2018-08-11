@@ -27,8 +27,8 @@ impl<N: GraphNode, E: GraphEdge> SortableGraph<N, E> {
 
     pub fn add_edge(&mut self, edge: E) {
         let edge_handle = EdgeHandle { index: self.edges.len() };
-        self.unsorted_nodes[edge.handle1().index].graph_node_data_mut().edges.push(edge_handle);
-        self.unsorted_nodes[edge.handle2().index].graph_node_data_mut().edges.push(edge_handle);
+        self.unsorted_nodes[edge.handle1().index].graph_node_data_mut().edge_handles.push(edge_handle);
+        self.unsorted_nodes[edge.handle2().index].graph_node_data_mut().edge_handles.push(edge_handle);
         self.edges.push(edge);
     }
 
@@ -67,7 +67,7 @@ impl<N: GraphNode, E: GraphEdge> SortableGraph<N, E> {
     }
 
     fn has_edge_to(&self, node1: &N, node2: &N) -> bool {
-        node1.graph_node_data().edges.iter()
+        node1.graph_node_data().edge_handles.iter()
             .map(|edge_handle| { self.edges[edge_handle.index].handle2() })
             .any(|node2_handle| { node2_handle == node2.handle() })
     }
@@ -110,14 +110,14 @@ struct EdgeHandle {
 #[derive(Clone, Debug, PartialEq)]
 pub struct GraphNodeData {
     handle: NodeHandle,
-    edges: Vec<EdgeHandle>,
+    edge_handles: Vec<EdgeHandle>,
 }
 
 impl GraphNodeData {
     pub fn new() -> Self {
         GraphNodeData {
             handle: NodeHandle::unset(),
-            edges: vec![],
+            edge_handles: vec![],
         }
     }
 

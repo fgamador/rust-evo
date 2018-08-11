@@ -90,7 +90,7 @@ impl newtonian::Body for Ball {
 }
 
 impl GraphNode for Ball {
-    fn handle(&self) -> NodeHandle {
+    fn node_handle(&self) -> NodeHandle {
         self.graph_node_data.handle()
     }
 

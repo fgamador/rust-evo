@@ -12,8 +12,8 @@ pub struct Bond {
 impl Bond {
     pub fn new(circle1: &GraphNode, circle2: &GraphNode) -> Self {
         Bond {
-            handle1: circle1.handle(),
-            handle2: circle2.handle(),
+            handle1: circle1.node_handle(),
+            handle2: circle2.node_handle(),
         }
     }
 
@@ -69,8 +69,8 @@ pub fn calc_bond_forces<'a, C>(graph: &'a mut SortableGraph<C, Bond>, on_bond_fo
         let circle2 = graph.node(bond.node2_handle());
 
         let strain = calc_bond_strain(circle1, circle2);
-        strains.push((circle1.handle(), BondStrain::new(strain)));
-        strains.push((circle2.handle(), BondStrain::new(-strain)));
+        strains.push((circle1.node_handle(), BondStrain::new(strain)));
+        strains.push((circle2.node_handle(), BondStrain::new(-strain)));
     }
 
     for (handle, strain) in strains {
@@ -157,7 +157,7 @@ mod tests {
     }
 
     impl GraphNode for SpyCircle {
-        fn handle(&self) -> NodeHandle {
+        fn node_handle(&self) -> NodeHandle {
             self.graph_node_data.handle()
         }
 

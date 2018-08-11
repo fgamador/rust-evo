@@ -19,7 +19,7 @@ impl<N: GraphNode, E: GraphEdge> SortableGraph<N, E> {
 
     pub fn add_node(&mut self, mut node: N) -> NodeHandle {
         node.graph_node_data_mut().node_handle.index = self.unsorted_nodes.len();
-        let handle = node.handle();
+        let handle = node.node_handle();
         self.sortable_node_handles.push(handle);
         self.unsorted_nodes.push(node);
         handle
@@ -73,12 +73,12 @@ impl<N: GraphNode, E: GraphEdge> SortableGraph<N, E> {
     fn has_edge_to(&self, node1: &N, node2: &N) -> bool {
         node1.graph_node_data().edge_handles.iter()
             .map(|edge_handle| { self.edges[edge_handle.index].node2_handle() })
-            .any(|node2_handle| { node2_handle == node2.handle() })
+            .any(|node2_handle| { node2_handle == node2.node_handle() })
     }
 }
 
 pub trait GraphNode {
-    fn handle(&self) -> NodeHandle;
+    fn node_handle(&self) -> NodeHandle;
 
     fn graph_node_data(&self) -> &GraphNodeData;
 
@@ -139,8 +139,8 @@ pub struct SimpleGraphEdge {
 impl SimpleGraphEdge {
     pub fn new(node1: &GraphNode, node2: &GraphNode) -> Self {
         SimpleGraphEdge {
-            node1_handle: node1.handle(),
-            node2_handle: node2.handle(),
+            node1_handle: node1.node_handle(),
+            node2_handle: node2.node_handle(),
         }
     }
 }
@@ -173,7 +173,7 @@ mod tests {
 
         let handle = graph.add_node(SpyNode::new());
 
-        assert_eq!(handle, graph.nodes()[0].handle());
+        assert_eq!(handle, graph.nodes()[0].node_handle());
     }
 
     #[test]
@@ -232,7 +232,7 @@ mod tests {
     }
 
     impl GraphNode for SpyNode {
-        fn handle(&self) -> NodeHandle {
+        fn node_handle(&self) -> NodeHandle {
             self.graph_node_data.handle()
         }
 

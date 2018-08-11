@@ -289,7 +289,7 @@ mod tests {
     }
 
     impl GraphNode for SpyCircle {
-        fn handle(&self) -> NodeHandle {
+        fn node_handle(&self) -> NodeHandle {
             self.graph_node_data.handle()
         }
 

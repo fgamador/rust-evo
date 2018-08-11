@@ -18,7 +18,7 @@ impl<N: GraphNode, E: GraphEdge> SortableGraph<N, E> {
     }
 
     pub fn add_node(&mut self, mut node: N) -> NodeHandle {
-        node.graph_node_data_mut().handle.index = self.unsorted_nodes.len();
+        node.graph_node_data_mut().node_handle.index = self.unsorted_nodes.len();
         let handle = node.handle();
         self.sortable_node_handles.push(handle);
         self.unsorted_nodes.push(node);
@@ -113,20 +113,20 @@ struct EdgeHandle {
 
 #[derive(Clone, Debug, PartialEq)]
 pub struct GraphNodeData {
-    handle: NodeHandle,
+    node_handle: NodeHandle,
     edge_handles: Vec<EdgeHandle>,
 }
 
 impl GraphNodeData {
     pub fn new() -> Self {
         GraphNodeData {
-            handle: NodeHandle::unset(),
+            node_handle: NodeHandle::unset(),
             edge_handles: vec![],
         }
     }
 
     pub fn handle(&self) -> NodeHandle {
-        self.handle
+        self.node_handle
     }
 }
 

@@ -54,9 +54,9 @@ impl Walls {
 pub fn find_graph_pair_overlaps<'a, C, E>(graph: &'a mut SortableGraph<C, E>, on_overlap: fn(&mut C, Overlap))
     where C: Circle + GraphNode, E: GraphEdge
 {
-    graph.sort(cmp_by_min_x);
+    graph.sort_node_handles(cmp_by_min_x);
 
-    let mut overlaps: Vec<(NodeHandle, Overlap)> = Vec::with_capacity(graph.nodes().len() * 2);
+    let mut overlaps: Vec<(NodeHandle, Overlap)> = Vec::with_capacity(graph.unsorted_nodes().len() * 2);
 
     for (i, handle1) in graph.node_handles().iter().enumerate() {
         for handle2 in &graph.node_handles()[(i + 1)..] {
@@ -211,8 +211,8 @@ mod tests {
 
         find_graph_pair_overlaps(&mut graph, on_overlap);
 
-        assert!(graph.nodes()[0].overlapped);
-        assert!(graph.nodes()[1].overlapped);
+        assert!(graph.unsorted_nodes()[0].overlapped);
+        assert!(graph.unsorted_nodes()[1].overlapped);
     }
 
     //#[test]
@@ -221,13 +221,13 @@ mod tests {
         graph.add_node(SpyCircle::new(Position::new(0.0, 0.0), Length::new(1.0)));
         graph.add_node(SpyCircle::new(Position::new(1.5, 0.0), Length::new(1.0)));
 
-        let edge = SimpleGraphEdge::new(&graph.nodes()[0], &graph.nodes()[1]);
+        let edge = SimpleGraphEdge::new(&graph.unsorted_nodes()[0], &graph.unsorted_nodes()[1]);
         graph.add_edge(edge);
 
         find_graph_pair_overlaps(&mut graph, on_overlap);
 
-        assert!(!graph.nodes()[0].overlapped);
-        assert!(!graph.nodes()[1].overlapped);
+        assert!(!graph.unsorted_nodes()[0].overlapped);
+        assert!(!graph.unsorted_nodes()[1].overlapped);
     }
 
     #[test]
@@ -237,13 +237,13 @@ mod tests {
         graph.add_node(SpyCircle::new(Position::new(3.0, 0.0), Length::new(1.0)));
         graph.add_node(SpyCircle::new(Position::new(6.0, 0.0), Length::new(1.0)));
 
-        graph.nodes_mut()[2].center = Position::new(1.5, 0.0);
+        graph.unsorted_nodes_mut()[2].center = Position::new(1.5, 0.0);
 
         find_graph_pair_overlaps(&mut graph, on_overlap);
 
-        assert!(graph.nodes()[0].overlapped);
-        assert!(graph.nodes()[1].overlapped);
-        assert!(graph.nodes()[2].overlapped);
+        assert!(graph.unsorted_nodes()[0].overlapped);
+        assert!(graph.unsorted_nodes()[1].overlapped);
+        assert!(graph.unsorted_nodes()[2].overlapped);
     }
 
     #[test]

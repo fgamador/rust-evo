@@ -36,7 +36,7 @@ impl<N: GraphNode, E: GraphEdge> SortableGraph<N, E> {
         self.node_mut(node_handle).graph_node_data_mut().edge_handles.push(edge_handle);
     }
 
-    pub fn sort(&mut self, cmp: fn(&N, &N) -> Ordering) {
+    pub fn sort_node_handles(&mut self, cmp: fn(&N, &N) -> Ordering) {
         let nodes = &self.unsorted_nodes;
         // TODO convert this to insertion sort (and rename fn to insertion_sort)
         self.sortable_node_handles.sort_unstable_by(|h1, h2| cmp(&nodes[h1.index], &nodes[h2.index]));
@@ -46,11 +46,11 @@ impl<N: GraphNode, E: GraphEdge> SortableGraph<N, E> {
         &self.sortable_node_handles
     }
 
-    pub fn nodes(&self) -> &[N] {
+    pub fn unsorted_nodes(&self) -> &[N] {
         &self.unsorted_nodes
     }
 
-    pub fn nodes_mut(&mut self) -> &mut [N] {
+    pub fn unsorted_nodes_mut(&mut self) -> &mut [N] {
         &mut self.unsorted_nodes
     }
 
@@ -173,7 +173,7 @@ mod tests {
 
         let handle = graph.add_node(SpyNode::new());
 
-        assert_eq!(handle, graph.nodes()[0].node_handle());
+        assert_eq!(handle, graph.unsorted_nodes()[0].node_handle());
     }
 
     #[test]
@@ -182,7 +182,7 @@ mod tests {
 
         let handle = graph.add_node(SpyNode::new());
 
-        assert_eq!(graph.nodes()[0], *graph.node(handle));
+        assert_eq!(graph.unsorted_nodes()[0], *graph.node(handle));
     }
 
     #[test]
@@ -192,11 +192,11 @@ mod tests {
         graph.add_node(SpyNode::new());
         graph.add_node(SpyNode::new());
 
-        let edge = SimpleGraphEdge::new(&graph.nodes()[0], &graph.nodes()[1]);
+        let edge = SimpleGraphEdge::new(&graph.unsorted_nodes()[0], &graph.unsorted_nodes()[1]);
         graph.add_edge(edge);
 
-        let node1 = &graph.nodes()[0];
-        let node2 = &graph.nodes()[1];
+        let node1 = &graph.unsorted_nodes()[0];
+        let node2 = &graph.unsorted_nodes()[1];
         let edge = &graph.edges()[0];
         assert_eq!(node1, graph.node(edge.node1_handle()));
         assert_eq!(node2, graph.node(edge.node2_handle()));
@@ -210,12 +210,12 @@ mod tests {
         graph.add_node(SpyNode::new());
         graph.add_node(SpyNode::new());
 
-        let edge = SimpleGraphEdge::new(&graph.nodes()[0], &graph.nodes()[1]);
+        let edge = SimpleGraphEdge::new(&graph.unsorted_nodes()[0], &graph.unsorted_nodes()[1]);
         graph.add_edge(edge);
 
-        assert!(graph.have_edge(&graph.nodes()[0], &graph.nodes()[1]));
-        assert!(graph.have_edge(&graph.nodes()[1], &graph.nodes()[0]));
-        assert!(!graph.have_edge(&graph.nodes()[0], &graph.nodes()[2]));
+        assert!(graph.have_edge(&graph.unsorted_nodes()[0], &graph.unsorted_nodes()[1]));
+        assert!(graph.have_edge(&graph.unsorted_nodes()[1], &graph.unsorted_nodes()[0]));
+        assert!(!graph.have_edge(&graph.unsorted_nodes()[0], &graph.unsorted_nodes()[2]));
     }
 
     #[derive(Debug, PartialEq)]

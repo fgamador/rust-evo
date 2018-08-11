@@ -215,7 +215,7 @@ mod tests {
         assert!(graph.unsorted_nodes()[1].overlapped);
     }
 
-    //#[test]
+    #[test]
     fn bonded_graph_pair_overlap_is_ignored() {
         let mut graph: SortableGraph<SpyCircle, SimpleGraphEdge> = SortableGraph::new();
         graph.add_node(SpyCircle::new(Position::new(0.0, 0.0), Length::new(1.0)));

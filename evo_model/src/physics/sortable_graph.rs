@@ -85,16 +85,6 @@ pub trait GraphNode {
     fn graph_node_data_mut(&mut self) -> &mut GraphNodeData;
 }
 
-pub trait GraphEdge {
-    fn node1_handle(&self) -> NodeHandle;
-
-    fn node1_handle_mut(&mut self) -> &mut NodeHandle;
-
-    fn node2_handle(&self) -> NodeHandle;
-
-    fn node2_handle_mut(&mut self) -> &mut NodeHandle;
-}
-
 #[derive(Clone, Copy, Debug, PartialEq)]
 pub struct NodeHandle {
     index: usize
@@ -104,11 +94,6 @@ impl NodeHandle {
     pub fn unset() -> Self {
         NodeHandle { index: usize::MAX }
     }
-}
-
-#[derive(Clone, Copy, Debug, PartialEq)]
-struct EdgeHandle {
-    index: usize
 }
 
 #[derive(Clone, Debug, PartialEq)]
@@ -128,6 +113,21 @@ impl GraphNodeData {
     pub fn handle(&self) -> NodeHandle {
         self.node_handle
     }
+}
+
+pub trait GraphEdge {
+    fn node1_handle(&self) -> NodeHandle;
+
+    fn node1_handle_mut(&mut self) -> &mut NodeHandle;
+
+    fn node2_handle(&self) -> NodeHandle;
+
+    fn node2_handle_mut(&mut self) -> &mut NodeHandle;
+}
+
+#[derive(Clone, Copy, Debug, PartialEq)]
+struct EdgeHandle {
+    index: usize
 }
 
 #[derive(Debug, PartialEq)]

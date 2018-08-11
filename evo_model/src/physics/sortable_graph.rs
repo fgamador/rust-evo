@@ -26,6 +26,9 @@ impl<N: GraphNode, E: GraphEdge> SortableGraph<N, E> {
     }
 
     pub fn add_edge(&mut self, edge: E) {
+        let edge_handle = EdgeHandle { index: self.edges.len() };
+        self.unsorted_nodes[edge.handle1().index].graph_node_data_mut().edges.push(edge_handle);
+        self.unsorted_nodes[edge.handle2().index].graph_node_data_mut().edges.push(edge_handle);
         self.edges.push(edge);
     }
 
@@ -60,7 +63,15 @@ impl<N: GraphNode, E: GraphEdge> SortableGraph<N, E> {
     }
 
     pub fn have_edge(&self, node1: &N, node2: &N) -> bool {
-        // TODO
+        self.has_edge_to(node1, node2) || self.has_edge_to(node2, node1)
+    }
+
+    fn has_edge_to(&self, node1: &N, node2: &N) -> bool {
+        for edge_handle in &node1.graph_node_data().edges {
+            if self.edges[edge_handle.index].handle2() == node2.handle() {
+                return true;
+            }
+        }
         false
     }
 }
@@ -94,15 +105,22 @@ impl NodeHandle {
     }
 }
 
+#[derive(Clone, Copy, Debug, PartialEq)]
+struct EdgeHandle {
+    index: usize
+}
+
 #[derive(Clone, Debug, PartialEq)]
 pub struct GraphNodeData {
-    handle: NodeHandle
+    handle: NodeHandle,
+    edges: Vec<EdgeHandle>,
 }
 
 impl GraphNodeData {
     pub fn new() -> Self {
         GraphNodeData {
-            handle: NodeHandle::unset()
+            handle: NodeHandle::unset(),
+            edges: vec![],
         }
     }
 
@@ -183,7 +201,7 @@ mod tests {
         assert_eq!(node2, graph.node(edge.handle2()));
     }
 
-    // TODO #[test]
+    #[test]
     fn have_edge() {
         let mut graph: SortableGraph<SpyNode, SimpleGraphEdge> = SortableGraph::new();
 

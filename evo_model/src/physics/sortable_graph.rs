@@ -27,9 +27,13 @@ impl<N: GraphNode, E: GraphEdge> SortableGraph<N, E> {
 
     pub fn add_edge(&mut self, edge: E) {
         let edge_handle = EdgeHandle { index: self.edges.len() };
-        self.node_mut(edge.handle1()).graph_node_data_mut().edge_handles.push(edge_handle);
-        self.node_mut(edge.handle2()).graph_node_data_mut().edge_handles.push(edge_handle);
+        self.add_edge_to_node(edge.handle1(), edge_handle);
+        self.add_edge_to_node(edge.handle2(), edge_handle);
         self.edges.push(edge);
+    }
+
+    fn add_edge_to_node(&mut self, node_handle: NodeHandle, edge_handle: EdgeHandle) {
+        self.node_mut(node_handle).graph_node_data_mut().edge_handles.push(edge_handle);
     }
 
     pub fn sort(&mut self, cmp: fn(&N, &N) -> Ordering) {

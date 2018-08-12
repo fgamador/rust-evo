@@ -2,8 +2,9 @@ use physics::quantities::*;
 use physics::shapes::*;
 use physics::sortable_graph::*;
 
-#[derive(Clone, Copy, Debug, PartialEq)]
+#[derive(Clone, Debug, PartialEq)]
 pub struct Bond {
+    edge_data: GraphEdgeData,
     handle1: NodeHandle,
     handle2: NodeHandle,
 }
@@ -11,6 +12,7 @@ pub struct Bond {
 impl Bond {
     pub fn new(circle1: &GraphNode, circle2: &GraphNode) -> Self {
         Bond {
+            edge_data: GraphEdgeData::new(circle1.node_handle(), circle2.node_handle()),
             handle1: circle1.node_handle(),
             handle2: circle2.node_handle(),
         }
@@ -36,6 +38,14 @@ impl GraphEdge for Bond {
 
     fn node2_handle_mut(&mut self) -> &mut NodeHandle {
         &mut self.handle2
+    }
+
+    fn graph_edge_data(&self) -> &GraphEdgeData {
+        &self.edge_data
+    }
+
+    fn graph_edge_data_mut(&mut self) -> &mut GraphEdgeData {
+        &mut self.edge_data
     }
 }
 

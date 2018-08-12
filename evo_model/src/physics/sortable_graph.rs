@@ -127,6 +127,10 @@ pub trait GraphEdge {
     fn node2_handle(&self) -> NodeHandle;
 
     fn node2_handle_mut(&mut self) -> &mut NodeHandle;
+
+    fn graph_edge_data(&self) -> &GraphEdgeData;
+
+    fn graph_edge_data_mut(&mut self) -> &mut GraphEdgeData;
 }
 
 #[derive(Clone, Copy, Debug, PartialEq)]
@@ -141,10 +145,10 @@ pub struct GraphEdgeData {
 }
 
 impl GraphEdgeData {
-    pub fn new() -> Self {
+    pub fn new(node1_handle: NodeHandle, node2_handle: NodeHandle) -> Self {
         GraphEdgeData {
-            node1_handle: NodeHandle::unset(),
-            node2_handle: NodeHandle::unset(),
+            node1_handle,
+            node2_handle,
         }
     }
 
@@ -167,6 +171,7 @@ impl GraphEdgeData {
 
 #[derive(Debug, PartialEq)]
 pub struct SimpleGraphEdge {
+    edge_data: GraphEdgeData,
     pub node1_handle: NodeHandle,
     pub node2_handle: NodeHandle,
 }
@@ -174,6 +179,7 @@ pub struct SimpleGraphEdge {
 impl SimpleGraphEdge {
     pub fn new(node1: &GraphNode, node2: &GraphNode) -> Self {
         SimpleGraphEdge {
+            edge_data: GraphEdgeData::new(node1.node_handle(), node2.node_handle()),
             node1_handle: node1.node_handle(),
             node2_handle: node2.node_handle(),
         }
@@ -195,6 +201,14 @@ impl GraphEdge for SimpleGraphEdge {
 
     fn node2_handle_mut(&mut self) -> &mut NodeHandle {
         &mut self.node2_handle
+    }
+
+    fn graph_edge_data(&self) -> &GraphEdgeData {
+        &self.edge_data
+    }
+
+    fn graph_edge_data_mut(&mut self) -> &mut GraphEdgeData {
+        &mut self.edge_data
     }
 }
 

@@ -1,15 +1,11 @@
-extern crate evo_conrod;
+extern crate evo_main;
 extern crate evo_model;
-extern crate evo_view_model;
-
-pub mod main_support;
-pub mod mvvm;
 
 use evo_model::physics::ball::Ball;
 use evo_model::physics::bond::Bond;
 use evo_model::physics::quantities::*;
 use evo_model::world::World;
-use main_support::init_and_run;
+use evo_main::main_support::init_and_run;
 
 fn main() {
     init_and_run(create_world());

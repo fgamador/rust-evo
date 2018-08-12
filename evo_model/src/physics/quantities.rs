@@ -169,6 +169,14 @@ impl Duration {
     }
 }
 
+impl Div<f64> for Duration {
+    type Output = Duration;
+
+    fn div(self, rhs: f64) -> Self::Output {
+        Duration::new(self.value / rhs)
+    }
+}
+
 #[derive(Clone, Copy, Debug, PartialEq)]
 pub struct Velocity {
     x: f64,
@@ -384,6 +392,11 @@ mod tests {
     fn displacement_min() {
         assert_eq!(Displacement::new(0.5, -0.5),
                    Displacement::new(1.5, -0.25).min(Displacement::new(0.5, -0.5)));
+    }
+
+    #[test]
+    fn divide_duration_by_scalar() {
+        assert_eq!(Duration::new(0.5), Duration::new(1.0) / 2.0);
     }
 
     #[test]

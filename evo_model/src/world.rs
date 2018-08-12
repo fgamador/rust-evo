@@ -32,31 +32,36 @@ impl World {
     }
 
     pub fn tick(&mut self) {
-        self.walls.find_overlaps(self.ball_graph.unsorted_nodes_mut(), |ball, overlap| {
-            ball.environment_mut().add_overlap(overlap);
-        });
-
-        find_graph_pair_overlaps(&mut self.ball_graph, |ball, overlap| {
-            ball.environment_mut().add_overlap(overlap);
-        });
-
-        for ball in self.ball_graph.unsorted_nodes_mut() {
-            ball.add_overlap_forces();
-        }
-
-        calc_bond_forces(&mut self.ball_graph, |ball, force| {
-            ball.forces_mut().add_force(force);
-        });
-
         let tick_duration = Duration::new(1.0);
-        for ball in self.ball_graph.unsorted_nodes_mut() {
-            ball.exert_forces(tick_duration);
-            ball.move_for(tick_duration);
-        }
+        let subticks_per_tick = 2;
+        let subtick_duration = tick_duration / (subticks_per_tick as f64);
 
-        for ball in self.ball_graph.unsorted_nodes_mut() {
-            ball.environment_mut().clear();
-            ball.forces_mut().clear();
+        for _subtick in 0..subticks_per_tick {
+            self.walls.find_overlaps(self.ball_graph.unsorted_nodes_mut(), |ball, overlap| {
+                ball.environment_mut().add_overlap(overlap);
+            });
+
+            find_graph_pair_overlaps(&mut self.ball_graph, |ball, overlap| {
+                ball.environment_mut().add_overlap(overlap);
+            });
+
+            for ball in self.ball_graph.unsorted_nodes_mut() {
+                ball.add_overlap_forces();
+            }
+
+            calc_bond_forces(&mut self.ball_graph, |ball, force| {
+                ball.forces_mut().add_force(force);
+            });
+
+            for ball in self.ball_graph.unsorted_nodes_mut() {
+                ball.exert_forces(subtick_duration);
+                ball.move_for(subtick_duration);
+            }
+
+            for ball in self.ball_graph.unsorted_nodes_mut() {
+                ball.environment_mut().clear();
+                ball.forces_mut().clear();
+            }
         }
     }
 }

@@ -22,10 +22,24 @@ fn create_world() -> World {
     world.add_bond(bond);
 
     world.add_ball(Ball::new(Length::new(20.0), Mass::new(1.0),
+                             Position::new(100.0, -90.0), Velocity::new(-3.0, 2.5)));
+    world.add_ball(Ball::new(Length::new(20.0), Mass::new(1.0),
+                             Position::new(60.0, -90.0), Velocity::new(0.0, 0.0)));
+    let bond = Bond::new(&world.balls()[2], &world.balls()[3]);
+    world.add_bond(bond);
+
+    world.add_ball(Ball::new(Length::new(20.0), Mass::new(1.0),
+                             Position::new(-100.0, 90.0), Velocity::new(3.0, -2.5)));
+    world.add_ball(Ball::new(Length::new(20.0), Mass::new(1.0),
+                             Position::new(-60.0, 90.0), Velocity::new(0.0, 0.0)));
+    let bond = Bond::new(&world.balls()[4], &world.balls()[5]);
+    world.add_bond(bond);
+
+    world.add_ball(Ball::new(Length::new(20.0), Mass::new(1.0),
                              Position::new(100.0, 90.0), Velocity::new(-3.0, -2.5)));
     world.add_ball(Ball::new(Length::new(20.0), Mass::new(1.0),
                              Position::new(60.0, 90.0), Velocity::new(0.0, 0.0)));
-    let bond = Bond::new(&world.balls()[2], &world.balls()[3]);
+    let bond = Bond::new(&world.balls()[6], &world.balls()[7]);
     world.add_bond(bond);
 
     world

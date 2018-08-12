@@ -104,7 +104,7 @@ fn sqr(x: f64) -> f64 {
 pub struct BondGusset {}
 
 impl BondGusset {
-    pub fn new(bond1: &Bond, bond2: &Bond, angle: f64) -> Self {
+    pub fn new(bond1: &Bond, bond2: &Bond, angle: Angle) -> Self {
         BondGusset {}
     }
 }

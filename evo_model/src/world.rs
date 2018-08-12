@@ -174,7 +174,7 @@ mod tests {
         let bond = Bond::new(&world.balls()[1], &world.balls()[2]);
         world.add_bond(bond);
 
-        let gusset = BondGusset::new(&world.bonds()[0], &world.bonds()[1], PI);
+        let gusset = BondGusset::new(&world.bonds()[0], &world.bonds()[1], Angle::in_radians(PI));
         world.add_bond_gusset(gusset);
 
         world.tick();

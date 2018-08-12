@@ -6,6 +6,26 @@ use std::ops::Neg;
 use std::ops::Sub;
 
 #[derive(Clone, Copy, Debug, PartialEq)]
+pub struct Angle {
+    radians: f64,
+}
+
+impl Angle {
+    pub fn in_radians(radians: f64) -> Self {
+        if radians < 0.0 {
+            panic!("Negative angle: {}", radians);
+        }
+
+        Angle { radians }
+    }
+
+    #[allow(dead_code)]
+    pub fn radians(&self) -> f64 {
+        self.radians
+    }
+}
+
+#[derive(Clone, Copy, Debug, PartialEq)]
 pub struct Length {
     value: f64,
 }

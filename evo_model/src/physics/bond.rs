@@ -100,6 +100,15 @@ fn sqr(x: f64) -> f64 {
     x * x
 }
 
+#[derive(Clone, Copy, Debug, PartialEq)]
+pub struct BondGusset {}
+
+impl BondGusset {
+    pub fn new(bond1: &Bond, bond2: &Bond, angle: f64) -> Self {
+        BondGusset {}
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;

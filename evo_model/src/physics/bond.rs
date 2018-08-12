@@ -120,13 +120,13 @@ fn sqr(x: f64) -> f64 {
 }
 
 #[derive(Clone, Copy, Debug, PartialEq)]
-pub struct BondGusset {
+pub struct AngleGusset {
     // TODO
 }
 
-impl BondGusset {
+impl AngleGusset {
     pub fn new(bond1: &Bond, bond2: &Bond, angle: Angle) -> Self {
-        BondGusset {}
+        AngleGusset {}
     }
 }
 

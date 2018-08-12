@@ -35,7 +35,7 @@ impl World {
         &self.ball_graph.edges()
     }
 
-    pub fn add_bond_gusset(&mut self, gusset: BondGusset) {
+    pub fn add_angle_gusset(&mut self, gusset: AngleGusset) {
         // TODO
     }
 
@@ -166,7 +166,7 @@ mod tests {
     }
 
     //#[test]
-    fn bond_gusset_exerts_force() {
+    fn angle_gusset_exerts_force() {
         let mut world = World::new(Position::new(-10.0, -10.0), Position::new(10.0, 10.0));
         world.add_ball(Ball::new(Length::new(1.0), Mass::new(1.0),
                                  Position::new(0.1, 2.0), Velocity::new(0.0, 0.0)));
@@ -180,8 +180,8 @@ mod tests {
         let bond = Bond::new(&world.balls()[1], &world.balls()[2]);
         world.add_bond(bond);
 
-        let gusset = BondGusset::new(&world.bonds()[0], &world.bonds()[1], Angle::in_radians(PI));
-        world.add_bond_gusset(gusset);
+        let gusset = AngleGusset::new(&world.bonds()[0], &world.bonds()[1], Angle::in_radians(PI));
+        world.add_angle_gusset(gusset);
 
         world.tick();
 

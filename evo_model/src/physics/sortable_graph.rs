@@ -134,6 +134,37 @@ struct EdgeHandle {
     index: usize
 }
 
+#[derive(Clone, Debug, PartialEq)]
+pub struct GraphEdgeData {
+    node1_handle: NodeHandle,
+    node2_handle: NodeHandle,
+}
+
+impl GraphEdgeData {
+    pub fn new() -> Self {
+        GraphEdgeData {
+            node1_handle: NodeHandle::unset(),
+            node2_handle: NodeHandle::unset(),
+        }
+    }
+
+    pub fn node1_handle(&self) -> NodeHandle {
+        self.node1_handle
+    }
+
+    pub fn node1_handle_mut(&mut self) -> &mut NodeHandle {
+        &mut self.node1_handle
+    }
+
+    pub fn node2_handle(&self) -> NodeHandle {
+        self.node2_handle
+    }
+
+    pub fn node2_handle_mut(&mut self) -> &mut NodeHandle {
+        &mut self.node2_handle
+    }
+}
+
 #[derive(Debug, PartialEq)]
 pub struct SimpleGraphEdge {
     pub node1_handle: NodeHandle,

@@ -75,6 +75,10 @@ impl<N: GraphNode, E: GraphEdge> SortableGraph<N, E> {
             .map(|edge_handle| { self.edges[edge_handle.index].node2_handle() })
             .any(|node2_handle| { node2_handle == node2.node_handle() })
     }
+
+    pub fn meta_edges(&self) -> &[E] {
+        &self.edges
+    }
 }
 
 pub trait GraphNode {

@@ -61,6 +61,10 @@ impl World {
                 ball.forces_mut().add_force(force);
             });
 
+            calc_bond_angle_forces(&mut self.ball_graph, |ball, force| {
+                ball.forces_mut().add_force(force);
+            });
+
             for ball in self.ball_graph.unsorted_nodes_mut() {
                 ball.exert_forces(subtick_duration);
                 ball.move_for(subtick_duration);
@@ -161,7 +165,7 @@ mod tests {
         assert!(ball2.velocity().y() < 1.0);
     }
 
-    // TODO #[test]
+    //#[test]
     fn bond_gusset_exerts_force() {
         let mut world = World::new(Position::new(-10.0, -10.0), Position::new(10.0, 10.0));
         world.add_ball(Ball::new(Length::new(1.0), Mass::new(1.0),

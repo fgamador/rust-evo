@@ -168,27 +168,23 @@ impl GraphEdgeData {
 #[derive(Debug, PartialEq)]
 pub struct SimpleGraphEdge {
     edge_data: GraphEdgeData,
-    pub node1_handle: NodeHandle,
-    pub node2_handle: NodeHandle,
 }
 
 impl SimpleGraphEdge {
     pub fn new(node1: &GraphNode, node2: &GraphNode) -> Self {
         SimpleGraphEdge {
-            edge_data: GraphEdgeData::new(node1.node_handle(), node2.node_handle()),
-            node1_handle: node1.node_handle(),
-            node2_handle: node2.node_handle(),
+            edge_data: GraphEdgeData::new(node1.node_handle(), node2.node_handle())
         }
     }
 }
 
 impl GraphEdge for SimpleGraphEdge {
     fn node1_handle(&self) -> NodeHandle {
-        self.node1_handle
+        self.edge_data.node1_handle
     }
 
     fn node2_handle(&self) -> NodeHandle {
-        self.node2_handle
+        self.edge_data.node2_handle
     }
 
     fn graph_edge_data(&self) -> &GraphEdgeData {

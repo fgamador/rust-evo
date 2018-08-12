@@ -4,17 +4,13 @@ use physics::sortable_graph::*;
 
 #[derive(Clone, Debug, PartialEq)]
 pub struct Bond {
-    edge_data: GraphEdgeData,
-    handle1: NodeHandle,
-    handle2: NodeHandle,
+    edge_data: GraphEdgeData
 }
 
 impl Bond {
     pub fn new(circle1: &GraphNode, circle2: &GraphNode) -> Self {
         Bond {
-            edge_data: GraphEdgeData::new(circle1.node_handle(), circle2.node_handle()),
-            handle1: circle1.node_handle(),
-            handle2: circle2.node_handle(),
+            edge_data: GraphEdgeData::new(circle1.node_handle(), circle2.node_handle())
         }
     }
 
@@ -25,11 +21,11 @@ impl Bond {
 
 impl GraphEdge for Bond {
     fn node1_handle(&self) -> NodeHandle {
-        self.handle1
+        self.edge_data.node1_handle()
     }
 
     fn node2_handle(&self) -> NodeHandle {
-        self.handle2
+        self.edge_data.node2_handle()
     }
 
     fn graph_edge_data(&self) -> &GraphEdgeData {

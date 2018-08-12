@@ -1,4 +1,3 @@
-//use physics::ball::*;
 use physics::quantities::*;
 use physics::shapes::*;
 use physics::sortable_graph::*;

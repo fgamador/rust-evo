@@ -28,16 +28,8 @@ impl GraphEdge for Bond {
         self.handle1
     }
 
-    fn node1_handle_mut(&mut self) -> &mut NodeHandle {
-        &mut self.handle1
-    }
-
     fn node2_handle(&self) -> NodeHandle {
         self.handle2
-    }
-
-    fn node2_handle_mut(&mut self) -> &mut NodeHandle {
-        &mut self.handle2
     }
 
     fn graph_edge_data(&self) -> &GraphEdgeData {

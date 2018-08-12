@@ -122,11 +122,7 @@ impl GraphNodeData {
 pub trait GraphEdge {
     fn node1_handle(&self) -> NodeHandle;
 
-    fn node1_handle_mut(&mut self) -> &mut NodeHandle;
-
     fn node2_handle(&self) -> NodeHandle;
-
-    fn node2_handle_mut(&mut self) -> &mut NodeHandle;
 
     fn graph_edge_data(&self) -> &GraphEdgeData;
 
@@ -191,16 +187,8 @@ impl GraphEdge for SimpleGraphEdge {
         self.node1_handle
     }
 
-    fn node1_handle_mut(&mut self) -> &mut NodeHandle {
-        &mut self.node1_handle
-    }
-
     fn node2_handle(&self) -> NodeHandle {
         self.node2_handle
-    }
-
-    fn node2_handle_mut(&mut self) -> &mut NodeHandle {
-        &mut self.node2_handle
     }
 
     fn graph_edge_data(&self) -> &GraphEdgeData {

@@ -35,7 +35,9 @@ impl World {
         &self.ball_graph.edges()
     }
 
-    pub fn add_bond_gusset(&mut self, gusset: BondGusset) {}
+    pub fn add_bond_gusset(&mut self, gusset: BondGusset) {
+        // TODO
+    }
 
     pub fn tick(&mut self) {
         let tick_duration = Duration::new(1.0);

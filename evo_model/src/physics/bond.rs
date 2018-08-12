@@ -95,6 +95,17 @@ fn calc_bond_strain<C>(circle1: &C, circle2: &C) -> Displacement
     Displacement::new(x_strain, y_strain)
 }
 
+#[derive(Clone, Copy, Debug, PartialEq)]
+pub struct AngleGusset {
+    // TODO
+}
+
+impl AngleGusset {
+    pub fn new(bond1: &Bond, bond2: &Bond, angle: Angle) -> Self {
+        AngleGusset {}
+    }
+}
+
 pub fn calc_bond_angle_forces<'a, C>(graph: &'a mut SortableGraph<C, Bond>, on_bond_force: fn(&mut C, Force))
     where C: Circle + GraphNode
 {
@@ -117,17 +128,6 @@ pub fn calc_bond_angle_forces<'a, C>(graph: &'a mut SortableGraph<C, Bond>, on_b
 // TODO find a better home
 fn sqr(x: f64) -> f64 {
     x * x
-}
-
-#[derive(Clone, Copy, Debug, PartialEq)]
-pub struct AngleGusset {
-    // TODO
-}
-
-impl AngleGusset {
-    pub fn new(bond1: &Bond, bond2: &Bond, angle: Angle) -> Self {
-        AngleGusset {}
-    }
 }
 
 #[cfg(test)]

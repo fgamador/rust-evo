@@ -60,7 +60,7 @@ impl BondStrain
     }
 }
 
-pub fn calc_bond_forces<'a, C>(graph: &'a mut SortableGraph<C, Bond>, on_bond_force: fn(&mut C, Force))
+pub fn calc_bond_forces<'a, C>(graph: &'a mut SortableGraph<C, Bond, AngleGusset>, on_bond_force: fn(&mut C, Force))
     where C: Circle + GraphNode
 {
     let mut strains: Vec<(NodeHandle, BondStrain)> = Vec::with_capacity(graph.edges().len() * 2);
@@ -127,7 +127,7 @@ impl GraphMetaEdge for AngleGusset {
     }
 }
 
-pub fn calc_bond_angle_forces<'a, C>(graph: &'a mut SortableGraph<C, Bond>, on_bond_force: fn(&mut C, Force))
+pub fn calc_bond_angle_forces<'a, C>(graph: &'a mut SortableGraph<C, Bond, AngleGusset>, on_bond_force: fn(&mut C, Force))
     where C: Circle + GraphNode
 {
 //    let mut strains: Vec<(NodeHandle, BondAngleStrain)> = Vec::with_capacity(graph.edges().len() * 2);

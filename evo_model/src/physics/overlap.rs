@@ -51,8 +51,8 @@ impl Walls {
     }
 }
 
-pub fn find_graph_pair_overlaps<'a, C, E>(graph: &'a mut SortableGraph<C, E>, on_overlap: fn(&mut C, Overlap))
-    where C: Circle + GraphNode, E: GraphEdge
+pub fn find_graph_pair_overlaps<'a, C, E, ME>(graph: &'a mut SortableGraph<C, E, ME>, on_overlap: fn(&mut C, Overlap))
+    where C: Circle + GraphNode, E: GraphEdge, ME: GraphMetaEdge
 {
     graph.sort_node_handles(cmp_by_min_x);
 
@@ -205,7 +205,7 @@ mod tests {
 
     #[test]
     fn graph_pair_overlap() {
-        let mut graph: SortableGraph<SpyCircle, SimpleGraphEdge> = SortableGraph::new();
+        let mut graph: SortableGraph<SpyCircle, SimpleGraphEdge, SimpleGraphMetaEdge> = SortableGraph::new();
         graph.add_node(SpyCircle::new(Position::new(0.0, 0.0), Length::new(1.0)));
         graph.add_node(SpyCircle::new(Position::new(1.5, 0.0), Length::new(1.0)));
 
@@ -217,7 +217,7 @@ mod tests {
 
     #[test]
     fn bonded_graph_pair_overlap_is_ignored() {
-        let mut graph: SortableGraph<SpyCircle, SimpleGraphEdge> = SortableGraph::new();
+        let mut graph: SortableGraph<SpyCircle, SimpleGraphEdge, SimpleGraphMetaEdge> = SortableGraph::new();
         graph.add_node(SpyCircle::new(Position::new(0.0, 0.0), Length::new(1.0)));
         graph.add_node(SpyCircle::new(Position::new(1.5, 0.0), Length::new(1.0)));
 
@@ -232,7 +232,7 @@ mod tests {
 
     #[test]
     fn graph_pairs_overlap_after_movement() {
-        let mut graph: SortableGraph<SpyCircle, SimpleGraphEdge> = SortableGraph::new();
+        let mut graph: SortableGraph<SpyCircle, SimpleGraphEdge, SimpleGraphMetaEdge> = SortableGraph::new();
         graph.add_node(SpyCircle::new(Position::new(0.0, 0.0), Length::new(1.0)));
         graph.add_node(SpyCircle::new(Position::new(3.0, 0.0), Length::new(1.0)));
         graph.add_node(SpyCircle::new(Position::new(6.0, 0.0), Length::new(1.0)));

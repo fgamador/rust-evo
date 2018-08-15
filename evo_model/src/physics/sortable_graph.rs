@@ -2,18 +2,20 @@ use std::cmp::Ordering;
 use std::usize;
 
 #[derive(Debug)]
-pub struct SortableGraph<N: GraphNode, E: GraphEdge> {
+pub struct SortableGraph<N: GraphNode, E: GraphEdge, ME: GraphMetaEdge> {
     unsorted_nodes: Vec<N>,
     sortable_node_handles: Vec<NodeHandle>,
     edges: Vec<E>,
+    meta_edges: Vec<ME>,
 }
 
-impl<N: GraphNode, E: GraphEdge> SortableGraph<N, E> {
+impl<N: GraphNode, E: GraphEdge, ME: GraphMetaEdge> SortableGraph<N, E, ME> {
     pub fn new() -> Self {
         SortableGraph {
             unsorted_nodes: vec![],
             sortable_node_handles: vec![],
             edges: vec![],
+            meta_edges: vec![],
         }
     }
 
@@ -290,7 +292,7 @@ mod tests {
 
     #[test]
     fn added_node_has_correct_handle() {
-        let mut graph: SortableGraph<SpyNode, SimpleGraphEdge> = SortableGraph::new();
+        let mut graph: SortableGraph<SpyNode, SimpleGraphEdge, SimpleGraphMetaEdge> = SortableGraph::new();
 
         let handle = graph.add_node(SpyNode::new());
 
@@ -299,7 +301,7 @@ mod tests {
 
     #[test]
     fn can_fetch_node_by_handle() {
-        let mut graph: SortableGraph<SpyNode, SimpleGraphEdge> = SortableGraph::new();
+        let mut graph: SortableGraph<SpyNode, SimpleGraphEdge, SimpleGraphMetaEdge> = SortableGraph::new();
 
         let handle = graph.add_node(SpyNode::new());
 
@@ -308,7 +310,7 @@ mod tests {
 
     #[test]
     fn added_edge_has_correct_handles() {
-        let mut graph: SortableGraph<SpyNode, SimpleGraphEdge> = SortableGraph::new();
+        let mut graph: SortableGraph<SpyNode, SimpleGraphEdge, SimpleGraphMetaEdge> = SortableGraph::new();
 
         graph.add_node(SpyNode::new());
         graph.add_node(SpyNode::new());
@@ -326,8 +328,7 @@ mod tests {
 
     // TODO #[test]
     fn added_meta_edge_has_correct_handles() {
-        // TODO let mut graph: SortableGraph<SpyNode, SimpleGraphEdge, SimpleGraphMetaEdge> = SortableGraph::new();
-        let mut graph: SortableGraph<SpyNode, SimpleGraphEdge> = SortableGraph::new();
+        let mut graph: SortableGraph<SpyNode, SimpleGraphEdge, SimpleGraphMetaEdge> = SortableGraph::new();
 
         graph.add_node(SpyNode::new());
         graph.add_node(SpyNode::new());
@@ -351,7 +352,7 @@ mod tests {
 
     #[test]
     fn have_edge() {
-        let mut graph: SortableGraph<SpyNode, SimpleGraphEdge> = SortableGraph::new();
+        let mut graph: SortableGraph<SpyNode, SimpleGraphEdge, SimpleGraphMetaEdge> = SortableGraph::new();
 
         graph.add_node(SpyNode::new());
         graph.add_node(SpyNode::new());

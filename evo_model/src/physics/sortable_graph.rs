@@ -19,10 +19,10 @@ impl<N: GraphNode, E: GraphEdge> SortableGraph<N, E> {
 
     pub fn add_node(&mut self, mut node: N) -> NodeHandle {
         node.graph_node_data_mut().node_handle.index = self.unsorted_nodes.len();
-        let handle = node.node_handle();
-        self.sortable_node_handles.push(handle);
+        let node_handle = node.node_handle();
+        self.sortable_node_handles.push(node_handle);
         self.unsorted_nodes.push(node);
-        handle
+        node_handle
     }
 
     pub fn add_edge(&mut self, mut edge: E) -> EdgeHandle {

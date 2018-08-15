@@ -40,6 +40,14 @@ impl<N: GraphNode, E: GraphEdge, ME: GraphMetaEdge> SortableGraph<N, E, ME> {
         self.node_mut(node_handle).graph_node_data_mut().edge_handles.push(edge_handle);
     }
 
+    pub fn add_meta_edge(&mut self, meta_edge: ME) {
+//        edge.graph_edge_data_mut().edge_handle.index = self.meta_edges.len();
+//        let edge_handle = edge.edge_handle();
+//        self.add_edge_to_node(edge.node1_handle(), edge_handle);
+//        self.add_edge_to_node(edge.node2_handle(), edge_handle);
+        self.meta_edges.push(meta_edge);
+    }
+
     pub fn sort_node_handles(&mut self, cmp: fn(&N, &N) -> Ordering) {
         let nodes = &self.unsorted_nodes;
         // TODO convert this to insertion sort (and rename fn to insertion_sort)
@@ -84,8 +92,8 @@ impl<N: GraphNode, E: GraphEdge, ME: GraphMetaEdge> SortableGraph<N, E, ME> {
             .any(|node2_handle| { node2_handle == node2.node_handle() })
     }
 
-    pub fn meta_edges(&self) -> &[E] {
-        &self.edges
+    pub fn meta_edges(&self) -> &[ME] {
+        &self.meta_edges
     }
 }
 
@@ -326,7 +334,7 @@ mod tests {
         assert_eq!(node2, graph.node(edge.node2_handle()));
     }
 
-    // TODO #[test]
+    #[test]
     fn added_meta_edge_has_correct_handles() {
         let mut graph: SortableGraph<SpyNode, SimpleGraphEdge, SimpleGraphMetaEdge> = SortableGraph::new();
 
@@ -340,14 +348,13 @@ mod tests {
         graph.add_edge(edge);
 
         let meta_edge = SimpleGraphMetaEdge::new(&graph.edges()[0], &graph.edges()[1]);
-        // TODO graph.add_meta_edge(meta_edge);
+        graph.add_meta_edge(meta_edge);
 
         let edge1 = &graph.edges()[0];
         let edge2 = &graph.edges()[1];
-        // TODO
-//        let meta_edge = &graph.meta_edges()[0];
-//        assert_eq!(edge1, graph.edge(meta_edge.edge1_handle()));
-//        assert_eq!(edge2, graph.edge(meta_edge.edge2_handle()));
+        let meta_edge = &graph.meta_edges()[0];
+        assert_eq!(edge1, graph.edge(meta_edge.edge1_handle()));
+        assert_eq!(edge2, graph.edge(meta_edge.edge2_handle()));
     }
 
     #[test]

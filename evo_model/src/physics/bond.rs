@@ -96,35 +96,36 @@ fn calc_bond_strain<C>(circle1: &C, circle2: &C) -> Displacement
     Displacement::new(x_strain, y_strain)
 }
 
-#[derive(Clone, Copy, Debug, PartialEq)]
+#[derive(Clone, Debug, PartialEq)]
 pub struct AngleGusset {
-    // TODO meta_edge_data: GraphMetaEdgeData
+    meta_edge_data: GraphMetaEdgeData
 }
 
 impl AngleGusset {
     pub fn new(bond1: &Bond, bond2: &Bond, angle: Angle) -> Self {
-        AngleGusset {}
+        AngleGusset {
+            meta_edge_data: GraphMetaEdgeData::new(bond1.edge_handle(), bond2.edge_handle())
+        }
     }
 }
 
-// TODO
-//impl GraphMetaEdge for AngleGusset {
-//    fn edge1_handle(&self) -> EdgeHandle {
-//        self.meta_edge_data.edge1_handle()
-//    }
-//
-//    fn edge2_handle(&self) -> EdgeHandle {
-//        self.meta_edge_data.edge2_handle()
-//    }
-//
-//    fn graph_meta_edge_data(&self) -> &GraphMetaEdgeData {
-//        &self.meta_edge_data
-//    }
-//
-//    fn graph_meta_edge_data_mut(&mut self) -> &mut GraphMetaEdgeData {
-//        &mut self.meta_edge_data
-//    }
-//}
+impl GraphMetaEdge for AngleGusset {
+    fn edge1_handle(&self) -> EdgeHandle {
+        self.meta_edge_data.edge1_handle()
+    }
+
+    fn edge2_handle(&self) -> EdgeHandle {
+        self.meta_edge_data.edge2_handle()
+    }
+
+    fn graph_meta_edge_data(&self) -> &GraphMetaEdgeData {
+        &self.meta_edge_data
+    }
+
+    fn graph_meta_edge_data_mut(&mut self) -> &mut GraphMetaEdgeData {
+        &mut self.meta_edge_data
+    }
+}
 
 pub fn calc_bond_angle_forces<'a, C>(graph: &'a mut SortableGraph<C, Bond>, on_bond_force: fn(&mut C, Force))
     where C: Circle + GraphNode

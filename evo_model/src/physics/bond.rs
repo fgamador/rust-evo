@@ -133,8 +133,8 @@ pub fn calc_bond_angle_forces<'a, C>(graph: &'a mut SortableGraph<C, Bond, Angle
 //    let mut strains: Vec<(NodeHandle, BondAngleStrain)> = Vec::with_capacity(graph.edges().len() * 2);
 
     for gusset in graph.meta_edges() {
-//        let circle1 = graph.node(bond.node1_handle());
-//        let circle2 = graph.node(bond.node2_handle());
+        let bond1 = graph.edge(gusset.edge1_handle());
+        let bond2 = graph.edge(gusset.edge2_handle());
 
 //        let strain = calc_bond_strain(circle1, circle2);
 //        strains.push((circle1.node_handle(), BondStrain::new(strain)));

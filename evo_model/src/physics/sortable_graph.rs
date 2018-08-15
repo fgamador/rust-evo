@@ -230,11 +230,6 @@ pub trait GraphMetaEdge {
     fn graph_meta_edge_data_mut(&mut self) -> &mut GraphMetaEdgeData;
 }
 
-//#[derive(Clone, Copy, Debug, PartialEq)]
-//struct MetaEdgeHandle {
-//    index: usize
-//}
-
 #[derive(Clone, Debug, PartialEq)]
 pub struct GraphMetaEdgeData {
     edge1_handle: EdgeHandle,
@@ -253,17 +248,9 @@ impl GraphMetaEdgeData {
         self.edge1_handle
     }
 
-//    pub fn node1_handle_mut(&mut self) -> &mut NodeHandle {
-//        &mut self.node1_handle
-//    }
-
     pub fn edge2_handle(&self) -> EdgeHandle {
         self.edge2_handle
     }
-
-//    pub fn node2_handle_mut(&mut self) -> &mut NodeHandle {
-//        &mut self.node2_handle
-//    }
 }
 
 #[derive(Debug, PartialEq)]

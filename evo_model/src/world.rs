@@ -36,7 +36,7 @@ impl World {
     }
 
     pub fn add_angle_gusset(&mut self, gusset: AngleGusset) {
-        // TODO
+        // TODO self.ball_graph.add_meta_edge(gusset);
     }
 
     pub fn tick(&mut self) {

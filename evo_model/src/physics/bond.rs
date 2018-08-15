@@ -94,7 +94,7 @@ fn calc_bond_strain<C>(circle1: &C, circle2: &C) -> Displacement
 
 #[derive(Clone, Copy, Debug, PartialEq)]
 pub struct AngleGusset {
-    // TODO
+    // TODO meta_edge_data: GraphMetaEdgeData
 }
 
 impl AngleGusset {
@@ -102,6 +102,25 @@ impl AngleGusset {
         AngleGusset {}
     }
 }
+
+// TODO
+//impl GraphMetaEdge for AngleGusset {
+//    fn edge1_handle(&self) -> EdgeHandle {
+//        self.meta_edge_data.edge1_handle()
+//    }
+//
+//    fn edge2_handle(&self) -> EdgeHandle {
+//        self.meta_edge_data.edge2_handle()
+//    }
+//
+//    fn graph_meta_edge_data(&self) -> &GraphMetaEdgeData {
+//        &self.meta_edge_data
+//    }
+//
+//    fn graph_meta_edge_data_mut(&mut self) -> &mut GraphMetaEdgeData {
+//        &mut self.meta_edge_data
+//    }
+//}
 
 pub fn calc_bond_angle_forces<'a, C>(graph: &'a mut SortableGraph<C, Bond>, on_bond_force: fn(&mut C, Force))
     where C: Circle + GraphNode

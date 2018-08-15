@@ -25,11 +25,13 @@ impl<N: GraphNode, E: GraphEdge> SortableGraph<N, E> {
         handle
     }
 
-    pub fn add_edge(&mut self, edge: E) {
-        let edge_handle = EdgeHandle { index: self.edges.len() };
+    pub fn add_edge(&mut self, mut edge: E) -> EdgeHandle {
+        edge.graph_edge_data_mut().edge_handle.index = self.edges.len();
+        let edge_handle = edge.edge_handle();
         self.add_edge_to_node(edge.node1_handle(), edge_handle);
         self.add_edge_to_node(edge.node2_handle(), edge_handle);
         self.edges.push(edge);
+        edge_handle
     }
 
     fn add_edge_to_node(&mut self, node_handle: NodeHandle, edge_handle: EdgeHandle) {
@@ -64,6 +66,10 @@ impl<N: GraphNode, E: GraphEdge> SortableGraph<N, E> {
 
     pub fn edges(&self) -> &[E] {
         &self.edges
+    }
+
+    pub fn edge(&self, handle: EdgeHandle) -> &E {
+        &self.edges[handle.index]
     }
 
     pub fn have_edge(&self, node1: &N, node2: &N) -> bool {
@@ -326,6 +332,7 @@ mod tests {
         let node1 = &graph.unsorted_nodes()[0];
         let node2 = &graph.unsorted_nodes()[1];
         let edge = &graph.edges()[0];
+        assert_eq!(edge, graph.edge(edge.edge_handle()));
         assert_eq!(node1, graph.node(edge.node1_handle()));
         assert_eq!(node2, graph.node(edge.node2_handle()));
     }

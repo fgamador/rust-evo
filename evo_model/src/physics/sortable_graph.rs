@@ -120,6 +120,8 @@ impl GraphNodeData {
 }
 
 pub trait GraphEdge {
+    fn edge_handle(&self) -> EdgeHandle;
+
     fn node1_handle(&self) -> NodeHandle;
 
     fn node2_handle(&self) -> NodeHandle;
@@ -130,12 +132,19 @@ pub trait GraphEdge {
 }
 
 #[derive(Clone, Copy, Debug, PartialEq)]
-struct EdgeHandle {
+pub struct EdgeHandle {
     index: usize
+}
+
+impl EdgeHandle {
+    pub fn unset() -> Self {
+        EdgeHandle { index: usize::MAX }
+    }
 }
 
 #[derive(Clone, Debug, PartialEq)]
 pub struct GraphEdgeData {
+    edge_handle: EdgeHandle,
     node1_handle: NodeHandle,
     node2_handle: NodeHandle,
 }
@@ -143,9 +152,14 @@ pub struct GraphEdgeData {
 impl GraphEdgeData {
     pub fn new(node1_handle: NodeHandle, node2_handle: NodeHandle) -> Self {
         GraphEdgeData {
+            edge_handle: EdgeHandle::unset(),
             node1_handle,
             node2_handle,
         }
+    }
+
+    pub fn edge_handle(&self) -> EdgeHandle {
+        self.edge_handle
     }
 
     pub fn node1_handle(&self) -> NodeHandle {
@@ -179,6 +193,10 @@ impl SimpleGraphEdge {
 }
 
 impl GraphEdge for SimpleGraphEdge {
+    fn edge_handle(&self) -> EdgeHandle {
+        self.edge_data.edge_handle
+    }
+
     fn node1_handle(&self) -> NodeHandle {
         self.edge_data.node1_handle
     }
@@ -193,6 +211,83 @@ impl GraphEdge for SimpleGraphEdge {
 
     fn graph_edge_data_mut(&mut self) -> &mut GraphEdgeData {
         &mut self.edge_data
+    }
+}
+
+pub trait GraphMetaEdge {
+    fn edge1_handle(&self) -> EdgeHandle;
+
+    fn edge2_handle(&self) -> EdgeHandle;
+
+    fn graph_meta_edge_data(&self) -> &GraphMetaEdgeData;
+
+    fn graph_meta_edge_data_mut(&mut self) -> &mut GraphMetaEdgeData;
+}
+
+//#[derive(Clone, Copy, Debug, PartialEq)]
+//struct MetaEdgeHandle {
+//    index: usize
+//}
+
+#[derive(Clone, Debug, PartialEq)]
+pub struct GraphMetaEdgeData {
+    edge1_handle: EdgeHandle,
+    edge2_handle: EdgeHandle,
+}
+
+impl GraphMetaEdgeData {
+    pub fn new(edge1_handle: EdgeHandle, edge2_handle: EdgeHandle) -> Self {
+        GraphMetaEdgeData {
+            edge1_handle,
+            edge2_handle,
+        }
+    }
+
+    pub fn edge1_handle(&self) -> EdgeHandle {
+        self.edge1_handle
+    }
+
+//    pub fn node1_handle_mut(&mut self) -> &mut NodeHandle {
+//        &mut self.node1_handle
+//    }
+
+    pub fn edge2_handle(&self) -> EdgeHandle {
+        self.edge2_handle
+    }
+
+//    pub fn node2_handle_mut(&mut self) -> &mut NodeHandle {
+//        &mut self.node2_handle
+//    }
+}
+
+#[derive(Debug, PartialEq)]
+pub struct SimpleGraphMetaEdge {
+    meta_edge_data: GraphMetaEdgeData,
+}
+
+impl SimpleGraphMetaEdge {
+    pub fn new(edge1: &GraphEdge, edge2: &GraphEdge) -> Self {
+        SimpleGraphMetaEdge {
+            meta_edge_data: GraphMetaEdgeData::new(edge1.edge_handle(), edge2.edge_handle())
+        }
+    }
+}
+
+impl GraphMetaEdge for SimpleGraphMetaEdge {
+    fn edge1_handle(&self) -> EdgeHandle {
+        self.meta_edge_data.edge1_handle
+    }
+
+    fn edge2_handle(&self) -> EdgeHandle {
+        self.meta_edge_data.edge2_handle
+    }
+
+    fn graph_meta_edge_data(&self) -> &GraphMetaEdgeData {
+        &self.meta_edge_data
+    }
+
+    fn graph_meta_edge_data_mut(&mut self) -> &mut GraphMetaEdgeData {
+        &mut self.meta_edge_data
     }
 }
 

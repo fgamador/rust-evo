@@ -20,6 +20,10 @@ impl Bond {
 }
 
 impl GraphEdge for Bond {
+    fn edge_handle(&self) -> EdgeHandle {
+        self.edge_data.edge_handle()
+    }
+
     fn node1_handle(&self) -> NodeHandle {
         self.edge_data.node1_handle()
     }

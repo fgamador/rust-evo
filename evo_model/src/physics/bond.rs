@@ -127,10 +127,11 @@ impl GraphMetaEdge for AngleGusset {
     }
 }
 
-pub fn calc_bond_angle_forces<'a, C>(graph: &'a mut SortableGraph<C, Bond, AngleGusset>, on_bond_force: fn(&mut C, Force))
+// TODO
+pub fn calc_bond_angle_forces<'a, C>(graph: &'a mut SortableGraph<C, Bond, AngleGusset>, on_force: fn(&mut C, Force))
     where C: Circle + GraphNode
 {
-//    let mut strains: Vec<(NodeHandle, BondAngleStrain)> = Vec::with_capacity(graph.edges().len() * 2);
+//    let mut deflections: Vec<(NodeHandle, AngleDeflection)> = Vec::with_capacity(graph.edges().len() * 2);
 
     for gusset in graph.meta_edges() {
         let bond1 = graph.edge(gusset.edge1_handle());
@@ -142,7 +143,7 @@ pub fn calc_bond_angle_forces<'a, C>(graph: &'a mut SortableGraph<C, Bond, Angle
     }
 
 //    for (handle, strain) in strains {
-//        on_bond_force(graph.node_mut(handle), strain.to_force());
+//        on_force(graph.node_mut(handle), strain.to_force());
 //    }
 }
 

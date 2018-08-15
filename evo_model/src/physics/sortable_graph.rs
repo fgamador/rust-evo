@@ -324,26 +324,30 @@ mod tests {
         assert_eq!(node2, graph.node(edge.node2_handle()));
     }
 
-    // TODO
-//    #[test]
-//    fn added_meta_edge_has_correct_handles() {
-//        let mut graph: SortableGraph<SpyNode, SimpleGraphEdge, SimpleGraphMetaEdge> = SortableGraph::new();
-//
-//        graph.add_node(SpyNode::new());
-//        graph.add_node(SpyNode::new());
-//        graph.add_node(SpyNode::new());
-//
-//        let edge = SimpleGraphEdge::new(&graph.unsorted_nodes()[0], &graph.unsorted_nodes()[1]);
-//        graph.add_edge(edge);
-//        let edge = SimpleGraphEdge::new(&graph.unsorted_nodes()[1], &graph.unsorted_nodes()[2]);
-//        graph.add_edge(edge);
-//
-//        let edge1 = &graph.edges()[0];
-//        let edge2 = &graph.edges()[1];
+    // TODO #[test]
+    fn added_meta_edge_has_correct_handles() {
+        // TODO let mut graph: SortableGraph<SpyNode, SimpleGraphEdge, SimpleGraphMetaEdge> = SortableGraph::new();
+        let mut graph: SortableGraph<SpyNode, SimpleGraphEdge> = SortableGraph::new();
+
+        graph.add_node(SpyNode::new());
+        graph.add_node(SpyNode::new());
+        graph.add_node(SpyNode::new());
+
+        let edge = SimpleGraphEdge::new(&graph.unsorted_nodes()[0], &graph.unsorted_nodes()[1]);
+        graph.add_edge(edge);
+        let edge = SimpleGraphEdge::new(&graph.unsorted_nodes()[1], &graph.unsorted_nodes()[2]);
+        graph.add_edge(edge);
+
+        let meta_edge = SimpleGraphMetaEdge::new(&graph.edges()[0], &graph.edges()[1]);
+        // TODO graph.add_meta_edge(meta_edge);
+
+        let edge1 = &graph.edges()[0];
+        let edge2 = &graph.edges()[1];
+        // TODO
 //        let meta_edge = &graph.meta_edges()[0];
 //        assert_eq!(edge1, graph.edge(meta_edge.edge1_handle()));
 //        assert_eq!(edge2, graph.edge(meta_edge.edge2_handle()));
-//    }
+    }
 
     #[test]
     fn have_edge() {

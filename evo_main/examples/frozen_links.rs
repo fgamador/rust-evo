@@ -40,9 +40,9 @@ fn create_world() -> World {
     let bond = Bond::new(&world.balls()[4], &world.balls()[5]);
     world.add_bond(bond);
 
-    let gusset = AngleGusset::new(&world.bonds()[1], &world.bonds()[2], Angle::in_radians(PI));
+    let gusset = AngleGusset::new(&world.bonds()[1], &world.bonds()[2], Angle::from_radians(PI));
     world.add_angle_gusset(gusset);
-    let gusset = AngleGusset::new(&world.bonds()[2], &world.bonds()[3], Angle::in_radians(PI));
+    let gusset = AngleGusset::new(&world.bonds()[2], &world.bonds()[3], Angle::from_radians(PI));
     world.add_angle_gusset(gusset);
 
     world.add_ball(Ball::new(Length::new(20.0), Mass::new(1.0),

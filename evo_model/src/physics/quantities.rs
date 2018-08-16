@@ -11,7 +11,7 @@ pub struct Angle {
 }
 
 impl Angle {
-    pub fn in_radians(radians: f64) -> Self {
+    pub fn from_radians(radians: f64) -> Self {
         if radians < 0.0 {
             panic!("Negative angle: {}", radians);
         }

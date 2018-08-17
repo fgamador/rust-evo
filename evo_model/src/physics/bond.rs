@@ -129,7 +129,6 @@ impl GraphMetaEdge for AngleGusset {
     }
 }
 
-// TODO
 pub fn calc_bond_angle_forces<'a, C>(graph: &'a mut SortableGraph<C, Bond, AngleGusset>, on_force: fn(&mut C, Force))
     where C: Circle + GraphNode
 {
@@ -139,9 +138,13 @@ pub fn calc_bond_angle_forces<'a, C>(graph: &'a mut SortableGraph<C, Bond, Angle
         let bond1 = graph.edge(gusset.edge1_handle());
         let bond2 = graph.edge(gusset.edge2_handle());
 
+        let node1 = graph.node(bond1.node1_handle());
+        let node2 = graph.node(bond1.node2_handle());
+        let node3 = graph.node(bond1.node2_handle());
+
         // TODO stub
-        forces.push((bond1.node1_handle(), Force::new(-1.0, 0.0)));
-        forces.push((bond2.node2_handle(), Force::new(-1.0, 0.0)));
+        forces.push((node1.node_handle(), Force::new(-1.0, 0.0)));
+        forces.push((node3.node_handle(), Force::new(-1.0, 0.0)));
     }
 
     for (node_handle, force) in forces {

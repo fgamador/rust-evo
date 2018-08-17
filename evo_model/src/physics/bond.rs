@@ -9,6 +9,7 @@ pub struct Bond {
 
 impl Bond {
     pub fn new(circle1: &GraphNode, circle2: &GraphNode) -> Self {
+        assert_ne!(circle1.node_handle(), circle2.node_handle());
         Bond {
             edge_data: GraphEdgeData::new(circle1.node_handle(), circle2.node_handle())
         }
@@ -160,6 +161,13 @@ fn sqr(x: f64) -> f64 {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    #[should_panic]
+    fn cannot_bond_same_ball() {
+        let circle1 = SpyCircle::new(Position::new(0.0, 0.0), Length::new(2.0));
+        Bond::new(&circle1, &circle1);
+    }
 
     #[test]
     fn bond_calculates_strain() {

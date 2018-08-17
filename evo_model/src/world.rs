@@ -165,7 +165,7 @@ mod tests {
         assert!(ball2.velocity().y() < 1.0);
     }
 
-    //#[test]
+    #[test]
     fn angle_gusset_exerts_force() {
         let mut world = World::new(Position::new(-10.0, -10.0), Position::new(10.0, 10.0));
         world.add_ball(Ball::new(Length::new(1.0), Mass::new(1.0),

@@ -98,13 +98,15 @@ fn calc_bond_strain<C>(circle1: &C, circle2: &C) -> Displacement
 
 #[derive(Clone, Debug, PartialEq)]
 pub struct AngleGusset {
-    meta_edge_data: GraphMetaEdgeData
+    meta_edge_data: GraphMetaEdgeData,
+    angle: Angle, // counterclockwise angle from bond1 to bond2
 }
 
 impl AngleGusset {
     pub fn new(bond1: &Bond, bond2: &Bond, angle: Angle) -> Self {
         AngleGusset {
-            meta_edge_data: GraphMetaEdgeData::new(bond1.edge_handle(), bond2.edge_handle())
+            meta_edge_data: GraphMetaEdgeData::new(bond1.edge_handle(), bond2.edge_handle()),
+            angle,
         }
     }
 }
@@ -131,20 +133,20 @@ impl GraphMetaEdge for AngleGusset {
 pub fn calc_bond_angle_forces<'a, C>(graph: &'a mut SortableGraph<C, Bond, AngleGusset>, on_force: fn(&mut C, Force))
     where C: Circle + GraphNode
 {
-//    let mut deflections: Vec<(NodeHandle, AngleDeflection)> = Vec::with_capacity(graph.edges().len() * 2);
+    let mut forces: Vec<(NodeHandle, Force)> = Vec::with_capacity(graph.meta_edges().len() * 2);
 
     for gusset in graph.meta_edges() {
         let bond1 = graph.edge(gusset.edge1_handle());
         let bond2 = graph.edge(gusset.edge2_handle());
 
-//        let strain = calc_bond_strain(circle1, circle2);
-//        strains.push((circle1.node_handle(), BondStrain::new(strain)));
-//        strains.push((circle2.node_handle(), BondStrain::new(-strain)));
+        // TODO stub
+        forces.push((bond1.node1_handle(), Force::new(-1.0, 0.0)));
+        forces.push((bond2.node2_handle(), Force::new(-1.0, 0.0)));
     }
 
-//    for (handle, strain) in strains {
-//        on_force(graph.node_mut(handle), strain.to_force());
-//    }
+    for (node_handle, force) in forces {
+        on_force(graph.node_mut(node_handle), force);
+    }
 }
 
 // TODO find a better home

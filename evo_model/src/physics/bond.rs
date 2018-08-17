@@ -105,6 +105,7 @@ pub struct AngleGusset {
 
 impl AngleGusset {
     pub fn new(bond1: &Bond, bond2: &Bond, angle: Angle) -> Self {
+        assert_ne!(bond1.edge_handle(), bond2.edge_handle());
         AngleGusset {
             meta_edge_data: GraphMetaEdgeData::new(bond1.edge_handle(), bond2.edge_handle()),
             angle,
@@ -161,12 +162,14 @@ fn sqr(x: f64) -> f64 {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use std::f64::consts::PI;
 
     #[test]
     #[should_panic]
     fn cannot_bond_same_ball() {
-        let circle1 = SpyCircle::new(Position::new(0.0, 0.0), Length::new(2.0));
-        Bond::new(&circle1, &circle1);
+        let mut graph: SortableGraph<SpyCircle, Bond, AngleGusset> = SortableGraph::new();
+        graph.add_node(SpyCircle::new(Position::new(0.0, 0.0), Length::new(1.0)));
+        Bond::new(&graph.unsorted_nodes()[0], &graph.unsorted_nodes()[1]);
     }
 
     #[test]
@@ -190,6 +193,17 @@ mod tests {
 
         // what else could we do?
         assert_eq!(Displacement::new(0.0, 0.0), strain);
+    }
+
+    #[test]
+    #[should_panic]
+    fn cannot_gusset_same_bond() {
+        let mut graph: SortableGraph<SpyCircle, Bond, AngleGusset> = SortableGraph::new();
+        graph.add_node(SpyCircle::new(Position::new(0.0, 0.0), Length::new(1.0)));
+        graph.add_node(SpyCircle::new(Position::new(2.0, 0.0), Length::new(1.0)));
+        let bond = Bond::new(&graph.unsorted_nodes()[0], &graph.unsorted_nodes()[1]);
+        graph.add_edge(bond);
+        AngleGusset::new(&graph.edges()[0], &graph.edges()[0], Angle::from_radians(PI));
     }
 
     #[derive(Clone, Debug, PartialEq)]

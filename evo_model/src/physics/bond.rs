@@ -106,6 +106,7 @@ pub struct AngleGusset {
 impl AngleGusset {
     pub fn new(bond1: &Bond, bond2: &Bond, angle: Angle) -> Self {
         assert_ne!(bond1.edge_handle(), bond2.edge_handle());
+        assert_eq!(bond1.node2_handle(), bond2.node1_handle());
         AngleGusset {
             meta_edge_data: GraphMetaEdgeData::new(bond1.edge_handle(), bond2.edge_handle()),
             angle,
@@ -204,6 +205,21 @@ mod tests {
         let bond = Bond::new(&graph.unsorted_nodes()[0], &graph.unsorted_nodes()[1]);
         graph.add_edge(bond);
         AngleGusset::new(&graph.edges()[0], &graph.edges()[0], Angle::from_radians(PI));
+    }
+
+    #[test]
+    #[should_panic]
+    fn cannot_gusset_unconnected_bonds() {
+        let mut graph: SortableGraph<SpyCircle, Bond, AngleGusset> = SortableGraph::new();
+        graph.add_node(SpyCircle::new(Position::new(0.0, 0.0), Length::new(1.0)));
+        graph.add_node(SpyCircle::new(Position::new(2.0, 0.0), Length::new(1.0)));
+        graph.add_node(SpyCircle::new(Position::new(10.0, 0.0), Length::new(1.0)));
+        graph.add_node(SpyCircle::new(Position::new(12.0, 0.0), Length::new(1.0)));
+        let bond1 = Bond::new(&graph.unsorted_nodes()[0], &graph.unsorted_nodes()[1]);
+        graph.add_edge(bond1);
+        let bond2 = Bond::new(&graph.unsorted_nodes()[2], &graph.unsorted_nodes()[3]);
+        graph.add_edge(bond2);
+        AngleGusset::new(&graph.edges()[0], &graph.edges()[1], Angle::from_radians(PI));
     }
 
     #[derive(Clone, Debug, PartialEq)]

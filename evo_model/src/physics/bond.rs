@@ -222,6 +222,20 @@ mod tests {
         AngleGusset::new(&graph.edges()[0], &graph.edges()[1], Angle::from_radians(PI));
     }
 
+    //#[test]
+    fn gusset_forces() {
+        let mut graph: SortableGraph<SpyCircle, Bond, AngleGusset> = SortableGraph::new();
+        graph.add_node(SpyCircle::new(Position::new(0.0, 0.0), Length::new(1.0)));
+        graph.add_node(SpyCircle::new(Position::new(0.0, -2.0), Length::new(1.0)));
+        graph.add_node(SpyCircle::new(Position::new(2.0, -2.0), Length::new(1.0)));
+        let bond1 = Bond::new(&graph.unsorted_nodes()[0], &graph.unsorted_nodes()[1]);
+        graph.add_edge(bond1);
+        let bond2 = Bond::new(&graph.unsorted_nodes()[1], &graph.unsorted_nodes()[2]);
+        graph.add_edge(bond2);
+        AngleGusset::new(&graph.edges()[0], &graph.edges()[1], Angle::from_radians(PI));
+        // TODO
+    }
+
     #[derive(Clone, Debug, PartialEq)]
     pub struct SpyCircle {
         graph_node_data: GraphNodeData,

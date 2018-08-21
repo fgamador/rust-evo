@@ -65,12 +65,15 @@ impl World {
                 ball.forces_mut().add_force(force);
             });
 
-            for ball in self.ball_graph.unsorted_nodes_mut() {
-                ball.exert_forces(subtick_duration);
-                ball.move_for(subtick_duration);
-            }
-
+            self.apply_forces(subtick_duration);
             self.forget_forces();
+        }
+    }
+
+    fn apply_forces(&mut self, subtick_duration: Duration) {
+        for ball in self.ball_graph.unsorted_nodes_mut() {
+            ball.exert_forces(subtick_duration);
+            ball.move_for(subtick_duration);
         }
     }
 

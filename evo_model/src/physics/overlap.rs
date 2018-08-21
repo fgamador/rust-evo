@@ -213,14 +213,14 @@ mod tests {
 
     #[test]
     fn graph_pair_overlap() {
-        let mut graph: SortableGraph<SpyCircle, SimpleGraphEdge, SimpleGraphMetaEdge> = SortableGraph::new();
-        graph.add_node(SpyCircle::new(Position::new(0.0, 0.0), Length::new(1.0)));
-        graph.add_node(SpyCircle::new(Position::new(1.5, 0.0), Length::new(1.0)));
+        let mut graph: SortableGraph<SimpleCircleNode, SimpleGraphEdge, SimpleGraphMetaEdge> = SortableGraph::new();
+        graph.add_node(SimpleCircleNode::new(Position::new(0.0, 0.0), Length::new(1.0)));
+        graph.add_node(SimpleCircleNode::new(Position::new(1.5, 0.0), Length::new(1.0)));
 
-        find_graph_pair_overlaps_outer(&mut graph, on_overlap);
+        let overlaps = find_graph_pair_overlaps(&mut graph);
 
-        assert!(graph.unsorted_nodes()[0].overlapped);
-        assert!(graph.unsorted_nodes()[1].overlapped);
+        assert_eq!(graph.node_handles()[0], overlaps[0].0);
+        assert_eq!(graph.node_handles()[1], overlaps[1].0);
     }
 
     #[test]

@@ -3,6 +3,33 @@ use physics::shapes::*;
 use physics::sortable_graph::*;
 
 #[derive(Clone, Debug, PartialEq)]
+pub struct SpyNode {
+    graph_node_data: GraphNodeData,
+}
+
+impl SpyNode {
+    pub fn new() -> Self {
+        SpyNode {
+            graph_node_data: GraphNodeData::new(),
+        }
+    }
+}
+
+impl GraphNode for SpyNode {
+    fn node_handle(&self) -> NodeHandle {
+        self.graph_node_data.handle()
+    }
+
+    fn graph_node_data(&self) -> &GraphNodeData {
+        &self.graph_node_data
+    }
+
+    fn graph_node_data_mut(&mut self) -> &mut GraphNodeData {
+        &mut self.graph_node_data
+    }
+}
+
+#[derive(Clone, Debug, PartialEq)]
 pub struct SimpleCircleNode {
     graph_node_data: GraphNodeData,
     center: Position,

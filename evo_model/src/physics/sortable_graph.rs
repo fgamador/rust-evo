@@ -307,31 +307,4 @@ mod tests {
         assert!(graph.have_edge(&graph.unsorted_nodes()[1], &graph.unsorted_nodes()[0]));
         assert!(!graph.have_edge(&graph.unsorted_nodes()[0], &graph.unsorted_nodes()[2]));
     }
-
-    #[derive(Debug, PartialEq)]
-    struct SpyNode {
-        pub graph_node_data: GraphNodeData,
-    }
-
-    impl SpyNode {
-        fn new() -> Self {
-            SpyNode {
-                graph_node_data: GraphNodeData::new(),
-            }
-        }
-    }
-
-    impl GraphNode for SpyNode {
-        fn node_handle(&self) -> NodeHandle {
-            self.graph_node_data.handle()
-        }
-
-        fn graph_node_data(&self) -> &GraphNodeData {
-            &self.graph_node_data
-        }
-
-        fn graph_node_data_mut(&mut self) -> &mut GraphNodeData {
-            &mut self.graph_node_data
-        }
-    }
 }

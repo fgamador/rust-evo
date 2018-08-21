@@ -149,6 +149,7 @@ fn sqr(x: f64) -> f64 {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use physics::simple_graph_elements::*;
 
     #[test]
     fn no_wall_overlaps() {

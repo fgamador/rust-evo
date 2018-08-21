@@ -53,23 +53,39 @@ impl World {
 
     fn gather_forces(&mut self) {
         self.add_wall_overlaps();
-        find_graph_pair_overlaps_outer(&mut self.ball_graph, |ball, overlap| {
-            ball.environment_mut().add_overlap(overlap);
-        });
-        for ball in self.ball_graph.unsorted_nodes_mut() {
-            ball.add_overlap_forces();
-        }
-        calc_bond_forces(&mut self.ball_graph, |ball, force| {
-            ball.forces_mut().add_force(force);
-        });
-        calc_bond_angle_forces(&mut self.ball_graph, |ball, force| {
-            ball.forces_mut().add_force(force);
-        });
+        self.add_pair_overlaps();
+        self.add_overlap_forces();
+        self.add_bond_forces();
+        self.add_bond_angle_forces();
     }
 
     fn add_wall_overlaps(&mut self) {
         self.walls.find_overlaps(self.ball_graph.unsorted_nodes_mut(), |ball, overlap| {
             ball.environment_mut().add_overlap(overlap);
+        });
+    }
+
+    fn add_pair_overlaps(&mut self) {
+        find_graph_pair_overlaps_outer(&mut self.ball_graph, |ball, overlap| {
+            ball.environment_mut().add_overlap(overlap);
+        });
+    }
+
+    fn add_overlap_forces(&mut self) {
+        for ball in self.ball_graph.unsorted_nodes_mut() {
+            ball.add_overlap_forces();
+        }
+    }
+
+    fn add_bond_forces(&mut self) {
+        calc_bond_forces(&mut self.ball_graph, |ball, force| {
+            ball.forces_mut().add_force(force);
+        });
+    }
+
+    fn add_bond_angle_forces(&mut self) {
+        calc_bond_angle_forces(&mut self.ball_graph, |ball, force| {
+            ball.forces_mut().add_force(force);
         });
     }
 

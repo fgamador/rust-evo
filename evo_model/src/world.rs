@@ -45,29 +45,28 @@ impl World {
         let subtick_duration = tick_duration / (subticks_per_tick as f64);
 
         for _subtick in 0..subticks_per_tick {
-            self.walls.find_overlaps(self.ball_graph.unsorted_nodes_mut(), |ball, overlap| {
-                ball.environment_mut().add_overlap(overlap);
-            });
-
-            find_graph_pair_overlaps_outer(&mut self.ball_graph, |ball, overlap| {
-                ball.environment_mut().add_overlap(overlap);
-            });
-
-            for ball in self.ball_graph.unsorted_nodes_mut() {
-                ball.add_overlap_forces();
-            }
-
-            calc_bond_forces(&mut self.ball_graph, |ball, force| {
-                ball.forces_mut().add_force(force);
-            });
-
-            calc_bond_angle_forces(&mut self.ball_graph, |ball, force| {
-                ball.forces_mut().add_force(force);
-            });
-
+            self.gather_forces();
             self.apply_forces(subtick_duration);
             self.forget_forces();
         }
+    }
+
+    fn gather_forces(&mut self) {
+        self.walls.find_overlaps(self.ball_graph.unsorted_nodes_mut(), |ball, overlap| {
+            ball.environment_mut().add_overlap(overlap);
+        });
+        find_graph_pair_overlaps_outer(&mut self.ball_graph, |ball, overlap| {
+            ball.environment_mut().add_overlap(overlap);
+        });
+        for ball in self.ball_graph.unsorted_nodes_mut() {
+            ball.add_overlap_forces();
+        }
+        calc_bond_forces(&mut self.ball_graph, |ball, force| {
+            ball.forces_mut().add_force(force);
+        });
+        calc_bond_angle_forces(&mut self.ball_graph, |ball, force| {
+            ball.forces_mut().add_force(force);
+        });
     }
 
     fn apply_forces(&mut self, subtick_duration: Duration) {

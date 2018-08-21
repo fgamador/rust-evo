@@ -70,10 +70,14 @@ impl World {
                 ball.move_for(subtick_duration);
             }
 
-            for ball in self.ball_graph.unsorted_nodes_mut() {
-                ball.environment_mut().clear();
-                ball.forces_mut().clear();
-            }
+            self.forget_forces();
+        }
+    }
+
+    fn forget_forces(&mut self) -> () {
+        for ball in self.ball_graph.unsorted_nodes_mut() {
+            ball.environment_mut().clear();
+            ball.forces_mut().clear();
         }
     }
 }

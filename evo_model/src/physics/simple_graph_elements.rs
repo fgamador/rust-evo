@@ -3,19 +3,19 @@ use physics::shapes::*;
 use physics::sortable_graph::*;
 
 #[derive(Clone, Debug, PartialEq)]
-pub struct SpyNode {
+pub struct SimpleGraphNode {
     graph_node_data: GraphNodeData,
 }
 
-impl SpyNode {
+impl SimpleGraphNode {
     pub fn new() -> Self {
-        SpyNode {
+        SimpleGraphNode {
             graph_node_data: GraphNodeData::new(),
         }
     }
 }
 
-impl GraphNode for SpyNode {
+impl GraphNode for SimpleGraphNode {
     fn node_handle(&self) -> NodeHandle {
         self.graph_node_data.handle()
     }

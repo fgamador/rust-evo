@@ -51,7 +51,7 @@ impl Walls {
     }
 }
 
-pub fn find_graph_pair_overlaps<'a, C, E, ME>(graph: &'a mut SortableGraph<C, E, ME>, on_overlap: fn(&mut C, Overlap))
+pub fn find_graph_pair_overlaps_outer<'a, C, E, ME>(graph: &'a mut SortableGraph<C, E, ME>, on_overlap: fn(&mut C, Overlap))
     where C: Circle + GraphNode, E: GraphEdge, ME: GraphMetaEdge
 {
     graph.sort_node_handles(cmp_by_min_x);
@@ -209,7 +209,7 @@ mod tests {
         graph.add_node(SpyCircle::new(Position::new(0.0, 0.0), Length::new(1.0)));
         graph.add_node(SpyCircle::new(Position::new(1.5, 0.0), Length::new(1.0)));
 
-        find_graph_pair_overlaps(&mut graph, on_overlap);
+        find_graph_pair_overlaps_outer(&mut graph, on_overlap);
 
         assert!(graph.unsorted_nodes()[0].overlapped);
         assert!(graph.unsorted_nodes()[1].overlapped);
@@ -224,7 +224,7 @@ mod tests {
         let edge = SimpleGraphEdge::new(&graph.unsorted_nodes()[0], &graph.unsorted_nodes()[1]);
         graph.add_edge(edge);
 
-        find_graph_pair_overlaps(&mut graph, on_overlap);
+        find_graph_pair_overlaps_outer(&mut graph, on_overlap);
 
         assert!(!graph.unsorted_nodes()[0].overlapped);
         assert!(!graph.unsorted_nodes()[1].overlapped);
@@ -239,7 +239,7 @@ mod tests {
 
         graph.unsorted_nodes_mut()[2].center = Position::new(1.5, 0.0);
 
-        find_graph_pair_overlaps(&mut graph, on_overlap);
+        find_graph_pair_overlaps_outer(&mut graph, on_overlap);
 
         assert!(graph.unsorted_nodes()[0].overlapped);
         assert!(graph.unsorted_nodes()[1].overlapped);

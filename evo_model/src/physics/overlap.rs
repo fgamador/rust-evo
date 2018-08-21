@@ -219,6 +219,7 @@ mod tests {
 
         let overlaps = find_graph_pair_overlaps(&mut graph);
 
+        assert_eq!(2, overlaps.len());
         assert_eq!(graph.node_handles()[0], overlaps[0].0);
         assert_eq!(graph.node_handles()[1], overlaps[1].0);
     }
@@ -239,18 +240,20 @@ mod tests {
 
     #[test]
     fn graph_pairs_overlap_after_movement() {
-        let mut graph: SortableGraph<SpyCircle, SimpleGraphEdge, SimpleGraphMetaEdge> = SortableGraph::new();
-        graph.add_node(SpyCircle::new(Position::new(0.0, 0.0), Length::new(1.0)));
-        graph.add_node(SpyCircle::new(Position::new(3.0, 0.0), Length::new(1.0)));
-        graph.add_node(SpyCircle::new(Position::new(6.0, 0.0), Length::new(1.0)));
+        let mut graph: SortableGraph<SimpleCircleNode, SimpleGraphEdge, SimpleGraphMetaEdge> = SortableGraph::new();
+        graph.add_node(SimpleCircleNode::new(Position::new(0.0, 0.0), Length::new(1.0)));
+        graph.add_node(SimpleCircleNode::new(Position::new(3.0, 0.0), Length::new(1.0)));
+        graph.add_node(SimpleCircleNode::new(Position::new(6.0, 0.0), Length::new(1.0)));
 
-        graph.unsorted_nodes_mut()[2].center = Position::new(1.5, 0.0);
+        graph.unsorted_nodes_mut()[2].set_center(Position::new(1.5, 0.0));
 
-        find_graph_pair_overlaps_outer(&mut graph, on_overlap);
+        let overlaps = find_graph_pair_overlaps(&mut graph);
 
-        assert!(graph.unsorted_nodes()[0].overlapped);
-        assert!(graph.unsorted_nodes()[1].overlapped);
-        assert!(graph.unsorted_nodes()[2].overlapped);
+        assert_eq!(4, overlaps.len());
+        assert_eq!(graph.node_handles()[0], overlaps[0].0);
+        assert_eq!(graph.node_handles()[1], overlaps[1].0);
+        assert_eq!(graph.node_handles()[1], overlaps[2].0);
+        assert_eq!(graph.node_handles()[2], overlaps[3].0);
     }
 
     #[test]

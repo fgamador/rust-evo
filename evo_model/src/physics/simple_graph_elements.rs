@@ -44,6 +44,10 @@ impl SimpleCircleNode {
             radius,
         }
     }
+
+    pub fn set_center(&mut self, pos: Position) {
+        self.center = pos;
+    }
 }
 
 impl Circle for SimpleCircleNode {

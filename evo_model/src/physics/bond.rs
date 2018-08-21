@@ -139,10 +139,10 @@ pub fn calc_bond_angle_forces<'a, C>(graph: &'a mut SortableGraph<C, Bond, Angle
 
     for gusset in graph.meta_edges() {
         let bond1 = graph.edge(gusset.edge1_handle());
-        let bond2 = graph.edge(gusset.edge2_handle());
+        let _bond2 = graph.edge(gusset.edge2_handle());
 
         let node1 = graph.node(bond1.node1_handle());
-        let node2 = graph.node(bond1.node2_handle());
+        let _node2 = graph.node(bond1.node2_handle());
         let node3 = graph.node(bond1.node2_handle());
 
         // TODO stub
@@ -223,7 +223,7 @@ mod tests {
     }
 
     //#[test]
-    fn gusset_forces() {
+    fn _gusset_forces() {
         let mut graph: SortableGraph<SpyCircle, Bond, AngleGusset> = SortableGraph::new();
         graph.add_node(SpyCircle::new(Position::new(0.0, 0.0), Length::new(1.0)));
         graph.add_node(SpyCircle::new(Position::new(0.0, -2.0), Length::new(1.0)));

@@ -225,17 +225,16 @@ mod tests {
 
     #[test]
     fn bonded_graph_pair_overlap_is_ignored() {
-        let mut graph: SortableGraph<SpyCircle, SimpleGraphEdge, SimpleGraphMetaEdge> = SortableGraph::new();
-        graph.add_node(SpyCircle::new(Position::new(0.0, 0.0), Length::new(1.0)));
-        graph.add_node(SpyCircle::new(Position::new(1.5, 0.0), Length::new(1.0)));
+        let mut graph: SortableGraph<SimpleCircleNode, SimpleGraphEdge, SimpleGraphMetaEdge> = SortableGraph::new();
+        graph.add_node(SimpleCircleNode::new(Position::new(0.0, 0.0), Length::new(1.0)));
+        graph.add_node(SimpleCircleNode::new(Position::new(1.5, 0.0), Length::new(1.0)));
 
         let edge = SimpleGraphEdge::new(&graph.unsorted_nodes()[0], &graph.unsorted_nodes()[1]);
         graph.add_edge(edge);
 
-        find_graph_pair_overlaps_outer(&mut graph, on_overlap);
+        let overlaps = find_graph_pair_overlaps(&mut graph);
 
-        assert!(!graph.unsorted_nodes()[0].overlapped);
-        assert!(!graph.unsorted_nodes()[1].overlapped);
+        assert!(overlaps.is_empty());
     }
 
     #[test]

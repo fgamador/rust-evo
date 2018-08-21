@@ -52,7 +52,7 @@ impl World {
     }
 
     fn gather_forces(&mut self) {
-        self.add_wall_forces();
+        self.add_wall_overlaps();
         find_graph_pair_overlaps_outer(&mut self.ball_graph, |ball, overlap| {
             ball.environment_mut().add_overlap(overlap);
         });
@@ -67,7 +67,7 @@ impl World {
         });
     }
 
-    fn add_wall_forces(&mut self) {
+    fn add_wall_overlaps(&mut self) {
         self.walls.find_overlaps(self.ball_graph.unsorted_nodes_mut(), |ball, overlap| {
             ball.environment_mut().add_overlap(overlap);
         });

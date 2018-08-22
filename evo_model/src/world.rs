@@ -4,14 +4,12 @@ use physics::sortable_graph::*;
 use physics::bond::*;
 use physics::newtonian::Body;
 use physics::quantities::*;
-use physics::overlap::*;
 
 #[derive(Debug)]
 pub struct World {
     ball_graph: SortableGraph<Ball, Bond, AngleGusset>,
     wall_collisions: WallCollisions,
     pair_collisions: PairCollisions,
-    walls: Walls,
 }
 
 impl World {
@@ -20,7 +18,6 @@ impl World {
             ball_graph: SortableGraph::new(),
             wall_collisions: WallCollisions::new(min_corner, max_corner),
             pair_collisions: PairCollisions::new(),
-            walls: Walls::new(min_corner, max_corner),
         }
     }
 

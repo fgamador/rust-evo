@@ -47,13 +47,13 @@ impl World {
         let subtick_duration = tick_duration / (subticks_per_tick as f64);
 
         for _subtick in 0..subticks_per_tick {
-            self.gather_forces();
+            self.apply_influences();
             self.apply_forces(subtick_duration);
             self.forget_forces();
         }
     }
 
-    fn gather_forces(&mut self) {
+    fn apply_influences(&mut self) {
         self.wall_collisions.influence(&mut self.ball_graph);
         self.pair_collisions.influence(&mut self.ball_graph);
         self.add_overlap_forces();

@@ -62,3 +62,20 @@ impl Influence for OverlapForces {
         }
     }
 }
+
+#[derive(Debug)]
+pub struct BondForces {}
+
+impl BondForces {
+    pub fn new() -> Self {
+        BondForces {}
+    }
+}
+
+impl Influence for BondForces {
+    fn apply(&self, ball_graph: &mut SortableGraph<Ball, Bond, AngleGusset>) {
+        calc_bond_forces(ball_graph, |ball, force| {
+            ball.forces_mut().add_force(force);
+        });
+    }
+}

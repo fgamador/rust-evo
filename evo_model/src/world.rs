@@ -18,6 +18,7 @@ impl World {
                 Box::new(WallCollisions::new(min_corner, max_corner)),
                 Box::new(PairCollisions::new()),
                 Box::new(OverlapForces::new()),
+                Box::new(BondForces::new()),
             ],
         }
     }
@@ -58,14 +59,7 @@ impl World {
         for influence in &self.influences {
             influence.apply(&mut self.ball_graph);
         }
-        self.add_bond_forces();
         self.add_bond_angle_forces();
-    }
-
-    fn add_bond_forces(&mut self) {
-        calc_bond_forces(&mut self.ball_graph, |ball, force| {
-            ball.forces_mut().add_force(force);
-        });
     }
 
     fn add_bond_angle_forces(&mut self) {

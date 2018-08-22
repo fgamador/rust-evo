@@ -45,3 +45,20 @@ impl Influence for PairCollisions {
         });
     }
 }
+
+#[derive(Debug)]
+pub struct OverlapForces {}
+
+impl OverlapForces {
+    pub fn new() -> Self {
+        OverlapForces {}
+    }
+}
+
+impl Influence for OverlapForces {
+    fn apply(&self, ball_graph: &mut SortableGraph<Ball, Bond, AngleGusset>) {
+        for ball in ball_graph.unsorted_nodes_mut() {
+            ball.add_overlap_forces();
+        }
+    }
+}

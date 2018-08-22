@@ -16,7 +16,9 @@ impl World {
             ball_graph: SortableGraph::new(),
             influences: vec![
                 Box::new(WallCollisions::new(min_corner, max_corner)),
-                Box::new(PairCollisions::new())],
+                Box::new(PairCollisions::new()),
+                Box::new(OverlapForces::new()),
+            ],
         }
     }
 
@@ -56,15 +58,8 @@ impl World {
         for influence in &self.influences {
             influence.apply(&mut self.ball_graph);
         }
-        self.add_overlap_forces();
         self.add_bond_forces();
         self.add_bond_angle_forces();
-    }
-
-    fn add_overlap_forces(&mut self) {
-        for ball in self.ball_graph.unsorted_nodes_mut() {
-            ball.add_overlap_forces();
-        }
     }
 
     fn add_bond_forces(&mut self) {

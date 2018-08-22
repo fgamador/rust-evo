@@ -5,7 +5,7 @@ use physics::quantities::*;
 use physics::overlap::*;
 
 pub trait Influence {
-    fn influence(&self, ball_graph: &mut SortableGraph<Ball, Bond, AngleGusset>);
+    fn apply(&self, ball_graph: &mut SortableGraph<Ball, Bond, AngleGusset>);
 }
 
 #[derive(Debug)]
@@ -22,7 +22,7 @@ impl WallCollisions {
 }
 
 impl Influence for WallCollisions {
-    fn influence(&self, ball_graph: &mut SortableGraph<Ball, Bond, AngleGusset>) {
+    fn apply(&self, ball_graph: &mut SortableGraph<Ball, Bond, AngleGusset>) {
         self.walls.find_overlaps(ball_graph.unsorted_nodes_mut(), |ball, overlap| {
             ball.environment_mut().add_overlap(overlap);
         });
@@ -39,7 +39,7 @@ impl PairCollisions {
 }
 
 impl Influence for PairCollisions {
-    fn influence(&self, ball_graph: &mut SortableGraph<Ball, Bond, AngleGusset>) {
+    fn apply(&self, ball_graph: &mut SortableGraph<Ball, Bond, AngleGusset>) {
         find_graph_pair_overlaps_outer(ball_graph, |ball, overlap| {
             ball.environment_mut().add_overlap(overlap);
         });

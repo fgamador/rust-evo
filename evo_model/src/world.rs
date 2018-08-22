@@ -54,8 +54,8 @@ impl World {
     }
 
     fn apply_influences(&mut self) {
-        self.wall_collisions.influence(&mut self.ball_graph);
-        self.pair_collisions.influence(&mut self.ball_graph);
+        self.wall_collisions.apply(&mut self.ball_graph);
+        self.pair_collisions.apply(&mut self.ball_graph);
         self.add_overlap_forces();
         self.add_bond_forces();
         self.add_bond_angle_forces();

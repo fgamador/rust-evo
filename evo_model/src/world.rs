@@ -8,6 +8,7 @@ use physics::overlap::*;
 #[derive(Debug)]
 pub struct World {
     ball_graph: SortableGraph<Ball, Bond, AngleGusset>,
+    wall_collisions: WallCollisions,
     walls: Walls,
 }
 
@@ -15,6 +16,7 @@ impl World {
     pub fn new(min_corner: Position, max_corner: Position) -> Self {
         World {
             ball_graph: SortableGraph::new(),
+            wall_collisions: WallCollisions::new(min_corner, max_corner),
             walls: Walls::new(min_corner, max_corner),
         }
     }
@@ -52,17 +54,11 @@ impl World {
     }
 
     fn gather_forces(&mut self) {
-        self.add_wall_overlaps();
+        self.wall_collisions.add_wall_overlaps(&mut self.ball_graph);
         self.add_pair_overlaps();
         self.add_overlap_forces();
         self.add_bond_forces();
         self.add_bond_angle_forces();
-    }
-
-    fn add_wall_overlaps(&mut self) {
-        self.walls.find_overlaps(self.ball_graph.unsorted_nodes_mut(), |ball, overlap| {
-            ball.environment_mut().add_overlap(overlap);
-        });
     }
 
     fn add_pair_overlaps(&mut self) {
@@ -101,6 +97,25 @@ impl World {
             ball.environment_mut().clear();
             ball.forces_mut().clear();
         }
+    }
+}
+
+#[derive(Debug)]
+pub struct WallCollisions {
+    walls: Walls,
+}
+
+impl WallCollisions {
+    pub fn new(min_corner: Position, max_corner: Position) -> Self {
+        WallCollisions {
+            walls: Walls::new(min_corner, max_corner),
+        }
+    }
+
+    pub fn add_wall_overlaps(&self, ball_graph: &mut SortableGraph<Ball, Bond, AngleGusset>) {
+        self.walls.find_overlaps(ball_graph.unsorted_nodes_mut(), |ball, overlap| {
+            ball.environment_mut().add_overlap(overlap);
+        });
     }
 }
 

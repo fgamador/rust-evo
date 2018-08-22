@@ -51,15 +51,6 @@ impl Walls {
     }
 }
 
-pub fn find_graph_pair_overlaps_outer<'a, C, E, ME>(graph: &'a mut SortableGraph<C, E, ME>, on_overlap: fn(&mut C, Overlap))
-    where C: Circle + GraphNode, E: GraphEdge, ME: GraphMetaEdge
-{
-    let overlaps = find_graph_pair_overlaps(graph);
-    for (handle, overlap) in overlaps {
-        on_overlap(graph.node_mut(handle), overlap);
-    }
-}
-
 pub fn find_graph_pair_overlaps<'a, C, E, ME>(graph: &'a mut SortableGraph<C, E, ME>) -> Vec<(NodeHandle, Overlap)>
     where C: Circle + GraphNode, E: GraphEdge, ME: GraphMetaEdge
 {

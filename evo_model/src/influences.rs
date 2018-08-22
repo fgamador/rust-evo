@@ -79,3 +79,20 @@ impl Influence for BondForces {
         });
     }
 }
+
+#[derive(Debug)]
+pub struct BondAngleForces {}
+
+impl BondAngleForces {
+    pub fn new() -> Self {
+        BondAngleForces {}
+    }
+}
+
+impl Influence for BondAngleForces {
+    fn apply(&self, ball_graph: &mut SortableGraph<Ball, Bond, AngleGusset>) {
+        calc_bond_angle_forces(ball_graph, |ball, force| {
+            ball.forces_mut().add_force(force);
+        });
+    }
+}

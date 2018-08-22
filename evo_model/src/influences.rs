@@ -28,3 +28,20 @@ impl Influence for WallCollisions {
         });
     }
 }
+
+#[derive(Debug)]
+pub struct PairCollisions {}
+
+impl PairCollisions {
+    pub fn new() -> Self {
+        PairCollisions {}
+    }
+}
+
+impl Influence for PairCollisions {
+    fn influence(&self, ball_graph: &mut SortableGraph<Ball, Bond, AngleGusset>) {
+        find_graph_pair_overlaps_outer(ball_graph, |ball, overlap| {
+            ball.environment_mut().add_overlap(overlap);
+        });
+    }
+}

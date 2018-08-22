@@ -10,6 +10,7 @@ use physics::overlap::*;
 pub struct World {
     ball_graph: SortableGraph<Ball, Bond, AngleGusset>,
     wall_collisions: WallCollisions,
+    pair_collisions: PairCollisions,
     walls: Walls,
 }
 
@@ -18,6 +19,7 @@ impl World {
         World {
             ball_graph: SortableGraph::new(),
             wall_collisions: WallCollisions::new(min_corner, max_corner),
+            pair_collisions: PairCollisions::new(),
             walls: Walls::new(min_corner, max_corner),
         }
     }
@@ -56,16 +58,10 @@ impl World {
 
     fn gather_forces(&mut self) {
         self.wall_collisions.influence(&mut self.ball_graph);
-        self.add_pair_overlaps();
+        self.pair_collisions.influence(&mut self.ball_graph);
         self.add_overlap_forces();
         self.add_bond_forces();
         self.add_bond_angle_forces();
-    }
-
-    fn add_pair_overlaps(&mut self) {
-        find_graph_pair_overlaps_outer(&mut self.ball_graph, |ball, overlap| {
-            ball.environment_mut().add_overlap(overlap);
-        });
     }
 
     fn add_overlap_forces(&mut self) {

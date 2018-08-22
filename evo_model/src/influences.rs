@@ -2,7 +2,6 @@ use physics::ball::*;
 use physics::bond::*;
 use physics::overlap::*;
 use physics::quantities::*;
-use physics::shapes::*;
 use physics::sortable_graph::*;
 
 pub trait Influence {
@@ -41,18 +40,11 @@ impl PairCollisions {
 
 impl Influence for PairCollisions {
     fn apply(&self, ball_graph: &mut SortableGraph<Ball, Bond, AngleGusset>) {
-        find_graph_pair_overlaps_outer(ball_graph, |ball, overlap| {
+        let overlaps = find_graph_pair_overlaps(ball_graph);
+        for (handle, overlap) in overlaps {
+            let ball = ball_graph.node_mut(handle);
             ball.environment_mut().add_overlap(overlap);
-        });
-    }
-}
-
-fn find_graph_pair_overlaps_outer<'a, C, E, ME>(graph: &'a mut SortableGraph<C, E, ME>, on_overlap: fn(&mut C, Overlap))
-    where C: Circle + GraphNode, E: GraphEdge, ME: GraphMetaEdge
-{
-    let overlaps = find_graph_pair_overlaps(graph);
-    for (handle, overlap) in overlaps {
-        on_overlap(graph.node_mut(handle), overlap);
+        }
     }
 }
 

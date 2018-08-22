@@ -8,17 +8,15 @@ use physics::quantities::*;
 pub struct World {
     ball_graph: SortableGraph<Ball, Bond, AngleGusset>,
     influences: Vec<Box<Influence>>,
-    wall_collisions: WallCollisions,
-    pair_collisions: PairCollisions,
 }
 
 impl World {
     pub fn new(min_corner: Position, max_corner: Position) -> Self {
         World {
             ball_graph: SortableGraph::new(),
-            influences: vec![],
-            wall_collisions: WallCollisions::new(min_corner, max_corner),
-            pair_collisions: PairCollisions::new(),
+            influences: vec![
+                Box::new(WallCollisions::new(min_corner, max_corner)),
+                Box::new(PairCollisions::new())],
         }
     }
 
@@ -58,8 +56,6 @@ impl World {
         for influence in &self.influences {
             influence.apply(&mut self.ball_graph);
         }
-        self.wall_collisions.apply(&mut self.ball_graph);
-        self.pair_collisions.apply(&mut self.ball_graph);
         self.add_overlap_forces();
         self.add_bond_forces();
         self.add_bond_angle_forces();

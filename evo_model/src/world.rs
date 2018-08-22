@@ -54,7 +54,7 @@ impl World {
     }
 
     fn gather_forces(&mut self) {
-        self.wall_collisions.add_wall_overlaps(&mut self.ball_graph);
+        self.wall_collisions.influence(&mut self.ball_graph);
         self.add_pair_overlaps();
         self.add_overlap_forces();
         self.add_bond_forces();
@@ -100,6 +100,10 @@ impl World {
     }
 }
 
+pub trait Influence {
+    fn influence(&self, ball_graph: &mut SortableGraph<Ball, Bond, AngleGusset>);
+}
+
 #[derive(Debug)]
 pub struct WallCollisions {
     walls: Walls,
@@ -111,8 +115,10 @@ impl WallCollisions {
             walls: Walls::new(min_corner, max_corner),
         }
     }
+}
 
-    pub fn add_wall_overlaps(&self, ball_graph: &mut SortableGraph<Ball, Bond, AngleGusset>) {
+impl Influence for WallCollisions {
+    fn influence(&self, ball_graph: &mut SortableGraph<Ball, Bond, AngleGusset>) {
         self.walls.find_overlaps(ball_graph.unsorted_nodes_mut(), |ball, overlap| {
             ball.environment_mut().add_overlap(overlap);
         });

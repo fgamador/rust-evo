@@ -1,8 +1,8 @@
 use physics::ball::*;
-use physics::sortable_graph::*;
 use physics::bond::*;
-use physics::quantities::*;
 use physics::overlap::*;
+use physics::quantities::*;
+use physics::sortable_graph::*;
 
 pub trait Influence {
     fn apply(&self, ball_graph: &mut SortableGraph<Ball, Bond, AngleGusset>);

@@ -1,9 +1,9 @@
 use influences::*;
 use physics::ball::*;
-use physics::sortable_graph::*;
 use physics::bond::*;
 use physics::newtonian::Body;
 use physics::quantities::*;
+use physics::sortable_graph::*;
 
 pub struct World {
     ball_graph: SortableGraph<Ball, Bond, AngleGusset>,

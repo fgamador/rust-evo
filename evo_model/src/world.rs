@@ -1,3 +1,4 @@
+use influences::*;
 use physics::ball::*;
 use physics::sortable_graph::*;
 use physics::bond::*;
@@ -97,31 +98,6 @@ impl World {
             ball.environment_mut().clear();
             ball.forces_mut().clear();
         }
-    }
-}
-
-pub trait Influence {
-    fn influence(&self, ball_graph: &mut SortableGraph<Ball, Bond, AngleGusset>);
-}
-
-#[derive(Debug)]
-pub struct WallCollisions {
-    walls: Walls,
-}
-
-impl WallCollisions {
-    pub fn new(min_corner: Position, max_corner: Position) -> Self {
-        WallCollisions {
-            walls: Walls::new(min_corner, max_corner),
-        }
-    }
-}
-
-impl Influence for WallCollisions {
-    fn influence(&self, ball_graph: &mut SortableGraph<Ball, Bond, AngleGusset>) {
-        self.walls.find_overlaps(ball_graph.unsorted_nodes_mut(), |ball, overlap| {
-            ball.environment_mut().add_overlap(overlap);
-        });
     }
 }
 

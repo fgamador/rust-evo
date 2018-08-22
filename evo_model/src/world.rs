@@ -5,9 +5,9 @@ use physics::bond::*;
 use physics::newtonian::Body;
 use physics::quantities::*;
 
-#[derive(Debug)]
 pub struct World {
     ball_graph: SortableGraph<Ball, Bond, AngleGusset>,
+    influences: Vec<Box<Influence>>,
     wall_collisions: WallCollisions,
     pair_collisions: PairCollisions,
 }
@@ -16,6 +16,7 @@ impl World {
     pub fn new(min_corner: Position, max_corner: Position) -> Self {
         World {
             ball_graph: SortableGraph::new(),
+            influences: vec![],
             wall_collisions: WallCollisions::new(min_corner, max_corner),
             pair_collisions: PairCollisions::new(),
         }
@@ -54,6 +55,9 @@ impl World {
     }
 
     fn apply_influences(&mut self) {
+        for influence in &self.influences {
+            influence.apply(&mut self.ball_graph);
+        }
         self.wall_collisions.apply(&mut self.ball_graph);
         self.pair_collisions.apply(&mut self.ball_graph);
         self.add_overlap_forces();

@@ -84,6 +84,7 @@ impl World {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use physics::overlap::Overlap;
     use std::f64::consts::PI;
 
     #[test]
@@ -112,9 +113,11 @@ mod tests {
 
     #[test]
     fn overlaps_do_not_persist() {
-        let mut world = World::new(Position::new(-10.0, -10.0), Position::new(10.0, 10.0));
+        let mut world = World::with_influences(vec![
+            Box::new(UniversalOverlap::new(Overlap::new(Displacement::new(1.0, 1.0))))
+        ]);
         world.add_ball(Ball::new(Length::new(1.0), Mass::new(1.0),
-                                 Position::new(9.5, 9.5), Velocity::new(0.0, 0.0)));
+                                 Position::new(0.0, 0.0), Velocity::new(0.0, 0.0)));
         world.tick();
         let ball = &world.balls()[0];
         assert!(ball.environment().overlaps().is_empty());
@@ -132,6 +135,7 @@ mod tests {
         assert_eq!(Force::new(0.0, 0.0), ball.forces().net_force());
     }
 
+    // TODO move all these to influences.rs somehow
     #[test]
     fn ball_bounces_off_walls() {
         let mut world = World::new(Position::new(-10.0, -10.0), Position::new(10.0, 10.0));

@@ -100,6 +100,27 @@ impl Influence for BondAngleForces {
 }
 
 #[derive(Debug)]
+pub struct UniversalOverlap {
+    overlap: Overlap
+}
+
+impl UniversalOverlap {
+    pub fn new(overlap: Overlap) -> Self {
+        UniversalOverlap {
+            overlap
+        }
+    }
+}
+
+impl Influence for UniversalOverlap {
+    fn apply(&self, ball_graph: &mut SortableGraph<Ball, Bond, AngleGusset>) {
+        for ball in ball_graph.unsorted_nodes_mut() {
+            ball.environment_mut().add_overlap(self.overlap);
+        }
+    }
+}
+
+#[derive(Debug)]
 pub struct UniversalForce {
     force: Force
 }

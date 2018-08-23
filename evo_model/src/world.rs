@@ -12,15 +12,19 @@ pub struct World {
 
 impl World {
     pub fn new(min_corner: Position, max_corner: Position) -> Self {
+        Self::with_influences(vec![
+            Box::new(WallCollisions::new(min_corner, max_corner)),
+            Box::new(PairCollisions::new()),
+            Box::new(OverlapForces::new()),
+            Box::new(BondForces::new()),
+            Box::new(BondAngleForces::new()),
+        ])
+    }
+
+    pub fn with_influences(influences: Vec<Box<Influence>>) -> Self {
         World {
             ball_graph: SortableGraph::new(),
-            influences: vec![
-                Box::new(WallCollisions::new(min_corner, max_corner)),
-                Box::new(PairCollisions::new()),
-                Box::new(OverlapForces::new()),
-                Box::new(BondForces::new()),
-                Box::new(BondAngleForces::new()),
-            ],
+            influences,
         }
     }
 

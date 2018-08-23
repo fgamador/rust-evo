@@ -88,13 +88,26 @@ mod tests {
 
     #[test]
     fn tick_moves_ball() {
-        let mut world = World::new(Position::new(-10.0, -10.0), Position::new(10.0, 10.0));
+        let mut world = World::with_influences(vec![]);
         world.add_ball(Ball::new(Length::new(1.0), Mass::new(1.0),
                                  Position::new(0.0, 0.0), Velocity::new(1.0, 1.0)));
         world.tick();
         let ball = &world.balls()[0];
         assert!(ball.position().x() > 0.0);
         assert!(ball.position().y() > 0.0);
+    }
+
+    #[test]
+    fn tick_with_force_accelerates_ball() {
+        let mut world = World::with_influences(vec![
+            Box::new(UniversalForce::new(Force::new(1.0, 1.0)))
+        ]);
+        world.add_ball(Ball::new(Length::new(1.0), Mass::new(1.0),
+                                 Position::new(0.0, 0.0), Velocity::new(0.0, 0.0)));
+        world.tick();
+        let ball = &world.balls()[0];
+        assert!(ball.velocity().x() > 0.0);
+        assert!(ball.velocity().y() > 0.0);
     }
 
     #[test]
@@ -109,9 +122,11 @@ mod tests {
 
     #[test]
     fn forces_do_not_persist() {
-        let mut world = World::new(Position::new(-10.0, -10.0), Position::new(10.0, 10.0));
+        let mut world = World::with_influences(vec![
+            Box::new(UniversalForce::new(Force::new(1.0, 1.0)))
+        ]);
         world.add_ball(Ball::new(Length::new(1.0), Mass::new(1.0),
-                                 Position::new(9.5, 9.5), Velocity::new(0.0, 0.0)));
+                                 Position::new(0.0, 0.0), Velocity::new(0.0, 0.0)));
         world.tick();
         let ball = &world.balls()[0];
         assert_eq!(Force::new(0.0, 0.0), ball.forces().net_force());

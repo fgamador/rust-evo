@@ -98,3 +98,24 @@ impl Influence for BondAngleForces {
         });
     }
 }
+
+#[derive(Debug)]
+pub struct UniversalForce {
+    force: Force
+}
+
+impl UniversalForce {
+    pub fn new(force: Force) -> Self {
+        UniversalForce {
+            force
+        }
+    }
+}
+
+impl Influence for UniversalForce {
+    fn apply(&self, ball_graph: &mut SortableGraph<Ball, Bond, AngleGusset>) {
+        for ball in ball_graph.unsorted_nodes_mut() {
+            ball.forces_mut().add_force(self.force);
+        }
+    }
+}

@@ -129,6 +129,7 @@ impl Influence for UniversalForce {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use std::f64::consts::PI;
 
     #[test]
     fn wall_collisions_add_overlap_and_force() {
@@ -187,5 +188,30 @@ mod tests {
         let ball2 = ball_graph.node(ball2_handle);
         assert_ne!(0.0, ball2.forces().net_force().x());
         assert_ne!(0.0, ball2.forces().net_force().y());
+    }
+
+    #[test]
+    fn bond_angle_forces_add_forces() {
+        let mut ball_graph = SortableGraph::new();
+
+        let ball1_handle = ball_graph.add_node(Ball::new(Length::new(1.0), Mass::new(1.0),
+                                                         Position::new(0.1, 2.0), Velocity::new(0.0, 0.0)));
+        let ball2_handle = ball_graph.add_node(Ball::new(Length::new(1.0), Mass::new(1.0),
+                                                         Position::new(0.0, 0.0), Velocity::new(0.0, 0.0)));
+        let ball3_handle = ball_graph.add_node(Ball::new(Length::new(1.0), Mass::new(1.0),
+                                                         Position::new(0.0, -2.0), Velocity::new(0.0, 0.0)));
+
+        let bond = Bond::new(ball_graph.node(ball1_handle), ball_graph.node(ball2_handle));
+        let bond1_handle = ball_graph.add_edge(bond);
+        let bond = Bond::new(ball_graph.node(ball2_handle), ball_graph.node(ball3_handle));
+        let bond2_handle = ball_graph.add_edge(bond);
+
+        let gusset = AngleGusset::new(ball_graph.edge(bond1_handle), ball_graph.edge(bond2_handle), Angle::from_radians(PI));
+        ball_graph.add_meta_edge(gusset);
+
+        BondAngleForces::new().apply(&mut ball_graph);
+
+        let ball3 = ball_graph.node(ball3_handle);
+        assert!(ball3.forces().net_force().x() < 0.0);
     }
 }

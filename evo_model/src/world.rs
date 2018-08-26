@@ -84,7 +84,6 @@ impl World {
 mod tests {
     use super::*;
     use physics::overlap::Overlap;
-    use std::f64::consts::PI;
 
     #[test]
     fn tick_moves_ball() {
@@ -132,30 +131,5 @@ mod tests {
         world.tick();
         let ball = &world.balls()[0];
         assert_eq!(Force::new(0.0, 0.0), ball.forces().net_force());
-    }
-
-    // TODO move all these to influences.rs somehow
-    #[test]
-    fn angle_gusset_exerts_force() {
-        let mut world = World::new(Position::new(-10.0, -10.0), Position::new(10.0, 10.0));
-        world.add_ball(Ball::new(Length::new(1.0), Mass::new(1.0),
-                                 Position::new(0.1, 2.0), Velocity::new(0.0, 0.0)));
-        world.add_ball(Ball::new(Length::new(1.0), Mass::new(1.0),
-                                 Position::new(0.0, 0.0), Velocity::new(0.0, 0.0)));
-        world.add_ball(Ball::new(Length::new(1.0), Mass::new(1.0),
-                                 Position::new(0.0, -2.0), Velocity::new(0.0, 0.0)));
-
-        let bond = Bond::new(&world.balls()[0], &world.balls()[1]);
-        world.add_bond(bond);
-        let bond = Bond::new(&world.balls()[1], &world.balls()[2]);
-        world.add_bond(bond);
-
-        let gusset = AngleGusset::new(&world.bonds()[0], &world.bonds()[1], Angle::from_radians(PI));
-        world.add_angle_gusset(gusset);
-
-        world.tick();
-
-        let ball3 = &world.balls()[2];
-        assert!(ball3.velocity().x() < 0.0);
     }
 }

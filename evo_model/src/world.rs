@@ -15,7 +15,6 @@ impl World {
         Self::with_influences(vec![
             Box::new(WallCollisions::new(min_corner, max_corner)),
             Box::new(PairCollisions::new()),
-            Box::new(OverlapForces::new()),
             Box::new(BondForces::new()),
             Box::new(BondAngleForces::new()),
         ])

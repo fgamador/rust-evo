@@ -144,4 +144,26 @@ mod tests {
         assert_ne!(0.0, ball.forces().net_force().x());
         assert_ne!(0.0, ball.forces().net_force().y());
     }
+
+    #[test]
+    fn pair_collisions_add_overlap_and_force() {
+        let mut ball_graph = SortableGraph::new();
+        let pair_collisions = PairCollisions::new();
+        let ball1_handle = ball_graph.add_node(Ball::new(Length::new(1.0), Mass::new(1.0),
+                                                         Position::new(0.0, 0.0), Velocity::new(1.0, 1.0)));
+        let ball2_handle = ball_graph.add_node(Ball::new(Length::new(1.0), Mass::new(1.0),
+                                                         Position::new(1.4, 1.4), Velocity::new(-1.0, -1.0)));
+
+        pair_collisions.apply(&mut ball_graph);
+
+        let ball1 = ball_graph.node(ball1_handle);
+        assert_eq!(1, ball1.environment().overlaps().len());
+        assert_ne!(0.0, ball1.forces().net_force().x());
+        assert_ne!(0.0, ball1.forces().net_force().y());
+
+        let ball2 = ball_graph.node(ball2_handle);
+        assert_eq!(1, ball2.environment().overlaps().len());
+        assert_ne!(0.0, ball2.forces().net_force().x());
+        assert_ne!(0.0, ball2.forces().net_force().y());
+    }
 }

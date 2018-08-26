@@ -125,3 +125,23 @@ impl Influence for UniversalForce {
         }
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn wall_collisions_add_overlap_and_force() {
+        let mut ball_graph = SortableGraph::new();
+        let wall_collisions = WallCollisions::new(Position::new(-10.0, -10.0), Position::new(10.0, 10.0));
+        let ball_handle = ball_graph.add_node(Ball::new(Length::new(1.0), Mass::new(1.0),
+                                                        Position::new(9.5, 9.5), Velocity::new(1.0, 1.0)));
+
+        wall_collisions.apply(&mut ball_graph);
+
+        let ball = ball_graph.node(ball_handle);
+        assert_eq!(1, ball.environment().overlaps().len());
+        assert_ne!(0.0, ball.forces().net_force().x());
+        assert_ne!(0.0, ball.forces().net_force().y());
+    }
+}

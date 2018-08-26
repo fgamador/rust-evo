@@ -136,26 +136,6 @@ mod tests {
 
     // TODO move all these to influences.rs somehow
     #[test]
-    fn bond_pulls_balls_together() {
-        let mut world = World::new(Position::new(-10.0, -10.0), Position::new(10.0, 10.0));
-        world.add_ball(Ball::new(Length::new(1.0), Mass::new(1.0),
-                                 Position::new(0.0, 0.0), Velocity::new(-1.0, -1.0)));
-        world.add_ball(Ball::new(Length::new(1.0), Mass::new(1.0),
-                                 Position::new(1.5, 1.5), Velocity::new(1.0, 1.0)));
-        let bond = Bond::new(&world.balls()[0], &world.balls()[1]);
-        world.add_bond(bond);
-
-        world.tick();
-
-        let ball1 = &world.balls()[0];
-        let ball2 = &world.balls()[1];
-        assert!(ball1.velocity().x() > -1.0);
-        assert!(ball1.velocity().y() > -1.0);
-        assert!(ball2.velocity().x() < 1.0);
-        assert!(ball2.velocity().y() < 1.0);
-    }
-
-    #[test]
     fn angle_gusset_exerts_force() {
         let mut world = World::new(Position::new(-10.0, -10.0), Position::new(10.0, 10.0));
         world.add_ball(Ball::new(Length::new(1.0), Mass::new(1.0),

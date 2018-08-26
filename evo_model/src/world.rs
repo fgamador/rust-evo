@@ -54,7 +54,7 @@ impl World {
 
         for _subtick in 0..subticks_per_tick {
             self.apply_influences();
-            self.apply_forces(subtick_duration);
+            self.exert_forces(subtick_duration);
             self.clear_influences();
         }
     }
@@ -65,7 +65,7 @@ impl World {
         }
     }
 
-    fn apply_forces(&mut self, subtick_duration: Duration) {
+    fn exert_forces(&mut self, subtick_duration: Duration) {
         for ball in self.ball_graph.unsorted_nodes_mut() {
             ball.exert_forces(subtick_duration);
             ball.move_for(subtick_duration);

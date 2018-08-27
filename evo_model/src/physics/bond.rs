@@ -65,8 +65,17 @@ impl BondStrain
 pub fn calc_bond_forces_outer<'a, C, F>(graph: &'a mut SortableGraph<C, Bond, AngleGusset>, mut on_bond_force: F)
     where C: Circle + GraphNode, F: FnMut(&mut C, Force)
 {
-    let mut strains: Vec<(NodeHandle, BondStrain)> = Vec::with_capacity(graph.edges().len() * 2);
+    let strains = calc_bond_strains(graph);
 
+    for (handle, strain) in strains {
+        on_bond_force(graph.node_mut(handle), strain.to_force());
+    }
+}
+
+fn calc_bond_strains<C>(graph: &mut SortableGraph<C, Bond, AngleGusset>) -> Vec<(NodeHandle, BondStrain)>
+    where C: Circle + GraphNode
+{
+    let mut strains: Vec<(NodeHandle, BondStrain)> = Vec::with_capacity(graph.edges().len() * 2);
     for bond in graph.edges() {
         let circle1 = graph.node(bond.node1_handle());
         let circle2 = graph.node(bond.node2_handle());
@@ -75,10 +84,7 @@ pub fn calc_bond_forces_outer<'a, C, F>(graph: &'a mut SortableGraph<C, Bond, An
         strains.push((circle1.node_handle(), BondStrain::new(strain)));
         strains.push((circle2.node_handle(), BondStrain::new(-strain)));
     }
-
-    for (handle, strain) in strains {
-        on_bond_force(graph.node_mut(handle), strain.to_force());
-    }
+    strains
 }
 
 fn calc_bond_strain<C>(circle1: &C, circle2: &C) -> Displacement

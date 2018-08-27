@@ -173,6 +173,8 @@ impl Neg for Displacement {
     }
 }
 
+pub const ZERO_DISPLACEMENT: Displacement = Displacement { x: 0.0, y: 0.0 };
+
 #[derive(Clone, Copy, Debug, PartialEq)]
 pub struct Duration {
     value: f64,

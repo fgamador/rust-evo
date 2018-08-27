@@ -1,6 +1,7 @@
 use physics::quantities::*;
 use physics::shapes::*;
 use physics::sortable_graph::*;
+use physics::util::*;
 
 #[derive(Clone, Debug, PartialEq)]
 pub struct Bond {
@@ -153,11 +154,6 @@ pub fn calc_bond_angle_forces<'a, C>(graph: &'a mut SortableGraph<C, Bond, Angle
     for (node_handle, force) in forces {
         on_force(graph.node_mut(node_handle), force);
     }
-}
-
-// TODO find a better home
-fn sqr(x: f64) -> f64 {
-    x * x
 }
 
 #[cfg(test)]

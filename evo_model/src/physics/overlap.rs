@@ -1,6 +1,7 @@
 use physics::quantities::*;
 use physics::shapes::*;
 use physics::sortable_graph::*;
+use physics::util::*;
 use std::cmp::Ordering;
 
 // TODO add width to Overlap, or maybe make incursion magnitude an Area
@@ -143,11 +144,6 @@ impl PossibleCirclePairOverlap {
         let y_incursion = (self.y_offset / center_sep) * overlap_mag;
         Displacement::new(x_incursion, y_incursion)
     }
-}
-
-// TODO find a better home
-fn sqr(x: f64) -> f64 {
-    x * x
 }
 
 #[cfg(test)]

@@ -35,8 +35,8 @@ impl Walls {
         Walls { min_corner, max_corner }
     }
 
-    pub fn find_overlaps<'a, C>(&self, circles: &'a mut [C], on_overlap: fn(&mut C, Overlap))
-        where C: Circle
+    pub fn find_overlaps<'a, C, F>(&self, circles: &'a mut [C], mut on_overlap: F)
+        where C: Circle, F: FnMut(&mut C, Overlap)
     {
         let zero = Displacement::new(0.0, 0.0);
         for circle in circles {

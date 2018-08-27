@@ -45,7 +45,7 @@ impl Walls {
         overlaps
     }
 
-    pub fn find_overlaps<'a, C, F>(&self, circles: &'a mut [C], mut on_overlap: F)
+    fn find_overlaps<'a, C, F>(&self, circles: &'a mut [C], mut on_overlap: F)
         where C: Circle, F: FnMut(&mut C, Overlap)
     {
         let zero = Displacement::new(0.0, 0.0);

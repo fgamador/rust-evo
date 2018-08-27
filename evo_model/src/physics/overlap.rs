@@ -172,8 +172,7 @@ mod tests {
         let overlaps = subject.find_graph_overlaps(&mut graph);
 
         assert_eq!(1, overlaps.len());
-        assert_eq!(graph.node_handles()[0], overlaps[0].0);
-        assert_eq!(Overlap::new(Displacement::new(0.5, 0.25)), overlaps[0].1);
+        assert_eq!((graph.node_handles()[0], Overlap::new(Displacement::new(0.5, 0.25))), overlaps[0]);
     }
 
     #[test]
@@ -185,8 +184,7 @@ mod tests {
         let overlaps = subject.find_graph_overlaps(&mut graph);
 
         assert_eq!(1, overlaps.len());
-        assert_eq!(graph.node_handles()[0], overlaps[0].0);
-        assert_eq!(Overlap::new(Displacement::new(-0.5, -0.75)), overlaps[0].1);
+        assert_eq!((graph.node_handles()[0], Overlap::new(Displacement::new(-0.5, -0.75))), overlaps[0]);
     }
 
     #[test]

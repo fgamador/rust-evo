@@ -64,7 +64,7 @@ impl Walls {
     }
 }
 
-pub fn find_graph_pair_overlaps<'a, C, E, ME>(graph: &'a mut SortableGraph<C, E, ME>) -> Vec<(NodeHandle, Overlap)>
+pub fn find_pair_overlaps<'a, C, E, ME>(graph: &'a mut SortableGraph<C, E, ME>) -> Vec<(NodeHandle, Overlap)>
     where C: Circle + GraphNode, E: GraphEdge, ME: GraphMetaEdge
 {
     graph.sort_node_handles(cmp_by_min_x);
@@ -229,7 +229,7 @@ mod tests {
         graph.add_node(SimpleCircleNode::new(Position::new(0.0, 0.0), Length::new(1.0)));
         graph.add_node(SimpleCircleNode::new(Position::new(1.5, 0.0), Length::new(1.0)));
 
-        let overlaps = find_graph_pair_overlaps(&mut graph);
+        let overlaps = find_pair_overlaps(&mut graph);
 
         assert_eq!(2, overlaps.len());
         assert_eq!(graph.node_handles()[0], overlaps[0].0);
@@ -245,7 +245,7 @@ mod tests {
         let edge = SimpleGraphEdge::new(&graph.unsorted_nodes()[0], &graph.unsorted_nodes()[1]);
         graph.add_edge(edge);
 
-        let overlaps = find_graph_pair_overlaps(&mut graph);
+        let overlaps = find_pair_overlaps(&mut graph);
 
         assert!(overlaps.is_empty());
     }
@@ -259,7 +259,7 @@ mod tests {
 
         graph.unsorted_nodes_mut()[2].set_center(Position::new(1.5, 0.0));
 
-        let overlaps = find_graph_pair_overlaps(&mut graph);
+        let overlaps = find_pair_overlaps(&mut graph);
 
         assert_eq!(4, overlaps.len());
         assert_eq!(graph.node_handles()[0], overlaps[0].0);

@@ -44,7 +44,7 @@ impl PairCollisions {
 
 impl Influence for PairCollisions {
     fn apply(&self, ball_graph: &mut SortableGraph<Ball, Bond, AngleGusset>) {
-        let overlaps = find_graph_pair_overlaps(ball_graph);
+        let overlaps = find_pair_overlaps(ball_graph);
         for (handle, overlap) in overlaps {
             let ball = ball_graph.node_mut(handle);
             ball.environment_mut().add_overlap(overlap);

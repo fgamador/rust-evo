@@ -41,8 +41,7 @@ impl Walls {
         let mut overlaps: Vec<(NodeHandle, Overlap)> = Vec::with_capacity(graph.unsorted_nodes().len() / 2);
 
         for circle in graph.unsorted_nodes() {
-            let overlap = self.calc_overlap(circle);
-            if overlap != ZERO_DISPLACEMENT {
+            if let Some(overlap) = self.calc_overlap(circle) {
                 overlaps.push((circle.node_handle(), Overlap::new(overlap)));
             }
         }
@@ -50,13 +49,18 @@ impl Walls {
         overlaps
     }
 
-    fn calc_overlap<C>(&self, circle: &C) -> Displacement
+    fn calc_overlap<C>(&self, circle: &C) -> Option<Displacement>
         where C: Circle + GraphNode
     {
         let circle_box = circle.to_bounding_box();
         let min_corner_overlap = (self.min_corner - circle_box.min_corner()).max(ZERO_DISPLACEMENT);
         let max_corner_overlap = (self.max_corner - circle_box.max_corner()).min(ZERO_DISPLACEMENT);
-        min_corner_overlap + max_corner_overlap
+        let overlap = min_corner_overlap + max_corner_overlap;
+        if overlap != ZERO_DISPLACEMENT {
+            Some(overlap)
+        } else {
+            None
+        }
     }
 }
 

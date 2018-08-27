@@ -39,25 +39,19 @@ impl Walls {
         where C: Circle + GraphNode, E: GraphEdge, ME: GraphMetaEdge
     {
         let mut overlaps: Vec<(NodeHandle, Overlap)> = Vec::with_capacity(graph.unsorted_nodes().len() / 2);
-        self.find_overlaps(graph.unsorted_nodes_mut(), |circle, overlap| {
-            overlaps.push((circle.node_handle(), overlap));
-        });
-        overlaps
-    }
 
-    fn find_overlaps<'a, C, F>(&self, circles: &'a mut [C], mut on_overlap: F)
-        where C: Circle, F: FnMut(&mut C, Overlap)
-    {
         let zero = Displacement::new(0.0, 0.0);
-        for circle in circles {
+        for circle in graph.unsorted_nodes() {
             let circle_box = circle.to_bounding_box();
             let min_corner_overlap = (self.min_corner - circle_box.min_corner()).max(zero);
             let max_corner_overlap = (self.max_corner - circle_box.max_corner()).min(zero);
             let overlap = min_corner_overlap + max_corner_overlap;
             if overlap != zero {
-                on_overlap(circle, Overlap::new(overlap));
+                overlaps.push((circle.node_handle(), Overlap::new(overlap)));
             }
         }
+
+        overlaps
     }
 }
 

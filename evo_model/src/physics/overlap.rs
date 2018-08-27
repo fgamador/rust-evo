@@ -154,29 +154,39 @@ mod tests {
 
     #[test]
     fn no_wall_overlaps() {
+        let mut graph: SortableGraph<SimpleCircleNode, SimpleGraphEdge, SimpleGraphMetaEdge> = SortableGraph::new();
+        graph.add_node(SimpleCircleNode::new(Position::new(8.5, 0.75), Length::new(1.0)));
         let subject = Walls::new(Position::new(-10.0, -5.0), Position::new(10.0, 2.0));
-        let circle = SpyCircle::new(Position::new(8.5, 0.75), Length::new(1.0));
-        let mut circles = vec![circle];
-        subject.find_overlaps(&mut circles, on_overlap);
-        assert!(!circles[0].overlapped);
+
+        let overlaps = subject.find_graph_overlaps(&mut graph);
+
+        assert!(overlaps.is_empty());
     }
 
     #[test]
     fn min_corner_wall_overlap() {
+        let mut graph: SortableGraph<SimpleCircleNode, SimpleGraphEdge, SimpleGraphMetaEdge> = SortableGraph::new();
+        graph.add_node(SimpleCircleNode::new(Position::new(-9.5, -4.25), Length::new(1.0)));
         let subject = Walls::new(Position::new(-10.0, -5.0), Position::new(10.0, 2.0));
-        let circle = SpyCircle::new(Position::new(-9.5, -4.25), Length::new(1.0));
-        let mut circles = vec![circle];
-        subject.find_overlaps(&mut circles, on_overlap);
-        assert_eq!(Overlap::new(Displacement::new(0.5, 0.25)), circles[0].overlap);
+
+        let overlaps = subject.find_graph_overlaps(&mut graph);
+
+        assert_eq!(1, overlaps.len());
+        assert_eq!(graph.node_handles()[0], overlaps[0].0);
+        assert_eq!(Overlap::new(Displacement::new(0.5, 0.25)), overlaps[0].1);
     }
 
     #[test]
     fn max_corner_wall_overlap() {
+        let mut graph: SortableGraph<SimpleCircleNode, SimpleGraphEdge, SimpleGraphMetaEdge> = SortableGraph::new();
+        graph.add_node(SimpleCircleNode::new(Position::new(9.5, 1.75), Length::new(1.0)));
         let subject = Walls::new(Position::new(-10.0, -5.0), Position::new(10.0, 2.0));
-        let circle = SpyCircle::new(Position::new(9.5, 1.75), Length::new(1.0));
-        let mut circles = vec![circle];
-        subject.find_overlaps(&mut circles, on_overlap);
-        assert_eq!(Overlap::new(Displacement::new(-0.5, -0.75)), circles[0].overlap);
+
+        let overlaps = subject.find_graph_overlaps(&mut graph);
+
+        assert_eq!(1, overlaps.len());
+        assert_eq!(graph.node_handles()[0], overlaps[0].0);
+        assert_eq!(Overlap::new(Displacement::new(-0.5, -0.75)), overlaps[0].1);
     }
 
     #[test]

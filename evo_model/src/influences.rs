@@ -23,7 +23,7 @@ impl WallCollisions {
 
 impl Influence for WallCollisions {
     fn apply(&self, ball_graph: &mut SortableGraph<Ball, Bond, AngleGusset>) {
-        let overlaps = self.find_graph_wall_overlaps(ball_graph);
+        let overlaps = self.walls.find_graph_overlaps(ball_graph);
         for (handle, overlap) in overlaps {
             let ball = ball_graph.node_mut(handle);
             ball.environment_mut().add_overlap(overlap);
@@ -216,15 +216,5 @@ mod tests {
 
         let ball3 = ball_graph.node(ball3_handle);
         assert!(ball3.forces().net_force().x() < 0.0);
-    }
-}
-
-impl WallCollisions {
-    fn find_graph_wall_overlaps(&self, ball_graph: &mut SortableGraph<Ball, Bond, AngleGusset>) -> Vec<(NodeHandle, Overlap)> {
-        let mut overlaps: Vec<(NodeHandle, Overlap)> = Vec::with_capacity(ball_graph.unsorted_nodes().len() / 2);
-        self.walls.find_overlaps(ball_graph.unsorted_nodes_mut(), |ball, overlap| {
-            overlaps.push((ball.node_handle(), overlap));
-        });
-        overlaps
     }
 }

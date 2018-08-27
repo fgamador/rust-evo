@@ -64,9 +64,11 @@ impl BondForces {
 
 impl Influence for BondForces {
     fn apply(&self, ball_graph: &mut SortableGraph<Ball, Bond, AngleGusset>) {
-        calc_bond_forces(ball_graph, |ball, force| {
-            ball.forces_mut().add_force(force);
-        });
+        let strains = calc_bond_strains(ball_graph);
+        for (handle, strain) in strains {
+            let ball = ball_graph.node_mut(handle);
+            ball.forces_mut().add_force(strain.to_force());
+        }
     }
 }
 

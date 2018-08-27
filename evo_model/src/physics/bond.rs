@@ -62,16 +62,6 @@ impl BondStrain
     }
 }
 
-pub fn calc_bond_forces<'a, C, F>(graph: &'a mut SortableGraph<C, Bond, AngleGusset>, mut on_bond_force: F)
-    where C: Circle + GraphNode, F: FnMut(&mut C, Force)
-{
-    let strains = calc_bond_strains(graph);
-
-    for (handle, strain) in strains {
-        on_bond_force(graph.node_mut(handle), strain.to_force());
-    }
-}
-
 pub fn calc_bond_strains<C>(graph: &mut SortableGraph<C, Bond, AngleGusset>) -> Vec<(NodeHandle, BondStrain)>
     where C: Circle + GraphNode
 {

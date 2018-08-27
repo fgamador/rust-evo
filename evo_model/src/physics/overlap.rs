@@ -35,7 +35,7 @@ impl Walls {
         Walls { min_corner, max_corner }
     }
 
-    pub fn find_graph_overlaps<'a, C, E, ME>(&self, graph: &'a mut SortableGraph<C, E, ME>) -> Vec<(NodeHandle, Overlap)>
+    pub fn find_overlaps<'a, C, E, ME>(&self, graph: &'a mut SortableGraph<C, E, ME>) -> Vec<(NodeHandle, Overlap)>
         where C: Circle + GraphNode, E: GraphEdge, ME: GraphMetaEdge
     {
         let mut overlaps: Vec<(NodeHandle, Overlap)> = Vec::with_capacity(graph.unsorted_nodes().len() / 2);
@@ -161,7 +161,7 @@ mod tests {
         graph.add_node(SimpleCircleNode::new(Position::new(8.5, 0.75), Length::new(1.0)));
         let subject = Walls::new(Position::new(-10.0, -5.0), Position::new(10.0, 2.0));
 
-        let overlaps = subject.find_graph_overlaps(&mut graph);
+        let overlaps = subject.find_overlaps(&mut graph);
 
         assert!(overlaps.is_empty());
     }
@@ -172,7 +172,7 @@ mod tests {
         graph.add_node(SimpleCircleNode::new(Position::new(-9.5, -4.25), Length::new(1.0)));
         let subject = Walls::new(Position::new(-10.0, -5.0), Position::new(10.0, 2.0));
 
-        let overlaps = subject.find_graph_overlaps(&mut graph);
+        let overlaps = subject.find_overlaps(&mut graph);
 
         assert_eq!(1, overlaps.len());
         assert_eq!((graph.node_handles()[0], Overlap::new(Displacement::new(0.5, 0.25))), overlaps[0]);
@@ -184,7 +184,7 @@ mod tests {
         graph.add_node(SimpleCircleNode::new(Position::new(9.5, 1.75), Length::new(1.0)));
         let subject = Walls::new(Position::new(-10.0, -5.0), Position::new(10.0, 2.0));
 
-        let overlaps = subject.find_graph_overlaps(&mut graph);
+        let overlaps = subject.find_overlaps(&mut graph);
 
         assert_eq!(1, overlaps.len());
         assert_eq!((graph.node_handles()[0], Overlap::new(Displacement::new(-0.5, -0.75))), overlaps[0]);

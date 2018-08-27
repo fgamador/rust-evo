@@ -182,8 +182,8 @@ mod tests {
     #[test]
     fn pair_overlap() {
         // {3, 4, 5} triangle (as {6, 8, 10})
-        let circle1 = SpyCircle::new(Position::new(0.0, 0.0), Length::new(7.0));
-        let circle2 = SpyCircle::new(Position::new(6.0, 8.0), Length::new(8.0));
+        let circle1 = SimpleCircleNode::new(Position::new(0.0, 0.0), Length::new(7.0));
+        let circle2 = SimpleCircleNode::new(Position::new(6.0, 8.0), Length::new(8.0));
 
         let overlap = calc_overlap(&circle1, &circle2).unwrap();
 
@@ -193,8 +193,8 @@ mod tests {
 
     #[test]
     fn pair_with_matching_centers() {
-        let circle1 = SpyCircle::new(Position::new(0.0, 0.0), Length::new(1.0));
-        let circle2 = SpyCircle::new(Position::new(0.0, 0.0), Length::new(1.0));
+        let circle1 = SimpleCircleNode::new(Position::new(0.0, 0.0), Length::new(1.0));
+        let circle2 = SimpleCircleNode::new(Position::new(0.0, 0.0), Length::new(1.0));
 
         let overlap = calc_overlap(&circle1, &circle2);
 
@@ -204,8 +204,8 @@ mod tests {
 
     #[test]
     fn pair_x_and_y_overlap_without_circle_overlap() {
-        let circle1 = SpyCircle::new(Position::new(0.0, 0.0), Length::new(1.0));
-        let circle2 = SpyCircle::new(Position::new(1.5, 1.5), Length::new(1.0));
+        let circle1 = SimpleCircleNode::new(Position::new(0.0, 0.0), Length::new(1.0));
+        let circle2 = SimpleCircleNode::new(Position::new(1.5, 1.5), Length::new(1.0));
 
         let overlap = calc_overlap(&circle1, &circle2);
 

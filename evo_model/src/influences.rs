@@ -32,7 +32,6 @@ impl Influence for WallCollisions {
     }
 }
 
-
 #[derive(Debug)]
 pub struct PairCollisions {}
 

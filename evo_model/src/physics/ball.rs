@@ -43,12 +43,6 @@ impl Ball {
         &mut self.forces
     }
 
-    pub fn add_overlap_forces(&mut self) {
-        for overlap in self.environment.overlaps() {
-            self.forces.add_force(overlap.to_force());
-        }
-    }
-
     pub fn exert_forces(&mut self, duration: Duration) {
         let impulse = self.forces.net_force() * duration;
         self.kick(impulse);
@@ -147,15 +141,6 @@ mod tests {
         ball.environment_mut().add_overlap(Overlap::new(Displacement::new(1.0, 1.0)));
         ball.environment_mut().clear();
         assert!(ball.environment().overlaps().is_empty());
-    }
-
-    #[test]
-    fn add_overlap_forces() {
-        let mut ball = Ball::new(Length::new(1.0), Mass::new(1.0),
-                                 Position::new(1.0, 1.0), Velocity::new(1.0, 1.0));
-        ball.environment_mut().add_overlap(Overlap::new(Displacement::new(1.0, 1.0)));
-        ball.add_overlap_forces();
-        assert_eq!(Force::new(1.0, 1.0), ball.forces().net_force());
     }
 
     #[test]

@@ -1,5 +1,4 @@
 use environment::environment::LocalEnvironment;
-use environment::environment::Forces;
 use physics::newtonian::*;
 use physics::quantities::*;
 use physics::shapes::*;

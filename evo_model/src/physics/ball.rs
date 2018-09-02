@@ -1,7 +1,7 @@
 use environment::environment::LocalEnvironment;
 use environment::environment::Forces;
 use physics::newtonian;
-use physics::newtonian::Body;
+use physics::newtonian::NewtonianBody;
 use physics::quantities::*;
 use physics::shapes::*;
 use physics::sortable_graph::*;
@@ -11,7 +11,7 @@ use std::ptr;
 pub struct Ball {
     graph_node_data: GraphNodeData,
     radius: Length,
-    state: newtonian::State,
+    state: newtonian::NewtonianState,
     environment: LocalEnvironment,
     forces: Forces,
 }
@@ -21,7 +21,7 @@ impl Ball {
         Ball {
             graph_node_data: GraphNodeData::new(),
             radius,
-            state: newtonian::State::new(mass, position, velocity),
+            state: newtonian::NewtonianState::new(mass, position, velocity),
             environment: LocalEnvironment::new(),
             forces: Forces::new(0.0, 0.0),
         }
@@ -65,7 +65,7 @@ impl Circle for Ball {
     }
 }
 
-impl newtonian::Body for Ball {
+impl newtonian::NewtonianBody for Ball {
     fn position(&self) -> Position {
         self.state.position()
     }

@@ -1,7 +1,7 @@
 use environment::influences::*;
 use physics::ball::*;
 use physics::bond::*;
-use physics::newtonian::Body;
+use physics::newtonian::NewtonianBody;
 use physics::quantities::*;
 use physics::sortable_graph::*;
 

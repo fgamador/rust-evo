@@ -1,6 +1,6 @@
 use physics::quantities::*;
 
-pub trait Body {
+pub trait NewtonianBody {
     fn position(&self) -> Position;
     fn velocity(&self) -> Velocity;
     fn move_for(&mut self, duration: Duration);
@@ -8,19 +8,19 @@ pub trait Body {
 }
 
 #[derive(Clone, Debug, PartialEq)]
-pub struct State {
+pub struct NewtonianState {
     pub mass: Mass,
     pub position: Position,
     pub velocity: Velocity,
 }
 
-impl State {
-    pub fn new(mass: Mass, position: Position, velocity: Velocity) -> State {
-        State { mass, position, velocity }
+impl NewtonianState {
+    pub fn new(mass: Mass, position: Position, velocity: Velocity) -> NewtonianState {
+        NewtonianState { mass, position, velocity }
     }
 }
 
-impl Body for State {
+impl NewtonianBody for NewtonianState {
     fn position(&self) -> Position {
         self.position
     }
@@ -61,18 +61,18 @@ mod tests {
     }
 
     struct SimpleBody {
-        state: State,
+        state: NewtonianState,
     }
 
     impl SimpleBody {
         fn new(mass: Mass, position: Position, velocity: Velocity) -> SimpleBody {
             SimpleBody {
-                state: State::new(mass, position, velocity)
+                state: NewtonianState::new(mass, position, velocity)
             }
         }
     }
 
-    impl Body for SimpleBody {
+    impl NewtonianBody for SimpleBody {
         fn position(&self) -> Position {
             self.state.position()
         }

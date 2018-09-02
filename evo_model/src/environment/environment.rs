@@ -2,13 +2,13 @@ use physics::overlap::*;
 use physics::quantities::*;
 
 #[derive(Clone, Debug)]
-pub struct BallEnvironment {
+pub struct LocalEnvironment {
     overlaps: Vec<Overlap>,
 }
 
-impl BallEnvironment {
+impl LocalEnvironment {
     pub fn new() -> Self {
-        BallEnvironment { overlaps: vec![] }
+        LocalEnvironment { overlaps: vec![] }
     }
 
     pub fn add_overlap(&mut self, overlap: Overlap) {

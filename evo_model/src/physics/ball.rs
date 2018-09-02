@@ -1,4 +1,4 @@
-use environment::environment::BallEnvironment;
+use environment::environment::LocalEnvironment;
 use environment::environment::Forces;
 use physics::newtonian;
 use physics::newtonian::Body;
@@ -13,7 +13,7 @@ pub struct Ball {
     graph_node_data: GraphNodeData,
     radius: Length,
     state: newtonian::State,
-    environment: BallEnvironment,
+    environment: LocalEnvironment,
     forces: Forces,
 }
 
@@ -23,16 +23,16 @@ impl Ball {
             graph_node_data: GraphNodeData::new(),
             radius,
             state: newtonian::State::new(mass, position, velocity),
-            environment: BallEnvironment::new(),
+            environment: LocalEnvironment::new(),
             forces: Forces::new(0.0, 0.0),
         }
     }
 
-    pub fn environment(&self) -> &BallEnvironment {
+    pub fn environment(&self) -> &LocalEnvironment {
         &self.environment
     }
 
-    pub fn environment_mut(&mut self) -> &mut BallEnvironment {
+    pub fn environment_mut(&mut self) -> &mut LocalEnvironment {
         &mut self.environment
     }
 

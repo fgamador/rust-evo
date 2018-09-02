@@ -1,3 +1,4 @@
+use environment::environment::BallEnvironment;
 use environment::environment::Forces;
 use physics::newtonian;
 use physics::newtonian::Body;
@@ -94,29 +95,6 @@ impl GraphNode for Ball {
 
     fn graph_node_data_mut(&mut self) -> &mut GraphNodeData {
         &mut self.graph_node_data
-    }
-}
-
-#[derive(Clone, Debug)]
-pub struct BallEnvironment {
-    overlaps: Vec<Overlap>,
-}
-
-impl BallEnvironment {
-    pub fn new() -> Self {
-        BallEnvironment { overlaps: vec![] }
-    }
-
-    pub fn add_overlap(&mut self, overlap: Overlap) {
-        self.overlaps.push(overlap);
-    }
-
-    pub fn overlaps(&self) -> &Vec<Overlap> {
-        &self.overlaps
-    }
-
-    pub fn clear(&mut self) {
-        self.overlaps.clear();
     }
 }
 

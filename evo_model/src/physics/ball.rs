@@ -1,6 +1,6 @@
+use environment::environment::Forces;
 use physics::newtonian;
 use physics::newtonian::Body;
-use physics::newtonian::Forces;
 use physics::quantities::*;
 use physics::shapes::*;
 use physics::sortable_graph::*;

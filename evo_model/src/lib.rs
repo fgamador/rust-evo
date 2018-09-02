@@ -1,6 +1,6 @@
 extern crate evo_view_model;
 
-pub mod influences;
+pub mod environment;
 pub mod physics;
 pub mod world;
 

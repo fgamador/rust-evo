@@ -1,4 +1,4 @@
-use influences::*;
+use environment::influences::*;
 use physics::ball::*;
 use physics::bond::*;
 use physics::newtonian::Body;

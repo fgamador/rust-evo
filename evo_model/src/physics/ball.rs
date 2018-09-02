@@ -5,7 +5,6 @@ use physics::newtonian::Body;
 use physics::quantities::*;
 use physics::shapes::*;
 use physics::sortable_graph::*;
-use physics::overlap::*;
 use std::ptr;
 
 #[derive(Clone, Debug)]
@@ -101,6 +100,7 @@ impl GraphNode for Ball {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use physics::overlap::*;
 
     #[test]
     fn balls_use_pointer_equality() {

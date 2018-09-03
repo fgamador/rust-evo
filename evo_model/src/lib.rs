@@ -1,5 +1,6 @@
 extern crate evo_view_model;
 
+pub mod biology;
 pub mod environment;
 pub mod physics;
 pub mod world;

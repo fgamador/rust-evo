@@ -1,7 +1,7 @@
 use environment::environment::*;
 use physics::newtonian::*;
 use physics::quantities::*;
-use physics::shapes::*;
+use physics::shapes::Circle;
 use physics::sortable_graph::*;
 use std::ptr;
 

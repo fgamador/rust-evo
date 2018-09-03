@@ -97,7 +97,6 @@ impl HasLocalEnvironment for Ball {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use physics::overlap::*;
 
     #[test]
     fn balls_use_pointer_equality() {
@@ -107,14 +106,5 @@ mod tests {
                               Position::new(1.0, 1.0), Velocity::new(1.0, 1.0));
         assert_eq!(ball1, ball1);
         assert_ne!(ball1, ball2);
-    }
-
-    #[test]
-    fn clear_ball_environment() {
-        let mut ball = Ball::new(Length::new(1.0), Mass::new(1.0),
-                                 Position::new(1.0, 1.0), Velocity::new(1.0, 1.0));
-        ball.environment_mut().add_overlap(Overlap::new(Displacement::new(1.0, 1.0)));
-        ball.environment_mut().clear();
-        assert!(ball.environment().overlaps().is_empty());
     }
 }

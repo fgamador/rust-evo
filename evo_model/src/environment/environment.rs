@@ -31,5 +31,14 @@ impl LocalEnvironment {
 
 #[cfg(test)]
 mod tests {
-    //use super::*;
+    use super::*;
+    use physics::quantities::*;
+
+    #[test]
+    fn clear_local_environment() {
+        let mut env = LocalEnvironment::new();
+        env.add_overlap(Overlap::new(Displacement::new(1.0, 1.0)));
+        env.clear();
+        assert!(env.overlaps().is_empty());
+    }
 }

@@ -151,6 +151,7 @@ impl<T> Influence<T> for UniversalForce
 #[cfg(test)]
 mod tests {
     use super::*;
+    use physics::ball::Ball;
     use std::f64::consts::PI;
 
     #[test]

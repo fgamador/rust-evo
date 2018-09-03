@@ -88,6 +88,7 @@ impl<T> World<T>
 #[cfg(test)]
 mod tests {
     use super::*;
+    use physics::ball::Ball;
     use physics::overlap::Overlap;
 
     #[test]

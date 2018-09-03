@@ -5,6 +5,8 @@ pub trait NewtonianBody {
     fn velocity(&self) -> Velocity;
     fn move_for(&mut self, duration: Duration);
     fn kick(&mut self, impulse: Impulse);
+    fn forces(&self) -> &Forces;
+    fn forces_mut(&mut self) -> &mut Forces;
     fn exert_forces(&mut self, duration: Duration);
 }
 
@@ -37,6 +39,14 @@ impl NewtonianBody for NewtonianState {
 
     fn kick(&mut self, impulse: Impulse) {
         self.velocity = self.velocity + impulse / self.mass;
+    }
+
+    fn forces(&self) -> &Forces {
+        &self.forces
+    }
+
+    fn forces_mut(&mut self) -> &mut Forces {
+        &mut self.forces
     }
 
     fn exert_forces(&mut self, duration: Duration) {
@@ -139,6 +149,14 @@ mod tests {
 
         fn kick(&mut self, impulse: Impulse) {
             self.state.kick(impulse);
+        }
+
+        fn forces(&self) -> &Forces {
+            self.state.forces()
+        }
+
+        fn forces_mut(&mut self) -> &mut Forces {
+            self.state.forces_mut()
         }
 
         fn exert_forces(&mut self, duration: Duration) {

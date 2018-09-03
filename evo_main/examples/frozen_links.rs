@@ -13,7 +13,7 @@ fn main() {
     init_and_run(create_world());
 }
 
-fn create_world() -> World {
+fn create_world() -> World<Ball> {
     let mut world = World::new(Position::new(-200.0, -200.0), Position::new(200.0, 200.0));
 
     world.add_ball(Ball::new(Length::new(20.0), Mass::new(1.0),

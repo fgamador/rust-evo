@@ -1,17 +1,21 @@
 use environment::environment::*;
 use environment::influences::*;
-use physics::ball::*;
 use physics::bond::*;
 use physics::newtonian::NewtonianBody;
 use physics::quantities::*;
+use physics::shapes::Circle;
 use physics::sortable_graph::*;
 
-pub struct World {
-    ball_graph: SortableGraph<Ball, Bond, AngleGusset>,
-    influences: Vec<Box<Influence>>,
+pub struct World<T>
+    where T: Circle + GraphNode + NewtonianBody + WithLocalEnvironment
+{
+    ball_graph: SortableGraph<T, Bond, AngleGusset>,
+    influences: Vec<Box<Influence<T>>>,
 }
 
-impl World {
+impl<T> World<T>
+    where T: Circle + GraphNode + NewtonianBody + WithLocalEnvironment
+{
     pub fn new(min_corner: Position, max_corner: Position) -> Self {
         Self::with_influences(vec![
             Box::new(WallCollisions::new(min_corner, max_corner)),
@@ -21,18 +25,18 @@ impl World {
         ])
     }
 
-    pub fn with_influences(influences: Vec<Box<Influence>>) -> Self {
+    pub fn with_influences(influences: Vec<Box<Influence<T>>>) -> Self {
         World {
             ball_graph: SortableGraph::new(),
             influences,
         }
     }
 
-    pub fn add_ball(&mut self, ball: Ball) {
+    pub fn add_ball(&mut self, ball: T) {
         self.ball_graph.add_node(ball);
     }
 
-    pub fn balls(&self) -> &[Ball] {
+    pub fn balls(&self) -> &[T] {
         &self.ball_graph.unsorted_nodes()
     }
 

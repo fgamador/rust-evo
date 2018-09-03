@@ -22,14 +22,6 @@ impl Ball {
             environment: LocalEnvironment::new(),
         }
     }
-
-    pub fn forces(&self) -> &Forces {
-        &self.state.forces
-    }
-
-    pub fn forces_mut(&mut self) -> &mut Forces {
-        &mut self.state.forces
-    }
 }
 
 impl PartialEq for Ball {
@@ -63,6 +55,14 @@ impl NewtonianBody for Ball {
 
     fn kick(&mut self, impulse: Impulse) {
         self.state.kick(impulse);
+    }
+
+    fn forces(&self) -> &Forces {
+        self.state.forces()
+    }
+
+    fn forces_mut(&mut self) -> &mut Forces {
+        self.state.forces_mut()
     }
 
     fn exert_forces(&mut self, duration: Duration) {

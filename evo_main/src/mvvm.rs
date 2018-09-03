@@ -1,18 +1,27 @@
 use evo_conrod;
 use evo_model;
+use evo_model::environment::environment::*;
+use evo_model::physics::newtonian::NewtonianBody;
+use evo_model::physics::shapes::Circle;
+use evo_model::physics::sortable_graph::*;
 use evo_model::world::World;
 use evo_view_model::ViewModel;
 use std::thread;
 use std::time::{Duration, Instant};
 
-pub struct MVVM(pub Model, pub View, pub ViewModel);
+pub struct MVVM<T>(pub Model<T>, pub View, pub ViewModel)
+    where T: Circle + GraphNode + NewtonianBody + WithLocalEnvironment;
 
-pub struct Model {
-    world: World,
+pub struct Model<T>
+    where T: Circle + GraphNode + NewtonianBody + WithLocalEnvironment
+{
+    world: World<T>,
 }
 
-impl Model {
-    pub fn new(world: World) -> Self {
+impl<T> Model<T>
+    where T: Circle + GraphNode + NewtonianBody + WithLocalEnvironment
+{
+    pub fn new(world: World<T>) -> Self {
         Model {
             world
         }

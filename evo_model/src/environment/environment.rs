@@ -1,6 +1,6 @@
 use physics::overlap::*;
 
-pub trait WithLocalEnvironment {
+pub trait HasLocalEnvironment {
     fn environment(&self) -> &LocalEnvironment;
 
     fn environment_mut(&mut self) -> &mut LocalEnvironment;

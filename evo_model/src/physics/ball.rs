@@ -84,7 +84,7 @@ impl GraphNode for Ball {
     }
 }
 
-impl WithLocalEnvironment for Ball {
+impl HasLocalEnvironment for Ball {
     fn environment(&self) -> &LocalEnvironment {
         &self.environment
     }

@@ -1,5 +1,11 @@
 use physics::overlap::*;
 
+pub trait WithLocalEnvironment {
+    fn local_environment(&self) -> &LocalEnvironment;
+
+    fn local_environment_mut(&mut self) -> &mut LocalEnvironment;
+}
+
 #[derive(Clone, Debug)]
 pub struct LocalEnvironment {
     overlaps: Vec<Overlap>,

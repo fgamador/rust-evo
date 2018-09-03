@@ -1,3 +1,4 @@
+use environment::environment::*;
 use physics::ball::*;
 use physics::bond::*;
 use physics::overlap::*;

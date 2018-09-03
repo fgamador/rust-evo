@@ -1,4 +1,4 @@
-use environment::environment::LocalEnvironment;
+use environment::environment::*;
 use physics::newtonian::*;
 use physics::quantities::*;
 use physics::shapes::*;
@@ -21,14 +21,6 @@ impl Ball {
             state: NewtonianState::new(mass, position, velocity),
             environment: LocalEnvironment::new(),
         }
-    }
-
-    pub fn environment(&self) -> &LocalEnvironment {
-        &self.environment
-    }
-
-    pub fn environment_mut(&mut self) -> &mut LocalEnvironment {
-        &mut self.environment
     }
 
     pub fn forces(&self) -> &Forces {
@@ -89,6 +81,16 @@ impl GraphNode for Ball {
 
     fn graph_node_data_mut(&mut self) -> &mut GraphNodeData {
         &mut self.graph_node_data
+    }
+}
+
+impl WithLocalEnvironment for Ball {
+    fn environment(&self) -> &LocalEnvironment {
+        &self.environment
+    }
+
+    fn environment_mut(&mut self) -> &mut LocalEnvironment {
+        &mut self.environment
     }
 }
 

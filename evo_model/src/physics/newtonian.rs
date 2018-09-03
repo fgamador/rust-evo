@@ -5,6 +5,7 @@ pub trait NewtonianBody {
     fn velocity(&self) -> Velocity;
     fn move_for(&mut self, duration: Duration);
     fn kick(&mut self, impulse: Impulse);
+    fn exert_forces(&mut self, duration: Duration);
 }
 
 #[derive(Clone, Debug, PartialEq)]
@@ -12,11 +13,12 @@ pub struct NewtonianState {
     pub mass: Mass,
     pub position: Position,
     pub velocity: Velocity,
+    pub forces: Forces,
 }
 
 impl NewtonianState {
     pub fn new(mass: Mass, position: Position, velocity: Velocity) -> NewtonianState {
-        NewtonianState { mass, position, velocity }
+        NewtonianState { mass, position, velocity, forces: Forces::new(0.0, 0.0) }
     }
 }
 
@@ -35,6 +37,11 @@ impl NewtonianBody for NewtonianState {
 
     fn kick(&mut self, impulse: Impulse) {
         self.velocity = self.velocity + impulse / self.mass;
+    }
+
+    fn exert_forces(&mut self, duration: Duration) {
+        let impulse = self.forces.net_force() * duration;
+        self.kick(impulse);
     }
 }
 
@@ -97,6 +104,14 @@ mod tests {
         assert_eq!(Force::new(0.0, 0.0), subject.net_force());
     }
 
+    #[test]
+    fn exert_forces() {
+        let mut ball = SimpleBody::new(Mass::new(1.0), Position::new(1.0, 1.0), Velocity::new(1.0, 1.0));
+        ball.state.forces.add_force(Force::new(1.0, 1.0));
+        ball.exert_forces(Duration::new(1.0));
+        assert_eq!(Velocity::new(2.0, 2.0), ball.velocity());
+    }
+
     struct SimpleBody {
         state: NewtonianState,
     }
@@ -124,6 +139,10 @@ mod tests {
 
         fn kick(&mut self, impulse: Impulse) {
             self.state.kick(impulse);
+        }
+
+        fn exert_forces(&mut self, duration: Duration) {
+            self.state.exert_forces(duration);
         }
     }
 }

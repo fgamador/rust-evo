@@ -11,7 +11,6 @@ pub struct Ball {
     radius: Length,
     state: NewtonianState,
     environment: LocalEnvironment,
-    forces: Forces,
 }
 
 impl Ball {
@@ -21,7 +20,6 @@ impl Ball {
             radius,
             state: NewtonianState::new(mass, position, velocity),
             environment: LocalEnvironment::new(),
-            forces: Forces::new(0.0, 0.0),
         }
     }
 
@@ -34,16 +32,11 @@ impl Ball {
     }
 
     pub fn forces(&self) -> &Forces {
-        &self.forces
+        &self.state.forces
     }
 
     pub fn forces_mut(&mut self) -> &mut Forces {
-        &mut self.forces
-    }
-
-    pub fn exert_forces(&mut self, duration: Duration) {
-        let impulse = self.forces.net_force() * duration;
-        self.kick(impulse);
+        &mut self.state.forces
     }
 }
 
@@ -78,6 +71,10 @@ impl NewtonianBody for Ball {
 
     fn kick(&mut self, impulse: Impulse) {
         self.state.kick(impulse);
+    }
+
+    fn exert_forces(&mut self, duration: Duration) {
+        self.state.exert_forces(duration);
     }
 }
 
@@ -117,14 +114,5 @@ mod tests {
         ball.environment_mut().add_overlap(Overlap::new(Displacement::new(1.0, 1.0)));
         ball.environment_mut().clear();
         assert!(ball.environment().overlaps().is_empty());
-    }
-
-    #[test]
-    fn exert_forces() {
-        let mut ball = Ball::new(Length::new(1.0), Mass::new(1.0),
-                                 Position::new(1.0, 1.0), Velocity::new(1.0, 1.0));
-        ball.forces_mut().add_force(Force::new(1.0, 1.0));
-        ball.exert_forces(Duration::new(1.0));
-        assert_eq!(Velocity::new(2.0, 2.0), ball.velocity());
     }
 }

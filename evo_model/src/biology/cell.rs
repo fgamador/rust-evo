@@ -9,7 +9,7 @@ use std::ptr;
 pub struct Cell {
     graph_node_data: GraphNodeData,
     radius: Length,
-    state: NewtonianState,
+    newtonian_state: NewtonianState,
     environment: LocalEnvironment,
 }
 
@@ -18,7 +18,7 @@ impl Cell {
         Cell {
             graph_node_data: GraphNodeData::new(),
             radius,
-            state: NewtonianState::new(mass, position, velocity),
+            newtonian_state: NewtonianState::new(mass, position, velocity),
             environment: LocalEnvironment::new(),
         }
     }
@@ -36,37 +36,37 @@ impl Circle for Cell {
     }
 
     fn center(&self) -> Position {
-        self.state.position
+        self.newtonian_state.position
     }
 }
 
 impl NewtonianBody for Cell {
     fn position(&self) -> Position {
-        self.state.position()
+        self.newtonian_state.position()
     }
 
     fn velocity(&self) -> Velocity {
-        self.state.velocity()
+        self.newtonian_state.velocity()
     }
 
     fn move_for(&mut self, duration: Duration) {
-        self.state.move_for(duration);
+        self.newtonian_state.move_for(duration);
     }
 
     fn kick(&mut self, impulse: Impulse) {
-        self.state.kick(impulse);
+        self.newtonian_state.kick(impulse);
     }
 
     fn forces(&self) -> &Forces {
-        self.state.forces()
+        self.newtonian_state.forces()
     }
 
     fn forces_mut(&mut self) -> &mut Forces {
-        self.state.forces_mut()
+        self.newtonian_state.forces_mut()
     }
 
     fn exert_forces(&mut self, duration: Duration) {
-        self.state.exert_forces(duration);
+        self.newtonian_state.exert_forces(duration);
     }
 }
 

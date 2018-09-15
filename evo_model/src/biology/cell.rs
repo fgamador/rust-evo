@@ -5,11 +5,7 @@ use physics::shapes::*;
 use physics::sortable_graph::*;
 use std::ptr;
 
-pub trait HelloMacro {
-    fn hello_macro();
-}
-
-#[derive(Clone, Debug, HelloMacro)]
+#[derive(Clone, Debug, HasLocalEnvironment)]
 pub struct Cell {
     graph_node_data: GraphNodeData,
     radius: Length,
@@ -85,16 +81,6 @@ impl GraphNode for Cell {
 
     fn graph_node_data_mut(&mut self) -> &mut GraphNodeData {
         &mut self.graph_node_data
-    }
-}
-
-impl HasLocalEnvironment for Cell {
-    fn environment(&self) -> &LocalEnvironment {
-        &self.environment
-    }
-
-    fn environment_mut(&mut self) -> &mut LocalEnvironment {
-        &mut self.environment
     }
 }
 

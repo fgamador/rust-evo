@@ -5,8 +5,8 @@ extern crate quote;
 
 use proc_macro::TokenStream;
 
-#[proc_macro_derive(HelloMacro)]
-pub fn hello_macro_derive(input: TokenStream) -> TokenStream {
+#[proc_macro_derive(HasLocalEnvironment)]
+pub fn has_local_environment_derive(input: TokenStream) -> TokenStream {
     // Construct a string representation of the type definition
     let s = input.to_string();
 
@@ -14,27 +14,23 @@ pub fn hello_macro_derive(input: TokenStream) -> TokenStream {
     let ast = syn::parse_derive_input(&s).unwrap();
 
     // Build the impl
-    let gen = impl_hello_macro(&ast);
+    let gen = impl_has_local_environment(&ast);
 
     // Return the generated impl
     gen.parse().unwrap()
 }
 
-fn impl_hello_macro(ast: &syn::DeriveInput) -> quote::Tokens {
+fn impl_has_local_environment(ast: &syn::DeriveInput) -> quote::Tokens {
     let name = &ast.ident;
     quote! {
-        impl HelloMacro for #name {
-            fn hello_macro() {
-                println!("Hello, Macro! My name is {}", stringify!(#name));
+        impl HasLocalEnvironment for #name {
+            fn environment(&self) -> &LocalEnvironment {
+                &self.environment
+            }
+
+            fn environment_mut(&mut self) -> &mut LocalEnvironment {
+                &mut self.environment
             }
         }
-    }
-}
-
-#[cfg(test)]
-mod tests {
-    #[test]
-    fn it_works() {
-        assert_eq!(2 + 2, 4);
     }
 }

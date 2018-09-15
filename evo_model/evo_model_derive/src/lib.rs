@@ -32,8 +32,8 @@ fn impl_has_local_environment(ast: &syn::DeriveInput) -> quote::Tokens {
                 match f.ty {
                     syn::Ty::Path(_, syn::Path { global: _, ref segments }) =>
                         match segments.last() {
-//                          Some("Environment".to_str()) => Some(&f.ident),
-                            Some(_) => Some(&f.ident),
+//                          Some("LocalEnvironment".to_str()) => Some(&f.ident),
+                            Some(syn::PathSegment { ident: _, parameters: _ }) => Some(&f.ident),
                             _ => None
                         },
                     _ => None

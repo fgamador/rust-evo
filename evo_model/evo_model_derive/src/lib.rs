@@ -30,7 +30,12 @@ fn impl_has_local_environment(ast: &syn::DeriveInput) -> quote::Tokens {
         syn::Body::Struct(syn::VariantData::Struct(ref fields)) =>
             fields.iter().filter_map(|f| {
                 match f.ty {
-                    syn::Ty::Path(_, syn::Path { global: _, segments: _ }) => Some(&f.ident),
+                    syn::Ty::Path(_, syn::Path { global: _, ref segments }) =>
+                        match segments.last() {
+//                          Some("Environment".to_str()) => Some(&f.ident),
+                            Some(_) => Some(&f.ident),
+                            _ => None
+                        },
                     _ => None
                 }
             }).next(),

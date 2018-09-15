@@ -183,6 +183,7 @@ dependencies = [
 name = "evo_model"
 version = "0.1.0"
 dependencies = [
+ "evo_model_derive 0.1.0",
  "evo_view_model 0.1.0",
 ]
 

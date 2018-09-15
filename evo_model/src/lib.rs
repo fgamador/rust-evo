@@ -1,4 +1,6 @@
 extern crate evo_view_model;
+#[macro_use]
+extern crate evo_model_derive;
 
 pub mod biology;
 pub mod environment;

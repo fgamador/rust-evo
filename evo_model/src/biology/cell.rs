@@ -5,7 +5,11 @@ use physics::shapes::*;
 use physics::sortable_graph::*;
 use std::ptr;
 
-#[derive(Clone, Debug)]
+pub trait HelloMacro {
+    fn hello_macro();
+}
+
+#[derive(Clone, Debug, HelloMacro)]
 pub struct Cell {
     graph_node_data: GraphNodeData,
     radius: Length,

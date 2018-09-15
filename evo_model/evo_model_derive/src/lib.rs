@@ -29,7 +29,10 @@ fn impl_has_local_environment(ast: &syn::DeriveInput) -> quote::Tokens {
     match ast.body {
         syn::Body::Struct(syn::VariantData::Struct(ref fields)) =>
             fields.iter().filter_map(|f| {
-                Some(f)
+                match f.ty {
+                    syn::Ty::Path(_, _) => Some(&f.ident),
+                    _ => None
+                }
             }).next(),
         _ => None // panic!("HasLocalEnvironment applied to non-struct")
     };

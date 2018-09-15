@@ -28,7 +28,7 @@ fn impl_has_local_environment(ast: &syn::DeriveInput) -> quote::Tokens {
     // TODO check for field of type LocalEnvironment
     match ast.body {
         syn::Body::Struct(syn::VariantData::Struct(ref fields)) =>
-            fields.iter().filter_map(|f| {
+            fields.iter().filter_map(|f|
                 match f.ty {
                     syn::Ty::Path(_, syn::Path { global: _, ref segments }) =>
                         match segments.last() {
@@ -38,7 +38,7 @@ fn impl_has_local_environment(ast: &syn::DeriveInput) -> quote::Tokens {
                         },
                     _ => None
                 }
-            }).next(),
+            ).next(),
         _ => None // panic!("HasLocalEnvironment applied to non-struct")
     };
 

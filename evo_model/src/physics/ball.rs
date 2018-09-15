@@ -5,7 +5,7 @@ use physics::shapes::Circle;
 use physics::sortable_graph::*;
 use std::ptr;
 
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, HasLocalEnvironment)]
 pub struct Ball {
     graph_node_data: GraphNodeData,
     radius: Length,
@@ -81,16 +81,6 @@ impl GraphNode for Ball {
 
     fn graph_node_data_mut(&mut self) -> &mut GraphNodeData {
         &mut self.graph_node_data
-    }
-}
-
-impl HasLocalEnvironment for Ball {
-    fn environment(&self) -> &LocalEnvironment {
-        &self.environment
-    }
-
-    fn environment_mut(&mut self) -> &mut LocalEnvironment {
-        &mut self.environment
     }
 }
 

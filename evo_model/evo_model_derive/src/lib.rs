@@ -3,6 +3,8 @@ extern crate syn;
 #[macro_use]
 extern crate quote;
 
+// TODO upgrade syn: https://crates.io/crates/syn
+
 use proc_macro::TokenStream;
 
 #[proc_macro_derive(HasLocalEnvironment)]
@@ -22,7 +24,16 @@ pub fn has_local_environment_derive(input: TokenStream) -> TokenStream {
 
 fn impl_has_local_environment(ast: &syn::DeriveInput) -> quote::Tokens {
     let name = &ast.ident;
+
     // TODO check for field of type LocalEnvironment
+    match ast.body {
+        syn::Body::Struct(syn::VariantData::Struct(ref fields)) =>
+            fields.iter().filter_map(|f| {
+                Some(f)
+            }).next(),
+        _ => None // panic!("HasLocalEnvironment applied to non-struct")
+    };
+
     quote! {
         impl HasLocalEnvironment for #name {
             fn environment(&self) -> &LocalEnvironment {

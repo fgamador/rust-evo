@@ -517,4 +517,9 @@ mod tests {
         assert_eq!(Impulse::new(0.75, -0.25),
                    Force::new(1.5, -0.5) * Duration::new(0.5));
     }
+
+    #[test]
+    fn negate_torque() {
+        assert_eq!(Torque::new(-0.75), -Torque::new(0.75));
+    }
 }

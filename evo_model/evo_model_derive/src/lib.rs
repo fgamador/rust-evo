@@ -24,12 +24,7 @@ pub fn has_local_environment_derive(input: TokenStream) -> TokenStream {
 
 fn impl_has_local_environment(ast: &syn::DeriveInput) -> quote::Tokens {
     let name = &ast.ident;
-
-    let fields = get_fields_of_struct_type(&ast.body, "LocalEnvironment");
-    if fields.len() != 1 {
-        panic!("HasLocalEnvironment must be applied to a struct with exactly one field of type LocalEnvironment");
-    }
-    let field_name = fields[0].ident.as_ref().unwrap();
+    let field_name = get_field_name_of_struct_type(&ast.body, "LocalEnvironment");
 
     quote! {
         impl HasLocalEnvironment for #name {
@@ -42,6 +37,14 @@ fn impl_has_local_environment(ast: &syn::DeriveInput) -> quote::Tokens {
             }
         }
     }
+}
+
+fn get_field_name_of_struct_type<'a>(body: &'a syn::Body, type_name: &str) -> &'a syn::Ident {
+    let fields = get_fields_of_struct_type(body, type_name);
+    if fields.len() != 1 {
+        panic!("Macro must be applied to a struct with exactly one field of type {}", type_name);
+    }
+    fields[0].ident.as_ref().unwrap()
 }
 
 fn get_fields_of_struct_type<'a>(body: &'a syn::Body, type_name: &str) -> Vec<&'a syn::Field> {

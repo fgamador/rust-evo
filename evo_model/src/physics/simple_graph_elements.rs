@@ -59,7 +59,7 @@ impl SimpleGraphEdge {
     }
 }
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, GraphMetaEdge, PartialEq)]
 pub struct SimpleGraphMetaEdge {
     meta_edge_data: GraphMetaEdgeData,
 }
@@ -69,23 +69,5 @@ impl SimpleGraphMetaEdge {
         SimpleGraphMetaEdge {
             meta_edge_data: GraphMetaEdgeData::new(edge1.edge_handle(), edge2.edge_handle())
         }
-    }
-}
-
-impl GraphMetaEdge for SimpleGraphMetaEdge {
-    fn edge1_handle(&self) -> EdgeHandle {
-        self.meta_edge_data.edge1_handle()
-    }
-
-    fn edge2_handle(&self) -> EdgeHandle {
-        self.meta_edge_data.edge2_handle()
-    }
-
-    fn graph_meta_edge_data(&self) -> &GraphMetaEdgeData {
-        &self.meta_edge_data
-    }
-
-    fn graph_meta_edge_data_mut(&mut self) -> &mut GraphMetaEdgeData {
-        &mut self.meta_edge_data
     }
 }

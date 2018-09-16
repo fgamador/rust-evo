@@ -72,7 +72,7 @@ fn calc_bond_strain<C>(circle1: &C, circle2: &C) -> Displacement
     Displacement::new(x_strain, y_strain)
 }
 
-#[derive(Clone, Debug, PartialEq)]
+#[derive(Clone, Debug, GraphMetaEdge, PartialEq)]
 pub struct AngleGusset {
     meta_edge_data: GraphMetaEdgeData,
     angle: Angle, // counterclockwise angle from bond1 to bond2
@@ -86,24 +86,6 @@ impl AngleGusset {
             meta_edge_data: GraphMetaEdgeData::new(bond1.edge_handle(), bond2.edge_handle()),
             angle,
         }
-    }
-}
-
-impl GraphMetaEdge for AngleGusset {
-    fn edge1_handle(&self) -> EdgeHandle {
-        self.meta_edge_data.edge1_handle()
-    }
-
-    fn edge2_handle(&self) -> EdgeHandle {
-        self.meta_edge_data.edge2_handle()
-    }
-
-    fn graph_meta_edge_data(&self) -> &GraphMetaEdgeData {
-        &self.meta_edge_data
-    }
-
-    fn graph_meta_edge_data_mut(&mut self) -> &mut GraphMetaEdgeData {
-        &mut self.meta_edge_data
     }
 }
 

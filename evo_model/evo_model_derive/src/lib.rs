@@ -39,6 +39,34 @@ pub fn graph_edge_derive(input: TokenStream) -> TokenStream {
     })
 }
 
+#[proc_macro_derive(GraphMetaEdge)]
+pub fn graph_meta_edge_derive(input: TokenStream) -> TokenStream {
+    trait_derive(input, |ast| {
+        let name = &ast.ident;
+        let field_name = get_field_name_of_struct_type(&ast.body, "GraphMetaEdgeData");
+
+        quote! {
+            impl GraphMetaEdge for #name {
+                fn edge1_handle(&self) -> EdgeHandle {
+                    self.#field_name.edge1_handle()
+                }
+
+                fn edge2_handle(&self) -> EdgeHandle {
+                    self.#field_name.edge2_handle()
+                }
+
+                fn graph_meta_edge_data(&self) -> &GraphMetaEdgeData {
+                    &self.#field_name
+                }
+
+                fn graph_meta_edge_data_mut(&mut self) -> &mut GraphMetaEdgeData {
+                    &mut self.#field_name
+                }
+            }
+        }
+    })
+}
+
 #[proc_macro_derive(GraphNode)]
 pub fn graph_node_derive(input: TokenStream) -> TokenStream {
     trait_derive(input, |ast| {

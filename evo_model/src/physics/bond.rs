@@ -171,17 +171,22 @@ mod tests {
         AngleGusset::new(&graph.edges()[0], &graph.edges()[1], Angle::from_radians(PI));
     }
 
-    //#[test]
-    fn _gusset_forces() {
+    #[test]
+    fn gusset_forces() {
         let mut graph: SortableGraph<SimpleCircleNode, Bond, AngleGusset> = SortableGraph::new();
-        graph.add_node(SimpleCircleNode::new(Position::new(0.0, 0.0), Length::new(1.0)));
-        graph.add_node(SimpleCircleNode::new(Position::new(0.0, -2.0), Length::new(1.0)));
-        graph.add_node(SimpleCircleNode::new(Position::new(2.0, -2.0), Length::new(1.0)));
+        add_simple_circle_node(&mut graph, (0.0, 0.0), 1.0);
+        add_simple_circle_node(&mut graph, (0.0, -2.0), 1.0);
+        add_simple_circle_node(&mut graph, (2.0, -2.0), 1.0);
         let bond1 = Bond::new(&graph.unsorted_nodes()[0], &graph.unsorted_nodes()[1]);
         graph.add_edge(bond1);
         let bond2 = Bond::new(&graph.unsorted_nodes()[1], &graph.unsorted_nodes()[2]);
         graph.add_edge(bond2);
         AngleGusset::new(&graph.edges()[0], &graph.edges()[1], Angle::from_radians(PI));
         // TODO
+    }
+
+    fn add_simple_circle_node(graph: &mut SortableGraph<SimpleCircleNode, Bond, AngleGusset>,
+                              center: (f64, f64), radius: f64) -> NodeHandle {
+        graph.add_node(SimpleCircleNode::new(Position::new(center.0, center.1), Length::new(radius)))
     }
 }

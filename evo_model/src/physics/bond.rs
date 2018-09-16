@@ -109,20 +109,20 @@ fn calc_bond_angle_force_pair<C>(gusset: &AngleGusset, graph: &SortableGraph<C, 
     let bond2 = graph.edge(gusset.edge2_handle());
 
     let node1 = graph.node(bond1.node1_handle());
-    let node2 = graph.node(bond1.node2_handle());
-    let node3 = graph.node(bond2.node2_handle());
+    let node0 = graph.node(bond1.node2_handle());
+    let node2 = graph.node(bond2.node2_handle());
 
-    let bond_angle = calc_bond_angle(node2.center(), node1.center(), node3.center());
+    let bond_angle = calc_bond_angle(node0.center(), node1.center(), node2.center());
     let torque = calc_torque_from_angle_deflection(bond_angle - gusset.angle);
 
-    let node1_tangential_force = calc_tangential_force_from_torque(node2.center(), node1.center(), torque);
-    let node1_force = calc_force_from_tangential_force(node2.center(), node1.center(), node1_tangential_force);
+    let node1_tangential_force = calc_tangential_force_from_torque(node0.center(), node1.center(), torque);
+    let node1_force = calc_force_from_tangential_force(node0.center(), node1.center(), node1_tangential_force);
 
-    let node3_tangential_force = calc_tangential_force_from_torque(node2.center(), node3.center(), -torque);
-    let node3_force = calc_force_from_tangential_force(node2.center(), node3.center(), node3_tangential_force);
+    let node2_tangential_force = calc_tangential_force_from_torque(node0.center(), node2.center(), -torque);
+    let node2_force = calc_force_from_tangential_force(node0.center(), node2.center(), node2_tangential_force);
 
     ((node1.node_handle(), node1_force),
-     (node3.node_handle(), node3_force))
+     (node2.node_handle(), node2_force))
 }
 
 fn calc_bond_angle(origin: Position, point1: Position, point2: Position) -> Angle {

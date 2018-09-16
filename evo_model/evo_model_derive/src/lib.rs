@@ -25,26 +25,11 @@ pub fn has_local_environment_derive(input: TokenStream) -> TokenStream {
 fn impl_has_local_environment(ast: &syn::DeriveInput) -> quote::Tokens {
     let name = &ast.ident;
 
-    // TODO check for field of type LocalEnvironment
-    //let type_name = syn::Ident::from("LocalEnvironment");
-    match ast.body {
-        syn::Body::Struct(syn::VariantData::Struct(ref fields)) =>
-            fields.iter().filter_map(|f|
-                match f.ty {
-                    syn::Ty::Path(_, syn::Path { global: _, ref segments }) =>
-                        match segments.last() {
-//                          Some("LocalEnvironment".to_str()) => Some(&f.ident),
-                            Some(syn::PathSegment { ident: type_name, parameters: _ }) => {
-                                println!("{}", type_name);
-                                Some(&f.ident)
-                            }
-                            _ => None
-                        },
-                    _ => None
-                }
-            ).next(),
-        _ => None // panic!("HasLocalEnvironment applied to non-struct")
-    };
+    let fields = get_fields_of_struct_type(&ast.body, "LocalEnvironment");
+    if fields.len() != 1 {
+        panic!("HasLocalEnvironment must be applied to a struct with exactly one field of type LocalEnvironment");
+    }
+    //let field_name = fields[0].ident.unwrap();
 
     quote! {
         impl HasLocalEnvironment for #name {

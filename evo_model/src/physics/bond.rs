@@ -183,15 +183,21 @@ mod tests {
     }
 
     #[test]
-    fn gusset_forces() {
+    fn qualitative_gusset_forces() {
         let mut graph: SortableGraph<SimpleCircleNode, Bond, AngleGusset> = SortableGraph::new();
-        let node1 = add_simple_circle_node(&mut graph, (0.0, 0.0), 1.0);
-        let node2 = add_simple_circle_node(&mut graph, (0.0, -2.0), 1.0);
-        let node3 = add_simple_circle_node(&mut graph, (2.0, -2.0), 1.0);
+        let node1 = add_simple_circle_node(&mut graph, (0.01, 2.0), 1.0);
+        let node2 = add_simple_circle_node(&mut graph, (0.0, 0.0), 1.0);
+        let node3 = add_simple_circle_node(&mut graph, (0.01, -2.0), 1.0);
         let bond1 = add_bond(&mut graph, node1, node2);
         let bond2 = add_bond(&mut graph, node2, node3);
-        add_angle_gusset(&mut graph, bond1, bond2, PI);
-        // TODO
+        let gusset = add_angle_gusset(&mut graph, bond1, bond2, PI);
+
+        let force_pair = calc_bond_angle_force_pair(&gusset, &graph);
+
+        assert_eq!(node1, (force_pair.0).0);
+        assert!((force_pair.0).1.x() < 0.0);
+        assert_eq!(node3, (force_pair.1).0);
+        assert!((force_pair.1).1.x() < 0.0);
     }
 
     fn add_simple_circle_node(graph: &mut SortableGraph<SimpleCircleNode, Bond, AngleGusset>,

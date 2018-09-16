@@ -80,6 +80,28 @@ impl FloatRange {
     }
 }
 
+#[derive(Clone, Copy, Debug, PartialEq)]
+pub struct SimpleCircle {
+    pub center: Position,
+    pub radius: Length,
+}
+
+impl SimpleCircle {
+    pub fn new(center: Position, radius: Length) -> SimpleCircle {
+        SimpleCircle { center, radius }
+    }
+}
+
+impl Circle for SimpleCircle {
+    fn radius(&self) -> Length {
+        return self.radius;
+    }
+
+    fn center(&self) -> Position {
+        return self.center;
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -135,27 +157,5 @@ mod tests {
         let rect2 = Rectangle::new(Position::new(1.0, 1.0),
                                    Position::new(2.0, 2.0));
         assert!(rect1.overlaps(rect2));
-    }
-
-    #[derive(Clone, Copy, Debug, PartialEq)]
-    pub struct SimpleCircle {
-        pub center: Position,
-        pub radius: Length,
-    }
-
-    impl SimpleCircle {
-        pub fn new(center: Position, radius: Length) -> SimpleCircle {
-            SimpleCircle { center, radius }
-        }
-    }
-
-    impl Circle for SimpleCircle {
-        fn radius(&self) -> Length {
-            return self.radius;
-        }
-
-        fn center(&self) -> Position {
-            return self.center;
-        }
     }
 }

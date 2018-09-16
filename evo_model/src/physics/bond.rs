@@ -118,7 +118,7 @@ mod tests {
     #[should_panic]
     fn cannot_bond_same_ball() {
         let mut graph: SortableGraph<SimpleCircleNode, Bond, AngleGusset> = SortableGraph::new();
-        graph.add_node(SimpleCircleNode::new(Position::new(0.0, 0.0), Length::new(1.0)));
+        add_simple_circle_node(&mut graph, (0.0, 0.0), 1.0);
         Bond::new(&graph.unsorted_nodes()[0], &graph.unsorted_nodes()[1]);
     }
 
@@ -149,8 +149,8 @@ mod tests {
     #[should_panic]
     fn cannot_gusset_same_bond() {
         let mut graph: SortableGraph<SimpleCircleNode, Bond, AngleGusset> = SortableGraph::new();
-        graph.add_node(SimpleCircleNode::new(Position::new(0.0, 0.0), Length::new(1.0)));
-        graph.add_node(SimpleCircleNode::new(Position::new(2.0, 0.0), Length::new(1.0)));
+        add_simple_circle_node(&mut graph, (0.0, 0.0), 1.0);
+        add_simple_circle_node(&mut graph, (2.0, 0.0), 1.0);
         let bond = Bond::new(&graph.unsorted_nodes()[0], &graph.unsorted_nodes()[1]);
         graph.add_edge(bond);
         AngleGusset::new(&graph.edges()[0], &graph.edges()[0], Angle::from_radians(PI));
@@ -160,10 +160,10 @@ mod tests {
     #[should_panic]
     fn cannot_gusset_unconnected_bonds() {
         let mut graph: SortableGraph<SimpleCircleNode, Bond, AngleGusset> = SortableGraph::new();
-        graph.add_node(SimpleCircleNode::new(Position::new(0.0, 0.0), Length::new(1.0)));
-        graph.add_node(SimpleCircleNode::new(Position::new(2.0, 0.0), Length::new(1.0)));
-        graph.add_node(SimpleCircleNode::new(Position::new(10.0, 0.0), Length::new(1.0)));
-        graph.add_node(SimpleCircleNode::new(Position::new(12.0, 0.0), Length::new(1.0)));
+        add_simple_circle_node(&mut graph, (0.0, 0.0), 1.0);
+        add_simple_circle_node(&mut graph, (2.0, 0.0), 1.0);
+        add_simple_circle_node(&mut graph, (10.0, 0.0), 1.0);
+        add_simple_circle_node(&mut graph, (12.0, 0.0), 1.0);
         let bond1 = Bond::new(&graph.unsorted_nodes()[0], &graph.unsorted_nodes()[1]);
         graph.add_edge(bond1);
         let bond2 = Bond::new(&graph.unsorted_nodes()[2], &graph.unsorted_nodes()[3]);

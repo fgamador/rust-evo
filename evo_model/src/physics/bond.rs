@@ -113,8 +113,7 @@ fn calc_bond_angle_force_pair<C>(gusset: &AngleGusset, graph: &SortableGraph<C, 
     let node3 = graph.node(bond2.node2_handle());
 
     let bond_angle = calc_bond_angle(node2.center(), node1.center(), node3.center());
-    let angle_deflection = bond_angle - gusset.angle;
-    let torque = calc_torque_from_angle_deflection(angle_deflection);
+    let torque = calc_torque_from_angle_deflection(bond_angle - gusset.angle);
 
     let node1_tangential_force = calc_tangential_force_from_torque(node2.center(), node1.center(), torque);
     let node1_force = calc_force_from_tangential_force(node2.center(), node1.center(), 1.0);

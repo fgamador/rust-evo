@@ -76,13 +76,17 @@ mod tests {
 
     #[test]
     fn identifies_field_of_struct_type() {
-        let field = syn::Field {
+        let field = field_of_struct_type("StructType");
+        assert!(field_is_struct_of_type(&field, "StructType"));
+//        let fields = get_fields_of_struct_type(body, "TypeName");
+    }
+
+    fn field_of_struct_type(type_name: &str) -> syn::Field {
+        syn::Field {
             ident: None,
             vis: syn::Visibility::Public,
             attrs: Vec::new(),
-            ty: syn::Ty::Path(None, syn::Path::from("StructType")),
-        };
-        assert!(field_is_struct_of_type(&field, "StructType"));
-//        let fields = get_fields_of_struct_type(body, "TypeName");
+            ty: syn::Ty::Path(None, syn::Path::from(type_name)),
+        }
     }
 }

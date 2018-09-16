@@ -135,7 +135,7 @@ mod tests {
     }
 
     #[test]
-    fn bonded_pair_with_matching_centers() {
+    fn bonded_pair_with_matching_centers_has_no_strain() {
         let circle1 = SimpleCircle::new(Position::new(0.0, 0.0), Length::new(1.0));
         let circle2 = SimpleCircle::new(Position::new(0.0, 0.0), Length::new(1.0));
 

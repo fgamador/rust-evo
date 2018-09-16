@@ -7,6 +7,30 @@ extern crate quote;
 
 use proc_macro::TokenStream;
 
+#[proc_macro_derive(GraphNode)]
+pub fn graph_node_derive(input: TokenStream) -> TokenStream {
+    trait_derive(input, |ast| {
+        let name = &ast.ident;
+        let field_name = get_field_name_of_struct_type(&ast.body, "GraphNodeData");
+
+        quote! {
+            impl GraphNode for #name {
+                fn node_handle(&self) -> NodeHandle {
+                    self.#field_name.handle()
+                }
+
+                fn graph_node_data(&self) -> &GraphNodeData {
+                    &self.#field_name
+                }
+
+                fn graph_node_data_mut(&mut self) -> &mut GraphNodeData {
+                    &mut self.#field_name
+                }
+            }
+        }
+    })
+}
+
 #[proc_macro_derive(HasLocalEnvironment)]
 pub fn has_local_environment_derive(input: TokenStream) -> TokenStream {
     trait_derive(input, |ast| {

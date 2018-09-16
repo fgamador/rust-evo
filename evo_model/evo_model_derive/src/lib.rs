@@ -7,6 +7,38 @@ extern crate quote;
 
 use proc_macro::TokenStream;
 
+#[proc_macro_derive(GraphEdge)]
+pub fn graph_edge_derive(input: TokenStream) -> TokenStream {
+    trait_derive(input, |ast| {
+        let name = &ast.ident;
+        let field_name = get_field_name_of_struct_type(&ast.body, "GraphEdgeData");
+
+        quote! {
+            impl GraphEdge for #name {
+                fn edge_handle(&self) -> EdgeHandle {
+                    self.#field_name.edge_handle()
+                }
+
+                fn node1_handle(&self) -> NodeHandle {
+                    self.#field_name.node1_handle()
+                }
+
+                fn node2_handle(&self) -> NodeHandle {
+                    self.#field_name.node2_handle()
+                }
+
+                fn graph_edge_data(&self) -> &GraphEdgeData {
+                    &self.#field_name
+                }
+
+                fn graph_edge_data_mut(&mut self) -> &mut GraphEdgeData {
+                    &mut self.#field_name
+                }
+            }
+        }
+    })
+}
+
 #[proc_macro_derive(GraphNode)]
 pub fn graph_node_derive(input: TokenStream) -> TokenStream {
     trait_derive(input, |ast| {

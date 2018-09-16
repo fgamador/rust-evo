@@ -46,7 +46,7 @@ impl Circle for SimpleCircleNode {
     }
 }
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, GraphEdge, PartialEq)]
 pub struct SimpleGraphEdge {
     edge_data: GraphEdgeData,
 }
@@ -56,28 +56,6 @@ impl SimpleGraphEdge {
         SimpleGraphEdge {
             edge_data: GraphEdgeData::new(node1.node_handle(), node2.node_handle())
         }
-    }
-}
-
-impl GraphEdge for SimpleGraphEdge {
-    fn edge_handle(&self) -> EdgeHandle {
-        self.edge_data.edge_handle()
-    }
-
-    fn node1_handle(&self) -> NodeHandle {
-        self.edge_data.node1_handle()
-    }
-
-    fn node2_handle(&self) -> NodeHandle {
-        self.edge_data.node2_handle()
-    }
-
-    fn graph_edge_data(&self) -> &GraphEdgeData {
-        &self.edge_data
-    }
-
-    fn graph_edge_data_mut(&mut self) -> &mut GraphEdgeData {
-        &mut self.edge_data
     }
 }
 

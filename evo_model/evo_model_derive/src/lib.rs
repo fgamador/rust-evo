@@ -29,16 +29,16 @@ fn impl_has_local_environment(ast: &syn::DeriveInput) -> quote::Tokens {
     if fields.len() != 1 {
         panic!("HasLocalEnvironment must be applied to a struct with exactly one field of type LocalEnvironment");
     }
-    //let field_name = fields[0].ident.unwrap();
+    let field_name = fields[0].ident.as_ref().unwrap();
 
     quote! {
         impl HasLocalEnvironment for #name {
             fn environment(&self) -> &LocalEnvironment {
-                &self.environment
+                &self.#field_name
             }
 
             fn environment_mut(&mut self) -> &mut LocalEnvironment {
-                &mut self.environment
+                &mut self.#field_name
             }
         }
     }

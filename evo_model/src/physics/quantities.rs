@@ -25,6 +25,30 @@ impl Angle {
     }
 }
 
+impl Sub for Angle {
+    type Output = Deflection;
+
+    fn sub(self, rhs: Angle) -> Self::Output {
+        Deflection::from_radians(self.radians - rhs.radians)
+    }
+}
+
+#[derive(Clone, Copy, Debug, PartialEq)]
+pub struct Deflection {
+    radians: f64,
+}
+
+impl Deflection {
+    pub fn from_radians(radians: f64) -> Self {
+        Deflection { radians }
+    }
+
+    #[allow(dead_code)]
+    pub fn radians(&self) -> f64 {
+        self.radians
+    }
+}
+
 #[derive(Clone, Copy, Debug, PartialEq)]
 pub struct Length {
     value: f64,

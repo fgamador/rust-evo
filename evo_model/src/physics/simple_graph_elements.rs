@@ -2,7 +2,7 @@ use physics::quantities::*;
 use physics::shapes::*;
 use physics::sortable_graph::*;
 
-#[derive(Clone, Debug, PartialEq)]
+#[derive(Clone, Debug, GraphNode, PartialEq)]
 pub struct SimpleGraphNode {
     graph_node_data: GraphNodeData,
 }
@@ -12,20 +12,6 @@ impl SimpleGraphNode {
         SimpleGraphNode {
             graph_node_data: GraphNodeData::new(),
         }
-    }
-}
-
-impl GraphNode for SimpleGraphNode {
-    fn node_handle(&self) -> NodeHandle {
-        self.graph_node_data.handle()
-    }
-
-    fn graph_node_data(&self) -> &GraphNodeData {
-        &self.graph_node_data
-    }
-
-    fn graph_node_data_mut(&mut self) -> &mut GraphNodeData {
-        &mut self.graph_node_data
     }
 }
 

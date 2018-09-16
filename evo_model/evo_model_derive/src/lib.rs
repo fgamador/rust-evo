@@ -26,6 +26,7 @@ fn impl_has_local_environment(ast: &syn::DeriveInput) -> quote::Tokens {
     let name = &ast.ident;
 
     // TODO check for field of type LocalEnvironment
+    //let type_name = syn::Ident::from("LocalEnvironment");
     match ast.body {
         syn::Body::Struct(syn::VariantData::Struct(ref fields)) =>
             fields.iter().filter_map(|f|
@@ -33,7 +34,10 @@ fn impl_has_local_environment(ast: &syn::DeriveInput) -> quote::Tokens {
                     syn::Ty::Path(_, syn::Path { global: _, ref segments }) =>
                         match segments.last() {
 //                          Some("LocalEnvironment".to_str()) => Some(&f.ident),
-                            Some(syn::PathSegment { ident: _, parameters: _ }) => Some(&f.ident),
+                            Some(syn::PathSegment { ident: type_name, parameters: _ }) => {
+                                println!("{}", type_name);
+                                Some(&f.ident)
+                            }
                             _ => None
                         },
                     _ => None
@@ -52,5 +56,33 @@ fn impl_has_local_environment(ast: &syn::DeriveInput) -> quote::Tokens {
                 &mut self.environment
             }
         }
+    }
+}
+
+fn field_is_struct_of_type(field: &syn::Field, type_name: &str) -> bool {
+    match field.ty {
+        syn::Ty::Path(_, syn::Path { global: _, ref segments }) =>
+            match segments.last() {
+                Some(syn::PathSegment { ref ident, parameters: _ }) => ident == type_name,
+                _ => false
+            },
+        _ => false
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn identifies_field_of_struct_type() {
+        let field = syn::Field {
+            ident: None,
+            vis: syn::Visibility::Public,
+            attrs: Vec::new(),
+            ty: syn::Ty::Path(None, syn::Path::from("StructType")),
+        };
+        assert!(field_is_struct_of_type(&field, "StructType"));
+//        let fields = get_fields_of_struct_type(body, "TypeName");
     }
 }

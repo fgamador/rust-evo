@@ -118,8 +118,8 @@ mod tests {
     #[should_panic]
     fn cannot_bond_same_ball() {
         let mut graph: SortableGraph<SimpleCircleNode, Bond, AngleGusset> = SortableGraph::new();
-        add_simple_circle_node(&mut graph, (0.0, 0.0), 1.0);
-        Bond::new(&graph.unsorted_nodes()[0], &graph.unsorted_nodes()[1]);
+        let node = add_simple_circle_node(&mut graph, (0.0, 0.0), 1.0);
+        add_bond(&mut graph, node, node);
     }
 
     #[test]
@@ -149,11 +149,10 @@ mod tests {
     #[should_panic]
     fn cannot_gusset_same_bond() {
         let mut graph: SortableGraph<SimpleCircleNode, Bond, AngleGusset> = SortableGraph::new();
-        add_simple_circle_node(&mut graph, (0.0, 0.0), 1.0);
-        add_simple_circle_node(&mut graph, (2.0, 0.0), 1.0);
-        let bond = Bond::new(&graph.unsorted_nodes()[0], &graph.unsorted_nodes()[1]);
-        graph.add_edge(bond);
-        AngleGusset::new(&graph.edges()[0], &graph.edges()[0], Angle::from_radians(PI));
+        let node1 = add_simple_circle_node(&mut graph, (0.0, 0.0), 1.0);
+        let node2 = add_simple_circle_node(&mut graph, (2.0, 0.0), 1.0);
+        let bond = add_bond(&mut graph, node1, node2);
+        add_angle_gusset(&mut graph, bond, bond, PI);
     }
 
     #[test]

@@ -380,6 +380,18 @@ mod tests {
 
     #[test]
     #[should_panic]
+    fn negative_angle() {
+        Angle::from_radians(-1.0);
+    }
+
+    #[test]
+    fn subtract_angles() {
+        assert_eq!(Deflection::from_radians(1.0),
+                   Angle::from_radians(2.5) - Angle::from_radians(1.5));
+    }
+
+    #[test]
+    #[should_panic]
     fn negative_length() {
         Length::new(-1.0);
     }

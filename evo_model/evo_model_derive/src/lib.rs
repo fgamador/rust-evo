@@ -59,6 +59,14 @@ fn impl_has_local_environment(ast: &syn::DeriveInput) -> quote::Tokens {
     }
 }
 
+fn get_fields_of_struct_type<'a>(body: &'a syn::Body, type_name: &str) -> Vec<&'a syn::Field> {
+    match body {
+        syn::Body::Struct(syn::VariantData::Struct(ref fields)) =>
+            fields.iter().filter(|f| field_is_struct_of_type(f, type_name)).collect(),
+        _ => vec![]
+    }
+}
+
 fn field_is_struct_of_type(field: &syn::Field, type_name: &str) -> bool {
     match field.ty {
         syn::Ty::Path(_, syn::Path { global: _, ref segments }) =>
@@ -75,10 +83,17 @@ mod tests {
     use super::*;
 
     #[test]
+    fn gets_fields_of_struct_type() {
+        let body = syn::Body::Struct(syn::VariantData::Struct(
+            vec![field_of_struct_type("StructType")]));
+        let fields = get_fields_of_struct_type(&body, "StructType");
+        assert_eq!(1, fields.len());
+    }
+
+    #[test]
     fn identifies_field_of_struct_type() {
         let field = field_of_struct_type("StructType");
         assert!(field_is_struct_of_type(&field, "StructType"));
-//        let fields = get_fields_of_struct_type(body, "TypeName");
     }
 
     fn field_of_struct_type(type_name: &str) -> syn::Field {

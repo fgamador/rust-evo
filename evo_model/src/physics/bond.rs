@@ -125,22 +125,22 @@ fn calc_bond_angle_force_pair<C>(gusset: &AngleGusset, graph: &SortableGraph<C, 
      (node2.node_handle(), node2_force))
 }
 
-fn calc_bond_angle(origin: Position, point1: Position, point2: Position) -> Angle {
+fn calc_bond_angle(_origin: Position, _point1: Position, _point2: Position) -> Angle {
     // TODO point2 angle (cartesian to polar) minus point1 angle
     Angle::from_radians(0.0)
 }
 
-fn calc_torque_from_angle_deflection(deflection: Deflection) -> Torque {
+fn calc_torque_from_angle_deflection(_deflection: Deflection) -> Torque {
     // TODO negative deflection times spring constant
     Torque::new(0.0)
 }
 
-fn calc_tangential_force_from_torque(origin: Position, point: Position, torque: Torque) -> f64 {
+fn calc_tangential_force_from_torque(_origin: Position, _point: Position, _torque: Torque) -> f64 {
     // TODO torque times length
     0.0
 }
 
-fn calc_force_from_tangential_force(origin: Position, point: Position, tangential_force: f64) -> Force {
+fn calc_force_from_tangential_force(_origin: Position, _point: Position, _tangential_force: f64) -> Force {
     // TODO polar to cartesian
     Force::new(-1.0, 0.0)
 }

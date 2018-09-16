@@ -5,7 +5,7 @@ use physics::shapes::Circle;
 use physics::sortable_graph::*;
 use std::ptr;
 
-#[derive(Clone, Debug, GraphNode, HasLocalEnvironment)]
+#[derive(Clone, Debug, GraphNode, HasLocalEnvironment, NewtonianBody)]
 pub struct Ball {
     graph_node_data: GraphNodeData,
     radius: Length,
@@ -37,36 +37,6 @@ impl Circle for Ball {
 
     fn center(&self) -> Position {
         self.state.position
-    }
-}
-
-impl NewtonianBody for Ball {
-    fn position(&self) -> Position {
-        self.state.position()
-    }
-
-    fn velocity(&self) -> Velocity {
-        self.state.velocity()
-    }
-
-    fn move_for(&mut self, duration: Duration) {
-        self.state.move_for(duration);
-    }
-
-    fn kick(&mut self, impulse: Impulse) {
-        self.state.kick(impulse);
-    }
-
-    fn forces(&self) -> &Forces {
-        self.state.forces()
-    }
-
-    fn forces_mut(&mut self) -> &mut Forces {
-        self.state.forces_mut()
-    }
-
-    fn exert_forces(&mut self, duration: Duration) {
-        self.state.exert_forces(duration);
     }
 }
 

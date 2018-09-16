@@ -5,7 +5,7 @@ use physics::shapes::*;
 use physics::sortable_graph::*;
 use std::ptr;
 
-#[derive(Clone, Debug, GraphNode, HasLocalEnvironment)]
+#[derive(Clone, Debug, GraphNode, HasLocalEnvironment, NewtonianBody)]
 pub struct Cell {
     graph_node_data: GraphNodeData,
     radius: Length,
@@ -37,36 +37,6 @@ impl Circle for Cell {
 
     fn center(&self) -> Position {
         self.newtonian_state.position
-    }
-}
-
-impl NewtonianBody for Cell {
-    fn position(&self) -> Position {
-        self.newtonian_state.position()
-    }
-
-    fn velocity(&self) -> Velocity {
-        self.newtonian_state.velocity()
-    }
-
-    fn move_for(&mut self, duration: Duration) {
-        self.newtonian_state.move_for(duration);
-    }
-
-    fn kick(&mut self, impulse: Impulse) {
-        self.newtonian_state.kick(impulse);
-    }
-
-    fn forces(&self) -> &Forces {
-        self.newtonian_state.forces()
-    }
-
-    fn forces_mut(&mut self) -> &mut Forces {
-        self.newtonian_state.forces_mut()
-    }
-
-    fn exert_forces(&mut self, duration: Duration) {
-        self.newtonian_state.exert_forces(duration);
     }
 }
 

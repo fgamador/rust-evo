@@ -51,6 +51,46 @@ pub fn has_local_environment_derive(input: TokenStream) -> TokenStream {
     })
 }
 
+#[proc_macro_derive(NewtonianBody)]
+pub fn newtonian_body_derive(input: TokenStream) -> TokenStream {
+    trait_derive(input, |ast| {
+        let name = &ast.ident;
+        let field_name = get_field_name_of_struct_type(&ast.body, "NewtonianState");
+
+        quote! {
+            impl NewtonianBody for #name {
+                fn position(&self) -> Position {
+                    self.#field_name.position()
+                }
+
+                fn velocity(&self) -> Velocity {
+                    self.#field_name.velocity()
+                }
+
+                fn move_for(&mut self, duration: Duration) {
+                    self.#field_name.move_for(duration);
+                }
+
+                fn kick(&mut self, impulse: Impulse) {
+                    self.#field_name.kick(impulse);
+                }
+
+                fn forces(&self) -> &Forces {
+                    self.#field_name.forces()
+                }
+
+                fn forces_mut(&mut self) -> &mut Forces {
+                    self.#field_name.forces_mut()
+                }
+
+                fn exert_forces(&mut self, duration: Duration) {
+                    self.#field_name.exert_forces(duration);
+                }
+            }
+        }
+    })
+}
+
 fn trait_derive<F>(input: TokenStream, impl_trait: F) -> TokenStream
     where F: Fn(&syn::DeriveInput) -> quote::Tokens
 {

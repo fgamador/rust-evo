@@ -187,8 +187,8 @@ mod tests {
 
     fn add_bond(graph: &mut SortableGraph<SimpleCircleNode, Bond, AngleGusset>,
                 node1: NodeHandle, node2: NodeHandle) -> EdgeHandle {
-        let bond1 = Bond::new(graph.node(node1), graph.node(node2));
-        graph.add_edge(bond1)
+        let bond = Bond::new(graph.node(node1), graph.node(node2));
+        graph.add_edge(bond)
     }
 
     fn add_angle_gusset(graph: &mut SortableGraph<SimpleCircleNode, Bond, AngleGusset>,

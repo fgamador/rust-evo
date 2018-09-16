@@ -3,7 +3,7 @@ use physics::shapes::*;
 use physics::sortable_graph::*;
 use physics::util::*;
 
-#[derive(Clone, Debug, PartialEq)]
+#[derive(Clone, Debug, GraphEdge, PartialEq)]
 pub struct Bond {
     edge_data: GraphEdgeData
 }
@@ -18,28 +18,6 @@ impl Bond {
 
     pub fn calc_strain(&self) -> Displacement {
         Displacement::new(0.0, 0.0)
-    }
-}
-
-impl GraphEdge for Bond {
-    fn edge_handle(&self) -> EdgeHandle {
-        self.edge_data.edge_handle()
-    }
-
-    fn node1_handle(&self) -> NodeHandle {
-        self.edge_data.node1_handle()
-    }
-
-    fn node2_handle(&self) -> NodeHandle {
-        self.edge_data.node2_handle()
-    }
-
-    fn graph_edge_data(&self) -> &GraphEdgeData {
-        &self.edge_data
-    }
-
-    fn graph_edge_data_mut(&mut self) -> &mut GraphEdgeData {
-        &mut self.edge_data
     }
 }
 

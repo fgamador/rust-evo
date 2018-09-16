@@ -9,24 +9,22 @@ use proc_macro::TokenStream;
 
 #[proc_macro_derive(HasLocalEnvironment)]
 pub fn has_local_environment_derive(input: TokenStream) -> TokenStream {
-    trait_derive(input, impl_has_local_environment)
-}
+    trait_derive(input, |ast| {
+        let name = &ast.ident;
+        let field_name = get_field_name_of_struct_type(&ast.body, "LocalEnvironment");
 
-fn impl_has_local_environment(ast: &syn::DeriveInput) -> quote::Tokens {
-    let name = &ast.ident;
-    let field_name = get_field_name_of_struct_type(&ast.body, "LocalEnvironment");
+        quote! {
+            impl HasLocalEnvironment for #name {
+                fn environment(&self) -> &LocalEnvironment {
+                    &self.#field_name
+                }
 
-    quote! {
-        impl HasLocalEnvironment for #name {
-            fn environment(&self) -> &LocalEnvironment {
-                &self.#field_name
-            }
-
-            fn environment_mut(&mut self) -> &mut LocalEnvironment {
-                &mut self.#field_name
+                fn environment_mut(&mut self) -> &mut LocalEnvironment {
+                    &mut self.#field_name
+                }
             }
         }
-    }
+    })
 }
 
 fn trait_derive<F>(input: TokenStream, impl_trait: F) -> TokenStream

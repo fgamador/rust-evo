@@ -111,21 +111,22 @@ pub fn calc_bond_angle_forces<C>(graph: &mut SortableGraph<C, Bond, AngleGusset>
 #[cfg(test)]
 mod tests {
     use super::*;
+    use physics::simple_graph_elements::*;
     use std::f64::consts::PI;
 
     #[test]
     #[should_panic]
     fn cannot_bond_same_ball() {
-        let mut graph: SortableGraph<SpyCircle, Bond, AngleGusset> = SortableGraph::new();
-        graph.add_node(SpyCircle::new(Position::new(0.0, 0.0), Length::new(1.0)));
+        let mut graph: SortableGraph<SimpleCircleNode, Bond, AngleGusset> = SortableGraph::new();
+        graph.add_node(SimpleCircleNode::new(Position::new(0.0, 0.0), Length::new(1.0)));
         Bond::new(&graph.unsorted_nodes()[0], &graph.unsorted_nodes()[1]);
     }
 
     #[test]
     fn bond_calculates_strain() {
         // {3, 4, 5} triangle (as {6, 8, 10})
-        let circle1 = SpyCircle::new(Position::new(0.0, 0.0), Length::new(2.0));
-        let circle2 = SpyCircle::new(Position::new(6.0, 8.0), Length::new(3.0));
+        let circle1 = SimpleCircle::new(Position::new(0.0, 0.0), Length::new(2.0));
+        let circle2 = SimpleCircle::new(Position::new(6.0, 8.0), Length::new(3.0));
 
         let strain = calc_bond_strain(&circle1, &circle2);
 
@@ -135,8 +136,8 @@ mod tests {
 
     #[test]
     fn bonded_pair_with_matching_centers() {
-        let circle1 = SpyCircle::new(Position::new(0.0, 0.0), Length::new(1.0));
-        let circle2 = SpyCircle::new(Position::new(0.0, 0.0), Length::new(1.0));
+        let circle1 = SimpleCircle::new(Position::new(0.0, 0.0), Length::new(1.0));
+        let circle2 = SimpleCircle::new(Position::new(0.0, 0.0), Length::new(1.0));
 
         let strain = calc_bond_strain(&circle1, &circle2);
 
@@ -147,9 +148,9 @@ mod tests {
     #[test]
     #[should_panic]
     fn cannot_gusset_same_bond() {
-        let mut graph: SortableGraph<SpyCircle, Bond, AngleGusset> = SortableGraph::new();
-        graph.add_node(SpyCircle::new(Position::new(0.0, 0.0), Length::new(1.0)));
-        graph.add_node(SpyCircle::new(Position::new(2.0, 0.0), Length::new(1.0)));
+        let mut graph: SortableGraph<SimpleCircleNode, Bond, AngleGusset> = SortableGraph::new();
+        graph.add_node(SimpleCircleNode::new(Position::new(0.0, 0.0), Length::new(1.0)));
+        graph.add_node(SimpleCircleNode::new(Position::new(2.0, 0.0), Length::new(1.0)));
         let bond = Bond::new(&graph.unsorted_nodes()[0], &graph.unsorted_nodes()[1]);
         graph.add_edge(bond);
         AngleGusset::new(&graph.edges()[0], &graph.edges()[0], Angle::from_radians(PI));
@@ -158,11 +159,11 @@ mod tests {
     #[test]
     #[should_panic]
     fn cannot_gusset_unconnected_bonds() {
-        let mut graph: SortableGraph<SpyCircle, Bond, AngleGusset> = SortableGraph::new();
-        graph.add_node(SpyCircle::new(Position::new(0.0, 0.0), Length::new(1.0)));
-        graph.add_node(SpyCircle::new(Position::new(2.0, 0.0), Length::new(1.0)));
-        graph.add_node(SpyCircle::new(Position::new(10.0, 0.0), Length::new(1.0)));
-        graph.add_node(SpyCircle::new(Position::new(12.0, 0.0), Length::new(1.0)));
+        let mut graph: SortableGraph<SimpleCircleNode, Bond, AngleGusset> = SortableGraph::new();
+        graph.add_node(SimpleCircleNode::new(Position::new(0.0, 0.0), Length::new(1.0)));
+        graph.add_node(SimpleCircleNode::new(Position::new(2.0, 0.0), Length::new(1.0)));
+        graph.add_node(SimpleCircleNode::new(Position::new(10.0, 0.0), Length::new(1.0)));
+        graph.add_node(SimpleCircleNode::new(Position::new(12.0, 0.0), Length::new(1.0)));
         let bond1 = Bond::new(&graph.unsorted_nodes()[0], &graph.unsorted_nodes()[1]);
         graph.add_edge(bond1);
         let bond2 = Bond::new(&graph.unsorted_nodes()[2], &graph.unsorted_nodes()[3]);
@@ -172,58 +173,15 @@ mod tests {
 
     //#[test]
     fn _gusset_forces() {
-        let mut graph: SortableGraph<SpyCircle, Bond, AngleGusset> = SortableGraph::new();
-        graph.add_node(SpyCircle::new(Position::new(0.0, 0.0), Length::new(1.0)));
-        graph.add_node(SpyCircle::new(Position::new(0.0, -2.0), Length::new(1.0)));
-        graph.add_node(SpyCircle::new(Position::new(2.0, -2.0), Length::new(1.0)));
+        let mut graph: SortableGraph<SimpleCircleNode, Bond, AngleGusset> = SortableGraph::new();
+        graph.add_node(SimpleCircleNode::new(Position::new(0.0, 0.0), Length::new(1.0)));
+        graph.add_node(SimpleCircleNode::new(Position::new(0.0, -2.0), Length::new(1.0)));
+        graph.add_node(SimpleCircleNode::new(Position::new(2.0, -2.0), Length::new(1.0)));
         let bond1 = Bond::new(&graph.unsorted_nodes()[0], &graph.unsorted_nodes()[1]);
         graph.add_edge(bond1);
         let bond2 = Bond::new(&graph.unsorted_nodes()[1], &graph.unsorted_nodes()[2]);
         graph.add_edge(bond2);
         AngleGusset::new(&graph.edges()[0], &graph.edges()[1], Angle::from_radians(PI));
         // TODO
-    }
-
-    #[derive(Clone, Debug, PartialEq)]
-    pub struct SpyCircle {
-        graph_node_data: GraphNodeData,
-        center: Position,
-        radius: Length,
-        pub strain: Displacement,
-    }
-
-    impl SpyCircle {
-        pub fn new(center: Position, radius: Length) -> SpyCircle {
-            SpyCircle {
-                graph_node_data: GraphNodeData::new(),
-                center,
-                radius,
-                strain: Displacement::new(0.0, 0.0),
-            }
-        }
-    }
-
-    impl Circle for SpyCircle {
-        fn radius(&self) -> Length {
-            return self.radius;
-        }
-
-        fn center(&self) -> Position {
-            return self.center;
-        }
-    }
-
-    impl GraphNode for SpyCircle {
-        fn node_handle(&self) -> NodeHandle {
-            self.graph_node_data.handle()
-        }
-
-        fn graph_node_data(&self) -> &GraphNodeData {
-            &self.graph_node_data
-        }
-
-        fn graph_node_data_mut(&mut self) -> &mut GraphNodeData {
-            &mut self.graph_node_data
-        }
     }
 }

@@ -109,15 +109,17 @@ fn calc_bond_angle_force_pair<C>(gusset: &AngleGusset, graph: &SortableGraph<C, 
     let bond2 = graph.edge(gusset.edge2_handle());
 
     let node1 = graph.node(bond1.node1_handle());
-    let _node2 = graph.node(bond1.node2_handle());
+    let node2 = graph.node(bond1.node2_handle());
     let node3 = graph.node(bond2.node2_handle());
 
     // TODO stub
-    ((node1.node_handle(), calc_force_from_tangential_force(1.0)),
-     (node3.node_handle(), calc_force_from_tangential_force(-1.0)))
+    let node1_force = calc_force_from_tangential_force(node2.center(), node1.center(), 1.0);
+    let node3_force = calc_force_from_tangential_force(node2.center(), node3.center(), -1.0);
+    ((node1.node_handle(), node1_force),
+     (node3.node_handle(), node3_force))
 }
 
-fn calc_force_from_tangential_force(tangential_force: f64) -> Force {
+fn calc_force_from_tangential_force(origin: Position, point: Position, tangential_force: f64) -> Force {
     // TODO stub
     Force::new(-1.0, 0.0)
 }

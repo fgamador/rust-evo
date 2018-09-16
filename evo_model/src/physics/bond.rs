@@ -130,12 +130,12 @@ fn calc_bond_angle(origin: Position, point1: Position, point2: Position) -> Angl
     Angle::from_radians(0.0)
 }
 
-fn calc_torque_from_angle_deflection(deflection: Deflection) -> f64 {
+fn calc_torque_from_angle_deflection(deflection: Deflection) -> Torque {
     // TODO negative deflection times spring constant
-    0.0
+    Torque::new(0.0)
 }
 
-fn calc_tangential_force_from_torque(origin: Position, point: Position, torque: f64) -> f64 {
+fn calc_tangential_force_from_torque(origin: Position, point: Position, torque: Torque) -> f64 {
     // TODO torque times length
     0.0
 }

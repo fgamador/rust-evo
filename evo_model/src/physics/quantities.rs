@@ -374,6 +374,30 @@ impl Mul<Duration> for Force {
     }
 }
 
+#[derive(Clone, Copy, Debug, PartialEq)]
+pub struct Torque {
+    value: f64,
+}
+
+impl Torque {
+    pub fn new(value: f64) -> Self {
+        Torque { value }
+    }
+
+    #[allow(dead_code)]
+    pub fn value(&self) -> f64 {
+        self.value
+    }
+}
+
+impl Neg for Torque {
+    type Output = Torque;
+
+    fn neg(self) -> Self::Output {
+        Torque::new(-self.value)
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;

@@ -9,16 +9,15 @@ use proc_macro::TokenStream;
 
 #[proc_macro_derive(HasLocalEnvironment)]
 pub fn has_local_environment_derive(input: TokenStream) -> TokenStream {
-    // Construct a string representation of the type definition
+    trait_derive(input, impl_has_local_environment)
+}
+
+fn trait_derive<F>(input: TokenStream, impl_trait: F) -> TokenStream
+    where F: Fn(&syn::DeriveInput) -> quote::Tokens
+{
     let s = input.to_string();
-
-    // Parse the string representation
     let ast = syn::parse_derive_input(&s).unwrap();
-
-    // Build the impl
-    let gen = impl_has_local_environment(&ast);
-
-    // Return the generated impl
+    let gen = impl_trait(&ast);
     gen.parse().unwrap()
 }
 

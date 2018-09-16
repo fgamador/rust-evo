@@ -12,15 +12,6 @@ pub fn has_local_environment_derive(input: TokenStream) -> TokenStream {
     trait_derive(input, impl_has_local_environment)
 }
 
-fn trait_derive<F>(input: TokenStream, impl_trait: F) -> TokenStream
-    where F: Fn(&syn::DeriveInput) -> quote::Tokens
-{
-    let s = input.to_string();
-    let ast = syn::parse_derive_input(&s).unwrap();
-    let gen = impl_trait(&ast);
-    gen.parse().unwrap()
-}
-
 fn impl_has_local_environment(ast: &syn::DeriveInput) -> quote::Tokens {
     let name = &ast.ident;
     let field_name = get_field_name_of_struct_type(&ast.body, "LocalEnvironment");
@@ -36,6 +27,15 @@ fn impl_has_local_environment(ast: &syn::DeriveInput) -> quote::Tokens {
             }
         }
     }
+}
+
+fn trait_derive<F>(input: TokenStream, impl_trait: F) -> TokenStream
+    where F: Fn(&syn::DeriveInput) -> quote::Tokens
+{
+    let s = input.to_string();
+    let ast = syn::parse_derive_input(&s).unwrap();
+    let gen = impl_trait(&ast);
+    gen.parse().unwrap()
 }
 
 fn get_field_name_of_struct_type<'a>(body: &'a syn::Body, type_name: &str) -> &'a syn::Ident {

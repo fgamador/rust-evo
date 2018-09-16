@@ -2,6 +2,7 @@ use physics::quantities::*;
 use physics::shapes::*;
 use physics::sortable_graph::*;
 use physics::util::*;
+use std::f64;
 
 #[derive(Clone, Debug, GraphEdge, PartialEq)]
 pub struct Bond {
@@ -125,9 +126,9 @@ fn calc_bond_angle_force_pair<C>(gusset: &AngleGusset, graph: &SortableGraph<C, 
      (node2.node_handle(), node2_force))
 }
 
-fn calc_bond_angle(_origin: Position, _point1: Position, _point2: Position) -> Angle {
+fn calc_bond_angle(_origin: Position, point1: Position, _point2: Position) -> Angle {
     // TODO point2 angle (cartesian to polar) minus point1 angle
-    Angle::from_radians(0.0)
+    Angle::from_radians(point1.y().atan2(point1.x()))
 }
 
 fn calc_torque_from_angle_deflection(_deflection: Deflection) -> Torque {
@@ -221,6 +222,13 @@ mod tests {
         assert!((force_pair.0).1.x() < 0.0);
         assert_eq!(node3, (force_pair.1).0);
         assert!((force_pair.1).1.x() < 0.0);
+    }
+
+    #[test]
+    fn right_angle_from_x_axis_at_origin() {
+        let origin = Position::new(0.0, 0.0);
+        let angle = calc_bond_angle(origin, Position::new(1.0, 0.0), Position::new(0.0, 1.0));
+        assert_eq!(Angle::from_radians(PI / 2.0), angle);
     }
 
     fn add_simple_circle_node(graph: &mut SortableGraph<SimpleCircleNode, Bond, AngleGusset>,

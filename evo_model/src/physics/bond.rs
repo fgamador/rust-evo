@@ -177,9 +177,9 @@ mod tests {
         let node1 = add_simple_circle_node(&mut graph, (0.0, 0.0), 1.0);
         let node2 = add_simple_circle_node(&mut graph, (0.0, -2.0), 1.0);
         let node3 = add_simple_circle_node(&mut graph, (2.0, -2.0), 1.0);
-        let _bond1 = add_bond(&mut graph, node1, node2);
-        let _bond2 = add_bond(&mut graph, node2, node3);
-        AngleGusset::new(&graph.edges()[0], &graph.edges()[1], Angle::from_radians(PI));
+        let bond1 = add_bond(&mut graph, node1, node2);
+        let bond2 = add_bond(&mut graph, node2, node3);
+        add_angle_gusset(&mut graph, bond1, bond2, PI);
         // TODO
     }
 
@@ -192,5 +192,10 @@ mod tests {
                 node1: NodeHandle, node2: NodeHandle) -> EdgeHandle {
         let bond1 = Bond::new(graph.node(node1), graph.node(node2));
         graph.add_edge(bond1)
+    }
+
+    fn add_angle_gusset(graph: &mut SortableGraph<SimpleCircleNode, Bond, AngleGusset>,
+                        bond1: EdgeHandle, bond2: EdgeHandle, radians: f64) -> AngleGusset {
+        AngleGusset::new(graph.edge(bond1), graph.edge(bond2), Angle::from_radians(radians))
     }
 }

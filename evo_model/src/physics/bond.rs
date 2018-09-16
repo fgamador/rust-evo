@@ -94,18 +94,27 @@ pub fn calc_bond_angle_forces<C>(graph: &mut SortableGraph<C, Bond, AngleGusset>
 {
     let mut forces: Vec<(NodeHandle, Force)> = Vec::with_capacity(graph.meta_edges().len() * 2);
     for gusset in graph.meta_edges() {
-        let bond1 = graph.edge(gusset.edge1_handle());
-        let bond2 = graph.edge(gusset.edge2_handle());
-
-        let node1 = graph.node(bond1.node1_handle());
-        let _node2 = graph.node(bond1.node2_handle());
-        let node3 = graph.node(bond2.node2_handle());
-
-        // TODO stub
-        forces.push((node1.node_handle(), Force::new(-1.0, 0.0)));
-        forces.push((node3.node_handle(), Force::new(-1.0, 0.0)));
+        let force_pair = calc_bond_angle_force_pair(gusset, graph);
+        forces.push(force_pair.0);
+        forces.push(force_pair.1);
     }
     forces
+}
+
+fn calc_bond_angle_force_pair<C>(gusset: &AngleGusset, graph: &SortableGraph<C, Bond, AngleGusset>)
+                                 -> ((NodeHandle, Force), (NodeHandle, Force))
+    where C: Circle + GraphNode
+{
+    let bond1 = graph.edge(gusset.edge1_handle());
+    let bond2 = graph.edge(gusset.edge2_handle());
+
+    let node1 = graph.node(bond1.node1_handle());
+    let _node2 = graph.node(bond1.node2_handle());
+    let node3 = graph.node(bond2.node2_handle());
+
+// TODO stub
+    ((node1.node_handle(), Force::new(-1.0, 0.0)),
+     (node3.node_handle(), Force::new(-1.0, 0.0)))
 }
 
 #[cfg(test)]

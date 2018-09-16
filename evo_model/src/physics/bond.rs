@@ -160,15 +160,13 @@ mod tests {
     #[should_panic]
     fn cannot_gusset_unconnected_bonds() {
         let mut graph: SortableGraph<SimpleCircleNode, Bond, AngleGusset> = SortableGraph::new();
-        add_simple_circle_node(&mut graph, (0.0, 0.0), 1.0);
-        add_simple_circle_node(&mut graph, (2.0, 0.0), 1.0);
-        add_simple_circle_node(&mut graph, (10.0, 0.0), 1.0);
-        add_simple_circle_node(&mut graph, (12.0, 0.0), 1.0);
-        let bond1 = Bond::new(&graph.unsorted_nodes()[0], &graph.unsorted_nodes()[1]);
-        graph.add_edge(bond1);
-        let bond2 = Bond::new(&graph.unsorted_nodes()[2], &graph.unsorted_nodes()[3]);
-        graph.add_edge(bond2);
-        AngleGusset::new(&graph.edges()[0], &graph.edges()[1], Angle::from_radians(PI));
+        let node1 = add_simple_circle_node(&mut graph, (0.0, 0.0), 1.0);
+        let node2 = add_simple_circle_node(&mut graph, (2.0, 0.0), 1.0);
+        let node3 = add_simple_circle_node(&mut graph, (10.0, 0.0), 1.0);
+        let node4 = add_simple_circle_node(&mut graph, (12.0, 0.0), 1.0);
+        let bond1 = add_bond(&mut graph, node1, node2);
+        let bond2 = add_bond(&mut graph, node3, node4);
+        add_angle_gusset(&mut graph, bond1, bond2, PI);
     }
 
     #[test]

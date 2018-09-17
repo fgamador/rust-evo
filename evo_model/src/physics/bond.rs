@@ -3,6 +3,7 @@ use physics::shapes::*;
 use physics::sortable_graph::*;
 use physics::util::*;
 use std::f64;
+use std::f64::consts::PI;
 
 #[derive(Clone, Debug, GraphEdge, PartialEq)]
 pub struct Bond {
@@ -129,7 +130,8 @@ fn calc_bond_angle_force_pair<C>(gusset: &AngleGusset, graph: &SortableGraph<C, 
 fn calc_bond_angle(origin: Position, point1: Position, point2: Position) -> Angle {
     let angle1 = point1.to_polar_angle(origin);
     let angle2 = point2.to_polar_angle(origin);
-    Angle::from_radians(angle2.radians() - angle1.radians())
+    let radians = angle2.radians() - angle1.radians();
+    Angle::from_radians(if radians >= 0.0 { radians } else { radians + 2.0 * PI })
 }
 
 fn calc_torque_from_angle_deflection(_deflection: Deflection) -> Torque {
@@ -151,7 +153,6 @@ fn calc_force_from_tangential_force(_origin: Position, _point: Position, _tangen
 mod tests {
     use super::*;
     use physics::simple_graph_elements::*;
-    use std::f64::consts::PI;
 
     #[test]
     #[should_panic]
@@ -229,6 +230,13 @@ mod tests {
     fn three_quarter_right_angle_off_origin() {
         let origin = Position::new(1.0, 1.0);
         let angle = calc_bond_angle(origin, Position::new(2.0, 2.0), Position::new(2.0, 0.0));
+        assert_eq!(Angle::from_radians(3.0 * PI / 2.0), angle);
+    }
+
+    #[test]
+    fn angle_wraparound() {
+        let origin = Position::new(0.0, 0.0);
+        let angle = calc_bond_angle(origin, Position::new(-1.0, 1.0), Position::new(1.0, 1.0));
         assert_eq!(Angle::from_radians(3.0 * PI / 2.0), angle);
     }
 

@@ -472,12 +472,11 @@ mod tests {
         assert_eq!(Angle::from_radians(PI / 2.0), angle);
     }
 
-//    #[test]
-//    fn negative_right_angle_from_x_axis_at_origin() {
-//        let origin = Position::new(0.0, 0.0);
-//        let angle = calc_bond_angle(origin, Position::new(1.0, 0.0), Position::new(0.0, -1.0));
-//        assert_eq!(Angle::from_radians(3.0 * PI / 2.0), angle);
-//    }
+    #[test]
+    fn polar_angle_with_negative_y() {
+        let angle = Position::new(0.0, -1.0).to_polar_angle(Position::new(0.0, 0.0));
+        assert_eq!(Angle::from_radians(3.0 * PI / 2.0), angle);
+    }
 
     #[test]
     fn add_displacements() {

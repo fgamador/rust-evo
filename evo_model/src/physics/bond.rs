@@ -139,9 +139,8 @@ fn calc_torque_from_angle_deflection(deflection: Deflection) -> Torque {
     Torque::new(-deflection.radians() * SPRING_CONSTANT)
 }
 
-fn calc_tangential_force_from_torque(_origin: Position, _point: Position, _torque: Torque) -> f64 {
-    // TODO torque times length
-    0.0
+fn calc_tangential_force_from_torque(origin: Position, point: Position, torque: Torque) -> f64 {
+    torque.value() * point.to_polar_radius(origin).value()
 }
 
 fn calc_force_from_tangential_force(_origin: Position, _point: Position, _tangential_force: f64) -> Force {
@@ -238,6 +237,13 @@ mod tests {
         let origin = Position::new(0.0, 0.0);
         let angle = calc_bond_angle(origin, Position::new(-1.0, 1.0), Position::new(1.0, 1.0));
         assert_eq!(Angle::from_radians(3.0 * PI / 2.0), angle);
+    }
+
+    #[test]
+    fn calcs_tangential_force_from_torque() {
+        let origin = Position::new(1.0, 1.0);
+        let tangential_force = calc_tangential_force_from_torque(origin, Position::new(3.0, 1.0), Torque::new(1.5));
+        assert_eq!(3.0, tangential_force);
     }
 
     fn add_simple_circle_node(graph: &mut SortableGraph<SimpleCircleNode, Bond, AngleGusset>,

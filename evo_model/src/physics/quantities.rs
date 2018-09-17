@@ -135,6 +135,10 @@ impl Position {
         self.y
     }
 
+    pub fn to_polar_radius(&self, origin: Position) -> Length {
+        (*self - origin).length()
+    }
+
     pub fn to_polar_angle(&self, origin: Position) -> Angle {
         let displacement = *self - origin;
         let radians = displacement.y.atan2(displacement.x);
@@ -185,6 +189,10 @@ impl Displacement {
 
     pub fn min(&self, d: Displacement) -> Displacement {
         Displacement::new(self.x.min(d.x), self.y.min(d.y))
+    }
+
+    pub fn length(&self) -> Length {
+        Length::new(self.x.hypot(self.y))
     }
 }
 
@@ -458,6 +466,12 @@ mod tests {
     fn subtract_positions() {
         assert_eq!(Displacement::new(0.5, -0.5),
                    Position::new(2.0, 1.0) - Position::new(1.5, 1.5));
+    }
+
+    #[test]
+    fn polar_radius_off_origin() {
+        let radius = Position::new(4.0, 5.0).to_polar_radius(Position::new(1.0, 1.0));
+        assert_eq!(Length::new(5.0), radius);
     }
 
     #[test]

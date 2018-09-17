@@ -136,7 +136,8 @@ impl Position {
     }
 
     pub fn to_polar_angle(&self, origin: Position) -> Angle {
-        let radians = self.y.atan2(self.x);
+        let displacement = *self - origin;
+        let radians = displacement.y.atan2(displacement.x);
         Angle::from_radians(if radians >= 0.0 { radians } else { radians + 2.0 * PI })
     }
 }
@@ -462,6 +463,12 @@ mod tests {
     #[test]
     fn polar_angle_at_origin() {
         let angle = Position::new(0.0, 1.0).to_polar_angle(Position::new(0.0, 0.0));
+        assert_eq!(Angle::from_radians(PI / 2.0), angle);
+    }
+
+    #[test]
+    fn polar_angle_off_origin() {
+        let angle = Position::new(1.0, 2.0).to_polar_angle(Position::new(1.0, 1.0));
         assert_eq!(Angle::from_radians(PI / 2.0), angle);
     }
 

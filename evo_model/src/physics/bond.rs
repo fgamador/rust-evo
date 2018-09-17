@@ -126,9 +126,14 @@ fn calc_bond_angle_force_pair<C>(gusset: &AngleGusset, graph: &SortableGraph<C, 
      (node2.node_handle(), node2_force))
 }
 
-fn calc_bond_angle(_origin: Position, point1: Position, _point2: Position) -> Angle {
+fn calc_bond_angle(origin: Position, _point1: Position, point2: Position) -> Angle {
     // TODO point2 angle (cartesian to polar) minus point1 angle
-    Angle::from_radians(point1.y().atan2(point1.x()))
+    calc_angle(origin, point2)
+}
+
+fn calc_angle(_origin: Position, point: Position) -> Angle {
+    let radians = point.y().atan2(point.x());
+    Angle::from_radians(if radians >= 0.0 { radians } else { radians + 2.0 * f64::consts::PI })
 }
 
 fn calc_torque_from_angle_deflection(_deflection: Deflection) -> Torque {
@@ -229,6 +234,13 @@ mod tests {
         let origin = Position::new(0.0, 0.0);
         let angle = calc_bond_angle(origin, Position::new(1.0, 0.0), Position::new(0.0, 1.0));
         assert_eq!(Angle::from_radians(PI / 2.0), angle);
+    }
+
+    #[test]
+    fn negative_right_angle_from_x_axis_at_origin() {
+        let origin = Position::new(0.0, 0.0);
+        let angle = calc_bond_angle(origin, Position::new(1.0, 0.0), Position::new(0.0, -1.0));
+        assert_eq!(Angle::from_radians(3.0 * PI / 2.0), angle);
     }
 
     fn add_simple_circle_node(graph: &mut SortableGraph<SimpleCircleNode, Bond, AngleGusset>,

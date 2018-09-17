@@ -134,9 +134,9 @@ fn calc_bond_angle(origin: Position, point1: Position, point2: Position) -> Angl
     Angle::from_radians(if radians >= 0.0 { radians } else { radians + 2.0 * PI })
 }
 
-fn calc_torque_from_angle_deflection(_deflection: Deflection) -> Torque {
-    // TODO negative deflection times spring constant
-    Torque::new(0.0)
+fn calc_torque_from_angle_deflection(deflection: Deflection) -> Torque {
+    const SPRING_CONSTANT: f64 = 1.0;
+    Torque::new(-deflection.radians() * SPRING_CONSTANT)
 }
 
 fn calc_tangential_force_from_torque(_origin: Position, _point: Position, _torque: Torque) -> f64 {

@@ -1,3 +1,4 @@
+use std::f64::consts::PI;
 use std::ops::Add;
 use std::ops::AddAssign;
 use std::ops::Div;
@@ -132,6 +133,11 @@ impl Position {
     #[allow(dead_code)]
     pub fn y(&self) -> f64 {
         self.y
+    }
+
+    pub fn to_polar_angle(&self, origin: Position) -> Angle {
+        let radians = self.y.atan2(self.x);
+        Angle::from_radians(if radians >= 0.0 { radians } else { radians + 2.0 * PI })
     }
 }
 
@@ -452,6 +458,19 @@ mod tests {
         assert_eq!(Displacement::new(0.5, -0.5),
                    Position::new(2.0, 1.0) - Position::new(1.5, 1.5));
     }
+
+    #[test]
+    fn polar_angle_at_origin() {
+        let angle = Position::new(0.0, 1.0).to_polar_angle(Position::new(0.0, 0.0));
+        assert_eq!(Angle::from_radians(PI / 2.0), angle);
+    }
+
+//    #[test]
+//    fn negative_right_angle_from_x_axis_at_origin() {
+//        let origin = Position::new(0.0, 0.0);
+//        let angle = calc_bond_angle(origin, Position::new(1.0, 0.0), Position::new(0.0, -1.0));
+//        assert_eq!(Angle::from_radians(3.0 * PI / 2.0), angle);
+//    }
 
     #[test]
     fn add_displacements() {

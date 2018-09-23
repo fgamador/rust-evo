@@ -140,13 +140,13 @@ fn calc_torque_from_angle_deflection(deflection: Deflection) -> Torque {
 }
 
 fn calc_tangential_force_from_torque(origin: Position, point: Position, torque: Torque) -> f64 {
-    torque.value() / point.to_polar_radius(origin).value()
+    -torque.value() / point.to_polar_radius(origin).value()
 }
 
 fn calc_force_from_tangential_force(origin: Position, point: Position, tangential_force: f64) -> Force {
-//    let force_angle = point.to_polar_angle(origin) + Deflection::from_radians(tangential_force.signum() * PI / 2.0);
-//    Force::new(tangential_force.abs() * force_angle.cos(), tangential_force.abs() * force_angle.sin())
-    Force::new(-1.0, 0.0)
+    let force_angle = point.to_polar_angle(origin) + Deflection::from_radians(tangential_force.signum() * PI / 2.0);
+    Force::new(tangential_force.abs() * force_angle.radians().cos(),
+               tangential_force.abs() * force_angle.radians().sin())
 }
 
 #[cfg(test)]
@@ -211,9 +211,9 @@ mod tests {
     #[test]
     fn qualitative_gusset_forces() {
         let mut graph: SortableGraph<SimpleCircleNode, Bond, AngleGusset> = SortableGraph::new();
-        let node1 = add_simple_circle_node(&mut graph, (0.01, 2.0), 1.0);
+        let node1 = add_simple_circle_node(&mut graph, (0.1, 2.0), 1.0);
         let node2 = add_simple_circle_node(&mut graph, (0.0, 0.0), 1.0);
-        let node3 = add_simple_circle_node(&mut graph, (0.01, -2.0), 1.0);
+        let node3 = add_simple_circle_node(&mut graph, (0.1, -2.0), 1.0);
         let bond1 = add_bond(&mut graph, node1, node2);
         let bond2 = add_bond(&mut graph, node2, node3);
         let gusset = add_angle_gusset(&mut graph, bond1, bond2, PI);
@@ -243,12 +243,11 @@ mod tests {
     #[test]
     fn calcs_tangential_force_from_torque() {
         let origin = Position::new(1.0, 1.0);
-        let tangential_force = calc_tangential_force_from_torque(origin, Position::new(3.0, 1.0), Torque::new(3.0));
+        let tangential_force = calc_tangential_force_from_torque(origin, Position::new(3.0, 1.0), -Torque::new(3.0));
         assert_eq!(1.5, tangential_force);
     }
 
     #[test]
-    #[ignore]
     fn calcs_force_from_tangential_force() {
         let origin = Position::new(1.0, 1.0);
         let force = calc_force_from_tangential_force(origin, Position::new(3.0, 1.0), 1.5);

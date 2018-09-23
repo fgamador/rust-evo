@@ -251,7 +251,8 @@ mod tests {
     fn calcs_force_from_tangential_force() {
         let origin = Position::new(1.0, 1.0);
         let force = calc_force_from_tangential_force(origin, Position::new(3.0, 1.0), 1.5);
-        assert_eq!(Force::new(0.0, 1.5), force);
+        assert!(force.x().abs() < 0.00001);
+        assert_eq!(1.5, force.y());
     }
 
     fn add_simple_circle_node(graph: &mut SortableGraph<SimpleCircleNode, Bond, AngleGusset>,

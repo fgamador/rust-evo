@@ -143,8 +143,9 @@ fn calc_tangential_force_from_torque(origin: Position, point: Position, torque: 
     torque.value() / point.to_polar_radius(origin).value()
 }
 
-fn calc_force_from_tangential_force(_origin: Position, _point: Position, _tangential_force: f64) -> Force {
-    // TODO polar to cartesian
+fn calc_force_from_tangential_force(origin: Position, point: Position, tangential_force: f64) -> Force {
+//    let force_angle = point.to_polar_angle(origin) + (tangential_force.signum() * PI / 2.0);
+//    Force::new(tangential_force.abs() * force_angle.cos(), tangential_force.abs() * force_angle.sin())
     Force::new(-1.0, 0.0)
 }
 
@@ -244,6 +245,14 @@ mod tests {
         let origin = Position::new(1.0, 1.0);
         let tangential_force = calc_tangential_force_from_torque(origin, Position::new(3.0, 1.0), Torque::new(3.0));
         assert_eq!(1.5, tangential_force);
+    }
+
+    #[test]
+    #[ignore]
+    fn calcs_force_from_tangential_force() {
+        let origin = Position::new(1.0, 1.0);
+        let force = calc_force_from_tangential_force(origin, Position::new(3.0, 1.0), 1.5);
+        assert_eq!(Force::new(0.0, 1.5), force);
     }
 
     fn add_simple_circle_node(graph: &mut SortableGraph<SimpleCircleNode, Bond, AngleGusset>,

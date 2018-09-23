@@ -13,11 +13,12 @@ pub struct Angle {
 
 impl Angle {
     pub fn from_radians(radians: f64) -> Self {
-        if radians < 0.0 {
-            panic!("Negative angle: {}", radians);
+        let mut adjusted_radians = radians;
+        while adjusted_radians < 0.0 {
+            adjusted_radians += 2.0 * PI;
         }
 
-        Angle { radians }
+        Angle { radians: adjusted_radians }
     }
 
     #[allow(dead_code)]
@@ -426,9 +427,8 @@ mod tests {
     use super::*;
 
     #[test]
-    #[should_panic]
-    fn negative_angle() {
-        Angle::from_radians(-1.0);
+    fn normalize_negative_angle() {
+        assert_eq!(Angle::from_radians(2.0 * PI - 1.0), Angle::from_radians(-1.0));
     }
 
     #[test]

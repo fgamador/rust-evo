@@ -34,6 +34,14 @@ impl Sub for Angle {
     }
 }
 
+impl Add<Deflection> for Angle {
+    type Output = Angle;
+
+    fn add(self, rhs: Deflection) -> Self::Output {
+        Angle::from_radians(self.radians + rhs.radians)
+    }
+}
+
 #[derive(Clone, Copy, Debug, PartialEq)]
 pub struct Deflection {
     radians: f64,
@@ -427,6 +435,11 @@ mod tests {
     fn subtract_angles() {
         assert_eq!(Deflection::from_radians(1.0),
                    Angle::from_radians(2.5) - Angle::from_radians(1.5));
+    }
+
+    #[test]
+    fn add_deflection_to_angle() {
+        assert_eq!(Angle::from_radians(3.0), Angle::from_radians(1.0) + Deflection::from_radians(2.0));
     }
 
     #[test]

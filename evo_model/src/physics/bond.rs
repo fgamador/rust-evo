@@ -144,7 +144,7 @@ fn calc_tangential_force_from_torque(origin: Position, point: Position, torque: 
 }
 
 fn calc_force_from_tangential_force(origin: Position, point: Position, tangential_force: f64) -> Force {
-//    let force_angle = point.to_polar_angle(origin) + (tangential_force.signum() * PI / 2.0);
+//    let force_angle = point.to_polar_angle(origin) + Deflection::from_radians(tangential_force.signum() * PI / 2.0);
 //    Force::new(tangential_force.abs() * force_angle.cos(), tangential_force.abs() * force_angle.sin())
     Force::new(-1.0, 0.0)
 }

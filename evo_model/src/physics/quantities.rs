@@ -13,6 +13,12 @@ pub struct Angle {
 
 impl Angle {
     pub fn from_radians(radians: f64) -> Self {
+        let normalized_radians = Angle::normalize_radians(radians);
+
+        Angle { radians: normalized_radians }
+    }
+
+    fn normalize_radians(radians: f64) -> f64 {
         let mut normalized_radians = radians;
         while normalized_radians < 0.0 {
             normalized_radians += 2.0 * PI;
@@ -20,8 +26,7 @@ impl Angle {
         while normalized_radians > 2.0 * PI {
             normalized_radians -= 2.0 * PI;
         }
-
-        Angle { radians: normalized_radians }
+        normalized_radians
     }
 
     #[allow(dead_code)]

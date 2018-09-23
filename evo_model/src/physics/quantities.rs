@@ -13,9 +13,7 @@ pub struct Angle {
 
 impl Angle {
     pub fn from_radians(radians: f64) -> Self {
-        let normalized_radians = Angle::normalize_radians(radians);
-
-        Angle { radians: normalized_radians }
+        Angle { radians: Angle::normalize_radians(radians) }
     }
 
     fn normalize_radians(radians: f64) -> f64 {

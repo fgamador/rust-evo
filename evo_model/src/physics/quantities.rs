@@ -13,12 +13,15 @@ pub struct Angle {
 
 impl Angle {
     pub fn from_radians(radians: f64) -> Self {
-        let mut adjusted_radians = radians;
-        while adjusted_radians < 0.0 {
-            adjusted_radians += 2.0 * PI;
+        let mut normalized_radians = radians;
+        while normalized_radians < 0.0 {
+            normalized_radians += 2.0 * PI;
+        }
+        while normalized_radians > 2.0 * PI {
+            normalized_radians -= 2.0 * PI;
         }
 
-        Angle { radians: adjusted_radians }
+        Angle { radians: normalized_radians }
     }
 
     #[allow(dead_code)]
@@ -429,6 +432,11 @@ mod tests {
     #[test]
     fn normalize_negative_angle() {
         assert_eq!(Angle::from_radians(2.0 * PI - 1.0), Angle::from_radians(-1.0));
+    }
+
+    #[test]
+    fn normalize_overlarge_angle() {
+        assert_eq!(Angle::from_radians(PI), Angle::from_radians(3.0 * PI));
     }
 
     #[test]

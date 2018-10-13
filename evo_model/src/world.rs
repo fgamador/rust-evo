@@ -17,7 +17,7 @@ impl<T> World<T>
     where T: Circle + GraphNode + NewtonianBody + HasLocalEnvironment
 {
     pub fn new(min_corner: Position, max_corner: Position) -> Self {
-        Self::with_influences(vec![
+        Self::with_influences_static(vec![
             Box::new(WallCollisions::new(min_corner, max_corner)),
             Box::new(PairCollisions::new()),
             Box::new(BondForces::new()),
@@ -25,7 +25,7 @@ impl<T> World<T>
         ])
     }
 
-    pub fn with_influences(influences: Vec<Box<Influence<T>>>) -> Self {
+    pub fn with_influences_static(influences: Vec<Box<Influence<T>>>) -> Self {
         World {
             ball_graph: SortableGraph::new(),
             influences,
@@ -93,7 +93,7 @@ mod tests {
 
     #[test]
     fn tick_moves_ball() {
-        let mut world = World::with_influences(vec![]);
+        let mut world = World::with_influences_static(vec![]);
         world.add_ball(Ball::new(Length::new(1.0), Mass::new(1.0),
                                  Position::new(0.0, 0.0), Velocity::new(1.0, 1.0)));
         world.tick();
@@ -104,7 +104,7 @@ mod tests {
 
     #[test]
     fn tick_with_force_accelerates_ball() {
-        let mut world = World::with_influences(vec![
+        let mut world = World::with_influences_static(vec![
             Box::new(UniversalForce::new(Force::new(1.0, 1.0)))
         ]);
         world.add_ball(Ball::new(Length::new(1.0), Mass::new(1.0),
@@ -117,7 +117,7 @@ mod tests {
 
     #[test]
     fn overlaps_do_not_persist() {
-        let mut world = World::with_influences(vec![
+        let mut world = World::with_influences_static(vec![
             Box::new(UniversalOverlap::new(Overlap::new(Displacement::new(1.0, 1.0))))
         ]);
         world.add_ball(Ball::new(Length::new(1.0), Mass::new(1.0),
@@ -129,7 +129,7 @@ mod tests {
 
     #[test]
     fn forces_do_not_persist() {
-        let mut world = World::with_influences(vec![
+        let mut world = World::with_influences_static(vec![
             Box::new(UniversalForce::new(Force::new(1.0, 1.0)))
         ]);
         world.add_ball(Ball::new(Length::new(1.0), Mass::new(1.0),

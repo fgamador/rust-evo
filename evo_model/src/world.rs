@@ -108,7 +108,7 @@ mod tests {
 
     #[test]
     fn tick_moves_ball() {
-        let mut world = World::with_influences_static(vec![]);
+        let mut world = create_world(vec![]);
         world.add_ball(Ball::new(Length::new(1.0), Mass::new(1.0),
                                  Position::new(0.0, 0.0), Velocity::new(1.0, 1.0)));
         world.tick();
@@ -132,7 +132,7 @@ mod tests {
 
     #[test]
     fn overlaps_do_not_persist() {
-        let mut world = World::with_influences_static(vec![
+        let mut world = create_world(vec![
             Box::new(UniversalOverlap::new(Overlap::new(Displacement::new(1.0, 1.0))))
         ]);
         world.add_ball(Ball::new(Length::new(1.0), Mass::new(1.0),
@@ -144,7 +144,7 @@ mod tests {
 
     #[test]
     fn forces_do_not_persist() {
-        let mut world = World::with_influences_static(vec![
+        let mut world = create_world(vec![
             Box::new(UniversalForce::new(Force::new(1.0, 1.0)))
         ]);
         world.add_ball(Ball::new(Length::new(1.0), Mass::new(1.0),

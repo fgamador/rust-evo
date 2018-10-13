@@ -32,15 +32,19 @@ impl<T> World<T>
         world.with_standard_influences()
     }
 
-    pub fn with_standard_influences(mut self) -> Self {
-        let world_min_corner = self.min_corner();
-        let world_max_corner = self.max_corner();
-        self.influences.push(Box::new(WallCollisions::new(world_min_corner, world_max_corner)));
-        self.with_influences(vec![
+    pub fn with_standard_influences(self) -> Self {
+        self.with_standard_walls().with_influences(vec![
             Box::new(PairCollisions::new()),
             Box::new(BondForces::new()),
             Box::new(BondAngleForces::new()),
         ])
+    }
+
+    pub fn with_standard_walls(mut self) -> Self {
+        let world_min_corner = self.min_corner();
+        let world_max_corner = self.max_corner();
+        self.influences.push(Box::new(WallCollisions::new(world_min_corner, world_max_corner)));
+        self
     }
 
     pub fn with_influences(mut self, mut influences: Vec<Box<Influence<T>>>) -> Self {

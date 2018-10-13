@@ -32,7 +32,7 @@ impl<T> World<T>
         world.with_standard_influences()
     }
 
-    fn with_standard_influences(self) -> Self {
+    pub fn with_standard_influences(self) -> Self {
         let world_min_corner = self.min_corner();
         let world_max_corner = self.max_corner();
         self.with_influences(vec![

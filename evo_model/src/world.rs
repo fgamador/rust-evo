@@ -17,7 +17,11 @@ impl<T> World<T>
     where T: Circle + GraphNode + NewtonianBody + HasLocalEnvironment
 {
     pub fn new(min_corner: Position, max_corner: Position) -> Self {
-        Self::with_influences_static(vec![
+        let world = World {
+            ball_graph: SortableGraph::new(),
+            influences: vec![]
+        };
+        world.with_influences(vec![
             Box::new(WallCollisions::new(min_corner, max_corner)),
             Box::new(PairCollisions::new()),
             Box::new(BondForces::new()),
@@ -32,7 +36,7 @@ impl<T> World<T>
         }
     }
 
-    pub fn with_influences(&mut self, influences: Vec<Box<Influence<T>>>) -> &mut Self {
+    pub fn with_influences(mut self, influences: Vec<Box<Influence<T>>>) -> Self {
         self.influences = influences;
         self
     }

@@ -29,6 +29,10 @@ impl<T> World<T>
 
     pub fn new2(min_corner: Position, max_corner: Position) -> Self {
         let world = World::new(min_corner, max_corner);
+        <World<T>>::with_standard_influences(world)
+    }
+
+    fn with_standard_influences(world: World<T>) -> World<T> {
         let world_min_corner = world.min_corner();
         let world_max_corner = world.max_corner();
         world.with_influences(vec![

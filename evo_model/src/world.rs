@@ -34,7 +34,7 @@ impl<T> World<T>
     }
 
     fn with_influences_static(influences: Vec<Box<Influence<T>>>) -> Self {
-        let world = Self::simple_world();
+        let world = World::simple_world();
         world.with_influences(influences)
     }
 

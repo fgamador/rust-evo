@@ -34,10 +34,8 @@ impl<T> World<T>
     }
 
     pub fn with_influences_static(influences: Vec<Box<Influence<T>>>) -> Self {
-        World {
-            ball_graph: SortableGraph::new(),
-            influences,
-        }
+        let world = World::new(Position::new(0.0, 0.0), Position::new(0.0, 0.0));
+        world.with_influences(influences)
     }
 
     pub fn with_influences(mut self, influences: Vec<Box<Influence<T>>>) -> Self {

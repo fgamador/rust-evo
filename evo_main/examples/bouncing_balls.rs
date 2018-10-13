@@ -12,17 +12,17 @@ fn main() {
 }
 
 fn create_world() -> World<Ball> {
-    let mut world =
-        World::new(Position::new(-200.0, -200.0), Position::new(200.0, 200.0))
-            .with_perimeter_walls()
-            .with_influence(Box::new(PairCollisions::new()));
-    world.add_ball(Ball::new(Length::new(20.0), Mass::new(1.0),
-                             Position::new(-100.0, -90.0), Velocity::new(3.0, 2.5)));
-    world.add_ball(Ball::new(Length::new(20.0), Mass::new(1.0),
-                             Position::new(-90.0, 100.0), Velocity::new(2.5, -3.0)));
-    world.add_ball(Ball::new(Length::new(20.0), Mass::new(1.0),
-                             Position::new(100.0, 90.0), Velocity::new(-3.0, -2.5)));
-    world.add_ball(Ball::new(Length::new(20.0), Mass::new(1.0),
-                             Position::new(90.0, -100.0), Velocity::new(-2.5, 3.0)));
-    world
+    World::new(Position::new(-200.0, -200.0), Position::new(200.0, 200.0))
+        .with_perimeter_walls()
+        .with_influence(Box::new(PairCollisions::new()))
+        .with_balls(vec![
+            Ball::new(Length::new(20.0), Mass::new(1.0),
+                      Position::new(-100.0, -90.0), Velocity::new(3.0, 2.5)),
+            Ball::new(Length::new(20.0), Mass::new(1.0),
+                      Position::new(-90.0, 100.0), Velocity::new(2.5, -3.0)),
+            Ball::new(Length::new(20.0), Mass::new(1.0),
+                      Position::new(100.0, 90.0), Velocity::new(-3.0, -2.5)),
+            Ball::new(Length::new(20.0), Mass::new(1.0),
+                      Position::new(90.0, -100.0), Velocity::new(-2.5, 3.0))
+        ])
 }

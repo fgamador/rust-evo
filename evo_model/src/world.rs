@@ -33,11 +33,6 @@ impl<T> World<T>
         ])
     }
 
-    fn with_influences_static(influences: Vec<Box<Influence<T>>>) -> Self {
-        let world = World::simple_world();
-        world.with_influences(influences)
-    }
-
     fn simple_world() -> Self {
         World::new(Position::new(0.0, 0.0), Position::new(0.0, 0.0))
     }
@@ -155,6 +150,7 @@ mod tests {
     }
 
     fn create_world(influences: Vec<Box<Influence<Ball>>>) -> World<Ball> {
-        World::with_influences_static(influences)
+        let world = World::simple_world();
+        world.with_influences(influences)
     }
 }

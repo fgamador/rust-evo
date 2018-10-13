@@ -32,6 +32,11 @@ impl<T> World<T>
         }
     }
 
+    pub fn with_influences(&mut self, influences: Vec<Box<Influence<T>>>) -> &mut Self {
+        self.influences = influences;
+        self
+    }
+
     pub fn add_ball(&mut self, ball: T) {
         self.ball_graph.add_node(ball);
     }

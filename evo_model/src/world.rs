@@ -42,6 +42,14 @@ impl<T> World<T>
         self
     }
 
+    pub fn min_corner(&self) -> Position {
+        self.min_corner
+    }
+
+    pub fn max_corner(&self) -> Position {
+        self.max_corner
+    }
+
     pub fn add_ball(&mut self, ball: T) {
         self.ball_graph.add_node(ball);
     }

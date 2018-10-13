@@ -85,8 +85,8 @@ impl<T> World<T>
     }
 
     pub fn with_bonds(mut self, index_pairs: Vec<(usize, usize)>) -> Self {
-        for index_pair in index_pairs {
-            let bond = Bond::new(&self.balls()[index_pair.0], &self.balls()[index_pair.1]);
+        for pair in index_pairs {
+            let bond = Bond::new(&self.balls()[pair.0], &self.balls()[pair.1]);
             self.add_bond(bond);
         }
         self
@@ -98,6 +98,14 @@ impl<T> World<T>
 
     pub fn bonds(&self) -> &[Bond] {
         &self.ball_graph.edges()
+    }
+
+    pub fn with_angle_gussets(mut self, index_pairs_with_angles: Vec<(usize, usize, f64)>) -> Self {
+        for tuple in index_pairs_with_angles {
+            let gusset = AngleGusset::new(&self.bonds()[tuple.0], &self.bonds()[tuple.1], Angle::from_radians(tuple.2));
+            self.add_angle_gusset(gusset);
+        }
+        self
     }
 
     pub fn add_angle_gusset(&mut self, gusset: AngleGusset) {

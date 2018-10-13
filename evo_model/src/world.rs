@@ -33,7 +33,7 @@ impl<T> World<T>
         ])
     }
 
-    pub fn with_influences_static(influences: Vec<Box<Influence<T>>>) -> Self {
+    fn with_influences_static(influences: Vec<Box<Influence<T>>>) -> Self {
         let world = World::new(Position::new(0.0, 0.0), Position::new(0.0, 0.0));
         world.with_influences(influences)
     }

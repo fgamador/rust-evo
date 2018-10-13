@@ -33,14 +33,14 @@ impl<T> World<T>
     }
 
     pub fn with_standard_influences(self) -> Self {
-        self.with_standard_walls().with_influences(vec![
+        self.with_perimeter_walls().with_influences(vec![
             Box::new(PairCollisions::new()),
             Box::new(BondForces::new()),
             Box::new(BondAngleForces::new()),
         ])
     }
 
-    pub fn with_standard_walls(self) -> Self {
+    pub fn with_perimeter_walls(self) -> Self {
         let world_min_corner = self.min_corner();
         let world_max_corner = self.max_corner();
         self.with_influence(Box::new(WallCollisions::new(world_min_corner, world_max_corner)))

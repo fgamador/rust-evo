@@ -119,7 +119,7 @@ mod tests {
 
     #[test]
     fn tick_with_force_accelerates_ball() {
-        let mut world = World::with_influences_static(vec![
+        let mut world = create_world(vec![
             Box::new(UniversalForce::new(Force::new(1.0, 1.0)))
         ]);
         world.add_ball(Ball::new(Length::new(1.0), Mass::new(1.0),
@@ -152,5 +152,9 @@ mod tests {
         world.tick();
         let ball = &world.balls()[0];
         assert_eq!(Force::new(0.0, 0.0), ball.forces().net_force());
+    }
+
+    fn create_world(influences: Vec<Box<Influence<Ball>>>) -> World<Ball> {
+        World::with_influences_static(influences)
     }
 }

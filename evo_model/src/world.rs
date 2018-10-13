@@ -43,8 +43,8 @@ impl<T> World<T>
         ])
     }
 
-    pub fn with_influences(mut self, influences: Vec<Box<Influence<T>>>) -> Self {
-        self.influences = influences;
+    pub fn with_influences(mut self, mut influences: Vec<Box<Influence<T>>>) -> Self {
+        self.influences.append(&mut influences);
         self
     }
 

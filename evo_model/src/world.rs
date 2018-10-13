@@ -40,10 +40,14 @@ impl<T> World<T>
         ])
     }
 
-    pub fn with_standard_walls(mut self) -> Self {
+    pub fn with_standard_walls(self) -> Self {
         let world_min_corner = self.min_corner();
         let world_max_corner = self.max_corner();
-        self.influences.push(Box::new(WallCollisions::new(world_min_corner, world_max_corner)));
+        self.with_influence(Box::new(WallCollisions::new(world_min_corner, world_max_corner)))
+    }
+
+    pub fn with_influence(mut self, influence: Box<Influence<T>>) -> Self {
+        self.influences.push(influence);
         self
     }
 

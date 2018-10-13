@@ -1,6 +1,7 @@
 extern crate evo_main;
 extern crate evo_model;
 
+use evo_model::environment::influences::*;
 use evo_model::physics::ball::Ball;
 use evo_model::physics::bond::Bond;
 use evo_model::physics::quantities::*;
@@ -12,7 +13,12 @@ fn main() {
 }
 
 fn create_world() -> World<Ball> {
-    let mut world = World::new2(Position::new(-200.0, -200.0), Position::new(200.0, 200.0));
+    let mut world = World::new(Position::new(-200.0, -200.0), Position::new(200.0, 200.0))
+        .with_perimeter_walls()
+        .with_influences(vec![
+            Box::new(PairCollisions::new()),
+            Box::new(BondForces::new())
+        ]);
 
     world.add_ball(Ball::new(Length::new(20.0), Mass::new(1.0),
                              Position::new(-100.0, -90.0), Velocity::new(3.0, 2.5)));

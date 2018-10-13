@@ -79,6 +79,14 @@ impl<T> World<T>
         &self.ball_graph.unsorted_nodes()
     }
 
+    pub fn with_bonds(mut self, index_pairs: Vec<(usize, usize)>) -> Self {
+        for index_pair in index_pairs {
+            let bond = Bond::new(&self.balls()[index_pair.0], &self.balls()[index_pair.1]);
+            self.add_bond(bond);
+        }
+        self
+    }
+
     pub fn add_bond(&mut self, bond: Bond) {
         self.ball_graph.add_edge(bond);
     }

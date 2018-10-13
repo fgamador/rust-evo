@@ -3,7 +3,6 @@ extern crate evo_model;
 
 use evo_model::environment::influences::*;
 use evo_model::physics::ball::Ball;
-use evo_model::physics::bond::Bond;
 use evo_model::physics::quantities::*;
 use evo_model::world::World;
 use evo_main::main_support::init_and_run;
@@ -13,40 +12,31 @@ fn main() {
 }
 
 fn create_world() -> World<Ball> {
-    let mut world = World::new(Position::new(-200.0, -200.0), Position::new(200.0, 200.0))
+    World::new(Position::new(-200.0, -200.0), Position::new(200.0, 200.0))
         .with_perimeter_walls()
         .with_influences(vec![
             Box::new(PairCollisions::new()),
             Box::new(BondForces::new())
-        ]);
-
-    world.add_ball(Ball::new(Length::new(20.0), Mass::new(1.0),
-                             Position::new(-100.0, -90.0), Velocity::new(3.0, 2.5)));
-    world.add_ball(Ball::new(Length::new(20.0), Mass::new(1.0),
-                             Position::new(-60.0, -90.0), Velocity::new(0.0, 0.0)));
-    let bond = Bond::new(&world.balls()[0], &world.balls()[1]);
-    world.add_bond(bond);
-
-    world.add_ball(Ball::new(Length::new(20.0), Mass::new(1.0),
-                             Position::new(100.0, -90.0), Velocity::new(-3.0, 2.5)));
-    world.add_ball(Ball::new(Length::new(20.0), Mass::new(1.0),
-                             Position::new(60.0, -90.0), Velocity::new(0.0, 0.0)));
-    let bond = Bond::new(&world.balls()[2], &world.balls()[3]);
-    world.add_bond(bond);
-
-    world.add_ball(Ball::new(Length::new(20.0), Mass::new(1.0),
-                             Position::new(-100.0, 90.0), Velocity::new(3.0, -2.5)));
-    world.add_ball(Ball::new(Length::new(20.0), Mass::new(1.0),
-                             Position::new(-60.0, 90.0), Velocity::new(0.0, 0.0)));
-    let bond = Bond::new(&world.balls()[4], &world.balls()[5]);
-    world.add_bond(bond);
-
-    world.add_ball(Ball::new(Length::new(20.0), Mass::new(1.0),
-                             Position::new(100.0, 90.0), Velocity::new(-3.0, -2.5)));
-    world.add_ball(Ball::new(Length::new(20.0), Mass::new(1.0),
-                             Position::new(60.0, 90.0), Velocity::new(0.0, 0.0)));
-    let bond = Bond::new(&world.balls()[6], &world.balls()[7]);
-    world.add_bond(bond);
-
-    world
+        ])
+        .with_balls(vec![
+            Ball::new(Length::new(20.0), Mass::new(1.0),
+                      Position::new(-100.0, -90.0), Velocity::new(3.0, 2.5)),
+            Ball::new(Length::new(20.0), Mass::new(1.0),
+                      Position::new(-60.0, -90.0), Velocity::new(0.0, 0.0)),
+            Ball::new(Length::new(20.0), Mass::new(1.0),
+                      Position::new(100.0, -90.0), Velocity::new(-3.0, 2.5)),
+            Ball::new(Length::new(20.0), Mass::new(1.0),
+                      Position::new(60.0, -90.0), Velocity::new(0.0, 0.0)),
+            Ball::new(Length::new(20.0), Mass::new(1.0),
+                      Position::new(-100.0, 90.0), Velocity::new(3.0, -2.5)),
+            Ball::new(Length::new(20.0), Mass::new(1.0),
+                      Position::new(-60.0, 90.0), Velocity::new(0.0, 0.0)),
+            Ball::new(Length::new(20.0), Mass::new(1.0),
+                      Position::new(100.0, 90.0), Velocity::new(-3.0, -2.5)),
+            Ball::new(Length::new(20.0), Mass::new(1.0),
+                      Position::new(60.0, 90.0), Velocity::new(0.0, 0.0)),
+        ])
+        .with_bonds(vec![
+            (0, 1), (2, 3), (4, 5), (6, 7)
+        ])
 }

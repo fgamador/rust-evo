@@ -29,8 +29,10 @@ impl<T> World<T>
 
     pub fn new2(min_corner: Position, max_corner: Position) -> Self {
         let world = World::new(min_corner, max_corner);
+        let world_min_corner = world.min_corner();
+        let world_max_corner = world.max_corner();
         world.with_influences(vec![
-            Box::new(WallCollisions::new(min_corner, max_corner)),
+            Box::new(WallCollisions::new(world_min_corner, world_max_corner)),
             Box::new(PairCollisions::new()),
             Box::new(BondForces::new()),
             Box::new(BondAngleForces::new()),

@@ -9,6 +9,8 @@ use physics::sortable_graph::*;
 pub struct World<T>
     where T: Circle + GraphNode + NewtonianBody + HasLocalEnvironment
 {
+    min_corner: Position,
+    max_corner: Position,
     ball_graph: SortableGraph<T, Bond, AngleGusset>,
     influences: Vec<Box<Influence<T>>>,
 }
@@ -18,6 +20,8 @@ impl<T> World<T>
 {
     pub fn new(min_corner: Position, max_corner: Position) -> Self {
         World {
+            min_corner,
+            max_corner,
             ball_graph: SortableGraph::new(),
             influences: vec![],
         }

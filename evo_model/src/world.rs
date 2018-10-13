@@ -64,6 +64,11 @@ impl<T> World<T>
         self.max_corner
     }
 
+    pub fn with_ball(mut self, ball: T) -> Self {
+        self.add_ball(ball);
+        self
+    }
+
     pub fn with_balls(mut self, balls: Vec<T>) -> Self {
         for ball in balls {
             self.add_ball(ball);

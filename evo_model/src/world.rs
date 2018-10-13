@@ -16,7 +16,7 @@ pub struct World<T>
 impl<T> World<T>
     where T: Circle + GraphNode + NewtonianBody + HasLocalEnvironment
 {
-    pub fn new(min_corner: Position, max_corner: Position) -> Self {
+    pub fn new2(min_corner: Position, max_corner: Position) -> Self {
         let world = World {
             ball_graph: SortableGraph::new(),
             influences: vec![]

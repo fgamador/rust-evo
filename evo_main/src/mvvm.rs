@@ -74,11 +74,19 @@ impl CoordinateTransform {
     }
 
     pub fn transform_position(&self, input_position: Position) -> Position {
-        let input_delta_x = input_position.x() - self.input_window.min_corner().x();
-        let x = self.output_window.min_corner().x() + input_delta_x;
-        let input_delta_y = input_position.y() - self.input_window.min_corner().y();
-        let y = self.output_window.min_corner().y() + input_delta_y;
+        let x = self.transform_x(input_position.x());
+        let y = self.transform_y(input_position.y());
         Position::new(x, y)
+    }
+
+    fn transform_x(&self, input_x: f64) -> f64 {
+        let input_delta_x = input_x - self.input_window.min_corner().x();
+        self.output_window.min_corner().x() + input_delta_x
+    }
+
+    fn transform_y(&self, input_y: f64) -> f64 {
+        let input_delta_y = input_y - self.input_window.min_corner().y();
+        self.output_window.min_corner().y() + input_delta_y
     }
 
     pub fn transform_length(&self, len: Length) -> Length {

@@ -87,10 +87,10 @@ mod tests {
     use super::*;
 
     #[test]
-    fn identity_transform() {
+    fn identity_coordinate_transform() {
         let window = Rectangle::new(Position::new(-10.0, -10.0), Position::new(10.0, 10.0));
-        let transform = CoordinateTransform::new(window, window);
-        assert_eq!(Position::new(1.0, 1.0), transform.transform_position(Position::new(1.0, 1.0)));
-        assert_eq!(Length::new(1.0), transform.transform_length(Length::new(1.0)));
+        let subject = CoordinateTransform::new(window, window);
+        assert_eq!(Position::new(1.0, 1.0), subject.transform_position(Position::new(1.0, 1.0)));
+        assert_eq!(Length::new(1.0), subject.transform_length(Length::new(1.0)));
     }
 }

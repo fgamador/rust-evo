@@ -74,7 +74,10 @@ impl CoordinateTransform {
             scaling: 0.0,
         };
         transform.scaling = transform.calc_scale_x();
-        //transform.scale_y = transform.calc_scale_y();
+        if transform.scaling != transform.calc_scale_y() {
+            panic!("Transform does not scale by the same factor in x ({}) and y ({})",
+                   transform.scaling, transform.calc_scale_y());
+        }
         transform
     }
 
@@ -139,5 +142,13 @@ mod tests {
         let subject = CoordinateTransform::new(input_window, output_window);
         assert_eq!(Position::new(2.0, -2.0), subject.transform_position(Position::new(1.0, -1.0)));
         assert_eq!(Length::new(2.0), subject.transform_length(Length::new(1.0)));
+    }
+
+    #[test]
+    #[should_panic]
+    fn unequal_scale_coordinate_transform() {
+        let input_window = Rectangle::new(Position::new(-10.0, -10.0), Position::new(10.0, 10.0));
+        let output_window = Rectangle::new(Position::new(-20.0, -21.0), Position::new(20.0, 21.0));
+        CoordinateTransform::new(input_window, output_window);
     }
 }

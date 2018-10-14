@@ -73,8 +73,12 @@ impl CoordinateTransform {
         }
     }
 
-    pub fn transform_position(&self, pos: Position) -> Position {
-        pos
+    pub fn transform_position(&self, input_position: Position) -> Position {
+        let input_delta_x = input_position.x() - self.input_window.min_corner().x();
+        let x = self.output_window.min_corner().x() + input_delta_x;
+        let input_delta_y = input_position.y() - self.input_window.min_corner().y();
+        let y = self.output_window.min_corner().y() + input_delta_y;
+        Position::new(x, y)
     }
 
     pub fn transform_length(&self, len: Length) -> Length {
@@ -94,12 +98,12 @@ mod tests {
         assert_eq!(Length::new(1.0), subject.transform_length(Length::new(1.0)));
     }
 
-    //#[test]
+    #[test]
     fn shift_coordinate_transform() {
         let input_window = Rectangle::new(Position::new(0.0, -20.0), Position::new(20.0, 0.0));
         let output_window = Rectangle::new(Position::new(-10.0, -10.0), Position::new(10.0, 10.0));
         let subject = CoordinateTransform::new(input_window, output_window);
-        assert_eq!(Position::new(10.0, -10.0), subject.transform_position(Position::new(0.0, 0.0)));
+        assert_eq!(Position::new(0.0, 0.0), subject.transform_position(Position::new(10.0, -10.0)));
         assert_eq!(Length::new(1.0), subject.transform_length(Length::new(1.0)));
     }
 }

@@ -2,7 +2,8 @@ use evo_conrod;
 use evo_model;
 use evo_model::environment::environment::*;
 use evo_model::physics::newtonian::NewtonianBody;
-use evo_model::physics::shapes::Circle;
+use evo_model::physics::quantities::*;
+use evo_model::physics::shapes::*;
 use evo_model::physics::sortable_graph::*;
 use evo_model::world::World;
 use evo_view_model::ViewModel;
@@ -56,5 +57,40 @@ impl View {
             thread::sleep(self.next_tick - now);
         }
         self.next_tick += Duration::from_millis(16);
+    }
+}
+
+pub struct CoordinateTransform {
+    input_window: Rectangle,
+    output_window: Rectangle,
+}
+
+impl CoordinateTransform {
+    pub fn new(input_window: Rectangle, output_window: Rectangle) -> Self {
+        CoordinateTransform {
+            input_window,
+            output_window,
+        }
+    }
+
+    pub fn transform_position(&self, pos: Position) -> Position {
+        pos
+    }
+
+    pub fn transform_length(&self, len: Length) -> Length {
+        len
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn identity_transform() {
+        let window = Rectangle::new(Position::new(-10.0, -10.0), Position::new(10.0, 10.0));
+        let transform = CoordinateTransform::new(window, window);
+        assert_eq!(Position::new(1.0, 1.0), transform.transform_position(Position::new(1.0, 1.0)));
+        assert_eq!(Length::new(1.0), transform.transform_length(Length::new(1.0)));
     }
 }

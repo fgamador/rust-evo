@@ -80,17 +80,26 @@ impl CoordinateTransform {
     }
 
     fn transform_x(&self, input_x: f64) -> f64 {
+        let input_width = self.input_window.max_corner().x() - self.input_window.min_corner().x();
+        let output_width = self.output_window.max_corner().x() - self.output_window.min_corner().x();
+        let scale_x = output_width / input_width;
         let input_delta_x = input_x - self.input_window.min_corner().x();
-        self.output_window.min_corner().x() + input_delta_x
+        self.output_window.min_corner().x() + scale_x * input_delta_x
     }
 
     fn transform_y(&self, input_y: f64) -> f64 {
+        let input_height = self.input_window.max_corner().y() - self.input_window.min_corner().y();
+        let output_height = self.output_window.max_corner().y() - self.output_window.min_corner().y();
+        let scale_y = output_height / input_height;
         let input_delta_y = input_y - self.input_window.min_corner().y();
-        self.output_window.min_corner().y() + input_delta_y
+        self.output_window.min_corner().y() + scale_y * input_delta_y
     }
 
     pub fn transform_length(&self, len: Length) -> Length {
-        len
+        let input_width = self.input_window.max_corner().x() - self.input_window.min_corner().x();
+        let output_width = self.output_window.max_corner().x() - self.output_window.min_corner().x();
+        let scale_x = output_width / input_width;
+        len * scale_x
     }
 }
 
@@ -115,7 +124,7 @@ mod tests {
         assert_eq!(Length::new(1.0), subject.transform_length(Length::new(1.0)));
     }
 
-    //#[test]
+    #[test]
     fn scale_coordinate_transform() {
         let input_window = Rectangle::new(Position::new(-10.0, -10.0), Position::new(10.0, 10.0));
         let output_window = Rectangle::new(Position::new(-20.0, -20.0), Position::new(20.0, 20.0));

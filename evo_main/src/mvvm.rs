@@ -93,4 +93,13 @@ mod tests {
         assert_eq!(Position::new(1.0, 1.0), subject.transform_position(Position::new(1.0, 1.0)));
         assert_eq!(Length::new(1.0), subject.transform_length(Length::new(1.0)));
     }
+
+    //#[test]
+    fn shift_coordinate_transform() {
+        let input_window = Rectangle::new(Position::new(0.0, -20.0), Position::new(20.0, 0.0));
+        let output_window = Rectangle::new(Position::new(-10.0, -10.0), Position::new(10.0, 10.0));
+        let subject = CoordinateTransform::new(input_window, output_window);
+        assert_eq!(Position::new(10.0, -10.0), subject.transform_position(Position::new(0.0, 0.0)));
+        assert_eq!(Length::new(1.0), subject.transform_length(Length::new(1.0)));
+    }
 }

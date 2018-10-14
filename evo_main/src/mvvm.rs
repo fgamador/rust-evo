@@ -63,14 +63,31 @@ impl View {
 pub struct CoordinateTransform {
     input_window: Rectangle,
     output_window: Rectangle,
+    scaling: f64,
 }
 
 impl CoordinateTransform {
     pub fn new(input_window: Rectangle, output_window: Rectangle) -> Self {
-        CoordinateTransform {
+        let mut transform = CoordinateTransform {
             input_window,
             output_window,
-        }
+            scaling: 0.0,
+        };
+        transform.scaling = transform.calc_scale_x();
+        //transform.scale_y = transform.calc_scale_y();
+        transform
+    }
+
+    fn calc_scale_x(&self) -> f64 {
+        let input_width = self.input_window.max_corner().x() - self.input_window.min_corner().x();
+        let output_width = self.output_window.max_corner().x() - self.output_window.min_corner().x();
+        output_width / input_width
+    }
+
+    fn calc_scale_y(&self) -> f64 {
+        let input_height = self.input_window.max_corner().y() - self.input_window.min_corner().y();
+        let output_height = self.output_window.max_corner().y() - self.output_window.min_corner().y();
+        output_height / input_height
     }
 
     pub fn transform_position(&self, input_position: Position) -> Position {
@@ -80,34 +97,17 @@ impl CoordinateTransform {
     }
 
     fn transform_x(&self, input_x: f64) -> f64 {
-        let scale_x = self.calc_scale_x();
         let input_delta_x = input_x - self.input_window.min_corner().x();
-        self.output_window.min_corner().x() + scale_x * input_delta_x
-    }
-
-    fn calc_scale_x(&self) -> f64 {
-        let input_width = self.input_window.max_corner().x() - self.input_window.min_corner().x();
-        let output_width = self.output_window.max_corner().x() - self.output_window.min_corner().x();
-        output_width / input_width
+        self.output_window.min_corner().x() + self.scaling * input_delta_x
     }
 
     fn transform_y(&self, input_y: f64) -> f64 {
-        let scale_y = self.calc_scale_y();
         let input_delta_y = input_y - self.input_window.min_corner().y();
-        self.output_window.min_corner().y() + scale_y * input_delta_y
-    }
-
-    fn calc_scale_y(&self) -> f64 {
-        let input_height = self.input_window.max_corner().y() - self.input_window.min_corner().y();
-        let output_height = self.output_window.max_corner().y() - self.output_window.min_corner().y();
-        output_height / input_height
+        self.output_window.min_corner().y() + self.scaling * input_delta_y
     }
 
     pub fn transform_length(&self, len: Length) -> Length {
-        let input_width = self.input_window.max_corner().x() - self.input_window.min_corner().x();
-        let output_width = self.output_window.max_corner().x() - self.output_window.min_corner().x();
-        let scale_x = output_width / input_width;
-        len * scale_x
+        len * self.scaling
     }
 }
 

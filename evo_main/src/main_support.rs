@@ -13,7 +13,8 @@ pub fn init_and_run<T>(world: World<T>)
 {
     let mut event_manager: EventManager<Event, MVVM<T>> = EventManager::new();
     wire_up_events(&mut event_manager);
-    let mvvm = MVVM(Model::new(world), View::new(), ViewModel::new());
+    let view = View::new(world.min_corner(), world.max_corner());
+    let mvvm = MVVM(Model::new(world), view, ViewModel::new());
     run(event_manager, mvvm);
 }
 

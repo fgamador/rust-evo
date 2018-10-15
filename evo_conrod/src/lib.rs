@@ -136,12 +136,35 @@ pub mod feature {
 
         Canvas::new().pad(80.0).set(ids.canvas, ui);
 
+        let transform = CoordinateTransform::new();
         let mut walker = ids.circles.walk();
         for circle in &view_model.circles {
             let id = walker.next(&mut ids.circles, &mut ui.widget_id_generator());
-            Circle::fill_with(circle.radius, color::rgb(0.5, 1.0, 0.5))
-                .x_y(circle.x, circle.y)
+            Circle::fill_with(transform.transform_length(circle.radius),
+                              color::rgb(0.5, 1.0, 0.5))
+                .x(transform.transform_x(circle.x))
+                .y(transform.transform_y(circle.y))
                 .set(id, ui);
+        }
+    }
+
+    pub struct CoordinateTransform {}
+
+    impl CoordinateTransform {
+        pub fn new() -> Self {
+            CoordinateTransform {}
+        }
+
+        pub fn transform_x(&self, input_x: f64) -> f64 {
+            input_x
+        }
+
+        pub fn transform_y(&self, input_y: f64) -> f64 {
+            input_y
+        }
+
+        pub fn transform_length(&self, input_length: f64) -> f64 {
+            input_length
         }
     }
 }

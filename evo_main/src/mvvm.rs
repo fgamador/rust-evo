@@ -39,7 +39,7 @@ pub struct View {
 }
 
 impl View {
-    pub fn new(min_corner: Position, max_corner: Position) -> Self {
+    pub fn new(world_min_corner: Position, world_max_corner: Position) -> Self {
         View {
             view: evo_conrod::feature::ConrodView::new(),
             next_tick: Instant::now(),

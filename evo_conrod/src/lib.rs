@@ -26,7 +26,7 @@ pub mod feature {
         }
     }
 
-    pub struct View {
+    pub struct ConrodView {
         display: glium::Display,
         events_loop: glium::glutin::EventsLoop,
         renderer: conrod::backend::glium::Renderer,
@@ -37,7 +37,7 @@ pub mod feature {
         transform: CoordinateTransform,
     }
 
-    impl View {
+    impl ConrodView {
         const WIDTH: u32 = 400;
         const HEIGHT: u32 = 400;
 
@@ -54,7 +54,7 @@ pub mod feature {
             let mut ui = conrod::UiBuilder::new([Self::WIDTH as f64, Self::HEIGHT as f64]).build();
             let ids = Ids::new(ui.widget_id_generator());
 
-            View {
+            ConrodView {
                 display,
                 events_loop,
                 renderer,

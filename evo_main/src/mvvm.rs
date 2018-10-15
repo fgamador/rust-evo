@@ -34,14 +34,14 @@ impl<T> Model<T>
 }
 
 pub struct View {
-    view: evo_conrod::feature::View,
+    view: evo_conrod::feature::ConrodView,
     next_tick: Instant,
 }
 
 impl View {
     pub fn new() -> Self {
         View {
-            view: evo_conrod::feature::View::new(),
+            view: evo_conrod::feature::ConrodView::new(),
             next_tick: Instant::now(),
         }
     }

@@ -80,9 +80,7 @@ pub mod feature {
             }
 
             self.define_ui(view_model);
-
             self.render_and_display_ui();
-
             true
         }
 

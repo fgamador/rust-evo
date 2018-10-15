@@ -38,6 +38,7 @@ pub mod feature {
         ids: Ids,
         image_map: conrod::image::Map<glium::texture::Texture2d>,
         event_loop: support::EventLoop,
+        transform: CoordinateTransform,
     }
 
     impl View {
@@ -65,6 +66,7 @@ pub mod feature {
                 image_map: conrod::image::Map::<glium::texture::Texture2d>::new(),
                 ids,
                 event_loop: support::EventLoop::new(),
+                transform: CoordinateTransform::new(),
             }
         }
 
@@ -77,8 +79,7 @@ pub mod feature {
                 return false;
             }
 
-            let transform = CoordinateTransform::new();
-            set_ui(self.ui.set_widgets(), &mut self.ids, view_model, &transform);
+            set_ui(self.ui.set_widgets(), &mut self.ids, view_model, &self.transform);
 
             self.render_and_display_ui();
 

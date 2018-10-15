@@ -79,7 +79,7 @@ pub mod feature {
                 return false;
             }
 
-            set_ui(self.ui.set_widgets(), &mut self.ids, view_model, &self.transform);
+            self.set_ui(view_model);
 
             self.render_and_display_ui();
 
@@ -100,6 +100,26 @@ pub mod feature {
                 }
             }
             true
+        }
+
+        fn set_ui(&mut self, view_model: &ViewModel) {
+            use conrod::{Positionable, Widget};
+            use conrod::color;
+            use conrod::widget::{Canvas, Circle};
+
+            let mut ui = self.ui.set_widgets();
+
+            Canvas::new().pad(80.0).set(self.ids.canvas, &mut ui);
+
+            let mut walker = self.ids.circles.walk();
+            for circle in &view_model.circles {
+                let id = walker.next(&mut self.ids.circles, &mut ui.widget_id_generator());
+                Circle::fill_with(self.transform.transform_length(circle.radius),
+                                  color::rgb(0.5, 1.0, 0.5))
+                    .x(self.transform.transform_x(circle.x))
+                    .y(self.transform.transform_y(circle.y))
+                    .set(id, &mut ui);
+            }
         }
 
         fn render_and_display_ui(&mut self) {
@@ -128,24 +148,6 @@ pub mod feature {
                 _ => false,
             },
             _ => false,
-        }
-    }
-
-    fn set_ui(ref mut ui: conrod::UiCell, ids: &mut Ids, view_model: &ViewModel, transform: &CoordinateTransform) {
-        use conrod::{Positionable, Widget};
-        use conrod::color;
-        use conrod::widget::{Canvas, Circle};
-
-        Canvas::new().pad(80.0).set(ids.canvas, ui);
-
-        let mut walker = ids.circles.walk();
-        for circle in &view_model.circles {
-            let id = walker.next(&mut ids.circles, &mut ui.widget_id_generator());
-            Circle::fill_with(transform.transform_length(circle.radius),
-                              color::rgb(0.5, 1.0, 0.5))
-                .x(transform.transform_x(circle.x))
-                .y(transform.transform_y(circle.y))
-                .set(id, ui);
         }
     }
 

@@ -11,6 +11,7 @@ pub mod feature {
     extern crate find_folder;
 
     use evo_view_model::ViewModel;
+    use evo_view_model::CoordinateTransform;
 
     use conrod;
     use conrod::backend::glium::glium;
@@ -137,26 +138,6 @@ pub mod feature {
                 _ => false,
             },
             _ => false,
-        }
-    }
-
-    pub struct CoordinateTransform {}
-
-    impl CoordinateTransform {
-        pub fn new() -> Self {
-            CoordinateTransform {}
-        }
-
-        pub fn transform_x(&self, input_x: f64) -> f64 {
-            input_x
-        }
-
-        pub fn transform_y(&self, input_y: f64) -> f64 {
-            input_y
-        }
-
-        pub fn transform_length(&self, input_length: f64) -> f64 {
-            input_length
         }
     }
 }

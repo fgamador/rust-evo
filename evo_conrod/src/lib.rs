@@ -79,7 +79,7 @@ pub mod feature {
                 return false;
             }
 
-            self.set_ui(view_model);
+            self.define_ui(view_model);
 
             self.render_and_display_ui();
 
@@ -102,7 +102,7 @@ pub mod feature {
             true
         }
 
-        fn set_ui(&mut self, view_model: &ViewModel) {
+        fn define_ui(&mut self, view_model: &ViewModel) {
             use conrod::{Positionable, Widget};
             use conrod::color;
             use conrod::widget::{Canvas, Circle};

@@ -6,11 +6,6 @@ extern crate evo_view_model;
 #[cfg(all(feature = "winit", feature = "glium"))]
 mod support;
 
-pub fn main() {
-    let mut view = feature::View::new();
-    view.main();
-}
-
 #[cfg(all(feature = "winit", feature = "glium"))]
 pub mod feature {
     extern crate find_folder;
@@ -68,10 +63,6 @@ pub mod feature {
                 event_loop: support::EventLoop::new(),
                 transform: CoordinateTransform::new(),
             }
-        }
-
-        pub fn main(&mut self) {
-            //while self.once() {}
         }
 
         pub fn once(&mut self, view_model: &ViewModel) -> bool {
@@ -167,13 +158,5 @@ pub mod feature {
         pub fn transform_length(&self, input_length: f64) -> f64 {
             input_length
         }
-    }
-}
-
-#[cfg(not(all(feature = "winit", feature = "glium")))]
-mod feature {
-    pub fn main() {
-        println!("This example requires the `winit` and `glium` features. \
-                 Try running `cargo run --release --features=\"winit glium\" --example <example_name>`");
     }
 }

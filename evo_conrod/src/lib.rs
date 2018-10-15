@@ -77,7 +77,8 @@ pub mod feature {
                 return false;
             }
 
-            set_ui(self.ui.set_widgets(), &mut self.ids, view_model);
+            let transform = CoordinateTransform::new();
+            set_ui(self.ui.set_widgets(), &mut self.ids, view_model, &transform);
 
             self.render_and_display_ui();
 
@@ -129,14 +130,13 @@ pub mod feature {
         }
     }
 
-    fn set_ui(ref mut ui: conrod::UiCell, ids: &mut Ids, view_model: &ViewModel) {
+    fn set_ui(ref mut ui: conrod::UiCell, ids: &mut Ids, view_model: &ViewModel, transform: &CoordinateTransform) {
         use conrod::{Positionable, Widget};
         use conrod::color;
         use conrod::widget::{Canvas, Circle};
 
         Canvas::new().pad(80.0).set(ids.canvas, ui);
 
-        let transform = CoordinateTransform::new();
         let mut walker = ids.circles.walk();
         for circle in &view_model.circles {
             let id = walker.next(&mut ids.circles, &mut ui.widget_id_generator());

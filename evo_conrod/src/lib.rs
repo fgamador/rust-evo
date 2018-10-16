@@ -10,6 +10,7 @@ mod support;
 pub mod feature {
     extern crate find_folder;
 
+    use evo_view_model;
     use evo_view_model::ViewModel;
     use evo_view_model::CoordinateTransform;
 
@@ -41,7 +42,7 @@ pub mod feature {
         const WIDTH: u32 = 400;
         const HEIGHT: u32 = 400;
 
-        pub fn new(transform: CoordinateTransform) -> Self {
+        pub fn new(mut transform: CoordinateTransform) -> Self {
             let window = glium::glutin::WindowBuilder::new()
                 .with_title("Evo")
                 .with_dimensions(Self::WIDTH, Self::HEIGHT);
@@ -54,6 +55,8 @@ pub mod feature {
             let mut ui = conrod::UiBuilder::new([Self::WIDTH as f64, Self::HEIGHT as f64]).build();
             let ids = Ids::new(ui.widget_id_generator());
 
+            transform.set_output_window(Self::create_output_window(Self::WIDTH, Self::HEIGHT));
+
             ConrodView {
                 display,
                 events_loop,
@@ -63,6 +66,19 @@ pub mod feature {
                 ids,
                 event_loop: support::EventLoop::new(),
                 transform,
+            }
+        }
+
+        fn create_output_window(width: u32, height: u32) -> evo_view_model::Rectangle {
+            evo_view_model::Rectangle {
+                min_corner: evo_view_model::Point {
+                    x: -(width as f64) / 2.0,
+                    y: -(height as f64) / 2.0,
+                },
+                max_corner: evo_view_model::Point {
+                    x: (width as f64) / 2.0,
+                    y: (height as f64) / 2.0,
+                },
             }
         }
 

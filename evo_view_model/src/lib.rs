@@ -37,14 +37,20 @@ impl ViewModel {
 }
 
 pub struct CoordinateTransform {
-    input_window: Rectangle
+    input_window: Rectangle,
+    output_window: Rectangle,
 }
 
 impl CoordinateTransform {
     pub fn new(input_window: Rectangle) -> Self {
         CoordinateTransform {
-            input_window
+            input_window,
+            output_window: input_window,
         }
+    }
+
+    pub fn set_output_window(&mut self, output_window: Rectangle) {
+        self.output_window = output_window;
     }
 
     pub fn transform_x(&self, input_x: f64) -> f64 {

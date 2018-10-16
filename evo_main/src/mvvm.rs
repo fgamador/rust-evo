@@ -49,15 +49,15 @@ impl View {
         }
     }
 
-    fn create_coordinate_transform(world_min_corner: Position, world_max_corner: Position) -> CoordinateTransform {
+    fn create_coordinate_transform(input_min_corner: Position, input_max_corner: Position) -> CoordinateTransform {
         let input_window = evo_view_model::Rectangle {
             min_corner: evo_view_model::Point {
-                x: world_min_corner.x(),
-                y: world_min_corner.y(),
+                x: input_min_corner.x(),
+                y: input_min_corner.y(),
             },
             max_corner: evo_view_model::Point {
-                x: world_max_corner.x(),
-                y: world_max_corner.y(),
+                x: input_max_corner.x(),
+                y: input_max_corner.y(),
             },
         };
         CoordinateTransform::new(input_window)

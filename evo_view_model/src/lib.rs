@@ -18,6 +18,12 @@ pub struct Circle {
     pub radius: f64,
 }
 
+#[derive(Clone, Copy, Debug)]
+pub struct Rectangle {
+    pub min_corner: Point,
+    pub max_corner: Point,
+}
+
 pub struct ViewModel {
     pub circles: Vec<Circle>,
 }

@@ -106,8 +106,8 @@ pub mod feature {
                 let id = walker.next(&mut self.ids.circles, &mut ui.widget_id_generator());
                 Circle::fill_with(self.transform.transform_length(circle.radius),
                                   color::rgb(0.5, 1.0, 0.5))
-                    .x(self.transform.transform_x(circle.x))
-                    .y(self.transform.transform_y(circle.y))
+                    .x(self.transform.transform_x(circle.center.x))
+                    .y(self.transform.transform_y(circle.center.y))
                     .set(id, &mut ui);
             }
         }

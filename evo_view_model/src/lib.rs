@@ -7,9 +7,14 @@ pub enum Event {
 }
 
 #[derive(Clone, Copy, Debug)]
-pub struct Circle {
+pub struct Point {
     pub x: f64,
     pub y: f64,
+}
+
+#[derive(Clone, Copy, Debug)]
+pub struct Circle {
+    pub center: Point,
     pub radius: f64,
 }
 

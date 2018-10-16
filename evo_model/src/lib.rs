@@ -23,8 +23,10 @@ pub fn tick<T>(world: &mut World<T>, view_model: &mut ViewModel)
 
     for ball in world.balls() {
         view_model.circles.push(evo_view_model::Circle {
-            x: ball.center().x(),
-            y: ball.center().y(),
+            center: evo_view_model::Point {
+                x: ball.center().x(),
+                y: ball.center().y(),
+            },
             radius: ball.radius().value(),
         });
     }

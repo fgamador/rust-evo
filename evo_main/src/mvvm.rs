@@ -6,6 +6,7 @@ use evo_model::physics::quantities::*;
 use evo_model::physics::shapes::*;
 use evo_model::physics::sortable_graph::*;
 use evo_model::world::World;
+use evo_view_model;
 use evo_view_model::ViewModel;
 use evo_view_model::CoordinateTransform;
 use std::thread;
@@ -41,11 +42,25 @@ pub struct View {
 
 impl View {
     pub fn new(world_min_corner: Position, world_max_corner: Position) -> Self {
-        let transform = CoordinateTransform::new();
+        let transform = Self::create_coordinate_transform(world_min_corner, world_max_corner);
         View {
             view: evo_conrod::feature::ConrodView::new(transform),
             next_tick: Instant::now(),
         }
+    }
+
+    fn create_coordinate_transform(world_min_corner: Position, world_max_corner: Position) -> CoordinateTransform {
+        let input_window = evo_view_model::Rectangle {
+            min_corner: evo_view_model::Point {
+                x: world_min_corner.x(),
+                y: world_min_corner.y(),
+            },
+            max_corner: evo_view_model::Point {
+                x: world_max_corner.x(),
+                y: world_max_corner.y(),
+            },
+        };
+        CoordinateTransform::new(input_window)
     }
 
     pub fn render(&mut self, view_model: &mut ViewModel) -> bool {

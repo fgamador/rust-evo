@@ -41,7 +41,7 @@ pub mod feature {
         const WIDTH: u32 = 400;
         const HEIGHT: u32 = 400;
 
-        pub fn new() -> Self {
+        pub fn new(transform: CoordinateTransform) -> Self {
             let window = glium::glutin::WindowBuilder::new()
                 .with_title("Evo")
                 .with_dimensions(Self::WIDTH, Self::HEIGHT);
@@ -62,7 +62,7 @@ pub mod feature {
                 image_map: conrod::image::Map::<glium::texture::Texture2d>::new(),
                 ids,
                 event_loop: support::EventLoop::new(),
-                transform: CoordinateTransform::new(),
+                transform,
             }
         }
 

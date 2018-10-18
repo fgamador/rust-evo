@@ -133,13 +133,6 @@ mod tests {
         assert_eq!(1.0, subject.transform_length(1.0));
     }
 
-    fn rect(min_corner: (f64, f64), max_corner: (f64, f64)) -> Rectangle {
-        Rectangle {
-            min_corner: Point { x: min_corner.0, y: min_corner.1 },
-            max_corner: Point { x: max_corner.0, y: max_corner.1 },
-        }
-    }
-
 //    #[test]
 //    fn shift_coordinate_transform() {
 //        let input_window = Rectangle::new(Position::new(0.0, -20.0), Position::new(20.0, 0.0));
@@ -148,7 +141,7 @@ mod tests {
 //        assert_eq!(Position::new(0.0, 0.0), subject.transform_position(Position::new(10.0, -10.0)));
 //        assert_eq!(Length::new(1.0), subject.transform_length(Length::new(1.0)));
 //    }
-//
+
 //    #[test]
 //    fn scale_coordinate_transform() {
 //        let input_window = Rectangle::new(Position::new(-10.0, -10.0), Position::new(10.0, 10.0));
@@ -157,7 +150,7 @@ mod tests {
 //        assert_eq!(Position::new(2.0, -2.0), subject.transform_position(Position::new(1.0, -1.0)));
 //        assert_eq!(Length::new(2.0), subject.transform_length(Length::new(1.0)));
 //    }
-//
+
 //    #[test]
 //    #[should_panic]
 //    fn unequal_scale_coordinate_transform() {
@@ -165,4 +158,11 @@ mod tests {
 //        let output_window = Rectangle::new(Position::new(-20.0, -21.0), Position::new(20.0, 21.0));
 //        CoordinateTransform::new(input_window, output_window);
 //    }
+
+    fn rect(min_corner: (f64, f64), max_corner: (f64, f64)) -> Rectangle {
+        Rectangle {
+            min_corner: Point { x: min_corner.0, y: min_corner.1 },
+            max_corner: Point { x: max_corner.0, y: max_corner.1 },
+        }
+    }
 }

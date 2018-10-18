@@ -55,6 +55,7 @@ impl CoordinateTransform {
         self.output_window = output_window;
         self.scaling = self.calc_scale_x();
         if self.scaling != self.calc_scale_y() {
+            // TODO just reduce scale until the longer dimension fits the window
             panic!("Transform does not scale by the same factor in x ({}) and y ({})",
                    self.scaling, self.calc_scale_y());
         }

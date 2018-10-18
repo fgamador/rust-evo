@@ -54,11 +54,21 @@ impl CoordinateTransform {
     pub fn set_output_window(&mut self, output_window: Rectangle) {
         self.output_window = output_window;
         self.scaling = self.calc_scale_x();
+        if self.scaling != self.calc_scale_y() {
+            panic!("Transform does not scale by the same factor in x ({}) and y ({})",
+                   self.scaling, self.calc_scale_y());
+        }
     }
 
     fn calc_scale_x(&self) -> f64 {
         let input_width = self.input_window.max_corner.x - self.input_window.min_corner.x;
         let output_width = self.output_window.max_corner.x - self.output_window.min_corner.x;
+        output_width / input_width
+    }
+
+    fn calc_scale_y(&self) -> f64 {
+        let input_width = self.input_window.max_corner.y - self.input_window.min_corner.y;
+        let output_width = self.output_window.max_corner.y - self.output_window.min_corner.y;
         output_width / input_width
     }
 
@@ -166,14 +176,14 @@ mod tests {
         assert_eq!(2.0, subject.transform_length(1.0));
     }
 
-//    #[test]
-//    #[should_panic]
-//    fn unequal_scale_coordinate_transform() {
-//        let input_window = rect((-10.0, -10.0), (10.0, 10.0));
-//        let output_window = rect((-20.0, -21.0), (20.0, 21.0));
-//        let mut subject = CoordinateTransform::new(input_window);
-//        subject.set_output_window(output_window);
-//    }
+    #[test]
+    #[should_panic]
+    fn unequal_scale_coordinate_transform() {
+        let input_window = rect((-10.0, -10.0), (10.0, 10.0));
+        let output_window = rect((-20.0, -21.0), (20.0, 21.0));
+        let mut subject = CoordinateTransform::new(input_window);
+        subject.set_output_window(output_window);
+    }
 
     fn rect(min_corner: (f64, f64), max_corner: (f64, f64)) -> Rectangle {
         Rectangle {

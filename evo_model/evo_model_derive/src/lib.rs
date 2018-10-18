@@ -119,6 +119,10 @@ pub fn newtonian_body_derive(input: TokenStream) -> TokenStream {
 
         quote! {
             impl NewtonianBody for #name {
+                fn mass(&self) -> Mass {
+                    self.#field_name.mass()
+                }
+
                 fn position(&self) -> Position {
                     self.#field_name.position()
                 }

@@ -1,6 +1,7 @@
 use physics::quantities::*;
 
 pub trait NewtonianBody {
+    fn mass(&self) -> Mass;
     fn position(&self) -> Position;
     fn velocity(&self) -> Velocity;
     fn move_for(&mut self, duration: Duration);
@@ -25,6 +26,10 @@ impl NewtonianState {
 }
 
 impl NewtonianBody for NewtonianState {
+    fn mass(&self) -> Mass {
+        self.mass
+    }
+
     fn position(&self) -> Position {
         self.position
     }
@@ -122,6 +127,7 @@ mod tests {
         assert_eq!(Velocity::new(2.0, 2.0), ball.velocity());
     }
 
+    #[derive(NewtonianBody)]
     struct SimpleBody {
         state: NewtonianState,
     }
@@ -131,36 +137,6 @@ mod tests {
             SimpleBody {
                 state: NewtonianState::new(mass, position, velocity)
             }
-        }
-    }
-
-    impl NewtonianBody for SimpleBody {
-        fn position(&self) -> Position {
-            self.state.position()
-        }
-
-        fn velocity(&self) -> Velocity {
-            self.state.velocity()
-        }
-
-        fn move_for(&mut self, duration: Duration) {
-            self.state.move_for(duration);
-        }
-
-        fn kick(&mut self, impulse: Impulse) {
-            self.state.kick(impulse);
-        }
-
-        fn forces(&self) -> &Forces {
-            self.state.forces()
-        }
-
-        fn forces_mut(&mut self) -> &mut Forces {
-            self.state.forces_mut()
-        }
-
-        fn exert_forces(&mut self, duration: Duration) {
-            self.state.exert_forces(duration);
         }
     }
 }

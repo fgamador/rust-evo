@@ -119,19 +119,20 @@ impl CoordinateTransform {
 //        len * self.scaling
 //    }
 //}
-//
-//#[cfg(test)]
-//mod tests {
-//    use super::*;
-//
-//    #[test]
-//    fn identity_coordinate_transform() {
-//        let window = Rectangle::new(Position::new(-10.0, -10.0), Position::new(10.0, 10.0));
-//        let subject = CoordinateTransform::new(window, window);
-//        assert_eq!(Position::new(1.0, 1.0), subject.transform_position(Position::new(1.0, 1.0)));
-//        assert_eq!(Length::new(1.0), subject.transform_length(Length::new(1.0)));
-//    }
-//
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn identity_coordinate_transform() {
+        let window = Rectangle { min_corner: Point { x: -10.0, y: -10.0 }, max_corner: Point { x: 10.0, y: 10.0 } };
+        let mut subject = CoordinateTransform::new(window);
+        subject.set_output_window(window);
+        assert_eq!(1.0, subject.transform_x(1.0));
+        assert_eq!(1.0, subject.transform_length(1.0));
+    }
+
 //    #[test]
 //    fn shift_coordinate_transform() {
 //        let input_window = Rectangle::new(Position::new(0.0, -20.0), Position::new(20.0, 0.0));
@@ -157,4 +158,4 @@ impl CoordinateTransform {
 //        let output_window = Rectangle::new(Position::new(-20.0, -21.0), Position::new(20.0, 21.0));
 //        CoordinateTransform::new(input_window, output_window);
 //    }
-//}
+}

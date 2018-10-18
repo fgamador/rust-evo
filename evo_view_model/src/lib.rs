@@ -134,7 +134,10 @@ mod tests {
     }
 
     fn create_rectangle(min_corner: (f64, f64), max_corner: (f64, f64)) -> Rectangle {
-        Rectangle { min_corner: Point { x: min_corner.0, y: min_corner.1 }, max_corner: Point { x: max_corner.0, y: max_corner.1 } }
+        Rectangle {
+            min_corner: Point { x: min_corner.0, y: min_corner.1 },
+            max_corner: Point { x: max_corner.0, y: max_corner.1 },
+        }
     }
 
 //    #[test]

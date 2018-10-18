@@ -126,9 +126,7 @@ mod tests {
 
     #[test]
     fn identity_coordinate_transform() {
-        let min_corner = (-10.0, -10.0);
-        let max_corner = (10.0, 10.0);
-        let window = create_rectangle(min_corner, max_corner);
+        let window = create_rectangle((-10.0, -10.0), (10.0, 10.0));
         let mut subject = CoordinateTransform::new(window);
         subject.set_output_window(window);
         assert_eq!(1.0, subject.transform_x(1.0));

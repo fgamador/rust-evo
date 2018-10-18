@@ -103,6 +103,29 @@ impl<T> Influence<T> for BondAngleForces
 }
 
 #[derive(Debug)]
+pub struct Weight {
+    gravity: f64
+}
+
+impl Weight {
+    pub fn new() -> Self {
+        Weight {
+            gravity: -1.0
+        }
+    }
+}
+
+impl<T> Influence<T> for Weight
+    where T: Circle + GraphNode + NewtonianBody + HasLocalEnvironment
+{
+    fn apply(&self, ball_graph: &mut SortableGraph<T, Bond, AngleGusset>) {
+        for ball in ball_graph.unsorted_nodes_mut() {
+            ball.forces_mut().add_force(Force::new(0.0, self.gravity * 1.0));
+        }
+    }
+}
+
+#[derive(Debug)]
 pub struct UniversalOverlap {
     overlap: Overlap
 }
@@ -236,5 +259,19 @@ mod tests {
 
         let ball3 = ball_graph.node(ball3_handle);
         assert!(ball3.forces().net_force().x() < 0.0);
+    }
+
+    #[test]
+    fn weight_adds_force() {
+        let mut ball_graph = SortableGraph::new();
+        let weight = Weight::new();
+        let ball_handle = ball_graph.add_node(Ball::new(Length::new(1.0), Mass::new(1.0),
+                                                        Position::new(0.0, 0.0), Velocity::new(0.0, 0.0)));
+
+        weight.apply(&mut ball_graph);
+
+        let ball = ball_graph.node(ball_handle);
+        assert_eq!(0.0, ball.forces().net_force().x());
+        assert_ne!(0.0, ball.forces().net_force().y());
     }
 }

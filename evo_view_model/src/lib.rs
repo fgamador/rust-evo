@@ -126,11 +126,9 @@ mod tests {
 
     #[test]
     fn identity_coordinate_transform() {
-        let min_corner_0 = -10.0;
-        let min_corner_1 = -10.0;
-        let max_corner_0 = 10.0;
-        let max_corner_1 = 10.0;
-        let window = Rectangle { min_corner: Point { x: min_corner_0, y: min_corner_1 }, max_corner: Point { x: max_corner_0, y: max_corner_1 } };
+        let min_corner = (-10.0, -10.0);
+        let max_corner = (10.0, 10.0);
+        let window = Rectangle { min_corner: Point { x: min_corner.0, y: min_corner.1 }, max_corner: Point { x: max_corner.0, y: max_corner.1 } };
         let mut subject = CoordinateTransform::new(window);
         subject.set_output_window(window);
         assert_eq!(1.0, subject.transform_x(1.0));

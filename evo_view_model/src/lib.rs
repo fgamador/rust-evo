@@ -39,6 +39,7 @@ impl ViewModel {
 pub struct CoordinateTransform {
     input_window: Rectangle,
     output_window: Rectangle,
+    scaling: f64,
 }
 
 impl CoordinateTransform {
@@ -46,6 +47,7 @@ impl CoordinateTransform {
         CoordinateTransform {
             input_window,
             output_window: input_window,
+            scaling: 1.0,
         }
     }
 
@@ -54,11 +56,13 @@ impl CoordinateTransform {
     }
 
     pub fn transform_x(&self, input_x: f64) -> f64 {
-        input_x
+        let input_delta_x = input_x - self.input_window.min_corner.x;
+        self.output_window.min_corner.x + self.scaling * input_delta_x
     }
 
     pub fn transform_y(&self, input_y: f64) -> f64 {
-        input_y
+        let input_delta_y = input_y - self.input_window.min_corner.y;
+        self.output_window.min_corner.y + self.scaling * input_delta_y
     }
 
     pub fn transform_length(&self, input_length: f64) -> f64 {
@@ -133,7 +137,7 @@ mod tests {
         assert_eq!(1.0, subject.transform_length(1.0));
     }
 
-//    #[test]
+    #[test]
     fn shift_coordinate_transform() {
         let input_window = rect((0.0, -20.0), (20.0, 0.0));
         let output_window = rect((-10.0, -10.0), (10.0, 10.0));

@@ -134,21 +134,22 @@ mod tests {
     }
 
 //    #[test]
-//    fn shift_coordinate_transform() {
-//        let input_window = rect((0.0, -20.0), (20.0, 0.0));
-//        let output_window = rect((-10.0, -10.0), (10.0, 10.0));
-//        let mut subject = CoordinateTransform::new(input_window);
-//        subject.set_output_window(window);
-//        assert_eq!(Position::new(0.0, 0.0), subject.transform_position(Position::new(10.0, -10.0)));
-//        assert_eq!(1.0, subject.transform_length(1.0));
-//    }
+    fn shift_coordinate_transform() {
+        let input_window = rect((0.0, -20.0), (20.0, 0.0));
+        let output_window = rect((-10.0, -10.0), (10.0, 10.0));
+        let mut subject = CoordinateTransform::new(input_window);
+        subject.set_output_window(output_window);
+        assert_eq!(0.0, subject.transform_x(10.0));
+        assert_eq!(0.0, subject.transform_y(-10.0));
+        assert_eq!(1.0, subject.transform_length(1.0));
+    }
 
 //    #[test]
 //    fn scale_coordinate_transform() {
 //        let input_window = rect((-10.0, -10.0), (10.0, 10.0));
 //        let output_window = rect((-20.0, -20.0), (20.0, 20.0));
 //        let mut subject = CoordinateTransform::new(input_window);
-//        subject.set_output_window(window);
+//        subject.set_output_window(output_window);
 //        assert_eq!(Position::new(2.0, -2.0), subject.transform_position(Position::new(1.0, -1.0)));
 //        assert_eq!(2.0, subject.transform_length(1.0));
 //    }
@@ -159,7 +160,7 @@ mod tests {
 //        let input_window = rect((-10.0, -10.0), (10.0, 10.0));
 //        let output_window = rect((-20.0, -21.0), (20.0, 21.0));
 //        let mut subject = CoordinateTransform::new(input_window);
-//        subject.set_output_window(window);
+//        subject.set_output_window(output_window);
 //    }
 
     fn rect(min_corner: (f64, f64), max_corner: (f64, f64)) -> Rectangle {

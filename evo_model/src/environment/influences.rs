@@ -108,9 +108,9 @@ pub struct Weight {
 }
 
 impl Weight {
-    pub fn new() -> Self {
+    pub fn new(gravity: f64) -> Self {
         Weight {
-            gravity: -1.0
+            gravity
         }
     }
 }
@@ -120,7 +120,8 @@ impl<T> Influence<T> for Weight
 {
     fn apply(&self, ball_graph: &mut SortableGraph<T, Bond, AngleGusset>) {
         for ball in ball_graph.unsorted_nodes_mut() {
-            ball.forces_mut().add_force(Force::new(0.0, self.gravity * 1.0));
+            let mass = ball.mass();
+            ball.forces_mut().add_force(Force::new(0.0, self.gravity * mass.value()));
         }
     }
 }
@@ -262,16 +263,16 @@ mod tests {
     }
 
     #[test]
-    fn weight_adds_force() {
+    fn weight_adds_force_proportional_to_mass() {
         let mut ball_graph = SortableGraph::new();
-        let weight = Weight::new();
-        let ball_handle = ball_graph.add_node(Ball::new(Length::new(1.0), Mass::new(1.0),
+        let weight = Weight::new(-2.0);
+        let ball_handle = ball_graph.add_node(Ball::new(Length::new(1.0), Mass::new(3.0),
                                                         Position::new(0.0, 0.0), Velocity::new(0.0, 0.0)));
 
         weight.apply(&mut ball_graph);
 
         let ball = ball_graph.node(ball_handle);
         assert_eq!(0.0, ball.forces().net_force().x());
-        assert_ne!(0.0, ball.forces().net_force().y());
+        assert_eq!(-6.0, ball.forces().net_force().y());
     }
 }

@@ -148,15 +148,16 @@ mod tests {
         assert_eq!(1.0, subject.transform_length(1.0));
     }
 
-//    #[test]
-//    fn scale_coordinate_transform() {
-//        let input_window = rect((-10.0, -10.0), (10.0, 10.0));
-//        let output_window = rect((-20.0, -20.0), (20.0, 20.0));
-//        let mut subject = CoordinateTransform::new(input_window);
-//        subject.set_output_window(output_window);
-//        assert_eq!(Position::new(2.0, -2.0), subject.transform_position(Position::new(1.0, -1.0)));
-//        assert_eq!(2.0, subject.transform_length(1.0));
-//    }
+    //    #[test]
+    fn scale_coordinate_transform() {
+        let input_window = rect((-10.0, -10.0), (10.0, 10.0));
+        let output_window = rect((-20.0, -20.0), (20.0, 20.0));
+        let mut subject = CoordinateTransform::new(input_window);
+        subject.set_output_window(output_window);
+        assert_eq!(2.0, subject.transform_x(1.0));
+        assert_eq!(-2.0, subject.transform_y(-1.0));
+        assert_eq!(2.0, subject.transform_length(1.0));
+    }
 
 //    #[test]
 //    #[should_panic]

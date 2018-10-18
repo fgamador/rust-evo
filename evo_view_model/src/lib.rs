@@ -53,6 +53,13 @@ impl CoordinateTransform {
 
     pub fn set_output_window(&mut self, output_window: Rectangle) {
         self.output_window = output_window;
+        self.scaling = self.calc_scale_x();
+    }
+
+    fn calc_scale_x(&self) -> f64 {
+        let input_width = self.input_window.max_corner.x - self.input_window.min_corner.x;
+        let output_width = self.output_window.max_corner.x - self.output_window.min_corner.x;
+        output_width / input_width
     }
 
     pub fn transform_x(&self, input_x: f64) -> f64 {
@@ -66,7 +73,7 @@ impl CoordinateTransform {
     }
 
     pub fn transform_length(&self, input_length: f64) -> f64 {
-        input_length
+        input_length * self.scaling
     }
 }
 
@@ -148,7 +155,7 @@ mod tests {
         assert_eq!(1.0, subject.transform_length(1.0));
     }
 
-    //    #[test]
+    #[test]
     fn scale_coordinate_transform() {
         let input_window = rect((-10.0, -10.0), (10.0, 10.0));
         let output_window = rect((-20.0, -20.0), (20.0, 20.0));

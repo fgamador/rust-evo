@@ -128,11 +128,15 @@ mod tests {
     fn identity_coordinate_transform() {
         let min_corner = (-10.0, -10.0);
         let max_corner = (10.0, 10.0);
-        let window = Rectangle { min_corner: Point { x: min_corner.0, y: min_corner.1 }, max_corner: Point { x: max_corner.0, y: max_corner.1 } };
+        let window = create_rectangle(min_corner, max_corner);
         let mut subject = CoordinateTransform::new(window);
         subject.set_output_window(window);
         assert_eq!(1.0, subject.transform_x(1.0));
         assert_eq!(1.0, subject.transform_length(1.0));
+    }
+
+    fn create_rectangle(min_corner: (f64, f64), max_corner: (f64, f64)) -> Rectangle {
+        Rectangle { min_corner: Point { x: min_corner.0, y: min_corner.1 }, max_corner: Point { x: max_corner.0, y: max_corner.1 } }
     }
 
 //    #[test]

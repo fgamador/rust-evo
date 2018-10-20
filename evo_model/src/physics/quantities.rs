@@ -379,10 +379,6 @@ impl Mass {
     pub fn value(&self) -> f64 {
         self.value
     }
-
-    pub fn mass_star_acc(mass: Mass, acc: Acceleration) -> Force {
-        mass * acc
-    }
 }
 
 impl Mul<Acceleration> for Mass {

@@ -379,6 +379,10 @@ impl Mass {
     pub fn value(&self) -> f64 {
         self.value
     }
+
+    pub fn mass_star_acc(mass: Mass, acc: Acceleration) -> Force {
+        Force::new(0.0, acc.y() * mass.value())
+    }
 }
 
 #[derive(Clone, Copy, Debug, PartialEq)]

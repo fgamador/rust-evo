@@ -117,7 +117,8 @@ impl Weight {
 
 impl Weight {
     fn mass_times_acc(&self, mass: Mass) -> Force {
-        Force::new(0.0, self.gravity * mass.value())
+        let acceleration = self.gravity;
+        Force::new(0.0, acceleration * mass.value())
     }
 }
 

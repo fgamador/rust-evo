@@ -117,8 +117,7 @@ impl Weight {
 
 impl Weight {
     fn mass_times_acc(&self, mass: Mass) -> Force {
-        let acceleration = self.gravity;
-        Weight::mass_star_acc(mass, acceleration)
+        Weight::mass_star_acc(mass, self.gravity)
     }
 
     fn mass_star_acc(mass: Mass, acceleration: f64) -> Force {

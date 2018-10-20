@@ -104,13 +104,15 @@ impl<T> Influence<T> for BondAngleForces
 
 #[derive(Debug)]
 pub struct Weight {
-    y_acc: f64
+    gravity: Acceleration,
+    y_acc: f64,
 }
 
 impl Weight {
     pub fn new(gravity: f64) -> Self {
         Weight {
-            y_acc: gravity
+            gravity: Acceleration { x: 0.0, y: gravity },
+            y_acc: gravity,
         }
     }
 }

@@ -385,7 +385,7 @@ impl Mul<Acceleration> for Mass {
     type Output = Force;
 
     fn mul(self, rhs: Acceleration) -> Self::Output {
-        Force::new(0.0, rhs.y() * self.value())
+        Force::new(self.value * rhs.x(), self.value * rhs.y())
     }
 }
 
@@ -584,6 +584,12 @@ mod tests {
     fn velocity_to_displacement() {
         assert_eq!(Displacement::new(0.75, -0.25),
                    Velocity::new(1.5, -0.5) * Duration::new(0.5));
+    }
+
+    #[test]
+    fn multiply_mass_by_acceleration() {
+        assert_eq!(Force::new(0.75, -0.25),
+                   Mass::new(0.5) * Acceleration::new(1.5, -0.5));
     }
 
     #[test]

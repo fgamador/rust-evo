@@ -123,7 +123,7 @@ pub struct Acceleration {
 
 impl Weight {
     fn mass_star_acc(mass: Mass, acc: Acceleration, x_acc: f64, y_acc: f64) -> Force {
-        Force::new(0.0, y_acc * mass.value())
+        Force::new(0.0, acc.y * mass.value())
     }
 }
 

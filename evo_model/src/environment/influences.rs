@@ -136,7 +136,7 @@ impl<T> Influence<T> for Weight
         for ball in ball_graph.unsorted_nodes_mut() {
             let mass = ball.mass();
             let gravity = Acceleration { x: 0.0, y: self.y_acc };
-            ball.forces_mut().add_force(Self::mass_star_acc(mass, gravity));
+            ball.forces_mut().add_force(Self::mass_star_acc(mass, self.gravity));
         }
     }
 }

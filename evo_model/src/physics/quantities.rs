@@ -381,7 +381,15 @@ impl Mass {
     }
 
     pub fn mass_star_acc(mass: Mass, acc: Acceleration) -> Force {
-        Force::new(0.0, acc.y() * mass.value())
+        mass * acc
+    }
+}
+
+impl Mul<Acceleration> for Mass {
+    type Output = Force;
+
+    fn mul(self, rhs: Acceleration) -> Self::Output {
+        Force::new(0.0, rhs.y() * self.value())
     }
 }
 

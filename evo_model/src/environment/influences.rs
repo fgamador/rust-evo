@@ -115,31 +115,9 @@ impl Weight {
     }
 }
 
-#[derive(Clone, Copy, Debug, PartialEq)]
-pub struct Acceleration {
-    x: f64,
-    y: f64,
-}
-
-impl Acceleration {
-    pub fn new(x: f64, y: f64) -> Self {
-        Acceleration { x, y }
-    }
-
-    #[allow(dead_code)]
-    pub fn x(&self) -> f64 {
-        self.x
-    }
-
-    #[allow(dead_code)]
-    pub fn y(&self) -> f64 {
-        self.y
-    }
-}
-
 impl Weight {
     fn mass_star_acc(mass: Mass, acc: Acceleration) -> Force {
-        Force::new(0.0, acc.y * mass.value())
+        Force::new(0.0, acc.y() * mass.value())
     }
 }
 

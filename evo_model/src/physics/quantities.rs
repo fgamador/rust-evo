@@ -292,6 +292,28 @@ impl Mul<Duration> for Velocity {
 }
 
 #[derive(Clone, Copy, Debug, PartialEq)]
+pub struct Acceleration {
+    x: f64,
+    y: f64,
+}
+
+impl Acceleration {
+    pub fn new(x: f64, y: f64) -> Self {
+        Acceleration { x, y }
+    }
+
+    #[allow(dead_code)]
+    pub fn x(&self) -> f64 {
+        self.x
+    }
+
+    #[allow(dead_code)]
+    pub fn y(&self) -> f64 {
+        self.y
+    }
+}
+
+#[derive(Clone, Copy, Debug, PartialEq)]
 pub struct DeltaV {
     x: f64,
     y: f64,

@@ -116,8 +116,8 @@ impl Weight {
 }
 
 impl Weight {
-    fn mass_star_acc(mass: Mass, acceleration: f64) -> Force {
-        Force::new(0.0, acceleration * mass.value())
+    fn mass_star_acc(mass: Mass, y_acc: f64) -> Force {
+        Force::new(0.0, y_acc * mass.value())
     }
 }
 

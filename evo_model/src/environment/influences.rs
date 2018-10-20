@@ -116,7 +116,7 @@ impl Weight {
 }
 
 impl Weight {
-    fn mass_star_acc(mass: Mass, y_acc: f64) -> Force {
+    fn mass_star_acc(mass: Mass, x_acc: f64, y_acc: f64) -> Force {
         Force::new(0.0, y_acc * mass.value())
     }
 }
@@ -127,7 +127,7 @@ impl<T> Influence<T> for Weight
     fn apply(&self, ball_graph: &mut SortableGraph<T, Bond, AngleGusset>) {
         for ball in ball_graph.unsorted_nodes_mut() {
             let mass = ball.mass();
-            ball.forces_mut().add_force(Self::mass_star_acc(mass, self.gravity));
+            ball.forces_mut().add_force(Self::mass_star_acc(mass, 0.0, self.gravity));
         }
     }
 }

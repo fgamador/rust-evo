@@ -110,7 +110,7 @@ pub struct Weight {
 impl Weight {
     pub fn new(gravity: f64) -> Self {
         Weight {
-            gravity: Acceleration { x: 0.0, y: gravity }
+            gravity: Acceleration::new(0.0, gravity)
         }
     }
 }
@@ -119,6 +119,22 @@ impl Weight {
 pub struct Acceleration {
     x: f64,
     y: f64,
+}
+
+impl Acceleration {
+    pub fn new(x: f64, y: f64) -> Self {
+        Acceleration { x, y }
+    }
+
+    #[allow(dead_code)]
+    pub fn x(&self) -> f64 {
+        self.x
+    }
+
+    #[allow(dead_code)]
+    pub fn y(&self) -> f64 {
+        self.y
+    }
 }
 
 impl Weight {

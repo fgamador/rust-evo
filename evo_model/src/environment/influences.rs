@@ -115,13 +115,19 @@ impl Weight {
     }
 }
 
+impl Weight {
+    fn mass_times_acc(&self, mass: Mass) -> Force {
+        Force::new(0.0, self.gravity * mass.value())
+    }
+}
+
 impl<T> Influence<T> for Weight
     where T: Circle + GraphNode + NewtonianBody + HasLocalEnvironment
 {
     fn apply(&self, ball_graph: &mut SortableGraph<T, Bond, AngleGusset>) {
         for ball in ball_graph.unsorted_nodes_mut() {
             let mass = ball.mass();
-            ball.forces_mut().add_force(Force::new(0.0, self.gravity * mass.value()));
+            ball.forces_mut().add_force(self.mass_times_acc(mass));
         }
     }
 }

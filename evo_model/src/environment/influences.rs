@@ -114,11 +114,17 @@ impl Weight {
         }
     }
 
+    fn calc_force<T>(&self, ball: &T) -> Force
+        where T: NewtonianBody
+    {
+        ball.mass() * self.gravity
+    }
+
     fn add_force<T>(&self, ball: &mut T)
         where T: NewtonianBody
     {
-        let mass = ball.mass();
-        ball.forces_mut().add_force(mass * self.gravity);
+        let force = self.calc_force(ball);
+        ball.forces_mut().add_force(force);
     }
 }
 

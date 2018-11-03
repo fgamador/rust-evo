@@ -110,23 +110,23 @@ pub trait InfluenceForce<T>
 }
 
 //#[derive(Debug)]
-pub struct Weight<T>
+pub struct SimpleForceInfluence<T>
     where T: Circle + NewtonianBody + HasLocalEnvironment
 {
     influence_force: Box<InfluenceForce<T>>
 }
 
-impl<T> Weight<T>
+impl<T> SimpleForceInfluence<T>
     where T: Circle + NewtonianBody + HasLocalEnvironment
 {
     pub fn new(influence_force: Box<InfluenceForce<T>>) -> Self {
-        Weight {
+        SimpleForceInfluence {
             influence_force
         }
     }
 }
 
-impl<T> Influence<T> for Weight<T>
+impl<T> Influence<T> for SimpleForceInfluence<T>
     where T: Circle + GraphNode + NewtonianBody + HasLocalEnvironment
 {
     fn apply(&self, ball_graph: &mut SortableGraph<T, Bond, AngleGusset>) {
@@ -366,7 +366,7 @@ mod tests {
     #[test]
     fn weight_adds_force_proportional_to_mass() {
         let mut ball_graph = SortableGraph::new();
-        let weight = Weight::new(Box::new(WeightForce::new(-2.0)));
+        let weight = SimpleForceInfluence::new(Box::new(WeightForce::new(-2.0)));
         let ball_handle = ball_graph.add_node(Ball::new(Length::new(1.0), Mass::new(3.0),
                                                         Position::new(0.0, 0.0), Velocity::new(0.0, 0.0)));
 

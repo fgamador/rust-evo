@@ -14,7 +14,7 @@ fn main() {
 fn create_world() -> World<Ball> {
     World::new(Position::new(0.0, -400.0), Position::new(400.0, 0.0))
         .with_perimeter_walls()
-        .with_influence(Box::new(Weight::new(Box::new(WeightForce::new(-0.05)))))
+        .with_influence(Box::new(SimpleForceInfluence::new(Box::new(WeightForce::new(-0.05)))))
         .with_ball(Ball::new(Length::new(20.0), Mass::new(1.0),
                              Position::new(50.0, -50.0), Velocity::new(1.0, 0.0)))
 }

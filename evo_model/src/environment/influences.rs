@@ -272,6 +272,27 @@ impl<T> Influence<T> for UniversalForce
     }
 }
 
+#[derive(Debug)]
+pub struct ConstantForce {
+    force: Force
+}
+
+impl ConstantForce {
+    pub fn new(force: Force) -> Self {
+        ConstantForce {
+            force
+        }
+    }
+}
+
+impl<T> SimpleInfluenceForce<T> for ConstantForce
+    where T: Circle + NewtonianBody + HasLocalEnvironment
+{
+    fn calc_force(&self, _ball: &T) -> Force {
+        self.force
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -374,6 +395,20 @@ mod tests {
         let ball = ball_graph.node(ball_handle);
         assert_eq!(0.0, ball.forces().net_force().x());
         assert_eq!(-6.0, ball.forces().net_force().y());
+    }
+
+    #[test]
+    fn simple_force_influence_adds_force() {
+        let mut ball_graph = SortableGraph::new();
+        let force = Force::new(2.0, -3.0);
+        let influence = SimpleForceInfluence::new(Box::new(ConstantForce::new(force)));
+        let ball_handle = ball_graph.add_node(Ball::new(Length::new(1.0), Mass::new(3.0),
+                                                        Position::new(0.0, 0.0), Velocity::new(0.0, 0.0)));
+
+        influence.apply(&mut ball_graph);
+
+        let ball = ball_graph.node(ball_handle);
+        assert_eq!(force, ball.forces().net_force());
     }
 
     #[test]

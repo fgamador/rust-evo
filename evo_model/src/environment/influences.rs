@@ -181,9 +181,13 @@ impl Drag {
     fn calc_force<T>(&self, ball: &mut T) -> Force
         where T: Circle + NewtonianBody
     {
-        let x_drag = ball.velocity().x().signum() * self.viscosity * ball.radius().value() * sqr(ball.velocity().x());
-        let y_drag = ball.velocity().y().signum() * self.viscosity * ball.radius().value() * sqr(ball.velocity().y());
-        Force::new(x_drag, y_drag)
+        Force::new(self.calc_drag(ball.radius().value(), ball.velocity().x()),
+                   self.calc_drag(ball.radius().value(), ball.velocity().y()))
+    }
+
+    fn calc_drag(&self, radius: f64, velocity: f64) -> f64
+    {
+        velocity.signum() * self.viscosity * radius * sqr(velocity)
     }
 }
 

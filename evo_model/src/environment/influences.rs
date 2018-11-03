@@ -146,11 +146,18 @@ impl Buoyancy {
         }
     }
 
-    fn add_force<T>(&self, ball: &mut T)
+    fn calc_force<T>(&self, ball: &mut T) -> Force
         where T: Circle + NewtonianBody
     {
         let displaced_fluid_mass = ball.area() * self.fluid_density;
-        ball.forces_mut().add_force(-(displaced_fluid_mass * self.gravity));
+        -(displaced_fluid_mass * self.gravity)
+    }
+
+    fn add_force<T>(&self, ball: &mut T)
+        where T: Circle + NewtonianBody
+    {
+        let force = self.calc_force(ball);
+        ball.forces_mut().add_force(force);
     }
 }
 

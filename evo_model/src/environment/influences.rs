@@ -109,7 +109,6 @@ pub trait SimpleInfluenceForce<T>
     fn calc_force(&self, ball: &T) -> Force;
 }
 
-//#[derive(Debug)]
 pub struct SimpleForceInfluence<T>
     where T: Circle + NewtonianBody + HasLocalEnvironment
 {

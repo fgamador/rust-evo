@@ -105,20 +105,14 @@ impl<T> Influence<T> for BondAngleForces
 
 #[derive(Debug)]
 pub struct Weight {
-    gravity: Acceleration,
+    weight_force: WeightForce,
 }
 
 impl Weight {
     pub fn new(gravity: f64) -> Self {
         Weight {
-            gravity: Acceleration::new(0.0, gravity)
+            weight_force: WeightForce::new(gravity),
         }
-    }
-
-    fn calc_force<T>(&self, ball: &T) -> Force
-        where T: NewtonianBody
-    {
-        ball.mass() * self.gravity
     }
 }
 
@@ -127,9 +121,28 @@ impl<T> Influence<T> for Weight
 {
     fn apply(&self, ball_graph: &mut SortableGraph<T, Bond, AngleGusset>) {
         for ball in ball_graph.unsorted_nodes_mut() {
-            let force = self.calc_force(ball);
+            let force = self.weight_force.calc_force(ball);
             ball.forces_mut().add_force(force);
         }
+    }
+}
+
+#[derive(Debug)]
+pub struct WeightForce {
+    gravity: Acceleration,
+}
+
+impl WeightForce {
+    pub fn new(gravity: f64) -> Self {
+        WeightForce {
+            gravity: Acceleration::new(0.0, gravity)
+        }
+    }
+
+    pub fn calc_force<T>(&self, ball: &T) -> Force
+        where T: Circle + NewtonianBody
+    {
+        ball.mass() * self.gravity
     }
 }
 

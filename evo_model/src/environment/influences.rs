@@ -113,6 +113,13 @@ impl Weight {
             gravity: Acceleration::new(0.0, gravity)
         }
     }
+
+    fn add_force<T>(&self, ball: &mut T)
+        where T: NewtonianBody
+    {
+        let mass = ball.mass();
+        ball.forces_mut().add_force(mass * self.gravity);
+    }
 }
 
 impl<T> Influence<T> for Weight
@@ -120,8 +127,7 @@ impl<T> Influence<T> for Weight
 {
     fn apply(&self, ball_graph: &mut SortableGraph<T, Bond, AngleGusset>) {
         for ball in ball_graph.unsorted_nodes_mut() {
-            let mass = ball.mass();
-            ball.forces_mut().add_force(mass * self.gravity);
+            self.add_force(ball);
         }
     }
 }

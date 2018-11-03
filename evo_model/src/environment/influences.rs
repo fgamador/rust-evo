@@ -166,6 +166,36 @@ impl<T> Influence<T> for Buoyancy
 }
 
 #[derive(Debug)]
+pub struct Drag {
+    viscosity: f64
+}
+
+impl Drag {
+    pub fn new(viscosity: f64) -> Self {
+        Drag {
+            viscosity
+        }
+    }
+
+    fn calc_force<T>(&self, ball: &mut T) -> Force
+        where T: Circle + NewtonianBody
+    {
+        Force::new(0.0, 0.0)
+    }
+}
+
+impl<T> Influence<T> for Drag
+    where T: Circle + GraphNode + NewtonianBody + HasLocalEnvironment
+{
+    fn apply(&self, ball_graph: &mut SortableGraph<T, Bond, AngleGusset>) {
+        for ball in ball_graph.unsorted_nodes_mut() {
+            let force = self.calc_force(ball);
+            ball.forces_mut().add_force(force);
+        }
+    }
+}
+
+#[derive(Debug)]
 pub struct UniversalOverlap {
     overlap: Overlap
 }
@@ -327,5 +357,19 @@ mod tests {
         let ball = ball_graph.node(ball_handle);
         assert_eq!(0.0, ball.forces().net_force().x());
         assert_eq!(16.0, ball.forces().net_force().y().round());
+    }
+
+    //#[test]
+    fn drag_adds_force_proportional_to_area_and_velocity_squared() {
+        let mut ball_graph = SortableGraph::new();
+        let drag = Drag::new(2.0);
+        let ball_handle = ball_graph.add_node(Ball::new(Length::new(2.0 / PI.sqrt()), Mass::new(1.0),
+                                                        Position::new(0.0, 0.0), Velocity::new(2.0, -2.0)));
+
+        drag.apply(&mut ball_graph);
+
+        let ball = ball_graph.node(ball_handle);
+        assert_eq!(1.0, ball.forces().net_force().x());
+        assert_eq!(1.0, ball.forces().net_force().y());
     }
 }

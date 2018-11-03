@@ -150,7 +150,7 @@ impl Buoyancy {
         where T: Circle + NewtonianBody
     {
         let displaced_fluid_mass = ball.area() * self.fluid_density;
-        ball.forces_mut().add_force(displaced_fluid_mass * self.gravity);
+        ball.forces_mut().add_force(-(displaced_fluid_mass * self.gravity));
     }
 }
 
@@ -325,6 +325,6 @@ mod tests {
 
         let ball = ball_graph.node(ball_handle);
         assert_eq!(0.0, ball.forces().net_force().x());
-        assert_eq!(-16.0, ball.forces().net_force().y().round());
+        assert_eq!(16.0, ball.forces().net_force().y().round());
     }
 }

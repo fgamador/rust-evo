@@ -462,6 +462,14 @@ impl Mul<Duration> for Force {
     }
 }
 
+impl Neg for Force {
+    type Output = Force;
+
+    fn neg(self) -> Self::Output {
+        Force::new(-self.x, -self.y)
+    }
+}
+
 #[derive(Clone, Copy, Debug, PartialEq)]
 pub struct Torque {
     value: f64,
@@ -648,6 +656,11 @@ mod tests {
     fn force_to_impulse() {
         assert_eq!(Impulse::new(0.75, -0.25),
                    Force::new(1.5, -0.5) * Duration::new(0.5));
+    }
+
+    #[test]
+    fn negate_force() {
+        assert_eq!(Force::new(-0.75, 0.25), -Force::new(0.75, -0.25));
     }
 
     #[test]

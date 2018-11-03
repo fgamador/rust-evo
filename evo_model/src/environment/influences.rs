@@ -5,6 +5,7 @@ use physics::overlap::*;
 use physics::quantities::*;
 use physics::shapes::Circle;
 use physics::sortable_graph::*;
+use physics::util::*;
 
 pub trait Influence<T>
     where T: Circle + GraphNode + NewtonianBody + HasLocalEnvironment
@@ -180,7 +181,9 @@ impl Drag {
     fn calc_force<T>(&self, ball: &mut T) -> Force
         where T: Circle + NewtonianBody
     {
-        Force::new(0.0, 0.0)
+        let x_drag = ball.velocity().x().signum() * self.viscosity * ball.radius().value() * sqr(ball.velocity().x());
+        let y_drag = ball.velocity().y().signum() * self.viscosity * ball.radius().value() * sqr(ball.velocity().y());
+        Force::new(x_drag, y_drag)
     }
 }
 
@@ -359,17 +362,17 @@ mod tests {
         assert_eq!(16.0, ball.forces().net_force().y().round());
     }
 
-    //#[test]
-    fn drag_adds_force_proportional_to_area_and_velocity_squared() {
+    #[test]
+    fn drag_adds_force_proportional_to_radius_and_velocity_squared() {
         let mut ball_graph = SortableGraph::new();
-        let drag = Drag::new(2.0);
-        let ball_handle = ball_graph.add_node(Ball::new(Length::new(2.0 / PI.sqrt()), Mass::new(1.0),
-                                                        Position::new(0.0, 0.0), Velocity::new(2.0, -2.0)));
+        let drag = Drag::new(0.5);
+        let ball_handle = ball_graph.add_node(Ball::new(Length::new(2.0), Mass::new(1.0),
+                                                        Position::new(0.0, 0.0), Velocity::new(2.0, -3.0)));
 
         drag.apply(&mut ball_graph);
 
         let ball = ball_graph.node(ball_handle);
-        assert_eq!(1.0, ball.forces().net_force().x());
-        assert_eq!(1.0, ball.forces().net_force().y());
+        assert_eq!(4.0, ball.forces().net_force().x());
+        assert_eq!(-9.0, ball.forces().net_force().y());
     }
 }

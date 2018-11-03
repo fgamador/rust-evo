@@ -115,9 +115,9 @@ pub struct Weight {
 }
 
 impl Weight {
-    pub fn new(gravity: f64) -> Self {
+    pub fn new(weight_force: WeightForce) -> Self {
         Weight {
-            weight_force: WeightForce::new(gravity),
+            weight_force
         }
     }
 }
@@ -362,7 +362,7 @@ mod tests {
     #[test]
     fn weight_adds_force_proportional_to_mass() {
         let mut ball_graph = SortableGraph::new();
-        let weight = Weight::new(-2.0);
+        let weight = Weight::new(WeightForce::new(-2.0));
         let ball_handle = ball_graph.add_node(Ball::new(Length::new(1.0), Mass::new(3.0),
                                                         Position::new(0.0, 0.0), Velocity::new(0.0, 0.0)));
 

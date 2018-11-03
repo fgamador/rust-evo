@@ -103,6 +103,12 @@ impl<T> Influence<T> for BondAngleForces
     }
 }
 
+pub trait InfluenceForce<T>
+    where T: Circle + NewtonianBody + HasLocalEnvironment
+{
+    fn calc_force(&self, ball: &T) -> Force;
+}
+
 #[derive(Debug)]
 pub struct Weight {
     weight_force: WeightForce,
@@ -138,10 +144,12 @@ impl WeightForce {
             gravity: Acceleration::new(0.0, gravity)
         }
     }
+}
 
-    pub fn calc_force<T>(&self, ball: &T) -> Force
-        where T: Circle + NewtonianBody
-    {
+impl<T> InfluenceForce<T> for WeightForce
+    where T: Circle + NewtonianBody + HasLocalEnvironment
+{
+    fn calc_force(&self, ball: &T) -> Force {
         ball.mass() * self.gravity
     }
 }

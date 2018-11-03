@@ -111,13 +111,13 @@ pub trait InfluenceForce<T>
 
 #[derive(Debug)]
 pub struct Weight {
-    weight_force: WeightForce,
+    environmental_force: WeightForce,
 }
 
 impl Weight {
     pub fn new(weight_force: WeightForce) -> Self {
         Weight {
-            weight_force
+            environmental_force: weight_force
         }
     }
 }
@@ -127,7 +127,7 @@ impl<T> Influence<T> for Weight
 {
     fn apply(&self, ball_graph: &mut SortableGraph<T, Bond, AngleGusset>) {
         for ball in ball_graph.unsorted_nodes_mut() {
-            let force = self.weight_force.calc_force(ball);
+            let force = self.environmental_force.calc_force(ball);
             ball.forces_mut().add_force(force);
         }
     }

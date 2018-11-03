@@ -139,16 +139,22 @@ impl Buoyancy {
             fluid_density,
         }
     }
+
+    fn add_force<T>(&self, ball: &mut T)
+        where T: Circle + NewtonianBody
+    {
+        let mass = ball.mass();
+        ball.forces_mut().add_force(mass * self.gravity);
+    }
 }
 
 impl<T> Influence<T> for Buoyancy
     where T: Circle + GraphNode + NewtonianBody + HasLocalEnvironment
 {
     fn apply(&self, ball_graph: &mut SortableGraph<T, Bond, AngleGusset>) {
-//        for ball in ball_graph.unsorted_nodes_mut() {
-//            let mass = ball.mass();
-//            ball.forces_mut().add_force(mass * self.gravity);
-//        }
+        for ball in ball_graph.unsorted_nodes_mut() {
+            self.add_force(ball);
+        }
     }
 }
 
@@ -313,6 +319,6 @@ mod tests {
 
         let ball = ball_graph.node(ball_handle);
         assert_eq!(0.0, ball.forces().net_force().x());
-        assert_eq!(-6.0, ball.forces().net_force().y());
+        assert_eq!(-1.0, ball.forces().net_force().y());
     }
 }

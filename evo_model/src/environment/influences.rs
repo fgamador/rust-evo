@@ -363,7 +363,7 @@ mod tests {
     }
 
     #[test]
-    fn weight_adds_force_proportional_to_mass() {
+    fn weight_adds_force_proportional_to_mass_orig() {
         let mut ball_graph = SortableGraph::new();
         let weight = SimpleForceInfluence::new(Box::new(WeightForce::new(-2.0)));
         let ball_handle = ball_graph.add_node(Ball::new(Length::new(1.0), Mass::new(3.0),
@@ -374,6 +374,13 @@ mod tests {
         let ball = ball_graph.node(ball_handle);
         assert_eq!(0.0, ball.forces().net_force().x());
         assert_eq!(-6.0, ball.forces().net_force().y());
+    }
+
+    #[test]
+    fn weight_adds_force_proportional_to_mass() {
+        let weight = WeightForce::new(-2.0);
+        let ball = Ball::new(Length::new(1.0), Mass::new(3.0), Position::new(0.0, 0.0), Velocity::new(0.0, 0.0));
+        assert_eq!(Force::new(0.0, -6.0), weight.calc_force(&ball));
     }
 
     #[test]

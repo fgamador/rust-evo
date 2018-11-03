@@ -539,6 +539,11 @@ mod tests {
     }
 
     #[test]
+    fn multiply_area_by_density() {
+        assert_eq!(Mass::new(3.0), Area::new(2.0) * Density::new(1.5));
+    }
+
+    #[test]
     fn displace_position() {
         assert_eq!(Position::new(2.0, 1.0),
                    Position::new(1.5, 1.5) + Displacement::new(0.5, -0.5));

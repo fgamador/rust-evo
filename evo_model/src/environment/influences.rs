@@ -129,22 +129,22 @@ impl<T> Influence<T> for Weight
 #[derive(Debug)]
 pub struct Buoyancy {
     gravity: Acceleration,
-    fluid_density: f64,
+    fluid_density: Density,
 }
 
 impl Buoyancy {
     pub fn new(gravity: f64, fluid_density: f64) -> Self {
         Buoyancy {
             gravity: Acceleration::new(0.0, gravity),
-            fluid_density,
+            fluid_density: Density::new(fluid_density),
         }
     }
 
     fn add_force<T>(&self, ball: &mut T)
         where T: Circle + NewtonianBody
     {
-        let mass = ball.mass();
-        ball.forces_mut().add_force(mass * self.gravity);
+        let displaced_fluid_mass = ball.area() * self.fluid_density;
+        ball.forces_mut().add_force(displaced_fluid_mass * self.gravity);
     }
 }
 
@@ -308,17 +308,17 @@ mod tests {
         assert_eq!(-6.0, ball.forces().net_force().y());
     }
 
-    //#[test]
+    #[test]
     fn buoyancy_adds_force_proportional_to_area() {
         let mut ball_graph = SortableGraph::new();
         let buoyancy = Buoyancy::new(-2.0, 2.0);
-        let ball_handle = ball_graph.add_node(Ball::new(Length::new(2.0), Mass::new(1.0),
+        let ball_handle = ball_graph.add_node(Ball::new(Length::new(2.0 / PI.sqrt()), Mass::new(1.0),
                                                         Position::new(0.0, 0.0), Velocity::new(0.0, 0.0)));
 
         buoyancy.apply(&mut ball_graph);
 
         let ball = ball_graph.node(ball_handle);
         assert_eq!(0.0, ball.forces().net_force().x());
-        assert_eq!(-1.0, ball.forces().net_force().y());
+        assert_eq!(-16.0, ball.forces().net_force().y().round());
     }
 }

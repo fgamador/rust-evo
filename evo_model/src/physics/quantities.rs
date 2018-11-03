@@ -129,6 +129,14 @@ impl Mul<f64> for Area {
     }
 }
 
+impl Mul<Density> for Area {
+    type Output = Mass;
+
+    fn mul(self, rhs: Density) -> Self::Output {
+        Mass::new(self.value * rhs.value)
+    }
+}
+
 #[derive(Clone, Copy, Debug, PartialEq)]
 pub struct Position {
     x: f64,
@@ -386,6 +394,26 @@ impl Mul<Acceleration> for Mass {
 
     fn mul(self, rhs: Acceleration) -> Self::Output {
         Force::new(self.value * rhs.x(), self.value * rhs.y())
+    }
+}
+
+#[derive(Clone, Copy, Debug, PartialEq)]
+pub struct Density {
+    value: f64,
+}
+
+impl Density {
+    pub fn new(value: f64) -> Self {
+        if value < 0.0 {
+            panic!("Negative density: {}", value);
+        }
+
+        Density { value }
+    }
+
+    #[allow(dead_code)]
+    pub fn value(&self) -> f64 {
+        self.value
     }
 }
 

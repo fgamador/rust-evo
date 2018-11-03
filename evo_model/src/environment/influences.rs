@@ -103,7 +103,7 @@ impl<T> Influence<T> for BondAngleForces
     }
 }
 
-pub trait InfluenceForce<T>
+pub trait SimpleInfluenceForce<T>
     where T: Circle + NewtonianBody + HasLocalEnvironment
 {
     fn calc_force(&self, ball: &T) -> Force;
@@ -113,13 +113,13 @@ pub trait InfluenceForce<T>
 pub struct SimpleForceInfluence<T>
     where T: Circle + NewtonianBody + HasLocalEnvironment
 {
-    influence_force: Box<InfluenceForce<T>>
+    influence_force: Box<SimpleInfluenceForce<T>>
 }
 
 impl<T> SimpleForceInfluence<T>
     where T: Circle + NewtonianBody + HasLocalEnvironment
 {
-    pub fn new(influence_force: Box<InfluenceForce<T>>) -> Self {
+    pub fn new(influence_force: Box<SimpleInfluenceForce<T>>) -> Self {
         SimpleForceInfluence {
             influence_force
         }
@@ -150,7 +150,7 @@ impl WeightForce {
     }
 }
 
-impl<T> InfluenceForce<T> for WeightForce
+impl<T> SimpleInfluenceForce<T> for WeightForce
     where T: Circle + NewtonianBody + HasLocalEnvironment
 {
     fn calc_force(&self, ball: &T) -> Force {

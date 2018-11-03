@@ -187,7 +187,7 @@ impl Drag {
 
     fn calc_drag(&self, radius: f64, velocity: f64) -> f64
     {
-        velocity.signum() * self.viscosity * radius * sqr(velocity)
+        -velocity.signum() * self.viscosity * radius * sqr(velocity)
     }
 }
 
@@ -376,7 +376,7 @@ mod tests {
         drag.apply(&mut ball_graph);
 
         let ball = ball_graph.node(ball_handle);
-        assert_eq!(4.0, ball.forces().net_force().x());
-        assert_eq!(-9.0, ball.forces().net_force().y());
+        assert_eq!(-4.0, ball.forces().net_force().x());
+        assert_eq!(9.0, ball.forces().net_force().y());
     }
 }

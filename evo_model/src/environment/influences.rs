@@ -103,12 +103,6 @@ impl<T> Influence<T> for BondAngleForces
     }
 }
 
-pub trait SimpleInfluenceForce<T>
-    where T: Circle + NewtonianBody + HasLocalEnvironment
-{
-    fn calc_force(&self, ball: &T) -> Force;
-}
-
 pub struct SimpleForceInfluence<T>
     where T: Circle + NewtonianBody + HasLocalEnvironment
 {
@@ -133,6 +127,33 @@ impl<T> Influence<T> for SimpleForceInfluence<T>
             let force = self.influence_force.calc_force(ball);
             ball.forces_mut().add_force(force);
         }
+    }
+}
+
+pub trait SimpleInfluenceForce<T>
+    where T: Circle + NewtonianBody + HasLocalEnvironment
+{
+    fn calc_force(&self, ball: &T) -> Force;
+}
+
+#[derive(Debug)]
+pub struct ConstantForce {
+    force: Force
+}
+
+impl ConstantForce {
+    pub fn new(force: Force) -> Self {
+        ConstantForce {
+            force
+        }
+    }
+}
+
+impl<T> SimpleInfluenceForce<T> for ConstantForce
+    where T: Circle + NewtonianBody + HasLocalEnvironment
+{
+    fn calc_force(&self, _ball: &T) -> Force {
+        self.force
     }
 }
 
@@ -231,50 +252,6 @@ impl<T> Influence<T> for UniversalOverlap
         for ball in ball_graph.unsorted_nodes_mut() {
             ball.environment_mut().add_overlap(self.overlap);
         }
-    }
-}
-
-#[derive(Debug)]
-pub struct UniversalForce {
-    force: Force
-}
-
-impl UniversalForce {
-    pub fn new(force: Force) -> Self {
-        UniversalForce {
-            force
-        }
-    }
-}
-
-impl<T> Influence<T> for UniversalForce
-    where T: Circle + GraphNode + NewtonianBody + HasLocalEnvironment
-{
-    fn apply(&self, ball_graph: &mut SortableGraph<T, Bond, AngleGusset>) {
-        for ball in ball_graph.unsorted_nodes_mut() {
-            ball.forces_mut().add_force(self.force);
-        }
-    }
-}
-
-#[derive(Debug)]
-pub struct ConstantForce {
-    force: Force
-}
-
-impl ConstantForce {
-    pub fn new(force: Force) -> Self {
-        ConstantForce {
-            force
-        }
-    }
-}
-
-impl<T> SimpleInfluenceForce<T> for ConstantForce
-    where T: Circle + NewtonianBody + HasLocalEnvironment
-{
-    fn calc_force(&self, _ball: &T) -> Force {
-        self.force
     }
 }
 

@@ -165,7 +165,7 @@ mod tests {
     #[test]
     fn tick_with_force_accelerates_ball() {
         let mut world = create_world(vec![
-            Box::new(UniversalForce::new(Force::new(1.0, 1.0)))
+            Box::new(SimpleForceInfluence::new(Box::new(ConstantForce::new(Force::new(1.0, 1.0)))))
         ]);
         world.add_ball(Ball::new(Length::new(1.0), Mass::new(1.0),
                                  Position::new(0.0, 0.0), Velocity::new(0.0, 0.0)));
@@ -190,7 +190,7 @@ mod tests {
     #[test]
     fn forces_do_not_persist() {
         let mut world = create_world(vec![
-            Box::new(UniversalForce::new(Force::new(1.0, 1.0)))
+            Box::new(SimpleForceInfluence::new(Box::new(ConstantForce::new(Force::new(1.0, 1.0)))))
         ]);
         world.add_ball(Ball::new(Length::new(1.0), Mass::new(1.0),
                                  Position::new(0.0, 0.0), Velocity::new(0.0, 0.0)));

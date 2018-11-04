@@ -22,9 +22,17 @@ pub fn tick<T>(world: &mut World<T>, view_model: &mut ViewModel)
     view_model.circles.clear();
 
     for ball in world.balls() {
-        view_model.onions.push(evo_view_model::Onion::new());
+        view_model.onions.push(to_onion(ball));
         view_model.circles.push(to_circle(ball));
     }
+}
+
+fn to_onion<T>(ball: &T) -> evo_view_model::Onion
+    where T: Circle + GraphNode + NewtonianBody + HasLocalEnvironment
+{
+    let mut onion = evo_view_model::Onion::new();
+    onion.increasing_circles.push(to_circle(ball));
+    onion
 }
 
 fn to_circle<T>(ball: &T) -> evo_view_model::Circle
@@ -57,6 +65,25 @@ mod tests {
         tick(&mut world, &mut view_model);
 
         assert_eq!(2, view_model.onions.len());
+    }
+
+    #[test]
+    fn tick_populates_view_model_onion_from_ball() {
+        let mut world = World::new(Position::new(0.0, 0.0), Position::new(0.0, 0.0));
+        world.add_ball(Ball::new(Length::new(5.0), Mass::new(1.0),
+                                 Position::new(2.0, -3.0), Velocity::new(0.0, 0.0)));
+        let mut view_model = ViewModel::new();
+
+        tick(&mut world, &mut view_model);
+
+        let onion = &view_model.onions[0];
+        assert_eq!(1, onion.increasing_circles.len());
+
+        let ball = &world.balls()[0];
+        let circle = onion.increasing_circles[0];
+        assert_eq!(circle.center.x, ball.center().x());
+        assert_eq!(circle.center.y, ball.center().y());
+        assert_eq!(circle.radius, ball.radius().value());
     }
 
     #[test]

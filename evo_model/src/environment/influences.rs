@@ -158,35 +158,27 @@ impl<T> SimpleInfluenceForce<T> for WeightForce
 }
 
 #[derive(Debug)]
-pub struct Buoyancy {
+pub struct BuoyancyForce {
     gravity: Acceleration,
     fluid_density: Density,
 }
 
-impl Buoyancy {
+impl BuoyancyForce {
     pub fn new(gravity: f64, fluid_density: f64) -> Self {
-        Buoyancy {
+        BuoyancyForce {
             gravity: Acceleration::new(0.0, gravity),
             fluid_density: Density::new(fluid_density),
         }
     }
+}
 
-    fn calc_force<T>(&self, ball: &mut T) -> Force
-        where T: Circle + NewtonianBody
+impl<T> SimpleInfluenceForce<T> for BuoyancyForce
+    where T: Circle + NewtonianBody + HasLocalEnvironment
+{
+    fn calc_force(&self, ball: &T) -> Force
     {
         let displaced_fluid_mass = ball.area() * self.fluid_density;
         -(displaced_fluid_mass * self.gravity)
-    }
-}
-
-impl<T> Influence<T> for Buoyancy
-    where T: Circle + GraphNode + NewtonianBody + HasLocalEnvironment
-{
-    fn apply(&self, ball_graph: &mut SortableGraph<T, Bond, AngleGusset>) {
-        for ball in ball_graph.unsorted_nodes_mut() {
-            let force = self.calc_force(ball);
-            ball.forces_mut().add_force(force);
-        }
     }
 }
 
@@ -407,7 +399,7 @@ mod tests {
     #[test]
     fn buoyancy_adds_force_proportional_to_area() {
         let mut ball_graph = SortableGraph::new();
-        let buoyancy = Buoyancy::new(-2.0, 2.0);
+        let buoyancy = SimpleForceInfluence::new(Box::new(BuoyancyForce::new(-2.0, 2.0)));
         let ball_handle = ball_graph.add_node(Ball::new(Length::new(2.0 / PI.sqrt()), Mass::new(1.0),
                                                         Position::new(0.0, 0.0), Velocity::new(0.0, 0.0)));
 

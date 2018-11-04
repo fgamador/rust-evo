@@ -24,14 +24,21 @@ pub struct Rectangle {
     pub max_corner: Point,
 }
 
+#[derive(Debug)]
+pub struct Onion {
+    pub increasing_circles: Vec<Circle>
+}
+
 pub struct ViewModel {
     pub circles: Vec<Circle>,
+    pub onions: Vec<Onion>,
 }
 
 impl ViewModel {
     pub fn new() -> Self {
         ViewModel {
             circles: vec![],
+            onions: vec![],
         }
     }
 }

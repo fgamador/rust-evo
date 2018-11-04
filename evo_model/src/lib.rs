@@ -79,4 +79,21 @@ mod tests {
         assert_eq!(circle.center.y, ball.center().y());
         assert_eq!(circle.radius, ball.radius().value());
     }
+
+    #[test]
+    fn tick_clears_view_model_circles_before_populating_them() {
+        let mut view_model = ViewModel::new();
+        view_model.circles.push(evo_view_model::Circle {
+            center: evo_view_model::Point { x: 0.0, y: 0.0 },
+            radius: 1.0,
+        });
+
+        let mut world = World::new(Position::new(0.0, 0.0), Position::new(0.0, 0.0));
+        world.add_ball(Ball::new(Length::new(1.0), Mass::new(1.0),
+                                 Position::new(0.0, 0.0), Velocity::new(0.0, 0.0)));
+
+        tick(&mut world, &mut view_model);
+
+        assert_eq!(1, view_model.circles.len());
+    }
 }

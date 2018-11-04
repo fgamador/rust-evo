@@ -39,23 +39,21 @@ pub mod feature {
     }
 
     impl ConrodView {
-        const WIDTH: u32 = 400;
-        const HEIGHT: u32 = 400;
-
         pub fn new(mut transform: CoordinateTransform) -> Self {
+            let (width, height) = Self::calc_width_and_height(transform.output_window());
             let window = glium::glutin::WindowBuilder::new()
                 .with_title("Evo")
-                .with_dimensions(Self::WIDTH, Self::HEIGHT);
+                .with_dimensions(width, height);
             let context = glium::glutin::ContextBuilder::new()
                 .with_vsync(true)
                 .with_multisampling(4);
             let events_loop = glium::glutin::EventsLoop::new();
             let display = glium::Display::new(window, context, &events_loop).unwrap();
             let renderer = conrod::backend::glium::Renderer::new(&display).unwrap();
-            let mut ui = conrod::UiBuilder::new([Self::WIDTH as f64, Self::HEIGHT as f64]).build();
+            let mut ui = conrod::UiBuilder::new([width as f64, height as f64]).build();
             let ids = Ids::new(ui.widget_id_generator());
 
-            transform.set_output_window(Self::create_output_window(Self::WIDTH, Self::HEIGHT));
+            transform.set_output_window(Self::create_output_window(width, height));
 
             ConrodView {
                 display,
@@ -67,6 +65,12 @@ pub mod feature {
                 event_loop: support::EventLoop::new(),
                 transform,
             }
+        }
+
+        fn calc_width_and_height(rect: evo_view_model::Rectangle) -> (u32, u32) {
+            let width = (rect.max_corner.x - rect.min_corner.x).floor() as u32;
+            let height = (rect.max_corner.y - rect.min_corner.y).floor() as u32;
+            (width, height)
         }
 
         fn create_output_window(width: u32, height: u32) -> evo_view_model::Rectangle {

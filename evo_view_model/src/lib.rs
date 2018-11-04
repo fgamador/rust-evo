@@ -51,6 +51,10 @@ impl CoordinateTransform {
         }
     }
 
+    pub fn output_window(&self) -> Rectangle {
+        self.output_window
+    }
+
     pub fn set_output_window(&mut self, output_window: Rectangle) {
         self.output_window = output_window;
         self.scaling = self.calc_scale_x();

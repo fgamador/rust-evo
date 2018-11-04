@@ -122,13 +122,15 @@ pub mod feature {
             Canvas::new().pad(80.0).set(self.ids.canvas, &mut ui);
 
             let mut walker = self.ids.circles.walk();
-            for circle in &view_model.circles {
-                let id = walker.next(&mut self.ids.circles, &mut ui.widget_id_generator());
-                Circle::fill_with(self.transform.transform_length(circle.radius),
-                                  color::rgb(0.5, 1.0, 0.5))
-                    .x(self.transform.transform_x(circle.center.x))
-                    .y(self.transform.transform_y(circle.center.y))
-                    .set(id, &mut ui);
+            for onion in &view_model.onions {
+                for circle in &onion.increasing_circles {
+                    let id = walker.next(&mut self.ids.circles, &mut ui.widget_id_generator());
+                    Circle::fill_with(self.transform.transform_length(circle.radius),
+                                      color::rgb(0.5, 1.0, 0.5))
+                        .x(self.transform.transform_x(circle.center.x))
+                        .y(self.transform.transform_y(circle.center.y))
+                        .set(id, &mut ui);
+                }
             }
         }
 

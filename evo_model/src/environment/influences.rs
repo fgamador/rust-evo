@@ -400,15 +400,8 @@ mod tests {
 
     #[test]
     fn drag_adds_force_proportional_to_radius_and_velocity_squared() {
-        let mut ball_graph = SortableGraph::new();
-        let drag = SimpleForceInfluence::new(Box::new(DragForce::new(0.5)));
-        let ball_handle = ball_graph.add_node(Ball::new(Length::new(2.0), Mass::new(1.0),
-                                                        Position::new(0.0, 0.0), Velocity::new(2.0, -3.0)));
-
-        drag.apply(&mut ball_graph);
-
-        let ball = ball_graph.node(ball_handle);
-        assert_eq!(-4.0, ball.forces().net_force().x());
-        assert_eq!(9.0, ball.forces().net_force().y());
+        let drag = DragForce::new(0.5);
+        let ball = Ball::new(Length::new(2.0), Mass::new(1.0), Position::new(0.0, 0.0), Velocity::new(2.0, -3.0));
+        assert_eq!(Force::new(-4.0, 9.0), drag.calc_force(&ball));
     }
 }

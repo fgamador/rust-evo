@@ -12,17 +12,16 @@ fn main() {
 }
 
 fn create_world() -> World<Ball> {
-    World::new(Position::new(-750.0, -350.0), Position::new(750.0, 350.0))
+    let mut world = World::new(Position::new(-750.0, -350.0), Position::new(750.0, 350.0))
         .with_perimeter_walls()
-        .with_influence(Box::new(PairCollisions::new()))
-        .with_balls(vec![
-            Ball::new(Length::new(20.0), Mass::new(1.0),
-                      Position::new(-100.0, -90.0), Velocity::new(3.0, 2.5)),
-            Ball::new(Length::new(20.0), Mass::new(1.0),
-                      Position::new(-90.0, 100.0), Velocity::new(2.5, -3.0)),
-            Ball::new(Length::new(20.0), Mass::new(1.0),
-                      Position::new(100.0, 90.0), Velocity::new(-3.0, -2.5)),
-            Ball::new(Length::new(20.0), Mass::new(1.0),
-                      Position::new(90.0, -100.0), Velocity::new(-2.5, 3.0))
-        ])
+        .with_influence(Box::new(PairCollisions::new()));
+    for i in 0..36 {
+        for j in 0..16 {
+            world = world.with_ball(Ball::new(Length::new(10.0), Mass::new(1.0),
+                                              Position::new(-700.0 + (i * 40) as f64,
+                                                            -300.0 + (j * 40) as f64),
+                                              Velocity::new(1.0, 1.0)));
+        }
+    }
+    world
 }

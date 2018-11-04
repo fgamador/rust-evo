@@ -183,22 +183,15 @@ impl<T> SimpleInfluenceForce<T> for BuoyancyForce
 }
 
 #[derive(Debug)]
-pub struct Drag {
+pub struct DragForce {
     viscosity: f64
 }
 
-impl Drag {
+impl DragForce {
     pub fn new(viscosity: f64) -> Self {
-        Drag {
+        DragForce {
             viscosity
         }
-    }
-
-    fn calc_force<T>(&self, ball: &mut T) -> Force
-        where T: Circle + NewtonianBody
-    {
-        Force::new(self.calc_drag(ball.radius().value(), ball.velocity().x()),
-                   self.calc_drag(ball.radius().value(), ball.velocity().y()))
     }
 
     fn calc_drag(&self, radius: f64, velocity: f64) -> f64
@@ -207,14 +200,14 @@ impl Drag {
     }
 }
 
-impl<T> Influence<T> for Drag
-    where T: Circle + GraphNode + NewtonianBody + HasLocalEnvironment
+impl<T> SimpleInfluenceForce<T> for DragForce
+    where T: Circle + NewtonianBody + HasLocalEnvironment
 {
-    fn apply(&self, ball_graph: &mut SortableGraph<T, Bond, AngleGusset>) {
-        for ball in ball_graph.unsorted_nodes_mut() {
-            let force = self.calc_force(ball);
-            ball.forces_mut().add_force(force);
-        }
+    fn calc_force(&self, ball: &T) -> Force
+        where T: Circle + NewtonianBody
+    {
+        Force::new(self.calc_drag(ball.radius().value(), ball.velocity().x()),
+                   self.calc_drag(ball.radius().value(), ball.velocity().y()))
     }
 }
 
@@ -408,7 +401,7 @@ mod tests {
     #[test]
     fn drag_adds_force_proportional_to_radius_and_velocity_squared() {
         let mut ball_graph = SortableGraph::new();
-        let drag = Drag::new(0.5);
+        let drag = SimpleForceInfluence::new(Box::new(DragForce::new(0.5)));
         let ball_handle = ball_graph.add_node(Ball::new(Length::new(2.0), Mass::new(1.0),
                                                         Position::new(0.0, 0.0), Velocity::new(2.0, -3.0)));
 

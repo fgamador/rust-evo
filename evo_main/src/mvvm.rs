@@ -1,4 +1,4 @@
-use evo_conrod;
+use evo_conrod::feature::ConrodView;
 use evo_model;
 use evo_model::environment::environment::*;
 use evo_model::physics::newtonian::NewtonianBody;
@@ -36,7 +36,7 @@ impl<T> Model<T>
 }
 
 pub struct View {
-    view: evo_conrod::feature::ConrodView,
+    view: ConrodView,
     next_tick: Instant,
 }
 
@@ -44,7 +44,7 @@ impl View {
     pub fn new(world_min_corner: Position, world_max_corner: Position) -> Self {
         let transform = Self::create_coordinate_transform(world_min_corner, world_max_corner);
         View {
-            view: evo_conrod::feature::ConrodView::new(transform),
+            view: ConrodView::new(transform),
             next_tick: Instant::now(),
         }
     }

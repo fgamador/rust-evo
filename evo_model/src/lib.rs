@@ -87,6 +87,20 @@ mod tests {
     }
 
     #[test]
+    fn tick_clears_view_model_onions_before_populating_them() {
+        let mut view_model = ViewModel::new();
+        view_model.onions.push(evo_view_model::Onion::new());
+
+        let mut world = World::new(Position::new(0.0, 0.0), Position::new(0.0, 0.0));
+        world.add_ball(Ball::new(Length::new(1.0), Mass::new(1.0),
+                                 Position::new(0.0, 0.0), Velocity::new(0.0, 0.0)));
+
+        tick(&mut world, &mut view_model);
+
+        assert_eq!(1, view_model.onions.len());
+    }
+
+    #[test]
     fn tick_creates_view_model_circle_for_each_ball() {
         let mut world = World::new(Position::new(0.0, 0.0), Position::new(0.0, 0.0));
         world.add_ball(Ball::new(Length::new(1.0), Mass::new(1.0),

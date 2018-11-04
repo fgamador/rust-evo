@@ -19,6 +19,7 @@ pub fn tick<T>(world: &mut World<T>, view_model: &mut ViewModel)
 {
     world.tick();
 
+    view_model.onions.clear();
     view_model.circles.clear();
 
     for ball in world.balls() {

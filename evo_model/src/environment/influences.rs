@@ -398,16 +398,11 @@ mod tests {
 
     #[test]
     fn buoyancy_adds_force_proportional_to_area() {
-        let mut ball_graph = SortableGraph::new();
-        let buoyancy = SimpleForceInfluence::new(Box::new(BuoyancyForce::new(-2.0, 2.0)));
-        let ball_handle = ball_graph.add_node(Ball::new(Length::new(2.0 / PI.sqrt()), Mass::new(1.0),
-                                                        Position::new(0.0, 0.0), Velocity::new(0.0, 0.0)));
-
-        buoyancy.apply(&mut ball_graph);
-
-        let ball = ball_graph.node(ball_handle);
-        assert_eq!(0.0, ball.forces().net_force().x());
-        assert_eq!(16.0, ball.forces().net_force().y().round());
+        let buoyancy = BuoyancyForce::new(-2.0, 2.0);
+        let ball = Ball::new(Length::new(2.0 / PI.sqrt()), Mass::new(1.0), Position::new(0.0, 0.0), Velocity::new(0.0, 0.0));
+        let force = buoyancy.calc_force(&ball);
+        assert_eq!(0.0, force.x());
+        assert_eq!(16.0, force.y().round());
     }
 
     #[test]

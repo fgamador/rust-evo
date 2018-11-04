@@ -29,6 +29,14 @@ pub struct Onion {
     pub increasing_circles: Vec<Circle>
 }
 
+impl Onion {
+    pub fn new() -> Self {
+        Onion {
+            increasing_circles: vec![]
+        }
+    }
+}
+
 pub struct ViewModel {
     pub circles: Vec<Circle>,
     pub onions: Vec<Onion>,

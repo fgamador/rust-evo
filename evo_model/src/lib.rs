@@ -22,6 +22,7 @@ pub fn tick<T>(world: &mut World<T>, view_model: &mut ViewModel)
     view_model.circles.clear();
 
     for ball in world.balls() {
+        view_model.onions.push(evo_view_model::Onion::new());
         view_model.circles.push(to_circle(ball));
     }
 }
@@ -43,6 +44,20 @@ mod tests {
     use super::*;
     use physics::ball::Ball;
     use physics::quantities::*;
+
+    #[test]
+    fn tick_creates_view_model_onion_for_each_ball() {
+        let mut world = World::new(Position::new(0.0, 0.0), Position::new(0.0, 0.0));
+        world.add_ball(Ball::new(Length::new(1.0), Mass::new(1.0),
+                                 Position::new(0.0, 0.0), Velocity::new(0.0, 0.0)));
+        world.add_ball(Ball::new(Length::new(1.0), Mass::new(1.0),
+                                 Position::new(0.0, 0.0), Velocity::new(0.0, 0.0)));
+        let mut view_model = ViewModel::new();
+
+        tick(&mut world, &mut view_model);
+
+        assert_eq!(2, view_model.onions.len());
+    }
 
     #[test]
     fn tick_creates_view_model_circle_for_each_ball() {

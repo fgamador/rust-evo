@@ -38,15 +38,13 @@ impl Onion {
 }
 
 pub struct ViewModel {
-    pub circles: Vec<Circle>,
-    pub onions: Vec<Onion>,
+    pub onions: Vec<Onion>
 }
 
 impl ViewModel {
     pub fn new() -> Self {
         ViewModel {
-            circles: vec![],
-            onions: vec![],
+            onions: vec![]
         }
     }
 }

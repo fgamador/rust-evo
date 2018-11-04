@@ -29,11 +29,17 @@ pub fn tick<T>(world: &mut World<T>, view_model: &mut ViewModel)
 fn add_circle<T>(view_model: &mut ViewModel, ball: &T)
     where T: Circle + GraphNode + NewtonianBody + HasLocalEnvironment
 {
-    view_model.circles.push(evo_view_model::Circle {
+    view_model.circles.push(to_circle(ball));
+}
+
+fn to_circle<T>(ball: &T) -> evo_view_model::Circle
+    where T: Circle + GraphNode + NewtonianBody + HasLocalEnvironment
+{
+    evo_view_model::Circle {
         center: evo_view_model::Point {
             x: ball.center().x(),
             y: ball.center().y(),
         },
         radius: ball.radius().value(),
-    });
+    }
 }

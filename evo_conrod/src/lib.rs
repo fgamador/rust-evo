@@ -134,7 +134,10 @@ pub mod feature {
         }
 
         fn lookup_rgb_color(color: evo_view_model::Color) -> conrod::color::Color {
-            conrod::color::rgb(0.5, 1.0, 0.5)
+            match color {
+                evo_view_model::Color::Green => conrod::color::rgb(0.5, 1.0, 0.5),
+                evo_view_model::Color::White => conrod::color::rgb(1.0, 1.0, 1.0)
+            }
         }
 
         fn render_and_display_ui(&mut self) {

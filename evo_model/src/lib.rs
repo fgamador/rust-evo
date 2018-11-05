@@ -27,7 +27,7 @@ pub fn tick<T>(world: &mut World<T>, view_model: &mut ViewModel)
 }
 
 fn to_onion<T>(ball: &T) -> evo_view_model::Onion
-    where T: Circle + GraphNode + HasLocalEnvironment + NewtonianBody + Onion
+    where T: Circle + Onion
 {
     let mut onion = evo_view_model::Onion::new();
     onion.concentric_circles.push(to_view_model_circle(ball, evo_view_model::Color::Green));

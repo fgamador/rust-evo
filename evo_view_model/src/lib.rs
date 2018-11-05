@@ -6,6 +6,12 @@ pub enum Event {
     Updated,
 }
 
+#[derive(Clone, Copy, Debug, Eq, Hash, PartialEq)]
+pub enum Color {
+    Green,
+    White,
+}
+
 #[derive(Clone, Copy, Debug)]
 pub struct Point {
     pub x: f64,
@@ -14,6 +20,7 @@ pub struct Point {
 
 #[derive(Clone, Copy, Debug)]
 pub struct Circle {
+    pub color: Color,
     pub center: Point,
     pub radius: f64,
 }

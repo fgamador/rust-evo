@@ -38,6 +38,7 @@ fn to_circle<T>(ball: &T) -> evo_view_model::Circle
     where T: Circle + GraphNode + HasLocalEnvironment + NewtonianBody
 {
     evo_view_model::Circle {
+        color: evo_view_model::Color::Green,
         center: evo_view_model::Point {
             x: ball.center().x(),
             y: ball.center().y(),
@@ -80,6 +81,7 @@ mod tests {
 
         let ball = &world.balls()[0];
         let circle = onion.concentric_circles[0];
+        assert_eq!(circle.color, evo_view_model::Color::Green);
         assert_eq!(circle.center.x, ball.center().x());
         assert_eq!(circle.center.y, ball.center().y());
         assert_eq!(circle.radius, ball.radius().value());

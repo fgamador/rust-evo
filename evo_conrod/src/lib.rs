@@ -114,7 +114,6 @@ pub mod feature {
 
         fn define_ui(&mut self, view_model: &ViewModel) {
             use conrod::{Positionable, Widget};
-            use conrod::color;
             use conrod::widget::{Canvas, Circle};
 
             let mut ui = self.ui.set_widgets();
@@ -126,12 +125,16 @@ pub mod feature {
                 for circle in &onion.concentric_circles {
                     let id = walker.next(&mut self.ids.circles, &mut ui.widget_id_generator());
                     Circle::fill_with(self.transform.transform_length(circle.radius),
-                                      color::rgb(0.5, 1.0, 0.5))
+                                      Self::lookup_rgb_color(circle.color))
                         .x(self.transform.transform_x(circle.center.x))
                         .y(self.transform.transform_y(circle.center.y))
                         .set(id, &mut ui);
                 }
             }
+        }
+
+        fn lookup_rgb_color(color: evo_view_model::Color) -> conrod::color::Color {
+            conrod::color::rgb(0.5, 1.0, 0.5)
         }
 
         fn render_and_display_ui(&mut self) {

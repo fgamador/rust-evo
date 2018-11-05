@@ -7,7 +7,7 @@ use physics::shapes::Circle;
 use physics::sortable_graph::*;
 
 pub struct World<T>
-    where T: Circle + GraphNode + NewtonianBody + HasLocalEnvironment
+    where T: Circle + GraphNode + HasLocalEnvironment + NewtonianBody
 {
     min_corner: Position,
     max_corner: Position,
@@ -16,7 +16,7 @@ pub struct World<T>
 }
 
 impl<T> World<T>
-    where T: Circle + GraphNode + NewtonianBody + HasLocalEnvironment
+    where T: Circle + GraphNode + HasLocalEnvironment + NewtonianBody
 {
     pub fn new(min_corner: Position, max_corner: Position) -> Self {
         World {

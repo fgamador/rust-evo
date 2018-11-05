@@ -40,6 +40,10 @@ impl Circle for Cell {
     }
 }
 
+impl Onion for Cell {
+    // TODO rings
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;

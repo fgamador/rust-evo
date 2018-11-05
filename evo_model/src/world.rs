@@ -3,11 +3,11 @@ use environment::influences::*;
 use physics::bond::*;
 use physics::newtonian::NewtonianBody;
 use physics::quantities::*;
-use physics::shapes::Circle;
+use physics::shapes::*;
 use physics::sortable_graph::*;
 
 pub struct World<T>
-    where T: Circle + GraphNode + HasLocalEnvironment + NewtonianBody
+    where T: Circle + GraphNode + HasLocalEnvironment + NewtonianBody + Onion
 {
     min_corner: Position,
     max_corner: Position,
@@ -16,7 +16,7 @@ pub struct World<T>
 }
 
 impl<T> World<T>
-    where T: Circle + GraphNode + HasLocalEnvironment + NewtonianBody
+    where T: Circle + GraphNode + HasLocalEnvironment + NewtonianBody + Onion
 {
     pub fn new(min_corner: Position, max_corner: Position) -> Self {
         World {

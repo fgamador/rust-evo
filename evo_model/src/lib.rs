@@ -10,12 +10,12 @@ pub mod world;
 use environment::environment::HasLocalEnvironment;
 use evo_view_model::ViewModel;
 use physics::newtonian::NewtonianBody;
-use physics::shapes::Circle;
+use physics::shapes::*;
 use physics::sortable_graph::GraphNode;
 use world::World;
 
 pub fn tick<T>(world: &mut World<T>, view_model: &mut ViewModel)
-    where T: Circle + GraphNode + HasLocalEnvironment + NewtonianBody
+    where T: Circle + GraphNode + HasLocalEnvironment + NewtonianBody + Onion
 {
     world.tick();
 
@@ -27,7 +27,7 @@ pub fn tick<T>(world: &mut World<T>, view_model: &mut ViewModel)
 }
 
 fn to_onion<T>(ball: &T) -> evo_view_model::Onion
-    where T: Circle + GraphNode + HasLocalEnvironment + NewtonianBody
+    where T: Circle + GraphNode + HasLocalEnvironment + NewtonianBody + Onion
 {
     let mut onion = evo_view_model::Onion::new();
     onion.overlapping_circles.push(to_circle(ball));

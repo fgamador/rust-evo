@@ -1,7 +1,7 @@
 use environment::environment::*;
 use physics::newtonian::*;
 use physics::quantities::*;
-use physics::shapes::Circle;
+use physics::shapes::*;
 use physics::sortable_graph::*;
 use std::ptr;
 
@@ -38,6 +38,10 @@ impl Circle for Ball {
     fn center(&self) -> Position {
         self.state.position
     }
+}
+
+impl Onion for Ball {
+    // TODO rings
 }
 
 #[cfg(test)]

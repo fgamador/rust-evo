@@ -123,7 +123,7 @@ pub mod feature {
 
             let mut walker = self.ids.circles.walk();
             for onion in &view_model.onions {
-                for circle in &onion.increasing_circles {
+                for circle in &onion.overlapping_circles {
                     let id = walker.next(&mut self.ids.circles, &mut ui.widget_id_generator());
                     Circle::fill_with(self.transform.transform_length(circle.radius),
                                       color::rgb(0.5, 1.0, 0.5))

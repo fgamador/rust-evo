@@ -30,7 +30,7 @@ fn to_onion<T>(ball: &T) -> evo_view_model::Onion
     where T: Circle + GraphNode + NewtonianBody + HasLocalEnvironment
 {
     let mut onion = evo_view_model::Onion::new();
-    onion.increasing_circles.push(to_circle(ball));
+    onion.overlapping_circles.push(to_circle(ball));
     onion
 }
 
@@ -76,10 +76,10 @@ mod tests {
         tick(&mut world, &mut view_model);
 
         let onion = &view_model.onions[0];
-        assert_eq!(1, onion.increasing_circles.len());
+        assert_eq!(1, onion.overlapping_circles.len());
 
         let ball = &world.balls()[0];
-        let circle = onion.increasing_circles[0];
+        let circle = onion.overlapping_circles[0];
         assert_eq!(circle.center.x, ball.center().x());
         assert_eq!(circle.center.y, ball.center().y());
         assert_eq!(circle.radius, ball.radius().value());

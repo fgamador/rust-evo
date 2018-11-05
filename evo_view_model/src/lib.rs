@@ -26,13 +26,13 @@ pub struct Rectangle {
 
 #[derive(Debug)]
 pub struct Onion {
-    pub overlapping_circles: Vec<Circle>
+    pub concentric_circles: Vec<Circle>
 }
 
 impl Onion {
     pub fn new() -> Self {
         Onion {
-            overlapping_circles: vec![]
+            concentric_circles: vec![]
         }
     }
 }

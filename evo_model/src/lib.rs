@@ -30,20 +30,18 @@ fn to_onion<T>(ball: &T) -> evo_view_model::Onion
     where T: Circle + GraphNode + HasLocalEnvironment + NewtonianBody + Onion
 {
     let mut onion = evo_view_model::Onion::new();
-    onion.concentric_circles.push(to_circle(ball));
+    onion.concentric_circles.push(to_view_model_circle(ball));
     onion
 }
 
-fn to_circle<T>(ball: &T) -> evo_view_model::Circle
-    where T: Circle + GraphNode + HasLocalEnvironment + NewtonianBody
-{
+fn to_view_model_circle(circle: &Circle) -> evo_view_model::Circle {
     evo_view_model::Circle {
         color: evo_view_model::Color::Green,
         center: evo_view_model::Point {
-            x: ball.center().x(),
-            y: ball.center().y(),
+            x: circle.center().x(),
+            y: circle.center().y(),
         },
-        radius: ball.radius().value(),
+        radius: circle.radius().value(),
     }
 }
 

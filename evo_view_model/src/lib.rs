@@ -39,7 +39,7 @@ pub struct Onion {
 impl Onion {
     pub fn new() -> Self {
         Onion {
-            concentric_circles: vec![]
+            concentric_circles: Vec::with_capacity(8)
         }
     }
 }

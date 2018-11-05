@@ -31,6 +31,10 @@ fn to_onion<T>(ball: &T) -> evo_view_model::Onion
 {
     let mut onion = evo_view_model::Onion::new();
     onion.concentric_circles.push(to_view_model_circle(ball, evo_view_model::Color::Green));
+//    onion.concentric_circles.push(to_view_model_circle(ball, evo_view_model::Color::White));
+//    onion.concentric_circles[1].radius /= 2.0;
+//    onion.concentric_circles.push(to_view_model_circle(ball, evo_view_model::Color::Green));
+//    onion.concentric_circles[2].radius /= 4.0;
     onion
 }
 

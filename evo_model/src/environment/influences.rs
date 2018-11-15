@@ -7,10 +7,10 @@ use physics::shapes::Circle;
 use physics::sortable_graph::*;
 use physics::util::*;
 
-pub trait Influence<T>
-    where T: Circle + GraphNode + HasLocalEnvironment + NewtonianBody
+pub trait Influence<C>
+    where C: Circle + GraphNode + HasLocalEnvironment + NewtonianBody
 {
-    fn apply(&self, ball_graph: &mut SortableGraph<T, Bond, AngleGusset>);
+    fn apply(&self, ball_graph: &mut SortableGraph<C, Bond, AngleGusset>);
 }
 
 #[derive(Debug)]
@@ -26,10 +26,10 @@ impl WallCollisions {
     }
 }
 
-impl<T> Influence<T> for WallCollisions
-    where T: Circle + GraphNode + HasLocalEnvironment + NewtonianBody
+impl<C> Influence<C> for WallCollisions
+    where C: Circle + GraphNode + HasLocalEnvironment + NewtonianBody
 {
-    fn apply(&self, ball_graph: &mut SortableGraph<T, Bond, AngleGusset>) {
+    fn apply(&self, ball_graph: &mut SortableGraph<C, Bond, AngleGusset>) {
         let overlaps = self.walls.find_overlaps(ball_graph);
         for (handle, overlap) in overlaps {
             let ball = ball_graph.node_mut(handle);
@@ -48,10 +48,10 @@ impl PairCollisions {
     }
 }
 
-impl<T> Influence<T> for PairCollisions
-    where T: Circle + GraphNode + HasLocalEnvironment + NewtonianBody
+impl<C> Influence<C> for PairCollisions
+    where C: Circle + GraphNode + HasLocalEnvironment + NewtonianBody
 {
-    fn apply(&self, ball_graph: &mut SortableGraph<T, Bond, AngleGusset>) {
+    fn apply(&self, ball_graph: &mut SortableGraph<C, Bond, AngleGusset>) {
         let overlaps = find_pair_overlaps(ball_graph);
         for (handle, overlap) in overlaps {
             let ball = ball_graph.node_mut(handle);
@@ -70,10 +70,10 @@ impl BondForces {
     }
 }
 
-impl<T> Influence<T> for BondForces
-    where T: Circle + GraphNode + HasLocalEnvironment + NewtonianBody
+impl<C> Influence<C> for BondForces
+    where C: Circle + GraphNode + HasLocalEnvironment + NewtonianBody
 {
-    fn apply(&self, ball_graph: &mut SortableGraph<T, Bond, AngleGusset>) {
+    fn apply(&self, ball_graph: &mut SortableGraph<C, Bond, AngleGusset>) {
         let strains = calc_bond_strains(ball_graph);
         for (handle, strain) in strains {
             let ball = ball_graph.node_mut(handle);
@@ -91,10 +91,10 @@ impl BondAngleForces {
     }
 }
 
-impl<T> Influence<T> for BondAngleForces
-    where T: Circle + GraphNode + HasLocalEnvironment + NewtonianBody
+impl<C> Influence<C> for BondAngleForces
+    where C: Circle + GraphNode + HasLocalEnvironment + NewtonianBody
 {
-    fn apply(&self, ball_graph: &mut SortableGraph<T, Bond, AngleGusset>) {
+    fn apply(&self, ball_graph: &mut SortableGraph<C, Bond, AngleGusset>) {
         let forces = calc_bond_angle_forces(ball_graph);
         for (handle, force) in forces {
             let ball = ball_graph.node_mut(handle);
@@ -103,26 +103,26 @@ impl<T> Influence<T> for BondAngleForces
     }
 }
 
-pub struct SimpleForceInfluence<T>
-    where T: Circle + HasLocalEnvironment + NewtonianBody
+pub struct SimpleForceInfluence<C>
+    where C: Circle + HasLocalEnvironment + NewtonianBody
 {
-    influence_force: Box<SimpleInfluenceForce<T>>
+    influence_force: Box<SimpleInfluenceForce<C>>
 }
 
-impl<T> SimpleForceInfluence<T>
-    where T: Circle + HasLocalEnvironment + NewtonianBody
+impl<C> SimpleForceInfluence<C>
+    where C: Circle + HasLocalEnvironment + NewtonianBody
 {
-    pub fn new(influence_force: Box<SimpleInfluenceForce<T>>) -> Self {
+    pub fn new(influence_force: Box<SimpleInfluenceForce<C>>) -> Self {
         SimpleForceInfluence {
             influence_force
         }
     }
 }
 
-impl<T> Influence<T> for SimpleForceInfluence<T>
-    where T: Circle + GraphNode + HasLocalEnvironment + NewtonianBody
+impl<C> Influence<C> for SimpleForceInfluence<C>
+    where C: Circle + GraphNode + HasLocalEnvironment + NewtonianBody
 {
-    fn apply(&self, ball_graph: &mut SortableGraph<T, Bond, AngleGusset>) {
+    fn apply(&self, ball_graph: &mut SortableGraph<C, Bond, AngleGusset>) {
         for ball in ball_graph.unsorted_nodes_mut() {
             let force = self.influence_force.calc_force(ball);
             ball.forces_mut().add_force(force);
@@ -130,10 +130,10 @@ impl<T> Influence<T> for SimpleForceInfluence<T>
     }
 }
 
-pub trait SimpleInfluenceForce<T>
-    where T: Circle + HasLocalEnvironment + NewtonianBody
+pub trait SimpleInfluenceForce<C>
+    where C: Circle + HasLocalEnvironment + NewtonianBody
 {
-    fn calc_force(&self, ball: &T) -> Force;
+    fn calc_force(&self, ball: &C) -> Force;
 }
 
 #[derive(Debug)]
@@ -149,10 +149,10 @@ impl ConstantForce {
     }
 }
 
-impl<T> SimpleInfluenceForce<T> for ConstantForce
-    where T: Circle + HasLocalEnvironment + NewtonianBody
+impl<C> SimpleInfluenceForce<C> for ConstantForce
+    where C: Circle + HasLocalEnvironment + NewtonianBody
 {
-    fn calc_force(&self, _ball: &T) -> Force {
+    fn calc_force(&self, _ball: &C) -> Force {
         self.force
     }
 }
@@ -170,10 +170,10 @@ impl WeightForce {
     }
 }
 
-impl<T> SimpleInfluenceForce<T> for WeightForce
-    where T: Circle + HasLocalEnvironment + NewtonianBody
+impl<C> SimpleInfluenceForce<C> for WeightForce
+    where C: Circle + HasLocalEnvironment + NewtonianBody
 {
-    fn calc_force(&self, ball: &T) -> Force {
+    fn calc_force(&self, ball: &C) -> Force {
         ball.mass() * self.gravity
     }
 }
@@ -193,10 +193,10 @@ impl BuoyancyForce {
     }
 }
 
-impl<T> SimpleInfluenceForce<T> for BuoyancyForce
-    where T: Circle + HasLocalEnvironment + NewtonianBody
+impl<C> SimpleInfluenceForce<C> for BuoyancyForce
+    where C: Circle + HasLocalEnvironment + NewtonianBody
 {
-    fn calc_force(&self, ball: &T) -> Force
+    fn calc_force(&self, ball: &C) -> Force
     {
         let displaced_fluid_mass = ball.area() * self.fluid_density;
         -(displaced_fluid_mass * self.gravity)
@@ -221,11 +221,11 @@ impl DragForce {
     }
 }
 
-impl<T> SimpleInfluenceForce<T> for DragForce
-    where T: Circle + HasLocalEnvironment + NewtonianBody
+impl<C> SimpleInfluenceForce<C> for DragForce
+    where C: Circle + HasLocalEnvironment + NewtonianBody
 {
-    fn calc_force(&self, ball: &T) -> Force
-        where T: Circle + NewtonianBody
+    fn calc_force(&self, ball: &C) -> Force
+        where C: Circle + NewtonianBody
     {
         Force::new(self.calc_drag(ball.radius().value(), ball.velocity().x()),
                    self.calc_drag(ball.radius().value(), ball.velocity().y()))
@@ -245,10 +245,10 @@ impl UniversalOverlap {
     }
 }
 
-impl<T> Influence<T> for UniversalOverlap
-    where T: Circle + GraphNode + HasLocalEnvironment + NewtonianBody
+impl<C> Influence<C> for UniversalOverlap
+    where C: Circle + GraphNode + HasLocalEnvironment + NewtonianBody
 {
-    fn apply(&self, ball_graph: &mut SortableGraph<T, Bond, AngleGusset>) {
+    fn apply(&self, ball_graph: &mut SortableGraph<C, Bond, AngleGusset>) {
         for ball in ball_graph.unsorted_nodes_mut() {
             ball.environment_mut().add_overlap(self.overlap);
         }

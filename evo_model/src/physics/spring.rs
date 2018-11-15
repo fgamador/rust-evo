@@ -1,5 +1,9 @@
 use physics::quantities::*;
 
+pub trait Spring {
+    fn to_force(&self, compression: Displacement) -> Force;
+}
+
 #[derive(Clone, Copy, Debug, PartialEq)]
 pub struct LinearSpring
 {
@@ -11,8 +15,11 @@ impl LinearSpring
     pub fn new(spring_constant: f64) -> Self {
         LinearSpring { spring_constant }
     }
+}
 
-    pub fn to_force(&self, compression: Displacement) -> Force {
+impl Spring for LinearSpring
+{
+    fn to_force(&self, compression: Displacement) -> Force {
         Force::new(compression.x() * self.spring_constant, compression.y() * self.spring_constant)
     }
 }

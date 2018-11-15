@@ -32,9 +32,9 @@ impl<C> Influence<C> for WallCollisions
     fn apply(&self, cell_graph: &mut SortableGraph<C, Bond, AngleGusset>) {
         let overlaps = self.walls.find_overlaps(cell_graph);
         for (handle, overlap) in overlaps {
-            let ball = cell_graph.node_mut(handle);
-            ball.environment_mut().add_overlap(overlap);
-            ball.forces_mut().add_force(overlap.to_force());
+            let cell = cell_graph.node_mut(handle);
+            cell.environment_mut().add_overlap(overlap);
+            cell.forces_mut().add_force(overlap.to_force());
         }
     }
 }
@@ -54,9 +54,9 @@ impl<C> Influence<C> for PairCollisions
     fn apply(&self, cell_graph: &mut SortableGraph<C, Bond, AngleGusset>) {
         let overlaps = find_pair_overlaps(cell_graph);
         for (handle, overlap) in overlaps {
-            let ball = cell_graph.node_mut(handle);
-            ball.environment_mut().add_overlap(overlap);
-            ball.forces_mut().add_force(overlap.to_force());
+            let cell = cell_graph.node_mut(handle);
+            cell.environment_mut().add_overlap(overlap);
+            cell.forces_mut().add_force(overlap.to_force());
         }
     }
 }
@@ -76,8 +76,8 @@ impl<C> Influence<C> for BondForces
     fn apply(&self, cell_graph: &mut SortableGraph<C, Bond, AngleGusset>) {
         let strains = calc_bond_strains(cell_graph);
         for (handle, strain) in strains {
-            let ball = cell_graph.node_mut(handle);
-            ball.forces_mut().add_force(strain.to_force());
+            let cell = cell_graph.node_mut(handle);
+            cell.forces_mut().add_force(strain.to_force());
         }
     }
 }
@@ -97,8 +97,8 @@ impl<C> Influence<C> for BondAngleForces
     fn apply(&self, cell_graph: &mut SortableGraph<C, Bond, AngleGusset>) {
         let forces = calc_bond_angle_forces(cell_graph);
         for (handle, force) in forces {
-            let ball = cell_graph.node_mut(handle);
-            ball.forces_mut().add_force(force);
+            let cell = cell_graph.node_mut(handle);
+            cell.forces_mut().add_force(force);
         }
     }
 }
@@ -123,9 +123,9 @@ impl<C> Influence<C> for SimpleForceInfluence<C>
     where C: Circle + GraphNode + HasLocalEnvironment + NewtonianBody
 {
     fn apply(&self, cell_graph: &mut SortableGraph<C, Bond, AngleGusset>) {
-        for ball in cell_graph.unsorted_nodes_mut() {
-            let force = self.influence_force.calc_force(ball);
-            ball.forces_mut().add_force(force);
+        for cell in cell_graph.unsorted_nodes_mut() {
+            let force = self.influence_force.calc_force(cell);
+            cell.forces_mut().add_force(force);
         }
     }
 }
@@ -133,7 +133,7 @@ impl<C> Influence<C> for SimpleForceInfluence<C>
 pub trait SimpleInfluenceForce<C>
     where C: Circle + HasLocalEnvironment + NewtonianBody
 {
-    fn calc_force(&self, ball: &C) -> Force;
+    fn calc_force(&self, cell: &C) -> Force;
 }
 
 #[derive(Debug)]
@@ -173,8 +173,8 @@ impl WeightForce {
 impl<C> SimpleInfluenceForce<C> for WeightForce
     where C: Circle + HasLocalEnvironment + NewtonianBody
 {
-    fn calc_force(&self, ball: &C) -> Force {
-        ball.mass() * self.gravity
+    fn calc_force(&self, cell: &C) -> Force {
+        cell.mass() * self.gravity
     }
 }
 
@@ -196,9 +196,9 @@ impl BuoyancyForce {
 impl<C> SimpleInfluenceForce<C> for BuoyancyForce
     where C: Circle + HasLocalEnvironment + NewtonianBody
 {
-    fn calc_force(&self, ball: &C) -> Force
+    fn calc_force(&self, cell: &C) -> Force
     {
-        let displaced_fluid_mass = ball.area() * self.fluid_density;
+        let displaced_fluid_mass = cell.area() * self.fluid_density;
         -(displaced_fluid_mass * self.gravity)
     }
 }
@@ -224,11 +224,11 @@ impl DragForce {
 impl<C> SimpleInfluenceForce<C> for DragForce
     where C: Circle + HasLocalEnvironment + NewtonianBody
 {
-    fn calc_force(&self, ball: &C) -> Force
+    fn calc_force(&self, cell: &C) -> Force
         where C: Circle + NewtonianBody
     {
-        Force::new(self.calc_drag(ball.radius().value(), ball.velocity().x()),
-                   self.calc_drag(ball.radius().value(), ball.velocity().y()))
+        Force::new(self.calc_drag(cell.radius().value(), cell.velocity().x()),
+                   self.calc_drag(cell.radius().value(), cell.velocity().y()))
     }
 }
 
@@ -249,8 +249,8 @@ impl<C> Influence<C> for UniversalOverlap
     where C: Circle + GraphNode + HasLocalEnvironment + NewtonianBody
 {
     fn apply(&self, cell_graph: &mut SortableGraph<C, Bond, AngleGusset>) {
-        for ball in cell_graph.unsorted_nodes_mut() {
-            ball.environment_mut().add_overlap(self.overlap);
+        for cell in cell_graph.unsorted_nodes_mut() {
+            cell.environment_mut().add_overlap(self.overlap);
         }
     }
 }

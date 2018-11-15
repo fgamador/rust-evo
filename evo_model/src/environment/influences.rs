@@ -10,7 +10,7 @@ use physics::util::*;
 pub trait Influence<C>
     where C: Circle + GraphNode + HasLocalEnvironment + NewtonianBody
 {
-    fn apply(&self, ball_graph: &mut SortableGraph<C, Bond, AngleGusset>);
+    fn apply(&self, cell_graph: &mut SortableGraph<C, Bond, AngleGusset>);
 }
 
 #[derive(Debug)]
@@ -29,10 +29,10 @@ impl WallCollisions {
 impl<C> Influence<C> for WallCollisions
     where C: Circle + GraphNode + HasLocalEnvironment + NewtonianBody
 {
-    fn apply(&self, ball_graph: &mut SortableGraph<C, Bond, AngleGusset>) {
-        let overlaps = self.walls.find_overlaps(ball_graph);
+    fn apply(&self, cell_graph: &mut SortableGraph<C, Bond, AngleGusset>) {
+        let overlaps = self.walls.find_overlaps(cell_graph);
         for (handle, overlap) in overlaps {
-            let ball = ball_graph.node_mut(handle);
+            let ball = cell_graph.node_mut(handle);
             ball.environment_mut().add_overlap(overlap);
             ball.forces_mut().add_force(overlap.to_force());
         }
@@ -51,10 +51,10 @@ impl PairCollisions {
 impl<C> Influence<C> for PairCollisions
     where C: Circle + GraphNode + HasLocalEnvironment + NewtonianBody
 {
-    fn apply(&self, ball_graph: &mut SortableGraph<C, Bond, AngleGusset>) {
-        let overlaps = find_pair_overlaps(ball_graph);
+    fn apply(&self, cell_graph: &mut SortableGraph<C, Bond, AngleGusset>) {
+        let overlaps = find_pair_overlaps(cell_graph);
         for (handle, overlap) in overlaps {
-            let ball = ball_graph.node_mut(handle);
+            let ball = cell_graph.node_mut(handle);
             ball.environment_mut().add_overlap(overlap);
             ball.forces_mut().add_force(overlap.to_force());
         }
@@ -73,10 +73,10 @@ impl BondForces {
 impl<C> Influence<C> for BondForces
     where C: Circle + GraphNode + HasLocalEnvironment + NewtonianBody
 {
-    fn apply(&self, ball_graph: &mut SortableGraph<C, Bond, AngleGusset>) {
-        let strains = calc_bond_strains(ball_graph);
+    fn apply(&self, cell_graph: &mut SortableGraph<C, Bond, AngleGusset>) {
+        let strains = calc_bond_strains(cell_graph);
         for (handle, strain) in strains {
-            let ball = ball_graph.node_mut(handle);
+            let ball = cell_graph.node_mut(handle);
             ball.forces_mut().add_force(strain.to_force());
         }
     }
@@ -94,10 +94,10 @@ impl BondAngleForces {
 impl<C> Influence<C> for BondAngleForces
     where C: Circle + GraphNode + HasLocalEnvironment + NewtonianBody
 {
-    fn apply(&self, ball_graph: &mut SortableGraph<C, Bond, AngleGusset>) {
-        let forces = calc_bond_angle_forces(ball_graph);
+    fn apply(&self, cell_graph: &mut SortableGraph<C, Bond, AngleGusset>) {
+        let forces = calc_bond_angle_forces(cell_graph);
         for (handle, force) in forces {
-            let ball = ball_graph.node_mut(handle);
+            let ball = cell_graph.node_mut(handle);
             ball.forces_mut().add_force(force);
         }
     }
@@ -122,8 +122,8 @@ impl<C> SimpleForceInfluence<C>
 impl<C> Influence<C> for SimpleForceInfluence<C>
     where C: Circle + GraphNode + HasLocalEnvironment + NewtonianBody
 {
-    fn apply(&self, ball_graph: &mut SortableGraph<C, Bond, AngleGusset>) {
-        for ball in ball_graph.unsorted_nodes_mut() {
+    fn apply(&self, cell_graph: &mut SortableGraph<C, Bond, AngleGusset>) {
+        for ball in cell_graph.unsorted_nodes_mut() {
             let force = self.influence_force.calc_force(ball);
             ball.forces_mut().add_force(force);
         }
@@ -248,8 +248,8 @@ impl UniversalOverlap {
 impl<C> Influence<C> for UniversalOverlap
     where C: Circle + GraphNode + HasLocalEnvironment + NewtonianBody
 {
-    fn apply(&self, ball_graph: &mut SortableGraph<C, Bond, AngleGusset>) {
-        for ball in ball_graph.unsorted_nodes_mut() {
+    fn apply(&self, cell_graph: &mut SortableGraph<C, Bond, AngleGusset>) {
+        for ball in cell_graph.unsorted_nodes_mut() {
             ball.environment_mut().add_overlap(self.overlap);
         }
     }
@@ -263,14 +263,14 @@ mod tests {
 
     #[test]
     fn wall_collisions_add_overlap_and_force() {
-        let mut ball_graph = SortableGraph::new();
+        let mut cell_graph = SortableGraph::new();
         let wall_collisions = WallCollisions::new(Position::new(-10.0, -10.0), Position::new(10.0, 10.0));
-        let ball_handle = ball_graph.add_node(Ball::new(Length::new(1.0), Mass::new(1.0),
+        let ball_handle = cell_graph.add_node(Ball::new(Length::new(1.0), Mass::new(1.0),
                                                         Position::new(9.5, 9.5), Velocity::new(1.0, 1.0)));
 
-        wall_collisions.apply(&mut ball_graph);
+        wall_collisions.apply(&mut cell_graph);
 
-        let ball = ball_graph.node(ball_handle);
+        let ball = cell_graph.node(ball_handle);
         assert_eq!(1, ball.environment().overlaps().len());
         assert_ne!(0.0, ball.forces().net_force().x());
         assert_ne!(0.0, ball.forces().net_force().y());
@@ -278,21 +278,21 @@ mod tests {
 
     #[test]
     fn pair_collisions_add_overlaps_and_forces() {
-        let mut ball_graph = SortableGraph::new();
+        let mut cell_graph = SortableGraph::new();
         let pair_collisions = PairCollisions::new();
-        let ball1_handle = ball_graph.add_node(Ball::new(Length::new(1.0), Mass::new(1.0),
+        let ball1_handle = cell_graph.add_node(Ball::new(Length::new(1.0), Mass::new(1.0),
                                                          Position::new(0.0, 0.0), Velocity::new(1.0, 1.0)));
-        let ball2_handle = ball_graph.add_node(Ball::new(Length::new(1.0), Mass::new(1.0),
+        let ball2_handle = cell_graph.add_node(Ball::new(Length::new(1.0), Mass::new(1.0),
                                                          Position::new(1.4, 1.4), Velocity::new(-1.0, -1.0)));
 
-        pair_collisions.apply(&mut ball_graph);
+        pair_collisions.apply(&mut cell_graph);
 
-        let ball1 = ball_graph.node(ball1_handle);
+        let ball1 = cell_graph.node(ball1_handle);
         assert_eq!(1, ball1.environment().overlaps().len());
         assert_ne!(0.0, ball1.forces().net_force().x());
         assert_ne!(0.0, ball1.forces().net_force().y());
 
-        let ball2 = ball_graph.node(ball2_handle);
+        let ball2 = cell_graph.node(ball2_handle);
         assert_eq!(1, ball2.environment().overlaps().len());
         assert_ne!(0.0, ball2.forces().net_force().x());
         assert_ne!(0.0, ball2.forces().net_force().y());
@@ -300,62 +300,62 @@ mod tests {
 
     #[test]
     fn bond_forces_add_forces() {
-        let mut ball_graph = SortableGraph::new();
+        let mut cell_graph = SortableGraph::new();
         let bond_forces = BondForces::new();
-        let ball1_handle = ball_graph.add_node(Ball::new(Length::new(1.0), Mass::new(1.0),
+        let ball1_handle = cell_graph.add_node(Ball::new(Length::new(1.0), Mass::new(1.0),
                                                          Position::new(0.0, 0.0), Velocity::new(-1.0, -1.0)));
-        let ball2_handle = ball_graph.add_node(Ball::new(Length::new(1.0), Mass::new(1.0),
+        let ball2_handle = cell_graph.add_node(Ball::new(Length::new(1.0), Mass::new(1.0),
                                                          Position::new(1.5, 1.5), Velocity::new(1.0, 1.0)));
-        let bond = Bond::new(ball_graph.node(ball1_handle), ball_graph.node(ball2_handle));
-        ball_graph.add_edge(bond);
+        let bond = Bond::new(cell_graph.node(ball1_handle), cell_graph.node(ball2_handle));
+        cell_graph.add_edge(bond);
 
-        bond_forces.apply(&mut ball_graph);
+        bond_forces.apply(&mut cell_graph);
 
-        let ball1 = ball_graph.node(ball1_handle);
+        let ball1 = cell_graph.node(ball1_handle);
         assert_ne!(0.0, ball1.forces().net_force().x());
         assert_ne!(0.0, ball1.forces().net_force().y());
 
-        let ball2 = ball_graph.node(ball2_handle);
+        let ball2 = cell_graph.node(ball2_handle);
         assert_ne!(0.0, ball2.forces().net_force().x());
         assert_ne!(0.0, ball2.forces().net_force().y());
     }
 
     #[test]
     fn bond_angle_forces_add_forces() {
-        let mut ball_graph = SortableGraph::new();
+        let mut cell_graph = SortableGraph::new();
 
-        let ball1_handle = ball_graph.add_node(Ball::new(Length::new(1.0), Mass::new(1.0),
+        let ball1_handle = cell_graph.add_node(Ball::new(Length::new(1.0), Mass::new(1.0),
                                                          Position::new(0.1, 2.0), Velocity::new(0.0, 0.0)));
-        let ball2_handle = ball_graph.add_node(Ball::new(Length::new(1.0), Mass::new(1.0),
+        let ball2_handle = cell_graph.add_node(Ball::new(Length::new(1.0), Mass::new(1.0),
                                                          Position::new(0.0, 0.0), Velocity::new(0.0, 0.0)));
-        let ball3_handle = ball_graph.add_node(Ball::new(Length::new(1.0), Mass::new(1.0),
+        let ball3_handle = cell_graph.add_node(Ball::new(Length::new(1.0), Mass::new(1.0),
                                                          Position::new(0.0, -2.0), Velocity::new(0.0, 0.0)));
 
-        let bond = Bond::new(ball_graph.node(ball1_handle), ball_graph.node(ball2_handle));
-        let bond1_handle = ball_graph.add_edge(bond);
-        let bond = Bond::new(ball_graph.node(ball2_handle), ball_graph.node(ball3_handle));
-        let bond2_handle = ball_graph.add_edge(bond);
+        let bond = Bond::new(cell_graph.node(ball1_handle), cell_graph.node(ball2_handle));
+        let bond1_handle = cell_graph.add_edge(bond);
+        let bond = Bond::new(cell_graph.node(ball2_handle), cell_graph.node(ball3_handle));
+        let bond2_handle = cell_graph.add_edge(bond);
 
-        let gusset = AngleGusset::new(ball_graph.edge(bond1_handle), ball_graph.edge(bond2_handle), Angle::from_radians(PI));
-        ball_graph.add_meta_edge(gusset);
+        let gusset = AngleGusset::new(cell_graph.edge(bond1_handle), cell_graph.edge(bond2_handle), Angle::from_radians(PI));
+        cell_graph.add_meta_edge(gusset);
 
-        BondAngleForces::new().apply(&mut ball_graph);
+        BondAngleForces::new().apply(&mut cell_graph);
 
-        let ball3 = ball_graph.node(ball3_handle);
+        let ball3 = cell_graph.node(ball3_handle);
         assert!(ball3.forces().net_force().x() < 0.0);
     }
 
     #[test]
     fn simple_force_influence_adds_force() {
-        let mut ball_graph = SortableGraph::new();
+        let mut cell_graph = SortableGraph::new();
         let force = Force::new(2.0, -3.0);
         let influence = SimpleForceInfluence::new(Box::new(ConstantForce::new(force)));
-        let ball_handle = ball_graph.add_node(Ball::new(Length::new(1.0), Mass::new(3.0),
+        let ball_handle = cell_graph.add_node(Ball::new(Length::new(1.0), Mass::new(3.0),
                                                         Position::new(0.0, 0.0), Velocity::new(0.0, 0.0)));
 
-        influence.apply(&mut ball_graph);
+        influence.apply(&mut cell_graph);
 
-        let ball = ball_graph.node(ball_handle);
+        let ball = cell_graph.node(ball_handle);
         assert_eq!(force, ball.forces().net_force());
     }
 

@@ -14,17 +14,16 @@ pub trait Influence<C>
     fn apply(&self, cell_graph: &mut SortableGraph<C, Bond, AngleGusset>);
 }
 
-#[derive(Debug)]
 pub struct WallCollisions {
     walls: Walls,
-    spring: LinearSpring,
+    spring: Box<Spring>,
 }
 
 impl WallCollisions {
     pub fn new(min_corner: Position, max_corner: Position) -> Self {
         WallCollisions {
             walls: Walls::new(min_corner, max_corner),
-            spring: LinearSpring::new(1.0),
+            spring: Box::new(LinearSpring::new(1.0)),
         }
     }
 }
@@ -37,7 +36,7 @@ impl<C> Influence<C> for WallCollisions
         for (handle, overlap) in overlaps {
             let cell = cell_graph.node_mut(handle);
             cell.environment_mut().add_overlap(overlap);
-            cell.forces_mut().add_force(overlap.to_force(&self.spring));
+            cell.forces_mut().add_force(overlap.to_force(&(*self.spring)));
         }
     }
 }

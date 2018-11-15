@@ -11,7 +11,7 @@ pub struct World<T>
 {
     min_corner: Position,
     max_corner: Position,
-    ball_graph: SortableGraph<T, Bond, AngleGusset>,
+    cell_graph: SortableGraph<T, Bond, AngleGusset>,
     influences: Vec<Box<Influence<T>>>,
 }
 
@@ -22,7 +22,7 @@ impl<T> World<T>
         World {
             min_corner,
             max_corner,
-            ball_graph: SortableGraph::new(),
+            cell_graph: SortableGraph::new(),
             influences: vec![],
         }
     }
@@ -73,11 +73,11 @@ impl<T> World<T>
     }
 
     pub fn add_ball(&mut self, ball: T) {
-        self.ball_graph.add_node(ball);
+        self.cell_graph.add_node(ball);
     }
 
     pub fn balls(&self) -> &[T] {
-        &self.ball_graph.unsorted_nodes()
+        &self.cell_graph.unsorted_nodes()
     }
 
     pub fn with_bonds(mut self, index_pairs: Vec<(usize, usize)>) -> Self {
@@ -89,11 +89,11 @@ impl<T> World<T>
     }
 
     pub fn add_bond(&mut self, bond: Bond) {
-        self.ball_graph.add_edge(bond);
+        self.cell_graph.add_edge(bond);
     }
 
     pub fn bonds(&self) -> &[Bond] {
-        &self.ball_graph.edges()
+        &self.cell_graph.edges()
     }
 
     pub fn with_angle_gussets(mut self, index_pairs_with_angles: Vec<(usize, usize, f64)>) -> Self {
@@ -105,7 +105,7 @@ impl<T> World<T>
     }
 
     pub fn add_angle_gusset(&mut self, gusset: AngleGusset) {
-        self.ball_graph.add_meta_edge(gusset);
+        self.cell_graph.add_meta_edge(gusset);
     }
 
     pub fn tick(&mut self) {
@@ -122,19 +122,19 @@ impl<T> World<T>
 
     fn apply_influences(&mut self) {
         for influence in &self.influences {
-            influence.apply(&mut self.ball_graph);
+            influence.apply(&mut self.cell_graph);
         }
     }
 
     fn exert_forces(&mut self, subtick_duration: Duration) {
-        for ball in self.ball_graph.unsorted_nodes_mut() {
+        for ball in self.cell_graph.unsorted_nodes_mut() {
             ball.exert_forces(subtick_duration);
             ball.move_for(subtick_duration);
         }
     }
 
     fn clear_influences(&mut self) -> () {
-        for ball in self.ball_graph.unsorted_nodes_mut() {
+        for ball in self.cell_graph.unsorted_nodes_mut() {
             ball.environment_mut().clear();
             ball.forces_mut().clear();
         }

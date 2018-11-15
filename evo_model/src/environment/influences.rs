@@ -5,6 +5,7 @@ use physics::overlap::*;
 use physics::quantities::*;
 use physics::shapes::Circle;
 use physics::sortable_graph::*;
+use physics::spring::*;
 use physics::util::*;
 
 pub trait Influence<C>
@@ -16,12 +17,14 @@ pub trait Influence<C>
 #[derive(Debug)]
 pub struct WallCollisions {
     walls: Walls,
+    spring: LinearSpring,
 }
 
 impl WallCollisions {
     pub fn new(min_corner: Position, max_corner: Position) -> Self {
         WallCollisions {
             walls: Walls::new(min_corner, max_corner),
+            spring: LinearSpring::new(1.0),
         }
     }
 }
@@ -34,17 +37,21 @@ impl<C> Influence<C> for WallCollisions
         for (handle, overlap) in overlaps {
             let cell = cell_graph.node_mut(handle);
             cell.environment_mut().add_overlap(overlap);
-            cell.forces_mut().add_force(overlap.to_force());
+            cell.forces_mut().add_force(overlap.to_force(self.spring));
         }
     }
 }
 
 #[derive(Debug)]
-pub struct PairCollisions {}
+pub struct PairCollisions {
+    spring: LinearSpring
+}
 
 impl PairCollisions {
     pub fn new() -> Self {
-        PairCollisions {}
+        PairCollisions {
+            spring: LinearSpring::new(1.0)
+        }
     }
 }
 
@@ -56,7 +63,7 @@ impl<C> Influence<C> for PairCollisions
         for (handle, overlap) in overlaps {
             let cell = cell_graph.node_mut(handle);
             cell.environment_mut().add_overlap(overlap);
-            cell.forces_mut().add_force(overlap.to_force());
+            cell.forces_mut().add_force(overlap.to_force(self.spring));
         }
     }
 }

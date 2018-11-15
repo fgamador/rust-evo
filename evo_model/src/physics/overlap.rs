@@ -1,6 +1,7 @@
 use physics::quantities::*;
 use physics::shapes::*;
 use physics::sortable_graph::*;
+use physics::spring::*;
 use physics::util::*;
 use std::cmp::Ordering;
 
@@ -18,10 +19,8 @@ impl Overlap
         Overlap { incursion }
     }
 
-    // TODO move this to a Spring class
-    pub fn to_force(&self) -> Force {
-        const SPRING_CONSTANT: f64 = 1.0;
-        Force::new(self.incursion.x() * SPRING_CONSTANT, self.incursion.y() * SPRING_CONSTANT)
+    pub fn to_force(&self, spring: LinearSpring) -> Force {
+        spring.to_force(self.incursion)
     }
 }
 
@@ -266,7 +265,8 @@ mod tests {
 
     #[test]
     fn overlap_to_force() {
+        let spring = LinearSpring::new(1.0);
         let overlap = Overlap::new(Displacement::new(2.0, -3.0));
-        assert_eq!(Force::new(2.0, -3.0), overlap.to_force());
+        assert_eq!(Force::new(2.0, -3.0), overlap.to_force(spring));
     }
 }

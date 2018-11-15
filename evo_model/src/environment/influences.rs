@@ -37,7 +37,7 @@ impl<C> Influence<C> for WallCollisions
         for (handle, overlap) in overlaps {
             let cell = cell_graph.node_mut(handle);
             cell.environment_mut().add_overlap(overlap);
-            cell.forces_mut().add_force(overlap.to_force(self.spring));
+            cell.forces_mut().add_force(overlap.to_force(&self.spring));
         }
     }
 }
@@ -63,7 +63,7 @@ impl<C> Influence<C> for PairCollisions
         for (handle, overlap) in overlaps {
             let cell = cell_graph.node_mut(handle);
             cell.environment_mut().add_overlap(overlap);
-            cell.forces_mut().add_force(overlap.to_force(self.spring));
+            cell.forces_mut().add_force(overlap.to_force(&self.spring));
         }
     }
 }

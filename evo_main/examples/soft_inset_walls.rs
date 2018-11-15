@@ -17,7 +17,7 @@ fn create_world() -> World<Ball> {
         .with_influences(vec![
             Box::new(WallCollisions::new(
                 Position::new(-150.0, -150.0), Position::new(150.0, 150.0),
-                Box::new(LinearSpring::new(1.0)))),
+                Box::new(LinearSpring::new(0.01)))),
             Box::new(PairCollisions::new())
         ])
         .with_cells(vec![

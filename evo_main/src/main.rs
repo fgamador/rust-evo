@@ -6,7 +6,6 @@ pub mod main_support;
 pub mod mvvm;
 
 use evo_model::biology::cell::Cell;
-use evo_model::physics::bond::Bond;
 use evo_model::physics::quantities::*;
 use evo_model::world::World;
 use main_support::init_and_run;
@@ -16,22 +15,19 @@ fn main() {
 }
 
 fn create_world() -> World<Cell> {
-    let mut world = World::new(Position::new(-200.0, -200.0), Position::new(200.0, 200.0))
-        .with_standard_influences();
-
-    world.add_ball(Cell::new(Length::new(20.0), Mass::new(1.0),
-                             Position::new(-100.0, -90.0), Velocity::new(3.0, 2.5)));
-    world.add_ball(Cell::new(Length::new(20.0), Mass::new(1.0),
-                             Position::new(-60.0, -90.0), Velocity::new(0.0, 0.0)));
-    let bond = Bond::new(&world.balls()[0], &world.balls()[1]);
-    world.add_bond(bond);
-
-    world.add_ball(Cell::new(Length::new(20.0), Mass::new(1.0),
-                             Position::new(100.0, 90.0), Velocity::new(-3.0, -2.5)));
-    world.add_ball(Cell::new(Length::new(20.0), Mass::new(1.0),
-                             Position::new(60.0, 90.0), Velocity::new(0.0, 0.0)));
-    let bond = Bond::new(&world.balls()[2], &world.balls()[3]);
-    world.add_bond(bond);
-
-    world
+    World::new(Position::new(-200.0, -200.0), Position::new(200.0, 200.0))
+        .with_standard_influences()
+        .with_balls(vec![
+            Cell::new(Length::new(20.0), Mass::new(1.0),
+                      Position::new(-100.0, -90.0), Velocity::new(3.0, 2.5)),
+            Cell::new(Length::new(20.0), Mass::new(1.0),
+                      Position::new(-60.0, -90.0), Velocity::new(0.0, 0.0)),
+            Cell::new(Length::new(20.0), Mass::new(1.0),
+                      Position::new(100.0, 90.0), Velocity::new(-3.0, -2.5)),
+            Cell::new(Length::new(20.0), Mass::new(1.0),
+                      Position::new(60.0, 90.0), Velocity::new(0.0, 0.0))
+        ])
+        .with_bonds(vec![
+            (0, 1), (2, 3)
+        ])
 }

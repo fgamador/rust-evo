@@ -60,20 +60,20 @@ impl<C> World<C>
         self.max_corner
     }
 
-    pub fn with_cell(mut self, ball: C) -> Self {
-        self.add_cell(ball);
+    pub fn with_cell(mut self, cell: C) -> Self {
+        self.add_cell(cell);
         self
     }
 
-    pub fn with_cells(mut self, balls: Vec<C>) -> Self {
-        for ball in balls {
-            self.add_cell(ball);
+    pub fn with_cells(mut self, cells: Vec<C>) -> Self {
+        for cell in cells {
+            self.add_cell(cell);
         }
         self
     }
 
-    pub fn add_cell(&mut self, ball: C) {
-        self.cell_graph.add_node(ball);
+    pub fn add_cell(&mut self, cell: C) {
+        self.cell_graph.add_node(cell);
     }
 
     pub fn cells(&self) -> &[C] {
@@ -127,16 +127,16 @@ impl<C> World<C>
     }
 
     fn exert_forces(&mut self, subtick_duration: Duration) {
-        for ball in self.cell_graph.unsorted_nodes_mut() {
-            ball.exert_forces(subtick_duration);
-            ball.move_for(subtick_duration);
+        for cell in self.cell_graph.unsorted_nodes_mut() {
+            cell.exert_forces(subtick_duration);
+            cell.move_for(subtick_duration);
         }
     }
 
     fn clear_influences(&mut self) -> () {
-        for ball in self.cell_graph.unsorted_nodes_mut() {
-            ball.environment_mut().clear();
-            ball.forces_mut().clear();
+        for cell in self.cell_graph.unsorted_nodes_mut() {
+            cell.environment_mut().clear();
+            cell.forces_mut().clear();
         }
     }
 }

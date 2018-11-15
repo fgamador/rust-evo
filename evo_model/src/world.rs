@@ -27,11 +27,6 @@ impl<T> World<T>
         }
     }
 
-    pub fn new2(min_corner: Position, max_corner: Position) -> Self {
-        let world = World::new(min_corner, max_corner);
-        world.with_standard_influences()
-    }
-
     pub fn with_standard_influences(self) -> Self {
         self.with_perimeter_walls().with_influences(vec![
             Box::new(PairCollisions::new()),

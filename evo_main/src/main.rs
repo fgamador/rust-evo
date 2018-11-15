@@ -16,7 +16,8 @@ fn main() {
 }
 
 fn create_world() -> World<Cell> {
-    let mut world = World::new2(Position::new(-200.0, -200.0), Position::new(200.0, 200.0));
+    let mut world = World::new(Position::new(-200.0, -200.0), Position::new(200.0, 200.0))
+        .with_standard_influences();
 
     world.add_ball(Cell::new(Length::new(20.0), Mass::new(1.0),
                              Position::new(-100.0, -90.0), Velocity::new(3.0, 2.5)));

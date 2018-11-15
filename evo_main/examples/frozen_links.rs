@@ -20,7 +20,7 @@ fn create_world() -> World<Ball> {
             Box::new(BondForces::new()),
             Box::new(BondAngleForces::new()),
         ])
-        .with_balls(vec![
+        .with_cells(vec![
             Ball::new(Length::new(20.0), Mass::new(1.0),
                       Position::new(0.0, 100.0), Velocity::new(0.0, 0.0)),
             Ball::new(Length::new(20.0), Mass::new(1.0),
@@ -40,6 +40,6 @@ fn create_world() -> World<Ball> {
         .with_angle_gussets(vec![
             (1, 2, PI), (2, 3, PI)
         ])
-        .with_ball(Ball::new(Length::new(20.0), Mass::new(1.0),
+        .with_cell(Ball::new(Length::new(20.0), Mass::new(1.0),
                              Position::new(-40.0, 100.0), Velocity::new(-3.0, 0.0)))
 }

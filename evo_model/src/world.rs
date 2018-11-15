@@ -60,29 +60,29 @@ impl<C> World<C>
         self.max_corner
     }
 
-    pub fn with_ball(mut self, ball: C) -> Self {
-        self.add_ball(ball);
+    pub fn with_cell(mut self, ball: C) -> Self {
+        self.add_cell(ball);
         self
     }
 
-    pub fn with_balls(mut self, balls: Vec<C>) -> Self {
+    pub fn with_cells(mut self, balls: Vec<C>) -> Self {
         for ball in balls {
-            self.add_ball(ball);
+            self.add_cell(ball);
         }
         self
     }
 
-    pub fn add_ball(&mut self, ball: C) {
+    pub fn add_cell(&mut self, ball: C) {
         self.cell_graph.add_node(ball);
     }
 
-    pub fn balls(&self) -> &[C] {
+    pub fn cells(&self) -> &[C] {
         &self.cell_graph.unsorted_nodes()
     }
 
     pub fn with_bonds(mut self, index_pairs: Vec<(usize, usize)>) -> Self {
         for pair in index_pairs {
-            let bond = Bond::new(&self.balls()[pair.0], &self.balls()[pair.1]);
+            let bond = Bond::new(&self.cells()[pair.0], &self.cells()[pair.1]);
             self.add_bond(bond);
         }
         self
@@ -150,10 +150,10 @@ mod tests {
     #[test]
     fn tick_moves_ball() {
         let mut world = create_world(vec![]);
-        world.add_ball(Ball::new(Length::new(1.0), Mass::new(1.0),
+        world.add_cell(Ball::new(Length::new(1.0), Mass::new(1.0),
                                  Position::new(0.0, 0.0), Velocity::new(1.0, 1.0)));
         world.tick();
-        let ball = &world.balls()[0];
+        let ball = &world.cells()[0];
         assert!(ball.position().x() > 0.0);
         assert!(ball.position().y() > 0.0);
     }
@@ -163,10 +163,10 @@ mod tests {
         let mut world = create_world(vec![
             Box::new(SimpleForceInfluence::new(Box::new(ConstantForce::new(Force::new(1.0, 1.0)))))
         ]);
-        world.add_ball(Ball::new(Length::new(1.0), Mass::new(1.0),
+        world.add_cell(Ball::new(Length::new(1.0), Mass::new(1.0),
                                  Position::new(0.0, 0.0), Velocity::new(0.0, 0.0)));
         world.tick();
-        let ball = &world.balls()[0];
+        let ball = &world.cells()[0];
         assert!(ball.velocity().x() > 0.0);
         assert!(ball.velocity().y() > 0.0);
     }
@@ -176,10 +176,10 @@ mod tests {
         let mut world = create_world(vec![
             Box::new(UniversalOverlap::new(Overlap::new(Displacement::new(1.0, 1.0))))
         ]);
-        world.add_ball(Ball::new(Length::new(1.0), Mass::new(1.0),
+        world.add_cell(Ball::new(Length::new(1.0), Mass::new(1.0),
                                  Position::new(0.0, 0.0), Velocity::new(0.0, 0.0)));
         world.tick();
-        let ball = &world.balls()[0];
+        let ball = &world.cells()[0];
         assert!(ball.environment().overlaps().is_empty());
     }
 
@@ -188,10 +188,10 @@ mod tests {
         let mut world = create_world(vec![
             Box::new(SimpleForceInfluence::new(Box::new(ConstantForce::new(Force::new(1.0, 1.0)))))
         ]);
-        world.add_ball(Ball::new(Length::new(1.0), Mass::new(1.0),
+        world.add_cell(Ball::new(Length::new(1.0), Mass::new(1.0),
                                  Position::new(0.0, 0.0), Velocity::new(0.0, 0.0)));
         world.tick();
-        let ball = &world.balls()[0];
+        let ball = &world.cells()[0];
         assert_eq!(Force::new(0.0, 0.0), ball.forces().net_force());
     }
 

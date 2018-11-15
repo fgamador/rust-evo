@@ -17,7 +17,7 @@ fn main() {
 fn create_world() -> World<Cell> {
     World::new(Position::new(-200.0, -200.0), Position::new(200.0, 200.0))
         .with_standard_influences()
-        .with_balls(vec![
+        .with_cells(vec![
             Cell::new(Length::new(20.0), Mass::new(1.0),
                       Position::new(-100.0, -90.0), Velocity::new(3.0, 2.5)),
             Cell::new(Length::new(20.0), Mass::new(1.0),

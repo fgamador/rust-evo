@@ -21,7 +21,7 @@ pub fn tick<T>(world: &mut World<T>, view_model: &mut ViewModel)
 
     view_model.onions.clear();
 
-    for ball in world.balls() {
+    for ball in world.cells() {
         view_model.onions.push(to_onion(ball));
     }
 }
@@ -58,9 +58,9 @@ mod tests {
     #[test]
     fn tick_creates_view_model_onion_for_each_ball() {
         let mut world = World::new(Position::new(0.0, 0.0), Position::new(0.0, 0.0));
-        world.add_ball(Ball::new(Length::new(1.0), Mass::new(1.0),
+        world.add_cell(Ball::new(Length::new(1.0), Mass::new(1.0),
                                  Position::new(0.0, 0.0), Velocity::new(0.0, 0.0)));
-        world.add_ball(Ball::new(Length::new(1.0), Mass::new(1.0),
+        world.add_cell(Ball::new(Length::new(1.0), Mass::new(1.0),
                                  Position::new(0.0, 0.0), Velocity::new(0.0, 0.0)));
         let mut view_model = ViewModel::new();
 
@@ -72,7 +72,7 @@ mod tests {
     #[test]
     fn tick_populates_view_model_onion_from_ball() {
         let mut world = World::new(Position::new(0.0, 0.0), Position::new(0.0, 0.0));
-        world.add_ball(Ball::new(Length::new(5.0), Mass::new(1.0),
+        world.add_cell(Ball::new(Length::new(5.0), Mass::new(1.0),
                                  Position::new(2.0, -3.0), Velocity::new(0.0, 0.0)));
         let mut view_model = ViewModel::new();
 
@@ -81,7 +81,7 @@ mod tests {
         let onion = &view_model.onions[0];
         assert_eq!(1, onion.concentric_circles.len());
 
-        let ball = &world.balls()[0];
+        let ball = &world.cells()[0];
         let circle = onion.concentric_circles[0];
         assert_eq!(circle.color, evo_view_model::Color::Green);
         assert_eq!(circle.center.x, ball.center().x());
@@ -95,7 +95,7 @@ mod tests {
         view_model.onions.push(evo_view_model::Onion::new());
 
         let mut world = World::new(Position::new(0.0, 0.0), Position::new(0.0, 0.0));
-        world.add_ball(Ball::new(Length::new(1.0), Mass::new(1.0),
+        world.add_cell(Ball::new(Length::new(1.0), Mass::new(1.0),
                                  Position::new(0.0, 0.0), Velocity::new(0.0, 0.0)));
 
         tick(&mut world, &mut view_model);

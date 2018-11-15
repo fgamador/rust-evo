@@ -18,7 +18,7 @@ fn create_world() -> World<Ball> {
             Box::new(PairCollisions::new()),
             Box::new(BondForces::new())
         ])
-        .with_balls(vec![
+        .with_cells(vec![
             Ball::new(Length::new(20.0), Mass::new(1.0),
                       Position::new(0.0, 100.0), Velocity::new(0.0, 0.0)),
             Ball::new(Length::new(20.0), Mass::new(1.0),
@@ -35,7 +35,7 @@ fn create_world() -> World<Ball> {
         .with_bonds(vec![
             (0, 1), (1, 2), (2, 3), (3, 4), (4, 5)
         ])
-        .with_ball(
+        .with_cell(
             Ball::new(Length::new(20.0), Mass::new(1.0),
                       Position::new(-40.0, 100.0), Velocity::new(-3.0, 0.0))
         )

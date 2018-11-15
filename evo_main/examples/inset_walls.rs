@@ -4,6 +4,7 @@ extern crate evo_model;
 use evo_model::environment::influences::*;
 use evo_model::physics::ball::Ball;
 use evo_model::physics::quantities::*;
+use evo_model::physics::spring::*;
 use evo_model::world::World;
 use evo_main::main_support::init_and_run;
 
@@ -14,7 +15,9 @@ fn main() {
 fn create_world() -> World<Ball> {
     World::new(Position::new(-200.0, -200.0), Position::new(200.0, 200.0))
         .with_influences(vec![
-            Box::new(WallCollisions::new(Position::new(-150.0, -150.0), Position::new(150.0, 150.0))),
+            Box::new(WallCollisions::new(
+                Position::new(-150.0, -150.0), Position::new(150.0, 150.0),
+                Box::new(LinearSpring::new(1.0)))),
             Box::new(PairCollisions::new())
         ])
         .with_cells(vec![

@@ -20,10 +20,10 @@ pub struct WallCollisions {
 }
 
 impl WallCollisions {
-    pub fn new(min_corner: Position, max_corner: Position) -> Self {
+    pub fn new(min_corner: Position, max_corner: Position, spring: Box<Spring>) -> Self {
         WallCollisions {
             walls: Walls::new(min_corner, max_corner),
-            spring: Box::new(LinearSpring::new(1.0)),
+            spring,
         }
     }
 }
@@ -270,7 +270,9 @@ mod tests {
     #[test]
     fn wall_collisions_add_overlap_and_force() {
         let mut cell_graph = SortableGraph::new();
-        let wall_collisions = WallCollisions::new(Position::new(-10.0, -10.0), Position::new(10.0, 10.0));
+        let wall_collisions = WallCollisions::new(
+            Position::new(-10.0, -10.0), Position::new(10.0, 10.0),
+            Box::new(LinearSpring::new(1.0)));
         let ball_handle = cell_graph.add_node(Ball::new(Length::new(1.0), Mass::new(1.0),
                                                         Position::new(9.5, 9.5), Velocity::new(1.0, 1.0)));
 

@@ -5,6 +5,7 @@ use physics::newtonian::NewtonianBody;
 use physics::quantities::*;
 use physics::shapes::*;
 use physics::sortable_graph::*;
+use physics::spring::*;
 
 pub struct World<C>
     where C: Circle + GraphNode + HasLocalEnvironment + NewtonianBody + Onion
@@ -39,7 +40,9 @@ impl<C> World<C>
     pub fn with_perimeter_walls(self) -> Self {
         let world_min_corner = self.min_corner();
         let world_max_corner = self.max_corner();
-        self.with_influence(Box::new(WallCollisions::new(world_min_corner, world_max_corner)))
+        self.with_influence(Box::new(
+            WallCollisions::new(world_min_corner, world_max_corner,
+                                Box::new(LinearSpring::new(1.0)))))
     }
 
     pub fn with_influence(mut self, influence: Box<Influence<C>>) -> Self {

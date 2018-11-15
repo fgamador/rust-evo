@@ -28,11 +28,12 @@ impl<T> World<T>
     }
 
     pub fn with_standard_influences(self) -> Self {
-        self.with_perimeter_walls().with_influences(vec![
-            Box::new(PairCollisions::new()),
-            Box::new(BondForces::new()),
-            Box::new(BondAngleForces::new()),
-        ])
+        self.with_perimeter_walls()
+            .with_influences(vec![
+                Box::new(PairCollisions::new()),
+                Box::new(BondForces::new()),
+                Box::new(BondAngleForces::new()),
+            ])
     }
 
     pub fn with_perimeter_walls(self) -> Self {

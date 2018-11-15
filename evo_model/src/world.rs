@@ -6,17 +6,17 @@ use physics::quantities::*;
 use physics::shapes::*;
 use physics::sortable_graph::*;
 
-pub struct World<T>
-    where T: Circle + GraphNode + HasLocalEnvironment + NewtonianBody + Onion
+pub struct World<C>
+    where C: Circle + GraphNode + HasLocalEnvironment + NewtonianBody + Onion
 {
     min_corner: Position,
     max_corner: Position,
-    cell_graph: SortableGraph<T, Bond, AngleGusset>,
-    influences: Vec<Box<Influence<T>>>,
+    cell_graph: SortableGraph<C, Bond, AngleGusset>,
+    influences: Vec<Box<Influence<C>>>,
 }
 
-impl<T> World<T>
-    where T: Circle + GraphNode + HasLocalEnvironment + NewtonianBody + Onion
+impl<C> World<C>
+    where C: Circle + GraphNode + HasLocalEnvironment + NewtonianBody + Onion
 {
     pub fn new(min_corner: Position, max_corner: Position) -> Self {
         World {
@@ -42,12 +42,12 @@ impl<T> World<T>
         self.with_influence(Box::new(WallCollisions::new(world_min_corner, world_max_corner)))
     }
 
-    pub fn with_influence(mut self, influence: Box<Influence<T>>) -> Self {
+    pub fn with_influence(mut self, influence: Box<Influence<C>>) -> Self {
         self.influences.push(influence);
         self
     }
 
-    pub fn with_influences(mut self, mut influences: Vec<Box<Influence<T>>>) -> Self {
+    pub fn with_influences(mut self, mut influences: Vec<Box<Influence<C>>>) -> Self {
         self.influences.append(&mut influences);
         self
     }
@@ -60,23 +60,23 @@ impl<T> World<T>
         self.max_corner
     }
 
-    pub fn with_ball(mut self, ball: T) -> Self {
+    pub fn with_ball(mut self, ball: C) -> Self {
         self.add_ball(ball);
         self
     }
 
-    pub fn with_balls(mut self, balls: Vec<T>) -> Self {
+    pub fn with_balls(mut self, balls: Vec<C>) -> Self {
         for ball in balls {
             self.add_ball(ball);
         }
         self
     }
 
-    pub fn add_ball(&mut self, ball: T) {
+    pub fn add_ball(&mut self, ball: C) {
         self.cell_graph.add_node(ball);
     }
 
-    pub fn balls(&self) -> &[T] {
+    pub fn balls(&self) -> &[C] {
         &self.cell_graph.unsorted_nodes()
     }
 

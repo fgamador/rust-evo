@@ -6,9 +6,9 @@ pub struct SimpleCellLayer {
 }
 
 impl SimpleCellLayer {
-    pub fn new(radius: Length) -> Self {
+    pub fn new(outer_radius: Length) -> Self {
         SimpleCellLayer {
-            outer_radius: radius,
+            outer_radius,
         }
     }
 

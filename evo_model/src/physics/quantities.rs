@@ -389,6 +389,14 @@ impl Mass {
     }
 }
 
+impl Add<Mass> for Mass {
+    type Output = Mass;
+
+    fn add(self, rhs: Mass) -> Self::Output {
+        Mass::new(self.value * rhs.value)
+    }
+}
+
 impl Mul<Acceleration> for Mass {
     type Output = Force;
 

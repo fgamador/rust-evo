@@ -25,10 +25,12 @@ impl Cell {
             }
         }
 
+        let mass = layers.iter().fold(
+            Mass::new(0.0), |mass, layer| mass + layer.mass());
         Cell {
             graph_node_data: GraphNodeData::new(),
             radius: layers.last().unwrap().outer_radius(),
-            newtonian_state: NewtonianState::new(Mass::new(0.0), position, velocity),
+            newtonian_state: NewtonianState::new(mass, position, velocity),
             environment: LocalEnvironment::new(),
         }
     }
@@ -66,6 +68,7 @@ impl Onion for Cell {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use std::f64::consts::PI;
 
     #[test]
     fn cells_use_pointer_equality() {
@@ -88,18 +91,28 @@ mod tests {
     fn cell_layers_must_be_non_decreasing() {
         Cell::new(Position::new(1.0, 1.0), Velocity::new(1.0, 1.0),
                   vec![
-                      SimpleCellLayer::new(Length::new(2.0)),
-                      SimpleCellLayer::new(Length::new(1.0))
+                      SimpleCellLayer::new(Length::new(2.0), Density::new(1.0)),
+                      SimpleCellLayer::new(Length::new(1.0), Density::new(1.0))
                   ]);
     }
 
     #[test]
-    fn cell_has_radius_of_last_layer() {
+    fn cell_has_radius_of_outer_layer() {
         let cell = Cell::new(Position::new(1.0, 1.0), Velocity::new(1.0, 1.0),
                              vec![
-                                 SimpleCellLayer::new(Length::new(1.0)),
-                                 SimpleCellLayer::new(Length::new(2.0))
+                                 SimpleCellLayer::new(Length::new(1.0), Density::new(1.0)),
+                                 SimpleCellLayer::new(Length::new(2.0), Density::new(1.0))
                              ]);
         assert_eq!(Length::new(2.0), cell.radius());
+    }
+
+    //#[test]
+    fn cell_has_mass_of_all_layers() {
+        let cell = Cell::new(Position::new(1.0, 1.0), Velocity::new(1.0, 1.0),
+                             vec![
+                                 SimpleCellLayer::new(Length::new(1.0), Density::new(1.0)),
+                                 SimpleCellLayer::new(Length::new(2.0), Density::new(2.0))
+                             ]);
+        assert_eq!(Mass::new(7.0 * PI), cell.mass());
     }
 }

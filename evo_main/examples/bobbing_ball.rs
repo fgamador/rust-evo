@@ -19,6 +19,6 @@ fn create_world() -> World<Cell> {
             Box::new(SimpleForceInfluence::new(Box::new(BuoyancyForce::new(-0.05, 0.001)))),
             Box::new(SimpleForceInfluence::new(Box::new(DragForce::new(0.0005))))
         ])
-        .with_cell(Cell::new(Length::new(20.0), Mass::new(1.0),
-                             Position::new(200.0, -200.0), Velocity::new(0.0, 0.0)))
+        .with_cell(Cell::new_old(Length::new(20.0), Mass::new(1.0),
+                                 Position::new(200.0, -200.0), Velocity::new(0.0, 0.0)))
 }

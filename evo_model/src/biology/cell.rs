@@ -14,7 +14,7 @@ pub struct Cell {
 }
 
 impl Cell {
-    pub fn new(radius: Length, mass: Mass, position: Position, velocity: Velocity) -> Cell {
+    pub fn new_old(radius: Length, mass: Mass, position: Position, velocity: Velocity) -> Cell {
         Cell {
             graph_node_data: GraphNodeData::new(),
             radius,
@@ -50,10 +50,10 @@ mod tests {
 
     #[test]
     fn cells_use_pointer_equality() {
-        let cell1 = Cell::new(Length::new(1.0), Mass::new(1.0),
-                              Position::new(1.0, 1.0), Velocity::new(1.0, 1.0));
-        let cell2 = Cell::new(Length::new(1.0), Mass::new(1.0),
-                              Position::new(1.0, 1.0), Velocity::new(1.0, 1.0));
+        let cell1 = Cell::new_old(Length::new(1.0), Mass::new(1.0),
+                                  Position::new(1.0, 1.0), Velocity::new(1.0, 1.0));
+        let cell2 = Cell::new_old(Length::new(1.0), Mass::new(1.0),
+                                  Position::new(1.0, 1.0), Velocity::new(1.0, 1.0));
         assert_eq!(cell1, cell1);
         assert_ne!(cell1, cell2);
     }

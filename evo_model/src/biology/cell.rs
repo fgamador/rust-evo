@@ -16,6 +16,9 @@ pub struct Cell {
 
 impl Cell {
     pub fn new(layers: Vec<SimpleCellLayer>) -> Self {
+        if layers.is_empty() {
+            panic!("Cell must have layers");
+        }
         Cell {
             graph_node_data: GraphNodeData::new(),
             radius: layers.last().unwrap().radius(),
@@ -67,6 +70,12 @@ mod tests {
                                   Position::new(1.0, 1.0), Velocity::new(1.0, 1.0));
         assert_eq!(cell1, cell1);
         assert_ne!(cell1, cell2);
+    }
+
+    #[test]
+    #[should_panic]
+    fn cell_must_have_layers() {
+        Cell::new(vec![]);
     }
 
     #[test]

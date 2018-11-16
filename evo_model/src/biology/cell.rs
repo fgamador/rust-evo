@@ -1,3 +1,4 @@
+use biology::layers::*;
 use environment::environment::*;
 use physics::newtonian::*;
 use physics::quantities::*;
@@ -14,6 +15,16 @@ pub struct Cell {
 }
 
 impl Cell {
+    pub fn new(layers: Vec<SimpleCellLayer>) -> Self {
+        Cell {
+            graph_node_data: GraphNodeData::new(),
+            radius: layers.last().unwrap().radius(),
+            newtonian_state: NewtonianState::new(
+                Mass::new(0.0), Position::new(0.0, 0.0), Velocity::new(0.0, 0.0)),
+            environment: LocalEnvironment::new(),
+        }
+    }
+
     pub fn new_old(radius: Length, mass: Mass, position: Position, velocity: Velocity) -> Cell {
         Cell {
             graph_node_data: GraphNodeData::new(),
@@ -56,5 +67,11 @@ mod tests {
                                   Position::new(1.0, 1.0), Velocity::new(1.0, 1.0));
         assert_eq!(cell1, cell1);
         assert_ne!(cell1, cell2);
+    }
+
+    #[test]
+    fn cell_has_radius_of_last_layer() {
+        let cell = Cell::new(vec![SimpleCellLayer::new(Length::new(1.0)), SimpleCellLayer::new(Length::new(2.0))]);
+        assert_eq!(Length::new(2.0), cell.radius());
     }
 }

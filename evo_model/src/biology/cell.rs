@@ -21,7 +21,7 @@ impl Cell {
         }
         Cell {
             graph_node_data: GraphNodeData::new(),
-            radius: layers.last().unwrap().radius(),
+            radius: layers.last().unwrap().outer_radius(),
             newtonian_state: NewtonianState::new(Mass::new(0.0), position, velocity),
             environment: LocalEnvironment::new(),
         }

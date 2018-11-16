@@ -2,17 +2,17 @@ use physics::quantities::*;
 
 #[derive(Clone, Debug)]
 pub struct SimpleCellLayer {
-    radius: Length,
+    outer_radius: Length,
 }
 
 impl SimpleCellLayer {
     pub fn new(radius: Length) -> Self {
         SimpleCellLayer {
-            radius,
+            outer_radius: radius,
         }
     }
 
-    pub fn radius(&self) -> Length {
-        self.radius
+    pub fn outer_radius(&self) -> Length {
+        self.outer_radius
     }
 }

@@ -19,6 +19,12 @@ impl Cell {
         if layers.is_empty() {
             panic!("Cell must have layers");
         }
+        for (i, layer) in layers.iter().enumerate() {
+            if i > 0 && layer.outer_radius() < layers[i - 1].outer_radius() {
+                panic!("Cell layers must be non-decreasing");
+            }
+        }
+
         Cell {
             graph_node_data: GraphNodeData::new(),
             radius: layers.last().unwrap().outer_radius(),
@@ -75,6 +81,16 @@ mod tests {
     #[should_panic]
     fn cell_must_have_layers() {
         Cell::new(Position::new(1.0, 1.0), Velocity::new(1.0, 1.0), vec![]);
+    }
+
+    #[test]
+    #[should_panic]
+    fn cell_layers_must_be_non_decreasing() {
+        Cell::new(Position::new(1.0, 1.0), Velocity::new(1.0, 1.0),
+                  vec![
+                      SimpleCellLayer::new(Length::new(2.0)),
+                      SimpleCellLayer::new(Length::new(1.0))
+                  ]);
     }
 
     #[test]

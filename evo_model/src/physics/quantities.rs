@@ -6,7 +6,7 @@ use std::ops::Mul;
 use std::ops::Neg;
 use std::ops::Sub;
 
-#[derive(Clone, Copy, Debug, PartialEq)]
+#[derive(Clone, Copy, Debug, PartialEq, PartialOrd)]
 pub struct Angle {
     radians: f64,
 }
@@ -49,7 +49,7 @@ impl Add<Deflection> for Angle {
     }
 }
 
-#[derive(Clone, Copy, Debug, PartialEq)]
+#[derive(Clone, Copy, Debug, PartialEq, PartialOrd)]
 pub struct Deflection {
     radians: f64,
 }
@@ -65,7 +65,7 @@ impl Deflection {
     }
 }
 
-#[derive(Clone, Copy, Debug, PartialEq)]
+#[derive(Clone, Copy, Debug, PartialEq, PartialOrd)]
 pub struct Length {
     value: f64,
 }
@@ -101,7 +101,7 @@ impl Mul<f64> for Length {
     }
 }
 
-#[derive(Clone, Copy, Debug, PartialEq)]
+#[derive(Clone, Copy, Debug, PartialEq, PartialOrd)]
 pub struct Area {
     value: f64,
 }
@@ -237,7 +237,7 @@ impl Neg for Displacement {
 
 pub const ZERO_DISPLACEMENT: Displacement = Displacement { x: 0.0, y: 0.0 };
 
-#[derive(Clone, Copy, Debug, PartialEq)]
+#[derive(Clone, Copy, Debug, PartialEq, PartialOrd)]
 pub struct Duration {
     value: f64,
 }
@@ -373,7 +373,7 @@ impl Div<Mass> for Impulse {
     }
 }
 
-#[derive(Clone, Copy, Debug, PartialEq)]
+#[derive(Clone, Copy, Debug, PartialEq, PartialOrd)]
 pub struct Mass {
     value: f64,
 }
@@ -397,7 +397,7 @@ impl Mul<Acceleration> for Mass {
     }
 }
 
-#[derive(Clone, Copy, Debug, PartialEq)]
+#[derive(Clone, Copy, Debug, PartialEq, PartialOrd)]
 pub struct Density {
     value: f64,
 }
@@ -470,7 +470,7 @@ impl Neg for Force {
     }
 }
 
-#[derive(Clone, Copy, Debug, PartialEq)]
+#[derive(Clone, Copy, Debug, PartialEq, PartialOrd)]
 pub struct Torque {
     value: f64,
 }

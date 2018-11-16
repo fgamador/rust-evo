@@ -80,7 +80,10 @@ mod tests {
     #[test]
     fn cell_has_radius_of_last_layer() {
         let cell = Cell::new(Position::new(1.0, 1.0), Velocity::new(1.0, 1.0),
-                             vec![SimpleCellLayer::new(Length::new(1.0)), SimpleCellLayer::new(Length::new(2.0))]);
+                             vec![
+                                 SimpleCellLayer::new(Length::new(1.0)),
+                                 SimpleCellLayer::new(Length::new(2.0))
+                             ]);
         assert_eq!(Length::new(2.0), cell.radius());
     }
 }

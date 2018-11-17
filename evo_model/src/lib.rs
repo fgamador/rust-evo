@@ -14,8 +14,8 @@ use physics::shapes::*;
 use physics::sortable_graph::GraphNode;
 use world::World;
 
-pub fn tick<T>(world: &mut World<T>, view_model: &mut ViewModel)
-    where T: Circle + GraphNode + HasLocalEnvironment + NewtonianBody + Onion
+pub fn tick<C>(world: &mut World<C>, view_model: &mut ViewModel)
+    where C: Circle + GraphNode + HasLocalEnvironment + NewtonianBody + Onion
 {
     world.tick();
 
@@ -26,8 +26,8 @@ pub fn tick<T>(world: &mut World<T>, view_model: &mut ViewModel)
     }
 }
 
-fn to_onion<T>(cell: &T) -> evo_view_model::Onion
-    where T: Circle + Onion
+fn to_onion<C>(cell: &C) -> evo_view_model::Onion
+    where C: Circle + Onion
 {
     let mut onion = evo_view_model::Onion::new();
     onion.concentric_circles.push(to_view_model_circle(cell, evo_view_model::Color::Green));

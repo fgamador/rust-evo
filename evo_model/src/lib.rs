@@ -35,9 +35,9 @@ fn to_bullseye<C>(cell: &C) -> evo_view_model::Bullseye
     let mut bullseye = evo_view_model::Bullseye::new(center);
     bullseye.rings.push(to_bullseye_ring(cell, evo_view_model::Color::Green));
 //    bullseye.rings.push(to_bullseye_ring(cell, evo_view_model::Color::White));
-//    bullseye.rings[1].radius /= 2.0;
+//    bullseye.rings[1].outer_radius /= 2.0;
 //    bullseye.rings.push(to_bullseye_ring(cell, evo_view_model::Color::Green));
-//    bullseye.rings[2].radius /= 4.0;
+//    bullseye.rings[2].outer_radius /= 4.0;
     bullseye
 }
 

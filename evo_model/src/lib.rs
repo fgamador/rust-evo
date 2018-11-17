@@ -44,7 +44,7 @@ fn to_bullseye<C>(cell: &C) -> evo_view_model::Bullseye
 
 fn to_bullseye_ring(circle: &Circle, color: evo_view_model::Color) -> evo_view_model::BullseyeRing {
     evo_view_model::BullseyeRing {
-        radius: circle.radius().value(),
+        outer_radius: circle.radius().value(),
         color,
     }
 }
@@ -86,7 +86,7 @@ mod tests {
         assert_eq!(circle.color, evo_view_model::Color::Green);
         assert_eq!(circle.center.x, ball.center().x());
         assert_eq!(circle.center.y, ball.center().y());
-        assert_eq!(circle.radius, ball.radius().value());
+        assert_eq!(circle.outer_radius, ball.radius().value());
     }
 
     #[test]

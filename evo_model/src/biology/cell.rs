@@ -20,7 +20,7 @@ impl Cell {
             panic!("Cell must have at least one layer");
         }
 
-        layers.iter_mut().fold(
+        let radius = layers.iter_mut().fold(
             Length::new(0.0),
             |nested_layer_outer_radius, layer| {
                 layer.update_outer_radius(nested_layer_outer_radius);
@@ -30,7 +30,7 @@ impl Cell {
             Mass::new(0.0), |mass, layer| mass + layer.mass());
         Cell {
             graph_node_data: GraphNodeData::new(),
-            radius: layers.last().unwrap().outer_radius(),
+            radius,
             newtonian_state: NewtonianState::new(mass, position, velocity),
             environment: LocalEnvironment::new(),
         }

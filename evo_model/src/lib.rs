@@ -21,19 +21,19 @@ pub fn tick<T>(world: &mut World<T>, view_model: &mut ViewModel)
 
     view_model.onions.clear();
 
-    for ball in world.cells() {
-        view_model.onions.push(to_onion(ball));
+    for cell in world.cells() {
+        view_model.onions.push(to_onion(cell));
     }
 }
 
-fn to_onion<T>(ball: &T) -> evo_view_model::Onion
+fn to_onion<T>(cell: &T) -> evo_view_model::Onion
     where T: Circle + Onion
 {
     let mut onion = evo_view_model::Onion::new();
-    onion.concentric_circles.push(to_view_model_circle(ball, evo_view_model::Color::Green));
-//    onion.concentric_circles.push(to_view_model_circle(ball, evo_view_model::Color::White));
+    onion.concentric_circles.push(to_view_model_circle(cell, evo_view_model::Color::Green));
+//    onion.concentric_circles.push(to_view_model_circle(cell, evo_view_model::Color::White));
 //    onion.concentric_circles[1].radius /= 2.0;
-//    onion.concentric_circles.push(to_view_model_circle(ball, evo_view_model::Color::Green));
+//    onion.concentric_circles.push(to_view_model_circle(cell, evo_view_model::Color::Green));
 //    onion.concentric_circles[2].radius /= 4.0;
     onion
 }

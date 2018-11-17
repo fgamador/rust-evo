@@ -91,8 +91,8 @@ mod tests {
     fn cell_layers_must_be_non_decreasing() {
         Cell::new(Position::new(1.0, 1.0), Velocity::new(1.0, 1.0),
                   vec![
-                      SimpleCellLayer::new(Length::new(2.0), Density::new(1.0)),
-                      SimpleCellLayer::new(Length::new(1.0), Density::new(1.0))
+                      SimpleCellLayer::new_old(Length::new(2.0), Density::new(1.0)),
+                      SimpleCellLayer::new_old(Length::new(1.0), Density::new(1.0))
                   ]);
     }
 
@@ -100,8 +100,8 @@ mod tests {
     fn cell_has_radius_of_outer_layer() {
         let cell = Cell::new(Position::new(1.0, 1.0), Velocity::new(1.0, 1.0),
                              vec![
-                                 SimpleCellLayer::new(Length::new(1.0), Density::new(1.0)),
-                                 SimpleCellLayer::new(Length::new(2.0), Density::new(1.0))
+                                 SimpleCellLayer::new_old(Length::new(1.0), Density::new(1.0)),
+                                 SimpleCellLayer::new_old(Length::new(2.0), Density::new(1.0))
                              ]);
         assert_eq!(Length::new(2.0), cell.radius());
     }
@@ -110,8 +110,8 @@ mod tests {
     fn cell_has_mass_of_all_layers() {
         let cell = Cell::new(Position::new(1.0, 1.0), Velocity::new(1.0, 1.0),
                              vec![
-                                 SimpleCellLayer::new(Length::new(1.0), Density::new(1.0)),
-                                 SimpleCellLayer::new(Length::new(2.0), Density::new(2.0))
+                                 SimpleCellLayer::new_old(Length::new(1.0), Density::new(1.0)),
+                                 SimpleCellLayer::new_old(Length::new(2.0), Density::new(2.0))
                              ]);
         assert_eq!(Mass::new(7.0 * PI), cell.mass());
     }

@@ -8,7 +8,7 @@ pub struct SimpleCellLayer {
 }
 
 impl SimpleCellLayer {
-    pub fn new(outer_radius: Length, density: Density) -> Self {
+    pub fn new_old(outer_radius: Length, density: Density) -> Self {
         SimpleCellLayer {
             outer_radius,
             density,
@@ -30,7 +30,7 @@ mod tests {
 
     #[test]
     fn layer_calculates_mass() {
-        let layer = SimpleCellLayer::new(Length::new(2.0), Density::new(3.0));
+        let layer = SimpleCellLayer::new_old(Length::new(2.0), Density::new(3.0));
         assert_eq!(Mass::new(12.0 * PI), layer.mass());
     }
 }

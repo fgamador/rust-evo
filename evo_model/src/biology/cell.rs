@@ -17,12 +17,7 @@ pub struct Cell {
 impl Cell {
     pub fn new(position: Position, velocity: Velocity, mut layers: Vec<SimpleCellLayer>) -> Self {
         if layers.is_empty() {
-            panic!("Cell must have layers");
-        }
-        for (i, layer) in layers.iter().enumerate() {
-            if i > 0 && layer.outer_radius() < layers[i - 1].outer_radius() {
-                panic!("Cell layers must be non-decreasing");
-            }
+            panic!("Cell must have at least one layer");
         }
 
         layers.iter_mut().fold(
@@ -90,16 +85,6 @@ mod tests {
     #[should_panic]
     fn cell_must_have_layers() {
         Cell::new(Position::new(1.0, 1.0), Velocity::new(1.0, 1.0), vec![]);
-    }
-
-    #[test]
-    #[should_panic]
-    fn cell_layers_must_be_non_decreasing() {
-        Cell::new(Position::new(1.0, 1.0), Velocity::new(1.0, 1.0),
-                  vec![
-                      SimpleCellLayer::new_old(Length::new(2.0), Density::new(1.0)),
-                      SimpleCellLayer::new_old(Length::new(1.0), Density::new(1.0))
-                  ]);
     }
 
     #[test]

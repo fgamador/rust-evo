@@ -20,16 +20,6 @@ impl SimpleCellLayer {
         }
     }
 
-    pub fn new_old(outer_radius: Length, density: Density) -> Self {
-        let area = PI * outer_radius * outer_radius;
-        SimpleCellLayer {
-            area,
-            density,
-            mass: area * density,
-            outer_radius,
-        }
-    }
-
     pub fn update_outer_radius(&mut self, inner_radius: Length) {
         self.outer_radius = Length::new((sqr(inner_radius.value()) + self.area.value() / PI).sqrt());
     }

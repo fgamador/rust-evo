@@ -19,7 +19,7 @@ pub struct Point {
 }
 
 #[derive(Clone, Copy, Debug)]
-pub struct Circle {
+pub struct BullseyeRing {
     pub color: Color,
     pub center: Point,
     pub radius: f64,
@@ -34,7 +34,7 @@ pub struct Rectangle {
 #[derive(Debug)]
 pub struct Bullseye {
     pub center: Point,
-    pub rings: Vec<Circle>,
+    pub rings: Vec<BullseyeRing>,
 }
 
 impl Bullseye {

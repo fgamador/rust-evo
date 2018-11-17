@@ -7,7 +7,6 @@ pub struct SimpleCellLayer {
     area: Area,
     density: Density,
     mass: Mass,
-    inner_radius: Length,
     outer_radius: Length,
 }
 
@@ -17,7 +16,6 @@ impl SimpleCellLayer {
             area,
             density,
             mass: area * density,
-            inner_radius: Length::new(0.0),
             outer_radius: Length::new((area.value() / PI).sqrt()),
         }
     }
@@ -28,7 +26,6 @@ impl SimpleCellLayer {
             area,
             density,
             mass: area * density,
-            inner_radius: Length::new(0.0),
             outer_radius,
         }
     }
@@ -47,10 +44,6 @@ impl SimpleCellLayer {
 
     pub fn mass(&self) -> Mass {
         self.mass
-    }
-
-    pub fn inner_radius(&self) -> Length {
-        self.inner_radius
     }
 
     pub fn outer_radius(&self) -> Length {

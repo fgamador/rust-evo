@@ -1,6 +1,11 @@
 use physics::quantities::*;
+use physics::shapes::Circle;
 use physics::util::sqr;
 use std::f64::consts::PI;
+
+pub trait Onion: Circle {
+    // TODO rings
+}
 
 #[derive(Debug)]
 pub struct SimpleCellLayer {

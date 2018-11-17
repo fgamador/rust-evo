@@ -1,3 +1,4 @@
+use biology::layers::*;
 use environment::environment::*;
 use environment::influences::*;
 use physics::bond::*;

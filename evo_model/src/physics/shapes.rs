@@ -32,10 +32,6 @@ pub trait Circle {
     }
 }
 
-pub trait Onion: Circle {
-    // TODO rings
-}
-
 #[derive(Clone, Copy, Debug, PartialEq)]
 pub struct Rectangle {
     min_corner: Position,

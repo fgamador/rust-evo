@@ -1,5 +1,6 @@
 use evo_conrod::feature::ConrodView;
 use evo_model;
+use evo_model::biology::layers::*;
 use evo_model::environment::environment::*;
 use evo_model::physics::newtonian::NewtonianBody;
 use evo_model::physics::quantities::*;

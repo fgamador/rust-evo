@@ -7,6 +7,7 @@ pub mod environment;
 pub mod physics;
 pub mod world;
 
+use biology::layers::*;
 use environment::environment::HasLocalEnvironment;
 use evo_view_model::ViewModel;
 use physics::newtonian::NewtonianBody;

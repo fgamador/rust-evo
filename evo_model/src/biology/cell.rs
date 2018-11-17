@@ -27,7 +27,7 @@ impl Cell {
 
         layers.iter_mut().fold(
             Length::new(0.0),
-            |nested_layer_outer_radius, layer| -> Length {
+            |nested_layer_outer_radius, layer| {
                 layer.update_outer_radius(nested_layer_outer_radius);
                 layer.outer_radius()
             });

@@ -35,15 +35,6 @@ impl Cell {
             environment: LocalEnvironment::new(),
         }
     }
-
-    pub fn new_old(radius: Length, mass: Mass, position: Position, velocity: Velocity) -> Cell {
-        Cell {
-            graph_node_data: GraphNodeData::new(),
-            radius,
-            newtonian_state: NewtonianState::new(mass, position, velocity),
-            environment: LocalEnvironment::new(),
-        }
-    }
 }
 
 impl PartialEq for Cell {
@@ -73,10 +64,14 @@ mod tests {
 
     #[test]
     fn cells_use_pointer_equality() {
-        let cell1 = Cell::new_old(Length::new(1.0), Mass::new(1.0),
-                                  Position::new(1.0, 1.0), Velocity::new(1.0, 1.0));
-        let cell2 = Cell::new_old(Length::new(1.0), Mass::new(1.0),
-                                  Position::new(1.0, 1.0), Velocity::new(1.0, 1.0));
+        let cell1 = Cell::new(Position::new(1.0, 1.0), Velocity::new(1.0, 1.0),
+                              vec![
+                                  SimpleCellLayer::new(Area::new(PI), Density::new(1.0))
+                              ]);
+        let cell2 = Cell::new(Position::new(1.0, 1.0), Velocity::new(1.0, 1.0),
+                              vec![
+                                  SimpleCellLayer::new(Area::new(PI), Density::new(1.0))
+                              ]);
         assert_eq!(cell1, cell1);
         assert_ne!(cell1, cell2);
     }

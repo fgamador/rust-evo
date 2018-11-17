@@ -4,7 +4,11 @@ use physics::util::sqr;
 use std::f64::consts::PI;
 
 pub trait Onion: Circle {
-    // TODO rings
+    // TODO layers
+}
+
+pub trait OnionLayer {
+    // TODO
 }
 
 #[derive(Debug)]

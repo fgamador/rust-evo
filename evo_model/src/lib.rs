@@ -19,23 +19,23 @@ pub fn tick<C>(world: &mut World<C>, view_model: &mut ViewModel)
 {
     world.tick();
 
-    view_model.onions.clear();
+    view_model.cells.clear();
 
     for cell in world.cells() {
-        view_model.onions.push(to_onion(cell));
+        view_model.cells.push(to_bullseye(cell));
     }
 }
 
-fn to_onion<C>(cell: &C) -> evo_view_model::Onion
+fn to_bullseye<C>(cell: &C) -> evo_view_model::Bullseye
     where C: Circle + Onion
 {
-    let mut onion = evo_view_model::Onion::new();
-    onion.concentric_circles.push(to_view_model_circle(cell, evo_view_model::Color::Green));
+    let mut bullseye = evo_view_model::Bullseye::new();
+    bullseye.rings.push(to_view_model_circle(cell, evo_view_model::Color::Green));
 //    onion.concentric_circles.push(to_view_model_circle(cell, evo_view_model::Color::White));
 //    onion.concentric_circles[1].radius /= 2.0;
 //    onion.concentric_circles.push(to_view_model_circle(cell, evo_view_model::Color::Green));
 //    onion.concentric_circles[2].radius /= 4.0;
-    onion
+    bullseye
 }
 
 fn to_view_model_circle(circle: &Circle, color: evo_view_model::Color) -> evo_view_model::Circle {
@@ -66,7 +66,7 @@ mod tests {
 
         tick(&mut world, &mut view_model);
 
-        assert_eq!(2, view_model.onions.len());
+        assert_eq!(2, view_model.cells.len());
     }
 
     #[test]
@@ -78,11 +78,11 @@ mod tests {
 
         tick(&mut world, &mut view_model);
 
-        let onion = &view_model.onions[0];
-        assert_eq!(1, onion.concentric_circles.len());
+        let onion = &view_model.cells[0];
+        assert_eq!(1, onion.rings.len());
 
         let ball = &world.cells()[0];
-        let circle = onion.concentric_circles[0];
+        let circle = onion.rings[0];
         assert_eq!(circle.color, evo_view_model::Color::Green);
         assert_eq!(circle.center.x, ball.center().x());
         assert_eq!(circle.center.y, ball.center().y());
@@ -92,7 +92,7 @@ mod tests {
     #[test]
     fn tick_clears_view_model_onions_before_populating_them() {
         let mut view_model = ViewModel::new();
-        view_model.onions.push(evo_view_model::Onion::new());
+        view_model.cells.push(evo_view_model::Bullseye::new());
 
         let mut world = World::new(Position::new(0.0, 0.0), Position::new(0.0, 0.0));
         world.add_cell(Ball::new(Length::new(1.0), Mass::new(1.0),
@@ -100,6 +100,6 @@ mod tests {
 
         tick(&mut world, &mut view_model);
 
-        assert_eq!(1, view_model.onions.len());
+        assert_eq!(1, view_model.cells.len());
     }
 }

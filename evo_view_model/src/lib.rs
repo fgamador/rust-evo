@@ -32,26 +32,26 @@ pub struct Rectangle {
 }
 
 #[derive(Debug)]
-pub struct Onion {
-    pub concentric_circles: Vec<Circle>
+pub struct Bullseye {
+    pub rings: Vec<Circle>
 }
 
-impl Onion {
+impl Bullseye {
     pub fn new() -> Self {
-        Onion {
-            concentric_circles: Vec::with_capacity(8)
+        Bullseye {
+            rings: Vec::with_capacity(8)
         }
     }
 }
 
 pub struct ViewModel {
-    pub onions: Vec<Onion>
+    pub cells: Vec<Bullseye>
 }
 
 impl ViewModel {
     pub fn new() -> Self {
         ViewModel {
-            onions: vec![]
+            cells: vec![]
         }
     }
 }

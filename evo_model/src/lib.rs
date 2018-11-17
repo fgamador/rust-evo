@@ -34,10 +34,10 @@ fn to_bullseye<C>(cell: &C) -> evo_view_model::Bullseye
     };
     let mut bullseye = evo_view_model::Bullseye::new(center);
     bullseye.rings.push(to_bullseye_ring(cell, evo_view_model::Color::Green));
-//    onion.rings.push(to_bullseye_ring(cell, evo_view_model::Color::White));
-//    onion.rings[1].radius /= 2.0;
-//    onion.rings.push(to_bullseye_ring(cell, evo_view_model::Color::Green));
-//    onion.rings[2].radius /= 4.0;
+//    bullseye.rings.push(to_bullseye_ring(cell, evo_view_model::Color::White));
+//    bullseye.rings[1].radius /= 2.0;
+//    bullseye.rings.push(to_bullseye_ring(cell, evo_view_model::Color::Green));
+//    bullseye.rings[2].radius /= 4.0;
     bullseye
 }
 
@@ -53,9 +53,10 @@ mod tests {
     use super::*;
     use physics::ball::Ball;
     use physics::quantities::*;
+    use evo_view_model::Point;
 
     #[test]
-    fn tick_creates_view_model_onion_for_each_ball() {
+    fn tick_creates_view_model_bullseye_for_each_cell() {
         let mut world = World::new(Position::new(0.0, 0.0), Position::new(0.0, 0.0));
         world.add_cell(Ball::new(Length::new(1.0), Mass::new(1.0),
                                  Position::new(0.0, 0.0), Velocity::new(0.0, 0.0)));
@@ -69,7 +70,7 @@ mod tests {
     }
 
     #[test]
-    fn tick_populates_view_model_onion_from_ball() {
+    fn tick_populates_view_model_bullseye_from_cell() {
         let mut world = World::new(Position::new(0.0, 0.0), Position::new(0.0, 0.0));
         world.add_cell(Ball::new(Length::new(5.0), Mass::new(1.0),
                                  Position::new(2.0, -3.0), Velocity::new(0.0, 0.0)));
@@ -77,21 +78,19 @@ mod tests {
 
         tick(&mut world, &mut view_model);
 
-        let onion = &view_model.bullseyes[0];
-        assert_eq!(1, onion.rings.len());
+        let bullseye = &view_model.bullseyes[0];
+        assert_eq!(1, bullseye.rings.len());
 
-        let ball = &world.cells()[0];
-        let circle = onion.rings[0];
-        assert_eq!(circle.color, evo_view_model::Color::Green);
-        assert_eq!(circle.center.x, ball.center().x());
-        assert_eq!(circle.center.y, ball.center().y());
-        assert_eq!(circle.outer_radius, ball.radius().value());
+        let cell = &world.cells()[0];
+        let ring = bullseye.rings[0];
+        assert_eq!(ring.outer_radius, cell.radius().value());
+        assert_eq!(ring.color, evo_view_model::Color::Green);
     }
 
     #[test]
-    fn tick_clears_view_model_onions_before_populating_them() {
+    fn tick_clears_view_model_bullseyes_before_populating_them() {
         let mut view_model = ViewModel::new();
-        view_model.bullseyes.push(evo_view_model::Bullseye::new());
+        view_model.bullseyes.push(evo_view_model::Bullseye::new(Point { x: 0.0, y: 0.0 }));
 
         let mut world = World::new(Position::new(0.0, 0.0), Position::new(0.0, 0.0));
         world.add_cell(Ball::new(Length::new(1.0), Mass::new(1.0),

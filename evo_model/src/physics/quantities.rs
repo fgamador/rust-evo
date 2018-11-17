@@ -145,6 +145,14 @@ impl Mul<Area> for f64 {
     }
 }
 
+impl Add<Area> for Area {
+    type Output = Area;
+
+    fn add(self, rhs: Area) -> Self::Output {
+        Area::new(self.value + rhs.value)
+    }
+}
+
 impl Mul<Density> for Area {
     type Output = Mass;
 

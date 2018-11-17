@@ -1,4 +1,5 @@
 use physics::quantities::*;
+use physics::util::sqr;
 use std::f64::consts::PI;
 
 #[derive(Debug)]
@@ -30,6 +31,10 @@ impl SimpleCellLayer {
             inner_radius: Length::new(0.0),
             outer_radius,
         }
+    }
+
+    pub fn update_outer_radius(&mut self, inner_radius: Length) {
+        self.outer_radius = Length::new((sqr(inner_radius.value()) + self.area.value() / PI).sqrt());
     }
 
     pub fn area(&self) -> Area {
@@ -66,6 +71,13 @@ mod tests {
     #[test]
     fn single_layer_calculates_outer_radius() {
         let layer = SimpleCellLayer::new(Area::new(4.0 * PI), Density::new(1.0));
+        assert_eq!(Length::new(2.0), layer.outer_radius());
+    }
+
+    #[test]
+    fn layer_updates_outer_radius_based_on_inner_radius() {
+        let mut layer = SimpleCellLayer::new(Area::new(3.0 * PI), Density::new(1.0));
+        layer.update_outer_radius(Length::new(1.0));
         assert_eq!(Length::new(2.0), layer.outer_radius());
     }
 }

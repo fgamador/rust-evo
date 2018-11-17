@@ -19,12 +19,6 @@ pub struct Point {
 }
 
 #[derive(Clone, Copy, Debug)]
-pub struct BullseyeRing {
-    pub outer_radius: f64,
-    pub color: Color,
-}
-
-#[derive(Clone, Copy, Debug)]
 pub struct Rectangle {
     pub min_corner: Point,
     pub max_corner: Point,
@@ -34,6 +28,12 @@ pub struct Rectangle {
 pub struct Bullseye {
     pub center: Point,
     pub rings: Vec<BullseyeRing>,
+}
+
+#[derive(Clone, Copy, Debug)]
+pub struct BullseyeRing {
+    pub outer_radius: f64,
+    pub color: Color,
 }
 
 impl Bullseye {

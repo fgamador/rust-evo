@@ -59,7 +59,7 @@ mod tests {
 
     #[test]
     fn layer_calculates_mass() {
-        let layer = SimpleCellLayer::new_old(Length::new(2.0), Density::new(3.0));
-        assert_eq!(Mass::new(12.0 * PI), layer.mass());
+        let layer = SimpleCellLayer::new(Area::new(2.0 * PI), Density::new(3.0));
+        assert_eq!(Mass::new(6.0 * PI), layer.mass());
     }
 }

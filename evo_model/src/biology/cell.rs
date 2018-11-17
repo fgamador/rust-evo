@@ -27,7 +27,10 @@ impl Cell {
 
         layers.iter_mut().fold(
             Length::new(0.0),
-            |inner_radius, layer| layer.update_outer_radius(inner_radius));
+            |nested_layer_outer_radius, layer| -> Length {
+                layer.update_outer_radius(nested_layer_outer_radius);
+                layer.outer_radius()
+            });
         let mass = layers.iter().fold(
             Mass::new(0.0), |mass, layer| mass + layer.mass());
         Cell {

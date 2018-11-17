@@ -121,13 +121,13 @@ pub mod feature {
             Canvas::new().pad(80.0).set(self.ids.canvas, &mut ui);
 
             let mut walker = self.ids.circles.walk();
-            for onion in &view_model.cells {
-                for circle in &onion.rings {
+            for bullseye in &view_model.cells {
+                for circle in &bullseye.rings {
                     let id = walker.next(&mut self.ids.circles, &mut ui.widget_id_generator());
                     Circle::fill_with(self.transform.transform_length(circle.radius),
                                       Self::lookup_rgb_color(circle.color))
-                        .x(self.transform.transform_x(circle.center.x))
-                        .y(self.transform.transform_y(circle.center.y))
+                        .x(self.transform.transform_x(bullseye.center.x))
+                        .y(self.transform.transform_y(bullseye.center.y))
                         .set(id, &mut ui);
                 }
             }

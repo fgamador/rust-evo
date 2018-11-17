@@ -30,8 +30,9 @@ impl SimpleCellLayer {
         }
     }
 
-    pub fn update_outer_radius(&mut self, inner_radius: Length) {
+    pub fn update_outer_radius(&mut self, inner_radius: Length) -> Length {
         self.outer_radius = Length::new((sqr(inner_radius.value()) + self.area.value() / PI).sqrt());
+        self.outer_radius
     }
 
     pub fn area(&self) -> Area {

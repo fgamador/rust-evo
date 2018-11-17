@@ -15,7 +15,7 @@ pub struct Cell {
 }
 
 impl Cell {
-    pub fn new(position: Position, velocity: Velocity, layers: Vec<SimpleCellLayer>) -> Self {
+    pub fn new(position: Position, velocity: Velocity, mut layers: Vec<SimpleCellLayer>) -> Self {
         if layers.is_empty() {
             panic!("Cell must have layers");
         }
@@ -25,6 +25,9 @@ impl Cell {
             }
         }
 
+        layers.iter_mut().fold(
+            Length::new(0.0),
+            |inner_radius, layer| layer.update_outer_radius(inner_radius));
         let mass = layers.iter().fold(
             Mass::new(0.0), |mass, layer| mass + layer.mass());
         Cell {
@@ -100,8 +103,8 @@ mod tests {
     fn cell_has_radius_of_outer_layer() {
         let cell = Cell::new(Position::new(1.0, 1.0), Velocity::new(1.0, 1.0),
                              vec![
-                                 SimpleCellLayer::new_old(Length::new(1.0), Density::new(1.0)),
-                                 SimpleCellLayer::new_old(Length::new(2.0), Density::new(1.0))
+                                 SimpleCellLayer::new(Area::new(PI), Density::new(1.0)),
+                                 SimpleCellLayer::new(Area::new(3.0 * PI), Density::new(1.0))
                              ]);
         assert_eq!(Length::new(2.0), cell.radius());
     }

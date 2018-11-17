@@ -20,6 +20,17 @@ impl SimpleCellLayer {
     }
 
     pub fn mass(&self) -> Mass {
-        self.outer_radius * self.outer_radius * PI * self.density
+        PI * self.outer_radius * self.outer_radius * self.density
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn layer_calculates_mass() {
+        let layer = SimpleCellLayer::new(Length::new(2.0), Density::new(3.0));
+        assert_eq!(Mass::new(12.0 * PI), layer.mass());
     }
 }

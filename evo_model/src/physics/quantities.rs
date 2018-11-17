@@ -101,6 +101,14 @@ impl Mul<f64> for Length {
     }
 }
 
+impl Mul<Length> for f64 {
+    type Output = Length;
+
+    fn mul(self, rhs: Length) -> Self::Output {
+        Length::new(self * rhs.value)
+    }
+}
+
 #[derive(Clone, Copy, Debug, PartialEq, PartialOrd)]
 pub struct Area {
     value: f64,
@@ -126,6 +134,14 @@ impl Mul<f64> for Area {
 
     fn mul(self, rhs: f64) -> Self::Output {
         Area::new(self.value * rhs)
+    }
+}
+
+impl Mul<Area> for f64 {
+    type Output = Area;
+
+    fn mul(self, rhs: Area) -> Self::Output {
+        Area::new(self * rhs.value)
     }
 }
 
@@ -393,7 +409,7 @@ impl Add<Mass> for Mass {
     type Output = Mass;
 
     fn add(self, rhs: Mass) -> Self::Output {
-        Mass::new(self.value * rhs.value)
+        Mass::new(self.value + rhs.value)
     }
 }
 

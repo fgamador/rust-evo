@@ -30,15 +30,15 @@ fn to_bullseye<C>(cell: &C) -> evo_view_model::Bullseye
     where C: Circle + Onion
 {
     let mut bullseye = evo_view_model::Bullseye::new();
-    bullseye.rings.push(to_view_model_circle(cell, evo_view_model::Color::Green));
-//    onion.concentric_circles.push(to_view_model_circle(cell, evo_view_model::Color::White));
-//    onion.concentric_circles[1].radius /= 2.0;
-//    onion.concentric_circles.push(to_view_model_circle(cell, evo_view_model::Color::Green));
-//    onion.concentric_circles[2].radius /= 4.0;
+    bullseye.rings.push(to_bullseye_ring(cell, evo_view_model::Color::Green));
+//    onion.rings.push(to_bullseye_ring(cell, evo_view_model::Color::White));
+//    onion.rings[1].radius /= 2.0;
+//    onion.rings.push(to_bullseye_ring(cell, evo_view_model::Color::Green));
+//    onion.rings[2].radius /= 4.0;
     bullseye
 }
 
-fn to_view_model_circle(circle: &Circle, color: evo_view_model::Color) -> evo_view_model::Circle {
+fn to_bullseye_ring(circle: &Circle, color: evo_view_model::Color) -> evo_view_model::Circle {
     evo_view_model::Circle {
         color,
         center: evo_view_model::Point {

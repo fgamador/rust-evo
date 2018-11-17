@@ -30,12 +30,6 @@ pub struct Bullseye {
     pub rings: Vec<BullseyeRing>,
 }
 
-#[derive(Clone, Copy, Debug)]
-pub struct BullseyeRing {
-    pub outer_radius: f64,
-    pub color: Color,
-}
-
 impl Bullseye {
     pub fn new(center: Point) -> Self {
         Bullseye {
@@ -43,6 +37,12 @@ impl Bullseye {
             rings: Vec::with_capacity(8),
         }
     }
+}
+
+#[derive(Clone, Copy, Debug)]
+pub struct BullseyeRing {
+    pub outer_radius: f64,
+    pub color: Color,
 }
 
 pub struct ViewModel {

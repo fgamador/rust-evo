@@ -44,12 +44,8 @@ fn to_bullseye<C>(cell: &C) -> evo_view_model::Bullseye
 
 fn to_bullseye_ring(circle: &Circle, color: evo_view_model::Color) -> evo_view_model::BullseyeRing {
     evo_view_model::BullseyeRing {
-        color,
-        center: evo_view_model::Point {
-            x: circle.center().x(),
-            y: circle.center().y(),
-        },
         radius: circle.radius().value(),
+        color,
     }
 }
 

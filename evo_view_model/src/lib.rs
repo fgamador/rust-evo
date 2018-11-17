@@ -20,9 +20,8 @@ pub struct Point {
 
 #[derive(Clone, Copy, Debug)]
 pub struct BullseyeRing {
-    pub color: Color,
-    pub center: Point,
     pub radius: f64,
+    pub color: Color,
 }
 
 #[derive(Clone, Copy, Debug)]

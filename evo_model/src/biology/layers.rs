@@ -1,3 +1,4 @@
+use evo_view_model::Color;
 use physics::quantities::*;
 use physics::shapes::Circle;
 use physics::util::sqr;
@@ -8,7 +9,9 @@ pub trait Onion: Circle {
 }
 
 pub trait OnionLayer {
-    // TODO
+    fn outer_radius(&self) -> f64;
+
+    fn color(&self) -> Color;
 }
 
 #[derive(Debug)]

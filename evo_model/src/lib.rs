@@ -20,7 +20,6 @@ pub fn tick<C>(world: &mut World<C>, view_model: &mut ViewModel)
     world.tick();
 
     view_model.bullseyes.clear();
-
     for cell in world.cells() {
         view_model.bullseyes.push(to_bullseye(cell));
     }

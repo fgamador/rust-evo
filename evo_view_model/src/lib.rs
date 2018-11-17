@@ -33,13 +33,15 @@ pub struct Rectangle {
 
 #[derive(Debug)]
 pub struct Bullseye {
-    pub rings: Vec<Circle>
+    pub center: Point,
+    pub rings: Vec<Circle>,
 }
 
 impl Bullseye {
-    pub fn new() -> Self {
+    pub fn new(center: Point) -> Self {
         Bullseye {
-            rings: Vec::with_capacity(8)
+            center,
+            rings: Vec::with_capacity(8),
         }
     }
 }

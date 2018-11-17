@@ -29,7 +29,11 @@ pub fn tick<C>(world: &mut World<C>, view_model: &mut ViewModel)
 fn to_bullseye<C>(cell: &C) -> evo_view_model::Bullseye
     where C: Circle + Onion
 {
-    let mut bullseye = evo_view_model::Bullseye::new();
+    let center = evo_view_model::Point {
+        x: cell.center().x(),
+        y: cell.center().y(),
+    };
+    let mut bullseye = evo_view_model::Bullseye::new(center);
     bullseye.rings.push(to_bullseye_ring(cell, evo_view_model::Color::Green));
 //    onion.rings.push(to_bullseye_ring(cell, evo_view_model::Color::White));
 //    onion.rings[1].radius /= 2.0;

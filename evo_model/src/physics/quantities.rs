@@ -83,6 +83,10 @@ impl Length {
     pub fn value(&self) -> f64 {
         self.value
     }
+
+    pub fn sqr(&self) -> Area {
+        Area::new(self.value * self.value)
+    }
 }
 
 impl Mul for Length {

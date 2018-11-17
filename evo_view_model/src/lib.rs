@@ -46,13 +46,13 @@ pub struct BullseyeRing {
 }
 
 pub struct ViewModel {
-    pub cells: Vec<Bullseye>
+    pub bullseyes: Vec<Bullseye>
 }
 
 impl ViewModel {
     pub fn new() -> Self {
         ViewModel {
-            cells: vec![]
+            bullseyes: vec![]
         }
     }
 }

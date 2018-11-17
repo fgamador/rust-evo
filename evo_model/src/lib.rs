@@ -19,10 +19,10 @@ pub fn tick<C>(world: &mut World<C>, view_model: &mut ViewModel)
 {
     world.tick();
 
-    view_model.cells.clear();
+    view_model.bullseyes.clear();
 
     for cell in world.cells() {
-        view_model.cells.push(to_bullseye(cell));
+        view_model.bullseyes.push(to_bullseye(cell));
     }
 }
 
@@ -66,7 +66,7 @@ mod tests {
 
         tick(&mut world, &mut view_model);
 
-        assert_eq!(2, view_model.cells.len());
+        assert_eq!(2, view_model.bullseyes.len());
     }
 
     #[test]
@@ -78,7 +78,7 @@ mod tests {
 
         tick(&mut world, &mut view_model);
 
-        let onion = &view_model.cells[0];
+        let onion = &view_model.bullseyes[0];
         assert_eq!(1, onion.rings.len());
 
         let ball = &world.cells()[0];
@@ -92,7 +92,7 @@ mod tests {
     #[test]
     fn tick_clears_view_model_onions_before_populating_them() {
         let mut view_model = ViewModel::new();
-        view_model.cells.push(evo_view_model::Bullseye::new());
+        view_model.bullseyes.push(evo_view_model::Bullseye::new());
 
         let mut world = World::new(Position::new(0.0, 0.0), Position::new(0.0, 0.0));
         world.add_cell(Ball::new(Length::new(1.0), Mass::new(1.0),
@@ -100,6 +100,6 @@ mod tests {
 
         tick(&mut world, &mut view_model);
 
-        assert_eq!(1, view_model.cells.len());
+        assert_eq!(1, view_model.bullseyes.len());
     }
 }

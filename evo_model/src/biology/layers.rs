@@ -11,6 +11,16 @@ pub struct SimpleCellLayer {
 }
 
 impl SimpleCellLayer {
+    pub fn new(area: Area, density: Density) -> Self {
+        SimpleCellLayer {
+            area,
+            density,
+            mass: area * density,
+            inner_radius: Length::new(0.0),
+            outer_radius: Length::new(0.0),
+        }
+    }
+
     pub fn new_old(outer_radius: Length, density: Density) -> Self {
         let area = PI * outer_radius * outer_radius;
         SimpleCellLayer {

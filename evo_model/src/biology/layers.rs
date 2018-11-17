@@ -1,26 +1,45 @@
 use physics::quantities::*;
 use std::f64::consts::PI;
 
-#[derive(Clone, Debug)]
+#[derive(Debug)]
 pub struct SimpleCellLayer {
-    outer_radius: Length,
+    area: Area,
     density: Density,
+    mass: Mass,
+    inner_radius: Length,
+    outer_radius: Length,
 }
 
 impl SimpleCellLayer {
     pub fn new_old(outer_radius: Length, density: Density) -> Self {
+        let area = PI * outer_radius * outer_radius;
         SimpleCellLayer {
-            outer_radius,
+            area,
             density,
+            mass: area * density,
+            inner_radius: Length::new(0.0),
+            outer_radius,
         }
+    }
+
+    pub fn area(&self) -> Area {
+        self.area
+    }
+
+    pub fn density(&self) -> Density {
+        self.density
+    }
+
+    pub fn mass(&self) -> Mass {
+        self.mass
+    }
+
+    pub fn inner_radius(&self) -> Length {
+        self.inner_radius
     }
 
     pub fn outer_radius(&self) -> Length {
         self.outer_radius
-    }
-
-    pub fn mass(&self) -> Mass {
-        PI * self.outer_radius * self.outer_radius * self.density
     }
 }
 

@@ -40,6 +40,12 @@ impl OnionLayer for SimpleOnionLayer {
     }
 }
 
+pub trait CellLayer: OnionLayer {
+    fn mass(&self) -> Mass;
+
+    fn update_outer_radius(&mut self, inner_radius: Length);
+}
+
 #[derive(Debug)]
 pub struct SimpleCellLayer {
     area: Area,
@@ -62,14 +68,6 @@ impl SimpleCellLayer {
 
     pub fn update_outer_radius(&mut self, inner_radius: Length) {
         self.outer_radius = Length::new((sqr(inner_radius.value()) + self.area.value() / PI).sqrt());
-    }
-
-    pub fn area(&self) -> Area {
-        self.area
-    }
-
-    pub fn density(&self) -> Density {
-        self.density
     }
 
     pub fn mass(&self) -> Mass {

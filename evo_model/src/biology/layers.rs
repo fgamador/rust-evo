@@ -10,7 +10,7 @@ pub trait Onion: Circle {
 }
 
 pub trait OnionLayer: Debug {
-    fn outer_radius(&self) -> f64;
+    fn outer_radius(&self) -> Length;
 
     fn color(&self) -> Color;
 }

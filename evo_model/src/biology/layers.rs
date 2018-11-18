@@ -16,6 +16,31 @@ pub trait OnionLayer: Debug {
 }
 
 #[derive(Debug)]
+pub struct SimpleOnionLayer {
+    outer_radius: Length,
+    color: Color,
+}
+
+impl SimpleOnionLayer {
+    pub fn new(outer_radius: Length, color: Color) -> Self {
+        SimpleOnionLayer {
+            outer_radius,
+            color,
+        }
+    }
+}
+
+impl OnionLayer for SimpleOnionLayer {
+    fn outer_radius(&self) -> Length {
+        self.outer_radius
+    }
+
+    fn color(&self) -> Color {
+        self.color
+    }
+}
+
+#[derive(Debug)]
 pub struct SimpleCellLayer {
     area: Area,
     density: Density,

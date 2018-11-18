@@ -56,13 +56,13 @@ pub struct SimpleCellLayer {
 }
 
 impl SimpleCellLayer {
-    pub fn new(area: Area, density: Density) -> Self {
+    pub fn new(area: Area, density: Density, color: Color) -> Self {
         SimpleCellLayer {
             area,
             density,
             mass: area * density,
             outer_radius: Length::new((area.value() / PI).sqrt()),
-            color: Color::Green, // TODO
+            color,
         }
     }
 }
@@ -93,19 +93,22 @@ mod tests {
 
     #[test]
     fn layer_calculates_mass() {
-        let layer = SimpleCellLayer::new(Area::new(2.0 * PI), Density::new(3.0));
+        let layer = SimpleCellLayer::new(
+            Area::new(2.0 * PI), Density::new(3.0), Color::Green);
         assert_eq!(Mass::new(6.0 * PI), layer.mass());
     }
 
     #[test]
     fn single_layer_calculates_outer_radius() {
-        let layer = SimpleCellLayer::new(Area::new(4.0 * PI), Density::new(1.0));
+        let layer = SimpleCellLayer::new(
+            Area::new(4.0 * PI), Density::new(1.0), Color::Green);
         assert_eq!(Length::new(2.0), layer.outer_radius());
     }
 
     #[test]
     fn layer_updates_outer_radius_based_on_inner_radius() {
-        let mut layer = SimpleCellLayer::new(Area::new(3.0 * PI), Density::new(1.0));
+        let mut layer = SimpleCellLayer::new(
+            Area::new(3.0 * PI), Density::new(1.0), Color::Green);
         layer.update_outer_radius(Length::new(1.0));
         assert_eq!(Length::new(2.0), layer.outer_radius());
     }

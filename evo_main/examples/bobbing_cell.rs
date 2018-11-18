@@ -1,5 +1,6 @@
 extern crate evo_main;
 extern crate evo_model;
+extern crate evo_view_model;
 
 use evo_model::biology::layers::*;
 use evo_model::biology::cell::Cell;
@@ -7,6 +8,7 @@ use evo_model::environment::influences::*;
 use evo_model::physics::quantities::*;
 use evo_model::world::World;
 use evo_main::main_support::init_and_run;
+use evo_view_model::Color;
 use std::f64::consts::PI;
 
 fn main() {
@@ -23,6 +25,7 @@ fn create_world() -> World<Cell> {
         ])
         .with_cell(Cell::new(Position::new(200.0, -200.0), Velocity::new(0.0, 0.0),
                              vec![
-                                 Box::new(SimpleCellLayer::new(Area::new(400.0 * PI), Density::new(0.00075))),
+                                 Box::new(SimpleCellLayer::new(
+                                     Area::new(400.0 * PI), Density::new(0.00075), Color::Green)),
                              ]))
 }

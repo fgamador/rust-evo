@@ -23,12 +23,7 @@ impl Cell {
             panic!("Cell must have at least one layer");
         }
 
-        let radius = layers.iter_mut().fold(
-            Length::new(0.0),
-            |inner_radius, layer| {
-                layer.update_outer_radius(inner_radius);
-                layer.outer_radius()
-            });
+        let radius = Self::update_layer_outer_radii(&mut layers);
         let mass = layers.iter().fold(
             Mass::new(0.0), |mass, layer| mass + layer.mass());
         Cell {
@@ -39,6 +34,15 @@ impl Cell {
             layers: vec!(Box::new(SimpleCellLayer::new(PI * radius.sqr(),
                                                        Density::new(1.0)))),
         }
+    }
+
+    fn update_layer_outer_radii(layers: &mut Vec<Box<CellLayer>>) -> Length {
+        layers.iter_mut().fold(
+            Length::new(0.0),
+            |inner_radius, layer| {
+                layer.update_outer_radius(inner_radius);
+                layer.outer_radius()
+            })
     }
 }
 

@@ -23,9 +23,12 @@ fn create_world() -> World<Cell> {
             Box::new(SimpleForceInfluence::new(Box::new(BuoyancyForce::new(-0.05, 0.001)))),
             Box::new(SimpleForceInfluence::new(Box::new(DragForce::new(0.0005))))
         ])
-        .with_cell(Cell::new(Position::new(200.0, -200.0), Velocity::new(0.0, 0.0),
-                             vec![
-                                 Box::new(SimpleCellLayer::new(
-                                     Area::new(400.0 * PI), Density::new(0.00075), Color::Green)),
-                             ]))
+        .with_cell(Cell::new(
+            Position::new(200.0, -200.0), Velocity::new(0.0, 0.0),
+            vec![
+                Box::new(SimpleCellLayer::new(
+                    Area::new(100.0 * PI), Density::new(0.00075), Color::White)),
+                Box::new(SimpleCellLayer::new(
+                    Area::new(300.0 * PI), Density::new(0.00075), Color::Green)),
+            ]))
 }

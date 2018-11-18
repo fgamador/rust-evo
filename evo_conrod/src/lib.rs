@@ -122,7 +122,7 @@ pub mod feature {
 
             let mut walker = self.ids.circles.walk();
             for bullseye in &view_model.bullseyes {
-                for ring in &bullseye.rings {
+                for ring in bullseye.rings.iter().rev() {
                     let id = walker.next(&mut self.ids.circles, &mut ui.widget_id_generator());
                     Circle::fill_with(self.transform.transform_length(ring.outer_radius),
                                       Self::lookup_rgb_color(ring.color))

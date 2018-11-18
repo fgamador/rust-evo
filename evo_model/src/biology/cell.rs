@@ -1,11 +1,9 @@
 use biology::layers::*;
 use environment::environment::*;
-use evo_view_model::Color;
 use physics::newtonian::*;
 use physics::quantities::*;
 use physics::shapes::*;
 use physics::sortable_graph::*;
-use std::f64::consts::PI;
 use std::ptr;
 
 #[derive(Debug, GraphNode, HasLocalEnvironment, NewtonianBody)]
@@ -29,8 +27,7 @@ impl Cell {
             radius,
             newtonian_state: NewtonianState::new(Self::calc_mass(&layers), position, velocity),
             environment: LocalEnvironment::new(),
-            layers: vec!(Box::new(SimpleCellLayer::new(
-                PI * radius.sqr(), Density::new(1.0), Color::Green))),
+            layers,
         }
     }
 
@@ -76,6 +73,8 @@ impl Onion for Cell {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use evo_view_model::Color;
+    use std::f64::consts::PI;
 
     #[test]
     fn cells_use_pointer_equality() {

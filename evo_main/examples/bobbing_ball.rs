@@ -23,6 +23,6 @@ fn create_world() -> World<Cell> {
         ])
         .with_cell(Cell::new(Position::new(200.0, -200.0), Velocity::new(0.0, 0.0),
                              vec![
-                                 SimpleCellLayer::new(Area::new(400.0 * PI), Density::new(0.00075)),
+                                 Box::new(SimpleCellLayer::new(Area::new(400.0 * PI), Density::new(0.00075))),
                              ]))
 }

@@ -24,8 +24,7 @@ impl Cell {
         }
 
         let radius = Self::update_layer_outer_radii(&mut layers);
-        let mass = layers.iter().fold(
-            Mass::new(0.0), |mass, layer| mass + layer.mass());
+        let mass = Self::calc_mass(&layers);
         Cell {
             graph_node_data: GraphNodeData::new(),
             radius,
@@ -43,6 +42,11 @@ impl Cell {
                 layer.update_outer_radius(inner_radius);
                 layer.outer_radius()
             })
+    }
+
+    fn calc_mass(layers: &Vec<Box<CellLayer>>) -> Mass {
+        layers.iter().fold(
+            Mass::new(0.0), |mass, layer| mass + layer.mass())
     }
 }
 

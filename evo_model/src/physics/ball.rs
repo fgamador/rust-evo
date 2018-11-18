@@ -1,5 +1,6 @@
 use biology::layers::*;
 use environment::environment::*;
+use evo_view_model::Color;
 use physics::newtonian::*;
 use physics::quantities::*;
 use physics::shapes::*;
@@ -22,7 +23,7 @@ impl Ball {
             radius,
             state: NewtonianState::new(mass, position, velocity),
             environment: LocalEnvironment::new(),
-            layers: vec!(),
+            layers: vec!(Box::new(SimpleOnionLayer::new(radius, Color::Green))),
         }
     }
 }

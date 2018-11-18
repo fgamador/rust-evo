@@ -6,7 +6,9 @@ use std::f64::consts::PI;
 use std::fmt::Debug;
 
 pub trait Onion: Circle {
-    fn layers(&self) -> &[Box<OnionLayer>];
+    type Layer: OnionLayer + ?Sized;
+
+    fn layers(&self) -> &[Box<Self::Layer>];
 }
 
 pub trait OnionLayer: Debug {

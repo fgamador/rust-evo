@@ -14,7 +14,7 @@ pub struct Cell {
     radius: Length,
     newtonian_state: NewtonianState,
     environment: LocalEnvironment,
-    layers: Vec<Box<OnionLayer>>,
+    layers: Vec<Box<CellLayer>>,
 }
 
 impl Cell {
@@ -66,7 +66,9 @@ impl Circle for Cell {
 }
 
 impl Onion for Cell {
-    fn layers(&self) -> &[Box<OnionLayer>] {
+    type Layer = CellLayer;
+
+    fn layers(&self) -> &[Box<Self::Layer>] {
         &self.layers
     }
 }

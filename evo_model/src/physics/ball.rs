@@ -45,7 +45,9 @@ impl Circle for Ball {
 }
 
 impl Onion for Ball {
-    fn layers(&self) -> &[Box<OnionLayer>] {
+    type Layer = OnionLayer;
+
+    fn layers(&self) -> &[Box<Self::Layer>] {
         &self.layers
     }
 }

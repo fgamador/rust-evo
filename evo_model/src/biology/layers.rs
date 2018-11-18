@@ -21,6 +21,7 @@ pub struct SimpleCellLayer {
     density: Density,
     mass: Mass,
     outer_radius: Length,
+    color: Color,
 }
 
 impl SimpleCellLayer {
@@ -30,6 +31,7 @@ impl SimpleCellLayer {
             density,
             mass: area * density,
             outer_radius: Length::new((area.value() / PI).sqrt()),
+            color: Color::Green,
         }
     }
 
@@ -48,9 +50,15 @@ impl SimpleCellLayer {
     pub fn mass(&self) -> Mass {
         self.mass
     }
+}
 
-    pub fn outer_radius(&self) -> Length {
+impl OnionLayer for SimpleCellLayer {
+    fn outer_radius(&self) -> Length {
         self.outer_radius
+    }
+
+    fn color(&self) -> Color {
+        self.color
     }
 }
 

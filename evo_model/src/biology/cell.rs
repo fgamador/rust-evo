@@ -29,8 +29,7 @@ impl Cell {
             radius,
             newtonian_state: NewtonianState::new(Self::calc_mass(&layers), position, velocity),
             environment: LocalEnvironment::new(),
-            layers: vec!(Box::new(SimpleCellLayer::new(PI * radius.sqr(),
-                                                       Density::new(1.0)))),
+            layers: vec!(Box::new(SimpleCellLayer::new(PI * radius.sqr(), Density::new(1.0)))),
         }
     }
 

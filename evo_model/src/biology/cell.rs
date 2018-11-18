@@ -5,6 +5,7 @@ use physics::newtonian::*;
 use physics::quantities::*;
 use physics::shapes::*;
 use physics::sortable_graph::*;
+use std::f64::consts::PI;
 use std::ptr;
 
 #[derive(Debug, GraphNode, HasLocalEnvironment, NewtonianBody)]
@@ -35,7 +36,8 @@ impl Cell {
             radius,
             newtonian_state: NewtonianState::new(mass, position, velocity),
             environment: LocalEnvironment::new(),
-            layers: vec!(Box::new(SimpleOnionLayer::new(radius, Color::Green))),
+            layers: vec!(Box::new(SimpleCellLayer::new(PI * radius.sqr(),
+                                                       Density::new(1.0)))),
         }
     }
 }
@@ -65,7 +67,6 @@ impl Onion for Cell {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use std::f64::consts::PI;
 
     #[test]
     fn cells_use_pointer_equality() {

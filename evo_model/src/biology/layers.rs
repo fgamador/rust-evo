@@ -62,7 +62,7 @@ impl SimpleCellLayer {
             density,
             mass: area * density,
             outer_radius: Length::new((area.value() / PI).sqrt()),
-            color: Color::Green,
+            color: Color::Green, // TODO
         }
     }
 }

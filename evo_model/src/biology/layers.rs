@@ -3,12 +3,13 @@ use physics::quantities::*;
 use physics::shapes::Circle;
 use physics::util::sqr;
 use std::f64::consts::PI;
+use std::fmt::Debug;
 
 pub trait Onion: Circle {
-    // TODO layers
+    fn layers(&self) -> &[Box<OnionLayer>];
 }
 
-pub trait OnionLayer {
+pub trait OnionLayer: Debug {
     fn outer_radius(&self) -> f64;
 
     fn color(&self) -> Color;

@@ -6,12 +6,13 @@ use physics::shapes::*;
 use physics::sortable_graph::*;
 use std::ptr;
 
-#[derive(Clone, Debug, GraphNode, HasLocalEnvironment, NewtonianBody)]
+#[derive(Debug, GraphNode, HasLocalEnvironment, NewtonianBody)]
 pub struct Cell {
     graph_node_data: GraphNodeData,
     radius: Length,
     newtonian_state: NewtonianState,
     environment: LocalEnvironment,
+    layers: Vec<Box<OnionLayer>>,
 }
 
 impl Cell {
@@ -33,6 +34,7 @@ impl Cell {
             radius,
             newtonian_state: NewtonianState::new(mass, position, velocity),
             environment: LocalEnvironment::new(),
+            layers: vec!(),
         }
     }
 }
@@ -54,7 +56,9 @@ impl Circle for Cell {
 }
 
 impl Onion for Cell {
-    // TODO rings
+    fn layers(&self) -> &[Box<OnionLayer>] {
+        &self.layers
+    }
 }
 
 #[cfg(test)]

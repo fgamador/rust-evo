@@ -6,12 +6,13 @@ use physics::shapes::*;
 use physics::sortable_graph::*;
 use std::ptr;
 
-#[derive(Clone, Debug, GraphNode, HasLocalEnvironment, NewtonianBody)]
+#[derive(Debug, GraphNode, HasLocalEnvironment, NewtonianBody)]
 pub struct Ball {
     graph_node_data: GraphNodeData,
     radius: Length,
     state: NewtonianState,
     environment: LocalEnvironment,
+    layers: Vec<Box<OnionLayer>>,
 }
 
 impl Ball {
@@ -21,6 +22,7 @@ impl Ball {
             radius,
             state: NewtonianState::new(mass, position, velocity),
             environment: LocalEnvironment::new(),
+            layers: vec!(),
         }
     }
 }
@@ -42,7 +44,9 @@ impl Circle for Ball {
 }
 
 impl Onion for Ball {
-    // TODO rings
+    fn layers(&self) -> &[Box<OnionLayer>] {
+        &self.layers
+    }
 }
 
 #[cfg(test)]

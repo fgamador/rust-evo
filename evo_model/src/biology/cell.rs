@@ -24,11 +24,10 @@ impl Cell {
         }
 
         let radius = Self::update_layer_outer_radii(&mut layers);
-        let mass = Self::calc_mass(&layers);
         Cell {
             graph_node_data: GraphNodeData::new(),
             radius,
-            newtonian_state: NewtonianState::new(mass, position, velocity),
+            newtonian_state: NewtonianState::new(Self::calc_mass(&layers), position, velocity),
             environment: LocalEnvironment::new(),
             layers: vec!(Box::new(SimpleCellLayer::new(PI * radius.sqr(),
                                                        Density::new(1.0)))),

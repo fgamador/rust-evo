@@ -32,7 +32,10 @@ fn to_bullseye<C>(cell: &C) -> evo_view_model::Bullseye
 {
     let mut bullseye = evo_view_model::Bullseye::new(to_point(cell.center()));
     for layer in cell.layers() {
-        bullseye.rings.push(to_bullseye_ring(&**layer));
+        bullseye.rings.push(evo_view_model::BullseyeRing {
+            outer_radius: layer.outer_radius().value(),
+            color: layer.color(),
+        });
     }
     bullseye
 }
@@ -41,13 +44,6 @@ fn to_point(pos: Position) -> evo_view_model::Point {
     evo_view_model::Point {
         x: pos.x(),
         y: pos.y(),
-    }
-}
-
-fn to_bullseye_ring(layer: &OnionLayer) -> evo_view_model::BullseyeRing {
-    evo_view_model::BullseyeRing {
-        outer_radius: layer.outer_radius().value(),
-        color: layer.color(),
     }
 }
 

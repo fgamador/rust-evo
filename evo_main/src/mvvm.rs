@@ -14,16 +14,16 @@ use std::thread;
 use std::time::{Duration, Instant};
 
 pub struct MVVM<T>(pub Model<T>, pub View, pub ViewModel)
-    where T: Circle + GraphNode + HasLocalEnvironment + NewtonianBody + Onion<OnionLayer>;
+    where T: Circle + GraphNode + HasLocalEnvironment + NewtonianBody + Onion;
 
 pub struct Model<T>
-    where T: Circle + GraphNode + HasLocalEnvironment + NewtonianBody + Onion<OnionLayer>
+    where T: Circle + GraphNode + HasLocalEnvironment + NewtonianBody + Onion
 {
     world: World<T>,
 }
 
 impl<T> Model<T>
-    where T: Circle + GraphNode + HasLocalEnvironment + NewtonianBody + Onion<OnionLayer>
+    where T: Circle + GraphNode + HasLocalEnvironment + NewtonianBody + Onion
 {
     pub fn new(world: World<T>) -> Self {
         Model {

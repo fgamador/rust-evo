@@ -65,14 +65,6 @@ impl SimpleCellLayer {
             color: Color::Green,
         }
     }
-
-    pub fn update_outer_radius(&mut self, inner_radius: Length) {
-        self.outer_radius = Length::new((sqr(inner_radius.value()) + self.area.value() / PI).sqrt());
-    }
-
-    pub fn mass(&self) -> Mass {
-        self.mass
-    }
 }
 
 impl OnionLayer for SimpleCellLayer {
@@ -82,6 +74,16 @@ impl OnionLayer for SimpleCellLayer {
 
     fn color(&self) -> Color {
         self.color
+    }
+}
+
+impl CellLayer for SimpleCellLayer {
+    fn mass(&self) -> Mass {
+        self.mass
+    }
+
+    fn update_outer_radius(&mut self, inner_radius: Length) {
+        self.outer_radius = Length::new((sqr(inner_radius.value()) + self.area.value() / PI).sqrt());
     }
 }
 

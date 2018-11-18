@@ -11,6 +11,7 @@ use biology::layers::*;
 use environment::environment::HasLocalEnvironment;
 use evo_view_model::ViewModel;
 use physics::newtonian::NewtonianBody;
+use physics::quantities::Position;
 use physics::shapes::*;
 use physics::sortable_graph::GraphNode;
 use world::World;
@@ -29,23 +30,24 @@ pub fn tick<C>(world: &mut World<C>, view_model: &mut ViewModel)
 fn to_bullseye<C>(cell: &C) -> evo_view_model::Bullseye
     where C: Circle + Onion
 {
-    let center = evo_view_model::Point {
-        x: cell.center().x(),
-        y: cell.center().y(),
-    };
-    let mut bullseye = evo_view_model::Bullseye::new(center);
-    bullseye.rings.push(to_bullseye_ring(cell, evo_view_model::Color::Green));
-//    bullseye.rings.push(to_bullseye_ring(cell, evo_view_model::Color::White));
-//    bullseye.rings[1].outer_radius /= 2.0;
-//    bullseye.rings.push(to_bullseye_ring(cell, evo_view_model::Color::Green));
-//    bullseye.rings[2].outer_radius /= 4.0;
+    let mut bullseye = evo_view_model::Bullseye::new(to_point(cell.center()));
+    for layer in cell.layers() {
+        bullseye.rings.push(to_bullseye_ring(&**layer));
+    }
     bullseye
 }
 
-fn to_bullseye_ring(circle: &Circle, color: evo_view_model::Color) -> evo_view_model::BullseyeRing {
+fn to_point(pos: Position) -> evo_view_model::Point {
+    evo_view_model::Point {
+        x: pos.x(),
+        y: pos.y(),
+    }
+}
+
+fn to_bullseye_ring(layer: &OnionLayer) -> evo_view_model::BullseyeRing {
     evo_view_model::BullseyeRing {
-        outer_radius: circle.radius().value(),
-        color,
+        outer_radius: layer.outer_radius().value(),
+        color: layer.color(),
     }
 }
 

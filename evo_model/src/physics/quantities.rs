@@ -131,6 +131,10 @@ impl Area {
     pub fn value(&self) -> f64 {
         self.value
     }
+
+    pub fn sqrt(&self) -> Length {
+        Length::new(self.value.sqrt())
+    }
 }
 
 impl Mul<f64> for Area {
@@ -146,6 +150,14 @@ impl Mul<Area> for f64 {
 
     fn mul(self, rhs: Area) -> Self::Output {
         Area::new(self * rhs.value)
+    }
+}
+
+impl Div<f64> for Area {
+    type Output = Area;
+
+    fn div(self, rhs: f64) -> Self::Output {
+        Area::new(self.value / rhs)
     }
 }
 

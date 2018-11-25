@@ -1,7 +1,6 @@
 use evo_view_model::Color;
 use physics::quantities::*;
 use physics::shapes::Circle;
-use physics::util::sqr;
 use std::f64::consts::PI;
 use std::fmt::Debug;
 
@@ -85,7 +84,7 @@ impl CellLayer for SimpleCellLayer {
     }
 
     fn update_outer_radius(&mut self, inner_radius: Length) {
-        self.outer_radius = Length::new((sqr(inner_radius.value()) + self.area.value() / PI).sqrt());
+        self.outer_radius = (inner_radius.sqr() + self.area / PI).sqrt();
     }
 }
 

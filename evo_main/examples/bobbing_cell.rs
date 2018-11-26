@@ -2,6 +2,7 @@ extern crate evo_main;
 extern crate evo_model;
 extern crate evo_view_model;
 
+use evo_model::biology::control::*;
 use evo_model::biology::layers::*;
 use evo_model::biology::cell::Cell;
 use evo_model::environment::influences::*;
@@ -30,5 +31,7 @@ fn create_world() -> World<Cell> {
                     Area::new(100.0 * PI), Density::new(0.00075), Color::White)),
                 Box::new(SimpleCellLayer::new(
                     Area::new(300.0 * PI), Density::new(0.00075), Color::Green)),
-            ]))
+            ])
+            .with_control(Box::new(CyclicResizeControl::new(0, 100, 0.01)))
+        )
 }

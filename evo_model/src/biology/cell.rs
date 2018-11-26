@@ -34,7 +34,7 @@ impl Cell {
         }
     }
 
-    fn with_control(mut self, control: Box<CellControl>) -> Self {
+    pub fn with_control(mut self, control: Box<CellControl>) -> Self {
         self.control = control;
         self
     }

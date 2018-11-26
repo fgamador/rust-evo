@@ -3,7 +3,7 @@ use physics::quantities::*;
 use std::fmt::Debug;
 
 pub trait CellControl: Debug {
-    fn get_resize_requests(&self, cell: &Cell) -> Vec<(usize, f64)>;
+    fn get_resize_requests(&mut self) -> Vec<(usize, f64)>;
 }
 
 #[derive(Debug)]
@@ -16,7 +16,7 @@ impl NullControl {
 }
 
 impl CellControl for NullControl {
-    fn get_resize_requests(&self, cell: &Cell) -> Vec<(usize, f64)> { vec![] }
+    fn get_resize_requests(&mut self) -> Vec<(usize, f64)> { vec![] }
 }
 
 #[derive(Debug)]
@@ -37,7 +37,7 @@ impl CyclicResizeControl {
 }
 
 impl CellControl for CyclicResizeControl {
-    fn get_resize_requests(&self, cell: &Cell) -> Vec<(usize, f64)> { vec![] }
+    fn get_resize_requests(&mut self) -> Vec<(usize, f64)> { vec![] }
 }
 
 #[cfg(test)]

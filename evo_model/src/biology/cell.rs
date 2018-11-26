@@ -54,7 +54,7 @@ impl Cell {
     }
 
     fn resize_phase(&mut self) {
-        let reqs = self.control.get_resize_requests(self);
+        let reqs = self.control.get_resize_requests();
     }
 }
 

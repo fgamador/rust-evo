@@ -22,6 +22,7 @@ pub struct CyclicResizeControl {
     layer_index: usize,
     growth_ticks: u32,
     growth_fraction: f64,
+    tick_count: u32,
 }
 
 impl CyclicResizeControl {
@@ -30,13 +31,22 @@ impl CyclicResizeControl {
             layer_index,
             growth_ticks,
             growth_fraction,
+            tick_count: 0,
         }
     }
 }
 
 impl CellControl for CyclicResizeControl {
     fn get_resize_requests(&mut self) -> Vec<(usize, f64)> {
-        vec![(self.layer_index, self.growth_fraction)]
+        self.tick_count += 1;
+        if self.tick_count > self.growth_ticks * 2 {
+            self.tick_count = 1;
+        }
+        if self.tick_count <= self.growth_ticks {
+            vec![(self.layer_index, self.growth_fraction)]
+        } else {
+            vec![(self.layer_index, -self.growth_fraction)]
+        }
     }
 }
 
@@ -52,7 +62,7 @@ mod tests {
         assert_eq!(3, reqs[0].0);
     }
 
-    // #[test]
+    #[test]
     fn cyclic_resize_control_returns_alternating_growth_and_shrink_requests() {
         let mut control = CyclicResizeControl::new(0, 2, 0.5);
         assert_eq!(0.5, control.get_resize_requests()[0].1);

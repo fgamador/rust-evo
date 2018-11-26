@@ -1,3 +1,4 @@
+use biology::control::*;
 use biology::layers::*;
 use environment::environment::*;
 use physics::newtonian::*;
@@ -13,6 +14,7 @@ pub struct Cell {
     newtonian_state: NewtonianState,
     environment: LocalEnvironment,
     layers: Vec<Box<CellLayer>>,
+    control: Box<CellControl>,
 }
 
 impl Cell {
@@ -28,7 +30,13 @@ impl Cell {
             newtonian_state: NewtonianState::new(Self::calc_mass(&layers), position, velocity),
             environment: LocalEnvironment::new(),
             layers,
+            control: Box::new(NullControl::new()),
         }
+    }
+
+    fn with_control(mut self, control: Box<CellControl>) -> Self {
+        self.control = control;
+        self
     }
 
     fn update_layer_outer_radii(layers: &mut Vec<Box<CellLayer>>) -> Length {
@@ -44,6 +52,8 @@ impl Cell {
         layers.iter().fold(
             Mass::new(0.0), |mass, layer| mass + layer.mass())
     }
+
+    fn resize_phase(&mut self) {}
 }
 
 impl PartialEq for Cell {
@@ -120,5 +130,17 @@ mod tests {
                                      Area::new(2.0 * PI), Density::new(2.0), Color::Green))
                              ]);
         assert_eq!(Mass::new(5.0 * PI), cell.mass());
+    }
+
+    // #[test]
+    fn cell_with_cyclic_resize_control_grows_on_first_tick() {
+        let mut cell = Cell::new(Position::new(1.0, 1.0), Velocity::new(1.0, 1.0),
+                                 vec![
+                                     Box::new(SimpleCellLayer::new(
+                                         Area::new(10.0), Density::new(1.0), Color::Green)),
+                                 ])
+            .with_control(Box::new(CyclicResizeControl::new(0, 100, 0.5)));
+        cell.resize_phase();
+        assert_eq!(Mass::new(15.0), cell.mass());
     }
 }

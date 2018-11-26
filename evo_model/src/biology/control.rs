@@ -1,7 +1,10 @@
+use biology::cell::Cell;
 use physics::quantities::*;
 use std::fmt::Debug;
 
-pub trait CellControl: Debug {}
+pub trait CellControl: Debug {
+    fn get_resize_requests(&self, cell: &Cell) -> Vec<(usize, f64)>;
+}
 
 #[derive(Debug)]
 pub struct NullControl {}
@@ -12,7 +15,9 @@ impl NullControl {
     }
 }
 
-impl CellControl for NullControl {}
+impl CellControl for NullControl {
+    fn get_resize_requests(&self, cell: &Cell) -> Vec<(usize, f64)> { vec![] }
+}
 
 #[derive(Debug)]
 pub struct CyclicResizeControl {
@@ -31,7 +36,9 @@ impl CyclicResizeControl {
     }
 }
 
-impl CellControl for CyclicResizeControl {}
+impl CellControl for CyclicResizeControl {
+    fn get_resize_requests(&self, cell: &Cell) -> Vec<(usize, f64)> { vec![] }
+}
 
 #[cfg(test)]
 mod tests {

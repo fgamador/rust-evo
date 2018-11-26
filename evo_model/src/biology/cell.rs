@@ -53,7 +53,9 @@ impl Cell {
             Mass::new(0.0), |mass, layer| mass + layer.mass())
     }
 
-    fn resize_phase(&mut self) {}
+    fn resize_phase(&mut self) {
+        let reqs = self.control.get_resize_requests(self);
+    }
 }
 
 impl PartialEq for Cell {

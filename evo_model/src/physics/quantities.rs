@@ -137,6 +137,22 @@ impl Area {
     }
 }
 
+impl Add<Area> for Area {
+    type Output = Area;
+
+    fn add(self, rhs: Area) -> Self::Output {
+        Area::new(self.value + rhs.value)
+    }
+}
+
+impl Sub<Area> for Area {
+    type Output = Area;
+
+    fn sub(self, rhs: Area) -> Self::Output {
+        Area::new(self.value - rhs.value)
+    }
+}
+
 impl Mul<f64> for Area {
     type Output = Area;
 
@@ -158,14 +174,6 @@ impl Div<f64> for Area {
 
     fn div(self, rhs: f64) -> Self::Output {
         Area::new(self.value / rhs)
-    }
-}
-
-impl Add<Area> for Area {
-    type Output = Area;
-
-    fn add(self, rhs: Area) -> Self::Output {
-        Area::new(self.value + rhs.value)
     }
 }
 

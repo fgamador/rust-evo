@@ -32,6 +32,6 @@ fn create_world() -> World<Cell> {
                 Box::new(SimpleCellLayer::new(
                     Area::new(300.0 * PI), Density::new(0.00075), Color::Green)),
             ])
-            .with_control(Box::new(CyclicResizeControl::new(0, 100, 0.01)))
+            .with_control(Box::new(CyclicResizeControl::new(0, Area::new(400.0 * PI), 100, Area::new(0.1))))
         )
 }

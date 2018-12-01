@@ -30,7 +30,7 @@ impl CyclicResizeControl {
         CyclicResizeControl {
             layer_index,
             growth_ticks,
-            growth_amount: growth_amount,
+            growth_amount,
             tick_count: 0,
         }
     }

@@ -6,14 +6,14 @@ pub trait CellControl: Debug {
 
 pub struct ResizeRequest {
     pub layer_index: usize,
-    pub growth_amount: f64,
+    pub desired_area: f64,
 }
 
 impl ResizeRequest {
-    pub fn new(layer_index: usize, growth_amount: f64) -> Self {
+    pub fn new(layer_index: usize, desired_area: f64) -> Self {
         ResizeRequest {
             layer_index,
-            growth_amount,
+            desired_area: desired_area,
         }
     }
 }
@@ -79,10 +79,10 @@ mod tests {
     #[test]
     fn cyclic_resize_control_returns_alternating_growth_and_shrink_requests() {
         let mut control = CyclicResizeControl::new(0, 2, 0.5);
-        assert_eq!(0.5, control.get_resize_requests()[0].growth_amount);
-        assert_eq!(0.5, control.get_resize_requests()[0].growth_amount);
-        assert_eq!(-0.5, control.get_resize_requests()[0].growth_amount);
-        assert_eq!(-0.5, control.get_resize_requests()[0].growth_amount);
-        assert_eq!(0.5, control.get_resize_requests()[0].growth_amount);
+        assert_eq!(0.5, control.get_resize_requests()[0].desired_area);
+        assert_eq!(0.5, control.get_resize_requests()[0].desired_area);
+        assert_eq!(-0.5, control.get_resize_requests()[0].desired_area);
+        assert_eq!(-0.5, control.get_resize_requests()[0].desired_area);
+        assert_eq!(0.5, control.get_resize_requests()[0].desired_area);
     }
 }

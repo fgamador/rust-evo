@@ -230,7 +230,7 @@ mod tests {
                                      Box::new(SimpleCellLayer::new(
                                          Area::new(10.0), Density::new(1.0), Color::Green)),
                                  ])
-                .with_control(Box::new(CyclicResizeControl::new(0, Area::new(10.0), 100, Area::new(0.5)))));
+                .with_control(Box::new(CyclicResizeControl::new(0, 100, Area::new(0.5)))));
 
         world.tick();
 

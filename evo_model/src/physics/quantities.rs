@@ -5,6 +5,7 @@ use std::ops::Div;
 use std::ops::Mul;
 use std::ops::Neg;
 use std::ops::Sub;
+use std::ops::SubAssign;
 
 #[derive(Clone, Copy, Debug, PartialEq, PartialOrd)]
 pub struct Angle {
@@ -145,11 +146,23 @@ impl Add<Area> for Area {
     }
 }
 
+impl AddAssign for Area {
+    fn add_assign(&mut self, rhs: Area) {
+        self.value += rhs.value;
+    }
+}
+
 impl Sub<Area> for Area {
     type Output = Area;
 
     fn sub(self, rhs: Area) -> Self::Output {
         Area::new(self.value - rhs.value)
+    }
+}
+
+impl SubAssign for Area {
+    fn sub_assign(&mut self, rhs: Area) {
+        self.value -= rhs.value;
     }
 }
 

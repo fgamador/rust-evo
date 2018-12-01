@@ -35,7 +35,7 @@ impl CellControl for NullControl {
 #[derive(Debug)]
 pub struct CyclicResizeControl {
     layer_index: usize,
-    initial_area: Area,
+    current_area: Area,
     growth_ticks: u32,
     growth_amount: Area,
     tick_count: u32,
@@ -45,7 +45,7 @@ impl CyclicResizeControl {
     pub fn new(layer_index: usize, initial_area: Area, growth_ticks: u32, growth_amount: Area) -> Self {
         CyclicResizeControl {
             layer_index,
-            initial_area,
+            current_area: initial_area,
             growth_ticks,
             growth_amount,
             tick_count: 0,
@@ -60,10 +60,11 @@ impl CellControl for CyclicResizeControl {
             self.tick_count = 1;
         }
         if self.tick_count <= self.growth_ticks {
-            vec![ResizeRequest::new(self.layer_index, self.initial_area + self.growth_amount)]
+            self.current_area += self.growth_amount;
         } else {
-            vec![ResizeRequest::new(self.layer_index, self.initial_area - self.growth_amount)]
+            self.current_area -= self.growth_amount;
         }
+        vec![ResizeRequest::new(self.layer_index, self.current_area)]
     }
 }
 
@@ -79,7 +80,7 @@ mod tests {
         assert_eq!(3, reqs[0].layer_index);
     }
 
-    //#[test]
+    #[test]
     fn cyclic_resize_control_returns_alternating_growth_and_shrink_requests() {
         let mut control = CyclicResizeControl::new(0, Area::new(10.0), 2, Area::new(0.5));
         assert_eq!(Area::new(10.5), control.get_resize_requests()[0].desired_area);

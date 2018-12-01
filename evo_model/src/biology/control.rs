@@ -77,7 +77,7 @@ mod tests {
 
     #[test]
     fn cyclic_resize_control_returns_request_for_specified_layer_index() {
-        let cell = SimpleControllableCell::new(Position::new(0.0, 0.0), Length::new(10.0));
+        let _cell = SimpleControllableCell::new(Position::new(0.0, 0.0), Length::new(10.0));
         let mut control = CyclicResizeControl::new(3, Area::new(10.0), 1, Area::new(0.5));
         let reqs = control.get_resize_requests();
         assert_eq!(1, reqs.len());
@@ -86,7 +86,7 @@ mod tests {
 
     #[test]
     fn cyclic_resize_control_returns_alternating_growth_and_shrink_requests() {
-        let mut cell = SimpleControllableCell::new(Position::new(0.0, 0.0), Length::new(10.0));
+        let mut _cell = SimpleControllableCell::new(Position::new(0.0, 0.0), Length::new(10.0));
         let mut control = CyclicResizeControl::new(0, Area::new(10.0), 2, Area::new(0.5));
         assert_eq!(Area::new(10.5), control.get_resize_requests()[0].desired_area);
         assert_eq!(Area::new(11.0), control.get_resize_requests()[0].desired_area);

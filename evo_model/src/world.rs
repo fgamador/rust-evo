@@ -119,14 +119,23 @@ impl<C> World<C>
 
         for _subtick in 0..subticks_per_tick {
             self.apply_influences();
+            self.after_influences(subtick_duration);
             self.exert_forces(subtick_duration);
             self.clear_influences();
         }
+
+        self.after_movement();
     }
 
     fn apply_influences(&mut self) {
         for influence in &self.influences {
             influence.apply(&mut self.cell_graph);
+        }
+    }
+
+    fn after_influences(&mut self, _subtick_duration: Duration) {
+        for _cell in self.cell_graph.unsorted_nodes_mut() {
+            // TODO cell.after_influences(subtick_duration);
         }
     }
 
@@ -141,6 +150,12 @@ impl<C> World<C>
         for cell in self.cell_graph.unsorted_nodes_mut() {
             cell.environment_mut().clear();
             cell.forces_mut().clear();
+        }
+    }
+
+    fn after_movement(&mut self) -> () {
+        for _cell in self.cell_graph.unsorted_nodes_mut() {
+            // TODO cell.after_movement();
         }
     }
 }
@@ -208,7 +223,7 @@ mod tests {
     }
 
     //#[test]
-    fn tick_runs_cell_resize() {
+    fn _tick_runs_cell_resize() {
         let mut world = World::new(Position::new(0.0, 0.0), Position::new(0.0, 0.0))
             .with_cell(Cell::new(Position::new(1.0, 1.0), Velocity::new(1.0, 1.0),
                                  vec![

@@ -154,7 +154,6 @@ mod tests {
     #[test]
     fn tick_moves_ball() {
         let mut world = World::new(Position::new(0.0, 0.0), Position::new(0.0, 0.0))
-            .with_influences(vec![])
             .with_cell(Ball::new(Length::new(1.0), Mass::new(1.0),
                                  Position::new(0.0, 0.0), Velocity::new(1.0, 1.0)));
 

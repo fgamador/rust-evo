@@ -1,7 +1,21 @@
 use std::fmt::Debug;
 
 pub trait CellControl: Debug {
-    fn get_resize_requests(&mut self) -> Vec<(usize, f64)>;
+    fn get_resize_requests(&mut self) -> Vec<ResizeRequest>;
+}
+
+pub struct ResizeRequest {
+    pub layer_index: usize,
+    pub growth_amount: f64,
+}
+
+impl ResizeRequest {
+    pub fn new(layer_index: usize, growth_amount: f64) -> Self {
+        ResizeRequest {
+            layer_index,
+            growth_amount,
+        }
+    }
 }
 
 #[derive(Debug)]
@@ -14,7 +28,7 @@ impl NullControl {
 }
 
 impl CellControl for NullControl {
-    fn get_resize_requests(&mut self) -> Vec<(usize, f64)> { vec![] }
+    fn get_resize_requests(&mut self) -> Vec<ResizeRequest> { vec![] }
 }
 
 #[derive(Debug)]
@@ -37,15 +51,15 @@ impl CyclicResizeControl {
 }
 
 impl CellControl for CyclicResizeControl {
-    fn get_resize_requests(&mut self) -> Vec<(usize, f64)> {
+    fn get_resize_requests(&mut self) -> Vec<ResizeRequest> {
         self.tick_count += 1;
         if self.tick_count > self.growth_ticks * 2 {
             self.tick_count = 1;
         }
         if self.tick_count <= self.growth_ticks {
-            vec![(self.layer_index, self.growth_amount)]
+            vec![ResizeRequest::new(self.layer_index, self.growth_amount)]
         } else {
-            vec![(self.layer_index, -self.growth_amount)]
+            vec![ResizeRequest::new(self.layer_index, -self.growth_amount)]
         }
     }
 }
@@ -59,16 +73,16 @@ mod tests {
         let mut control = CyclicResizeControl::new(3, 1, 0.5);
         let reqs = control.get_resize_requests();
         assert_eq!(1, reqs.len());
-        assert_eq!(3, reqs[0].0);
+        assert_eq!(3, reqs[0].layer_index);
     }
 
     #[test]
     fn cyclic_resize_control_returns_alternating_growth_and_shrink_requests() {
         let mut control = CyclicResizeControl::new(0, 2, 0.5);
-        assert_eq!(0.5, control.get_resize_requests()[0].1);
-        assert_eq!(0.5, control.get_resize_requests()[0].1);
-        assert_eq!(-0.5, control.get_resize_requests()[0].1);
-        assert_eq!(-0.5, control.get_resize_requests()[0].1);
-        assert_eq!(0.5, control.get_resize_requests()[0].1);
+        assert_eq!(0.5, control.get_resize_requests()[0].growth_amount);
+        assert_eq!(0.5, control.get_resize_requests()[0].growth_amount);
+        assert_eq!(-0.5, control.get_resize_requests()[0].growth_amount);
+        assert_eq!(-0.5, control.get_resize_requests()[0].growth_amount);
+        assert_eq!(0.5, control.get_resize_requests()[0].growth_amount);
     }
 }

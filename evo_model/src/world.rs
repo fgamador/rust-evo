@@ -153,10 +153,13 @@ mod tests {
 
     #[test]
     fn tick_moves_ball() {
-        let mut world = create_world(vec![]);
-        world.add_cell(Ball::new(Length::new(1.0), Mass::new(1.0),
+        let mut world = World::new(Position::new(0.0, 0.0), Position::new(0.0, 0.0))
+            .with_influences(vec![])
+            .with_cell(Ball::new(Length::new(1.0), Mass::new(1.0),
                                  Position::new(0.0, 0.0), Velocity::new(1.0, 1.0)));
+
         world.tick();
+
         let ball = &world.cells()[0];
         assert!(ball.position().x() > 0.0);
         assert!(ball.position().y() > 0.0);
@@ -164,12 +167,15 @@ mod tests {
 
     #[test]
     fn tick_with_force_accelerates_ball() {
-        let mut world = create_world(vec![
-            Box::new(SimpleForceInfluence::new(Box::new(ConstantForce::new(Force::new(1.0, 1.0)))))
-        ]);
-        world.add_cell(Ball::new(Length::new(1.0), Mass::new(1.0),
+        let mut world = World::new(Position::new(0.0, 0.0), Position::new(0.0, 0.0))
+            .with_influences(vec![
+                Box::new(SimpleForceInfluence::new(Box::new(ConstantForce::new(Force::new(1.0, 1.0)))))
+            ])
+            .with_cell(Ball::new(Length::new(1.0), Mass::new(1.0),
                                  Position::new(0.0, 0.0), Velocity::new(0.0, 0.0)));
+
         world.tick();
+
         let ball = &world.cells()[0];
         assert!(ball.velocity().x() > 0.0);
         assert!(ball.velocity().y() > 0.0);
@@ -177,30 +183,31 @@ mod tests {
 
     #[test]
     fn overlaps_do_not_persist() {
-        let mut world = create_world(vec![
-            Box::new(UniversalOverlap::new(Overlap::new(Displacement::new(1.0, 1.0))))
-        ]);
-        world.add_cell(Ball::new(Length::new(1.0), Mass::new(1.0),
+        let mut world = World::new(Position::new(0.0, 0.0), Position::new(0.0, 0.0))
+            .with_influences(vec![
+                Box::new(UniversalOverlap::new(Overlap::new(Displacement::new(1.0, 1.0))))
+            ])
+            .with_cell(Ball::new(Length::new(1.0), Mass::new(1.0),
                                  Position::new(0.0, 0.0), Velocity::new(0.0, 0.0)));
+
         world.tick();
+
         let ball = &world.cells()[0];
         assert!(ball.environment().overlaps().is_empty());
     }
 
     #[test]
     fn forces_do_not_persist() {
-        let mut world = create_world(vec![
-            Box::new(SimpleForceInfluence::new(Box::new(ConstantForce::new(Force::new(1.0, 1.0)))))
-        ]);
-        world.add_cell(Ball::new(Length::new(1.0), Mass::new(1.0),
+        let mut world = World::new(Position::new(0.0, 0.0), Position::new(0.0, 0.0))
+            .with_influences(vec![
+                Box::new(SimpleForceInfluence::new(Box::new(ConstantForce::new(Force::new(1.0, 1.0)))))
+            ])
+            .with_cell(Ball::new(Length::new(1.0), Mass::new(1.0),
                                  Position::new(0.0, 0.0), Velocity::new(0.0, 0.0)));
+
         world.tick();
+
         let ball = &world.cells()[0];
         assert_eq!(Force::new(0.0, 0.0), ball.forces().net_force());
-    }
-
-    fn create_world(influences: Vec<Box<Influence<Ball>>>) -> World<Ball> {
-        let world = World::new(Position::new(0.0, 0.0), Position::new(0.0, 0.0));
-        world.with_influences(influences)
     }
 }

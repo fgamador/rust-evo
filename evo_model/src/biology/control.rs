@@ -21,16 +21,16 @@ impl CellControl for NullControl {
 pub struct CyclicResizeControl {
     layer_index: usize,
     growth_ticks: u32,
-    growth_fraction: f64,
+    growth_amount: f64,
     tick_count: u32,
 }
 
 impl CyclicResizeControl {
-    pub fn new(layer_index: usize, growth_ticks: u32, growth_fraction: f64) -> Self {
+    pub fn new(layer_index: usize, growth_ticks: u32, growth_amount: f64) -> Self {
         CyclicResizeControl {
             layer_index,
             growth_ticks,
-            growth_fraction,
+            growth_amount: growth_amount,
             tick_count: 0,
         }
     }
@@ -43,9 +43,9 @@ impl CellControl for CyclicResizeControl {
             self.tick_count = 1;
         }
         if self.tick_count <= self.growth_ticks {
-            vec![(self.layer_index, self.growth_fraction)]
+            vec![(self.layer_index, self.growth_amount)]
         } else {
-            vec![(self.layer_index, -self.growth_fraction)]
+            vec![(self.layer_index, -self.growth_amount)]
         }
     }
 }

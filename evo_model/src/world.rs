@@ -148,6 +148,9 @@ impl<C> World<C>
 #[cfg(test)]
 mod tests {
     use super::*;
+    use biology::cell::Cell;
+    use biology::control::*;
+    use evo_view_model::Color;
     use physics::ball::Ball;
     use physics::overlap::Overlap;
 
@@ -202,5 +205,21 @@ mod tests {
 
         let ball = &world.cells()[0];
         assert_eq!(Force::new(0.0, 0.0), ball.forces().net_force());
+    }
+
+    //#[test]
+    fn tick_runs_cell_resize() {
+        let mut world = World::new(Position::new(0.0, 0.0), Position::new(0.0, 0.0))
+            .with_cell(Cell::new(Position::new(1.0, 1.0), Velocity::new(1.0, 1.0),
+                                 vec![
+                                     Box::new(SimpleCellLayer::new(
+                                         Area::new(10.0), Density::new(1.0), Color::Green)),
+                                 ])
+                .with_control(Box::new(CyclicResizeControl::new(0, 100, 0.5))));
+
+        world.tick();
+
+        let cell = &world.cells()[0];
+        assert_eq!(Area::new(10.5), cell.area());
     }
 }

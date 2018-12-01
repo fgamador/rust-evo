@@ -13,7 +13,7 @@ impl ResizeRequest {
     pub fn new(layer_index: usize, desired_area: f64) -> Self {
         ResizeRequest {
             layer_index,
-            desired_area: desired_area,
+            desired_area,
         }
     }
 }

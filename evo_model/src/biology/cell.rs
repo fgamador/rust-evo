@@ -54,7 +54,7 @@ impl Cell {
             Mass::new(0.0), |mass, layer| mass + layer.mass())
     }
 
-    fn to_state_snapshot(&self) -> CellStateSnapshot {
+    fn get_state_snapshot(&self) -> CellStateSnapshot {
         CellStateSnapshot {
             layers: self.layers.iter()
                 .map(|layer| {
@@ -75,7 +75,7 @@ impl Cell {
 
 impl TickCallbacks for Cell {
     fn resize_phase(&mut self) {
-        let cell_state = self.to_state_snapshot();
+        let cell_state = self.get_state_snapshot();
         let requests = self.control.get_resize_requests(&cell_state);
         self.resize(requests);
     }

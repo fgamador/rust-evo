@@ -63,12 +63,8 @@ impl Cell {
                 .collect()
         }
     }
-}
 
-impl TickCallbacks for Cell {
-    fn resize_phase(&mut self) {
-        let cell_state = self.to_state_snapshot();
-        let requests = self.control.get_resize_requests(&cell_state);
+    fn resize(&mut self, requests: Vec<ResizeRequest>) {
         for request in requests {
             self.layers[request.layer_index].resize(request.desired_area);
         }
@@ -77,6 +73,13 @@ impl TickCallbacks for Cell {
     }
 }
 
+impl TickCallbacks for Cell {
+    fn resize_phase(&mut self) {
+        let cell_state = self.to_state_snapshot();
+        let requests = self.control.get_resize_requests(&cell_state);
+        self.resize(requests);
+    }
+}
 
 impl PartialEq for Cell {
     fn eq(&self, other: &Self) -> bool {

@@ -156,7 +156,7 @@ impl<C> World<C>
 
     fn after_movement(&mut self) -> () {
         for cell in self.cell_graph.unsorted_nodes_mut() {
-            cell.resize_phase();
+            cell.after_movement();
         }
     }
 }
@@ -224,7 +224,7 @@ mod tests {
     }
 
     #[test]
-    fn tick_runs_cell_resize() {
+    fn tick_runs_cell_after_movement_phase() {
         let mut world = World::new(Position::new(0.0, 0.0), Position::new(0.0, 0.0))
             .with_cell(Cell::new(Position::new(1.0, 1.0), Velocity::new(1.0, 1.0),
                                  vec![

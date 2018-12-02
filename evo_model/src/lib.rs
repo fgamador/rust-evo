@@ -28,7 +28,7 @@ pub fn tick<C>(world: &mut World<C>, view_model: &mut ViewModel)
 }
 
 pub trait TickCallbacks {
-    fn resize_phase(&mut self);
+    fn after_movement(&mut self);
 }
 
 fn to_bullseye<C>(cell: &C) -> evo_view_model::Bullseye

@@ -74,7 +74,7 @@ impl Cell {
 }
 
 impl TickCallbacks for Cell {
-    fn resize_phase(&mut self) {
+    fn after_movement(&mut self) {
         let cell_state = self.get_state_snapshot();
         let requests = self.control.get_resize_requests(&cell_state);
         self.resize(requests);
@@ -165,7 +165,7 @@ mod tests {
                                          Area::new(10.0), Density::new(1.0), Color::Green)),
                                  ])
             .with_control(Box::new(CyclicResizeControl::new(0, 100, Area::new(0.5))));
-        cell.resize_phase();
+        cell.after_movement();
         assert_eq!(Mass::new(10.5), cell.mass());
     }
 }

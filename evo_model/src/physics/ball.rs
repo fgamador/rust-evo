@@ -54,7 +54,7 @@ impl Onion for Ball {
 }
 
 impl TickCallbacks for Ball {
-    fn resize_phase(&mut self) {}
+    fn after_movement(&mut self) {}
 }
 
 #[cfg(test)]

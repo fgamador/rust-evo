@@ -7,9 +7,10 @@ use physics::quantities::*;
 use physics::shapes::*;
 use physics::sortable_graph::*;
 use physics::spring::*;
+use TickCallbacks;
 
 pub struct World<C>
-    where C: Circle + GraphNode + HasLocalEnvironment + NewtonianBody + Onion
+    where C: Circle + GraphNode + HasLocalEnvironment + NewtonianBody + Onion + TickCallbacks
 {
     min_corner: Position,
     max_corner: Position,
@@ -18,7 +19,7 @@ pub struct World<C>
 }
 
 impl<C> World<C>
-    where C: Circle + GraphNode + HasLocalEnvironment + NewtonianBody + Onion
+    where C: Circle + GraphNode + HasLocalEnvironment + NewtonianBody + Onion + TickCallbacks
 {
     pub fn new(min_corner: Position, max_corner: Position) -> Self {
         World {
@@ -154,8 +155,8 @@ impl<C> World<C>
     }
 
     fn after_movement(&mut self) -> () {
-        for _cell in self.cell_graph.unsorted_nodes_mut() {
-            // TODO cell.after_movement();
+        for cell in self.cell_graph.unsorted_nodes_mut() {
+            cell.resize_phase();
         }
     }
 }
@@ -222,19 +223,19 @@ mod tests {
         assert_eq!(Force::new(0.0, 0.0), ball.forces().net_force());
     }
 
-    //#[test]
-    fn _tick_runs_cell_resize() {
+    #[test]
+    fn tick_runs_cell_resize() {
         let mut world = World::new(Position::new(0.0, 0.0), Position::new(0.0, 0.0))
             .with_cell(Cell::new(Position::new(1.0, 1.0), Velocity::new(1.0, 1.0),
                                  vec![
                                      Box::new(SimpleCellLayer::new(
                                          Area::new(10.0), Density::new(1.0), Color::Green)),
                                  ])
-                .with_control(Box::new(CyclicResizeControl::new(0, 100, Area::new(0.5)))));
+                .with_control(Box::new(CyclicResizeControl::new(0, 100, Area::new(2.0)))));
 
         world.tick();
 
         let cell = &world.cells()[0];
-        assert_eq!(Area::new(10.5), cell.area());
+        assert_eq!(Area::new(12.0), cell.area());
     }
 }

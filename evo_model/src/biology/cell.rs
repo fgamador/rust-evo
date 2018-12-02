@@ -1,3 +1,4 @@
+use TickCallbacks;
 use biology::control::*;
 use biology::layers::*;
 use environment::environment::*;
@@ -52,7 +53,9 @@ impl Cell {
         layers.iter().fold(
             Mass::new(0.0), |mass, layer| mass + layer.mass())
     }
+}
 
+impl TickCallbacks for Cell {
     fn resize_phase(&mut self) {
         let cell_state = CellStateSnapshot {
             layers: self.layers.iter()

@@ -1,3 +1,4 @@
+use TickCallbacks;
 use biology::layers::*;
 use environment::environment::*;
 use evo_view_model::Color;
@@ -50,6 +51,10 @@ impl Onion for Ball {
     fn layers(&self) -> &[Box<Self::Layer>] {
         &self.layers
     }
+}
+
+impl TickCallbacks for Ball {
+    fn resize_phase(&mut self) {}
 }
 
 #[cfg(test)]

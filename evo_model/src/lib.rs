@@ -17,7 +17,7 @@ use physics::sortable_graph::GraphNode;
 use world::World;
 
 pub fn tick<C>(world: &mut World<C>, view_model: &mut ViewModel)
-    where C: Circle + GraphNode + HasLocalEnvironment + NewtonianBody + Onion
+    where C: Circle + GraphNode + HasLocalEnvironment + NewtonianBody + Onion + TickCallbacks
 {
     world.tick();
 
@@ -25,6 +25,10 @@ pub fn tick<C>(world: &mut World<C>, view_model: &mut ViewModel)
     for cell in world.cells() {
         view_model.bullseyes.push(to_bullseye(cell));
     }
+}
+
+pub trait TickCallbacks {
+    fn resize_phase(&mut self);
 }
 
 fn to_bullseye<C>(cell: &C) -> evo_view_model::Bullseye

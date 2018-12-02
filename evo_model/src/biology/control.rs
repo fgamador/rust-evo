@@ -1,12 +1,19 @@
 use physics::quantities::*;
-use physics::shapes::*;
 use std::fmt::Debug;
 
 pub trait CellControl: Debug {
-    fn get_resize_requests(&mut self, cell: &ControllableCell) -> Vec<ResizeRequest>;
+    fn get_resize_requests(&mut self, cell_state: &CellStateSnapshot) -> Vec<ResizeRequest>;
 }
 
-pub trait ControllableCell: Circle + Debug {}
+#[derive(Debug)]
+pub struct CellStateSnapshot {
+    pub layers: Vec<CellLayerStateSnapshot>,
+}
+
+#[derive(Debug)]
+pub struct CellLayerStateSnapshot {
+    pub area: Area,
+}
 
 pub struct ResizeRequest {
     pub layer_index: usize,
@@ -32,7 +39,7 @@ impl NullControl {
 }
 
 impl CellControl for NullControl {
-    fn get_resize_requests(&mut self, _cell: &ControllableCell) -> Vec<ResizeRequest> { vec![] }
+    fn get_resize_requests(&mut self, _cell_state: &CellStateSnapshot) -> Vec<ResizeRequest> { vec![] }
 }
 
 #[derive(Debug)]
@@ -55,16 +62,16 @@ impl CyclicResizeControl {
 }
 
 impl CellControl for CyclicResizeControl {
-    fn get_resize_requests(&mut self, cell: &ControllableCell) -> Vec<ResizeRequest> {
+    fn get_resize_requests(&mut self, cell_state: &CellStateSnapshot) -> Vec<ResizeRequest> {
         self.tick_count += 1;
         if self.tick_count > self.growth_ticks * 2 {
             self.tick_count = 1;
         }
         let desired_area =
             if self.tick_count <= self.growth_ticks {
-                cell.area() + self.growth_amount
+                cell_state.layers[self.layer_index].area + self.growth_amount
             } else {
-                cell.area() - self.growth_amount
+                cell_state.layers[self.layer_index].area - self.growth_amount
             };
         vec![ResizeRequest::new(self.layer_index, desired_area)]
     }
@@ -73,52 +80,34 @@ impl CellControl for CyclicResizeControl {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use std::f64::consts::PI;
 
     #[test]
     fn cyclic_resize_control_returns_request_for_specified_layer_index() {
-        let cell = SimpleControllableCell::new(Position::new(0.0, 0.0), Length::new(10.0));
-        let mut control = CyclicResizeControl::new(3, 1, Area::new(0.5));
-        let reqs = control.get_resize_requests(&cell);
+        let cell_state = CellStateSnapshot {
+            layers: vec![
+                CellLayerStateSnapshot { area: Area::new(10.0) },
+                CellLayerStateSnapshot { area: Area::new(10.0) }
+            ]
+        };
+        let mut control = CyclicResizeControl::new(1, 1, Area::new(0.5));
+        let reqs = control.get_resize_requests(&cell_state);
         assert_eq!(1, reqs.len());
-        assert_eq!(3, reqs[0].layer_index);
+        assert_eq!(1, reqs[0].layer_index);
     }
 
     #[test]
     fn cyclic_resize_control_returns_alternating_growth_and_shrink_requests() {
-        let cell = SimpleControllableCell::new(Position::new(0.0, 0.0), Length::new(1.0));
-        let mut control = CyclicResizeControl::new(0, 2, Area::new(0.5));
-        assert_eq!(Area::new(PI + 0.5), control.get_resize_requests(&cell)[0].desired_area);
-        assert_eq!(Area::new(PI + 0.5), control.get_resize_requests(&cell)[0].desired_area);
-        assert_eq!(Area::new(PI - 0.5), control.get_resize_requests(&cell)[0].desired_area);
-        assert_eq!(Area::new(PI - 0.5), control.get_resize_requests(&cell)[0].desired_area);
-        assert_eq!(Area::new(PI + 0.5), control.get_resize_requests(&cell)[0].desired_area);
-    }
-
-    #[derive(Debug)]
-    struct SimpleControllableCell {
-        pub center: Position,
-        pub radius: Length,
-    }
-
-    impl SimpleControllableCell {
-        pub fn new(center: Position, radius: Length) -> Self {
-            SimpleControllableCell {
-                center,
-                radius,
-            }
-        }
-    }
-
-    impl ControllableCell for SimpleControllableCell {}
-
-    impl Circle for SimpleControllableCell {
-        fn radius(&self) -> Length {
-            return self.radius;
-        }
-
-        fn center(&self) -> Position {
-            return self.center;
-        }
+        let cell_state = CellStateSnapshot {
+            layers: vec![
+                CellLayerStateSnapshot { area: Area::new(1.0) },
+                CellLayerStateSnapshot { area: Area::new(10.0) }
+            ]
+        };
+        let mut control = CyclicResizeControl::new(1, 2, Area::new(0.5));
+        assert_eq!(Area::new(10.5), control.get_resize_requests(&cell_state)[0].desired_area);
+        assert_eq!(Area::new(10.5), control.get_resize_requests(&cell_state)[0].desired_area);
+        assert_eq!(Area::new(9.5), control.get_resize_requests(&cell_state)[0].desired_area);
+        assert_eq!(Area::new(9.5), control.get_resize_requests(&cell_state)[0].desired_area);
+        assert_eq!(Area::new(10.5), control.get_resize_requests(&cell_state)[0].desired_area);
     }
 }

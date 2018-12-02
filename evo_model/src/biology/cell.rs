@@ -82,8 +82,6 @@ impl Onion for Cell {
     }
 }
 
-impl ControllableCell for Cell {}
-
 #[cfg(test)]
 mod tests {
     use super::*;

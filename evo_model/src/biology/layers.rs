@@ -42,6 +42,8 @@ impl OnionLayer for SimpleOnionLayer {
 }
 
 pub trait CellLayer: OnionLayer {
+    fn area(&self) -> Area;
+
     fn mass(&self) -> Mass;
 
     fn update_outer_radius(&mut self, inner_radius: Length);
@@ -79,6 +81,10 @@ impl OnionLayer for SimpleCellLayer {
 }
 
 impl CellLayer for SimpleCellLayer {
+    fn area(&self) -> Area {
+        self.area
+    }
+
     fn mass(&self) -> Mass {
         self.mass
     }

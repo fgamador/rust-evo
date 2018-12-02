@@ -21,17 +21,17 @@ fn create_world() -> World<Cell> {
         .with_perimeter_walls()
         .with_influences(vec![
             Box::new(SimpleForceInfluence::new(Box::new(WeightForce::new(-0.05)))),
-            Box::new(SimpleForceInfluence::new(Box::new(BuoyancyForce::new(-0.05, 0.001)))),
+            Box::new(SimpleForceInfluence::new(Box::new(BuoyancyForce::new(-0.03, 0.001)))),
             Box::new(SimpleForceInfluence::new(Box::new(DragForce::new(0.0005))))
         ])
         .with_cell(Cell::new(
             Position::new(200.0, -200.0), Velocity::new(0.0, 0.0),
             vec![
                 Box::new(SimpleCellLayer::new(
-                    Area::new(100.0 * PI), Density::new(0.00075), Color::White)),
+                    Area::new(100.0 * PI), Density::new(0.0004), Color::White)),
                 Box::new(SimpleCellLayer::new(
                     Area::new(300.0 * PI), Density::new(0.00075), Color::Green)),
             ])
-            .with_control(Box::new(CyclicResizeControl::new(0, 100, Area::new(0.1))))
+            .with_control(Box::new(CyclicResizeControl::new(0, 200, Area::new(4.5))))
         )
 }

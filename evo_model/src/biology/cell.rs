@@ -53,17 +53,21 @@ impl Cell {
         layers.iter().fold(
             Mass::new(0.0), |mass, layer| mass + layer.mass())
     }
-}
 
-impl TickCallbacks for Cell {
-    fn resize_phase(&mut self) {
-        let cell_state = CellStateSnapshot {
+    fn to_state_snapshot(&self) -> CellStateSnapshot {
+        CellStateSnapshot {
             layers: self.layers.iter()
                 .map(|layer| {
                     CellLayerStateSnapshot { area: layer.area() }
                 })
                 .collect()
-        };
+        }
+    }
+}
+
+impl TickCallbacks for Cell {
+    fn resize_phase(&mut self) {
+        let cell_state = self.to_state_snapshot();
         let requests = self.control.get_resize_requests(&cell_state);
         for request in requests {
             self.layers[request.layer_index].resize(request.desired_area);
@@ -72,6 +76,7 @@ impl TickCallbacks for Cell {
         self.newtonian_state.mass = Self::calc_mass(&self.layers);
     }
 }
+
 
 impl PartialEq for Cell {
     fn eq(&self, other: &Self) -> bool {

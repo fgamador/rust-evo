@@ -53,19 +53,19 @@ impl Cell {
             Mass::new(0.0), |mass, layer| mass + layer.mass())
     }
 
-    fn _resize_phase(&mut self) {
-//        let mut cell_state = CellStateSnapshot {
-//            layers: self.layers.iter()
-//                .map(|layer| {
-//                    CellLayerStateSnapshot { area: layer.area() }
-//                })
-//                .collect()
-//        };
-//        for request in self.control.get_resize_requests(&cell_state) {
-//            self.layers[request.layer_index].resize(request.desired_area);
-//        }
-//        self.radius = Self::update_layer_outer_radii(&mut self.layers);
-//        self.newtonian_state.mass = Self::calc_mass(&self.layers);
+    fn resize_phase(&mut self) {
+        let cell_state = CellStateSnapshot {
+            layers: self.layers.iter()
+                .map(|layer| {
+                    CellLayerStateSnapshot { area: layer.area() }
+                })
+                .collect()
+        };
+        for request in self.control.get_resize_requests(&cell_state) {
+            self.layers[request.layer_index].resize(request.desired_area);
+        }
+        self.radius = Self::update_layer_outer_radii(&mut self.layers);
+        self.newtonian_state.mass = Self::calc_mass(&self.layers);
     }
 }
 
@@ -145,15 +145,15 @@ mod tests {
         assert_eq!(Mass::new(5.0 * PI), cell.mass());
     }
 
-    // #[test]
-    fn _cell_with_cyclic_resize_control_grows_on_first_tick() {
+    #[test]
+    fn cell_with_cyclic_resize_control_grows_on_first_tick() {
         let mut cell = Cell::new(Position::new(1.0, 1.0), Velocity::new(1.0, 1.0),
                                  vec![
                                      Box::new(SimpleCellLayer::new(
                                          Area::new(10.0), Density::new(1.0), Color::Green)),
                                  ])
             .with_control(Box::new(CyclicResizeControl::new(0, 100, Area::new(0.5))));
-        cell._resize_phase();
-        assert_eq!(Mass::new(15.0), cell.mass());
+        cell.resize_phase();
+        assert_eq!(Mass::new(10.5), cell.mass());
     }
 }

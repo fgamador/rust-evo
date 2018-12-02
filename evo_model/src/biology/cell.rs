@@ -64,7 +64,8 @@ impl TickCallbacks for Cell {
                 })
                 .collect()
         };
-        for request in self.control.get_resize_requests(&cell_state) {
+        let requests = self.control.get_resize_requests(&cell_state);
+        for request in requests {
             self.layers[request.layer_index].resize(request.desired_area);
         }
         self.radius = Self::update_layer_outer_radii(&mut self.layers);

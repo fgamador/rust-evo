@@ -54,7 +54,18 @@ impl Cell {
     }
 
     fn _resize_phase(&mut self) {
-        //let _reqs = self.control.get_resize_requests();
+//        let mut cell_state = CellStateSnapshot {
+//            layers: self.layers.iter()
+//                .map(|layer| {
+//                    CellLayerStateSnapshot { area: layer.area() }
+//                })
+//                .collect()
+//        };
+//        for request in self.control.get_resize_requests(&cell_state) {
+//            self.layers[request.layer_index].resize(request.desired_area);
+//        }
+//        self.radius = Self::update_layer_outer_radii(&mut self.layers);
+//        self.newtonian_state.mass = Self::calc_mass(&self.layers);
     }
 }
 

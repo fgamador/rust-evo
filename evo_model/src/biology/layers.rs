@@ -47,6 +47,8 @@ pub trait CellLayer: OnionLayer {
     fn mass(&self) -> Mass;
 
     fn update_outer_radius(&mut self, inner_radius: Length);
+
+    fn resize(&mut self, new_area: Area);
 }
 
 #[derive(Debug)]
@@ -92,6 +94,11 @@ impl CellLayer for SimpleCellLayer {
     fn update_outer_radius(&mut self, inner_radius: Length) {
         self.outer_radius = (inner_radius.sqr() + self.area / PI).sqrt();
     }
+
+    fn resize(&mut self, new_area: Area) {
+        self.area = new_area;
+        self.mass = self.area * self.density;
+    }
 }
 
 #[cfg(test)]
@@ -118,5 +125,14 @@ mod tests {
             Area::new(3.0 * PI), Density::new(1.0), Color::Green);
         layer.update_outer_radius(Length::new(1.0));
         assert_eq!(Length::new(2.0), layer.outer_radius());
+    }
+
+    #[test]
+    fn layer_resize_updates_area_and_mass() {
+        let mut layer = SimpleCellLayer::new(
+            Area::new(1.0), Density::new(2.0), Color::Green);
+        layer.resize(Area::new(2.0));
+        assert_eq!(Area::new(2.0), layer.area());
+        assert_eq!(Mass::new(4.0), layer.mass());
     }
 }

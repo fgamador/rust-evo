@@ -7,6 +7,8 @@ pub trait CellControl: Debug {
 
 #[derive(Debug)]
 pub struct CellStateSnapshot {
+    pub center: Position,
+    pub velocity: Velocity,
     pub layers: Vec<CellLayerStateSnapshot>,
 }
 
@@ -77,6 +79,33 @@ impl CellControl for CyclicResizeControl {
     }
 }
 
+#[derive(Debug)]
+pub struct FixedDepthSeekingControl {
+    float_layer_index: usize,
+    target_y: f64,
+}
+
+impl FixedDepthSeekingControl {
+    pub fn new(float_layer_index: usize, target_y: f64) -> Self {
+        FixedDepthSeekingControl {
+            float_layer_index,
+            target_y,
+        }
+    }
+}
+
+impl CellControl for FixedDepthSeekingControl {
+    fn get_resize_requests(&mut self, cell_state: &CellStateSnapshot) -> Vec<ResizeRequest> {
+        let y_offset = cell_state.center.y() - self.target_y;
+        let target_velocity_y = -y_offset / 100.0;
+        let target_delta_vy = target_velocity_y - cell_state.velocity.y();
+        let desired_delta_area = target_delta_vy * 10.0;
+        let current_area = cell_state.layers[self.float_layer_index].area;
+        let desired_area = Area::new((current_area.value() + desired_delta_area).max(0.0));
+        vec![ResizeRequest::new(self.float_layer_index, desired_area)]
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -84,10 +113,12 @@ mod tests {
     #[test]
     fn cyclic_resize_control_returns_request_for_specified_layer_index() {
         let cell_state = CellStateSnapshot {
+            center: Position::new(0.0, 0.0),
+            velocity: Velocity::new(0.0, 0.0),
             layers: vec![
                 CellLayerStateSnapshot { area: Area::new(10.0) },
                 CellLayerStateSnapshot { area: Area::new(10.0) }
-            ]
+            ],
         };
         let mut control = CyclicResizeControl::new(1, 1, Area::new(0.5));
         let reqs = control.get_resize_requests(&cell_state);
@@ -98,10 +129,12 @@ mod tests {
     #[test]
     fn cyclic_resize_control_returns_alternating_growth_and_shrink_requests() {
         let cell_state = CellStateSnapshot {
+            center: Position::new(0.0, 0.0),
+            velocity: Velocity::new(0.0, 0.0),
             layers: vec![
                 CellLayerStateSnapshot { area: Area::new(1.0) },
                 CellLayerStateSnapshot { area: Area::new(10.0) }
-            ]
+            ],
         };
         let mut control = CyclicResizeControl::new(1, 2, Area::new(0.5));
         assert_eq!(Area::new(10.5), control.get_resize_requests(&cell_state)[0].desired_area);

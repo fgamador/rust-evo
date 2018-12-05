@@ -56,11 +56,13 @@ impl Cell {
 
     fn get_state_snapshot(&self) -> CellStateSnapshot {
         CellStateSnapshot {
+            center: self.center(),
+            velocity: self.velocity(),
             layers: self.layers.iter()
                 .map(|layer| {
                     CellLayerStateSnapshot { area: layer.area() }
                 })
-                .collect()
+                .collect(),
         }
     }
 

@@ -178,9 +178,11 @@ mod tests {
     fn simple_thruster_control_returns_control_requests_for_force() {
         let mut control = SimpleThrusterControl::new(0, Force::new(1.0, -1.0));
         let reqs = control.get_control_requests();
-        assert_eq!(2, reqs.len());
-        assert_eq!(ControlRequest::new(0, 0, 1.0), reqs[0]);
-        assert_eq!(ControlRequest::new(0, 1, -1.0), reqs[1]);
+        assert_eq!(reqs,
+                   vec![
+                       ControlRequest::new(0, 0, 1.0),
+                       ControlRequest::new(0, 1, -1.0)
+                   ]);
     }
 
     #[test]

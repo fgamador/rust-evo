@@ -160,8 +160,11 @@ impl SimpleThrusterControl {
 }
 
 impl CellControl for SimpleThrusterControl {
-    fn get_resize_requests(&mut self, _cell_state: &CellStateSnapshot) -> Vec<ResizeRequest> {
-        vec![]
+    fn get_control_requests(&mut self) -> Vec<ControlRequest> {
+        vec![
+            ControlRequest::new(0, 0, self.force.x()),
+            ControlRequest::new(0, 1, self.force.y()),
+        ]
     }
 }
 
@@ -169,7 +172,7 @@ impl CellControl for SimpleThrusterControl {
 mod tests {
     use super::*;
 
-    //#[test]
+    #[test]
     fn simple_thruster_control_returns_control_requests_for_force() {
         let mut control = SimpleThrusterControl::new(0, Force::new(1.0, -1.0));
         let reqs = control.get_control_requests();

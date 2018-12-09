@@ -76,6 +76,8 @@ impl Cell {
 }
 
 impl TickCallbacks for Cell {
+    fn after_influences(&mut self) {}
+
     fn after_movement(&mut self) {
         let cell_state = self.get_state_snapshot();
         let requests = self.control.get_resize_requests(&cell_state);
@@ -169,5 +171,16 @@ mod tests {
             .with_control(Box::new(SimpleGrowthControl::new(0, Area::new(0.5))));
         cell.after_movement();
         assert_eq!(Mass::new(10.5), cell.mass());
+    }
+
+    //#[test]
+    fn thruster_layer_adds_force_to_cell() {
+        let mut cell = Cell::new(Position::new(1.0, 1.0), Velocity::new(1.0, 1.0),
+                                 vec![
+                                     Box::new(ThrusterLayer::new(Area::new(1.0))),
+                                 ])
+            .with_control(Box::new(SimpleThrusterControl::new(0, Force::new(1.0, -1.0))));
+        cell.after_influences();
+        assert_eq!(Force::new(1.0, -1.0), cell.forces().net_force());
     }
 }

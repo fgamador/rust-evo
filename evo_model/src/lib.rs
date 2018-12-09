@@ -28,6 +28,7 @@ pub fn tick<C>(world: &mut World<C>, view_model: &mut ViewModel)
 }
 
 pub trait TickCallbacks {
+    fn after_influences(&mut self);
     fn after_movement(&mut self);
 }
 

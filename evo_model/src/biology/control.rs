@@ -148,14 +148,14 @@ impl CellControl for FixedDepthSeekingControl {
 
 #[derive(Debug)]
 pub struct SimpleThrusterControl {
-    float_layer_index: usize,
+    thruster_layer_index: usize,
     force: Force,
 }
 
 impl SimpleThrusterControl {
-    pub fn new(float_layer_index: usize, force: Force) -> Self {
+    pub fn new(thruster_layer_index: usize, force: Force) -> Self {
         SimpleThrusterControl {
-            float_layer_index,
+            thruster_layer_index,
             force,
         }
     }
@@ -164,8 +164,8 @@ impl SimpleThrusterControl {
 impl CellControl for SimpleThrusterControl {
     fn get_control_requests(&mut self) -> Vec<ControlRequest> {
         vec![
-            ControlRequest::new(0, 0, self.force.x()),
-            ControlRequest::new(0, 1, self.force.y()),
+            ControlRequest::new(self.thruster_layer_index, 0, self.force.x()),
+            ControlRequest::new(self.thruster_layer_index, 1, self.force.y()),
         ]
     }
 }
@@ -176,12 +176,12 @@ mod tests {
 
     #[test]
     fn simple_thruster_control_returns_control_requests_for_force() {
-        let mut control = SimpleThrusterControl::new(0, Force::new(1.0, -1.0));
+        let mut control = SimpleThrusterControl::new(2, Force::new(1.0, -1.0));
         let reqs = control.get_control_requests();
         assert_eq!(reqs,
                    vec![
-                       ControlRequest::new(0, 0, 1.0),
-                       ControlRequest::new(0, 1, -1.0)
+                       ControlRequest::new(2, 0, 1.0),
+                       ControlRequest::new(2, 1, -1.0)
                    ]);
     }
 

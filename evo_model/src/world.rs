@@ -224,7 +224,7 @@ mod tests {
     }
 
     #[test]
-    fn tick_runs_cell_after_movement_phase() {
+    fn tick_runs_cell_growth() {
         let mut world = World::new(Position::new(0.0, 0.0), Position::new(0.0, 0.0))
             .with_cell(Cell::new(Position::new(0.0, 0.0), Velocity::new(0.0, 0.0),
                                  vec![

@@ -239,7 +239,7 @@ mod tests {
         assert_eq!(Area::new(3.0), cell.area());
     }
 
-    //#[test]
+    // TODO #[test]
     fn _tick_runs_cell_thruster() {
         let mut world = World::new(Position::new(-10.0, -10.0), Position::new(10.0, 10.0))
             .with_cell(Cell::new(Position::new(0.0, 0.0), Velocity::new(0.0, 0.0),

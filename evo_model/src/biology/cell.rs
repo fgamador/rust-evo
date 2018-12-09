@@ -160,13 +160,13 @@ mod tests {
     }
 
     #[test]
-    fn cell_with_cyclic_resize_control_grows_on_first_tick() {
+    fn cell_with_simple_growth_control_grows_on_first_tick() {
         let mut cell = Cell::new(Position::new(1.0, 1.0), Velocity::new(1.0, 1.0),
                                  vec![
                                      Box::new(SimpleCellLayer::new(
                                          Area::new(10.0), Density::new(1.0), Color::Green)),
                                  ])
-            .with_control(Box::new(CyclicResizeControl::new(0, 100, Area::new(0.5))));
+            .with_control(Box::new(SimpleGrowthControl::new(0, Area::new(0.5))));
         cell.after_movement();
         assert_eq!(Mass::new(10.5), cell.mass());
     }

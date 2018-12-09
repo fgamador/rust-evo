@@ -226,16 +226,16 @@ mod tests {
     #[test]
     fn tick_runs_cell_after_movement_phase() {
         let mut world = World::new(Position::new(0.0, 0.0), Position::new(0.0, 0.0))
-            .with_cell(Cell::new(Position::new(1.0, 1.0), Velocity::new(1.0, 1.0),
+            .with_cell(Cell::new(Position::new(0.0, 0.0), Velocity::new(0.0, 0.0),
                                  vec![
                                      Box::new(SimpleCellLayer::new(
-                                         Area::new(10.0), Density::new(1.0), Color::Green)),
+                                         Area::new(1.0), Density::new(1.0), Color::Green)),
                                  ])
                 .with_control(Box::new(SimpleGrowthControl::new(0, Area::new(2.0)))));
 
         world.tick();
 
         let cell = &world.cells()[0];
-        assert_eq!(Area::new(12.0), cell.area());
+        assert_eq!(Area::new(3.0), cell.area());
     }
 }

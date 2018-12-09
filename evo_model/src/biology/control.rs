@@ -19,6 +19,7 @@ pub struct CellLayerStateSnapshot {
     pub area: Area,
 }
 
+#[derive(Debug, PartialEq)]
 pub struct ControlRequest {
     pub layer_index: usize,
     pub input_index: usize,
@@ -35,6 +36,7 @@ impl ControlRequest {
     }
 }
 
+#[derive(Debug, PartialEq)]
 pub struct ResizeRequest {
     pub layer_index: usize,
     pub desired_area: Area,
@@ -177,12 +179,8 @@ mod tests {
         let mut control = SimpleThrusterControl::new(0, Force::new(1.0, -1.0));
         let reqs = control.get_control_requests();
         assert_eq!(2, reqs.len());
-        assert_eq!(0, reqs[0].layer_index);
-        assert_eq!(0, reqs[0].input_index);
-        assert_eq!(1.0, reqs[0].input_value);
-        assert_eq!(0, reqs[1].layer_index);
-        assert_eq!(1, reqs[1].input_index);
-        assert_eq!(-1.0, reqs[1].input_value);
+        assert_eq!(ControlRequest::new(0, 0, 1.0), reqs[0]);
+        assert_eq!(ControlRequest::new(0, 1, -1.0), reqs[1]);
     }
 
     #[test]

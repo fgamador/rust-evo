@@ -128,6 +128,27 @@ impl CellControl for FixedDepthSeekingControl {
     }
 }
 
+#[derive(Debug)]
+pub struct SimpleThrusterControl {
+    float_layer_index: usize,
+    force: Force,
+}
+
+impl SimpleThrusterControl {
+    pub fn new(float_layer_index: usize, force: Force) -> Self {
+        SimpleThrusterControl {
+            float_layer_index,
+            force,
+        }
+    }
+}
+
+impl CellControl for SimpleThrusterControl {
+    fn get_resize_requests(&mut self, _cell_state: &CellStateSnapshot) -> Vec<ResizeRequest> {
+        vec![]
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;

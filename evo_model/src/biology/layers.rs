@@ -101,6 +101,57 @@ impl CellLayer for SimpleCellLayer {
     }
 }
 
+#[derive(Debug)]
+pub struct ThrusterLayer {
+    area: Area,
+    density: Density,
+    mass: Mass,
+    outer_radius: Length,
+    color: Color,
+}
+
+impl ThrusterLayer {
+    pub fn new(area: Area) -> Self {
+        let density = Density::new(1.0); // TODO
+        ThrusterLayer {
+            area,
+            density,
+            mass: area * density,
+            outer_radius: (area / PI).sqrt(),
+            color: Color::Green, // TODO
+        }
+    }
+}
+
+impl OnionLayer for ThrusterLayer {
+    fn outer_radius(&self) -> Length {
+        self.outer_radius
+    }
+
+    fn color(&self) -> Color {
+        self.color
+    }
+}
+
+impl CellLayer for ThrusterLayer {
+    fn area(&self) -> Area {
+        self.area
+    }
+
+    fn mass(&self) -> Mass {
+        self.mass
+    }
+
+    fn update_outer_radius(&mut self, inner_radius: Length) {
+        self.outer_radius = (inner_radius.sqr() + self.area / PI).sqrt();
+    }
+
+    fn resize(&mut self, new_area: Area) {
+        self.area = new_area;
+        self.mass = self.area * self.density;
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;

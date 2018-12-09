@@ -238,4 +238,21 @@ mod tests {
         let cell = &world.cells()[0];
         assert_eq!(Area::new(3.0), cell.area());
     }
+
+    //#[test]
+    fn _tick_runs_cell_thruster() {
+        let mut world = World::new(Position::new(-10.0, -10.0), Position::new(10.0, 10.0))
+            .with_cell(Cell::new(Position::new(0.0, 0.0), Velocity::new(0.0, 0.0),
+                                 vec![
+                                     Box::new(ThrusterLayer::new(Area::new(1.0))),
+                                 ])
+                .with_control(Box::new(SimpleThrusterControl::new(0, Force::new(1.0, -1.0)))));
+
+        world.tick();
+        world.tick();
+
+        let cell = &world.cells()[0];
+        assert!(cell.velocity().x() > 0.0);
+        assert!(cell.velocity().y() < 0.0);
+    }
 }

@@ -2,7 +2,9 @@ use physics::quantities::*;
 use std::fmt::Debug;
 
 pub trait CellControl: Debug {
-    fn get_resize_requests(&mut self, cell_state: &CellStateSnapshot) -> Vec<ResizeRequest>;
+    fn get_control_requests(&mut self) -> Vec<ControlRequest> { vec![] }
+
+    fn get_resize_requests(&mut self, _cell_state: &CellStateSnapshot) -> Vec<ResizeRequest> { vec![] }
 }
 
 #[derive(Debug)]
@@ -15,6 +17,22 @@ pub struct CellStateSnapshot {
 #[derive(Debug)]
 pub struct CellLayerStateSnapshot {
     pub area: Area,
+}
+
+pub struct ControlRequest {
+    pub layer_index: usize,
+    pub input_index: usize,
+    pub input_value: f64,
+}
+
+impl ControlRequest {
+    pub fn new(layer_index: usize, input_index: usize, input_value: f64) -> Self {
+        ControlRequest {
+            layer_index,
+            input_index,
+            input_value,
+        }
+    }
 }
 
 pub struct ResizeRequest {
@@ -40,9 +58,7 @@ impl NullControl {
     }
 }
 
-impl CellControl for NullControl {
-    fn get_resize_requests(&mut self, _cell_state: &CellStateSnapshot) -> Vec<ResizeRequest> { vec![] }
-}
+impl CellControl for NullControl {}
 
 #[derive(Debug)]
 pub struct SimpleGrowthControl {
@@ -152,6 +168,19 @@ impl CellControl for SimpleThrusterControl {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    //#[test]
+    fn simple_thruster_control_returns_control_requests_for_force() {
+        let mut control = SimpleThrusterControl::new(0, Force::new(1.0, -1.0));
+        let reqs = control.get_control_requests();
+        assert_eq!(2, reqs.len());
+        assert_eq!(0, reqs[0].layer_index);
+        assert_eq!(0, reqs[0].input_index);
+        assert_eq!(1.0, reqs[0].input_value);
+        assert_eq!(0, reqs[1].layer_index);
+        assert_eq!(1, reqs[1].input_index);
+        assert_eq!(-1.0, reqs[1].input_value);
+    }
 
     #[test]
     fn cyclic_resize_control_returns_request_for_specified_layer_index() {

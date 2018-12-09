@@ -174,7 +174,7 @@ mod tests {
     }
 
     //#[test]
-    fn thruster_layer_adds_force_to_cell() {
+    fn _thruster_layer_adds_force_to_cell() {
         let mut cell = Cell::new(Position::new(1.0, 1.0), Velocity::new(1.0, 1.0),
                                  vec![
                                      Box::new(ThrusterLayer::new(Area::new(1.0))),

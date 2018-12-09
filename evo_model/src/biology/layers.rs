@@ -48,6 +48,8 @@ pub trait CellLayer: OnionLayer {
 
     fn update_outer_radius(&mut self, inner_radius: Length);
 
+    fn control_input(&mut self, _index: usize, _value: f64) {}
+
     fn resize(&mut self, new_area: Area);
 }
 
@@ -185,5 +187,13 @@ mod tests {
         layer.resize(Area::new(2.0));
         assert_eq!(Area::new(2.0), layer.area());
         assert_eq!(Mass::new(4.0), layer.mass());
+    }
+
+    #[test]
+    fn thruster_layer_has_force_input() {
+        let mut layer = ThrusterLayer::new(Area::new(1.0));
+        layer.control_input(0, 1.0);
+        layer.control_input(1, -1.0);
+        // TODO assertion?
     }
 }

@@ -45,6 +45,28 @@ impl CellControl for NullControl {
 }
 
 #[derive(Debug)]
+pub struct SimpleGrowthControl {
+    layer_index: usize,
+    growth_amount: Area,
+}
+
+impl SimpleGrowthControl {
+    pub fn new(layer_index: usize, growth_amount: Area) -> Self {
+        SimpleGrowthControl {
+            layer_index,
+            growth_amount,
+        }
+    }
+}
+
+impl CellControl for SimpleGrowthControl {
+    fn get_resize_requests(&mut self, cell_state: &CellStateSnapshot) -> Vec<ResizeRequest> {
+        let desired_area = cell_state.layers[self.layer_index].area + self.growth_amount;
+        vec![ResizeRequest::new(self.layer_index, desired_area)]
+    }
+}
+
+#[derive(Debug)]
 pub struct CyclicResizeControl {
     layer_index: usize,
     growth_ticks: u32,

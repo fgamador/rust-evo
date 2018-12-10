@@ -1,4 +1,5 @@
 use evo_view_model::Color;
+use physics::newtonian::Forces;
 use physics::quantities::*;
 use physics::shapes::Circle;
 use std::f64::consts::PI;
@@ -49,6 +50,8 @@ pub trait CellLayer: OnionLayer {
     fn update_outer_radius(&mut self, inner_radius: Length);
 
     fn control_input(&mut self, _index: usize, _value: f64) {}
+
+    fn after_influences(&mut self, _cell: &mut LayerCellAPI) {}
 
     fn resize(&mut self, new_area: Area);
 }
@@ -110,6 +113,8 @@ pub struct ThrusterLayer {
     mass: Mass,
     outer_radius: Length,
     color: Color,
+    force_x: f64,
+    force_y: f64,
 }
 
 impl ThrusterLayer {
@@ -121,6 +126,8 @@ impl ThrusterLayer {
             mass: area * density,
             outer_radius: (area / PI).sqrt(),
             color: Color::Green, // TODO
+            force_x: 0.0,
+            force_y: 0.0,
         }
     }
 }
@@ -148,10 +155,28 @@ impl CellLayer for ThrusterLayer {
         self.outer_radius = (inner_radius.sqr() + self.area / PI).sqrt();
     }
 
+    fn control_input(&mut self, index: usize, value: f64) {
+        match index {
+            0 => self.force_x = value,
+            1 => self.force_y = value,
+            _ => panic!("Invalid control input index: {}", index)
+        }
+    }
+
+    fn after_influences(&mut self, cell: &mut LayerCellAPI) {
+        cell.forces_mut().add_force(Force::new(self.force_x, self.force_y));
+    }
+
     fn resize(&mut self, new_area: Area) {
         self.area = new_area;
         self.mass = self.area * self.density;
     }
+}
+
+pub trait LayerCellAPI {
+    fn forces(&self) -> &Forces;
+
+    fn forces_mut(&mut self) -> &mut Forces;
 }
 
 #[cfg(test)]
@@ -190,10 +215,36 @@ mod tests {
     }
 
     #[test]
-    fn thruster_layer_has_force_input() {
+    fn thruster_layer_adds_force_to_cell() {
         let mut layer = ThrusterLayer::new(Area::new(1.0));
         layer.control_input(0, 1.0);
         layer.control_input(1, -1.0);
-        // TODO assertion?
+
+        let mut cell = SimpleLayerCellAPI::new();
+        layer.after_influences(&mut cell);
+
+        assert_eq!(Force::new(1.0, -1.0), cell.forces().net_force());
+    }
+
+    struct SimpleLayerCellAPI {
+        forces: Forces
+    }
+
+    impl SimpleLayerCellAPI {
+        fn new() -> Self {
+            SimpleLayerCellAPI {
+                forces: Forces::new(0.0, 0.0)
+            }
+        }
+    }
+
+    impl LayerCellAPI for SimpleLayerCellAPI {
+        fn forces(&self) -> &Forces {
+            &self.forces
+        }
+
+        fn forces_mut(&mut self) -> &mut Forces {
+            &mut self.forces
+        }
     }
 }

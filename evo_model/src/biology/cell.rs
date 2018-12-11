@@ -77,8 +77,9 @@ impl Cell {
 
 impl TickCallbacks for Cell {
     fn after_influences(&mut self) {
-        for _layer in &mut self.layers {
-            // TODO layer.after_influences(self);
+        let forces = &mut self.newtonian_state.forces;
+        for layer in &mut self.layers {
+            layer.after_influences(forces);
         }
     }
 
@@ -110,16 +111,6 @@ impl Onion for Cell {
 
     fn layers(&self) -> &[Box<Self::Layer>] {
         &self.layers
-    }
-}
-
-impl LayerCellAPI for Cell {
-    fn forces(&self) -> &Forces {
-        NewtonianBody::forces(self)
-    }
-
-    fn forces_mut(&mut self) -> &mut Forces {
-        NewtonianBody::forces_mut(self)
     }
 }
 
@@ -195,6 +186,6 @@ mod tests {
                                  ])
             .with_control(Box::new(SimpleThrusterControl::new(0, Force::new(1.0, -1.0))));
         cell.after_influences();
-        assert_eq!(Force::new(1.0, -1.0), NewtonianBody::forces(&cell).net_force());
+        assert_eq!(Force::new(1.0, -1.0), cell.forces().net_force());
     }
 }

@@ -51,7 +51,7 @@ pub trait CellLayer: OnionLayer {
 
     fn control_input(&mut self, _index: usize, _value: f64) {}
 
-    fn after_influences(&mut self, _cell: &mut LayerCellAPI) {}
+    fn after_influences(&mut self, _forces: &mut Forces) {}
 
     fn resize(&mut self, new_area: Area);
 }
@@ -163,8 +163,8 @@ impl CellLayer for ThrusterLayer {
         }
     }
 
-    fn after_influences(&mut self, cell: &mut LayerCellAPI) {
-        cell.forces_mut().add_force(Force::new(self.force_x, self.force_y));
+    fn after_influences(&mut self, forces: &mut Forces) {
+        forces.add_force(Force::new(self.force_x, self.force_y));
     }
 
     fn resize(&mut self, new_area: Area) {
@@ -221,7 +221,7 @@ mod tests {
         layer.control_input(1, -1.0);
 
         let mut cell = SimpleLayerCellAPI::new();
-        layer.after_influences(&mut cell);
+        layer.after_influences(cell.forces_mut());
 
         assert_eq!(Force::new(1.0, -1.0), cell.forces().net_force());
     }

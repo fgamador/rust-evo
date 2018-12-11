@@ -54,7 +54,7 @@ impl Onion for Ball {
 }
 
 impl TickCallbacks for Ball {
-    fn after_influences(&mut self) {}
+    fn after_influences(&mut self, _subtick_duration: Duration) {}
 
     fn after_movement(&mut self) {}
 }

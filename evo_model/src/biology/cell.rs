@@ -76,7 +76,7 @@ impl Cell {
 }
 
 impl TickCallbacks for Cell {
-    fn after_influences(&mut self) {
+    fn after_influences(&mut self, _subtick_duration: Duration) {
         let forces = &mut self.newtonian_state.forces;
         for layer in &mut self.layers {
             layer.after_influences(forces);
@@ -191,7 +191,7 @@ mod tests {
                                  ])
             .with_control(Box::new(SimpleThrusterControl::new(0, Force::new(1.0, -1.0))));
         cell.after_movement();
-        cell.after_influences();
+        cell.after_influences(Duration::new(1.0));
         assert_eq!(Force::new(1.0, -1.0), cell.forces().net_force());
     }
 }

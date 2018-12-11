@@ -134,9 +134,9 @@ impl<C> World<C>
         }
     }
 
-    fn after_influences(&mut self, _subtick_duration: Duration) {
-        for _cell in self.cell_graph.unsorted_nodes_mut() {
-            // TODO cell.after_influences(subtick_duration);
+    fn after_influences(&mut self, subtick_duration: Duration) {
+        for cell in self.cell_graph.unsorted_nodes_mut() {
+            cell.after_influences(subtick_duration);
         }
     }
 
@@ -239,8 +239,8 @@ mod tests {
         assert_eq!(Area::new(3.0), cell.area());
     }
 
-    // TODO #[test]
-    fn _tick_runs_cell_thruster() {
+    #[test]
+    fn tick_runs_cell_thruster() {
         let mut world = World::new(Position::new(-10.0, -10.0), Position::new(10.0, 10.0))
             .with_cell(Cell::new(Position::new(0.0, 0.0), Velocity::new(0.0, 0.0),
                                  vec![

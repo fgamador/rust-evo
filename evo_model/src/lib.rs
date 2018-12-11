@@ -11,7 +11,7 @@ use biology::layers::*;
 use environment::environment::HasLocalEnvironment;
 use evo_view_model::ViewModel;
 use physics::newtonian::NewtonianBody;
-use physics::quantities::Position;
+use physics::quantities::*;
 use physics::shapes::*;
 use physics::sortable_graph::GraphNode;
 use world::World;
@@ -28,7 +28,7 @@ pub fn tick<C>(world: &mut World<C>, view_model: &mut ViewModel)
 }
 
 pub trait TickCallbacks {
-    fn after_influences(&mut self);
+    fn after_influences(&mut self, subtick_duration: Duration);
 
     fn after_movement(&mut self);
 }
@@ -57,7 +57,6 @@ fn to_point(pos: Position) -> evo_view_model::Point {
 mod tests {
     use super::*;
     use physics::ball::Ball;
-    use physics::quantities::*;
     use evo_view_model::Point;
 
     #[test]

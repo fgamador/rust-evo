@@ -171,21 +171,21 @@ impl CellControl for SimpleThrusterControl {
 }
 
 #[derive(Debug)]
-pub struct BoxThrusterControl {
+pub struct ThrustInSquareControl {
     thruster_layer_index: usize,
     force: Force,
 }
 
-impl BoxThrusterControl {
+impl ThrustInSquareControl {
     pub fn new(thruster_layer_index: usize, force: Force) -> Self {
-        BoxThrusterControl {
+        ThrustInSquareControl {
             thruster_layer_index,
             force,
         }
     }
 }
 
-impl CellControl for BoxThrusterControl {
+impl CellControl for ThrustInSquareControl {
     fn get_control_requests(&mut self, _cell_state: &CellStateSnapshot) -> Vec<ControlRequest> {
         vec![
             ControlRequest::new(self.thruster_layer_index, 0, self.force.x()),

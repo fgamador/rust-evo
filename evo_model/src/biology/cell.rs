@@ -77,7 +77,7 @@ impl Cell {
 
 impl TickCallbacks for Cell {
     fn after_influences(&mut self, _subtick_duration: Duration) {
-        let forces = &mut self.newtonian_state.forces;
+        let forces = &mut self.newtonian_state.forces_mut();
         for layer in &mut self.layers {
             layer.after_influences(forces);
         }

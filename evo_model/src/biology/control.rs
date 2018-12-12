@@ -2,7 +2,7 @@ use physics::quantities::*;
 use std::fmt::Debug;
 
 pub trait CellControl: Debug {
-    fn get_control_requests(&mut self) -> Vec<ControlRequest> { vec![] }
+    fn get_control_requests(&mut self, _cell_state: &CellStateSnapshot) -> Vec<ControlRequest> { vec![] }
 
     fn get_resize_requests(&mut self, _cell_state: &CellStateSnapshot) -> Vec<ResizeRequest> { vec![] }
 }
@@ -162,7 +162,31 @@ impl SimpleThrusterControl {
 }
 
 impl CellControl for SimpleThrusterControl {
-    fn get_control_requests(&mut self) -> Vec<ControlRequest> {
+    fn get_control_requests(&mut self, _cell_state: &CellStateSnapshot) -> Vec<ControlRequest> {
+        vec![
+            ControlRequest::new(self.thruster_layer_index, 0, self.force.x()),
+            ControlRequest::new(self.thruster_layer_index, 1, self.force.y()),
+        ]
+    }
+}
+
+#[derive(Debug)]
+pub struct BoxThrusterControl {
+    thruster_layer_index: usize,
+    force: Force,
+}
+
+impl BoxThrusterControl {
+    pub fn new(thruster_layer_index: usize, force: Force) -> Self {
+        BoxThrusterControl {
+            thruster_layer_index,
+            force,
+        }
+    }
+}
+
+impl CellControl for BoxThrusterControl {
+    fn get_control_requests(&mut self, _cell_state: &CellStateSnapshot) -> Vec<ControlRequest> {
         vec![
             ControlRequest::new(self.thruster_layer_index, 0, self.force.x()),
             ControlRequest::new(self.thruster_layer_index, 1, self.force.y()),
@@ -176,8 +200,16 @@ mod tests {
 
     #[test]
     fn simple_thruster_control_returns_control_requests_for_force() {
+        let cell_state = CellStateSnapshot {
+            center: Position::new(0.0, 0.0),
+            velocity: Velocity::new(0.0, 0.0),
+            layers: vec![
+                CellLayerStateSnapshot { area: Area::new(10.0) },
+                CellLayerStateSnapshot { area: Area::new(10.0) }
+            ],
+        };
         let mut control = SimpleThrusterControl::new(2, Force::new(1.0, -1.0));
-        let reqs = control.get_control_requests();
+        let reqs = control.get_control_requests(&cell_state);
         assert_eq!(reqs,
                    vec![
                        ControlRequest::new(2, 0, 1.0),

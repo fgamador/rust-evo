@@ -84,12 +84,13 @@ impl TickCallbacks for Cell {
     }
 
     fn after_movement(&mut self) {
-        let control_requests = self.control.get_control_requests();
+        let cell_state = self.get_state_snapshot();
+
+        let control_requests = self.control.get_control_requests(&cell_state);
         for request in control_requests {
             self.layers[request.layer_index].control_input(request.input_index, request.input_value);
         }
 
-        let cell_state = self.get_state_snapshot();
         let resize_requests = self.control.get_resize_requests(&cell_state);
         self.resize(resize_requests);
     }

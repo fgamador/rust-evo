@@ -182,16 +182,18 @@ pub enum Direction {
 pub struct ThrustInSquareControl {
     thruster_layer_index: usize,
     force: f64,
+    accel_ticks: u32,
     ticks_before_turn: u32,
     direction: Direction,
     ticks: u32,
 }
 
 impl ThrustInSquareControl {
-    pub fn new(thruster_layer_index: usize, force: f64, initial_direction: Direction, ticks_before_turn: u32) -> Self {
+    pub fn new(thruster_layer_index: usize, force: f64, initial_direction: Direction, accel_ticks: u32, ticks_before_turn: u32) -> Self {
         ThrustInSquareControl {
             thruster_layer_index,
             force,
+            accel_ticks,
             ticks_before_turn,
             direction: initial_direction,
             ticks: 0,
@@ -219,12 +221,18 @@ impl ThrustInSquareControl {
 
 impl CellControl for ThrustInSquareControl {
     fn get_control_requests(&mut self, _cell_state: &CellStateSnapshot) -> Vec<ControlRequest> {
+        let force = if self.ticks < self.accel_ticks {
+            Self::calc_force(self.force, self.direction)
+        } else {
+            Force::new(0.0, 0.0)
+        };
+
         self.ticks += 1;
         if self.ticks >= self.ticks_before_turn {
             self.ticks = 0;
             self.direction = Self::turn(self.direction);
         }
-        let force = Self::calc_force(self.force, self.direction);
+
         vec![
             ControlRequest::new(self.thruster_layer_index, 0, force.x()),
             ControlRequest::new(self.thruster_layer_index, 1, force.y()),

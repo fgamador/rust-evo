@@ -19,7 +19,7 @@ fn create_world() -> World<Cell> {
     World::new(Position::new(0.0, -400.0), Position::new(400.0, 0.0))
         .with_perimeter_walls()
         .with_influences(vec![
-            Box::new(SimpleForceInfluence::new(Box::new(DragForce::new(0.001))))
+            Box::new(SimpleForceInfluence::new(Box::new(DragForce::new(2.0))))
         ])
         .with_cells(vec![
             Cell::new(
@@ -28,6 +28,6 @@ fn create_world() -> World<Cell> {
                     Box::new(ThrusterLayer::new(Area::new(200.0 * PI))),
                 ])
                 .with_control(Box::new(
-                    ThrustInSquareControl::new(0, 10.0, Direction::Left, 100))),
+                    ThrustInSquareControl::new(0, 70.0, Direction::Left, 100, 200))),
         ])
 }

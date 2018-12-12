@@ -170,26 +170,64 @@ impl CellControl for SimpleThrusterControl {
     }
 }
 
+#[derive(Debug, Clone, Copy)]
+pub enum Direction {
+    Left,
+    Up,
+    Right,
+    Down,
+}
+
 #[derive(Debug)]
 pub struct ThrustInSquareControl {
     thruster_layer_index: usize,
-    force: Force,
+    force: f64,
+    ticks_before_turn: u32,
+    direction: Direction,
+    ticks: u32,
 }
 
 impl ThrustInSquareControl {
-    pub fn new(thruster_layer_index: usize, force: Force) -> Self {
+    pub fn new(thruster_layer_index: usize, force: f64, initial_direction: Direction, ticks_before_turn: u32) -> Self {
         ThrustInSquareControl {
             thruster_layer_index,
             force,
+            ticks_before_turn,
+            direction: initial_direction,
+            ticks: 0,
+        }
+    }
+
+    fn turn(direction: Direction) -> Direction {
+        match direction {
+            Direction::Left => Direction::Up,
+            Direction::Up => Direction::Right,
+            Direction::Right => Direction::Down,
+            Direction::Down => Direction::Left,
+        }
+    }
+
+    fn calc_force(magnitude: f64, direction: Direction) -> Force {
+        match direction {
+            Direction::Left => Force::new(-magnitude, 0.0),
+            Direction::Up => Force::new(0.0, magnitude),
+            Direction::Right => Force::new(magnitude, 0.0),
+            Direction::Down => Force::new(0.0, -magnitude),
         }
     }
 }
 
 impl CellControl for ThrustInSquareControl {
     fn get_control_requests(&mut self, _cell_state: &CellStateSnapshot) -> Vec<ControlRequest> {
+        self.ticks += 1;
+        if self.ticks >= self.ticks_before_turn {
+            self.ticks = 0;
+            self.direction = Self::turn(self.direction);
+        }
+        let force = Self::calc_force(self.force, self.direction);
         vec![
-            ControlRequest::new(self.thruster_layer_index, 0, self.force.x()),
-            ControlRequest::new(self.thruster_layer_index, 1, self.force.y()),
+            ControlRequest::new(self.thruster_layer_index, 0, force.x()),
+            ControlRequest::new(self.thruster_layer_index, 1, force.y()),
         ]
     }
 }

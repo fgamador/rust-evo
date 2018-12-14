@@ -129,11 +129,7 @@ impl CellLayer for SimpleCellLayer {
 
 #[derive(Debug)]
 pub struct ThrusterLayer {
-    area: Area,
-    density: Density,
-    mass: Mass,
-    outer_radius: Length,
-    color: Color,
+    annulus: Annulus,
     force_x: f64,
     force_y: f64,
 }
@@ -142,11 +138,7 @@ impl ThrusterLayer {
     pub fn new(area: Area) -> Self {
         let density = Density::new(1.0); // TODO
         ThrusterLayer {
-            area,
-            density,
-            mass: area * density,
-            outer_radius: (area / PI).sqrt(),
-            color: Color::Green, // TODO
+            annulus: Annulus::new(area, density, Color::Green), // TODO color
             force_x: 0.0,
             force_y: 0.0,
         }
@@ -155,25 +147,25 @@ impl ThrusterLayer {
 
 impl OnionLayer for ThrusterLayer {
     fn outer_radius(&self) -> Length {
-        self.outer_radius
+        self.annulus.outer_radius
     }
 
     fn color(&self) -> Color {
-        self.color
+        self.annulus.color
     }
 }
 
 impl CellLayer for ThrusterLayer {
     fn area(&self) -> Area {
-        self.area
+        self.annulus.area
     }
 
     fn mass(&self) -> Mass {
-        self.mass
+        self.annulus.mass
     }
 
     fn update_outer_radius(&mut self, inner_radius: Length) {
-        self.outer_radius = (inner_radius.sqr() + self.area / PI).sqrt();
+        self.annulus.update_outer_radius(inner_radius);
     }
 
     fn control_input(&mut self, index: usize, value: f64) {
@@ -189,8 +181,7 @@ impl CellLayer for ThrusterLayer {
     }
 
     fn resize(&mut self, new_area: Area) {
-        self.area = new_area;
-        self.mass = self.area * self.density;
+        self.annulus.resize(new_area);
     }
 }
 

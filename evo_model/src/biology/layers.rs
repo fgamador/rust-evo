@@ -187,11 +187,7 @@ impl CellLayer for ThrusterLayer {
 
 #[derive(Debug)]
 pub struct PhotoLayer {
-    area: Area,
-    density: Density,
-    mass: Mass,
-    outer_radius: Length,
-    color: Color,
+    annulus: Annulus,
     efficiency: f64,
 }
 
@@ -199,11 +195,7 @@ impl PhotoLayer {
     pub fn new(area: Area, efficiency: f64) -> Self {
         let density = Density::new(1.0); // TODO
         PhotoLayer {
-            area,
-            density,
-            mass: area * density,
-            outer_radius: (area / PI).sqrt(),
-            color: Color::Green, // TODO
+            annulus: Annulus::new(area, density, Color::Green),
             efficiency,
         }
     }
@@ -211,25 +203,25 @@ impl PhotoLayer {
 
 impl OnionLayer for PhotoLayer {
     fn outer_radius(&self) -> Length {
-        self.outer_radius
+        self.annulus.outer_radius
     }
 
     fn color(&self) -> Color {
-        self.color
+        self.annulus.color
     }
 }
 
 impl CellLayer for PhotoLayer {
     fn area(&self) -> Area {
-        self.area
+        self.annulus.area
     }
 
     fn mass(&self) -> Mass {
-        self.mass
+        self.annulus.mass
     }
 
     fn update_outer_radius(&mut self, inner_radius: Length) {
-        self.outer_radius = (inner_radius.sqr() + self.area / PI).sqrt();
+        self.annulus.update_outer_radius(inner_radius);
     }
 
     fn control_input(&mut self, _index: usize, _value: f64) {
@@ -245,8 +237,7 @@ impl CellLayer for PhotoLayer {
     }
 
     fn resize(&mut self, new_area: Area) {
-        self.area = new_area;
-        self.mass = self.area * self.density;
+        self.annulus.resize(new_area);
     }
 }
 

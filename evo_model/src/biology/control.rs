@@ -2,7 +2,7 @@ use physics::quantities::*;
 use std::fmt::Debug;
 
 pub trait CellControl: Debug {
-    fn get_control_requests(&mut self, _cell_state: &CellStateSnapshot) -> Vec<ControlRequestOld> { vec![] }
+    fn get_control_requests(&mut self, _cell_state: &CellStateSnapshot) -> Vec<ControlRequest> { vec![] }
 
     fn get_resize_requests(&mut self, _cell_state: &CellStateSnapshot) -> Vec<ResizeRequest> { vec![] }
 }
@@ -20,15 +20,15 @@ pub struct CellLayerStateSnapshot {
 }
 
 #[derive(Debug, PartialEq)]
-pub struct ControlRequestOld {
+pub struct ControlRequest {
     pub layer_index: usize,
     pub input_index: usize,
     pub input_value: f64,
 }
 
-impl ControlRequestOld {
+impl ControlRequest {
     pub fn new(layer_index: usize, input_index: usize, input_value: f64) -> Self {
-        ControlRequestOld {
+        ControlRequest {
             layer_index,
             input_index,
             input_value,
@@ -185,10 +185,10 @@ impl SimpleThrusterControl {
 }
 
 impl CellControl for SimpleThrusterControl {
-    fn get_control_requests(&mut self, _cell_state: &CellStateSnapshot) -> Vec<ControlRequestOld> {
+    fn get_control_requests(&mut self, _cell_state: &CellStateSnapshot) -> Vec<ControlRequest> {
         vec![
-            ControlRequestOld::new(self.thruster_layer_index, 0, self.force.x()),
-            ControlRequestOld::new(self.thruster_layer_index, 1, self.force.y()),
+            ControlRequest::new(self.thruster_layer_index, 0, self.force.x()),
+            ControlRequest::new(self.thruster_layer_index, 1, self.force.y()),
         ]
     }
 }
@@ -243,7 +243,7 @@ impl ThrustInSquareControl {
 }
 
 impl CellControl for ThrustInSquareControl {
-    fn get_control_requests(&mut self, _cell_state: &CellStateSnapshot) -> Vec<ControlRequestOld> {
+    fn get_control_requests(&mut self, _cell_state: &CellStateSnapshot) -> Vec<ControlRequest> {
         let force = if self.ticks < self.accel_ticks {
             Self::calc_force(self.force, self.direction)
         } else {
@@ -257,8 +257,8 @@ impl CellControl for ThrustInSquareControl {
         }
 
         vec![
-            ControlRequestOld::new(self.thruster_layer_index, 0, force.x()),
-            ControlRequestOld::new(self.thruster_layer_index, 1, force.y()),
+            ControlRequest::new(self.thruster_layer_index, 0, force.x()),
+            ControlRequest::new(self.thruster_layer_index, 1, force.y()),
         ]
     }
 }
@@ -281,8 +281,8 @@ mod tests {
         let reqs = control.get_control_requests(&cell_state);
         assert_eq!(reqs,
                    vec![
-                       ControlRequestOld::new(2, 0, 1.0),
-                       ControlRequestOld::new(2, 1, -1.0)
+                       ControlRequest::new(2, 0, 1.0),
+                       ControlRequest::new(2, 1, -1.0)
                    ]);
     }
 

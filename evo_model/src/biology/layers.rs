@@ -125,8 +125,12 @@ impl CellLayer for SimpleCellLayer {
         self.annulus.update_outer_radius(inner_radius);
     }
 
-    fn execute_control_request(&mut self, _request: ControlRequest) {
-        // TODO resize
+    fn execute_control_request(&mut self, request: ControlRequest) {
+        match request.control_index {
+            0 => self.annulus.resize(Area::new(request.control_value)),
+            1 => (), // TODO maintenance/repair
+            _ => panic!("Invalid control input index: {}", request.control_index)
+        }
     }
 
     fn resize(&mut self, new_area: Area) {
@@ -175,8 +179,14 @@ impl CellLayer for ThrusterLayer {
         self.annulus.update_outer_radius(inner_radius);
     }
 
-    fn execute_control_request(&mut self, _request: ControlRequest) {
-        // TODO resize and set force
+    fn execute_control_request(&mut self, request: ControlRequest) {
+        match request.control_index {
+            0 => self.annulus.resize(Area::new(request.control_value)),
+            1 => (), // TODO maintenance/repair
+            2 => self.force_x = request.control_value,
+            3 => self.force_y = request.control_value,
+            _ => panic!("Invalid control input index: {}", request.control_index)
+        }
     }
 
     fn control_input(&mut self, index: usize, value: f64) {
@@ -235,8 +245,12 @@ impl CellLayer for PhotoLayer {
         self.annulus.update_outer_radius(inner_radius);
     }
 
-    fn execute_control_request(&mut self, _request: ControlRequest) {
-        // TODO resize
+    fn execute_control_request(&mut self, request: ControlRequest) {
+        match request.control_index {
+            0 => self.annulus.resize(Area::new(request.control_value)),
+            1 => (), // TODO maintenance/repair
+            _ => panic!("Invalid control input index: {}", request.control_index)
+        }
     }
 
     fn after_influences(&mut self, _forces: &mut Forces) {

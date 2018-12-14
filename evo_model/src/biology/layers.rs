@@ -56,7 +56,9 @@ pub trait CellLayer: OnionLayer {
 
     fn after_influences(&mut self, _forces: &mut Forces) {}
 
-    fn resize(&mut self, new_area: Area);
+    fn resize(&mut self, new_area: Area) {
+        self.execute_control_request(ControlRequest::new(0, 0, new_area.value()));
+    }
 }
 
 #[derive(Debug)]
@@ -132,10 +134,6 @@ impl CellLayer for SimpleCellLayer {
             _ => panic!("Invalid control input index: {}", request.control_index)
         }
     }
-
-    fn resize(&mut self, new_area: Area) {
-        self.annulus.resize(new_area);
-    }
 }
 
 #[derive(Debug)]
@@ -200,10 +198,6 @@ impl CellLayer for ThrusterLayer {
     fn after_influences(&mut self, forces: &mut Forces) {
         forces.add_force(Force::new(self.force_x, self.force_y));
     }
-
-    fn resize(&mut self, new_area: Area) {
-        self.annulus.resize(new_area);
-    }
 }
 
 #[derive(Debug)]
@@ -255,10 +249,6 @@ impl CellLayer for PhotoLayer {
 
     fn after_influences(&mut self, _forces: &mut Forces) {
         // TODO convert light into energy
-    }
-
-    fn resize(&mut self, new_area: Area) {
-        self.annulus.resize(new_area);
     }
 }
 

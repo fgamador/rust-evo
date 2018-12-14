@@ -224,14 +224,6 @@ impl CellLayer for PhotoLayer {
         self.annulus.update_outer_radius(inner_radius);
     }
 
-    fn control_input(&mut self, _index: usize, _value: f64) {
-//        match index {
-//            0 => self.force_x = value,
-//            1 => self.force_y = value,
-//            _ => panic!("Invalid control input index: {}", index)
-//        }
-    }
-
     fn after_influences(&mut self, _forces: &mut Forces) {
 //        forces.add_force(Force::new(self.force_x, self.force_y));
     }

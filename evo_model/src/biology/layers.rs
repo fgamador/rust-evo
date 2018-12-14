@@ -57,7 +57,7 @@ pub trait CellLayer: OnionLayer {
 }
 
 #[derive(Debug)]
-pub struct SimpleCellLayer {
+pub struct Annulus {
     area: Area,
     density: Density,
     mass: Mass,
@@ -65,9 +65,9 @@ pub struct SimpleCellLayer {
     color: Color,
 }
 
-impl SimpleCellLayer {
+impl Annulus {
     pub fn new(area: Area, density: Density, color: Color) -> Self {
-        SimpleCellLayer {
+        Annulus {
             area,
             density,
             mass: area * density,
@@ -75,34 +75,55 @@ impl SimpleCellLayer {
             color,
         }
     }
+
+    pub fn update_outer_radius(&mut self, inner_radius: Length) {
+        self.outer_radius = (inner_radius.sqr() + self.area / PI).sqrt();
+    }
+
+    pub fn resize(&mut self, new_area: Area) {
+        self.area = new_area;
+        self.mass = self.area * self.density;
+    }
+}
+
+#[derive(Debug)]
+pub struct SimpleCellLayer {
+    annulus: Annulus
+}
+
+impl SimpleCellLayer {
+    pub fn new(area: Area, density: Density, color: Color) -> Self {
+        SimpleCellLayer {
+            annulus: Annulus::new(area, density, color)
+        }
+    }
 }
 
 impl OnionLayer for SimpleCellLayer {
     fn outer_radius(&self) -> Length {
-        self.outer_radius
+        self.annulus.outer_radius
     }
 
     fn color(&self) -> Color {
-        self.color
+        self.annulus.color
     }
 }
 
 impl CellLayer for SimpleCellLayer {
     fn area(&self) -> Area {
-        self.area
+        self.annulus.area
     }
 
     fn mass(&self) -> Mass {
-        self.mass
+        self.annulus.mass
     }
 
     fn update_outer_radius(&mut self, inner_radius: Length) {
-        self.outer_radius = (inner_radius.sqr() + self.area / PI).sqrt();
+        self.annulus.update_outer_radius(inner_radius);
     }
 
     fn resize(&mut self, new_area: Area) {
-        self.area = new_area;
-        self.mass = self.area * self.density;
+        self.annulus.resize(new_area);
     }
 }
 

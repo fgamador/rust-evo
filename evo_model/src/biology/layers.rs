@@ -1,3 +1,4 @@
+use biology::control::*;
 use evo_view_model::Color;
 use physics::newtonian::Forces;
 use physics::quantities::*;
@@ -48,6 +49,8 @@ pub trait CellLayer: OnionLayer {
     fn mass(&self) -> Mass;
 
     fn update_outer_radius(&mut self, inner_radius: Length);
+
+    fn execute_control_request(&mut self, request: ControlRequest);
 
     fn control_input(&mut self, _index: usize, _value: f64) {}
 
@@ -122,6 +125,10 @@ impl CellLayer for SimpleCellLayer {
         self.annulus.update_outer_radius(inner_radius);
     }
 
+    fn execute_control_request(&mut self, _request: ControlRequest) {
+        // TODO resize
+    }
+
     fn resize(&mut self, new_area: Area) {
         self.annulus.resize(new_area);
     }
@@ -166,6 +173,10 @@ impl CellLayer for ThrusterLayer {
 
     fn update_outer_radius(&mut self, inner_radius: Length) {
         self.annulus.update_outer_radius(inner_radius);
+    }
+
+    fn execute_control_request(&mut self, _request: ControlRequest) {
+        // TODO resize and set force
     }
 
     fn control_input(&mut self, index: usize, value: f64) {
@@ -224,8 +235,12 @@ impl CellLayer for PhotoLayer {
         self.annulus.update_outer_radius(inner_radius);
     }
 
+    fn execute_control_request(&mut self, _request: ControlRequest) {
+        // TODO resize
+    }
+
     fn after_influences(&mut self, _forces: &mut Forces) {
-//        forces.add_force(Force::new(self.force_x, self.force_y));
+        // TODO convert light into energy
     }
 
     fn resize(&mut self, new_area: Area) {

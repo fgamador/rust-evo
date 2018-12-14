@@ -261,6 +261,31 @@ impl<C> Influence<C> for UniversalOverlap
     }
 }
 
+#[derive(Debug)]
+pub struct Sunlight {
+    max_intensity: f64,
+    min_intensity: f64,
+}
+
+impl Sunlight {
+    pub fn new(max_intensity: f64, min_intensity: f64) -> Self {
+        Sunlight {
+            max_intensity,
+            min_intensity,
+        }
+    }
+}
+
+impl<C> Influence<C> for Sunlight
+    where C: Circle + GraphNode + HasLocalEnvironment + NewtonianBody
+{
+    fn apply(&self, _cell_graph: &mut SortableGraph<C, Bond, AngleGusset>) {
+//        for cell in cell_graph.unsorted_nodes_mut() {
+//            cell.environment_mut().set_sunlight(TODO);
+//        }
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;

@@ -173,6 +173,71 @@ impl CellLayer for ThrusterLayer {
     }
 }
 
+#[derive(Debug)]
+pub struct PhotoLayer {
+    area: Area,
+    density: Density,
+    mass: Mass,
+    outer_radius: Length,
+    color: Color,
+    efficiency: f64,
+}
+
+impl PhotoLayer {
+    pub fn new(area: Area, efficiency: f64) -> Self {
+        let density = Density::new(1.0); // TODO
+        PhotoLayer {
+            area,
+            density,
+            mass: area * density,
+            outer_radius: (area / PI).sqrt(),
+            color: Color::Green, // TODO
+            efficiency,
+        }
+    }
+}
+
+impl OnionLayer for PhotoLayer {
+    fn outer_radius(&self) -> Length {
+        self.outer_radius
+    }
+
+    fn color(&self) -> Color {
+        self.color
+    }
+}
+
+impl CellLayer for PhotoLayer {
+    fn area(&self) -> Area {
+        self.area
+    }
+
+    fn mass(&self) -> Mass {
+        self.mass
+    }
+
+    fn update_outer_radius(&mut self, inner_radius: Length) {
+        self.outer_radius = (inner_radius.sqr() + self.area / PI).sqrt();
+    }
+
+    fn control_input(&mut self, _index: usize, _value: f64) {
+//        match index {
+//            0 => self.force_x = value,
+//            1 => self.force_y = value,
+//            _ => panic!("Invalid control input index: {}", index)
+//        }
+    }
+
+    fn after_influences(&mut self, _forces: &mut Forces) {
+//        forces.add_force(Force::new(self.force_x, self.force_y));
+    }
+
+    fn resize(&mut self, new_area: Area) {
+        self.area = new_area;
+        self.mass = self.area * self.density;
+    }
+}
+
 pub trait LayerCellAPI {
     fn forces(&self) -> &Forces;
 

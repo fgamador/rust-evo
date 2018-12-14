@@ -255,4 +255,20 @@ mod tests {
         assert!(cell.velocity().x() > 0.0);
         assert!(cell.velocity().y() < 0.0);
     }
+
+    //#[test]
+    fn _growth_is_limited_by_energy() {
+        let mut world = World::new(Position::new(-10.0, -10.0), Position::new(10.0, 10.0))
+            .with_influence(Box::new(Sunlight::new(10.0, 0.0)))
+            .with_cell(Cell::new(Position::new(0.0, 0.0), Velocity::new(0.0, 0.0),
+                                 vec![
+                                     Box::new(PhotoLayer::new(Area::new(10.0), 1.0)),
+                                 ])
+                .with_control(Box::new(ContinuousGrowthControl::new(0, Area::new(100.0)))));
+
+        world.tick();
+
+        let cell = &world.cells()[0];
+        assert_eq!(Area::new(15.0), cell.area());
+    }
 }

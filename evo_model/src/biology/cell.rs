@@ -88,7 +88,7 @@ impl TickCallbacks for Cell {
 
         let control_requests = self.control.get_control_requests(&cell_state);
         for request in control_requests {
-            self.layers[request.layer_index].control_input(request.input_index, request.input_value);
+            self.layers[request.layer_index].control_input(request.control_index, request.control_value);
         }
 
         let resize_requests = self.control.get_resize_requests(&cell_state);

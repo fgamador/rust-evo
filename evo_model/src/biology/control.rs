@@ -22,16 +22,16 @@ pub struct CellLayerStateSnapshot {
 #[derive(Debug, PartialEq)]
 pub struct ControlRequest {
     pub layer_index: usize,
-    pub input_index: usize,
-    pub input_value: f64,
+    pub control_index: usize,
+    pub control_value: f64,
 }
 
 impl ControlRequest {
-    pub fn new(layer_index: usize, input_index: usize, input_value: f64) -> Self {
+    pub fn new(layer_index: usize, control_index: usize, control_value: f64) -> Self {
         ControlRequest {
             layer_index,
-            input_index,
-            input_value,
+            control_index,
+            control_value,
         }
     }
 }

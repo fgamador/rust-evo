@@ -188,11 +188,7 @@ impl CellLayer for ThrusterLayer {
     }
 
     fn control_input(&mut self, index: usize, value: f64) {
-        match index {
-            0 => self.force_x = value,
-            1 => self.force_y = value,
-            _ => panic!("Invalid control input index: {}", index)
-        }
+        self.execute_control_request(ControlRequest::new(0, index + 2, value));
     }
 
     fn after_influences(&mut self, forces: &mut Forces) {

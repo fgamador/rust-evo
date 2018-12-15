@@ -277,7 +277,7 @@ impl Sunlight {
     }
 
     fn calc_light_intensity(&self, y: f64) -> f64 {
-        self.slope * y + self.intercept
+        (self.slope * y + self.intercept).max(0.0)
     }
 }
 
@@ -439,5 +439,22 @@ mod tests {
 
         let cell = cell_graph.node(cell_handle);
         assert_eq!(15.0, cell.environment().light_intensity());
+    }
+
+    #[test]
+    fn sunlight_never_negative() {
+        let mut cell_graph = SortableGraph::new();
+        let sunlight = Sunlight::new(-10.0, 0.0, 0.0, 10.0);
+        let cell_handle = cell_graph.add_node(
+            Cell::new(Position::new(0.0, -11.0), Velocity::new(0.0, 0.0),
+                      vec![
+                          Box::new(SimpleCellLayer::new(
+                              Area::new(10.0), Density::new(1.0), Color::Green)),
+                      ]));
+
+        sunlight.apply(&mut cell_graph);
+
+        let cell = cell_graph.node(cell_handle);
+        assert_eq!(0.0, cell.environment().light_intensity());
     }
 }

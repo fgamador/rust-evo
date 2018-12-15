@@ -263,15 +263,19 @@ impl<C> Influence<C> for UniversalOverlap
 
 #[derive(Debug)]
 pub struct Sunlight {
-    max_intensity: f64,
+    min_y: f64,
+    max_y: f64,
     min_intensity: f64,
+    max_intensity: f64,
 }
 
 impl Sunlight {
-    pub fn new(max_intensity: f64, min_intensity: f64) -> Self {
+    pub fn new(min_y: f64, max_y: f64, min_intensity: f64, max_intensity: f64) -> Self {
         Sunlight {
-            max_intensity,
+            min_y,
+            max_y,
             min_intensity,
+            max_intensity,
         }
     }
 }
@@ -289,6 +293,9 @@ impl<C> Influence<C> for Sunlight
 #[cfg(test)]
 mod tests {
     use super::*;
+    use biology::cell::Cell;
+    use biology::layers::SimpleCellLayer;
+    use evo_view_model::Color;
     use physics::ball::Ball;
     use std::f64::consts::PI;
 
@@ -413,5 +420,22 @@ mod tests {
         let drag = DragForce::new(0.5);
         let ball = Ball::new(Length::new(2.0), Mass::new(1.0), Position::new(0.0, 0.0), Velocity::new(2.0, -3.0));
         assert_eq!(Force::new(-4.0, 9.0), drag.calc_force(&ball));
+    }
+
+    #[test]
+    fn sunlight_adds_light() {
+        let mut cell_graph = SortableGraph::new();
+        let sunlight = Sunlight::new(-10.0, 10.0, 10.0, 20.0);
+        let cell_handle = cell_graph.add_node(
+            Cell::new(Position::new(0.0, 0.0), Velocity::new(0.0, 0.0),
+                      vec![
+                          Box::new(SimpleCellLayer::new(
+                              Area::new(10.0), Density::new(1.0), Color::Green)),
+                      ]));
+
+        sunlight.apply(&mut cell_graph);
+
+        let cell = cell_graph.node(cell_handle);
+        //assert_eq!(15.0, cell.environment().light_intensity());
     }
 }

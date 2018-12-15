@@ -71,28 +71,6 @@ impl CellControl for NullControl {
 }
 
 #[derive(Debug)]
-pub struct SimpleGrowthControl {
-    layer_index: usize,
-    growth_amount: Area,
-}
-
-impl SimpleGrowthControl {
-    pub fn new(layer_index: usize, growth_amount: Area) -> Self {
-        SimpleGrowthControl {
-            layer_index,
-            growth_amount,
-        }
-    }
-}
-
-impl CellControl for SimpleGrowthControl {
-    fn get_control_requests(&mut self, cell_state: &CellStateSnapshot) -> Vec<ControlRequest> {
-        let desired_area = cell_state.layers[self.layer_index].area + self.growth_amount;
-        vec![ControlRequest::new(self.layer_index, 0, desired_area.value())]
-    }
-}
-
-#[derive(Debug)]
 pub struct ContinuousGrowthControl {
     layer_index: usize,
     growth_amount: Area,

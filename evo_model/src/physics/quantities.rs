@@ -205,6 +205,8 @@ pub struct Position {
 }
 
 impl Position {
+    pub const ORIGIN: Position = Position { x: 0.0, y: 0.0 };
+
     pub fn new(x: f64, y: f64) -> Self {
         Position { x, y }
     }
@@ -329,6 +331,8 @@ pub struct Velocity {
 }
 
 impl Velocity {
+    pub const ZERO: Velocity = Velocity { x: 0.0, y: 0.0 };
+
     pub fn new(x: f64, y: f64) -> Self {
         Velocity { x, y }
     }

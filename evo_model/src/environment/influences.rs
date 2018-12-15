@@ -367,11 +367,11 @@ mod tests {
         let mut cell_graph = SortableGraph::new();
 
         let ball1_handle = cell_graph.add_node(Ball::new(Length::new(1.0), Mass::new(1.0),
-                                                         Position::new(0.1, 2.0), Velocity::new(0.0, 0.0)));
+                                                         Position::new(0.1, 2.0), Velocity::ZERO));
         let ball2_handle = cell_graph.add_node(Ball::new(Length::new(1.0), Mass::new(1.0),
-                                                         Position::new(0.0, 0.0), Velocity::new(0.0, 0.0)));
+                                                         Position::new(0.0, 0.0), Velocity::ZERO));
         let ball3_handle = cell_graph.add_node(Ball::new(Length::new(1.0), Mass::new(1.0),
-                                                         Position::new(0.0, -2.0), Velocity::new(0.0, 0.0)));
+                                                         Position::new(0.0, -2.0), Velocity::ZERO));
 
         let bond = Bond::new(cell_graph.node(ball1_handle), cell_graph.node(ball2_handle));
         let bond1_handle = cell_graph.add_edge(bond);
@@ -393,7 +393,7 @@ mod tests {
         let force = Force::new(2.0, -3.0);
         let influence = SimpleForceInfluence::new(Box::new(ConstantForce::new(force)));
         let ball_handle = cell_graph.add_node(Ball::new(Length::new(1.0), Mass::new(3.0),
-                                                        Position::new(0.0, 0.0), Velocity::new(0.0, 0.0)));
+                                                        Position::new(0.0, 0.0), Velocity::ZERO));
 
         influence.apply(&mut cell_graph);
 
@@ -404,14 +404,14 @@ mod tests {
     #[test]
     fn weight_adds_force_proportional_to_mass() {
         let weight = WeightForce::new(-2.0);
-        let ball = Ball::new(Length::new(1.0), Mass::new(3.0), Position::new(0.0, 0.0), Velocity::new(0.0, 0.0));
+        let ball = Ball::new(Length::new(1.0), Mass::new(3.0), Position::new(0.0, 0.0), Velocity::ZERO);
         assert_eq!(Force::new(0.0, -6.0), weight.calc_force(&ball));
     }
 
     #[test]
     fn buoyancy_adds_force_proportional_to_area() {
         let buoyancy = BuoyancyForce::new(-2.0, 2.0);
-        let ball = Ball::new(Length::new(2.0 / PI.sqrt()), Mass::new(1.0), Position::new(0.0, 0.0), Velocity::new(0.0, 0.0));
+        let ball = Ball::new(Length::new(2.0 / PI.sqrt()), Mass::new(1.0), Position::new(0.0, 0.0), Velocity::ZERO);
         let force = buoyancy.calc_force(&ball);
         assert_eq!(0.0, force.x());
         assert_eq!(16.0, force.y().round());
@@ -429,7 +429,7 @@ mod tests {
         let sunlight = Sunlight::new(-10.0, 10.0, 10.0, 20.0);
         let mut cell_graph = SortableGraph::new();
         let cell_handle = cell_graph.add_node(
-            Cell::new(Position::new(0.0, 0.0), Velocity::new(0.0, 0.0),
+            Cell::new(Position::new(0.0, 0.0), Velocity::ZERO,
                       vec![
                           Box::new(SimpleCellLayer::new(
                               Area::new(1.0), Density::new(1.0), Color::Green)),
@@ -446,7 +446,7 @@ mod tests {
         let sunlight = Sunlight::new(-10.0, 0.0, 0.0, 10.0);
         let mut cell_graph = SortableGraph::new();
         let cell_handle = cell_graph.add_node(
-            Cell::new(Position::new(0.0, -11.0), Velocity::new(0.0, 0.0),
+            Cell::new(Position::new(0.0, -11.0), Velocity::ZERO,
                       vec![
                           Box::new(SimpleCellLayer::new(
                               Area::new(1.0), Density::new(1.0), Color::Green)),

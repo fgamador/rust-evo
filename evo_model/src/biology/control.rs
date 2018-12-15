@@ -266,8 +266,8 @@ mod tests {
             ],
         };
         let mut control = SimpleThrusterControl::new(2, Force::new(1.0, -1.0));
-        let reqs = control.get_control_requests(&cell_state);
-        assert_eq!(reqs,
+        let requests = control.get_control_requests(&cell_state);
+        assert_eq!(requests,
                    vec![
                        ControlRequest::new(2, 2, 1.0),
                        ControlRequest::new(2, 3, -1.0)

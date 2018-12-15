@@ -52,8 +52,6 @@ pub trait CellLayer: OnionLayer {
 
     fn execute_control_request(&mut self, request: ControlRequest);
 
-    fn control_input(&mut self, _index: usize, _value: f64) {}
-
     fn after_influences(&mut self, _forces: &mut Forces) {}
 
     fn resize(&mut self, new_area: Area) {
@@ -185,10 +183,6 @@ impl CellLayer for ThrusterLayer {
             3 => self.force_y = request.control_value,
             _ => panic!("Invalid control input index: {}", request.control_index)
         }
-    }
-
-    fn control_input(&mut self, index: usize, value: f64) {
-        self.execute_control_request(ControlRequest::new(0, index + 2, value));
     }
 
     fn after_influences(&mut self, forces: &mut Forces) {

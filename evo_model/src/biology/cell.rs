@@ -83,11 +83,6 @@ impl TickCallbacks for Cell {
             self.layers[request.layer_index].execute_control_request(request);
         }
 
-        let resize_requests = self.control.get_resize_requests(&cell_state);
-        for request in resize_requests {
-            self.layers[request.layer_index].execute_control_request(
-                ControlRequest::new(request.layer_index, 0, request.desired_area.value()));
-        }
         self.radius = Self::update_layer_outer_radii(&mut self.layers);
         self.newtonian_state.mass = Self::calc_mass(&self.layers);
     }

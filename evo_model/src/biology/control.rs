@@ -241,6 +241,21 @@ mod tests {
     use super::*;
 
     #[test]
+    fn continuous_growth_control_returns_request_to_grow_specified_layer() {
+        let cell_state = CellStateSnapshot {
+            center: Position::new(0.0, 0.0),
+            velocity: Velocity::new(0.0, 0.0),
+            layers: vec![
+                CellLayerStateSnapshot { area: Area::new(1.0) },
+                CellLayerStateSnapshot { area: Area::new(2.0) }
+            ],
+        };
+        let mut control = ContinuousGrowthControl::new(1, Area::new(0.5));
+        let requests = control.get_control_requests(&cell_state);
+        assert_eq!(requests, vec![ControlRequest::new(1, 0, 2.5)]);
+    }
+
+    #[test]
     fn simple_thruster_control_returns_control_requests_for_force() {
         let cell_state = CellStateSnapshot {
             center: Position::new(0.0, 0.0),
@@ -257,20 +272,5 @@ mod tests {
                        ControlRequest::new(2, 2, 1.0),
                        ControlRequest::new(2, 3, -1.0)
                    ]);
-    }
-
-    #[test]
-    fn continuous_growth_control_returns_request_to_grow_specified_layer() {
-        let cell_state = CellStateSnapshot {
-            center: Position::new(0.0, 0.0),
-            velocity: Velocity::new(0.0, 0.0),
-            layers: vec![
-                CellLayerStateSnapshot { area: Area::new(1.0) },
-                CellLayerStateSnapshot { area: Area::new(2.0) }
-            ],
-        };
-        let mut control = ContinuousGrowthControl::new(1, Area::new(0.5));
-        let requests = control.get_control_requests(&cell_state);
-        assert_eq!(requests, vec![ControlRequest::new(1, 0, 2.5)]);
     }
 }

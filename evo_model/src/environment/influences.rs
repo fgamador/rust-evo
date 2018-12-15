@@ -263,30 +263,32 @@ impl<C> Influence<C> for UniversalOverlap
 
 #[derive(Debug)]
 pub struct Sunlight {
-    min_y: f64,
-    max_y: f64,
-    min_intensity: f64,
-    max_intensity: f64,
+    slope: f64,
+    intercept: f64,
 }
 
 impl Sunlight {
     pub fn new(min_y: f64, max_y: f64, min_intensity: f64, max_intensity: f64) -> Self {
+        let slope = (max_intensity - min_intensity) / (max_y - min_y);
         Sunlight {
-            min_y,
-            max_y,
-            min_intensity,
-            max_intensity,
+            slope,
+            intercept: max_intensity - slope * max_y,
         }
+    }
+
+    fn calc_light_intensity(&self, y: f64) -> f64 {
+        self.slope * y + self.intercept
     }
 }
 
 impl<C> Influence<C> for Sunlight
     where C: Circle + GraphNode + HasLocalEnvironment + NewtonianBody
 {
-    fn apply(&self, _cell_graph: &mut SortableGraph<C, Bond, AngleGusset>) {
-//        for cell in cell_graph.unsorted_nodes_mut() {
-//            cell.environment_mut().set_sunlight(TODO);
-//        }
+    fn apply(&self, cell_graph: &mut SortableGraph<C, Bond, AngleGusset>) {
+        for cell in cell_graph.unsorted_nodes_mut() {
+            let y = cell.center().y();
+            cell.environment_mut().add_light_intensity(self.calc_light_intensity(y));
+        }
     }
 }
 
@@ -436,6 +438,6 @@ mod tests {
         sunlight.apply(&mut cell_graph);
 
         let cell = cell_graph.node(cell_handle);
-        //assert_eq!(15.0, cell.environment().light_intensity());
+        assert_eq!(15.0, cell.environment().light_intensity());
     }
 }

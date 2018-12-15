@@ -426,13 +426,13 @@ mod tests {
 
     #[test]
     fn sunlight_adds_light() {
-        let mut cell_graph = SortableGraph::new();
         let sunlight = Sunlight::new(-10.0, 10.0, 10.0, 20.0);
+        let mut cell_graph = SortableGraph::new();
         let cell_handle = cell_graph.add_node(
             Cell::new(Position::new(0.0, 0.0), Velocity::new(0.0, 0.0),
                       vec![
                           Box::new(SimpleCellLayer::new(
-                              Area::new(10.0), Density::new(1.0), Color::Green)),
+                              Area::new(1.0), Density::new(1.0), Color::Green)),
                       ]));
 
         sunlight.apply(&mut cell_graph);
@@ -443,13 +443,13 @@ mod tests {
 
     #[test]
     fn sunlight_never_negative() {
-        let mut cell_graph = SortableGraph::new();
         let sunlight = Sunlight::new(-10.0, 0.0, 0.0, 10.0);
+        let mut cell_graph = SortableGraph::new();
         let cell_handle = cell_graph.add_node(
             Cell::new(Position::new(0.0, -11.0), Velocity::new(0.0, 0.0),
                       vec![
                           Box::new(SimpleCellLayer::new(
-                              Area::new(10.0), Density::new(1.0), Color::Green)),
+                              Area::new(1.0), Density::new(1.0), Color::Green)),
                       ]));
 
         sunlight.apply(&mut cell_graph);

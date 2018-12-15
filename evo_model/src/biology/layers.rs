@@ -278,7 +278,7 @@ mod tests {
     fn layer_resize_updates_area_and_mass() {
         let mut layer = SimpleCellLayer::new(
             Area::new(1.0), Density::new(2.0), Color::Green);
-        layer.resize(Area::new(2.0));
+        layer.execute_control_request(ControlRequest::new(0, 0, 2.0));
         assert_eq!(Area::new(2.0), layer.area());
         assert_eq!(Mass::new(4.0), layer.mass());
     }

@@ -68,7 +68,8 @@ impl Cell {
 
     fn resize(&mut self, requests: Vec<ResizeRequest>) {
         for request in requests {
-            self.layers[request.layer_index].resize(request.desired_area);
+            self.layers[request.layer_index].execute_control_request(
+                ControlRequest::new(request.layer_index, 0, request.desired_area.value()));
         }
         self.radius = Self::update_layer_outer_radii(&mut self.layers);
         self.newtonian_state.mass = Self::calc_mass(&self.layers);

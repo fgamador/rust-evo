@@ -1,4 +1,5 @@
 use biology::control::*;
+use environment::environment::LocalEnvironment;
 use evo_view_model::Color;
 use physics::newtonian::Forces;
 use physics::quantities::*;
@@ -50,7 +51,7 @@ pub trait CellLayer: OnionLayer {
 
     fn update_outer_radius(&mut self, inner_radius: Length);
 
-    fn after_influences(&mut self, _forces: &mut Forces) {}
+    fn after_influences(&mut self, _env: &LocalEnvironment, _forces: &mut Forces) {}
 
     fn execute_control_request(&mut self, request: ControlRequest);
 }
@@ -171,7 +172,7 @@ impl CellLayer for ThrusterLayer {
         self.annulus.update_outer_radius(inner_radius);
     }
 
-    fn after_influences(&mut self, forces: &mut Forces) {
+    fn after_influences(&mut self, _env: &LocalEnvironment, forces: &mut Forces) {
         forces.add_force(Force::new(self.force_x, self.force_y));
     }
 
@@ -225,7 +226,7 @@ impl CellLayer for PhotoLayer {
         self.annulus.update_outer_radius(inner_radius);
     }
 
-    fn after_influences(&mut self, _forces: &mut Forces) {
+    fn after_influences(&mut self, _env: &LocalEnvironment, _forces: &mut Forces) {
         // TODO convert light into energy
     }
 
@@ -247,6 +248,7 @@ pub trait LayerCellAPI {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use environment::environment::LocalEnvironment;
 
     #[test]
     fn layer_calculates_mass() {
@@ -285,9 +287,23 @@ mod tests {
         layer.execute_control_request(ControlRequest::new(0, 2, 1.0));
         layer.execute_control_request(ControlRequest::new(0, 3, -1.0));
 
+        let env = LocalEnvironment::new();
         let mut forces = Forces::new(0.0, 0.0);
-        layer.after_influences(&mut forces);
+        layer.after_influences(&env, &mut forces);
 
         assert_eq!(Force::new(1.0, -1.0), forces.net_force());
+    }
+
+    //#[test]
+    fn _photo_layer_adds_energy() {
+        let mut layer = PhotoLayer::new(Area::new(1.0), 0.5);
+
+        let mut env = LocalEnvironment::new();
+        env.add_light_intensity(10.0);
+        let mut forces = Forces::new(0.0, 0.0);
+        layer.after_influences(&env, &mut forces);
+
+        // TODO there's no cell; how to we check?
+        //assert_eq!(Force::new(1.0, -1.0), forces.net_force());
     }
 }

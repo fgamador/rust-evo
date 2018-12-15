@@ -231,7 +231,7 @@ mod tests {
                                      Box::new(SimpleCellLayer::new(
                                          Area::new(1.0), Density::new(1.0), Color::Green)),
                                  ])
-                .with_control(Box::new(SimpleGrowthControl::new(0, Area::new(2.0)))));
+                .with_control(Box::new(ContinuousGrowthControl::new(0, Area::new(2.0)))));
 
         world.tick();
 

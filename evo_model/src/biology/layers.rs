@@ -280,15 +280,15 @@ mod tests {
     }
 
     #[test]
-    fn thruster_layer_adds_force_to_cell() {
+    fn thruster_layer_adds_force() {
         let mut layer = ThrusterLayer::new(Area::new(1.0));
         layer.execute_control_request(ControlRequest::new(0, 2, 1.0));
         layer.execute_control_request(ControlRequest::new(0, 3, -1.0));
 
-        let mut cell = SimpleLayerCellAPI::new();
-        layer.after_influences(cell.forces_mut());
+        let mut forces = Forces::new(0.0, 0.0);
+        layer.after_influences(&mut forces);
 
-        assert_eq!(Force::new(1.0, -1.0), cell.forces().net_force());
+        assert_eq!(Force::new(1.0, -1.0), forces.net_force());
     }
 
     struct SimpleLayerCellAPI {

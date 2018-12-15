@@ -2,7 +2,11 @@ use physics::quantities::*;
 use std::fmt::Debug;
 
 pub trait CellControl: Debug {
-    fn get_control_requests(&mut self, _cell_state: &CellStateSnapshot) -> Vec<ControlRequest> { vec![] }
+    fn get_control_requests(&mut self, cell_state: &CellStateSnapshot) -> Vec<ControlRequest> {
+        self.get_resize_requests(cell_state).iter()
+            .map(|resize_request| ControlRequest::new(resize_request.layer_index, 0, resize_request.desired_area.value()))
+            .collect()
+    }
 
     fn get_resize_requests(&mut self, _cell_state: &CellStateSnapshot) -> Vec<ResizeRequest> { vec![] }
 }
@@ -60,7 +64,11 @@ impl NullControl {
     }
 }
 
-impl CellControl for NullControl {}
+impl CellControl for NullControl {
+    fn get_control_requests(&mut self, _cell_state: &CellStateSnapshot) -> Vec<ControlRequest> {
+        vec![]
+    }
+}
 
 #[derive(Debug)]
 pub struct SimpleGrowthControl {
@@ -297,7 +305,7 @@ mod tests {
             ],
         };
         let mut control = CyclicResizeControl::new(1, 1, Area::new(0.5));
-        let reqs = control.get_resize_requests(&cell_state);
+        let reqs = control.get_control_requests(&cell_state);
         assert_eq!(1, reqs.len());
         assert_eq!(1, reqs[0].layer_index);
     }

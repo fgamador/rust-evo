@@ -290,26 +290,4 @@ mod tests {
 
         assert_eq!(Force::new(1.0, -1.0), forces.net_force());
     }
-
-    struct SimpleLayerCellAPI {
-        forces: Forces
-    }
-
-    impl SimpleLayerCellAPI {
-        fn new() -> Self {
-            SimpleLayerCellAPI {
-                forces: Forces::new(0.0, 0.0)
-            }
-        }
-    }
-
-    impl LayerCellAPI for SimpleLayerCellAPI {
-        fn forces(&self) -> &Forces {
-            &self.forces
-        }
-
-        fn forces_mut(&mut self) -> &mut Forces {
-            &mut self.forces
-        }
-    }
 }

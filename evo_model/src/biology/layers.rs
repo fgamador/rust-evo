@@ -292,8 +292,8 @@ mod tests {
     #[test]
     fn thruster_layer_adds_force_to_cell() {
         let mut layer = ThrusterLayer::new(Area::new(1.0));
-        layer.control_input(0, 1.0);
-        layer.control_input(1, -1.0);
+        layer.execute_control_request(ControlRequest::new(0, 2, 1.0));
+        layer.execute_control_request(ControlRequest::new(0, 3, -1.0));
 
         let mut cell = SimpleLayerCellAPI::new();
         layer.after_influences(cell.forces_mut());

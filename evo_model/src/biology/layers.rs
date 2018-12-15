@@ -53,10 +53,6 @@ pub trait CellLayer: OnionLayer {
     fn execute_control_request(&mut self, request: ControlRequest);
 
     fn after_influences(&mut self, _forces: &mut Forces) {}
-
-    fn resize(&mut self, new_area: Area) {
-        self.execute_control_request(ControlRequest::new(0, 0, new_area.value()));
-    }
 }
 
 #[derive(Debug)]

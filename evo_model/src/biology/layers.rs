@@ -50,9 +50,9 @@ pub trait CellLayer: OnionLayer {
 
     fn update_outer_radius(&mut self, inner_radius: Length);
 
-    fn execute_control_request(&mut self, request: ControlRequest);
-
     fn after_influences(&mut self, _forces: &mut Forces) {}
+
+    fn execute_control_request(&mut self, request: ControlRequest);
 }
 
 #[derive(Debug)]
@@ -171,6 +171,10 @@ impl CellLayer for ThrusterLayer {
         self.annulus.update_outer_radius(inner_radius);
     }
 
+    fn after_influences(&mut self, forces: &mut Forces) {
+        forces.add_force(Force::new(self.force_x, self.force_y));
+    }
+
     fn execute_control_request(&mut self, request: ControlRequest) {
         match request.control_index {
             0 => self.annulus.resize(Area::new(request.control_value)),
@@ -179,10 +183,6 @@ impl CellLayer for ThrusterLayer {
             3 => self.force_y = request.control_value,
             _ => panic!("Invalid control input index: {}", request.control_index)
         }
-    }
-
-    fn after_influences(&mut self, forces: &mut Forces) {
-        forces.add_force(Force::new(self.force_x, self.force_y));
     }
 }
 
@@ -225,16 +225,16 @@ impl CellLayer for PhotoLayer {
         self.annulus.update_outer_radius(inner_radius);
     }
 
+    fn after_influences(&mut self, _forces: &mut Forces) {
+        // TODO convert light into energy
+    }
+
     fn execute_control_request(&mut self, request: ControlRequest) {
         match request.control_index {
             0 => self.annulus.resize(Area::new(request.control_value)),
             1 => (), // TODO maintenance/repair
             _ => panic!("Invalid control input index: {}", request.control_index)
         }
-    }
-
-    fn after_influences(&mut self, _forces: &mut Forces) {
-        // TODO convert light into energy
     }
 }
 

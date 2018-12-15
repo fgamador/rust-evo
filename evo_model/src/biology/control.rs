@@ -187,8 +187,8 @@ impl SimpleThrusterControl {
 impl CellControl for SimpleThrusterControl {
     fn get_control_requests(&mut self, _cell_state: &CellStateSnapshot) -> Vec<ControlRequest> {
         vec![
-            ControlRequest::new(self.thruster_layer_index, 0, self.force.x()),
-            ControlRequest::new(self.thruster_layer_index, 1, self.force.y()),
+            ControlRequest::new(self.thruster_layer_index, 2, self.force.x()),
+            ControlRequest::new(self.thruster_layer_index, 3, self.force.y()),
         ]
     }
 }
@@ -257,8 +257,8 @@ impl CellControl for ThrustInSquareControl {
         }
 
         vec![
-            ControlRequest::new(self.thruster_layer_index, 0, force.x()),
-            ControlRequest::new(self.thruster_layer_index, 1, force.y()),
+            ControlRequest::new(self.thruster_layer_index, 2, force.x()),
+            ControlRequest::new(self.thruster_layer_index, 3, force.y()),
         ]
     }
 }
@@ -281,8 +281,8 @@ mod tests {
         let reqs = control.get_control_requests(&cell_state);
         assert_eq!(reqs,
                    vec![
-                       ControlRequest::new(2, 0, 1.0),
-                       ControlRequest::new(2, 1, -1.0)
+                       ControlRequest::new(2, 2, 1.0),
+                       ControlRequest::new(2, 3, -1.0)
                    ]);
     }
 

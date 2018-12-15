@@ -2,13 +2,7 @@ use physics::quantities::*;
 use std::fmt::Debug;
 
 pub trait CellControl: Debug {
-    fn get_control_requests(&mut self, cell_state: &CellStateSnapshot) -> Vec<ControlRequest> {
-        self.get_resize_requests(cell_state).iter()
-            .map(|resize_request| ControlRequest::new(resize_request.layer_index, 0, resize_request.desired_area.value()))
-            .collect()
-    }
-
-    fn get_resize_requests(&mut self, _cell_state: &CellStateSnapshot) -> Vec<ResizeRequest> { vec![] }
+    fn get_control_requests(&mut self, cell_state: &CellStateSnapshot) -> Vec<ControlRequest>;
 }
 
 #[derive(Debug)]

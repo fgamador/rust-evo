@@ -116,41 +116,6 @@ impl CellControl for ContinuousGrowthControl {
 }
 
 #[derive(Debug)]
-pub struct CyclicResizeControl {
-    layer_index: usize,
-    growth_ticks: u32,
-    growth_amount: Area,
-    tick_count: u32,
-}
-
-impl CyclicResizeControl {
-    pub fn new(layer_index: usize, growth_ticks: u32, growth_amount: Area) -> Self {
-        CyclicResizeControl {
-            layer_index,
-            growth_ticks,
-            growth_amount,
-            tick_count: 0,
-        }
-    }
-}
-
-impl CellControl for CyclicResizeControl {
-    fn get_resize_requests(&mut self, cell_state: &CellStateSnapshot) -> Vec<ResizeRequest> {
-        self.tick_count += 1;
-        if self.tick_count > self.growth_ticks * 2 {
-            self.tick_count = 1;
-        }
-        let desired_area =
-            if self.tick_count <= self.growth_ticks {
-                cell_state.layers[self.layer_index].area + self.growth_amount
-            } else {
-                cell_state.layers[self.layer_index].area - self.growth_amount
-            };
-        vec![ResizeRequest::new(self.layer_index, desired_area)]
-    }
-}
-
-#[derive(Debug)]
 pub struct FixedDepthSeekingControl {
     float_layer_index: usize,
     target_y: f64,
@@ -307,39 +272,5 @@ mod tests {
         let mut control = ContinuousGrowthControl::new(1, Area::new(0.5));
         let requests = control.get_control_requests(&cell_state);
         assert_eq!(requests, vec![ControlRequest::new(1, 0, 2.5)]);
-    }
-
-    #[test]
-    fn cyclic_resize_control_returns_request_for_specified_layer_index() {
-        let cell_state = CellStateSnapshot {
-            center: Position::new(0.0, 0.0),
-            velocity: Velocity::new(0.0, 0.0),
-            layers: vec![
-                CellLayerStateSnapshot { area: Area::new(10.0) },
-                CellLayerStateSnapshot { area: Area::new(10.0) }
-            ],
-        };
-        let mut control = CyclicResizeControl::new(1, 1, Area::new(0.5));
-        let reqs = control.get_control_requests(&cell_state);
-        assert_eq!(1, reqs.len());
-        assert_eq!(1, reqs[0].layer_index);
-    }
-
-    #[test]
-    fn cyclic_resize_control_returns_alternating_growth_and_shrink_requests() {
-        let cell_state = CellStateSnapshot {
-            center: Position::new(0.0, 0.0),
-            velocity: Velocity::new(0.0, 0.0),
-            layers: vec![
-                CellLayerStateSnapshot { area: Area::new(1.0) },
-                CellLayerStateSnapshot { area: Area::new(10.0) }
-            ],
-        };
-        let mut control = CyclicResizeControl::new(1, 2, Area::new(0.5));
-        assert_eq!(Area::new(10.5), control.get_resize_requests(&cell_state)[0].desired_area);
-        assert_eq!(Area::new(10.5), control.get_resize_requests(&cell_state)[0].desired_area);
-        assert_eq!(Area::new(9.5), control.get_resize_requests(&cell_state)[0].desired_area);
-        assert_eq!(Area::new(9.5), control.get_resize_requests(&cell_state)[0].desired_area);
-        assert_eq!(Area::new(10.5), control.get_resize_requests(&cell_state)[0].desired_area);
     }
 }

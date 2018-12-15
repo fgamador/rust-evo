@@ -256,7 +256,7 @@ mod tests {
     }
 
     #[test]
-    fn simple_thruster_control_returns_control_requests_for_force() {
+    fn simple_thruster_control_returns_requests_for_force() {
         let cell_state = CellStateSnapshot {
             center: Position::new(0.0, 0.0),
             velocity: Velocity::new(0.0, 0.0),

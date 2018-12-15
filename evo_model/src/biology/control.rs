@@ -108,10 +108,9 @@ impl ContinuousGrowthControl {
 }
 
 impl CellControl for ContinuousGrowthControl {
-    fn get_resize_requests(&mut self, cell_state: &CellStateSnapshot) -> Vec<ResizeRequest> {
-        let desired_area =
-            cell_state.layers[self.layer_index].area + self.growth_amount;
-        vec![ResizeRequest::new(self.layer_index, desired_area)]
+    fn get_control_requests(&mut self, cell_state: &CellStateSnapshot) -> Vec<ControlRequest> {
+        let desired_area = cell_state.layers[self.layer_index].area + self.growth_amount;
+        vec![ControlRequest::new(self.layer_index, 0, desired_area.value())]
     }
 }
 

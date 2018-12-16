@@ -54,9 +54,7 @@ pub trait CellLayer: OnionLayer {
         (BioEnergy::new(0.0), Force::new(0.0, 0.0))
     }
 
-    fn cost_control_request(&self, request: ControlRequest) -> CostedControlRequest {
-        CostedControlRequest::new(request, BioEnergy::new(0.0))
-    }
+    fn cost_control_request(&self, request: ControlRequest) -> CostedControlRequest;
 
     fn execute_control_request(&mut self, request: ControlRequest);
 }
@@ -167,6 +165,11 @@ impl ThrusterLayer {
             force_y: 0.0,
         }
     }
+
+    pub fn with_growth_cost(mut self, cost: BioEnergy) -> Self {
+        self.annulus.growth_cost = cost;
+        self
+    }
 }
 
 impl OnionLayer for ThrusterLayer {
@@ -196,6 +199,10 @@ impl CellLayer for ThrusterLayer {
         (BioEnergy::new(0.0), Force::new(self.force_x, self.force_y))
     }
 
+    fn cost_control_request(&self, request: ControlRequest) -> CostedControlRequest {
+        self.annulus.cost_control_request(request)
+    }
+
     fn execute_control_request(&mut self, request: ControlRequest) {
         match request.control_index {
             0 => self.annulus.resize(Area::new(request.control_value)),
@@ -220,6 +227,11 @@ impl PhotoLayer {
             annulus: Annulus::new(area, density, Color::Green),
             efficiency,
         }
+    }
+
+    pub fn with_growth_cost(mut self, cost: BioEnergy) -> Self {
+        self.annulus.growth_cost = cost;
+        self
     }
 }
 
@@ -249,6 +261,10 @@ impl CellLayer for PhotoLayer {
     fn after_influences(&mut self, env: &LocalEnvironment) -> (BioEnergy, Force) {
         (BioEnergy::new(env.light_intensity() * self.efficiency * self.area().value()),
          Force::new(0.0, 0.0))
+    }
+
+    fn cost_control_request(&self, request: ControlRequest) -> CostedControlRequest {
+        self.annulus.cost_control_request(request)
     }
 
     fn execute_control_request(&mut self, request: ControlRequest) {

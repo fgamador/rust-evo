@@ -51,7 +51,9 @@ pub trait CellLayer: OnionLayer {
 
     fn update_outer_radius(&mut self, inner_radius: Length);
 
-    fn after_influences(&mut self, _env: &LocalEnvironment, _energy: &mut f64, _forces: &mut Forces) {}
+    fn after_influences(&mut self, _env: &LocalEnvironment, _energy: &mut f64, _forces: &mut Forces) -> (f64, Force) {
+        (0.0, Force::new(0.0, 0.0))
+    }
 
     fn cost_control_request(&mut self, request: ControlRequest) -> CostedControlRequest {
         CostedControlRequest::new(request, 0.0)
@@ -187,8 +189,9 @@ impl CellLayer for ThrusterLayer {
         self.annulus.update_outer_radius(inner_radius);
     }
 
-    fn after_influences(&mut self, _env: &LocalEnvironment, _energy: &mut f64, forces: &mut Forces) {
+    fn after_influences(&mut self, _env: &LocalEnvironment, _energy: &mut f64, forces: &mut Forces) -> (f64, Force) {
         forces.add_force(Force::new(self.force_x, self.force_y));
+        (0.0, Force::new(self.force_x, self.force_y))
     }
 
     fn execute_control_request(&mut self, request: ControlRequest) {
@@ -241,8 +244,9 @@ impl CellLayer for PhotoLayer {
         self.annulus.update_outer_radius(inner_radius);
     }
 
-    fn after_influences(&mut self, env: &LocalEnvironment, energy: &mut f64, _forces: &mut Forces) {
+    fn after_influences(&mut self, env: &LocalEnvironment, energy: &mut f64, _forces: &mut Forces) -> (f64, Force) {
         *energy += env.light_intensity() * self.efficiency * self.area().value();
+        (env.light_intensity() * self.efficiency * self.area().value(), Force::new(0.0, 0.0))
     }
 
     fn execute_control_request(&mut self, request: ControlRequest) {

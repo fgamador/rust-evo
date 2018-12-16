@@ -60,7 +60,7 @@ pub trait CellLayer: OnionLayer {
 }
 
 #[derive(Debug)]
-pub struct Annulus {
+struct Annulus {
     area: Area,
     density: Density,
     mass: Mass,
@@ -70,7 +70,7 @@ pub struct Annulus {
 }
 
 impl Annulus {
-    pub fn new(area: Area, density: Density, color: Color) -> Self {
+    fn new(area: Area, density: Density, color: Color) -> Self {
         Annulus {
             area,
             density,
@@ -81,7 +81,7 @@ impl Annulus {
         }
     }
 
-    pub fn update_outer_radius(&mut self, inner_radius: Length) {
+    fn update_outer_radius(&mut self, inner_radius: Length) {
         self.outer_radius = (inner_radius.sqr() + self.area / PI).sqrt();
     }
 
@@ -89,7 +89,15 @@ impl Annulus {
         CostedControlRequest::new(request, request.control_value * self.growth_cost)
     }
 
-    pub fn resize(&mut self, new_area: Area) {
+    fn execute_control_request(&mut self, request: ControlRequest) {
+        match request.control_index {
+            0 => self.resize(Area::new(request.control_value)),
+            1 => (), // TODO maintenance/repair
+            _ => panic!("Invalid control input index: {}", request.control_index)
+        }
+    }
+
+    fn resize(&mut self, new_area: Area) {
         self.area = new_area;
         self.mass = self.area * self.density;
     }
@@ -141,11 +149,7 @@ impl CellLayer for SimpleCellLayer {
     }
 
     fn execute_control_request(&mut self, request: ControlRequest) {
-        match request.control_index {
-            0 => self.annulus.resize(Area::new(request.control_value)),
-            1 => (), // TODO maintenance/repair
-            _ => panic!("Invalid control input index: {}", request.control_index)
-        }
+        self.annulus.execute_control_request(request);
     }
 }
 

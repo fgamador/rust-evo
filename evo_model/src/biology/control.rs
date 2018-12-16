@@ -37,11 +37,11 @@ impl ControlRequest {
 #[derive(Clone, Copy, Debug, PartialEq)]
 pub struct CostedControlRequest {
     pub control_request: ControlRequest,
-    pub cost: f64,
+    pub cost: BioEnergy,
 }
 
 impl CostedControlRequest {
-    pub fn new(control_request: ControlRequest, cost: f64) -> Self {
+    pub fn new(control_request: ControlRequest, cost: BioEnergy) -> Self {
         CostedControlRequest {
             control_request,
             cost,

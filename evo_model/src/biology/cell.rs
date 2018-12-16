@@ -16,7 +16,7 @@ pub struct Cell {
     environment: LocalEnvironment,
     layers: Vec<Box<CellLayer>>,
     control: Box<CellControl>,
-    energy: f64,
+    energy: BioEnergy,
 }
 
 impl Cell {
@@ -33,7 +33,7 @@ impl Cell {
             environment: LocalEnvironment::new(),
             layers,
             control: Box::new(NullControl::new()),
-            energy: 0.0,
+            energy: BioEnergy::new(0.0),
         }
     }
 
@@ -42,7 +42,7 @@ impl Cell {
         self
     }
 
-    pub fn energy(&self) -> f64 {
+    pub fn energy(&self) -> BioEnergy {
         self.energy
     }
 
@@ -206,6 +206,6 @@ mod tests {
 
         cell.after_influences(Duration::new(1.0));
 
-        assert_eq!(20.0, cell.energy());
+        assert_eq!(BioEnergy::new(20.0), cell.energy());
     }
 }

@@ -51,7 +51,7 @@ pub trait CellLayer: OnionLayer {
 
     fn update_outer_radius(&mut self, inner_radius: Length);
 
-    fn after_influences(&mut self, _env: &LocalEnvironment, _forces: &mut Forces) {}
+    fn after_influences(&mut self, _env: &LocalEnvironment, _energy: &mut f64, _forces: &mut Forces) {}
 
     fn execute_control_request(&mut self, request: ControlRequest);
 }
@@ -172,7 +172,7 @@ impl CellLayer for ThrusterLayer {
         self.annulus.update_outer_radius(inner_radius);
     }
 
-    fn after_influences(&mut self, _env: &LocalEnvironment, forces: &mut Forces) {
+    fn after_influences(&mut self, _env: &LocalEnvironment, _energy: &mut f64, forces: &mut Forces) {
         forces.add_force(Force::new(self.force_x, self.force_y));
     }
 
@@ -226,7 +226,7 @@ impl CellLayer for PhotoLayer {
         self.annulus.update_outer_radius(inner_radius);
     }
 
-    fn after_influences(&mut self, _env: &LocalEnvironment, _forces: &mut Forces) {
+    fn after_influences(&mut self, _env: &LocalEnvironment, _energy: &mut f64, _forces: &mut Forces) {
         // TODO convert light into energy
     }
 
@@ -288,22 +288,23 @@ mod tests {
         layer.execute_control_request(ControlRequest::new(0, 3, -1.0));
 
         let env = LocalEnvironment::new();
+        let mut energy = 0.0;
         let mut forces = Forces::new(0.0, 0.0);
-        layer.after_influences(&env, &mut forces);
+        layer.after_influences(&env, &mut energy, &mut forces);
 
         assert_eq!(Force::new(1.0, -1.0), forces.net_force());
     }
 
     //#[test]
-    fn _photo_layer_adds_energy() {
+    fn _photo_layer_adds_energy_based_on_area_and_efficiency() {
         let mut layer = PhotoLayer::new(Area::new(1.0), 0.5);
 
         let mut env = LocalEnvironment::new();
         env.add_light_intensity(10.0);
+        let mut energy = 0.0;
         let mut forces = Forces::new(0.0, 0.0);
-        layer.after_influences(&env, &mut forces);
+        layer.after_influences(&env, &mut energy, &mut forces);
 
-        // TODO there's no cell; how to we check?
-        //assert_eq!(Force::new(1.0, -1.0), forces.net_force());
+        assert_eq!(0.0, energy);
     }
 }

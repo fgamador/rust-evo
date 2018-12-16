@@ -309,11 +309,11 @@ mod tests {
         layer.execute_control_request(ControlRequest::new(0, 3, -1.0));
 
         let env = LocalEnvironment::new();
-        let mut energy = 0.0;
+        let mut energy_obs = 0.0;
         let mut forces = Forces::new(0.0, 0.0);
-        layer.after_influences(&env, &mut energy, &mut forces);
+        let (_, force) = layer.after_influences(&env, &mut energy_obs, &mut forces);
 
-        assert_eq!(Force::new(1.0, -1.0), forces.net_force());
+        assert_eq!(Force::new(1.0, -1.0), force);
     }
 
     #[test]
@@ -322,10 +322,10 @@ mod tests {
 
         let mut env = LocalEnvironment::new();
         env.add_light_intensity(10.0);
-        let mut energy = 0.0;
+        let mut energy_obs = 0.0;
         let mut forces = Forces::new(0.0, 0.0);
 
-        layer.after_influences(&env, &mut energy, &mut forces);
+        let (energy, _) = layer.after_influences(&env, &mut energy_obs, &mut forces);
 
         assert_eq!(20.0, energy);
     }

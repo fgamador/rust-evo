@@ -254,12 +254,6 @@ impl CellLayer for PhotoLayer {
     }
 }
 
-pub trait LayerCellAPI {
-    fn forces(&self) -> &Forces;
-
-    fn forces_mut(&mut self) -> &mut Forces;
-}
-
 #[cfg(test)]
 mod tests {
     use super::*;

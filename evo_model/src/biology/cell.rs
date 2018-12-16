@@ -16,6 +16,7 @@ pub struct Cell {
     environment: LocalEnvironment,
     layers: Vec<Box<CellLayer>>,
     control: Box<CellControl>,
+    energy: f64,
 }
 
 impl Cell {
@@ -32,12 +33,17 @@ impl Cell {
             environment: LocalEnvironment::new(),
             layers,
             control: Box::new(NullControl::new()),
+            energy: 0.0,
         }
     }
 
     pub fn with_control(mut self, control: Box<CellControl>) -> Self {
         self.control = control;
         self
+    }
+
+    pub fn energy(&self) -> f64 {
+        self.energy
     }
 
     fn update_layer_outer_radii(layers: &mut Vec<Box<CellLayer>>) -> Length {
@@ -69,10 +75,9 @@ impl Cell {
 
 impl TickCallbacks for Cell {
     fn after_influences(&mut self, _subtick_duration: Duration) {
-        let mut energy = 0.0; // TODO move into Cell
         let forces = &mut self.newtonian_state.forces_mut();
         for layer in &mut self.layers {
-            layer.after_influences(&self.environment, &mut energy, forces);
+            layer.after_influences(&self.environment, &mut self.energy, forces);
         }
     }
 
@@ -187,5 +192,18 @@ mod tests {
         cell.after_movement();
         cell.after_influences(Duration::new(1.0));
         assert_eq!(Force::new(1.0, -1.0), cell.forces().net_force());
+    }
+
+    #[test]
+    fn photo_layer_adds_energy_to_cell() {
+        let mut cell = Cell::new(Position::new(1.0, 1.0), Velocity::new(1.0, 1.0),
+                                 vec![
+                                     Box::new(PhotoLayer::new(Area::new(4.0), 0.5)),
+                                 ]);
+        cell.environment_mut().add_light_intensity(10.0);
+
+        cell.after_influences(Duration::new(1.0));
+
+        assert_eq!(20.0, cell.energy());
     }
 }

@@ -54,7 +54,7 @@ pub trait CellLayer: OnionLayer {
         (BioEnergy::new(0.0), Force::new(0.0, 0.0))
     }
 
-    fn cost_control_request(&mut self, request: ControlRequest) -> CostedControlRequest {
+    fn cost_control_request(&self, request: ControlRequest) -> CostedControlRequest {
         CostedControlRequest::new(request, BioEnergy::new(0.0))
     }
 
@@ -68,6 +68,7 @@ pub struct Annulus {
     mass: Mass,
     outer_radius: Length,
     color: Color,
+    growth_cost: BioEnergy,
 }
 
 impl Annulus {
@@ -78,11 +79,16 @@ impl Annulus {
             mass: area * density,
             outer_radius: (area / PI).sqrt(),
             color,
+            growth_cost: BioEnergy::new(0.0),
         }
     }
 
     pub fn update_outer_radius(&mut self, inner_radius: Length) {
         self.outer_radius = (inner_radius.sqr() + self.area / PI).sqrt();
+    }
+
+    fn cost_control_request(&self, request: ControlRequest) -> CostedControlRequest {
+        CostedControlRequest::new(request, request.control_value * self.growth_cost)
     }
 
     pub fn resize(&mut self, new_area: Area) {
@@ -94,19 +100,17 @@ impl Annulus {
 #[derive(Debug)]
 pub struct SimpleCellLayer {
     annulus: Annulus,
-    growth_cost: BioEnergy,
 }
 
 impl SimpleCellLayer {
     pub fn new(area: Area, density: Density, color: Color) -> Self {
         SimpleCellLayer {
             annulus: Annulus::new(area, density, color),
-            growth_cost: BioEnergy::new(0.0),
         }
     }
 
     pub fn with_growth_cost(mut self, cost: BioEnergy) -> Self {
-        self.growth_cost = cost;
+        self.annulus.growth_cost = cost;
         self
     }
 }
@@ -134,8 +138,8 @@ impl CellLayer for SimpleCellLayer {
         self.annulus.update_outer_radius(inner_radius);
     }
 
-    fn cost_control_request(&mut self, request: ControlRequest) -> CostedControlRequest {
-        CostedControlRequest::new(request, request.control_value * self.growth_cost)
+    fn cost_control_request(&self, request: ControlRequest) -> CostedControlRequest {
+        self.annulus.cost_control_request(request)
     }
 
     fn execute_control_request(&mut self, request: ControlRequest) {
@@ -294,7 +298,7 @@ mod tests {
 
     #[test]
     fn layer_costs_resize_request() {
-        let mut layer = SimpleCellLayer::new(Area::new(1.0), Density::new(1.0), Color::Green)
+        let layer = SimpleCellLayer::new(Area::new(1.0), Density::new(1.0), Color::Green)
             .with_growth_cost(BioEnergy::new(0.5));
         let costed_request = layer.cost_control_request(ControlRequest::new(0, 0, 3.0));
         assert_eq!(costed_request, CostedControlRequest::new(

@@ -226,8 +226,8 @@ impl CellLayer for PhotoLayer {
         self.annulus.update_outer_radius(inner_radius);
     }
 
-    fn after_influences(&mut self, _env: &LocalEnvironment, _energy: &mut f64, _forces: &mut Forces) {
-        // TODO convert light into energy
+    fn after_influences(&mut self, env: &LocalEnvironment, energy: &mut f64, _forces: &mut Forces) {
+        *energy += env.light_intensity() * self.efficiency * self.area().value();
     }
 
     fn execute_control_request(&mut self, request: ControlRequest) {
@@ -295,16 +295,17 @@ mod tests {
         assert_eq!(Force::new(1.0, -1.0), forces.net_force());
     }
 
-    //#[test]
-    fn _photo_layer_adds_energy_based_on_area_and_efficiency() {
-        let mut layer = PhotoLayer::new(Area::new(1.0), 0.5);
+    #[test]
+    fn photo_layer_adds_energy_based_on_area_and_efficiency() {
+        let mut layer = PhotoLayer::new(Area::new(4.0), 0.5);
 
         let mut env = LocalEnvironment::new();
         env.add_light_intensity(10.0);
         let mut energy = 0.0;
         let mut forces = Forces::new(0.0, 0.0);
+
         layer.after_influences(&env, &mut energy, &mut forces);
 
-        assert_eq!(0.0, energy);
+        assert_eq!(20.0, energy);
     }
 }

@@ -567,6 +567,78 @@ impl Neg for Torque {
     }
 }
 
+#[derive(Clone, Copy, Debug, PartialEq, PartialOrd)]
+pub struct BioEnergy {
+    value: f64,
+}
+
+impl BioEnergy {
+    pub fn new(value: f64) -> Self {
+        if value < 0.0 {
+            panic!("Negative energy: {}", value);
+        }
+
+        BioEnergy { value }
+    }
+
+    #[allow(dead_code)]
+    pub fn value(&self) -> f64 {
+        self.value
+    }
+}
+
+impl Add<BioEnergy> for BioEnergy {
+    type Output = BioEnergy;
+
+    fn add(self, rhs: BioEnergy) -> Self::Output {
+        BioEnergy::new(self.value + rhs.value)
+    }
+}
+
+impl AddAssign for BioEnergy {
+    fn add_assign(&mut self, rhs: BioEnergy) {
+        self.value += rhs.value;
+    }
+}
+
+impl Sub<BioEnergy> for BioEnergy {
+    type Output = BioEnergy;
+
+    fn sub(self, rhs: BioEnergy) -> Self::Output {
+        BioEnergy::new(self.value - rhs.value)
+    }
+}
+
+impl SubAssign for BioEnergy {
+    fn sub_assign(&mut self, rhs: BioEnergy) {
+        self.value -= rhs.value;
+    }
+}
+
+impl Mul<f64> for BioEnergy {
+    type Output = BioEnergy;
+
+    fn mul(self, rhs: f64) -> Self::Output {
+        BioEnergy::new(self.value * rhs)
+    }
+}
+
+impl Mul<BioEnergy> for f64 {
+    type Output = BioEnergy;
+
+    fn mul(self, rhs: BioEnergy) -> Self::Output {
+        BioEnergy::new(self * rhs.value)
+    }
+}
+
+impl Div<f64> for BioEnergy {
+    type Output = BioEnergy;
+
+    fn div(self, rhs: f64) -> Self::Output {
+        BioEnergy::new(self.value / rhs)
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;

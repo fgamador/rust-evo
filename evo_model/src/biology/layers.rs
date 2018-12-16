@@ -53,6 +53,10 @@ pub trait CellLayer: OnionLayer {
 
     fn after_influences(&mut self, _env: &LocalEnvironment, _energy: &mut f64, _forces: &mut Forces) {}
 
+    fn cost_control_request(&mut self, request: ControlRequest) -> CostedControlRequest {
+        CostedControlRequest::new(request, 0.0)
+    }
+
     fn execute_control_request(&mut self, request: ControlRequest);
 }
 
@@ -88,14 +92,21 @@ impl Annulus {
 
 #[derive(Debug)]
 pub struct SimpleCellLayer {
-    annulus: Annulus
+    annulus: Annulus,
+    growth_cost: f64,
 }
 
 impl SimpleCellLayer {
     pub fn new(area: Area, density: Density, color: Color) -> Self {
         SimpleCellLayer {
-            annulus: Annulus::new(area, density, color)
+            annulus: Annulus::new(area, density, color),
+            growth_cost: 0.0,
         }
+    }
+
+    pub fn with_growth_cost(mut self, cost: f64) -> Self {
+        self.growth_cost = cost;
+        self
     }
 }
 
@@ -120,6 +131,10 @@ impl CellLayer for SimpleCellLayer {
 
     fn update_outer_radius(&mut self, inner_radius: Length) {
         self.annulus.update_outer_radius(inner_radius);
+    }
+
+    fn cost_control_request(&mut self, request: ControlRequest) -> CostedControlRequest {
+        CostedControlRequest::new(request, request.control_value * self.growth_cost)
     }
 
     fn execute_control_request(&mut self, request: ControlRequest) {
@@ -279,6 +294,14 @@ mod tests {
         layer.execute_control_request(ControlRequest::new(0, 0, 2.0));
         assert_eq!(Area::new(2.0), layer.area());
         assert_eq!(Mass::new(4.0), layer.mass());
+    }
+
+    #[test]
+    fn layer_costs_resize_request() {
+        let mut layer = SimpleCellLayer::new(Area::new(1.0), Density::new(1.0), Color::Green)
+            .with_growth_cost(0.5);
+        let costed_request = layer.cost_control_request(ControlRequest::new(0, 0, 3.0));
+        assert_eq!(costed_request, CostedControlRequest::new(ControlRequest::new(0, 0, 3.0), 1.5));
     }
 
     #[test]

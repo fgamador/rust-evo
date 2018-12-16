@@ -17,7 +17,7 @@ pub struct CellLayerStateSnapshot {
     pub area: Area,
 }
 
-#[derive(Debug, PartialEq)]
+#[derive(Clone, Copy, Debug, PartialEq)]
 pub struct ControlRequest {
     pub layer_index: usize,
     pub control_index: usize,
@@ -30,6 +30,21 @@ impl ControlRequest {
             layer_index,
             control_index,
             control_value,
+        }
+    }
+}
+
+#[derive(Clone, Copy, Debug, PartialEq)]
+pub struct CostedControlRequest {
+    pub control_request: ControlRequest,
+    pub cost: f64,
+}
+
+impl CostedControlRequest {
+    pub fn new(control_request: ControlRequest, cost: f64) -> Self {
+        CostedControlRequest {
+            control_request,
+            cost,
         }
     }
 }

@@ -1,7 +1,6 @@
 use biology::control::*;
 use environment::environment::LocalEnvironment;
 use evo_view_model::Color;
-use physics::newtonian::Forces;
 use physics::quantities::*;
 use physics::shapes::Circle;
 use std::f64::consts::PI;
@@ -51,7 +50,7 @@ pub trait CellLayer: OnionLayer {
 
     fn update_outer_radius(&mut self, inner_radius: Length);
 
-    fn after_influences(&mut self, _env: &LocalEnvironment, _energy: &mut f64, _forces: &mut Forces) -> (f64, Force) {
+    fn after_influences(&mut self, _env: &LocalEnvironment) -> (f64, Force) {
         (0.0, Force::new(0.0, 0.0))
     }
 
@@ -189,8 +188,7 @@ impl CellLayer for ThrusterLayer {
         self.annulus.update_outer_radius(inner_radius);
     }
 
-    fn after_influences(&mut self, _env: &LocalEnvironment, _energy: &mut f64, forces: &mut Forces) -> (f64, Force) {
-        forces.add_force(Force::new(self.force_x, self.force_y));
+    fn after_influences(&mut self, _env: &LocalEnvironment) -> (f64, Force) {
         (0.0, Force::new(self.force_x, self.force_y))
     }
 
@@ -244,8 +242,7 @@ impl CellLayer for PhotoLayer {
         self.annulus.update_outer_radius(inner_radius);
     }
 
-    fn after_influences(&mut self, env: &LocalEnvironment, energy: &mut f64, _forces: &mut Forces) -> (f64, Force) {
-        *energy += env.light_intensity() * self.efficiency * self.area().value();
+    fn after_influences(&mut self, env: &LocalEnvironment) -> (f64, Force) {
         (env.light_intensity() * self.efficiency * self.area().value(), Force::new(0.0, 0.0))
     }
 
@@ -309,9 +306,7 @@ mod tests {
         layer.execute_control_request(ControlRequest::new(0, 3, -1.0));
 
         let env = LocalEnvironment::new();
-        let mut energy_obs = 0.0;
-        let mut forces = Forces::new(0.0, 0.0);
-        let (_, force) = layer.after_influences(&env, &mut energy_obs, &mut forces);
+        let (_, force) = layer.after_influences(&env);
 
         assert_eq!(Force::new(1.0, -1.0), force);
     }
@@ -322,10 +317,8 @@ mod tests {
 
         let mut env = LocalEnvironment::new();
         env.add_light_intensity(10.0);
-        let mut energy_obs = 0.0;
-        let mut forces = Forces::new(0.0, 0.0);
 
-        let (energy, _) = layer.after_influences(&env, &mut energy_obs, &mut forces);
+        let (energy, _) = layer.after_influences(&env);
 
         assert_eq!(20.0, energy);
     }

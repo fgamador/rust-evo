@@ -209,11 +209,9 @@ impl CellLayer for ThrusterLayer {
 
     fn execute_control_request(&mut self, request: ControlRequest) {
         match request.control_index {
-            0 => self.annulus.resize(Area::new(request.control_value)),
-            1 => (), // TODO maintenance/repair
             2 => self.force_x = request.control_value,
             3 => self.force_y = request.control_value,
-            _ => panic!("Invalid control input index: {}", request.control_index)
+            _ => self.annulus.execute_control_request(request)
         }
     }
 }
@@ -272,11 +270,7 @@ impl CellLayer for PhotoLayer {
     }
 
     fn execute_control_request(&mut self, request: ControlRequest) {
-        match request.control_index {
-            0 => self.annulus.resize(Area::new(request.control_value)),
-            1 => (), // TODO maintenance/repair
-            _ => panic!("Invalid control input index: {}", request.control_index)
-        }
+        self.annulus.execute_control_request(request);
     }
 }
 

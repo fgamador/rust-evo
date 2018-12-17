@@ -106,7 +106,7 @@ impl TickCallbacks for Cell {
 
         let control_requests = self.control.get_control_requests(&cell_state);
         let costed_requests = self.cost_control_requests(&control_requests);
-        let (expense, income) = Cell::summarize_request_costs(&costed_requests);
+        let (expense, income) = Self::summarize_request_costs(&costed_requests);
         let budgeted_fraction = ((self.energy.value() + income) / expense).min(1.0);
 
         for request in control_requests {

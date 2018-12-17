@@ -71,6 +71,12 @@ impl Cell {
                 .collect(),
         }
     }
+
+    fn cost_control_requests(&mut self, control_requests: &Vec<ControlRequest>) -> Vec<CostedControlRequest> {
+        control_requests.iter()
+            .map(|req| self.layers[req.layer_index].cost_control_request(*req))
+            .collect()
+    }
 }
 
 impl TickCallbacks for Cell {
@@ -87,9 +93,7 @@ impl TickCallbacks for Cell {
         let cell_state = self.get_state_snapshot();
 
         let control_requests = self.control.get_control_requests(&cell_state);
-        let costed_requests: Vec<CostedControlRequest> = control_requests.iter()
-            .map(|req| self.layers[req.layer_index].cost_control_request(*req))
-            .collect();
+        let costed_requests = self.cost_control_requests(&control_requests);
         let (expense, income) = costed_requests.iter()
             .fold((0.0, 0.0), |(expense, income), req| {
                 let cost = req.cost.value();
@@ -109,6 +113,7 @@ impl TickCallbacks for Cell {
         self.newtonian_state.mass = Self::calc_mass(&self.layers);
     }
 }
+
 
 impl PartialEq for Cell {
     fn eq(&self, other: &Self) -> bool {

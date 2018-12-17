@@ -87,6 +87,20 @@ impl TickCallbacks for Cell {
         let cell_state = self.get_state_snapshot();
 
         let control_requests = self.control.get_control_requests(&cell_state);
+        let costed_requests: Vec<CostedControlRequest> = control_requests.iter()
+            .map(|req| self.layers[req.layer_index].cost_control_request(*req))
+            .collect();
+        let (expense, income) = costed_requests.iter()
+            .fold((0.0, 0.0), |(expense, income), req| {
+                let cost = req.cost.value();
+                if cost < 0.0 {
+                    (expense + cost, income)
+                } else {
+                    (expense, income + cost)
+                }
+            });
+        let budgeted_fraction = ((self.energy.value() + income) / expense).min(1.0);
+
         for request in control_requests {
             self.layers[request.layer_index].execute_control_request(request);
         }

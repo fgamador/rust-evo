@@ -77,6 +77,18 @@ impl Cell {
             .map(|req| self.layers[req.layer_index].cost_control_request(*req))
             .collect()
     }
+
+    fn summarize_request_costs(costed_requests: &Vec<CostedControlRequest>) -> (f64, f64) {
+        costed_requests.iter()
+            .fold((0.0, 0.0), |(expense, income), req| {
+                let cost = req.cost.value();
+                if cost < 0.0 {
+                    (expense + cost, income)
+                } else {
+                    (expense, income + cost)
+                }
+            })
+    }
 }
 
 impl TickCallbacks for Cell {
@@ -94,15 +106,7 @@ impl TickCallbacks for Cell {
 
         let control_requests = self.control.get_control_requests(&cell_state);
         let costed_requests = self.cost_control_requests(&control_requests);
-        let (expense, income) = costed_requests.iter()
-            .fold((0.0, 0.0), |(expense, income), req| {
-                let cost = req.cost.value();
-                if cost < 0.0 {
-                    (expense + cost, income)
-                } else {
-                    (expense, income + cost)
-                }
-            });
+        let (expense, income) = Cell::summarize_request_costs(&costed_requests);
         let budgeted_fraction = ((self.energy.value() + income) / expense).min(1.0);
 
         for request in control_requests {

@@ -49,6 +49,23 @@ impl CostedControlRequest {
     }
 }
 
+#[derive(Clone, Copy, Debug, PartialEq)]
+pub struct BudgetedControlRequest {
+    pub control_request: ControlRequest,
+    pub cost: BioEnergy,
+    pub budgeted_fraction: f64,
+}
+
+impl BudgetedControlRequest {
+    pub fn new(control_request: ControlRequest, cost: BioEnergy, budgeted_fraction: f64) -> Self {
+        BudgetedControlRequest {
+            control_request,
+            cost,
+            budgeted_fraction,
+        }
+    }
+}
+
 #[derive(Debug, PartialEq)]
 pub struct ResizeRequest {
     pub layer_index: usize,

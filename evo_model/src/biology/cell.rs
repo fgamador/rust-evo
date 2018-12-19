@@ -78,16 +78,24 @@ impl Cell {
             .collect()
     }
 
-    fn summarize_request_costs(costed_requests: &Vec<CostedControlRequest>) -> (f64, f64) {
+    fn budget_control_requests(start_energy: BioEnergy, costed_requests: &[CostedControlRequest])
+                               -> (BioEnergy, Vec<BudgetedControlRequest>) {
+        let (expense, income) = Self::summarize_request_costs(costed_requests);
+        let _budgeted_fraction = ((start_energy + income).value() / expense.value()).min(1.0);
+        (start_energy - expense, vec! {})
+    }
+
+    fn summarize_request_costs(costed_requests: &[CostedControlRequest]) -> (BioEnergy, BioEnergy) {
         costed_requests.iter()
-            .fold((0.0, 0.0), |(expense, income), req| {
-                let cost = req.cost.value();
-                if cost < 0.0 {
-                    (expense + cost, income)
-                } else {
-                    (expense, income + cost)
-                }
-            })
+            .fold((BioEnergy::new(0.0), BioEnergy::new(0.0)),
+                  |(expense, income), request| {
+                      let cost = request.cost;
+                      if cost.value() > 0.0 {
+                          (expense + cost, income)
+                      } else { // TODO can't happen
+                          (expense, income + cost)
+                      }
+                  })
     }
 }
 
@@ -105,9 +113,9 @@ impl TickCallbacks for Cell {
         let cell_state = self.get_state_snapshot();
 
         let control_requests = self.control.get_control_requests(&cell_state);
-        let costed_requests = self.cost_control_requests(&control_requests);
-        let (expense, income) = Self::summarize_request_costs(&costed_requests);
-        let budgeted_fraction = ((self.energy.value() + income) / expense).min(1.0);
+        let _costed_requests = self.cost_control_requests(&control_requests);
+        let (_end_energy, _budged_control_requests) =
+            Cell::budget_control_requests(self.energy, &_costed_requests);
 
         for request in control_requests {
             self.layers[request.layer_index].execute_control_request(request);
@@ -230,5 +238,19 @@ mod tests {
         cell.after_influences(Duration::new(1.0));
 
         assert_eq!(BioEnergy::new(20.0), cell.energy());
+    }
+
+    #[test]
+    fn budgeting_deducts_request_cost() {
+        let dummy_control_request = ControlRequest::new(0, 0, 0.0);
+        let costed_requests = vec![
+            CostedControlRequest::new(dummy_control_request, BioEnergy::new(1.0)),
+            CostedControlRequest::new(dummy_control_request, BioEnergy::new(1.5)),
+        ];
+
+        let (end_energy, _) =
+            Cell::budget_control_requests(BioEnergy::new(3.0), &costed_requests);
+
+        assert_eq!(BioEnergy::new(0.5), end_energy);
     }
 }

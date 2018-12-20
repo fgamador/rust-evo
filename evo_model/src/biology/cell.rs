@@ -265,19 +265,6 @@ mod tests {
     }
 
     #[test]
-    fn budgeting_consumes_all_energy_if_requests_are_too_large() {
-        let dummy_control_request = ControlRequest::new(0, 0, 0.0);
-        let costed_requests = vec![
-            CostedControlRequest::new(dummy_control_request, BioEnergyDelta::new(-3.0)),
-        ];
-
-        let (end_energy, _) =
-            Cell::budget_control_requests(BioEnergy::new(2.0), &costed_requests);
-
-        assert_eq!(BioEnergy::new(0.0), end_energy);
-    }
-
-    #[test]
     fn budgeting_offsets_expenses_with_income() {
         let dummy_control_request = ControlRequest::new(0, 0, 0.0);
         let costed_requests = vec![

@@ -1,5 +1,6 @@
 use TickCallbacks;
 use biology::control::*;
+use biology::control_requests::*;
 use biology::layers::*;
 use environment::environment::*;
 use physics::newtonian::*;

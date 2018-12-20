@@ -1,4 +1,4 @@
-use biology::control::*;
+use biology::control_requests::*;
 use environment::environment::LocalEnvironment;
 use evo_view_model::Color;
 use physics::quantities::*;

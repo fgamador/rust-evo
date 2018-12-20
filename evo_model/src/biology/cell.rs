@@ -90,7 +90,7 @@ impl Cell {
         costed_requests.iter()
             .fold((BioEnergy::new(0.0), BioEnergy::new(0.0)),
                   |(expense, income), request| {
-                      let cost = request.cost;
+                      let cost = request.energy_delta;
                       if cost.value() > 0.0 {
                           (expense + cost, income)
                       } else { // TODO can't happen

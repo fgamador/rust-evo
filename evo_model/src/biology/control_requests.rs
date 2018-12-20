@@ -20,14 +20,14 @@ impl ControlRequest {
 #[derive(Clone, Copy, Debug, PartialEq)]
 pub struct CostedControlRequest {
     pub control_request: ControlRequest,
-    pub cost: BioEnergyDelta,
+    pub energy_delta: BioEnergyDelta,
 }
 
 impl CostedControlRequest {
-    pub fn new(control_request: ControlRequest, cost: BioEnergyDelta) -> Self {
+    pub fn new(control_request: ControlRequest, energy_delta: BioEnergyDelta) -> Self {
         CostedControlRequest {
             control_request,
-            cost,
+            energy_delta,
         }
     }
 }
@@ -35,15 +35,15 @@ impl CostedControlRequest {
 #[derive(Clone, Copy, Debug, PartialEq)]
 pub struct BudgetedControlRequest {
     pub control_request: ControlRequest,
-    pub cost: BioEnergyDelta,
+    pub energy_delta: BioEnergyDelta,
     pub budgeted_fraction: f64,
 }
 
 impl BudgetedControlRequest {
-    pub fn new(control_request: ControlRequest, cost: BioEnergyDelta, budgeted_fraction: f64) -> Self {
+    pub fn new(control_request: ControlRequest, energy_delta: BioEnergyDelta, budgeted_fraction: f64) -> Self {
         BudgetedControlRequest {
             control_request,
-            cost,
+            energy_delta,
             budgeted_fraction,
         }
     }

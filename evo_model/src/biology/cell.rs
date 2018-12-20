@@ -251,21 +251,23 @@ mod tests {
     }
 
     #[test]
-    fn budgeting_updates_energy_with_request_deltas() {
+    fn budgeting_permits_full_expense_requests_if_there_is_enough_energy() {
         let dummy_control_request = ControlRequest::new(0, 0, 0.0);
         let costed_requests = vec![
             CostedControlRequest::new(dummy_control_request, BioEnergyDelta::new(-1.5)),
             CostedControlRequest::new(dummy_control_request, BioEnergyDelta::new(1.0)),
         ];
 
-        let (end_energy, _) =
-            Cell::budget_control_requests(BioEnergy::new(3.0), &costed_requests);
+        let result = Cell::budget_control_requests(BioEnergy::new(3.0), &costed_requests);
 
-        assert_eq!(BioEnergy::new(2.5), end_energy);
+        assert_eq!(result, (BioEnergy::new(2.5), vec![
+            BudgetedControlRequest::new(dummy_control_request, BioEnergyDelta::new(-1.5), 1.0),
+            BudgetedControlRequest::new(dummy_control_request, BioEnergyDelta::new(1.0), 1.0),
+        ]));
     }
 
     #[test]
-    fn budgeting_offsets_expenses_with_income() {
+    fn budgeting_scales_expense_requests_if_there_is_not_enough_energy() {
         let dummy_control_request = ControlRequest::new(0, 0, 0.0);
         let costed_requests = vec![
             CostedControlRequest::new(dummy_control_request, BioEnergyDelta::new(-6.0)),

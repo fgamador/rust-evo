@@ -82,8 +82,9 @@ impl Cell {
     fn budget_control_requests(start_energy: BioEnergy, costed_requests: &[CostedControlRequest])
                                -> (BioEnergy, Vec<BudgetedControlRequest>) {
         let (income, expense) = Self::summarize_request_energy_deltas(costed_requests);
-        let _budgeted_fraction = ((start_energy + income).value() / expense.value()).min(1.0);
-        (start_energy - expense, vec! {}) // TODO + income, adjusted by fraction, never < 0
+        let budgeted_fraction = ((start_energy + income).value() / expense.value()).min(1.0);
+        let adjusted_expense = (expense * budgeted_fraction); // TODO .min(start_energy + income);
+        (start_energy - adjusted_expense, vec! {}) // TODO + income, adjusted by fraction, never < 0
     }
 
     fn summarize_request_energy_deltas(costed_requests: &[CostedControlRequest]) -> (BioEnergy, BioEnergy) {
@@ -253,5 +254,35 @@ mod tests {
             Cell::budget_control_requests(BioEnergy::new(3.0), &costed_requests);
 
         assert_eq!(BioEnergy::new(1.5), end_energy);
+    }
+
+    #[test]
+    fn budgeting_consumes_all_energy_if_requests_are_too_large() {
+        let dummy_control_request = ControlRequest::new(0, 0, 0.0);
+        let costed_requests = vec![
+            CostedControlRequest::new(dummy_control_request, BioEnergyDelta::new(-3.0)),
+        ];
+
+        let (end_energy, _) =
+            Cell::budget_control_requests(BioEnergy::new(2.0), &costed_requests);
+
+        assert_eq!(BioEnergy::new(0.0), end_energy);
+    }
+
+    //#[test]
+    fn _budgeting_permits_fraction_of_too_large_requests() {
+        let dummy_control_request = ControlRequest::new(0, 0, 0.0);
+        let costed_requests = vec![
+            CostedControlRequest::new(dummy_control_request, BioEnergyDelta::new(-3.0)),
+            CostedControlRequest::new(dummy_control_request, BioEnergyDelta::new(-1.0)),
+        ];
+
+        let (_, budgeted_requests) =
+            Cell::budget_control_requests(BioEnergy::new(2.0), &costed_requests);
+
+        assert_eq!(budgeted_requests, vec![
+            BudgetedControlRequest::new(dummy_control_request, BioEnergyDelta::new(-3.0), 0.5),
+            BudgetedControlRequest::new(dummy_control_request, BioEnergyDelta::new(-1.0), 0.5),
+        ]);
     }
 }

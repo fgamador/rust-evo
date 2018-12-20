@@ -66,21 +66,6 @@ impl BudgetedControlRequest {
     }
 }
 
-#[derive(Debug, PartialEq)]
-pub struct ResizeRequest {
-    pub layer_index: usize,
-    pub desired_area: Area,
-}
-
-impl ResizeRequest {
-    pub fn new(layer_index: usize, desired_area: Area) -> Self {
-        ResizeRequest {
-            layer_index,
-            desired_area,
-        }
-    }
-}
-
 #[derive(Debug)]
 pub struct NullControl {}
 

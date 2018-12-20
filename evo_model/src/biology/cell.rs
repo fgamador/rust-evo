@@ -82,10 +82,10 @@ impl Cell {
     fn budget_control_requests(start_energy: BioEnergy, costed_requests: &[CostedControlRequest])
                                -> (BioEnergy, Vec<BudgetedControlRequest>) {
         let (income, expense) = Self::summarize_request_energy_deltas(costed_requests);
-        let total_start_energy = start_energy + income;
-        let budgeted_fraction = (total_start_energy.value() / expense.value()).min(1.0);
-        let adjusted_expense = (expense * budgeted_fraction).min(total_start_energy);
-        let end_energy = total_start_energy - adjusted_expense;
+        let available_energy = start_energy + income;
+        let budgeted_fraction = (available_energy.value() / expense.value()).min(1.0);
+        let adjusted_expense = (expense * budgeted_fraction).min(available_energy);
+        let end_energy = available_energy - adjusted_expense;
         let budgeted_requests = costed_requests.iter()
             .map(|costed_request| {
                 let request_budgeted_fraction = if costed_request.energy_delta.value() < 0.0 { budgeted_fraction } else { 1.0 };

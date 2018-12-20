@@ -242,16 +242,16 @@ mod tests {
     }
 
     #[test]
-    fn budgeting_deducts_request_cost() {
+    fn budgeting_updates_energy_with_request_deltas() {
         let dummy_control_request = ControlRequest::new(0, 0, 0.0);
         let costed_requests = vec![
-            CostedControlRequest::new(dummy_control_request, BioEnergyDelta::new(-1.0)),
             CostedControlRequest::new(dummy_control_request, BioEnergyDelta::new(-1.5)),
+            CostedControlRequest::new(dummy_control_request, BioEnergyDelta::new(1.0)),
         ];
 
         let (end_energy, _) =
             Cell::budget_control_requests(BioEnergy::new(3.0), &costed_requests);
 
-        assert_eq!(BioEnergy::new(0.5), end_energy);
+        assert_eq!(BioEnergy::new(1.5), end_energy);
     }
 }

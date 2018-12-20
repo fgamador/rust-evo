@@ -587,6 +587,20 @@ impl BioEnergy {
     }
 }
 
+impl Add<BioEnergyDelta> for BioEnergy {
+    type Output = BioEnergy;
+
+    fn add(self, rhs: BioEnergyDelta) -> Self::Output {
+        BioEnergy::new(self.value + rhs.value)
+    }
+}
+
+impl AddAssign<BioEnergyDelta> for BioEnergy {
+    fn add_assign(&mut self, rhs: BioEnergyDelta) {
+        self.value += rhs.value;
+    }
+}
+
 impl Add<BioEnergy> for BioEnergy {
     type Output = BioEnergy;
 
@@ -636,6 +650,22 @@ impl Div<f64> for BioEnergy {
 
     fn div(self, rhs: f64) -> Self::Output {
         BioEnergy::new(self.value / rhs)
+    }
+}
+
+#[derive(Clone, Copy, Debug, PartialEq, PartialOrd)]
+pub struct BioEnergyDelta {
+    value: f64,
+}
+
+impl BioEnergyDelta {
+    pub fn new(value: f64) -> Self {
+        BioEnergyDelta { value }
+    }
+
+    #[allow(dead_code)]
+    pub fn value(&self) -> f64 {
+        self.value
     }
 }
 

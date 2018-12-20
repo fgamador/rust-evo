@@ -313,10 +313,10 @@ mod tests {
     #[test]
     fn layer_costs_resize_request() {
         let layer = SimpleCellLayer::new(Area::new(1.0), Density::new(1.0), Color::Green)
-            .with_growth_energy_delta(BioEnergyDelta::new(0.5));
+            .with_growth_energy_delta(BioEnergyDelta::new(-0.5));
         let costed_request = layer.cost_control_request(ControlRequest::new(0, 0, 3.0));
         assert_eq!(costed_request, CostedControlRequest::new(
-            ControlRequest::new(0, 0, 3.0), BioEnergyDelta::new(1.5)));
+            ControlRequest::new(0, 0, 3.0), BioEnergyDelta::new(-1.5)));
     }
 
     #[test]

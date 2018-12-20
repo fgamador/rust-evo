@@ -669,6 +669,14 @@ impl BioEnergyDelta {
     }
 }
 
+impl Add<BioEnergyDelta> for BioEnergyDelta {
+    type Output = BioEnergyDelta;
+
+    fn add(self, rhs: BioEnergyDelta) -> Self::Output {
+        BioEnergyDelta::new(self.value + rhs.value)
+    }
+}
+
 impl Mul<f64> for BioEnergyDelta {
     type Output = BioEnergyDelta;
 

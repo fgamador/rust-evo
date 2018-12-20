@@ -83,18 +83,18 @@ impl Cell {
                                -> (BioEnergy, Vec<BudgetedControlRequest>) {
         let (expense, income) = Self::summarize_request_costs(costed_requests);
         let _budgeted_fraction = ((start_energy + income).value() / expense.value()).min(1.0);
-        (start_energy - expense, vec! {})
+        (start_energy + expense, vec! {})
     }
 
-    fn summarize_request_costs(costed_requests: &[CostedControlRequest]) -> (BioEnergy, BioEnergy) {
+    fn summarize_request_costs(costed_requests: &[CostedControlRequest]) -> (BioEnergyDelta, BioEnergyDelta) {
         costed_requests.iter()
-            .fold((BioEnergy::new(0.0), BioEnergy::new(0.0)),
+            .fold((BioEnergyDelta::new(0.0), BioEnergyDelta::new(0.0)),
                   |(expense, income), request| {
-                      let cost = request.energy_delta;
-                      if cost.value() > 0.0 {
-                          (expense + cost, income)
-                      } else { // TODO can't happen
-                          (expense, income + cost)
+                      let energy_delta = request.energy_delta;
+                      if energy_delta.value() < 0.0 {
+                          (expense + energy_delta, income)
+                      } else {
+                          (expense, income + energy_delta)
                       }
                   })
     }
@@ -245,8 +245,8 @@ mod tests {
     fn budgeting_deducts_request_cost() {
         let dummy_control_request = ControlRequest::new(0, 0, 0.0);
         let costed_requests = vec![
-            CostedControlRequest::new(dummy_control_request, BioEnergyDelta::new(1.0)),
-            CostedControlRequest::new(dummy_control_request, BioEnergyDelta::new(1.5)),
+            CostedControlRequest::new(dummy_control_request, BioEnergyDelta::new(-1.0)),
+            CostedControlRequest::new(dummy_control_request, BioEnergyDelta::new(-1.5)),
         ];
 
         let (end_energy, _) =

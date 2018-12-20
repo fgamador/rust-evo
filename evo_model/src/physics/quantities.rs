@@ -585,6 +585,10 @@ impl BioEnergy {
     pub fn value(&self) -> f64 {
         self.value
     }
+
+    pub fn min(&self, e: BioEnergy) -> BioEnergy {
+        BioEnergy::new(self.value.min(e.value))
+    }
 }
 
 impl Add<BioEnergyDelta> for BioEnergy {

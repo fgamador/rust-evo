@@ -601,6 +601,14 @@ impl AddAssign<BioEnergyDelta> for BioEnergy {
     }
 }
 
+impl Sub<BioEnergyDelta> for BioEnergy {
+    type Output = BioEnergy;
+
+    fn sub(self, rhs: BioEnergyDelta) -> Self::Output {
+        BioEnergy::new(self.value - rhs.value)
+    }
+}
+
 impl Add<BioEnergy> for BioEnergy {
     type Output = BioEnergy;
 

@@ -66,7 +66,7 @@ struct Annulus {
     mass: Mass,
     outer_radius: Length,
     color: Color,
-    growth_cost: BioEnergyDelta,
+    growth_energy_delta: BioEnergyDelta,
 }
 
 impl Annulus {
@@ -77,7 +77,7 @@ impl Annulus {
             mass: area * density,
             outer_radius: (area / PI).sqrt(),
             color,
-            growth_cost: BioEnergyDelta::new(0.0),
+            growth_energy_delta: BioEnergyDelta::new(0.0),
         }
     }
 
@@ -86,7 +86,7 @@ impl Annulus {
     }
 
     fn cost_control_request(&self, request: ControlRequest) -> CostedControlRequest {
-        CostedControlRequest::new(request, request.control_value * self.growth_cost)
+        CostedControlRequest::new(request, request.control_value * self.growth_energy_delta)
     }
 
     fn execute_control_request(&mut self, request: ControlRequest) {
@@ -115,8 +115,8 @@ impl SimpleCellLayer {
         }
     }
 
-    pub fn with_growth_cost(mut self, cost: BioEnergyDelta) -> Self {
-        self.annulus.growth_cost = cost;
+    pub fn with_growth_energy_delta(mut self, energy_delta: BioEnergyDelta) -> Self {
+        self.annulus.growth_energy_delta = energy_delta;
         self
     }
 }
@@ -170,8 +170,8 @@ impl ThrusterLayer {
         }
     }
 
-    pub fn with_growth_cost(mut self, cost: BioEnergyDelta) -> Self {
-        self.annulus.growth_cost = cost;
+    pub fn with_growth_energy_delta(mut self, energy_delta: BioEnergyDelta) -> Self {
+        self.annulus.growth_energy_delta = energy_delta;
         self
     }
 }
@@ -231,8 +231,8 @@ impl PhotoLayer {
         }
     }
 
-    pub fn with_growth_cost(mut self, cost: BioEnergyDelta) -> Self {
-        self.annulus.growth_cost = cost;
+    pub fn with_growth_energy_delta(mut self, energy_delta: BioEnergyDelta) -> Self {
+        self.annulus.growth_energy_delta = energy_delta;
         self
     }
 }
@@ -313,7 +313,7 @@ mod tests {
     #[test]
     fn layer_costs_resize_request() {
         let layer = SimpleCellLayer::new(Area::new(1.0), Density::new(1.0), Color::Green)
-            .with_growth_cost(BioEnergyDelta::new(0.5));
+            .with_growth_energy_delta(BioEnergyDelta::new(0.5));
         let costed_request = layer.cost_control_request(ControlRequest::new(0, 0, 3.0));
         assert_eq!(costed_request, CostedControlRequest::new(
             ControlRequest::new(0, 0, 3.0), BioEnergyDelta::new(1.5)));

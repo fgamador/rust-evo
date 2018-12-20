@@ -244,8 +244,8 @@ mod tests {
     fn budgeting_deducts_request_cost() {
         let dummy_control_request = ControlRequest::new(0, 0, 0.0);
         let costed_requests = vec![
-            CostedControlRequest::new(dummy_control_request, BioEnergy::new(1.0)),
-            CostedControlRequest::new(dummy_control_request, BioEnergy::new(1.5)),
+            CostedControlRequest::new(dummy_control_request, BioEnergyDelta::new(1.0)),
+            CostedControlRequest::new(dummy_control_request, BioEnergyDelta::new(1.5)),
         ];
 
         let (end_energy, _) =

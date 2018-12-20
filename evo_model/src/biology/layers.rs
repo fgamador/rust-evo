@@ -66,7 +66,7 @@ struct Annulus {
     mass: Mass,
     outer_radius: Length,
     color: Color,
-    growth_cost: BioEnergy,
+    growth_cost: BioEnergyDelta,
 }
 
 impl Annulus {
@@ -77,7 +77,7 @@ impl Annulus {
             mass: area * density,
             outer_radius: (area / PI).sqrt(),
             color,
-            growth_cost: BioEnergy::new(0.0),
+            growth_cost: BioEnergyDelta::new(0.0),
         }
     }
 
@@ -115,7 +115,7 @@ impl SimpleCellLayer {
         }
     }
 
-    pub fn with_growth_cost(mut self, cost: BioEnergy) -> Self {
+    pub fn with_growth_cost(mut self, cost: BioEnergyDelta) -> Self {
         self.annulus.growth_cost = cost;
         self
     }
@@ -170,7 +170,7 @@ impl ThrusterLayer {
         }
     }
 
-    pub fn with_growth_cost(mut self, cost: BioEnergy) -> Self {
+    pub fn with_growth_cost(mut self, cost: BioEnergyDelta) -> Self {
         self.annulus.growth_cost = cost;
         self
     }
@@ -231,7 +231,7 @@ impl PhotoLayer {
         }
     }
 
-    pub fn with_growth_cost(mut self, cost: BioEnergy) -> Self {
+    pub fn with_growth_cost(mut self, cost: BioEnergyDelta) -> Self {
         self.annulus.growth_cost = cost;
         self
     }
@@ -313,10 +313,10 @@ mod tests {
     #[test]
     fn layer_costs_resize_request() {
         let layer = SimpleCellLayer::new(Area::new(1.0), Density::new(1.0), Color::Green)
-            .with_growth_cost(BioEnergy::new(0.5));
+            .with_growth_cost(BioEnergyDelta::new(0.5));
         let costed_request = layer.cost_control_request(ControlRequest::new(0, 0, 3.0));
         assert_eq!(costed_request, CostedControlRequest::new(
-            ControlRequest::new(0, 0, 3.0), BioEnergy::new(1.5)));
+            ControlRequest::new(0, 0, 3.0), BioEnergyDelta::new(1.5)));
     }
 
     #[test]

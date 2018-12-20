@@ -669,6 +669,30 @@ impl BioEnergyDelta {
     }
 }
 
+impl Mul<f64> for BioEnergyDelta {
+    type Output = BioEnergyDelta;
+
+    fn mul(self, rhs: f64) -> Self::Output {
+        BioEnergyDelta::new(self.value * rhs)
+    }
+}
+
+impl Mul<BioEnergyDelta> for f64 {
+    type Output = BioEnergyDelta;
+
+    fn mul(self, rhs: BioEnergyDelta) -> Self::Output {
+        BioEnergyDelta::new(self * rhs.value)
+    }
+}
+
+impl Div<f64> for BioEnergyDelta {
+    type Output = BioEnergyDelta;
+
+    fn div(self, rhs: f64) -> Self::Output {
+        BioEnergyDelta::new(self.value / rhs)
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;

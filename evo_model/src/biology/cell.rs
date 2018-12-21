@@ -126,6 +126,7 @@ impl TickCallbacks for Cell {
         let costed_requests = self.cost_control_requests(&control_requests);
         let (_end_energy, budgeted_control_requests) =
             Cell::budget_control_requests(self.energy, &costed_requests);
+        //self.energy = end_energy; TODO
 
         for request in budgeted_control_requests {
             self.layers[request.control_request.layer_index].execute_control_request(request);
@@ -250,7 +251,7 @@ mod tests {
     }
 
     #[test]
-    fn budgeting_permits_full_expense_requests_if_there_is_enough_energy() {
+    fn budgeting_permits_full_request_expenses_if_there_is_enough_energy() {
         let dummy_control_request = ControlRequest::new(0, 0, 0.0);
         let costed_requests = vec![
             CostedControlRequest::new(dummy_control_request, BioEnergyDelta::new(-1.5)),
@@ -266,7 +267,7 @@ mod tests {
     }
 
     #[test]
-    fn budgeting_scales_expense_requests_if_there_is_not_enough_energy() {
+    fn budgeting_scales_request_expenses_if_there_is_not_enough_energy() {
         let dummy_control_request = ControlRequest::new(0, 0, 0.0);
         let costed_requests = vec![
             CostedControlRequest::new(dummy_control_request, BioEnergyDelta::new(-6.0)),

@@ -43,6 +43,11 @@ impl Cell {
         self
     }
 
+    pub fn with_initial_energy(mut self, energy: BioEnergy) -> Self {
+        self.energy = energy;
+        self
+    }
+
     pub fn energy(&self) -> BioEnergy {
         self.energy
     }
@@ -124,9 +129,9 @@ impl TickCallbacks for Cell {
 
         let control_requests = self.control.get_control_requests(&cell_state);
         let costed_requests = self.cost_control_requests(&control_requests);
-        let (_end_energy, budgeted_control_requests) =
+        let (end_energy, budgeted_control_requests) =
             Cell::budget_control_requests(self.energy, &costed_requests);
-        //self.energy = end_energy; TODO
+        self.energy = end_energy;
 
         for request in budgeted_control_requests {
             self.layers[request.control_request.layer_index].execute_control_request(request);
@@ -223,6 +228,22 @@ mod tests {
             .with_control(Box::new(ContinuousGrowthControl::new(0, Area::new(0.5))));
         cell.after_movement();
         assert_eq!(Mass::new(10.5), cell.mass());
+    }
+
+    //#[test]
+    fn _layer_growth_cost_reduces_cell_energy() {
+        let mut cell = Cell::new(Position::ORIGIN, Velocity::ZERO,
+                                 vec![
+                                     Box::new(SimpleCellLayer::new(
+                                         Area::new(1.0), Density::new(1.0), Color::Green)
+                                         .with_growth_energy_delta(BioEnergyDelta::new(-1.0))),
+                                 ])
+            .with_control(Box::new(ContinuousGrowthControl::new(0, Area::new(2.0))))
+            .with_initial_energy(BioEnergy::new(10.0));
+
+        cell.after_movement();
+
+        assert_eq!(BioEnergy::new(8.0), cell.energy());
     }
 
     #[test]

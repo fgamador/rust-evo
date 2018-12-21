@@ -3,16 +3,16 @@ use physics::quantities::*;
 #[derive(Clone, Copy, Debug, PartialEq)]
 pub struct ControlRequest {
     pub layer_index: usize,
-    pub control_index: usize,
-    pub control_value: f64,
+    pub channel_index: usize,
+    pub channel_value: f64,
 }
 
 impl ControlRequest {
-    pub fn new(layer_index: usize, control_index: usize, control_value: f64) -> Self {
+    pub fn new(layer_index: usize, channel_index: usize, channel_value: f64) -> Self {
         ControlRequest {
             layer_index,
-            control_index,
-            control_value,
+            channel_index,
+            channel_value,
         }
     }
 }

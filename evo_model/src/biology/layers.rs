@@ -56,7 +56,7 @@ pub trait CellLayer: OnionLayer {
 
     fn cost_control_request(&self, request: ControlRequest) -> CostedControlRequest;
 
-    fn execute_control_request(&mut self, request: ControlRequest);
+    fn execute_control_request(&mut self, request: BudgetedControlRequest);
 }
 
 #[derive(Debug)]
@@ -89,11 +89,11 @@ impl Annulus {
         CostedControlRequest::new(request, request.control_value * self.growth_energy_delta)
     }
 
-    fn execute_control_request(&mut self, request: ControlRequest) {
-        match request.control_index {
-            0 => self.resize(Area::new(request.control_value)),
+    fn execute_control_request(&mut self, request: BudgetedControlRequest) {
+        match request.control_request.control_index {
+            0 => self.resize(Area::new(request.control_request.control_value)),
             1 => (), // TODO maintenance/repair
-            _ => panic!("Invalid control input index: {}", request.control_index)
+            _ => panic!("Invalid control input index: {}", request.control_request.control_index)
         }
     }
 
@@ -148,7 +148,7 @@ impl CellLayer for SimpleCellLayer {
         self.annulus.cost_control_request(request)
     }
 
-    fn execute_control_request(&mut self, request: ControlRequest) {
+    fn execute_control_request(&mut self, request: BudgetedControlRequest) {
         self.annulus.execute_control_request(request);
     }
 }
@@ -207,10 +207,10 @@ impl CellLayer for ThrusterLayer {
         self.annulus.cost_control_request(request)
     }
 
-    fn execute_control_request(&mut self, request: ControlRequest) {
-        match request.control_index {
-            2 => self.force_x = request.control_value,
-            3 => self.force_y = request.control_value,
+    fn execute_control_request(&mut self, request: BudgetedControlRequest) {
+        match request.control_request.control_index {
+            2 => self.force_x = request.control_request.control_value,
+            3 => self.force_y = request.control_request.control_value,
             _ => self.annulus.execute_control_request(request)
         }
     }
@@ -269,7 +269,7 @@ impl CellLayer for PhotoLayer {
         self.annulus.cost_control_request(request)
     }
 
-    fn execute_control_request(&mut self, request: ControlRequest) {
+    fn execute_control_request(&mut self, request: BudgetedControlRequest) {
         self.annulus.execute_control_request(request);
     }
 }
@@ -305,7 +305,8 @@ mod tests {
     fn layer_resize_updates_area_and_mass() {
         let mut layer = SimpleCellLayer::new(
             Area::new(1.0), Density::new(2.0), Color::Green);
-        layer.execute_control_request(ControlRequest::new(0, 0, 2.0));
+        layer.execute_control_request(BudgetedControlRequest::new(
+            ControlRequest::new(0, 0, 2.0), BioEnergyDelta::new(0.0), 1.0));
         assert_eq!(Area::new(2.0), layer.area());
         assert_eq!(Mass::new(4.0), layer.mass());
     }
@@ -322,8 +323,10 @@ mod tests {
     #[test]
     fn thruster_layer_adds_force() {
         let mut layer = ThrusterLayer::new(Area::new(1.0));
-        layer.execute_control_request(ControlRequest::new(0, 2, 1.0));
-        layer.execute_control_request(ControlRequest::new(0, 3, -1.0));
+        layer.execute_control_request(BudgetedControlRequest::new(
+            ControlRequest::new(0, 2, 1.0), BioEnergyDelta::new(0.0), 1.0));
+        layer.execute_control_request(BudgetedControlRequest::new(
+            ControlRequest::new(0, 3, -1.0), BioEnergyDelta::new(0.0), 1.0));
 
         let env = LocalEnvironment::new();
         let (_, force) = layer.after_influences(&env);

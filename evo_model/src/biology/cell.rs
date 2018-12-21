@@ -123,19 +123,18 @@ impl TickCallbacks for Cell {
         let cell_state = self.get_state_snapshot();
 
         let control_requests = self.control.get_control_requests(&cell_state);
-        let _costed_requests = self.cost_control_requests(&control_requests);
-        let (_end_energy, _budgeted_control_requests) =
-            Cell::budget_control_requests(self.energy, &_costed_requests);
+        let costed_requests = self.cost_control_requests(&control_requests);
+        let (_end_energy, budgeted_control_requests) =
+            Cell::budget_control_requests(self.energy, &costed_requests);
 
-        for request in control_requests {
-            self.layers[request.layer_index].execute_control_request(request);
+        for request in budgeted_control_requests {
+            self.layers[request.control_request.layer_index].execute_control_request(request);
         }
 
         self.radius = Self::update_layer_outer_radii(&mut self.layers);
         self.newtonian_state.mass = Self::calc_mass(&self.layers);
     }
 }
-
 
 impl PartialEq for Cell {
     fn eq(&self, other: &Self) -> bool {

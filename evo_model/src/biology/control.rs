@@ -49,9 +49,8 @@ impl ContinuousGrowthControl {
 }
 
 impl CellControl for ContinuousGrowthControl {
-    fn get_control_requests(&mut self, cell_state: &CellStateSnapshot) -> Vec<ControlRequest> {
-        let desired_area = cell_state.layers[self.layer_index].area + self.growth_amount;
-        vec![ControlRequest::new(self.layer_index, 0, desired_area.value())]
+    fn get_control_requests(&mut self, _cell_state: &CellStateSnapshot) -> Vec<ControlRequest> {
+        vec![ControlRequest::new(self.layer_index, 0, self.growth_amount.value())]
     }
 }
 
@@ -76,9 +75,7 @@ impl CellControl for FixedDepthSeekingControl {
         let target_velocity_y = -y_offset / 100.0;
         let target_delta_vy = target_velocity_y - cell_state.velocity.y();
         let desired_delta_area = target_delta_vy * 10.0;
-        let current_area = cell_state.layers[self.float_layer_index].area;
-        let desired_area = Area::new((current_area.value() + desired_delta_area).max(0.0));
-        vec![ControlRequest::new(self.float_layer_index, 0, desired_area.value())]
+        vec![ControlRequest::new(self.float_layer_index, 0, desired_delta_area)]
     }
 }
 
@@ -192,7 +189,7 @@ mod tests {
         };
         let mut control = ContinuousGrowthControl::new(1, Area::new(0.5));
         let requests = control.get_control_requests(&cell_state);
-        assert_eq!(requests, vec![ControlRequest::new(1, 0, 2.5)]);
+        assert_eq!(requests, vec![ControlRequest::new(1, 0, 0.5)]);
     }
 
     #[test]

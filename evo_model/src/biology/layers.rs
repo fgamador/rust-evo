@@ -91,14 +91,14 @@ impl Annulus {
 
     fn execute_control_request(&mut self, request: BudgetedControlRequest) {
         match request.control_request.channel_index {
-            0 => self.resize(Area::new(request.control_request.channel_value)),
+            0 => self.resize(request.control_request.channel_value),
             1 => (), // TODO maintenance/repair
             _ => panic!("Invalid control input index: {}", request.control_request.channel_index)
         }
     }
 
-    fn resize(&mut self, new_area: Area) {
-        self.area = new_area;
+    fn resize(&mut self, delta_area: f64) {
+        self.area = Area::new((self.area.value() + delta_area).max(0.0));
         self.mass = self.area * self.density;
     }
 }
@@ -307,8 +307,8 @@ mod tests {
             Area::new(1.0), Density::new(2.0), Color::Green);
         layer.execute_control_request(BudgetedControlRequest::new(
             ControlRequest::new(0, 0, 2.0), BioEnergyDelta::new(0.0), 1.0));
-        assert_eq!(Area::new(2.0), layer.area());
-        assert_eq!(Mass::new(4.0), layer.mass());
+        assert_eq!(Area::new(3.0), layer.area());
+        assert_eq!(Mass::new(6.0), layer.mass());
     }
 
     #[test]

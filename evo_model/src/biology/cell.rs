@@ -230,8 +230,8 @@ mod tests {
         assert_eq!(Mass::new(10.5), cell.mass());
     }
 
-    //#[test]
-    fn _layer_growth_cost_reduces_cell_energy() {
+    #[test]
+    fn layer_growth_cost_reduces_cell_energy() {
         let mut cell = Cell::new(Position::ORIGIN, Velocity::ZERO,
                                  vec![
                                      Box::new(SimpleCellLayer::new(

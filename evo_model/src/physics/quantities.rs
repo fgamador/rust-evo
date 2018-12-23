@@ -671,6 +671,8 @@ pub struct BioEnergyDelta {
 }
 
 impl BioEnergyDelta {
+    pub const ZERO: BioEnergyDelta = BioEnergyDelta { value: 0.0 };
+
     pub fn new(value: f64) -> Self {
         BioEnergyDelta { value }
     }

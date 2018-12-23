@@ -90,7 +90,11 @@ impl Annulus {
     }
 
     fn cost_control_request(&self, request: ControlRequest) -> CostedControlRequest {
-        CostedControlRequest::new(request, request.value * self.resize_parameters.growth_energy_delta)
+        match request.channel_index {
+            0 => self.cost_resize(request),
+            1 => CostedControlRequest::NULL_REQUEST, // TODO maintenance/repair
+            _ => panic!("Invalid control input index: {}", request.channel_index)
+        }
     }
 
     fn execute_control_request(&mut self, request: BudgetedControlRequest) {
@@ -101,11 +105,20 @@ impl Annulus {
         }
     }
 
+    fn cost_resize(&self, request: ControlRequest) -> CostedControlRequest {
+        let delta_area = self.adjust_resize_delta_area(request.value);
+        CostedControlRequest::new(request, delta_area * self.resize_parameters.growth_energy_delta)
+    }
+
     fn resize(&mut self, requested_delta_area: f64) {
-        let max_delta_area = self.resize_parameters.max_growth_rate * self.area.value();
-        let delta_area = requested_delta_area.min(max_delta_area);
+        let delta_area = self.adjust_resize_delta_area(requested_delta_area);
         self.area = Area::new((self.area.value() + delta_area).max(0.0));
         self.mass = self.area * self.density;
+    }
+
+    fn adjust_resize_delta_area(&self, requested_delta_area: f64) -> f64 {
+        let max_delta_area = self.resize_parameters.max_growth_rate * self.area.value();
+        requested_delta_area.min(max_delta_area)
     }
 }
 
@@ -328,16 +341,28 @@ mod tests {
 
     #[test]
     fn layer_growth_is_limited_by_max_growth_rate() {
-        let mut layer = SimpleCellLayer::new(Area::new(1.0), Density::new(1.0), Color::Green)
+        let mut layer = SimpleCellLayer::new(Area::new(2.0), Density::new(1.0), Color::Green)
             .with_resize_parameters(LayerResizeParameters {
-                growth_energy_delta: BioEnergyDelta::new(-0.5),
-                max_growth_rate: 1.0,
+                growth_energy_delta: BioEnergyDelta::new(0.0),
+                max_growth_rate: 0.5,
             });
         layer.execute_control_request(
             BudgetedControlRequest::new(
                 CostedControlRequest::new(
-                    ControlRequest::new(0, 0, 2.0), BioEnergyDelta::new(0.0)), 1.0));
-        assert_eq!(Area::new(2.0), layer.area());
+                    ControlRequest::new(0, 0, 10.0), BioEnergyDelta::new(0.0)), 1.0));
+        assert_eq!(Area::new(3.0), layer.area());
+    }
+
+    #[test]
+    fn layer_growth_cost_is_limited_by_max_growth_rate() {
+        let layer = SimpleCellLayer::new(Area::new(1.0), Density::new(1.0), Color::Green)
+            .with_resize_parameters(LayerResizeParameters {
+                growth_energy_delta: BioEnergyDelta::new(-3.0),
+                max_growth_rate: 0.5,
+            });
+        let control_request = ControlRequest::new(0, 0, 2.0);
+        let costed_request = layer.cost_control_request(control_request);
+        assert_eq!(costed_request, CostedControlRequest::new(control_request, BioEnergyDelta::new(-1.5)));
     }
 
     #[test]

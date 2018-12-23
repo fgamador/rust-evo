@@ -101,7 +101,9 @@ impl Annulus {
         }
     }
 
-    fn resize(&mut self, delta_area: f64) {
+    fn resize(&mut self, requested_delta_area: f64) {
+        let max_delta_area = self.resize_parameters.max_growth_rate * self.area.value();
+        let delta_area = requested_delta_area.min(max_delta_area);
         self.area = Area::new((self.area.value() + delta_area).max(0.0));
         self.mass = self.area * self.density;
     }
@@ -324,8 +326,8 @@ mod tests {
         assert_eq!(Mass::new(6.0), layer.mass());
     }
 
-    //#[test]
-    fn _layer_growth_is_limited_by_max_growth_rate() {
+    #[test]
+    fn layer_growth_is_limited_by_max_growth_rate() {
         let mut layer = SimpleCellLayer::new(Area::new(1.0), Density::new(1.0), Color::Green)
             .with_resize_parameters(LayerResizeParameters {
                 growth_energy_delta: BioEnergyDelta::new(-0.5),

@@ -229,7 +229,10 @@ impl CellLayer for ThrusterLayer {
     }
 
     fn cost_control_request(&self, request: ControlRequest) -> CostedControlRequest {
-        self.annulus.cost_control_request(request)
+        match request.channel_index {
+            2 | 3 => CostedControlRequest::new(request, BioEnergyDelta::ZERO), // TODO
+            _ => self.annulus.cost_control_request(request)
+        }
     }
 
     fn execute_control_request(&mut self, request: BudgetedControlRequest) {

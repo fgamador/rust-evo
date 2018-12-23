@@ -240,6 +240,8 @@ mod tests {
                                          .with_resize_parameters(LayerResizeParameters {
                                              growth_energy_delta: BioEnergyDelta::new(-1.0),
                                              max_growth_rate: f64::INFINITY,
+                                             shrinkage_energy_delta: BioEnergyDelta::ZERO,
+                                             max_shrinkage_rate: f64::INFINITY,
                                          })),
                                  ])
             .with_control(Box::new(ContinuousGrowthControl::new(0, Area::new(2.0))))

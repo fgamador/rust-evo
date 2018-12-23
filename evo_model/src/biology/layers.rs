@@ -79,8 +79,10 @@ impl Annulus {
             outer_radius: (area / PI).sqrt(),
             color,
             resize_parameters: LayerResizeParameters {
-                growth_energy_delta: BioEnergyDelta::new(0.0),
+                growth_energy_delta: BioEnergyDelta::ZERO,
                 max_growth_rate: f64::INFINITY,
+                shrinkage_energy_delta: BioEnergyDelta::ZERO,
+                max_shrinkage_rate: f64::INFINITY,
             },
         }
     }
@@ -126,6 +128,8 @@ impl Annulus {
 pub struct LayerResizeParameters {
     pub growth_energy_delta: BioEnergyDelta,
     pub max_growth_rate: f64,
+    pub shrinkage_energy_delta: BioEnergyDelta,
+    pub max_shrinkage_rate: f64,
 }
 
 #[derive(Debug)]
@@ -346,13 +350,15 @@ mod tests {
     fn layer_growth_is_limited_by_max_growth_rate() {
         let mut layer = SimpleCellLayer::new(Area::new(2.0), Density::new(1.0), Color::Green)
             .with_resize_parameters(LayerResizeParameters {
-                growth_energy_delta: BioEnergyDelta::new(0.0),
+                growth_energy_delta: BioEnergyDelta::ZERO,
                 max_growth_rate: 0.5,
+                shrinkage_energy_delta: BioEnergyDelta::ZERO,
+                max_shrinkage_rate: f64::INFINITY,
             });
         layer.execute_control_request(
             BudgetedControlRequest::new(
                 CostedControlRequest::new(
-                    ControlRequest::new(0, 0, 10.0), BioEnergyDelta::new(0.0)), 1.0));
+                    ControlRequest::new(0, 0, 10.0), BioEnergyDelta::ZERO), 1.0));
         assert_eq!(Area::new(3.0), layer.area());
     }
 
@@ -362,10 +368,28 @@ mod tests {
             .with_resize_parameters(LayerResizeParameters {
                 growth_energy_delta: BioEnergyDelta::new(-3.0),
                 max_growth_rate: 0.5,
+                shrinkage_energy_delta: BioEnergyDelta::ZERO,
+                max_shrinkage_rate: f64::INFINITY,
             });
         let control_request = ControlRequest::new(0, 0, 2.0);
         let costed_request = layer.cost_control_request(control_request);
         assert_eq!(costed_request, CostedControlRequest::new(control_request, BioEnergyDelta::new(-1.5)));
+    }
+
+    //#[test]
+    fn layer_shrinkage_is_limited_by_max_shrinkage_rate() {
+        let mut layer = SimpleCellLayer::new(Area::new(2.0), Density::new(1.0), Color::Green)
+            .with_resize_parameters(LayerResizeParameters {
+                growth_energy_delta: BioEnergyDelta::ZERO,
+                max_growth_rate: f64::INFINITY,
+                shrinkage_energy_delta: BioEnergyDelta::ZERO,
+                max_shrinkage_rate: 0.25,
+            });
+        layer.execute_control_request(
+            BudgetedControlRequest::new(
+                CostedControlRequest::new(
+                    ControlRequest::new(0, 0, -8.0), BioEnergyDelta::ZERO), 1.0));
+        assert_eq!(Area::new(1.5), layer.area());
     }
 
     #[test]
@@ -374,6 +398,8 @@ mod tests {
             .with_resize_parameters(LayerResizeParameters {
                 growth_energy_delta: BioEnergyDelta::new(-0.5),
                 max_growth_rate: f64::INFINITY,
+                shrinkage_energy_delta: BioEnergyDelta::ZERO,
+                max_shrinkage_rate: f64::INFINITY,
             });
         let costed_request = layer.cost_control_request(ControlRequest::new(0, 0, 3.0));
         assert_eq!(costed_request, CostedControlRequest::new(
@@ -386,11 +412,11 @@ mod tests {
         layer.execute_control_request(
             BudgetedControlRequest::new(
                 CostedControlRequest::new(
-                    ControlRequest::new(0, 2, 1.0), BioEnergyDelta::new(0.0)), 1.0));
+                    ControlRequest::new(0, 2, 1.0), BioEnergyDelta::ZERO), 1.0));
         layer.execute_control_request(
             BudgetedControlRequest::new(
                 CostedControlRequest::new(
-                    ControlRequest::new(0, 3, -1.0), BioEnergyDelta::new(0.0)), 1.0));
+                    ControlRequest::new(0, 3, -1.0), BioEnergyDelta::ZERO), 1.0));
 
         let env = LocalEnvironment::new();
         let (_, force) = layer.after_influences(&env);

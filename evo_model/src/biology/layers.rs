@@ -108,7 +108,12 @@ impl Annulus {
 
     fn cost_resize(&self, request: ControlRequest) -> CostedControlRequest {
         let delta_area = self.adjust_resize_delta_area(request.value);
-        CostedControlRequest::new(request, delta_area * self.resize_parameters.growth_energy_delta)
+        let energy_delta = if request.value >= 0.0 {
+            self.resize_parameters.growth_energy_delta
+        } else {
+            -self.resize_parameters.shrinkage_energy_delta
+        };
+        CostedControlRequest::new(request, delta_area * energy_delta)
     }
 
     fn resize(&mut self, requested_delta_area: f64) {
@@ -393,8 +398,22 @@ mod tests {
         layer.execute_control_request(
             BudgetedControlRequest::new(
                 CostedControlRequest::new(
-                    ControlRequest::new(0, 0, -8.0), BioEnergyDelta::ZERO), 1.0));
+                    ControlRequest::new(0, 0, -10.0), BioEnergyDelta::ZERO), 1.0));
         assert_eq!(Area::new(1.5), layer.area());
+    }
+
+    #[test]
+    fn layer_shrinkage_yield_is_limited_by_max_shrinkage_rate() {
+        let layer = SimpleCellLayer::new(Area::new(4.0), Density::new(1.0), Color::Green)
+            .with_resize_parameters(LayerResizeParameters {
+                growth_energy_delta: BioEnergyDelta::ZERO,
+                max_growth_rate: f64::INFINITY,
+                shrinkage_energy_delta: BioEnergyDelta::new(3.0),
+                max_shrinkage_rate: 0.5,
+            });
+        let control_request = ControlRequest::new(0, 0, -10.0);
+        let costed_request = layer.cost_control_request(control_request);
+        assert_eq!(costed_request, CostedControlRequest::new(control_request, BioEnergyDelta::new(6.0)));
     }
 
     #[test]

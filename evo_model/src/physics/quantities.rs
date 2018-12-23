@@ -715,6 +715,14 @@ impl Div<f64> for BioEnergyDelta {
     }
 }
 
+impl Neg for BioEnergyDelta {
+    type Output = BioEnergyDelta;
+
+    fn neg(self) -> Self::Output {
+        BioEnergyDelta::new(-self.value)
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;

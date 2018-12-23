@@ -3,6 +3,7 @@ use environment::environment::LocalEnvironment;
 use evo_view_model::Color;
 use physics::quantities::*;
 use physics::shapes::Circle;
+use std::f64;
 use std::f64::consts::PI;
 use std::fmt::Debug;
 
@@ -79,6 +80,7 @@ impl Annulus {
             color,
             resize_parameters: LayerResizeParameters {
                 growth_energy_delta: BioEnergyDelta::new(0.0),
+                max_growth_rate: f64::MAX,
             },
         }
     }
@@ -108,6 +110,7 @@ impl Annulus {
 #[derive(Debug, Clone, Copy)]
 pub struct LayerResizeParameters {
     pub growth_energy_delta: BioEnergyDelta,
+    pub max_growth_rate: f64,
 }
 
 #[derive(Debug)]
@@ -321,11 +324,26 @@ mod tests {
         assert_eq!(Mass::new(6.0), layer.mass());
     }
 
+    //#[test]
+    fn _layer_growth_is_limited_by_max_growth_rate() {
+        let mut layer = SimpleCellLayer::new(Area::new(1.0), Density::new(1.0), Color::Green)
+            .with_resize_parameters(LayerResizeParameters {
+                growth_energy_delta: BioEnergyDelta::new(-0.5),
+                max_growth_rate: 1.0,
+            });
+        layer.execute_control_request(
+            BudgetedControlRequest::new(
+                CostedControlRequest::new(
+                    ControlRequest::new(0, 0, 2.0), BioEnergyDelta::new(0.0)), 1.0));
+        assert_eq!(Area::new(2.0), layer.area());
+    }
+
     #[test]
     fn layer_costs_resize_request() {
         let layer = SimpleCellLayer::new(Area::new(1.0), Density::new(1.0), Color::Green)
             .with_resize_parameters(LayerResizeParameters {
-                growth_energy_delta: BioEnergyDelta::new(-0.5)
+                growth_energy_delta: BioEnergyDelta::new(-0.5),
+                max_growth_rate: f64::MAX,
             });
         let costed_request = layer.cost_control_request(ControlRequest::new(0, 0, 3.0));
         assert_eq!(costed_request, CostedControlRequest::new(

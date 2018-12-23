@@ -170,6 +170,7 @@ impl Onion for Cell {
 mod tests {
     use super::*;
     use evo_view_model::Color;
+    use std::f64;
     use std::f64::consts::PI;
 
     #[test]
@@ -237,7 +238,8 @@ mod tests {
                                      Box::new(SimpleCellLayer::new(
                                          Area::new(1.0), Density::new(1.0), Color::Green)
                                          .with_resize_parameters(LayerResizeParameters {
-                                             growth_energy_delta: BioEnergyDelta::new(-1.0)
+                                             growth_energy_delta: BioEnergyDelta::new(-1.0),
+                                             max_growth_rate: f64::MAX,
                                          })),
                                  ])
             .with_control(Box::new(ContinuousGrowthControl::new(0, Area::new(2.0))))

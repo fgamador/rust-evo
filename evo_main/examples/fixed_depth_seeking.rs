@@ -22,7 +22,7 @@ fn create_world() -> World<Cell> {
         .with_influences(vec![
             Box::new(SimpleForceInfluence::new(Box::new(WeightForce::new(-0.05)))),
             Box::new(SimpleForceInfluence::new(Box::new(BuoyancyForce::new(-0.03, 0.001)))),
-            Box::new(SimpleForceInfluence::new(Box::new(DragForce::new(0.0005))))
+            Box::new(SimpleForceInfluence::new(Box::new(DragForce::new(0.005))))
         ])
         .with_cells(vec![
             Cell::new(

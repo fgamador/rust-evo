@@ -4,15 +4,15 @@ use physics::quantities::*;
 pub struct ControlRequest {
     pub layer_index: usize,
     pub channel_index: usize,
-    pub channel_value: f64,
+    pub value: f64,
 }
 
 impl ControlRequest {
-    pub fn new(layer_index: usize, channel_index: usize, channel_value: f64) -> Self {
+    pub fn new(layer_index: usize, channel_index: usize, value: f64) -> Self {
         ControlRequest {
             layer_index,
             channel_index,
-            channel_value,
+            value,
         }
     }
 }

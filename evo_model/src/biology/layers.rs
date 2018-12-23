@@ -86,12 +86,12 @@ impl Annulus {
     }
 
     fn cost_control_request(&self, request: ControlRequest) -> CostedControlRequest {
-        CostedControlRequest::new(request, request.channel_value * self.growth_energy_delta)
+        CostedControlRequest::new(request, request.value * self.growth_energy_delta)
     }
 
     fn execute_control_request(&mut self, request: BudgetedControlRequest) {
         match request.control_request.channel_index {
-            0 => self.resize(request.control_request.channel_value),
+            0 => self.resize(request.control_request.value),
             1 => (), // TODO maintenance/repair
             _ => panic!("Invalid control input index: {}", request.control_request.channel_index)
         }
@@ -209,8 +209,8 @@ impl CellLayer for ThrusterLayer {
 
     fn execute_control_request(&mut self, request: BudgetedControlRequest) {
         match request.control_request.channel_index {
-            2 => self.force_x = request.control_request.channel_value,
-            3 => self.force_y = request.control_request.channel_value,
+            2 => self.force_x = request.control_request.value,
+            3 => self.force_y = request.control_request.value,
             _ => self.annulus.execute_control_request(request)
         }
     }

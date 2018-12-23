@@ -117,6 +117,8 @@ impl Annulus {
     }
 
     fn adjust_resize_delta_area(&self, requested_delta_area: f64) -> f64 {
+        // TODO a layer that starts with area 0.0 cannot grow
+        // TODO if max_growth_rate is f64::MAX, will this overflow?
         let max_delta_area = self.resize_parameters.max_growth_rate * self.area.value();
         requested_delta_area.min(max_delta_area)
     }

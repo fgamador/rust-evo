@@ -122,8 +122,8 @@ impl SimpleCellLayer {
         }
     }
 
-    pub fn with_growth_energy_delta(mut self, energy_delta: BioEnergyDelta) -> Self {
-        self.annulus.resize_parameters.growth_energy_delta = energy_delta;
+    pub fn with_resize_parameters(mut self, resize_parameters: LayerResizeParameters) -> Self {
+        self.annulus.resize_parameters = resize_parameters;
         self
     }
 }
@@ -177,8 +177,8 @@ impl ThrusterLayer {
         }
     }
 
-    pub fn with_growth_energy_delta(mut self, energy_delta: BioEnergyDelta) -> Self {
-        self.annulus.resize_parameters.growth_energy_delta = energy_delta;
+    pub fn with_resize_parameters(mut self, resize_parameters: LayerResizeParameters) -> Self {
+        self.annulus.resize_parameters = resize_parameters;
         self
     }
 }
@@ -238,8 +238,8 @@ impl PhotoLayer {
         }
     }
 
-    pub fn with_growth_energy_delta(mut self, energy_delta: BioEnergyDelta) -> Self {
-        self.annulus.resize_parameters.growth_energy_delta = energy_delta;
+    pub fn with_resize_parameters(mut self, resize_parameters: LayerResizeParameters) -> Self {
+        self.annulus.resize_parameters = resize_parameters;
         self
     }
 }
@@ -324,7 +324,9 @@ mod tests {
     #[test]
     fn layer_costs_resize_request() {
         let layer = SimpleCellLayer::new(Area::new(1.0), Density::new(1.0), Color::Green)
-            .with_growth_energy_delta(BioEnergyDelta::new(-0.5));
+            .with_resize_parameters(LayerResizeParameters {
+                growth_energy_delta: BioEnergyDelta::new(-0.5)
+            });
         let costed_request = layer.cost_control_request(ControlRequest::new(0, 0, 3.0));
         assert_eq!(costed_request, CostedControlRequest::new(
             ControlRequest::new(0, 0, 3.0), BioEnergyDelta::new(-1.5)));

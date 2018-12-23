@@ -236,7 +236,9 @@ mod tests {
                                  vec![
                                      Box::new(SimpleCellLayer::new(
                                          Area::new(1.0), Density::new(1.0), Color::Green)
-                                         .with_growth_energy_delta(BioEnergyDelta::new(-1.0))),
+                                         .with_resize_parameters(LayerResizeParameters {
+                                             growth_energy_delta: BioEnergyDelta::new(-1.0)
+                                         })),
                                  ])
             .with_control(Box::new(ContinuousGrowthControl::new(0, Area::new(2.0))))
             .with_initial_energy(BioEnergy::new(10.0));

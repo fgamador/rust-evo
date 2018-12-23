@@ -94,7 +94,7 @@ impl Cell {
         let budgeted_requests = costed_requests.iter()
             .map(|costed_request| {
                 let request_budgeted_fraction = if costed_request.energy_delta.value() < 0.0 { budgeted_fraction } else { 1.0 };
-                BudgetedControlRequest::new(costed_request.control_request, costed_request.energy_delta, request_budgeted_fraction)
+                BudgetedControlRequest::new(*costed_request, request_budgeted_fraction)
             })
             .collect();
         (end_energy, budgeted_requests)
@@ -134,7 +134,7 @@ impl TickCallbacks for Cell {
         self.energy = end_energy;
 
         for request in budgeted_control_requests {
-            self.layers[request.control_request.layer_index].execute_control_request(request);
+            self.layers[request.layer_index].execute_control_request(request);
         }
 
         self.radius = Self::update_layer_outer_radii(&mut self.layers);
@@ -282,8 +282,8 @@ mod tests {
         let result = Cell::budget_control_requests(BioEnergy::new(3.0), &costed_requests);
 
         assert_eq!(result, (BioEnergy::new(2.5), vec![
-            BudgetedControlRequest::new(dummy_control_request, BioEnergyDelta::new(-1.5), 1.0),
-            BudgetedControlRequest::new(dummy_control_request, BioEnergyDelta::new(1.0), 1.0),
+            BudgetedControlRequest::new(costed_requests[0], 1.0),
+            BudgetedControlRequest::new(costed_requests[1], 1.0),
         ]));
     }
 
@@ -298,8 +298,8 @@ mod tests {
         let result = Cell::budget_control_requests(BioEnergy::new(2.0), &costed_requests);
 
         assert_eq!(result, (BioEnergy::new(0.0), vec![
-            BudgetedControlRequest::new(dummy_control_request, BioEnergyDelta::new(-6.0), 0.5),
-            BudgetedControlRequest::new(dummy_control_request, BioEnergyDelta::new(1.0), 1.0),
+            BudgetedControlRequest::new(costed_requests[0], 0.5),
+            BudgetedControlRequest::new(costed_requests[1], 1.0),
         ]));
     }
 }

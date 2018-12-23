@@ -19,14 +19,18 @@ impl ControlRequest {
 
 #[derive(Clone, Copy, Debug, PartialEq)]
 pub struct CostedControlRequest {
-    pub control_request: ControlRequest,
+    pub layer_index: usize,
+    pub channel_index: usize,
+    pub value: f64,
     pub energy_delta: BioEnergyDelta,
 }
 
 impl CostedControlRequest {
     pub fn new(control_request: ControlRequest, energy_delta: BioEnergyDelta) -> Self {
         CostedControlRequest {
-            control_request,
+            layer_index: control_request.layer_index,
+            channel_index: control_request.channel_index,
+            value: control_request.value,
             energy_delta,
         }
     }
@@ -34,16 +38,20 @@ impl CostedControlRequest {
 
 #[derive(Clone, Copy, Debug, PartialEq)]
 pub struct BudgetedControlRequest {
-    pub control_request: ControlRequest,
+    pub layer_index: usize,
+    pub channel_index: usize,
+    pub value: f64,
     pub energy_delta: BioEnergyDelta,
     pub budgeted_fraction: f64,
 }
 
 impl BudgetedControlRequest {
-    pub fn new(control_request: ControlRequest, energy_delta: BioEnergyDelta, budgeted_fraction: f64) -> Self {
+    pub fn new(costed_request: CostedControlRequest, budgeted_fraction: f64) -> Self {
         BudgetedControlRequest {
-            control_request,
-            energy_delta,
+            layer_index: costed_request.layer_index,
+            channel_index: costed_request.channel_index,
+            value: costed_request.value,
+            energy_delta: costed_request.energy_delta,
             budgeted_fraction,
         }
     }

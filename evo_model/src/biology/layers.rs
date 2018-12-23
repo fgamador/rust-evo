@@ -90,10 +90,10 @@ impl Annulus {
     }
 
     fn execute_control_request(&mut self, request: BudgetedControlRequest) {
-        match request.control_request.channel_index {
-            0 => self.resize(request.control_request.value),
+        match request.channel_index {
+            0 => self.resize(request.value),
             1 => (), // TODO maintenance/repair
-            _ => panic!("Invalid control input index: {}", request.control_request.channel_index)
+            _ => panic!("Invalid control input index: {}", request.channel_index)
         }
     }
 
@@ -208,9 +208,9 @@ impl CellLayer for ThrusterLayer {
     }
 
     fn execute_control_request(&mut self, request: BudgetedControlRequest) {
-        match request.control_request.channel_index {
-            2 => self.force_x = request.control_request.value,
-            3 => self.force_y = request.control_request.value,
+        match request.channel_index {
+            2 => self.force_x = request.value,
+            3 => self.force_y = request.value,
             _ => self.annulus.execute_control_request(request)
         }
     }
@@ -278,6 +278,7 @@ impl CellLayer for PhotoLayer {
 mod tests {
     use super::*;
     use environment::environment::LocalEnvironment;
+    use biology::control_requests::BudgetedControlRequest;
 
     #[test]
     fn layer_calculates_mass() {
@@ -305,8 +306,10 @@ mod tests {
     fn layer_resize_updates_area_and_mass() {
         let mut layer = SimpleCellLayer::new(
             Area::new(1.0), Density::new(2.0), Color::Green);
-        layer.execute_control_request(BudgetedControlRequest::new(
-            ControlRequest::new(0, 0, 2.0), BioEnergyDelta::new(0.0), 1.0));
+        layer.execute_control_request(
+            BudgetedControlRequest::new(
+                CostedControlRequest::new(
+                    ControlRequest::new(0, 0, 2.0), BioEnergyDelta::new(0.0)), 1.0));
         assert_eq!(Area::new(3.0), layer.area());
         assert_eq!(Mass::new(6.0), layer.mass());
     }
@@ -323,10 +326,14 @@ mod tests {
     #[test]
     fn thruster_layer_adds_force() {
         let mut layer = ThrusterLayer::new(Area::new(1.0));
-        layer.execute_control_request(BudgetedControlRequest::new(
-            ControlRequest::new(0, 2, 1.0), BioEnergyDelta::new(0.0), 1.0));
-        layer.execute_control_request(BudgetedControlRequest::new(
-            ControlRequest::new(0, 3, -1.0), BioEnergyDelta::new(0.0), 1.0));
+        layer.execute_control_request(
+            BudgetedControlRequest::new(
+                CostedControlRequest::new(
+                    ControlRequest::new(0, 2, 1.0), BioEnergyDelta::new(0.0)), 1.0));
+        layer.execute_control_request(
+            BudgetedControlRequest::new(
+                CostedControlRequest::new(
+                    ControlRequest::new(0, 3, -1.0), BioEnergyDelta::new(0.0)), 1.0));
 
         let env = LocalEnvironment::new();
         let (_, force) = layer.after_influences(&env);

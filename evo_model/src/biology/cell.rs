@@ -303,7 +303,7 @@ mod tests {
 
         let result = Cell::budget_control_requests(BioEnergy::new(2.0), &costed_requests);
 
-        assert_eq!(result, (BioEnergy::new(0.0), vec![
+        assert_eq!(result, (BioEnergy::ZERO, vec![
             BudgetedControlRequest::new(costed_requests[0], 0.5),
             BudgetedControlRequest::new(costed_requests[1], 1.0),
         ]));

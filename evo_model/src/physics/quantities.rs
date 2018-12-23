@@ -497,6 +497,8 @@ pub struct Force {
 }
 
 impl Force {
+    pub const ZERO: Force = Force { x: 0.0, y: 0.0 };
+
     pub fn new(x: f64, y: f64) -> Self {
         Force { x, y }
     }
@@ -573,6 +575,8 @@ pub struct BioEnergy {
 }
 
 impl BioEnergy {
+    pub const ZERO: BioEnergy = BioEnergy { value: 0.0 };
+
     pub fn new(value: f64) -> Self {
         if value < 0.0 {
             panic!("Negative energy: {}", value);

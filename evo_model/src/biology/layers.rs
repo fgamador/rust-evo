@@ -52,7 +52,7 @@ pub trait CellLayer: OnionLayer {
     fn update_outer_radius(&mut self, inner_radius: Length);
 
     fn after_influences(&mut self, _env: &LocalEnvironment) -> (BioEnergy, Force) {
-        (BioEnergy::new(0.0), Force::new(0.0, 0.0))
+        (BioEnergy::ZERO, Force::ZERO)
     }
 
     fn cost_control_request(&self, request: ControlRequest) -> CostedControlRequest;
@@ -239,7 +239,7 @@ impl CellLayer for ThrusterLayer {
     }
 
     fn after_influences(&mut self, _env: &LocalEnvironment) -> (BioEnergy, Force) {
-        (BioEnergy::new(0.0), Force::new(self.force_x, self.force_y))
+        (BioEnergy::ZERO, Force::new(self.force_x, self.force_y))
     }
 
     fn cost_control_request(&self, request: ControlRequest) -> CostedControlRequest {
@@ -304,7 +304,7 @@ impl CellLayer for PhotoLayer {
 
     fn after_influences(&mut self, env: &LocalEnvironment) -> (BioEnergy, Force) {
         (BioEnergy::new(env.light_intensity() * self.efficiency * self.area().value()),
-         Force::new(0.0, 0.0))
+         Force::ZERO)
     }
 
     fn cost_control_request(&self, request: ControlRequest) -> CostedControlRequest {
@@ -351,7 +351,7 @@ mod tests {
         layer.execute_control_request(
             BudgetedControlRequest::new(
                 CostedControlRequest::new(
-                    ControlRequest::new(0, 0, 2.0), BioEnergyDelta::new(0.0)), 1.0));
+                    ControlRequest::new(0, 0, 2.0), BioEnergyDelta::ZERO), 1.0));
         assert_eq!(Area::new(3.0), layer.area());
         assert_eq!(Mass::new(6.0), layer.mass());
     }

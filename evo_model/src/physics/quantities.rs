@@ -255,6 +255,8 @@ pub struct Displacement {
 }
 
 impl Displacement {
+    pub const ZERO: Displacement = Displacement { x: 0.0, y: 0.0 };
+
     pub fn new(x: f64, y: f64) -> Self {
         Displacement { x, y }
     }
@@ -297,8 +299,6 @@ impl Neg for Displacement {
         Displacement::new(-self.x, -self.y)
     }
 }
-
-pub const ZERO_DISPLACEMENT: Displacement = Displacement { x: 0.0, y: 0.0 };
 
 #[derive(Clone, Copy, Debug, PartialEq, PartialOrd)]
 pub struct Duration {

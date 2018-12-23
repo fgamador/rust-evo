@@ -53,10 +53,10 @@ impl Walls {
         where C: Circle + GraphNode
     {
         let circle_box = circle.to_bounding_box();
-        let min_corner_overlap = (self.min_corner - circle_box.min_corner()).max(ZERO_DISPLACEMENT);
-        let max_corner_overlap = (self.max_corner - circle_box.max_corner()).min(ZERO_DISPLACEMENT);
+        let min_corner_overlap = (self.min_corner - circle_box.min_corner()).max(Displacement::ZERO);
+        let max_corner_overlap = (self.max_corner - circle_box.max_corner()).min(Displacement::ZERO);
         let overlap = min_corner_overlap + max_corner_overlap;
-        if overlap != ZERO_DISPLACEMENT {
+        if overlap != Displacement::ZERO {
             Some(overlap)
         } else {
             None

@@ -66,7 +66,7 @@ struct Annulus {
     mass: Mass,
     outer_radius: Length,
     color: Color,
-    growth_energy_delta: BioEnergyDelta,
+    resize_parameters: LayerResizeParameters,
 }
 
 impl Annulus {
@@ -77,7 +77,9 @@ impl Annulus {
             mass: area * density,
             outer_radius: (area / PI).sqrt(),
             color,
-            growth_energy_delta: BioEnergyDelta::new(0.0),
+            resize_parameters: LayerResizeParameters {
+                growth_energy_delta: BioEnergyDelta::new(0.0),
+            },
         }
     }
 
@@ -86,7 +88,7 @@ impl Annulus {
     }
 
     fn cost_control_request(&self, request: ControlRequest) -> CostedControlRequest {
-        CostedControlRequest::new(request, request.value * self.growth_energy_delta)
+        CostedControlRequest::new(request, request.value * self.resize_parameters.growth_energy_delta)
     }
 
     fn execute_control_request(&mut self, request: BudgetedControlRequest) {
@@ -103,6 +105,11 @@ impl Annulus {
     }
 }
 
+#[derive(Debug, Clone, Copy)]
+pub struct LayerResizeParameters {
+    pub growth_energy_delta: BioEnergyDelta,
+}
+
 #[derive(Debug)]
 pub struct SimpleCellLayer {
     annulus: Annulus,
@@ -116,7 +123,7 @@ impl SimpleCellLayer {
     }
 
     pub fn with_growth_energy_delta(mut self, energy_delta: BioEnergyDelta) -> Self {
-        self.annulus.growth_energy_delta = energy_delta;
+        self.annulus.resize_parameters.growth_energy_delta = energy_delta;
         self
     }
 }
@@ -171,7 +178,7 @@ impl ThrusterLayer {
     }
 
     pub fn with_growth_energy_delta(mut self, energy_delta: BioEnergyDelta) -> Self {
-        self.annulus.growth_energy_delta = energy_delta;
+        self.annulus.resize_parameters.growth_energy_delta = energy_delta;
         self
     }
 }
@@ -232,7 +239,7 @@ impl PhotoLayer {
     }
 
     pub fn with_growth_energy_delta(mut self, energy_delta: BioEnergyDelta) -> Self {
-        self.annulus.growth_energy_delta = energy_delta;
+        self.annulus.resize_parameters.growth_energy_delta = energy_delta;
         self
     }
 }

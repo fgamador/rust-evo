@@ -100,14 +100,14 @@ impl Annulus {
 
     fn execute_control_request(&mut self, request: BudgetedControlRequest) {
         match request.channel_index {
-            0 => self.resize(request.value),
+            0 => self.resize(request.value, request.budgeted_fraction),
             1 => (), // TODO maintenance/repair
             _ => panic!("Invalid control input index: {}", request.channel_index)
         }
     }
 
     fn cost_resize(&self, request: ControlRequest) -> CostedControlRequest {
-        let delta_area = self.adjust_resize_delta_area(request.value);
+        let delta_area = self.bound_resize_delta_area(request.value);
         let energy_delta = if request.value >= 0.0 {
             self.resize_parameters.growth_energy_delta
         } else {
@@ -116,13 +116,13 @@ impl Annulus {
         CostedControlRequest::new(request, delta_area * energy_delta)
     }
 
-    fn resize(&mut self, requested_delta_area: f64) {
-        let delta_area = self.adjust_resize_delta_area(requested_delta_area);
+    fn resize(&mut self, requested_delta_area: f64, budgeted_fraction: f64) {
+        let delta_area = budgeted_fraction * self.bound_resize_delta_area(requested_delta_area);
         self.area = Area::new((self.area.value() + delta_area).max(0.0));
         self.mass = self.area * self.density;
     }
 
-    fn adjust_resize_delta_area(&self, requested_delta_area: f64) -> f64 {
+    fn bound_resize_delta_area(&self, requested_delta_area: f64) -> f64 {
         if requested_delta_area >= 0.0 {
             // TODO a layer that starts with area 0.0 cannot grow
             let max_delta_area = self.resize_parameters.max_growth_rate * self.area.value();
@@ -368,6 +368,16 @@ mod tests {
         let costed_request = layer.cost_control_request(ControlRequest::new(0, 0, 3.0));
         assert_eq!(costed_request, CostedControlRequest::new(
             ControlRequest::new(0, 0, 3.0), BioEnergyDelta::new(-1.5)));
+    }
+
+    #[test]
+    fn layer_growth_is_limited_by_budgeted_fraction() {
+        let mut layer = SimpleCellLayer::new(Area::new(2.0), Density::new(1.0), Color::Green);
+        layer.execute_control_request(
+            BudgetedControlRequest::new(
+                CostedControlRequest::new(
+                    ControlRequest::new(0, 0, 2.0), BioEnergyDelta::ZERO), 0.5));
+        assert_eq!(Area::new(3.0), layer.area());
     }
 
     #[test]

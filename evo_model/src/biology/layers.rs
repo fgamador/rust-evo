@@ -118,9 +118,14 @@ impl Annulus {
     }
 
     fn adjust_resize_delta_area(&self, requested_delta_area: f64) -> f64 {
-        // TODO a layer that starts with area 0.0 cannot grow
-        let max_delta_area = self.resize_parameters.max_growth_rate * self.area.value();
-        requested_delta_area.min(max_delta_area)
+        if requested_delta_area >= 0.0 {
+            // TODO a layer that starts with area 0.0 cannot grow
+            let max_delta_area = self.resize_parameters.max_growth_rate * self.area.value();
+            requested_delta_area.min(max_delta_area)
+        } else {
+            let min_delta_area = -self.resize_parameters.max_shrinkage_rate * self.area.value();
+            requested_delta_area.max(min_delta_area)
+        }
     }
 }
 
@@ -376,7 +381,7 @@ mod tests {
         assert_eq!(costed_request, CostedControlRequest::new(control_request, BioEnergyDelta::new(-1.5)));
     }
 
-    //#[test]
+    #[test]
     fn layer_shrinkage_is_limited_by_max_shrinkage_rate() {
         let mut layer = SimpleCellLayer::new(Area::new(2.0), Density::new(1.0), Color::Green)
             .with_resize_parameters(LayerResizeParameters {

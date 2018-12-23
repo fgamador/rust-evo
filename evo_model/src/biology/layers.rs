@@ -80,7 +80,7 @@ impl Annulus {
             color,
             resize_parameters: LayerResizeParameters {
                 growth_energy_delta: BioEnergyDelta::new(0.0),
-                max_growth_rate: f64::MAX,
+                max_growth_rate: f64::INFINITY,
             },
         }
     }
@@ -92,8 +92,7 @@ impl Annulus {
     fn cost_control_request(&self, request: ControlRequest) -> CostedControlRequest {
         match request.channel_index {
             0 => self.cost_resize(request),
-            1 => CostedControlRequest::NULL_REQUEST, // TODO maintenance/repair
-            _ => panic!("Invalid control input index: {}", request.channel_index)
+            _ => CostedControlRequest::new(request, BioEnergyDelta::ZERO), // TODO
         }
     }
 
@@ -372,7 +371,7 @@ mod tests {
         let layer = SimpleCellLayer::new(Area::new(1.0), Density::new(1.0), Color::Green)
             .with_resize_parameters(LayerResizeParameters {
                 growth_energy_delta: BioEnergyDelta::new(-0.5),
-                max_growth_rate: f64::MAX,
+                max_growth_rate: f64::INFINITY,
             });
         let costed_request = layer.cost_control_request(ControlRequest::new(0, 0, 3.0));
         assert_eq!(costed_request, CostedControlRequest::new(

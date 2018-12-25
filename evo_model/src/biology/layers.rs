@@ -502,7 +502,7 @@ mod tests {
     }
 
     #[test]
-    fn layer_resize_cost_is_not_limited_by_reduced_health() {
+    fn layer_resize_cost_is_not_reduced_by_reduced_health() {
         let mut layer = SimpleCellLayer::new(Area::new(1.0), Density::new(1.0), Color::Green)
             .with_resize_parameters(LayerResizeParameters {
                 growth_energy_delta: BioEnergyDelta::new(-1.0),

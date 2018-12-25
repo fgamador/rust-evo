@@ -339,7 +339,7 @@ impl CellLayer for PhotoLayer {
     }
 
     fn after_influences(&mut self, env: &LocalEnvironment, subtick_duration: Duration) -> (BioEnergy, Force) {
-        (BioEnergy::new(env.light_intensity() * self.efficiency * self.area().value() * subtick_duration.value()),
+        (BioEnergy::new(env.light_intensity() * self.efficiency * self.health() * self.area().value() * subtick_duration.value()),
          Force::ZERO)
     }
 
@@ -544,5 +544,18 @@ mod tests {
         let (energy, _) = layer.after_influences(&env, Duration::new(0.5));
 
         assert_eq!(BioEnergy::new(10.0), energy);
+    }
+
+    #[test]
+    fn photo_layer_energy_is_reduced_by_reduced_health() {
+        let mut layer = PhotoLayer::new(Area::new(1.0), 1.0);
+        layer.damage(0.25);
+
+        let mut env = LocalEnvironment::new();
+        env.add_light_intensity(1.0);
+
+        let (energy, _) = layer.after_influences(&env, Duration::new(1.0));
+
+        assert_eq!(BioEnergy::new(0.75), energy);
     }
 }

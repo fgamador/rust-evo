@@ -112,7 +112,7 @@ impl Annulus {
 
     fn execute_control_request(&mut self, request: BudgetedControlRequest) {
         match request.channel_index {
-            0 => self.health += request.value, // TODO budgeted_fraction
+            0 => self.health += request.budgeted_fraction * request.value,
             1 => self.resize(request.value, request.budgeted_fraction),
             _ => panic!("Invalid control input index: {}", request.channel_index)
         }
@@ -524,6 +524,17 @@ mod tests {
             BudgetedControlRequest::new(
                 CostedControlRequest::new(
                     ControlRequest::new(0, 0, 0.25), BioEnergyDelta::ZERO), 1.0));
+        assert_eq!(0.75, layer.health());
+    }
+
+    #[test]
+    fn layer_health_restoration_is_limited_by_budged_fraction() {
+        let mut layer = SimpleCellLayer::new(Area::new(1.0), Density::new(1.0), Color::Green);
+        layer.damage(0.5);
+        layer.execute_control_request(
+            BudgetedControlRequest::new(
+                CostedControlRequest::new(
+                    ControlRequest::new(0, 0, 0.5), BioEnergyDelta::ZERO), 0.5));
         assert_eq!(0.75, layer.health());
     }
 

@@ -55,23 +55,23 @@ impl CellControl for CompositeControl {
 }
 
 #[derive(Debug)]
-pub struct ContinuousGrowthControl {
+pub struct ContinuousResizeControl {
     layer_index: usize,
-    growth_amount: Area,
+    resize_amount: Area,
 }
 
-impl ContinuousGrowthControl {
-    pub fn new(layer_index: usize, growth_amount: Area) -> Self {
-        ContinuousGrowthControl {
+impl ContinuousResizeControl {
+    pub fn new(layer_index: usize, resize_amount: Area) -> Self {
+        ContinuousResizeControl {
             layer_index,
-            growth_amount,
+            resize_amount,
         }
     }
 }
 
-impl CellControl for ContinuousGrowthControl {
+impl CellControl for ContinuousResizeControl {
     fn get_control_requests(&mut self, _cell_state: &CellStateSnapshot) -> Vec<ControlRequest> {
-        vec![ControlRequest::new(self.layer_index, 0, self.growth_amount.value())]
+        vec![ControlRequest::new(self.layer_index, 0, self.resize_amount.value())]
     }
 }
 
@@ -199,7 +199,7 @@ mod tests {
     use super::*;
 
     #[test]
-    fn continuous_growth_control_returns_request_to_grow_specified_layer() {
+    fn continuous_resize_control_returns_request_to_grow_specified_layer() {
         let cell_state = CellStateSnapshot {
             center: Position::new(0.0, 0.0),
             velocity: Velocity::new(0.0, 0.0),
@@ -208,7 +208,7 @@ mod tests {
                 CellLayerStateSnapshot { area: Area::new(2.0) }
             ],
         };
-        let mut control = ContinuousGrowthControl::new(1, Area::new(0.5));
+        let mut control = ContinuousResizeControl::new(1, Area::new(0.5));
         let requests = control.get_control_requests(&cell_state);
         assert_eq!(requests, vec![ControlRequest::new(1, 0, 0.5)]);
     }

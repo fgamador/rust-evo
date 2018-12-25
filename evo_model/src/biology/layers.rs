@@ -104,15 +104,16 @@ impl Annulus {
 
     fn cost_control_request(&self, request: ControlRequest) -> CostedControlRequest {
         match request.channel_index {
-            0 => self.cost_resize(request),
-            _ => CostedControlRequest::new(request, BioEnergyDelta::ZERO), // TODO
+            0 => CostedControlRequest::new(request, BioEnergyDelta::ZERO), // TODO repair
+            1 => self.cost_resize(request),
+            _ => panic!("Invalid control input index: {}", request.channel_index)
         }
     }
 
     fn execute_control_request(&mut self, request: BudgetedControlRequest) {
         match request.channel_index {
-            0 => self.resize(request.value, request.budgeted_fraction),
-            1 => (), // TODO maintenance/repair
+            0 => (), // TODO repair
+            1 => self.resize(request.value, request.budgeted_fraction),
             _ => panic!("Invalid control input index: {}", request.channel_index)
         }
     }
@@ -386,7 +387,7 @@ mod tests {
         layer.execute_control_request(
             BudgetedControlRequest::new(
                 CostedControlRequest::new(
-                    ControlRequest::new(0, 0, 2.0), BioEnergyDelta::ZERO), 1.0));
+                    ControlRequest::new(0, 1, 2.0), BioEnergyDelta::ZERO), 1.0));
         assert_eq!(Area::new(3.0), layer.area());
         assert_eq!(Mass::new(6.0), layer.mass());
     }
@@ -414,9 +415,9 @@ mod tests {
                 shrinkage_energy_delta: BioEnergyDelta::ZERO,
                 max_shrinkage_rate: f64::INFINITY,
             });
-        let costed_request = layer.cost_control_request(ControlRequest::new(0, 0, 3.0));
+        let costed_request = layer.cost_control_request(ControlRequest::new(0, 1, 3.0));
         assert_eq!(costed_request, CostedControlRequest::new(
-            ControlRequest::new(0, 0, 3.0), BioEnergyDelta::new(-1.5)));
+            ControlRequest::new(0, 1, 3.0), BioEnergyDelta::new(-1.5)));
     }
 
     #[test]
@@ -425,7 +426,7 @@ mod tests {
         layer.execute_control_request(
             BudgetedControlRequest::new(
                 CostedControlRequest::new(
-                    ControlRequest::new(0, 0, 2.0), BioEnergyDelta::ZERO), 0.5));
+                    ControlRequest::new(0, 1, 2.0), BioEnergyDelta::ZERO), 0.5));
         assert_eq!(Area::new(3.0), layer.area());
     }
 
@@ -441,7 +442,7 @@ mod tests {
         layer.execute_control_request(
             BudgetedControlRequest::new(
                 CostedControlRequest::new(
-                    ControlRequest::new(0, 0, 10.0), BioEnergyDelta::ZERO), 1.0));
+                    ControlRequest::new(0, 1, 10.0), BioEnergyDelta::ZERO), 1.0));
         assert_eq!(Area::new(3.0), layer.area());
     }
 
@@ -454,7 +455,7 @@ mod tests {
                 shrinkage_energy_delta: BioEnergyDelta::ZERO,
                 max_shrinkage_rate: f64::INFINITY,
             });
-        let control_request = ControlRequest::new(0, 0, 2.0);
+        let control_request = ControlRequest::new(0, 1, 2.0);
         let costed_request = layer.cost_control_request(control_request);
         assert_eq!(costed_request, CostedControlRequest::new(control_request, BioEnergyDelta::new(-1.5)));
     }
@@ -471,7 +472,7 @@ mod tests {
         layer.execute_control_request(
             BudgetedControlRequest::new(
                 CostedControlRequest::new(
-                    ControlRequest::new(0, 0, -10.0), BioEnergyDelta::ZERO), 1.0));
+                    ControlRequest::new(0, 1, -10.0), BioEnergyDelta::ZERO), 1.0));
         assert_eq!(Area::new(1.5), layer.area());
     }
 
@@ -484,7 +485,7 @@ mod tests {
                 shrinkage_energy_delta: BioEnergyDelta::new(3.0),
                 max_shrinkage_rate: 0.5,
             });
-        let control_request = ControlRequest::new(0, 0, -10.0);
+        let control_request = ControlRequest::new(0, 1, -10.0);
         let costed_request = layer.cost_control_request(control_request);
         assert_eq!(costed_request, CostedControlRequest::new(control_request, BioEnergyDelta::new(6.0)));
     }
@@ -496,7 +497,7 @@ mod tests {
         layer.execute_control_request(
             BudgetedControlRequest::new(
                 CostedControlRequest::new(
-                    ControlRequest::new(0, 0, 10.0), BioEnergyDelta::ZERO), 1.0));
+                    ControlRequest::new(0, 1, 10.0), BioEnergyDelta::ZERO), 1.0));
         assert_eq!(Area::new(6.0), layer.area());
     }
 
@@ -510,7 +511,7 @@ mod tests {
                 max_shrinkage_rate: f64::INFINITY,
             });
         layer.damage(0.5);
-        let control_request = ControlRequest::new(0, 0, 1.0);
+        let control_request = ControlRequest::new(0, 1, 1.0);
         let costed_request = layer.cost_control_request(control_request);
         assert_eq!(costed_request, CostedControlRequest::new(control_request, BioEnergyDelta::new(-1.0)));
     }

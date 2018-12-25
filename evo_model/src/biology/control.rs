@@ -34,6 +34,27 @@ impl CellControl for NullControl {
 }
 
 #[derive(Debug)]
+pub struct CompositeControl {
+    controls: Vec<Box<CellControl>>
+}
+
+impl CompositeControl {
+    pub fn new(controls: Vec<Box<CellControl>>) -> Self {
+        CompositeControl {
+            controls
+        }
+    }
+}
+
+impl CellControl for CompositeControl {
+    fn get_control_requests(&mut self, cell_state: &CellStateSnapshot) -> Vec<ControlRequest> {
+        self.controls.iter_mut()
+            .flat_map(|control| control.get_control_requests(cell_state))
+            .collect()
+    }
+}
+
+#[derive(Debug)]
 pub struct ContinuousGrowthControl {
     layer_index: usize,
     growth_amount: Area,

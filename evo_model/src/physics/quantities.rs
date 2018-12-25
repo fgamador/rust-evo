@@ -198,6 +198,36 @@ impl Mul<Density> for Area {
     }
 }
 
+#[derive(Clone, Copy, Debug, PartialEq, PartialOrd)]
+pub struct AreaDelta {
+    value: f64,
+}
+
+impl AreaDelta {
+    pub fn new(value: f64) -> Self {
+        AreaDelta { value }
+    }
+
+    #[allow(dead_code)]
+    pub fn value(&self) -> f64 {
+        self.value
+    }
+}
+
+impl Add<AreaDelta> for Area {
+    type Output = Area;
+
+    fn add(self, rhs: AreaDelta) -> Self::Output {
+        Area::new(self.value + rhs.value)
+    }
+}
+
+impl AddAssign<AreaDelta> for Area {
+    fn add_assign(&mut self, rhs: AreaDelta) {
+        self.value += rhs.value;
+    }
+}
+
 #[derive(Clone, Copy, Debug, PartialEq)]
 pub struct Position {
     x: f64,

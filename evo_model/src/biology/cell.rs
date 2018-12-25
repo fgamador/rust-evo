@@ -308,4 +308,36 @@ mod tests {
             BudgetedControlRequest::new(costed_requests[1], 1.0),
         ]));
     }
+
+    //#[test]
+    fn layer_shrinkage_allows_layer_growth_within_limits() {
+        let mut cell = Cell::new(Position::ORIGIN, Velocity::ZERO,
+                                 vec![
+                                     Box::new(SimpleCellLayer::new(
+                                         Area::new(1.0), Density::new(1.0), Color::Green)
+                                         .with_resize_parameters(LayerResizeParameters {
+                                             growth_energy_delta: BioEnergyDelta::new(-1.0),
+                                             max_growth_rate: f64::INFINITY,
+                                             shrinkage_energy_delta: BioEnergyDelta::ZERO,
+                                             max_shrinkage_rate: f64::INFINITY,
+                                         })),
+                                     Box::new(SimpleCellLayer::new(
+                                         Area::new(1.0), Density::new(1.0), Color::Green)
+                                         .with_resize_parameters(LayerResizeParameters {
+                                             growth_energy_delta: BioEnergyDelta::new(-1.0),
+                                             max_growth_rate: f64::INFINITY,
+                                             shrinkage_energy_delta: BioEnergyDelta::ZERO,
+                                             max_shrinkage_rate: f64::INFINITY,
+                                         })),
+                                 ])
+            .with_control(Box::new(CompositeControl::new(vec![
+                Box::new(ContinuousGrowthControl::new(0, Area::new(2.0))),
+                Box::new(ContinuousGrowthControl::new(1, Area::new(2.0))),
+            ])))
+            .with_initial_energy(BioEnergy::new(10.0));
+
+        cell.after_movement();
+
+        assert_eq!(BioEnergy::new(8.0), cell.energy());
+    }
 }

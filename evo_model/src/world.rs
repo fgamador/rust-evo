@@ -225,6 +225,21 @@ mod tests {
     }
 
     #[test]
+    fn tick_runs_photo_layer() {
+        let mut world = World::new(Position::new(0.0, 0.0), Position::new(0.0, 0.0))
+            .with_influence(Box::new(Sunlight::new(-10.0, 10.0, 0.0, 10.0)))
+            .with_cell(Cell::new(Position::new(0.0, 0.0), Velocity::ZERO,
+                                 vec![
+                                     Box::new(PhotoLayer::new(Area::new(10.0), 1.0)),
+                                 ]));
+
+        world.tick();
+
+        let cell = &world.cells()[0];
+        assert_eq!(50.0, cell.energy().value().round());
+    }
+
+    #[test]
     fn tick_runs_cell_growth() {
         let mut world = World::new(Position::new(0.0, 0.0), Position::new(0.0, 0.0))
             .with_cell(Cell::new(Position::new(0.0, 0.0), Velocity::new(0.0, 0.0),

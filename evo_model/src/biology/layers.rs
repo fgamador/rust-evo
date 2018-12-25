@@ -51,7 +51,7 @@ pub trait CellLayer: OnionLayer {
 
     fn update_outer_radius(&mut self, inner_radius: Length);
 
-    fn after_influences(&mut self, _env: &LocalEnvironment) -> (BioEnergy, Force) {
+    fn after_influences(&mut self, _env: &LocalEnvironment, _subtick_duration: Duration) -> (BioEnergy, Force) {
         (BioEnergy::ZERO, Force::ZERO)
     }
 
@@ -238,7 +238,7 @@ impl CellLayer for ThrusterLayer {
         self.annulus.update_outer_radius(inner_radius);
     }
 
-    fn after_influences(&mut self, _env: &LocalEnvironment) -> (BioEnergy, Force) {
+    fn after_influences(&mut self, _env: &LocalEnvironment, _subtick_duration: Duration) -> (BioEnergy, Force) {
         (BioEnergy::ZERO, Force::new(self.force_x, self.force_y))
     }
 
@@ -302,8 +302,8 @@ impl CellLayer for PhotoLayer {
         self.annulus.update_outer_radius(inner_radius);
     }
 
-    fn after_influences(&mut self, env: &LocalEnvironment) -> (BioEnergy, Force) {
-        (BioEnergy::new(env.light_intensity() * self.efficiency * self.area().value()),
+    fn after_influences(&mut self, env: &LocalEnvironment, subtick_duration: Duration) -> (BioEnergy, Force) {
+        (BioEnergy::new(env.light_intensity() * self.efficiency * self.area().value() * subtick_duration.value()),
          Force::ZERO)
     }
 
@@ -453,20 +453,20 @@ mod tests {
                     ControlRequest::new(0, 3, -1.0), BioEnergyDelta::ZERO), 1.0));
 
         let env = LocalEnvironment::new();
-        let (_, force) = layer.after_influences(&env);
+        let (_, force) = layer.after_influences(&env, Duration::new(0.5));
 
         assert_eq!(Force::new(1.0, -1.0), force);
     }
 
     #[test]
-    fn photo_layer_adds_energy_based_on_area_and_efficiency() {
+    fn photo_layer_adds_energy_based_on_area_and_efficiency_and_duration() {
         let mut layer = PhotoLayer::new(Area::new(4.0), 0.5);
 
         let mut env = LocalEnvironment::new();
         env.add_light_intensity(10.0);
 
-        let (energy, _) = layer.after_influences(&env);
+        let (energy, _) = layer.after_influences(&env, Duration::new(0.5));
 
-        assert_eq!(BioEnergy::new(20.0), energy);
+        assert_eq!(BioEnergy::new(10.0), energy);
     }
 }

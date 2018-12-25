@@ -272,7 +272,7 @@ mod tests {
         assert!(cell.velocity().y() < 0.0);
     }
 
-    //#[test]
+    #[test]
     fn growth_is_limited_by_energy() {
         let mut world = World::new(Position::new(-10.0, -10.0), Position::new(10.0, 10.0))
             .with_influence(Box::new(Sunlight::new(-10.0, 10.0, 0.0, 10.0)))

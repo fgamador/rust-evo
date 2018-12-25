@@ -226,7 +226,7 @@ mod tests {
                                      Box::new(SimpleCellLayer::new(
                                          Area::new(10.0), Density::new(1.0), Color::Green)),
                                  ])
-            .with_control(Box::new(ContinuousResizeControl::new(0, Area::new(0.5))));
+            .with_control(Box::new(ContinuousResizeControl::new(0, AreaDelta::new(0.5))));
         cell.after_movement();
         assert_eq!(Mass::new(10.5), cell.mass());
     }
@@ -244,7 +244,7 @@ mod tests {
                                              max_shrinkage_rate: f64::INFINITY,
                                          })),
                                  ])
-            .with_control(Box::new(ContinuousResizeControl::new(0, Area::new(2.0))))
+            .with_control(Box::new(ContinuousResizeControl::new(0, AreaDelta::new(2.0))))
             .with_initial_energy(BioEnergy::new(10.0));
 
         cell.after_movement();
@@ -331,8 +331,8 @@ mod tests {
                                          })),
                                  ])
             .with_control(Box::new(CompositeControl::new(vec![
-                Box::new(ContinuousResizeControl::new(0, Area::new(2.0))),
-                Box::new(ContinuousResizeControl::new(1, Area::new(2.0))),
+                Box::new(ContinuousResizeControl::new(0, AreaDelta::new(2.0))),
+                Box::new(ContinuousResizeControl::new(1, AreaDelta::new(2.0))),
             ])))
             .with_initial_energy(BioEnergy::new(10.0));
 

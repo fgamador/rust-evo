@@ -231,7 +231,7 @@ mod tests {
                                      Box::new(SimpleCellLayer::new(
                                          Area::new(1.0), Density::new(1.0), Color::Green)),
                                  ])
-                .with_control(Box::new(ContinuousResizeControl::new(0, Area::new(2.0)))));
+                .with_control(Box::new(ContinuousResizeControl::new(0, AreaDelta::new(2.0)))));
 
         world.tick();
 
@@ -264,7 +264,7 @@ mod tests {
                                  vec![
                                      Box::new(PhotoLayer::new(Area::new(10.0), 1.0)),
                                  ])
-                .with_control(Box::new(ContinuousResizeControl::new(0, Area::new(100.0)))));
+                .with_control(Box::new(ContinuousResizeControl::new(0, AreaDelta::new(100.0)))));
 
         world.tick();
 

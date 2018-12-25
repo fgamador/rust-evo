@@ -57,11 +57,11 @@ impl CellControl for CompositeControl {
 #[derive(Debug)]
 pub struct ContinuousResizeControl {
     layer_index: usize,
-    resize_amount: Area,
+    resize_amount: AreaDelta,
 }
 
 impl ContinuousResizeControl {
-    pub fn new(layer_index: usize, resize_amount: Area) -> Self {
+    pub fn new(layer_index: usize, resize_amount: AreaDelta) -> Self {
         ContinuousResizeControl {
             layer_index,
             resize_amount,
@@ -208,7 +208,7 @@ mod tests {
                 CellLayerStateSnapshot { area: Area::new(2.0) }
             ],
         };
-        let mut control = ContinuousResizeControl::new(1, Area::new(0.5));
+        let mut control = ContinuousResizeControl::new(1, AreaDelta::new(0.5));
         let requests = control.get_control_requests(&cell_state);
         assert_eq!(requests, vec![ControlRequest::new(1, 0, 0.5)]);
     }

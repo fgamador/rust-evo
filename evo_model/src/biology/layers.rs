@@ -501,6 +501,21 @@ mod tests {
     }
 
     #[test]
+    fn layer_growth_cost_is_not_limited_by_reduced_health() {
+        let mut layer = SimpleCellLayer::new(Area::new(1.0), Density::new(1.0), Color::Green)
+            .with_resize_parameters(LayerResizeParameters {
+                growth_energy_delta: BioEnergyDelta::new(-1.0),
+                max_growth_rate: f64::INFINITY,
+                shrinkage_energy_delta: BioEnergyDelta::ZERO,
+                max_shrinkage_rate: f64::INFINITY,
+            });
+        layer.damage(0.5);
+        let control_request = ControlRequest::new(0, 0, 1.0);
+        let costed_request = layer.cost_control_request(control_request);
+        assert_eq!(costed_request, CostedControlRequest::new(control_request, BioEnergyDelta::new(-1.0)));
+    }
+
+    #[test]
     fn thruster_layer_adds_force() {
         let mut layer = ThrusterLayer::new(Area::new(1.0));
         layer.execute_control_request(

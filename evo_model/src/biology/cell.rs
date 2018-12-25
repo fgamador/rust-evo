@@ -309,35 +309,35 @@ mod tests {
         ]));
     }
 
-    //#[test]
+    #[test]
     fn layer_shrinkage_allows_layer_growth_within_limits() {
         let mut cell = Cell::new(Position::ORIGIN, Velocity::ZERO,
                                  vec![
                                      Box::new(SimpleCellLayer::new(
-                                         Area::new(1.0), Density::new(1.0), Color::Green)
+                                         Area::new(10.0), Density::new(1.0), Color::Green)
                                          .with_resize_parameters(LayerResizeParameters {
-                                             growth_energy_delta: BioEnergyDelta::new(-1.0),
+                                             growth_energy_delta: BioEnergyDelta::ZERO,
                                              max_growth_rate: f64::INFINITY,
-                                             shrinkage_energy_delta: BioEnergyDelta::ZERO,
-                                             max_shrinkage_rate: f64::INFINITY,
+                                             shrinkage_energy_delta: BioEnergyDelta::new(1.0),
+                                             max_shrinkage_rate: 0.5,
                                          })),
                                      Box::new(SimpleCellLayer::new(
-                                         Area::new(1.0), Density::new(1.0), Color::Green)
+                                         Area::new(5.0), Density::new(1.0), Color::Green)
                                          .with_resize_parameters(LayerResizeParameters {
                                              growth_energy_delta: BioEnergyDelta::new(-1.0),
-                                             max_growth_rate: f64::INFINITY,
+                                             max_growth_rate: 1.0,
                                              shrinkage_energy_delta: BioEnergyDelta::ZERO,
                                              max_shrinkage_rate: f64::INFINITY,
                                          })),
                                  ])
             .with_control(Box::new(CompositeControl::new(vec![
-                Box::new(ContinuousResizeControl::new(0, AreaDelta::new(2.0))),
-                Box::new(ContinuousResizeControl::new(1, AreaDelta::new(2.0))),
-            ])))
-            .with_initial_energy(BioEnergy::new(10.0));
+                Box::new(ContinuousResizeControl::new(0, AreaDelta::new(-100.0))),
+                Box::new(ContinuousResizeControl::new(1, AreaDelta::new(100.0))),
+            ])));
 
         cell.after_movement();
 
-        assert_eq!(BioEnergy::new(8.0), cell.energy());
+        assert_eq!(5.0, cell.layers()[0].area().value());
+        assert_eq!(10.0, cell.layers()[1].area().value());
     }
 }

@@ -318,7 +318,7 @@ mod tests {
                                          .with_resize_parameters(LayerResizeParameters {
                                              growth_energy_delta: BioEnergyDelta::ZERO,
                                              max_growth_rate: f64::INFINITY,
-                                             shrinkage_energy_delta: BioEnergyDelta::new(1.0),
+                                             shrinkage_energy_delta: BioEnergyDelta::new(2.0),
                                              max_shrinkage_rate: 0.5,
                                          })),
                                      Box::new(SimpleCellLayer::new(
@@ -339,5 +339,6 @@ mod tests {
 
         assert_eq!(5.0, cell.layers()[0].area().value());
         assert_eq!(10.0, cell.layers()[1].area().value());
+        assert_eq!(BioEnergy::new(5.0), cell.energy());
     }
 }

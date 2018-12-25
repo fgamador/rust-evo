@@ -112,10 +112,14 @@ impl Annulus {
 
     fn execute_control_request(&mut self, request: BudgetedControlRequest) {
         match request.channel_index {
-            0 => self.health += request.budgeted_fraction * request.value,
+            0 => self.restore_health(request.value, request.budgeted_fraction),
             1 => self.resize(request.value, request.budgeted_fraction),
             _ => panic!("Invalid control input index: {}", request.channel_index)
         }
+    }
+
+    fn restore_health(&mut self, requested_delta_health: f64, budgeted_fraction: f64) {
+        self.health += budgeted_fraction * requested_delta_health;
     }
 
     fn cost_resize(&self, request: ControlRequest) -> CostedControlRequest {

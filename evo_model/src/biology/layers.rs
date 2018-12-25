@@ -279,8 +279,8 @@ impl CellLayer for ThrusterLayer {
 
     fn execute_control_request(&mut self, request: BudgetedControlRequest) {
         match request.channel_index {
-            2 => self.force_x = request.value,
-            3 => self.force_y = request.value,
+            2 => self.force_x = self.health() * request.value,
+            3 => self.force_y = self.health() * request.value,
             _ => self.annulus.execute_control_request(request)
         }
     }
@@ -532,6 +532,25 @@ mod tests {
         let (_, force) = layer.after_influences(&env, Duration::new(0.5));
 
         assert_eq!(Force::new(1.0, -1.0), force);
+    }
+
+    #[test]
+    fn thruster_layer_force_is_reduced_by_reduced_health() {
+        let mut layer = ThrusterLayer::new(Area::new(1.0));
+        layer.damage(0.5);
+        layer.execute_control_request(
+            BudgetedControlRequest::new(
+                CostedControlRequest::new(
+                    ControlRequest::new(0, 2, 1.0), BioEnergyDelta::ZERO), 1.0));
+        layer.execute_control_request(
+            BudgetedControlRequest::new(
+                CostedControlRequest::new(
+                    ControlRequest::new(0, 3, -1.0), BioEnergyDelta::ZERO), 1.0));
+
+        let env = LocalEnvironment::new();
+        let (_, force) = layer.after_influences(&env, Duration::new(1.0));
+
+        assert_eq!(Force::new(0.5, -0.5), force);
     }
 
     #[test]

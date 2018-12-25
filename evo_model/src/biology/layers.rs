@@ -49,6 +49,10 @@ pub trait CellLayer: OnionLayer {
 
     fn mass(&self) -> Mass;
 
+    fn health(&self) -> f64;
+
+    fn damage(&mut self, health_loss: f64);
+
     fn update_outer_radius(&mut self, inner_radius: Length);
 
     fn after_influences(&mut self, _env: &LocalEnvironment, _subtick_duration: Duration) -> (BioEnergy, Force) {
@@ -67,6 +71,7 @@ struct Annulus {
     mass: Mass,
     outer_radius: Length,
     color: Color,
+    health: f64,
     resize_parameters: LayerResizeParameters,
 }
 
@@ -78,6 +83,7 @@ impl Annulus {
             mass: area * density,
             outer_radius: (area / PI).sqrt(),
             color,
+            health: 1.0,
             resize_parameters: LayerResizeParameters {
                 growth_energy_delta: BioEnergyDelta::ZERO,
                 max_growth_rate: f64::INFINITY,
@@ -85,6 +91,11 @@ impl Annulus {
                 max_shrinkage_rate: f64::INFINITY,
             },
         }
+    }
+
+    fn damage(&mut self, health_loss: f64) {
+        assert!(health_loss >= 0.0);
+        self.health = (self.health - health_loss).max(0.0);
     }
 
     fn update_outer_radius(&mut self, inner_radius: Length) {
@@ -117,7 +128,7 @@ impl Annulus {
     }
 
     fn resize(&mut self, requested_delta_area: f64, budgeted_fraction: f64) {
-        let delta_area = budgeted_fraction * self.bound_resize_delta_area(requested_delta_area);
+        let delta_area = self.health * budgeted_fraction * self.bound_resize_delta_area(requested_delta_area);
         self.area = Area::new((self.area.value() + delta_area).max(0.0));
         self.mass = self.area * self.density;
     }
@@ -179,6 +190,14 @@ impl CellLayer for SimpleCellLayer {
         self.annulus.mass
     }
 
+    fn health(&self) -> f64 {
+        self.annulus.health
+    }
+
+    fn damage(&mut self, health_loss: f64) {
+        self.annulus.damage(health_loss);
+    }
+
     fn update_outer_radius(&mut self, inner_radius: Length) {
         self.annulus.update_outer_radius(inner_radius);
     }
@@ -232,6 +251,14 @@ impl CellLayer for ThrusterLayer {
 
     fn mass(&self) -> Mass {
         self.annulus.mass
+    }
+
+    fn health(&self) -> f64 {
+        self.annulus.health
+    }
+
+    fn damage(&mut self, health_loss: f64) {
+        self.annulus.damage(health_loss);
     }
 
     fn update_outer_radius(&mut self, inner_radius: Length) {
@@ -298,6 +325,14 @@ impl CellLayer for PhotoLayer {
         self.annulus.mass
     }
 
+    fn health(&self) -> f64 {
+        self.annulus.health
+    }
+
+    fn damage(&mut self, health_loss: f64) {
+        self.annulus.damage(health_loss);
+    }
+
     fn update_outer_radius(&mut self, inner_radius: Length) {
         self.annulus.update_outer_radius(inner_radius);
     }
@@ -354,6 +389,20 @@ mod tests {
                     ControlRequest::new(0, 0, 2.0), BioEnergyDelta::ZERO), 1.0));
         assert_eq!(Area::new(3.0), layer.area());
         assert_eq!(Mass::new(6.0), layer.mass());
+    }
+
+    #[test]
+    fn layer_damage_reduces_health() {
+        let mut layer = SimpleCellLayer::new(Area::new(1.0), Density::new(1.0), Color::Green);
+        layer.damage(0.25);
+        assert_eq!(0.75, layer.health());
+    }
+
+    #[test]
+    fn layer_damage_cannot_reduce_health_below_zero() {
+        let mut layer = SimpleCellLayer::new(Area::new(1.0), Density::new(1.0), Color::Green);
+        layer.damage(2.0);
+        assert_eq!(0.0, layer.health());
     }
 
     #[test]
@@ -438,6 +487,17 @@ mod tests {
         let control_request = ControlRequest::new(0, 0, -10.0);
         let costed_request = layer.cost_control_request(control_request);
         assert_eq!(costed_request, CostedControlRequest::new(control_request, BioEnergyDelta::new(6.0)));
+    }
+
+    #[test]
+    fn layer_growth_is_reduced_by_reduced_health() {
+        let mut layer = SimpleCellLayer::new(Area::new(1.0), Density::new(1.0), Color::Green);
+        layer.damage(0.5);
+        layer.execute_control_request(
+            BudgetedControlRequest::new(
+                CostedControlRequest::new(
+                    ControlRequest::new(0, 0, 10.0), BioEnergyDelta::ZERO), 1.0));
+        assert_eq!(Area::new(6.0), layer.area());
     }
 
     #[test]

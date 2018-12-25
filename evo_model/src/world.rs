@@ -169,6 +169,7 @@ mod tests {
     use evo_view_model::Color;
     use physics::ball::Ball;
     use physics::overlap::Overlap;
+    use std::f64;
 
     #[test]
     fn tick_moves_ball() {
@@ -257,18 +258,24 @@ mod tests {
     }
 
     //#[test]
-    fn _growth_is_limited_by_energy() {
+    fn growth_is_limited_by_energy() {
         let mut world = World::new(Position::new(-10.0, -10.0), Position::new(10.0, 10.0))
             .with_influence(Box::new(Sunlight::new(-10.0, 10.0, 0.0, 10.0)))
-            .with_cell(Cell::new(Position::new(0.0, 0.0), Velocity::new(0.0, 0.0),
+            .with_cell(Cell::new(Position::new(0.0, 0.0), Velocity::ZERO,
                                  vec![
-                                     Box::new(PhotoLayer::new(Area::new(10.0), 1.0)),
+                                     Box::new(PhotoLayer::new(Area::new(10.0), 1.0)
+                                         .with_resize_parameters(LayerResizeParameters {
+                                             growth_energy_delta: BioEnergyDelta::new(-10.0),
+                                             max_growth_rate: f64::INFINITY,
+                                             shrinkage_energy_delta: BioEnergyDelta::ZERO,
+                                             max_shrinkage_rate: f64::INFINITY,
+                                         }))
                                  ])
                 .with_control(Box::new(ContinuousResizeControl::new(0, AreaDelta::new(100.0)))));
 
         world.tick();
 
         let cell = &world.cells()[0];
-        assert_eq!(Area::new(15.0), cell.area());
+        assert_eq!(15.0, cell.area().value().round());
     }
 }

@@ -72,6 +72,7 @@ struct Annulus {
     outer_radius: Length,
     color: Color,
     health: f64,
+    health_parameters: LayerHealthParameters,
     resize_parameters: LayerResizeParameters,
 }
 
@@ -84,6 +85,10 @@ impl Annulus {
             outer_radius: (area / PI).sqrt(),
             color,
             health: 1.0,
+            health_parameters: LayerHealthParameters {
+                healing_energy_delta: BioEnergyDelta::ZERO,
+                entropic_decay_rate: 0.0,
+            },
             resize_parameters: LayerResizeParameters {
                 growth_energy_delta: BioEnergyDelta::ZERO,
                 max_growth_rate: f64::INFINITY,
@@ -104,7 +109,7 @@ impl Annulus {
 
     fn cost_control_request(&self, request: ControlRequest) -> CostedControlRequest {
         match request.channel_index {
-            0 => CostedControlRequest::new(request, BioEnergyDelta::ZERO), // TODO repair
+            0 => self.cost_restore_health(request),
             1 => self.cost_resize(request),
             _ => panic!("Invalid control input index: {}", request.channel_index)
         }
@@ -116,6 +121,11 @@ impl Annulus {
             1 => self.resize(request.value, request.budgeted_fraction),
             _ => panic!("Invalid control input index: {}", request.channel_index)
         }
+    }
+
+    fn cost_restore_health(&self, request: ControlRequest) -> CostedControlRequest {
+        CostedControlRequest::new(request,
+                                  self.health_parameters.healing_energy_delta * self.area.value() * request.value)
     }
 
     fn restore_health(&mut self, requested_delta_health: f64, budgeted_fraction: f64) {
@@ -151,6 +161,12 @@ impl Annulus {
 }
 
 #[derive(Debug, Clone, Copy)]
+pub struct LayerHealthParameters {
+    pub healing_energy_delta: BioEnergyDelta,
+    pub entropic_decay_rate: f64,
+}
+
+#[derive(Debug, Clone, Copy)]
 pub struct LayerResizeParameters {
     pub growth_energy_delta: BioEnergyDelta,
     pub max_growth_rate: f64,
@@ -168,6 +184,11 @@ impl SimpleCellLayer {
         SimpleCellLayer {
             annulus: Annulus::new(area, density, color),
         }
+    }
+
+    pub fn with_health_parameters(mut self, health_parameters: LayerHealthParameters) -> Self {
+        self.annulus.health_parameters = health_parameters;
+        self
     }
 
     pub fn with_resize_parameters(mut self, resize_parameters: LayerResizeParameters) -> Self {
@@ -231,6 +252,11 @@ impl ThrusterLayer {
             force_x: 0.0,
             force_y: 0.0,
         }
+    }
+
+    pub fn with_health_parameters(mut self, health_parameters: LayerHealthParameters) -> Self {
+        self.annulus.health_parameters = health_parameters;
+        self
     }
 
     pub fn with_resize_parameters(mut self, resize_parameters: LayerResizeParameters) -> Self {
@@ -303,6 +329,11 @@ impl PhotoLayer {
             annulus: Annulus::new(area, density, Color::Green),
             efficiency,
         }
+    }
+
+    pub fn with_health_parameters(mut self, health_parameters: LayerHealthParameters) -> Self {
+        self.annulus.health_parameters = health_parameters;
+        self
     }
 
     pub fn with_resize_parameters(mut self, resize_parameters: LayerResizeParameters) -> Self {
@@ -540,6 +571,19 @@ mod tests {
                 CostedControlRequest::new(
                     ControlRequest::new(0, 0, 0.5), BioEnergyDelta::ZERO), 0.5));
         assert_eq!(0.75, layer.health());
+    }
+
+    #[test]
+    fn layer_costs_health_restoration() {
+        let mut layer = SimpleCellLayer::new(Area::new(2.0), Density::new(1.0), Color::Green)
+            .with_health_parameters(LayerHealthParameters {
+                healing_energy_delta: BioEnergyDelta::new(-3.0),
+                entropic_decay_rate: 0.0,
+            });
+        layer.damage(0.25);
+        let control_request = ControlRequest::new(0, 0, 0.25);
+        let costed_request = layer.cost_control_request(control_request);
+        assert_eq!(costed_request, CostedControlRequest::new(control_request, BioEnergyDelta::new(-1.5)));
     }
 
     #[test]

@@ -580,7 +580,7 @@ mod tests {
                 healing_energy_delta: BioEnergyDelta::new(-3.0),
                 entropic_decay_rate: 0.0,
             });
-        layer.damage(0.25);
+        layer.damage(0.5);
         let control_request = ControlRequest::new(0, 0, 0.25);
         let costed_request = layer.cost_control_request(control_request);
         assert_eq!(costed_request, CostedControlRequest::new(control_request, BioEnergyDelta::new(-1.5)));

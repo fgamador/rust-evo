@@ -532,7 +532,7 @@ mod tests {
     }
 
     #[test]
-    fn layer_health_restoration_is_limited_by_budged_fraction() {
+    fn layer_health_restoration_is_limited_by_budgeted_fraction() {
         let mut layer = SimpleCellLayer::new(Area::new(1.0), Density::new(1.0), Color::Green);
         layer.damage(0.5);
         layer.execute_control_request(

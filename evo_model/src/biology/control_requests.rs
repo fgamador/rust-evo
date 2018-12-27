@@ -19,7 +19,7 @@ impl ControlRequest {
         }
     }
 
-    pub fn for_repair(layer_index: usize, value: f64) -> Self {
+    pub fn for_healing(layer_index: usize, value: f64) -> Self {
         Self::new(layer_index, 0, value)
     }
 

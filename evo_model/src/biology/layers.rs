@@ -558,7 +558,7 @@ mod tests {
         layer.execute_control_request(
             BudgetedControlRequest::new(
                 CostedControlRequest::new(
-                    ControlRequest::for_repair(0, 0.25), BioEnergyDelta::ZERO), 1.0));
+                    ControlRequest::for_healing(0, 0.25), BioEnergyDelta::ZERO), 1.0));
         assert_eq!(0.75, layer.health());
     }
 
@@ -569,7 +569,7 @@ mod tests {
         layer.execute_control_request(
             BudgetedControlRequest::new(
                 CostedControlRequest::new(
-                    ControlRequest::for_repair(0, 0.5), BioEnergyDelta::ZERO), 0.5));
+                    ControlRequest::for_healing(0, 0.5), BioEnergyDelta::ZERO), 0.5));
         assert_eq!(0.75, layer.health());
     }
 
@@ -581,7 +581,7 @@ mod tests {
                 entropic_decay_health_delta: 0.0,
             });
         layer.damage(0.5);
-        let control_request = ControlRequest::for_repair(0, 0.25);
+        let control_request = ControlRequest::for_healing(0, 0.25);
         let costed_request = layer.cost_control_request(control_request);
         assert_eq!(costed_request, CostedControlRequest::new(control_request, BioEnergyDelta::new(-1.5)));
     }

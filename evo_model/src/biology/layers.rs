@@ -85,6 +85,7 @@ impl Annulus {
             outer_radius: (area / PI).sqrt(),
             color,
             health: 1.0,
+            // TODO pull these out and share them
             health_parameters: LayerHealthParameters {
                 healing_energy_delta: BioEnergyDelta::ZERO,
                 entropic_decay_health_delta: 0.0,

@@ -129,7 +129,8 @@ impl Annulus {
     }
 
     fn restore_health(&mut self, requested_delta_health: f64, budgeted_fraction: f64) {
-        self.health += budgeted_fraction * requested_delta_health;
+        assert!(requested_delta_health >= 0.0);
+        self.health = (self.health + budgeted_fraction * requested_delta_health).min(1.0);
     }
 
     fn cost_resize(&self, request: ControlRequest) -> CostedControlRequest {
@@ -560,6 +561,17 @@ mod tests {
                 CostedControlRequest::new(
                     ControlRequest::for_healing(0, 0.25), BioEnergyDelta::ZERO), 1.0));
         assert_eq!(0.75, layer.health());
+    }
+
+    #[test]
+    fn layer_health_cannot_be_restored_above_one() {
+        let mut layer = SimpleCellLayer::new(Area::new(1.0), Density::new(1.0), Color::Green);
+        layer.damage(0.5);
+        layer.execute_control_request(
+            BudgetedControlRequest::new(
+                CostedControlRequest::new(
+                    ControlRequest::for_healing(0, 1.0), BioEnergyDelta::ZERO), 1.0));
+        assert_eq!(1.0, layer.health());
     }
 
     #[test]

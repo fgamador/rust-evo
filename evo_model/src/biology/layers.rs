@@ -87,7 +87,7 @@ impl Annulus {
             health: 1.0,
             health_parameters: LayerHealthParameters {
                 healing_energy_delta: BioEnergyDelta::ZERO,
-                entropic_decay_rate: 0.0,
+                entropic_decay_health_delta: 0.0,
             },
             resize_parameters: LayerResizeParameters {
                 growth_energy_delta: BioEnergyDelta::ZERO,
@@ -163,7 +163,7 @@ impl Annulus {
 #[derive(Debug, Clone, Copy)]
 pub struct LayerHealthParameters {
     pub healing_energy_delta: BioEnergyDelta,
-    pub entropic_decay_rate: f64,
+    pub entropic_decay_health_delta: f64,
 }
 
 #[derive(Debug, Clone, Copy)]
@@ -578,7 +578,7 @@ mod tests {
         let mut layer = SimpleCellLayer::new(Area::new(2.0), Density::new(1.0), Color::Green)
             .with_health_parameters(LayerHealthParameters {
                 healing_energy_delta: BioEnergyDelta::new(-3.0),
-                entropic_decay_rate: 0.0,
+                entropic_decay_health_delta: 0.0,
             });
         layer.damage(0.5);
         let control_request = ControlRequest::for_repair(0, 0.25);

@@ -246,8 +246,7 @@ pub struct ThrusterLayer {
 }
 
 impl ThrusterLayer {
-    pub fn new(area: Area) -> Self {
-        let density = Density::new(1.0); // TODO
+    pub fn new(area: Area, density: Density) -> Self {
         ThrusterLayer {
             annulus: Annulus::new(area, density, Color::Green), // TODO color
             force_x: 0.0,
@@ -324,8 +323,7 @@ pub struct PhotoLayer {
 }
 
 impl PhotoLayer {
-    pub fn new(area: Area, efficiency: f64) -> Self {
-        let density = Density::new(1.0); // TODO
+    pub fn new(area: Area, density: Density, efficiency: f64) -> Self {
         PhotoLayer {
             annulus: Annulus::new(area, density, Color::Green),
             efficiency,
@@ -600,7 +598,7 @@ mod tests {
 
     #[test]
     fn thruster_layer_adds_force() {
-        let mut layer = ThrusterLayer::new(Area::new(1.0));
+        let mut layer = ThrusterLayer::new(Area::new(1.0), Density::new(1.0));
         layer.execute_control_request(
             BudgetedControlRequest::new(
                 CostedControlRequest::new(
@@ -618,7 +616,7 @@ mod tests {
 
     #[test]
     fn thruster_layer_force_is_reduced_by_reduced_health() {
-        let mut layer = ThrusterLayer::new(Area::new(1.0));
+        let mut layer = ThrusterLayer::new(Area::new(1.0), Density::new(1.0));
         layer.damage(0.5);
         layer.execute_control_request(
             BudgetedControlRequest::new(
@@ -637,7 +635,7 @@ mod tests {
 
     #[test]
     fn photo_layer_adds_energy_based_on_area_and_efficiency_and_duration() {
-        let mut layer = PhotoLayer::new(Area::new(4.0), 0.5);
+        let mut layer = PhotoLayer::new(Area::new(4.0), Density::new(1.0), 0.5);
 
         let mut env = LocalEnvironment::new();
         env.add_light_intensity(10.0);
@@ -649,7 +647,7 @@ mod tests {
 
     #[test]
     fn photo_layer_energy_is_reduced_by_reduced_health() {
-        let mut layer = PhotoLayer::new(Area::new(1.0), 1.0);
+        let mut layer = PhotoLayer::new(Area::new(1.0), Density::new(1.0), 1.0);
         layer.damage(0.25);
 
         let mut env = LocalEnvironment::new();

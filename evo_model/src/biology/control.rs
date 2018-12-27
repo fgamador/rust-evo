@@ -55,6 +55,25 @@ impl CellControl for CompositeControl {
 }
 
 #[derive(Debug)]
+pub struct ContinuousRequestsControl {
+    requests: Vec<ControlRequest>
+}
+
+impl ContinuousRequestsControl {
+    pub fn new(requests: Vec<ControlRequest>) -> Self {
+        ContinuousRequestsControl {
+            requests
+        }
+    }
+}
+
+impl CellControl for ContinuousRequestsControl {
+    fn get_control_requests(&mut self, _cell_state: &CellStateSnapshot) -> Vec<ControlRequest> {
+        self.requests.clone()
+    }
+}
+
+#[derive(Debug)]
 pub struct ContinuousResizeControl {
     layer_index: usize,
     resize_amount: AreaDelta,

@@ -330,9 +330,9 @@ mod tests {
                                              max_shrinkage_rate: f64::INFINITY,
                                          })),
                                  ])
-            .with_control(Box::new(CompositeControl::new(vec![
-                Box::new(ContinuousResizeControl::new(0, AreaDelta::new(-100.0))),
-                Box::new(ContinuousResizeControl::new(1, AreaDelta::new(100.0))),
+            .with_control(Box::new(ContinuousRequestsControl::new(vec![
+                ControlRequest::for_resize(0, -100.0),
+                ControlRequest::for_resize(1, 100.0),
             ])));
 
         cell.after_movement();

@@ -279,7 +279,7 @@ mod tests {
 
     #[test]
     fn budgeting_permits_full_request_expenses_if_there_is_enough_energy() {
-        let dummy_control_request = ControlRequest::new(0, 1, 0.0);
+        let dummy_control_request = ControlRequest::for_resize(0, 0.0);
         let costed_requests = vec![
             CostedControlRequest::new(dummy_control_request, BioEnergyDelta::new(-1.5)),
             CostedControlRequest::new(dummy_control_request, BioEnergyDelta::new(1.0)),
@@ -295,7 +295,7 @@ mod tests {
 
     #[test]
     fn budgeting_scales_request_expenses_if_there_is_not_enough_energy() {
-        let dummy_control_request = ControlRequest::new(0, 1, 0.0);
+        let dummy_control_request = ControlRequest::for_resize(0, 0.0);
         let costed_requests = vec![
             CostedControlRequest::new(dummy_control_request, BioEnergyDelta::new(-6.0)),
             CostedControlRequest::new(dummy_control_request, BioEnergyDelta::new(1.0)),

@@ -15,8 +15,10 @@ pub mod feature {
     use evo_view_model::CoordinateTransform;
 
     use conrod;
+    use conrod::Color;
     use conrod::backend::glium::glium;
     use conrod::backend::glium::glium::Surface;
+    use conrod::color::Hsla;
     use support;
 
     // Generate a type that will produce a unique `widget::Id` for each widget.
@@ -125,7 +127,7 @@ pub mod feature {
                 for ring in bullseye.rings.iter().rev() {
                     let id = walker.next(&mut self.ids.circles, &mut ui.widget_id_generator());
                     Circle::fill_with(self.transform.transform_length(ring.outer_radius),
-                                      Self::lookup_rgb_color(ring.color))
+                                      Self::calc_rgb_color(ring.color, ring.health as f32))
                         .x(self.transform.transform_x(bullseye.center.x))
                         .y(self.transform.transform_y(bullseye.center.y))
                         .set(id, &mut ui);
@@ -133,11 +135,14 @@ pub mod feature {
             }
         }
 
-        fn lookup_rgb_color(color: evo_view_model::Color) -> conrod::color::Color {
-            match color {
-                evo_view_model::Color::Green => conrod::color::rgb(0.5, 1.0, 0.5),
-                evo_view_model::Color::White => conrod::color::rgb(1.0, 1.0, 1.0)
-            }
+        fn calc_rgb_color(color: evo_view_model::Color, health: f32) -> conrod::color::Color {
+            let rgb_color =
+                match color {
+                    evo_view_model::Color::Green => conrod::color::rgb(0.5, 1.0, 0.5),
+                    evo_view_model::Color::White => conrod::color::rgb(1.0, 1.0, 1.0)
+                };
+            let Hsla(h, s, l, a) = rgb_color.to_hsl();
+            Color::Hsla(h, health * s, l, a)
         }
 
         fn render_and_display_ui(&mut self) {

@@ -43,6 +43,7 @@ impl Bullseye {
 pub struct BullseyeRing {
     pub outer_radius: f64,
     pub color: Color,
+    pub health: f64,
 }
 
 pub struct ViewModel {

@@ -17,12 +17,15 @@ pub trait OnionLayer: Debug {
     fn outer_radius(&self) -> Length;
 
     fn color(&self) -> Color;
+
+    fn health(&self) -> f64;
 }
 
 #[derive(Debug)]
 pub struct SimpleOnionLayer {
     outer_radius: Length,
     color: Color,
+    health: f64,
 }
 
 impl SimpleOnionLayer {
@@ -30,6 +33,7 @@ impl SimpleOnionLayer {
         SimpleOnionLayer {
             outer_radius,
             color,
+            health: 1.0,
         }
     }
 }
@@ -42,14 +46,16 @@ impl OnionLayer for SimpleOnionLayer {
     fn color(&self) -> Color {
         self.color
     }
+
+    fn health(&self) -> f64 {
+        self.health
+    }
 }
 
 pub trait CellLayer: OnionLayer {
     fn area(&self) -> Area;
 
     fn mass(&self) -> Mass;
-
-    fn health(&self) -> f64;
 
     fn damage(&mut self, health_loss: f64);
 
@@ -210,6 +216,10 @@ impl OnionLayer for SimpleCellLayer {
     fn color(&self) -> Color {
         self.annulus.color
     }
+
+    fn health(&self) -> f64 {
+        self.annulus.health
+    }
 }
 
 impl CellLayer for SimpleCellLayer {
@@ -219,10 +229,6 @@ impl CellLayer for SimpleCellLayer {
 
     fn mass(&self) -> Mass {
         self.annulus.mass
-    }
-
-    fn health(&self) -> f64 {
-        self.annulus.health
     }
 
     fn damage(&mut self, health_loss: f64) {
@@ -282,6 +288,10 @@ impl OnionLayer for ThrusterLayer {
     fn color(&self) -> Color {
         self.annulus.color
     }
+
+    fn health(&self) -> f64 {
+        self.annulus.health
+    }
 }
 
 impl CellLayer for ThrusterLayer {
@@ -291,10 +301,6 @@ impl CellLayer for ThrusterLayer {
 
     fn mass(&self) -> Mass {
         self.annulus.mass
-    }
-
-    fn health(&self) -> f64 {
-        self.annulus.health
     }
 
     fn damage(&mut self, health_loss: f64) {
@@ -359,6 +365,10 @@ impl OnionLayer for PhotoLayer {
     fn color(&self) -> Color {
         self.annulus.color
     }
+
+    fn health(&self) -> f64 {
+        self.annulus.health
+    }
 }
 
 impl CellLayer for PhotoLayer {
@@ -368,10 +378,6 @@ impl CellLayer for PhotoLayer {
 
     fn mass(&self) -> Mass {
         self.annulus.mass
-    }
-
-    fn health(&self) -> f64 {
-        self.annulus.health
     }
 
     fn damage(&mut self, health_loss: f64) {

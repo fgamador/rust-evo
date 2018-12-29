@@ -41,6 +41,7 @@ fn to_bullseye<C>(cell: &C) -> evo_view_model::Bullseye
         bullseye.rings.push(evo_view_model::BullseyeRing {
             outer_radius: layer.outer_radius().value(),
             color: layer.color(),
+            health: layer.health(),
         });
     }
     bullseye

@@ -8,6 +8,7 @@ use evo_model::biology::layers::*;
 use evo_model::physics::quantities::*;
 use evo_model::world::World;
 use evo_main::main_support::init_and_run;
+use std::f64;
 use std::f64::consts::PI;
 
 fn main() {
@@ -22,6 +23,12 @@ fn create_world() -> World<Cell> {
             Position::new(200.0, -50.0), Velocity::ZERO,
             vec![
                 Box::new(PhotoLayer::new(Area::new(200.0 * PI), Density::new(1.0), 1.0)
+                    .with_resize_parameters(LayerResizeParameters {
+                        growth_energy_delta: BioEnergyDelta::new(-1.0),
+                        max_growth_rate: f64::INFINITY,
+                        shrinkage_energy_delta: BioEnergyDelta::ZERO,
+                        max_shrinkage_rate: f64::INFINITY,
+                    })
                     .with_health_parameters(LayerHealthParameters {
                         healing_energy_delta: BioEnergyDelta::ZERO,
                         entropic_decay_health_delta: -0.01,

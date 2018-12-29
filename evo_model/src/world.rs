@@ -47,6 +47,14 @@ impl<C> World<C>
                                 Box::new(LinearSpring::new(1.0)))))
     }
 
+    pub fn with_sunlight(self, min_intensity: f64, max_intensity: f64) -> Self {
+        let world_min_corner = self.min_corner();
+        let world_max_corner = self.max_corner();
+        self.with_influence(Box::new(
+            Sunlight::new(world_min_corner.y(), world_max_corner.y(),
+                          min_intensity, max_intensity)))
+    }
+
     pub fn with_influence(mut self, influence: Box<Influence<C>>) -> Self {
         self.influences.push(influence);
         self

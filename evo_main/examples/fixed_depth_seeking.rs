@@ -3,6 +3,7 @@ extern crate evo_model;
 extern crate evo_view_model;
 
 use evo_model::biology::control::*;
+use evo_model::biology::control_requests::*;
 use evo_model::biology::layers::*;
 use evo_model::biology::cell::Cell;
 use evo_model::environment::influences::*;
@@ -44,4 +45,29 @@ fn create_world() -> World<Cell> {
                 ])
                 .with_control(Box::new(FixedDepthSeekingControl::new(0, -250.0))),
         ])
+}
+
+#[derive(Debug)]
+pub struct FixedDepthSeekingControl {
+    float_layer_index: usize,
+    target_y: f64,
+}
+
+impl FixedDepthSeekingControl {
+    pub fn new(float_layer_index: usize, target_y: f64) -> Self {
+        FixedDepthSeekingControl {
+            float_layer_index,
+            target_y,
+        }
+    }
+}
+
+impl CellControl for FixedDepthSeekingControl {
+    fn get_control_requests(&mut self, cell_state: &CellStateSnapshot) -> Vec<ControlRequest> {
+        let y_offset = cell_state.center.y() - self.target_y;
+        let target_velocity_y = -y_offset / 100.0;
+        let target_delta_vy = target_velocity_y - cell_state.velocity.y();
+        let desired_delta_area = target_delta_vy * 10.0;
+        vec![ControlRequest::for_resize(self.float_layer_index, desired_delta_area)]
+    }
 }

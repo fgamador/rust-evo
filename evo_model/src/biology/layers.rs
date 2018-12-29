@@ -55,9 +55,7 @@ pub trait CellLayer: OnionLayer {
 
     fn update_outer_radius(&mut self, inner_radius: Length);
 
-    fn after_influences(&mut self, _env: &LocalEnvironment, _subtick_duration: Duration) -> (BioEnergy, Force) {
-        (BioEnergy::ZERO, Force::ZERO)
-    }
+    fn after_influences(&mut self, env: &LocalEnvironment, subtick_duration: Duration) -> (BioEnergy, Force);
 
     fn cost_control_request(&self, request: ControlRequest) -> CostedControlRequest;
 
@@ -106,6 +104,11 @@ impl Annulus {
 
     fn update_outer_radius(&mut self, inner_radius: Length) {
         self.outer_radius = (inner_radius.sqr() + self.area / PI).sqrt();
+    }
+
+    fn entropic_decay(&mut self, subtick_duration: Duration) {
+        let subtick_decay = self.health_parameters.entropic_decay_health_delta * subtick_duration.value();
+        self.damage(-subtick_decay);
     }
 
     fn cost_control_request(&self, request: ControlRequest) -> CostedControlRequest {
@@ -228,6 +231,11 @@ impl CellLayer for SimpleCellLayer {
 
     fn update_outer_radius(&mut self, inner_radius: Length) {
         self.annulus.update_outer_radius(inner_radius);
+    }
+
+    fn after_influences(&mut self, _env: &LocalEnvironment, subtick_duration: Duration) -> (BioEnergy, Force) {
+        self.annulus.entropic_decay(subtick_duration);
+        (BioEnergy::ZERO, Force::ZERO)
     }
 
     fn cost_control_request(&self, request: ControlRequest) -> CostedControlRequest {
@@ -595,6 +603,20 @@ mod tests {
         let control_request = ControlRequest::for_healing(0, 0.25);
         let costed_request = layer.cost_control_request(control_request);
         assert_eq!(costed_request, CostedControlRequest::new(control_request, BioEnergyDelta::new(-1.5)));
+    }
+
+    #[test]
+    fn layer_undergoes_entropic_decay() {
+        let mut layer = SimpleCellLayer::new(Area::new(2.0), Density::new(1.0), Color::Green)
+            .with_health_parameters(LayerHealthParameters {
+                healing_energy_delta: BioEnergyDelta::ZERO,
+                entropic_decay_health_delta: -0.1,
+            });
+
+        let env = LocalEnvironment::new();
+        let (_, _) = layer.after_influences(&env, Duration::new(0.5));
+
+        assert_eq!(0.95, layer.health());
     }
 
     #[test]

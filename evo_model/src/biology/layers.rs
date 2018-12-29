@@ -305,7 +305,8 @@ impl CellLayer for ThrusterLayer {
         self.annulus.update_outer_radius(inner_radius);
     }
 
-    fn after_influences(&mut self, _env: &LocalEnvironment, _subtick_duration: Duration) -> (BioEnergy, Force) {
+    fn after_influences(&mut self, _env: &LocalEnvironment, subtick_duration: Duration) -> (BioEnergy, Force) {
+        self.annulus.entropic_decay(subtick_duration);
         (BioEnergy::ZERO, Force::new(self.force_x, self.force_y))
     }
 
@@ -382,6 +383,7 @@ impl CellLayer for PhotoLayer {
     }
 
     fn after_influences(&mut self, env: &LocalEnvironment, subtick_duration: Duration) -> (BioEnergy, Force) {
+        self.annulus.entropic_decay(subtick_duration);
         (BioEnergy::new(env.light_intensity() * self.efficiency * self.health() * self.area().value() * subtick_duration.value()),
          Force::ZERO)
     }
@@ -606,7 +608,7 @@ mod tests {
     }
 
     #[test]
-    fn layer_undergoes_entropic_decay() {
+    fn simple_cell_layer_undergoes_entropic_decay() {
         let mut layer = SimpleCellLayer::new(Area::new(2.0), Density::new(1.0), Color::Green)
             .with_health_parameters(LayerHealthParameters {
                 healing_energy_delta: BioEnergyDelta::ZERO,
@@ -657,6 +659,20 @@ mod tests {
     }
 
     #[test]
+    fn thruster_layer_undergoes_entropic_decay() {
+        let mut layer = ThrusterLayer::new(Area::new(2.0), Density::new(1.0))
+            .with_health_parameters(LayerHealthParameters {
+                healing_energy_delta: BioEnergyDelta::ZERO,
+                entropic_decay_health_delta: -0.1,
+            });
+
+        let env = LocalEnvironment::new();
+        let (_, _) = layer.after_influences(&env, Duration::new(0.5));
+
+        assert_eq!(0.95, layer.health());
+    }
+
+    #[test]
     fn photo_layer_adds_energy_based_on_area_and_efficiency_and_duration() {
         let mut layer = PhotoLayer::new(Area::new(4.0), Density::new(1.0), 0.5);
 
@@ -679,5 +695,19 @@ mod tests {
         let (energy, _) = layer.after_influences(&env, Duration::new(1.0));
 
         assert_eq!(BioEnergy::new(0.75), energy);
+    }
+
+    #[test]
+    fn photo_layer_undergoes_entropic_decay() {
+        let mut layer = PhotoLayer::new(Area::new(2.0), Density::new(1.0), 1.0)
+            .with_health_parameters(LayerHealthParameters {
+                healing_energy_delta: BioEnergyDelta::ZERO,
+                entropic_decay_health_delta: -0.1,
+            });
+
+        let env = LocalEnvironment::new();
+        let (_, _) = layer.after_influences(&env, Duration::new(0.5));
+
+        assert_eq!(0.95, layer.health());
     }
 }

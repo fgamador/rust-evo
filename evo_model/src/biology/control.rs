@@ -13,11 +13,6 @@ pub struct CellStateSnapshot {
 }
 
 #[derive(Debug)]
-pub struct CellLayerStateSnapshot {
-    pub area: Area,
-}
-
-#[derive(Debug)]
 pub struct NullControl {}
 
 impl NullControl {

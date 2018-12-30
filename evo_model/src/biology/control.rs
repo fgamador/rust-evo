@@ -10,7 +10,6 @@ pub trait CellControl: Debug {
 pub struct CellStateSnapshot {
     pub center: Position,
     pub velocity: Velocity,
-    pub layers: Vec<CellLayerStateSnapshot>,
 }
 
 #[derive(Debug)]
@@ -127,10 +126,6 @@ mod tests {
         let cell_state = CellStateSnapshot {
             center: Position::new(0.0, 0.0),
             velocity: Velocity::new(0.0, 0.0),
-            layers: vec![
-                CellLayerStateSnapshot { area: Area::new(1.0) },
-                CellLayerStateSnapshot { area: Area::new(2.0) }
-            ],
         };
         let mut control = ContinuousResizeControl::new(1, AreaDelta::new(0.5));
         let requests = control.get_control_requests(&cell_state);
@@ -142,10 +137,6 @@ mod tests {
         let cell_state = CellStateSnapshot {
             center: Position::new(0.0, 0.0),
             velocity: Velocity::new(0.0, 0.0),
-            layers: vec![
-                CellLayerStateSnapshot { area: Area::new(10.0) },
-                CellLayerStateSnapshot { area: Area::new(10.0) }
-            ],
         };
         let mut control = SimpleThrusterControl::new(2, Force::new(1.0, -1.0));
         let requests = control.get_control_requests(&cell_state);

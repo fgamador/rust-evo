@@ -70,11 +70,6 @@ impl Cell {
         CellStateSnapshot {
             center: self.center(),
             velocity: self.velocity(),
-            layers: self.layers.iter()
-                .map(|layer| {
-                    CellLayerStateSnapshot { area: layer.area() }
-                })
-                .collect(),
         }
     }
 

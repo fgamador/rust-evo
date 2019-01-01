@@ -614,7 +614,7 @@ mod tests {
     }
 
     #[test]
-    fn simple_cell_layer_undergoes_entropic_decay() {
+    fn simple_cell_layer_undergoes_entropic_damage() {
         let mut layer = SimpleCellLayer::new(Area::new(2.0), Density::new(1.0), Color::Green)
             .with_health_parameters(LayerHealthParameters {
                 healing_energy_delta: BioEnergyDelta::ZERO,
@@ -665,7 +665,7 @@ mod tests {
     }
 
     #[test]
-    fn thruster_layer_undergoes_entropic_decay() {
+    fn thruster_layer_undergoes_entropic_damage() {
         let mut layer = ThrusterLayer::new(Area::new(2.0), Density::new(1.0))
             .with_health_parameters(LayerHealthParameters {
                 healing_energy_delta: BioEnergyDelta::ZERO,
@@ -704,7 +704,7 @@ mod tests {
     }
 
     #[test]
-    fn photo_layer_undergoes_entropic_decay() {
+    fn photo_layer_undergoes_entropic_damage() {
         let mut layer = PhotoLayer::new(Area::new(2.0), Density::new(1.0), 1.0)
             .with_health_parameters(LayerHealthParameters {
                 healing_energy_delta: BioEnergyDelta::ZERO,

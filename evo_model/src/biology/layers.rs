@@ -421,9 +421,7 @@ mod tests {
 
     #[test]
     fn layer_calculates_mass() {
-        let layer = CellLayer2::new(
-            Area::new(2.0 * PI), Density::new(3.0), Color::Green,
-            Box::new(NullCellLayerBrain::new()));
+        let layer = simple_cell_layer(Area::new(2.0 * PI), Density::new(3.0));
         assert_eq!(Mass::new(6.0 * PI), layer.mass());
     }
 
@@ -747,5 +745,9 @@ mod tests {
         let (_, _) = layer.after_influences(&env, Duration::new(0.5));
 
         assert_eq!(0.95, layer.health());
+    }
+
+    fn simple_cell_layer(area: Area, density: Density) -> CellLayer2 {
+        CellLayer2::new(area, density, Color::Green, Box::new(NullCellLayerBrain::new()))
     }
 }

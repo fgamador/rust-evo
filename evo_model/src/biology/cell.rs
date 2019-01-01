@@ -251,7 +251,7 @@ mod tests {
     fn thruster_layer_adds_force_to_cell() {
         let mut cell = Cell::new(Position::new(1.0, 1.0), Velocity::new(1.0, 1.0),
                                  vec![
-                                     Box::new(ThrusterLayer::new(Area::new(1.0), Density::new(1.0))),
+                                     Box::new(ThrusterLayer::new_old(Area::new(1.0), Density::new(1.0))),
                                  ])
             .with_control(Box::new(SimpleThrusterControl::new(0, Force::new(1.0, -1.0))));
         cell.after_movement();

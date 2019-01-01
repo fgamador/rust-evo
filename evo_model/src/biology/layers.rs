@@ -499,7 +499,7 @@ mod tests {
     }
 
     #[test]
-    fn simple_cell_layer_undergoes_entropic_damage() {
+    fn layer_undergoes_entropic_damage() {
         let mut layer = simple_cell_layer(Area::new(2.0), Density::new(1.0))
             .with_health_parameters(LayerHealthParameters {
                 healing_energy_delta: BioEnergyDelta::ZERO,
@@ -550,20 +550,6 @@ mod tests {
     }
 
     #[test]
-    fn thruster_layer_undergoes_entropic_damage() {
-        let mut layer = CellLayer::new(Area::new(2.0), Density::new(1.0), Color::Green, Box::new(ThrusterCellLayerBrain::new()))
-            .with_health_parameters(LayerHealthParameters {
-                healing_energy_delta: BioEnergyDelta::ZERO,
-                entropic_damage_health_delta: -0.1,
-            });
-
-        let env = LocalEnvironment::new();
-        let (_, _) = layer.after_influences(&env, Duration::new(0.5));
-
-        assert_eq!(0.95, layer.health());
-    }
-
-    #[test]
     fn photo_layer_adds_energy_based_on_area_and_efficiency_and_duration() {
         let mut layer = CellLayer::new(Area::new(4.0), Density::new(1.0), Color::Green,
                                        Box::new(PhotoCellLayerBrain::new(0.5)));
@@ -588,21 +574,6 @@ mod tests {
         let (energy, _) = layer.after_influences(&env, Duration::new(1.0));
 
         assert_eq!(BioEnergy::new(0.75), energy);
-    }
-
-    #[test]
-    fn photo_layer_undergoes_entropic_damage() {
-        let mut layer = CellLayer::new(Area::new(2.0), Density::new(1.0), Color::Green,
-                                       Box::new(PhotoCellLayerBrain::new(1.0)))
-            .with_health_parameters(LayerHealthParameters {
-                healing_energy_delta: BioEnergyDelta::ZERO,
-                entropic_damage_health_delta: -0.1,
-            });
-
-        let env = LocalEnvironment::new();
-        let (_, _) = layer.after_influences(&env, Duration::new(0.5));
-
-        assert_eq!(0.95, layer.health());
     }
 
     fn simple_cell_layer(area: Area, density: Density) -> CellLayer {

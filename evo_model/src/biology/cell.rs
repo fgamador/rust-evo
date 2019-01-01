@@ -172,13 +172,11 @@ mod tests {
     fn cells_use_pointer_equality() {
         let cell1 = Cell::new(Position::new(1.0, 1.0), Velocity::new(1.0, 1.0),
                               vec![
-                                  Box::new(SimpleCellLayer::new(
-                                      Area::new(PI), Density::new(1.0), Color::Green))
+                                  Box::new(simple_cell_layer(Area::new(PI), Density::new(1.0)))
                               ]);
         let cell2 = Cell::new(Position::new(1.0, 1.0), Velocity::new(1.0, 1.0),
                               vec![
-                                  Box::new(SimpleCellLayer::new(
-                                      Area::new(PI), Density::new(1.0), Color::Green))
+                                  Box::new(simple_cell_layer(Area::new(PI), Density::new(1.0)))
                               ]);
         assert_eq!(cell1, cell1);
         assert_ne!(cell1, cell2);
@@ -194,10 +192,8 @@ mod tests {
     fn cell_has_radius_of_outer_layer() {
         let cell = Cell::new(Position::new(1.0, 1.0), Velocity::new(1.0, 1.0),
                              vec![
-                                 Box::new(SimpleCellLayer::new(
-                                     Area::new(PI), Density::new(1.0), Color::Green)),
-                                 Box::new(SimpleCellLayer::new(
-                                     Area::new(3.0 * PI), Density::new(1.0), Color::Green))
+                                 Box::new(simple_cell_layer(Area::new(PI), Density::new(1.0))),
+                                 Box::new(simple_cell_layer(Area::new(3.0 * PI), Density::new(1.0))),
                              ]);
         assert_eq!(Length::new(2.0), cell.radius());
     }
@@ -206,10 +202,8 @@ mod tests {
     fn cell_has_mass_of_all_layers() {
         let cell = Cell::new(Position::new(1.0, 1.0), Velocity::new(1.0, 1.0),
                              vec![
-                                 Box::new(SimpleCellLayer::new(
-                                     Area::new(PI), Density::new(1.0), Color::Green)),
-                                 Box::new(SimpleCellLayer::new(
-                                     Area::new(2.0 * PI), Density::new(2.0), Color::Green))
+                                 Box::new(simple_cell_layer(Area::new(PI), Density::new(1.0))),
+                                 Box::new(simple_cell_layer(Area::new(2.0 * PI), Density::new(2.0))),
                              ]);
         assert_eq!(Mass::new(5.0 * PI), cell.mass());
     }
@@ -218,8 +212,7 @@ mod tests {
     fn cell_with_continuous_growth_control_grows_on_first_tick() {
         let mut cell = Cell::new(Position::new(1.0, 1.0), Velocity::new(1.0, 1.0),
                                  vec![
-                                     Box::new(SimpleCellLayer::new(
-                                         Area::new(10.0), Density::new(1.0), Color::Green)),
+                                     Box::new(simple_cell_layer(Area::new(10.0), Density::new(1.0))),
                                  ])
             .with_control(Box::new(ContinuousResizeControl::new(0, AreaDelta::new(0.5))));
         cell.after_movement();
@@ -230,8 +223,7 @@ mod tests {
     fn layer_growth_cost_reduces_cell_energy() {
         let mut cell = Cell::new(Position::ORIGIN, Velocity::ZERO,
                                  vec![
-                                     Box::new(SimpleCellLayer::new(
-                                         Area::new(1.0), Density::new(1.0), Color::Green)
+                                     Box::new(simple_cell_layer(Area::new(1.0), Density::new(1.0))
                                          .with_resize_parameters(LayerResizeParameters {
                                              growth_energy_delta: BioEnergyDelta::new(-1.0),
                                              max_growth_rate: f64::INFINITY,
@@ -309,16 +301,14 @@ mod tests {
     fn layer_shrinkage_allows_layer_growth_within_limits() {
         let mut cell = Cell::new(Position::ORIGIN, Velocity::ZERO,
                                  vec![
-                                     Box::new(SimpleCellLayer::new(
-                                         Area::new(10.0), Density::new(1.0), Color::Green)
+                                     Box::new(simple_cell_layer(Area::new(10.0), Density::new(1.0))
                                          .with_resize_parameters(LayerResizeParameters {
                                              growth_energy_delta: BioEnergyDelta::ZERO,
                                              max_growth_rate: f64::INFINITY,
                                              shrinkage_energy_delta: BioEnergyDelta::new(2.0),
                                              max_shrinkage_rate: 0.5,
                                          })),
-                                     Box::new(SimpleCellLayer::new(
-                                         Area::new(5.0), Density::new(1.0), Color::Green)
+                                     Box::new(simple_cell_layer(Area::new(5.0), Density::new(1.0))
                                          .with_resize_parameters(LayerResizeParameters {
                                              growth_energy_delta: BioEnergyDelta::new(-1.0),
                                              max_growth_rate: 1.0,
@@ -336,5 +326,9 @@ mod tests {
         assert_eq!(5.0, cell.layers()[0].area().value());
         assert_eq!(10.0, cell.layers()[1].area().value());
         assert_eq!(BioEnergy::new(5.0), cell.energy());
+    }
+
+    fn simple_cell_layer(area: Area, density: Density) -> CellLayer2 {
+        CellLayer2::new(area, density, Color::Green, Box::new(NullCellLayerBrain::new()))
     }
 }

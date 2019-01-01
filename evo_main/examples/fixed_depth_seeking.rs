@@ -29,22 +29,26 @@ fn create_world() -> World<Cell> {
             Cell::new(
                 Position::new(150.0, -300.0), Velocity::new(0.0, 0.0),
                 vec![
-                    Box::new(SimpleCellLayer::new(
+                    Box::new(simple_cell_layer(
                         Area::new(100.0 * PI), Density::new(0.0004), Color::White)),
-                    Box::new(SimpleCellLayer::new(
+                    Box::new(simple_cell_layer(
                         Area::new(300.0 * PI), Density::new(0.00075), Color::Green)),
                 ])
                 .with_control(Box::new(FixedDepthSeekingControl::new(0, -150.0))),
             Cell::new(
                 Position::new(250.0, -100.0), Velocity::new(0.0, 0.0),
                 vec![
-                    Box::new(SimpleCellLayer::new(
+                    Box::new(simple_cell_layer(
                         Area::new(50.0 * PI), Density::new(0.0004), Color::White)),
-                    Box::new(SimpleCellLayer::new(
+                    Box::new(simple_cell_layer(
                         Area::new(150.0 * PI), Density::new(0.00075), Color::Green)),
                 ])
                 .with_control(Box::new(FixedDepthSeekingControl::new(0, -250.0))),
         ])
+}
+
+fn simple_cell_layer(area: Area, density: Density, color: Color) -> CellLayer2 {
+    CellLayer2::new(area, density, color, Box::new(NullCellLayerBrain::new()))
 }
 
 #[derive(Debug)]

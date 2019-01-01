@@ -252,8 +252,8 @@ mod tests {
         let mut world = World::new(Position::new(0.0, 0.0), Position::new(0.0, 0.0))
             .with_cell(Cell::new(Position::new(0.0, 0.0), Velocity::new(0.0, 0.0),
                                  vec![
-                                     Box::new(SimpleCellLayer::new(
-                                         Area::new(1.0), Density::new(1.0), Color::Green)),
+                                     Box::new(CellLayer2::new(
+                                         Area::new(1.0), Density::new(1.0), Color::Green, Box::new(NullCellLayerBrain::new()))),
                                  ])
                 .with_control(Box::new(ContinuousResizeControl::new(0, AreaDelta::new(2.0)))));
 

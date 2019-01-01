@@ -296,7 +296,7 @@ impl<C> Influence<C> for Sunlight
 mod tests {
     use super::*;
     use biology::cell::Cell;
-    use biology::layers::SimpleCellLayer;
+    use biology::layers::*;
     use evo_view_model::Color;
     use physics::ball::Ball;
     use std::f64::consts::PI;
@@ -431,8 +431,7 @@ mod tests {
         let cell_handle = cell_graph.add_node(
             Cell::new(Position::new(0.0, 0.0), Velocity::ZERO,
                       vec![
-                          Box::new(SimpleCellLayer::new(
-                              Area::new(1.0), Density::new(1.0), Color::Green)),
+                          Box::new(simple_cell_layer(Area::new(PI), Density::new(1.0))),
                       ]));
 
         sunlight.apply(&mut cell_graph);
@@ -448,13 +447,16 @@ mod tests {
         let cell_handle = cell_graph.add_node(
             Cell::new(Position::new(0.0, -11.0), Velocity::ZERO,
                       vec![
-                          Box::new(SimpleCellLayer::new(
-                              Area::new(1.0), Density::new(1.0), Color::Green)),
+                          Box::new(simple_cell_layer(Area::new(1.0), Density::new(1.0))),
                       ]));
 
         sunlight.apply(&mut cell_graph);
 
         let cell = cell_graph.node(cell_handle);
         assert_eq!(0.0, cell.environment().light_intensity());
+    }
+
+    fn simple_cell_layer(area: Area, density: Density) -> CellLayer2 {
+        CellLayer2::new(area, density, Color::Green, Box::new(NullCellLayerBrain::new()))
     }
 }

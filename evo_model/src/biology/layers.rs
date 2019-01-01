@@ -427,26 +427,20 @@ mod tests {
 
     #[test]
     fn single_layer_calculates_outer_radius() {
-        let layer = CellLayer2::new(
-            Area::new(4.0 * PI), Density::new(1.0), Color::Green,
-            Box::new(NullCellLayerBrain::new()));
+        let layer = simple_cell_layer(Area::new(4.0 * PI), Density::new(1.0));
         assert_eq!(Length::new(2.0), layer.outer_radius());
     }
 
     #[test]
     fn layer_updates_outer_radius_based_on_inner_radius() {
-        let mut layer = CellLayer2::new(
-            Area::new(3.0 * PI), Density::new(1.0), Color::Green,
-            Box::new(NullCellLayerBrain::new()));
+        let mut layer = simple_cell_layer(Area::new(3.0 * PI), Density::new(1.0));
         layer.update_outer_radius(Length::new(1.0));
         assert_eq!(Length::new(2.0), layer.outer_radius());
     }
 
     #[test]
     fn layer_resize_updates_area_and_mass() {
-        let mut layer = CellLayer2::new(
-            Area::new(1.0), Density::new(2.0), Color::Green,
-            Box::new(NullCellLayerBrain::new()));
+        let mut layer = simple_cell_layer(Area::new(1.0), Density::new(2.0));
         layer.execute_control_request(
             BudgetedControlRequest::new(
                 CostedControlRequest::new(
@@ -457,24 +451,21 @@ mod tests {
 
     #[test]
     fn layer_damage_reduces_health() {
-        let mut layer = CellLayer2::new(Area::new(1.0), Density::new(1.0), Color::Green,
-                                        Box::new(NullCellLayerBrain::new()));
+        let mut layer = simple_cell_layer(Area::new(1.0), Density::new(1.0));
         layer.damage(0.25);
         assert_eq!(0.75, layer.health());
     }
 
     #[test]
     fn layer_damage_cannot_reduce_health_below_zero() {
-        let mut layer = CellLayer2::new(Area::new(1.0), Density::new(1.0), Color::Green,
-                                        Box::new(NullCellLayerBrain::new()));
+        let mut layer = simple_cell_layer(Area::new(1.0), Density::new(1.0));
         layer.damage(2.0);
         assert_eq!(0.0, layer.health());
     }
 
     #[test]
     fn layer_costs_resize_request() {
-        let layer = CellLayer2::new(Area::new(1.0), Density::new(1.0), Color::Green,
-                                    Box::new(NullCellLayerBrain::new()))
+        let layer = simple_cell_layer(Area::new(1.0), Density::new(1.0))
             .with_resize_parameters(LayerResizeParameters {
                 growth_energy_delta: BioEnergyDelta::new(-0.5),
                 max_growth_rate: f64::INFINITY,
@@ -488,8 +479,7 @@ mod tests {
 
     #[test]
     fn layer_growth_is_limited_by_budgeted_fraction() {
-        let mut layer = CellLayer2::new(Area::new(2.0), Density::new(1.0), Color::Green,
-                                        Box::new(NullCellLayerBrain::new()));
+        let mut layer = simple_cell_layer(Area::new(2.0), Density::new(1.0));
         layer.execute_control_request(
             BudgetedControlRequest::new(
                 CostedControlRequest::new(
@@ -499,8 +489,7 @@ mod tests {
 
     #[test]
     fn layer_growth_is_limited_by_max_growth_rate() {
-        let mut layer = CellLayer2::new(Area::new(2.0), Density::new(1.0), Color::Green,
-                                        Box::new(NullCellLayerBrain::new()))
+        let mut layer = simple_cell_layer(Area::new(2.0), Density::new(1.0))
             .with_resize_parameters(LayerResizeParameters {
                 growth_energy_delta: BioEnergyDelta::ZERO,
                 max_growth_rate: 0.5,
@@ -516,8 +505,7 @@ mod tests {
 
     #[test]
     fn layer_growth_cost_is_limited_by_max_growth_rate() {
-        let layer = CellLayer2::new(Area::new(1.0), Density::new(1.0), Color::Green,
-                                    Box::new(NullCellLayerBrain::new()))
+        let layer = simple_cell_layer(Area::new(1.0), Density::new(1.0))
             .with_resize_parameters(LayerResizeParameters {
                 growth_energy_delta: BioEnergyDelta::new(-3.0),
                 max_growth_rate: 0.5,
@@ -531,8 +519,7 @@ mod tests {
 
     #[test]
     fn layer_shrinkage_is_limited_by_max_shrinkage_rate() {
-        let mut layer = CellLayer2::new(Area::new(2.0), Density::new(1.0), Color::Green,
-                                        Box::new(NullCellLayerBrain::new()))
+        let mut layer = simple_cell_layer(Area::new(2.0), Density::new(1.0))
             .with_resize_parameters(LayerResizeParameters {
                 growth_energy_delta: BioEnergyDelta::ZERO,
                 max_growth_rate: f64::INFINITY,
@@ -548,8 +535,7 @@ mod tests {
 
     #[test]
     fn layer_shrinkage_yield_is_limited_by_max_shrinkage_rate() {
-        let layer = CellLayer2::new(Area::new(4.0), Density::new(1.0), Color::Green,
-                                    Box::new(NullCellLayerBrain::new()))
+        let layer = simple_cell_layer(Area::new(4.0), Density::new(1.0))
             .with_resize_parameters(LayerResizeParameters {
                 growth_energy_delta: BioEnergyDelta::ZERO,
                 max_growth_rate: f64::INFINITY,
@@ -563,8 +549,7 @@ mod tests {
 
     #[test]
     fn layer_resize_is_reduced_by_reduced_health() {
-        let mut layer = CellLayer2::new(Area::new(1.0), Density::new(1.0), Color::Green,
-                                        Box::new(NullCellLayerBrain::new()));
+        let mut layer = simple_cell_layer(Area::new(1.0), Density::new(1.0));
         layer.damage(0.5);
         layer.execute_control_request(
             BudgetedControlRequest::new(
@@ -575,8 +560,7 @@ mod tests {
 
     #[test]
     fn layer_resize_cost_is_not_reduced_by_reduced_health() {
-        let mut layer = CellLayer2::new(Area::new(1.0), Density::new(1.0), Color::Green,
-                                        Box::new(NullCellLayerBrain::new()))
+        let mut layer = simple_cell_layer(Area::new(1.0), Density::new(1.0))
             .with_resize_parameters(LayerResizeParameters {
                 growth_energy_delta: BioEnergyDelta::new(-1.0),
                 max_growth_rate: f64::INFINITY,
@@ -591,8 +575,7 @@ mod tests {
 
     #[test]
     fn layer_health_can_be_restored() {
-        let mut layer = CellLayer2::new(Area::new(1.0), Density::new(1.0), Color::Green,
-                                        Box::new(NullCellLayerBrain::new()));
+        let mut layer = simple_cell_layer(Area::new(1.0), Density::new(1.0));
         layer.damage(0.5);
         layer.execute_control_request(
             BudgetedControlRequest::new(
@@ -603,8 +586,7 @@ mod tests {
 
     #[test]
     fn layer_health_cannot_be_restored_above_one() {
-        let mut layer = CellLayer2::new(Area::new(1.0), Density::new(1.0), Color::Green,
-                                        Box::new(NullCellLayerBrain::new()));
+        let mut layer = simple_cell_layer(Area::new(1.0), Density::new(1.0));
         layer.damage(0.5);
         layer.execute_control_request(
             BudgetedControlRequest::new(
@@ -615,8 +597,7 @@ mod tests {
 
     #[test]
     fn layer_health_restoration_is_limited_by_budgeted_fraction() {
-        let mut layer = CellLayer2::new(Area::new(1.0), Density::new(1.0), Color::Green,
-                                        Box::new(NullCellLayerBrain::new()));
+        let mut layer = simple_cell_layer(Area::new(1.0), Density::new(1.0));
         layer.damage(0.5);
         layer.execute_control_request(
             BudgetedControlRequest::new(
@@ -627,8 +608,7 @@ mod tests {
 
     #[test]
     fn layer_costs_health_restoration() {
-        let mut layer = CellLayer2::new(Area::new(2.0), Density::new(1.0), Color::Green,
-                                        Box::new(NullCellLayerBrain::new()))
+        let mut layer = simple_cell_layer(Area::new(2.0), Density::new(1.0))
             .with_health_parameters(LayerHealthParameters {
                 healing_energy_delta: BioEnergyDelta::new(-3.0),
                 entropic_damage_health_delta: 0.0,
@@ -641,8 +621,7 @@ mod tests {
 
     #[test]
     fn simple_cell_layer_undergoes_entropic_damage() {
-        let mut layer = CellLayer2::new(Area::new(2.0), Density::new(1.0), Color::Green,
-                                        Box::new(NullCellLayerBrain::new()))
+        let mut layer = simple_cell_layer(Area::new(2.0), Density::new(1.0))
             .with_health_parameters(LayerHealthParameters {
                 healing_energy_delta: BioEnergyDelta::ZERO,
                 entropic_damage_health_delta: -0.1,

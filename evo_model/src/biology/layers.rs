@@ -166,6 +166,10 @@ impl CellLayer {
     }
 
     pub fn execute_control_request(&mut self, request: BudgetedControlRequest) {
+        if self.health == 0.0 {
+            return;
+        }
+
         match request.channel_index {
             0 => self.restore_health(request.value, request.budgeted_fraction),
             1 => self.resize(request.value, request.budgeted_fraction),
@@ -510,6 +514,17 @@ mod tests {
         let (_, _) = layer.after_influences(&env, Duration::new(0.5));
 
         assert_eq!(0.95, layer.health());
+    }
+
+    #[test]
+    fn dead_layer_ignores_control_requests() {
+        let mut layer = simple_cell_layer(Area::new(1.0), Density::new(1.0));
+        layer.damage(1.0);
+        layer.execute_control_request(
+            BudgetedControlRequest::new(
+                CostedControlRequest::new(
+                    ControlRequest::for_healing(0, 1.0), BioEnergyDelta::ZERO), 1.0));
+        assert_eq!(0.0, layer.health());
     }
 
     #[test]

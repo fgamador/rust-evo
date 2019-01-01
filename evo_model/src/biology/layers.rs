@@ -364,8 +364,9 @@ impl CellLayer for ThrusterLayer {
 
     fn cost_control_request(&self, request: ControlRequest) -> CostedControlRequest {
         match request.channel_index {
+            0 | 1 => self.annulus.cost_control_request(request),
             2 | 3 => CostedControlRequest::new(request, BioEnergyDelta::ZERO), // TODO
-            _ => self.annulus.cost_control_request(request)
+            _ => panic!("Invalid control input index: {}", request.channel_index)
         }
     }
 

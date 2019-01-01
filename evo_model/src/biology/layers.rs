@@ -52,22 +52,6 @@ impl OnionLayer for SimpleOnionLayer {
     }
 }
 
-pub trait CellLayerOld: OnionLayer {
-    fn area(&self) -> Area;
-
-    fn mass(&self) -> Mass;
-
-    fn damage(&mut self, health_loss: f64);
-
-    fn update_outer_radius(&mut self, inner_radius: Length);
-
-    fn after_influences(&mut self, env: &LocalEnvironment, subtick_duration: Duration) -> (BioEnergy, Force);
-
-    fn cost_control_request(&self, request: ControlRequest) -> CostedControlRequest;
-
-    fn execute_control_request(&mut self, request: BudgetedControlRequest);
-}
-
 #[derive(Debug, Clone, Copy)]
 pub struct LayerHealthParameters {
     pub healing_energy_delta: BioEnergyDelta,
@@ -186,32 +170,32 @@ impl OnionLayer for CellLayer {
     }
 }
 
-impl CellLayerOld for CellLayer {
-    fn area(&self) -> Area {
+impl CellLayer {
+    pub fn area(&self) -> Area {
         self.area
     }
 
-    fn mass(&self) -> Mass {
+    pub fn mass(&self) -> Mass {
         self.mass
     }
 
-    fn damage(&mut self, health_loss: f64) {
+    pub fn damage(&mut self, health_loss: f64) {
         assert!(health_loss >= 0.0);
         self.health = (self.health - health_loss).max(0.0);
     }
 
-    fn update_outer_radius(&mut self, inner_radius: Length) {
+    pub fn update_outer_radius(&mut self, inner_radius: Length) {
         self.outer_radius = (inner_radius.sqr() + self.area / PI).sqrt();
     }
 
-    fn after_influences(&mut self, env: &LocalEnvironment, subtick_duration: Duration) -> (BioEnergy, Force) {
+    pub fn after_influences(&mut self, env: &LocalEnvironment, subtick_duration: Duration) -> (BioEnergy, Force) {
         self.entropic_damage(subtick_duration);
         let health = self.health();
         let area = self.area();
         self.brain.after_influences(env, subtick_duration, health, area)
     }
 
-    fn cost_control_request(&self, request: ControlRequest) -> CostedControlRequest {
+    pub fn cost_control_request(&self, request: ControlRequest) -> CostedControlRequest {
         match request.channel_index {
             0 => self.cost_restore_health(request),
             1 => self.cost_resize(request),
@@ -219,7 +203,7 @@ impl CellLayerOld for CellLayer {
         }
     }
 
-    fn execute_control_request(&mut self, request: BudgetedControlRequest) {
+    pub fn execute_control_request(&mut self, request: BudgetedControlRequest) {
         match request.channel_index {
             0 => self.restore_health(request.value, request.budgeted_fraction),
             1 => self.resize(request.value, request.budgeted_fraction),

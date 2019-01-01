@@ -270,12 +270,7 @@ pub struct ThrusterLayer {
 
 impl ThrusterLayer {
     pub fn new(area: Area, density: Density) -> Self {
-        ThrusterLayer {
-            annulus: Annulus::new(area, density, Color::Green), // TODO color
-            brain: Box::new(NullCellLayerBrain {}),
-            force_x: 0.0,
-            force_y: 0.0,
-        }
+        Self::new2(area, density, Color::Green, Box::new(NullCellLayerBrain {}))
     }
 
     pub fn new2(area: Area, density: Density, color: Color, brain: Box<CellLayerBrain>) -> Self {

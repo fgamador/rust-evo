@@ -57,16 +57,16 @@ fn to_point(pos: Position) -> evo_view_model::Point {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use physics::ball::Ball;
+    use biology::cell::Cell;
     use evo_view_model::Point;
 
     #[test]
     fn tick_creates_view_model_bullseye_for_each_cell() {
         let mut world = World::new(Position::new(0.0, 0.0), Position::new(0.0, 0.0));
-        world.add_cell(Ball::new(Length::new(1.0), Mass::new(1.0),
-                                 Position::new(0.0, 0.0), Velocity::new(0.0, 0.0)));
-        world.add_cell(Ball::new(Length::new(1.0), Mass::new(1.0),
-                                 Position::new(0.0, 0.0), Velocity::new(0.0, 0.0)));
+        world.add_cell(Cell::ball(Length::new(1.0), Mass::new(1.0),
+                                  Position::new(0.0, 0.0), Velocity::new(0.0, 0.0)));
+        world.add_cell(Cell::ball(Length::new(1.0), Mass::new(1.0),
+                                  Position::new(0.0, 0.0), Velocity::new(0.0, 0.0)));
         let mut view_model = ViewModel::new();
 
         tick(&mut world, &mut view_model);
@@ -77,8 +77,8 @@ mod tests {
     #[test]
     fn tick_populates_view_model_bullseye_from_cell() {
         let mut world = World::new(Position::new(0.0, 0.0), Position::new(0.0, 0.0));
-        world.add_cell(Ball::new(Length::new(5.0), Mass::new(1.0),
-                                 Position::new(2.0, -3.0), Velocity::new(0.0, 0.0)));
+        world.add_cell(Cell::ball(Length::new(5.0), Mass::new(1.0),
+                                  Position::new(2.0, -3.0), Velocity::new(0.0, 0.0)));
         let mut view_model = ViewModel::new();
 
         tick(&mut world, &mut view_model);
@@ -98,8 +98,8 @@ mod tests {
         view_model.bullseyes.push(evo_view_model::Bullseye::new(Point { x: 0.0, y: 0.0 }));
 
         let mut world = World::new(Position::new(0.0, 0.0), Position::new(0.0, 0.0));
-        world.add_cell(Ball::new(Length::new(1.0), Mass::new(1.0),
-                                 Position::new(0.0, 0.0), Velocity::new(0.0, 0.0)));
+        world.add_cell(Cell::ball(Length::new(1.0), Mass::new(1.0),
+                                  Position::new(0.0, 0.0), Velocity::new(0.0, 0.0)));
 
         tick(&mut world, &mut view_model);
 

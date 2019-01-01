@@ -68,8 +68,23 @@ pub trait CellLayer: OnionLayer {
     fn execute_control_request(&mut self, request: BudgetedControlRequest);
 }
 
+#[derive(Debug, Clone, Copy)]
+pub struct LayerHealthParameters {
+    pub healing_energy_delta: BioEnergyDelta,
+    pub entropic_damage_health_delta: f64,
+}
+
+#[derive(Debug, Clone, Copy)]
+pub struct LayerResizeParameters {
+    pub growth_energy_delta: BioEnergyDelta,
+    pub max_growth_rate: f64,
+    pub shrinkage_energy_delta: BioEnergyDelta,
+    pub max_shrinkage_rate: f64,
+}
+
 #[derive(Debug)]
-struct Annulus {
+pub struct CellLayer2 {
+    brain: Box<CellLayerBrain>,
     area: Area,
     density: Density,
     mass: Mass,
@@ -80,9 +95,10 @@ struct Annulus {
     resize_parameters: LayerResizeParameters,
 }
 
-impl Annulus {
-    fn new(area: Area, density: Density, color: Color) -> Self {
-        Annulus {
+impl CellLayer2 {
+    pub fn new(area: Area, density: Density, color: Color, brain: Box<CellLayerBrain>) -> Self {
+        CellLayer2 {
+            brain,
             area,
             density,
             mass: area * density,
@@ -103,13 +119,14 @@ impl Annulus {
         }
     }
 
-    fn damage(&mut self, health_loss: f64) {
-        assert!(health_loss >= 0.0);
-        self.health = (self.health - health_loss).max(0.0);
+    pub fn with_health_parameters(mut self, health_parameters: LayerHealthParameters) -> Self {
+        self.health_parameters = health_parameters;
+        self
     }
 
-    fn update_outer_radius(&mut self, inner_radius: Length) {
-        self.outer_radius = (inner_radius.sqr() + self.area / PI).sqrt();
+    pub fn with_resize_parameters(mut self, resize_parameters: LayerResizeParameters) -> Self {
+        self.resize_parameters = resize_parameters;
+        self
     }
 
     fn entropic_damage(&mut self, subtick_duration: Duration) {
@@ -117,30 +134,9 @@ impl Annulus {
         self.damage(-subtick_decay);
     }
 
-    fn cost_control_request(&self, request: ControlRequest) -> CostedControlRequest {
-        match request.channel_index {
-            0 => self.cost_restore_health(request),
-            1 => self.cost_resize(request),
-            _ => panic!("Invalid control input index: {}", request.channel_index)
-        }
-    }
-
-    fn execute_control_request(&mut self, request: BudgetedControlRequest) {
-        match request.channel_index {
-            0 => self.restore_health(request.value, request.budgeted_fraction),
-            1 => self.resize(request.value, request.budgeted_fraction),
-            _ => panic!("Invalid control input index: {}", request.channel_index)
-        }
-    }
-
     fn cost_restore_health(&self, request: ControlRequest) -> CostedControlRequest {
         CostedControlRequest::new(request,
                                   self.health_parameters.healing_energy_delta * self.area.value() * request.value)
-    }
-
-    fn restore_health(&mut self, requested_delta_health: f64, budgeted_fraction: f64) {
-        assert!(requested_delta_health >= 0.0);
-        self.health = (self.health + budgeted_fraction * requested_delta_health).min(1.0);
     }
 
     fn cost_resize(&self, request: ControlRequest) -> CostedControlRequest {
@@ -151,6 +147,11 @@ impl Annulus {
             -self.resize_parameters.shrinkage_energy_delta
         };
         CostedControlRequest::new(request, delta_area * energy_delta)
+    }
+
+    fn restore_health(&mut self, requested_delta_health: f64, budgeted_fraction: f64) {
+        assert!(requested_delta_health >= 0.0);
+        self.health = (self.health + budgeted_fraction * requested_delta_health).min(1.0);
     }
 
     fn resize(&mut self, requested_delta_area: f64, budgeted_fraction: f64) {
@@ -171,78 +172,40 @@ impl Annulus {
     }
 }
 
-#[derive(Debug, Clone, Copy)]
-pub struct LayerHealthParameters {
-    pub healing_energy_delta: BioEnergyDelta,
-    pub entropic_damage_health_delta: f64,
-}
-
-#[derive(Debug, Clone, Copy)]
-pub struct LayerResizeParameters {
-    pub growth_energy_delta: BioEnergyDelta,
-    pub max_growth_rate: f64,
-    pub shrinkage_energy_delta: BioEnergyDelta,
-    pub max_shrinkage_rate: f64,
-}
-
-#[derive(Debug)]
-pub struct CellLayer2 {
-    annulus: Annulus,
-    brain: Box<CellLayerBrain>,
-}
-
-impl CellLayer2 {
-    pub fn new(area: Area, density: Density, color: Color, brain: Box<CellLayerBrain>) -> Self {
-        CellLayer2 {
-            annulus: Annulus::new(area, density, color),
-            brain,
-        }
-    }
-
-    pub fn with_health_parameters(mut self, health_parameters: LayerHealthParameters) -> Self {
-        self.annulus.health_parameters = health_parameters;
-        self
-    }
-
-    pub fn with_resize_parameters(mut self, resize_parameters: LayerResizeParameters) -> Self {
-        self.annulus.resize_parameters = resize_parameters;
-        self
-    }
-}
-
 impl OnionLayer for CellLayer2 {
     fn outer_radius(&self) -> Length {
-        self.annulus.outer_radius
+        self.outer_radius
     }
 
     fn color(&self) -> Color {
-        self.annulus.color
+        self.color
     }
 
     fn health(&self) -> f64 {
-        self.annulus.health
+        self.health
     }
 }
 
 impl CellLayer for CellLayer2 {
     fn area(&self) -> Area {
-        self.annulus.area
+        self.area
     }
 
     fn mass(&self) -> Mass {
-        self.annulus.mass
+        self.mass
     }
 
     fn damage(&mut self, health_loss: f64) {
-        self.annulus.damage(health_loss);
+        assert!(health_loss >= 0.0);
+        self.health = (self.health - health_loss).max(0.0);
     }
 
     fn update_outer_radius(&mut self, inner_radius: Length) {
-        self.annulus.update_outer_radius(inner_radius);
+        self.outer_radius = (inner_radius.sqr() + self.area / PI).sqrt();
     }
 
     fn after_influences(&mut self, env: &LocalEnvironment, subtick_duration: Duration) -> (BioEnergy, Force) {
-        self.annulus.entropic_damage(subtick_duration);
+        self.entropic_damage(subtick_duration);
         let health = self.health();
         let area = self.area();
         self.brain.after_influences(env, subtick_duration, health, area)
@@ -250,14 +213,16 @@ impl CellLayer for CellLayer2 {
 
     fn cost_control_request(&self, request: ControlRequest) -> CostedControlRequest {
         match request.channel_index {
-            0 | 1 => self.annulus.cost_control_request(request),
+            0 => self.cost_restore_health(request),
+            1 => self.cost_resize(request),
             _ => self.brain.cost_control_request(request),
         }
     }
 
     fn execute_control_request(&mut self, request: BudgetedControlRequest) {
         match request.channel_index {
-            0 | 1 => self.annulus.execute_control_request(request),
+            0 => self.restore_health(request.value, request.budgeted_fraction),
+            1 => self.resize(request.value, request.budgeted_fraction),
             _ => {
                 let health = self.health();
                 self.brain.execute_control_request(request, health)

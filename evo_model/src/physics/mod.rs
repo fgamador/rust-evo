@@ -1,4 +1,3 @@
-pub mod ball;
 pub mod bond;
 pub mod newtonian;
 pub mod overlap;

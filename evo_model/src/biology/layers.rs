@@ -278,6 +278,15 @@ impl ThrusterLayer {
         }
     }
 
+    pub fn new2(area: Area, density: Density, color: Color, brain: Box<CellLayerBrain>) -> Self {
+        ThrusterLayer {
+            annulus: Annulus::new(area, density, color),
+            brain,
+            force_x: 0.0,
+            force_y: 0.0,
+        }
+    }
+
     pub fn with_health_parameters(mut self, health_parameters: LayerHealthParameters) -> Self {
         self.annulus.health_parameters = health_parameters;
         self

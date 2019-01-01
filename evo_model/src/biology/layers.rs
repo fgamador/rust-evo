@@ -359,9 +359,10 @@ impl CellLayer for ThrusterLayer {
 
     fn execute_control_request(&mut self, request: BudgetedControlRequest) {
         match request.channel_index {
+            0 | 1 => self.annulus.execute_control_request(request),
             2 => self.force_x = self.health() * request.value,
             3 => self.force_y = self.health() * request.value,
-            _ => self.annulus.execute_control_request(request)
+            _ => panic!("Invalid control input index: {}", request.channel_index)
         }
     }
 }

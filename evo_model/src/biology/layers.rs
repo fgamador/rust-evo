@@ -253,7 +253,11 @@ impl CellLayer for SimpleCellLayer {
     }
 }
 
-pub trait CellLayerBrain: Debug {}
+pub trait CellLayerBrain: Debug {
+    fn after_influences(&mut self, _env: &LocalEnvironment, _subtick_duration: Duration) -> (BioEnergy, Force) {
+        (BioEnergy::ZERO, Force::ZERO)
+    }
+}
 
 #[derive(Debug)]
 pub struct NullCellLayerBrain {}

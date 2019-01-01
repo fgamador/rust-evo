@@ -755,7 +755,7 @@ mod tests {
 
     #[test]
     fn photo_layer_adds_energy_based_on_area_and_efficiency_and_duration() {
-        let mut layer = PhotoLayer::new(Area::new(4.0), Density::new(1.0), 0.5);
+        let mut layer = CellLayer2::new(Area::new(4.0), Density::new(1.0), Color::Green, Box::new(PhotoCellLayerBrain::new(0.5)));
 
         let mut env = LocalEnvironment::new();
         env.add_light_intensity(10.0);
@@ -767,7 +767,7 @@ mod tests {
 
     #[test]
     fn photo_layer_energy_is_reduced_by_reduced_health() {
-        let mut layer = PhotoLayer::new(Area::new(1.0), Density::new(1.0), 1.0);
+        let mut layer = CellLayer2::new(Area::new(1.0), Density::new(1.0), Color::Green, Box::new(PhotoCellLayerBrain::new(1.0)));
         layer.damage(0.25);
 
         let mut env = LocalEnvironment::new();
@@ -780,7 +780,7 @@ mod tests {
 
     #[test]
     fn photo_layer_undergoes_entropic_damage() {
-        let mut layer = PhotoLayer::new(Area::new(2.0), Density::new(1.0), 1.0)
+        let mut layer = CellLayer2::new(Area::new(2.0), Density::new(1.0), Color::Green, Box::new(PhotoCellLayerBrain::new(1.0)))
             .with_health_parameters(LayerHealthParameters {
                 healing_energy_delta: BioEnergyDelta::ZERO,
                 entropic_damage_health_delta: -0.1,

@@ -253,9 +253,17 @@ impl CellLayer for SimpleCellLayer {
     }
 }
 
+pub trait CellLayerBrains: Debug {}
+
+#[derive(Debug)]
+pub struct NullCellLayerBrains {}
+
+impl CellLayerBrains for NullCellLayerBrains {}
+
 #[derive(Debug)]
 pub struct ThrusterLayer {
     annulus: Annulus,
+    brains: Box<CellLayerBrains>,
     force_x: f64,
     force_y: f64,
 }
@@ -264,6 +272,7 @@ impl ThrusterLayer {
     pub fn new(area: Area, density: Density) -> Self {
         ThrusterLayer {
             annulus: Annulus::new(area, density, Color::Green), // TODO color
+            brains: Box::new(NullCellLayerBrains {}),
             force_x: 0.0,
             force_y: 0.0,
         }

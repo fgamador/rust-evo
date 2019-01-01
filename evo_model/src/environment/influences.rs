@@ -456,7 +456,7 @@ mod tests {
         assert_eq!(0.0, cell.environment().light_intensity());
     }
 
-    fn simple_cell_layer(area: Area, density: Density) -> CellLayer2 {
-        CellLayer2::new(area, density, Color::Green, Box::new(NullCellLayerBrain::new()))
+    fn simple_cell_layer(area: Area, density: Density) -> CellLayer {
+        CellLayer::new(area, density, Color::Green, Box::new(NullCellLayerBrain::new()))
     }
 }

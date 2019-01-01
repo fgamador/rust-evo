@@ -24,8 +24,8 @@ fn create_world() -> World<Cell> {
         .with_cell(Cell::new(
             Position::new(200.0, -50.0), Velocity::ZERO,
             vec![
-                Box::new(CellLayer2::new(Area::new(200.0 * PI), Density::new(1.0), Color::Green,
-                                         Box::new(PhotoCellLayerBrain::new(1.0)))
+                Box::new(CellLayer::new(Area::new(200.0 * PI), Density::new(1.0), Color::Green,
+                                        Box::new(PhotoCellLayerBrain::new(1.0)))
                     .with_resize_parameters(LayerResizeParameters {
                         growth_energy_delta: BioEnergyDelta::new(-1.0),
                         max_growth_rate: f64::INFINITY,

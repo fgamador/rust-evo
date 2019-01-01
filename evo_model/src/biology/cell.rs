@@ -243,7 +243,7 @@ mod tests {
     fn thruster_layer_adds_force_to_cell() {
         let mut cell = Cell::new(Position::new(1.0, 1.0), Velocity::new(1.0, 1.0),
                                  vec![
-                                     Box::new(CellLayer2::new(Area::new(1.0), Density::new(1.0), Color::Green, Box::new(ThrusterCellLayerBrain::new()))),
+                                     Box::new(CellLayer::new(Area::new(1.0), Density::new(1.0), Color::Green, Box::new(ThrusterCellLayerBrain::new()))),
                                  ])
             .with_control(Box::new(SimpleThrusterControl::new(0, Force::new(1.0, -1.0))));
         cell.after_movement();
@@ -255,8 +255,8 @@ mod tests {
     fn photo_layer_adds_energy_to_cell() {
         let mut cell = Cell::new(Position::new(1.0, 1.0), Velocity::new(1.0, 1.0),
                                  vec![
-                                     Box::new(CellLayer2::new(Area::new(4.0), Density::new(1.0), Color::Green,
-                                                              Box::new(PhotoCellLayerBrain::new(0.5)))),
+                                     Box::new(CellLayer::new(Area::new(4.0), Density::new(1.0), Color::Green,
+                                                             Box::new(PhotoCellLayerBrain::new(0.5)))),
                                  ]);
         cell.environment_mut().add_light_intensity(10.0);
 
@@ -328,7 +328,7 @@ mod tests {
         assert_eq!(BioEnergy::new(5.0), cell.energy());
     }
 
-    fn simple_cell_layer(area: Area, density: Density) -> CellLayer2 {
-        CellLayer2::new(area, density, Color::Green, Box::new(NullCellLayerBrain::new()))
+    fn simple_cell_layer(area: Area, density: Density) -> CellLayer {
+        CellLayer::new(area, density, Color::Green, Box::new(NullCellLayerBrain::new()))
     }
 }

@@ -83,7 +83,7 @@ pub struct LayerResizeParameters {
 }
 
 #[derive(Debug)]
-pub struct CellLayer2 {
+pub struct CellLayer {
     brain: Box<CellLayerBrain>,
     area: Area,
     density: Density,
@@ -95,9 +95,9 @@ pub struct CellLayer2 {
     resize_parameters: LayerResizeParameters,
 }
 
-impl CellLayer2 {
+impl CellLayer {
     pub fn new(area: Area, density: Density, color: Color, brain: Box<CellLayerBrain>) -> Self {
-        CellLayer2 {
+        CellLayer {
             brain,
             area,
             density,
@@ -172,7 +172,7 @@ impl CellLayer2 {
     }
 }
 
-impl OnionLayer for CellLayer2 {
+impl OnionLayer for CellLayer {
     fn outer_radius(&self) -> Length {
         self.outer_radius
     }
@@ -186,7 +186,7 @@ impl OnionLayer for CellLayer2 {
     }
 }
 
-impl CellLayerOld for CellLayer2 {
+impl CellLayerOld for CellLayer {
     fn area(&self) -> Area {
         self.area
     }
@@ -532,7 +532,7 @@ mod tests {
 
     #[test]
     fn thruster_layer_adds_force() {
-        let mut layer = CellLayer2::new(Area::new(1.0), Density::new(1.0), Color::Green, Box::new(ThrusterCellLayerBrain::new()));
+        let mut layer = CellLayer::new(Area::new(1.0), Density::new(1.0), Color::Green, Box::new(ThrusterCellLayerBrain::new()));
         layer.execute_control_request(
             BudgetedControlRequest::new(
                 CostedControlRequest::new(
@@ -550,7 +550,7 @@ mod tests {
 
     #[test]
     fn thruster_layer_force_is_reduced_by_reduced_health() {
-        let mut layer = CellLayer2::new(Area::new(1.0), Density::new(1.0), Color::Green, Box::new(ThrusterCellLayerBrain::new()));
+        let mut layer = CellLayer::new(Area::new(1.0), Density::new(1.0), Color::Green, Box::new(ThrusterCellLayerBrain::new()));
         layer.damage(0.5);
         layer.execute_control_request(
             BudgetedControlRequest::new(
@@ -569,7 +569,7 @@ mod tests {
 
     #[test]
     fn thruster_layer_undergoes_entropic_damage() {
-        let mut layer = CellLayer2::new(Area::new(2.0), Density::new(1.0), Color::Green, Box::new(ThrusterCellLayerBrain::new()))
+        let mut layer = CellLayer::new(Area::new(2.0), Density::new(1.0), Color::Green, Box::new(ThrusterCellLayerBrain::new()))
             .with_health_parameters(LayerHealthParameters {
                 healing_energy_delta: BioEnergyDelta::ZERO,
                 entropic_damage_health_delta: -0.1,
@@ -583,8 +583,8 @@ mod tests {
 
     #[test]
     fn photo_layer_adds_energy_based_on_area_and_efficiency_and_duration() {
-        let mut layer = CellLayer2::new(Area::new(4.0), Density::new(1.0), Color::Green,
-                                        Box::new(PhotoCellLayerBrain::new(0.5)));
+        let mut layer = CellLayer::new(Area::new(4.0), Density::new(1.0), Color::Green,
+                                       Box::new(PhotoCellLayerBrain::new(0.5)));
 
         let mut env = LocalEnvironment::new();
         env.add_light_intensity(10.0);
@@ -596,8 +596,8 @@ mod tests {
 
     #[test]
     fn photo_layer_energy_is_reduced_by_reduced_health() {
-        let mut layer = CellLayer2::new(Area::new(1.0), Density::new(1.0), Color::Green,
-                                        Box::new(PhotoCellLayerBrain::new(1.0)));
+        let mut layer = CellLayer::new(Area::new(1.0), Density::new(1.0), Color::Green,
+                                       Box::new(PhotoCellLayerBrain::new(1.0)));
         layer.damage(0.25);
 
         let mut env = LocalEnvironment::new();
@@ -610,8 +610,8 @@ mod tests {
 
     #[test]
     fn photo_layer_undergoes_entropic_damage() {
-        let mut layer = CellLayer2::new(Area::new(2.0), Density::new(1.0), Color::Green,
-                                        Box::new(PhotoCellLayerBrain::new(1.0)))
+        let mut layer = CellLayer::new(Area::new(2.0), Density::new(1.0), Color::Green,
+                                       Box::new(PhotoCellLayerBrain::new(1.0)))
             .with_health_parameters(LayerHealthParameters {
                 healing_energy_delta: BioEnergyDelta::ZERO,
                 entropic_damage_health_delta: -0.1,
@@ -623,7 +623,7 @@ mod tests {
         assert_eq!(0.95, layer.health());
     }
 
-    fn simple_cell_layer(area: Area, density: Density) -> CellLayer2 {
-        CellLayer2::new(area, density, Color::Green, Box::new(NullCellLayerBrain::new()))
+    fn simple_cell_layer(area: Area, density: Density) -> CellLayer {
+        CellLayer::new(area, density, Color::Green, Box::new(NullCellLayerBrain::new()))
     }
 }

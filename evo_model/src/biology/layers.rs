@@ -92,7 +92,7 @@ impl Annulus {
             // TODO pull these out and share them
             health_parameters: LayerHealthParameters {
                 healing_energy_delta: BioEnergyDelta::ZERO,
-                entropic_decay_health_delta: 0.0,
+                entropic_damage_health_delta: 0.0,
             },
             resize_parameters: LayerResizeParameters {
                 growth_energy_delta: BioEnergyDelta::ZERO,
@@ -112,8 +112,8 @@ impl Annulus {
         self.outer_radius = (inner_radius.sqr() + self.area / PI).sqrt();
     }
 
-    fn entropic_decay(&mut self, subtick_duration: Duration) {
-        let subtick_decay = self.health_parameters.entropic_decay_health_delta * subtick_duration.value();
+    fn entropic_damage(&mut self, subtick_duration: Duration) {
+        let subtick_decay = self.health_parameters.entropic_damage_health_delta * subtick_duration.value();
         self.damage(-subtick_decay);
     }
 
@@ -174,7 +174,7 @@ impl Annulus {
 #[derive(Debug, Clone, Copy)]
 pub struct LayerHealthParameters {
     pub healing_energy_delta: BioEnergyDelta,
-    pub entropic_decay_health_delta: f64,
+    pub entropic_damage_health_delta: f64,
 }
 
 #[derive(Debug, Clone, Copy)]
@@ -240,7 +240,7 @@ impl CellLayer for SimpleCellLayer {
     }
 
     fn after_influences(&mut self, _env: &LocalEnvironment, subtick_duration: Duration) -> (BioEnergy, Force) {
-        self.annulus.entropic_decay(subtick_duration);
+        self.annulus.entropic_damage(subtick_duration);
         (BioEnergy::ZERO, Force::ZERO)
     }
 
@@ -312,7 +312,7 @@ impl CellLayer for ThrusterLayer {
     }
 
     fn after_influences(&mut self, _env: &LocalEnvironment, subtick_duration: Duration) -> (BioEnergy, Force) {
-        self.annulus.entropic_decay(subtick_duration);
+        self.annulus.entropic_damage(subtick_duration);
         (BioEnergy::ZERO, Force::new(self.force_x, self.force_y))
     }
 
@@ -389,7 +389,7 @@ impl CellLayer for PhotoLayer {
     }
 
     fn after_influences(&mut self, env: &LocalEnvironment, subtick_duration: Duration) -> (BioEnergy, Force) {
-        self.annulus.entropic_decay(subtick_duration);
+        self.annulus.entropic_damage(subtick_duration);
         (BioEnergy::new(env.light_intensity() * self.efficiency * self.health() * self.area().value() * subtick_duration.value()),
          Force::ZERO)
     }
@@ -605,7 +605,7 @@ mod tests {
         let mut layer = SimpleCellLayer::new(Area::new(2.0), Density::new(1.0), Color::Green)
             .with_health_parameters(LayerHealthParameters {
                 healing_energy_delta: BioEnergyDelta::new(-3.0),
-                entropic_decay_health_delta: 0.0,
+                entropic_damage_health_delta: 0.0,
             });
         layer.damage(0.5);
         let control_request = ControlRequest::for_healing(0, 0.25);
@@ -618,7 +618,7 @@ mod tests {
         let mut layer = SimpleCellLayer::new(Area::new(2.0), Density::new(1.0), Color::Green)
             .with_health_parameters(LayerHealthParameters {
                 healing_energy_delta: BioEnergyDelta::ZERO,
-                entropic_decay_health_delta: -0.1,
+                entropic_damage_health_delta: -0.1,
             });
 
         let env = LocalEnvironment::new();
@@ -669,7 +669,7 @@ mod tests {
         let mut layer = ThrusterLayer::new(Area::new(2.0), Density::new(1.0))
             .with_health_parameters(LayerHealthParameters {
                 healing_energy_delta: BioEnergyDelta::ZERO,
-                entropic_decay_health_delta: -0.1,
+                entropic_damage_health_delta: -0.1,
             });
 
         let env = LocalEnvironment::new();
@@ -708,7 +708,7 @@ mod tests {
         let mut layer = PhotoLayer::new(Area::new(2.0), Density::new(1.0), 1.0)
             .with_health_parameters(LayerHealthParameters {
                 healing_energy_delta: BioEnergyDelta::ZERO,
-                entropic_decay_health_delta: -0.1,
+                entropic_damage_health_delta: -0.1,
             });
 
         let env = LocalEnvironment::new();

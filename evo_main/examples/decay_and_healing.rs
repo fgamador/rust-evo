@@ -31,7 +31,7 @@ fn create_world() -> World<Cell> {
                     })
                     .with_health_parameters(LayerHealthParameters {
                         healing_energy_delta: BioEnergyDelta::ZERO,
-                        entropic_decay_health_delta: -0.01,
+                        entropic_damage_health_delta: -0.01,
                     })),
             ])
             .with_control(Box::new(GrowThenHealControl::new(0, 100, AreaDelta::new(10.0), 100, 0.1))))

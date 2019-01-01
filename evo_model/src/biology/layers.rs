@@ -314,10 +314,10 @@ pub struct ThrusterLayer {
 
 impl ThrusterLayer {
     pub fn new_old(area: Area, density: Density) -> Self {
-        Self::new2(area, density, Color::Green, Box::new(ThrusterCellLayerBrain::new()))
+        Self::new(area, density, Color::Green, Box::new(ThrusterCellLayerBrain::new()))
     }
 
-    pub fn new2(area: Area, density: Density, color: Color, brain: Box<CellLayerBrain>) -> Self {
+    pub fn new(area: Area, density: Density, color: Color, brain: Box<CellLayerBrain>) -> Self {
         ThrusterLayer {
             annulus: Annulus::new(area, density, color),
             brain,

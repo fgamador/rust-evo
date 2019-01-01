@@ -298,7 +298,6 @@ mod tests {
     use biology::cell::Cell;
     use biology::layers::*;
     use evo_view_model::Color;
-    use physics::ball::Ball;
     use std::f64::consts::PI;
 
     #[test]
@@ -307,8 +306,8 @@ mod tests {
         let wall_collisions = WallCollisions::new(
             Position::new(-10.0, -10.0), Position::new(10.0, 10.0),
             Box::new(LinearSpring::new(1.0)));
-        let ball_handle = cell_graph.add_node(Ball::new(Length::new(1.0), Mass::new(1.0),
-                                                        Position::new(9.5, 9.5), Velocity::new(1.0, 1.0)));
+        let ball_handle = cell_graph.add_node(Cell::ball(Length::new(1.0), Mass::new(1.0),
+                                                         Position::new(9.5, 9.5), Velocity::new(1.0, 1.0)));
 
         wall_collisions.apply(&mut cell_graph);
 
@@ -322,10 +321,10 @@ mod tests {
     fn pair_collisions_add_overlaps_and_forces() {
         let mut cell_graph = SortableGraph::new();
         let pair_collisions = PairCollisions::new();
-        let ball1_handle = cell_graph.add_node(Ball::new(Length::new(1.0), Mass::new(1.0),
-                                                         Position::new(0.0, 0.0), Velocity::new(1.0, 1.0)));
-        let ball2_handle = cell_graph.add_node(Ball::new(Length::new(1.0), Mass::new(1.0),
-                                                         Position::new(1.4, 1.4), Velocity::new(-1.0, -1.0)));
+        let ball1_handle = cell_graph.add_node(Cell::ball(Length::new(1.0), Mass::new(1.0),
+                                                          Position::new(0.0, 0.0), Velocity::new(1.0, 1.0)));
+        let ball2_handle = cell_graph.add_node(Cell::ball(Length::new(1.0), Mass::new(1.0),
+                                                          Position::new(1.4, 1.4), Velocity::new(-1.0, -1.0)));
 
         pair_collisions.apply(&mut cell_graph);
 
@@ -344,10 +343,10 @@ mod tests {
     fn bond_forces_add_forces() {
         let mut cell_graph = SortableGraph::new();
         let bond_forces = BondForces::new();
-        let ball1_handle = cell_graph.add_node(Ball::new(Length::new(1.0), Mass::new(1.0),
-                                                         Position::new(0.0, 0.0), Velocity::new(-1.0, -1.0)));
-        let ball2_handle = cell_graph.add_node(Ball::new(Length::new(1.0), Mass::new(1.0),
-                                                         Position::new(1.5, 1.5), Velocity::new(1.0, 1.0)));
+        let ball1_handle = cell_graph.add_node(Cell::ball(Length::new(1.0), Mass::new(1.0),
+                                                          Position::new(0.0, 0.0), Velocity::new(-1.0, -1.0)));
+        let ball2_handle = cell_graph.add_node(Cell::ball(Length::new(1.0), Mass::new(1.0),
+                                                          Position::new(1.5, 1.5), Velocity::new(1.0, 1.0)));
         let bond = Bond::new(cell_graph.node(ball1_handle), cell_graph.node(ball2_handle));
         cell_graph.add_edge(bond);
 
@@ -366,12 +365,12 @@ mod tests {
     fn bond_angle_forces_add_forces() {
         let mut cell_graph = SortableGraph::new();
 
-        let ball1_handle = cell_graph.add_node(Ball::new(Length::new(1.0), Mass::new(1.0),
-                                                         Position::new(0.1, 2.0), Velocity::ZERO));
-        let ball2_handle = cell_graph.add_node(Ball::new(Length::new(1.0), Mass::new(1.0),
-                                                         Position::new(0.0, 0.0), Velocity::ZERO));
-        let ball3_handle = cell_graph.add_node(Ball::new(Length::new(1.0), Mass::new(1.0),
-                                                         Position::new(0.0, -2.0), Velocity::ZERO));
+        let ball1_handle = cell_graph.add_node(Cell::ball(Length::new(1.0), Mass::new(1.0),
+                                                          Position::new(0.1, 2.0), Velocity::ZERO));
+        let ball2_handle = cell_graph.add_node(Cell::ball(Length::new(1.0), Mass::new(1.0),
+                                                          Position::new(0.0, 0.0), Velocity::ZERO));
+        let ball3_handle = cell_graph.add_node(Cell::ball(Length::new(1.0), Mass::new(1.0),
+                                                          Position::new(0.0, -2.0), Velocity::ZERO));
 
         let bond = Bond::new(cell_graph.node(ball1_handle), cell_graph.node(ball2_handle));
         let bond1_handle = cell_graph.add_edge(bond);
@@ -392,8 +391,8 @@ mod tests {
         let mut cell_graph = SortableGraph::new();
         let force = Force::new(2.0, -3.0);
         let influence = SimpleForceInfluence::new(Box::new(ConstantForce::new(force)));
-        let ball_handle = cell_graph.add_node(Ball::new(Length::new(1.0), Mass::new(3.0),
-                                                        Position::new(0.0, 0.0), Velocity::ZERO));
+        let ball_handle = cell_graph.add_node(Cell::ball(Length::new(1.0), Mass::new(3.0),
+                                                         Position::new(0.0, 0.0), Velocity::ZERO));
 
         influence.apply(&mut cell_graph);
 
@@ -404,14 +403,14 @@ mod tests {
     #[test]
     fn weight_adds_force_proportional_to_mass() {
         let weight = WeightForce::new(-2.0);
-        let ball = Ball::new(Length::new(1.0), Mass::new(3.0), Position::new(0.0, 0.0), Velocity::ZERO);
+        let ball = Cell::ball(Length::new(1.0), Mass::new(3.0), Position::new(0.0, 0.0), Velocity::ZERO);
         assert_eq!(Force::new(0.0, -6.0), weight.calc_force(&ball));
     }
 
     #[test]
     fn buoyancy_adds_force_proportional_to_area() {
         let buoyancy = BuoyancyForce::new(-2.0, 2.0);
-        let ball = Ball::new(Length::new(2.0 / PI.sqrt()), Mass::new(1.0), Position::new(0.0, 0.0), Velocity::ZERO);
+        let ball = Cell::ball(Length::new(2.0 / PI.sqrt()), Mass::new(1.0), Position::new(0.0, 0.0), Velocity::ZERO);
         let force = buoyancy.calc_force(&ball);
         assert_eq!(0.0, force.x());
         assert_eq!(16.0, force.y().round());
@@ -420,7 +419,7 @@ mod tests {
     #[test]
     fn drag_adds_force_proportional_to_radius_and_velocity_squared() {
         let drag = DragForce::new(0.5);
-        let ball = Ball::new(Length::new(2.0), Mass::new(1.0), Position::new(0.0, 0.0), Velocity::new(2.0, -3.0));
+        let ball = Cell::ball(Length::new(2.0), Mass::new(1.0), Position::new(0.0, 0.0), Velocity::new(2.0, -3.0));
         assert_eq!(Force::new(-4.0, 9.0), drag.calc_force(&ball));
     }
 

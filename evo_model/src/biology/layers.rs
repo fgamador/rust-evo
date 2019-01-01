@@ -113,9 +113,41 @@ impl CellLayer {
         self
     }
 
+    pub fn area(&self) -> Area {
+        self.area
+    }
+
+    pub fn mass(&self) -> Mass {
+        self.mass
+    }
+
+    pub fn damage(&mut self, health_loss: f64) {
+        assert!(health_loss >= 0.0);
+        self.health = (self.health - health_loss).max(0.0);
+    }
+
+    pub fn update_outer_radius(&mut self, inner_radius: Length) {
+        self.outer_radius = (inner_radius.sqr() + self.area / PI).sqrt();
+    }
+
+    pub fn after_influences(&mut self, env: &LocalEnvironment, subtick_duration: Duration) -> (BioEnergy, Force) {
+        self.entropic_damage(subtick_duration);
+        let health = self.health();
+        let area = self.area();
+        self.brain.after_influences(env, subtick_duration, health, area)
+    }
+
     fn entropic_damage(&mut self, subtick_duration: Duration) {
         let subtick_decay = self.health_parameters.entropic_damage_health_delta * subtick_duration.value();
         self.damage(-subtick_decay);
+    }
+
+    pub fn cost_control_request(&self, request: ControlRequest) -> CostedControlRequest {
+        match request.channel_index {
+            0 => self.cost_restore_health(request),
+            1 => self.cost_resize(request),
+            _ => self.brain.cost_control_request(request),
+        }
     }
 
     fn cost_restore_health(&self, request: ControlRequest) -> CostedControlRequest {
@@ -131,6 +163,17 @@ impl CellLayer {
             -self.resize_parameters.shrinkage_energy_delta
         };
         CostedControlRequest::new(request, delta_area * energy_delta)
+    }
+
+    pub fn execute_control_request(&mut self, request: BudgetedControlRequest) {
+        match request.channel_index {
+            0 => self.restore_health(request.value, request.budgeted_fraction),
+            1 => self.resize(request.value, request.budgeted_fraction),
+            _ => {
+                let health = self.health();
+                self.brain.execute_control_request(request, health)
+            }
+        }
     }
 
     fn restore_health(&mut self, requested_delta_health: f64, budgeted_fraction: f64) {
@@ -167,51 +210,6 @@ impl OnionLayer for CellLayer {
 
     fn health(&self) -> f64 {
         self.health
-    }
-}
-
-impl CellLayer {
-    pub fn area(&self) -> Area {
-        self.area
-    }
-
-    pub fn mass(&self) -> Mass {
-        self.mass
-    }
-
-    pub fn damage(&mut self, health_loss: f64) {
-        assert!(health_loss >= 0.0);
-        self.health = (self.health - health_loss).max(0.0);
-    }
-
-    pub fn update_outer_radius(&mut self, inner_radius: Length) {
-        self.outer_radius = (inner_radius.sqr() + self.area / PI).sqrt();
-    }
-
-    pub fn after_influences(&mut self, env: &LocalEnvironment, subtick_duration: Duration) -> (BioEnergy, Force) {
-        self.entropic_damage(subtick_duration);
-        let health = self.health();
-        let area = self.area();
-        self.brain.after_influences(env, subtick_duration, health, area)
-    }
-
-    pub fn cost_control_request(&self, request: ControlRequest) -> CostedControlRequest {
-        match request.channel_index {
-            0 => self.cost_restore_health(request),
-            1 => self.cost_resize(request),
-            _ => self.brain.cost_control_request(request),
-        }
-    }
-
-    pub fn execute_control_request(&mut self, request: BudgetedControlRequest) {
-        match request.channel_index {
-            0 => self.restore_health(request.value, request.budgeted_fraction),
-            1 => self.resize(request.value, request.budgeted_fraction),
-            _ => {
-                let health = self.health();
-                self.brain.execute_control_request(request, health)
-            }
-        }
     }
 }
 

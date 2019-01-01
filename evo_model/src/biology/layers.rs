@@ -262,7 +262,7 @@ pub trait CellLayerBrain: Debug {
         CostedControlRequest::new(request, BioEnergyDelta::ZERO)
     }
 
-    fn execute_control_request(&mut self, _request: BudgetedControlRequest) {}
+    fn execute_control_request(&mut self, _request: BudgetedControlRequest, _health: f64) {}
 }
 
 #[derive(Debug)]
@@ -276,7 +276,19 @@ pub struct ThrusterCellLayerBrain {
     force_y: f64,
 }
 
-impl CellLayerBrain for ThrusterCellLayerBrain {}
+impl CellLayerBrain for ThrusterCellLayerBrain {
+    fn after_influences(&mut self, _env: &LocalEnvironment, _subtick_duration: Duration) -> (BioEnergy, Force) {
+        (BioEnergy::ZERO, Force::new(self.force_x, self.force_y))
+    }
+
+    fn execute_control_request(&mut self, request: BudgetedControlRequest, health: f64) {
+        match request.channel_index {
+            2 => self.force_x = health * request.value,
+            3 => self.force_y = health * request.value,
+            _ => panic!("Invalid control input index: {}", request.channel_index)
+        }
+    }
+}
 
 #[derive(Debug)]
 pub struct ThrusterLayer {
@@ -345,9 +357,9 @@ impl CellLayer for ThrusterLayer {
         self.annulus.update_outer_radius(inner_radius);
     }
 
-    fn after_influences(&mut self, _env: &LocalEnvironment, subtick_duration: Duration) -> (BioEnergy, Force) {
+    fn after_influences(&mut self, env: &LocalEnvironment, subtick_duration: Duration) -> (BioEnergy, Force) {
         self.annulus.entropic_damage(subtick_duration);
-        (BioEnergy::ZERO, Force::new(self.force_x, self.force_y))
+        self.brain.after_influences(env, subtick_duration)
     }
 
     fn cost_control_request(&self, request: ControlRequest) -> CostedControlRequest {
@@ -360,9 +372,10 @@ impl CellLayer for ThrusterLayer {
     fn execute_control_request(&mut self, request: BudgetedControlRequest) {
         match request.channel_index {
             0 | 1 => self.annulus.execute_control_request(request),
-            2 => self.force_x = self.health() * request.value,
-            3 => self.force_y = self.health() * request.value,
-            _ => panic!("Invalid control input index: {}", request.channel_index)
+            _ => {
+                let health = self.health();
+                self.brain.execute_control_request(request, health)
+            }
         }
     }
 }

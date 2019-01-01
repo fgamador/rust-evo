@@ -281,6 +281,13 @@ impl CellLayerBrain for ThrusterCellLayerBrain {
         (BioEnergy::ZERO, Force::new(self.force_x, self.force_y))
     }
 
+    fn cost_control_request(&self, request: ControlRequest) -> CostedControlRequest {
+        match request.channel_index {
+            2 | 3 => CostedControlRequest::new(request, BioEnergyDelta::ZERO), // TODO
+            _ => panic!("Invalid control input index: {}", request.channel_index)
+        }
+    }
+
     fn execute_control_request(&mut self, request: BudgetedControlRequest, health: f64) {
         match request.channel_index {
             2 => self.force_x = health * request.value,
@@ -365,8 +372,7 @@ impl CellLayer for ThrusterLayer {
     fn cost_control_request(&self, request: ControlRequest) -> CostedControlRequest {
         match request.channel_index {
             0 | 1 => self.annulus.cost_control_request(request),
-            2 | 3 => CostedControlRequest::new(request, BioEnergyDelta::ZERO), // TODO
-            _ => panic!("Invalid control input index: {}", request.channel_index)
+            _ => self.brain.cost_control_request(request),
         }
     }
 

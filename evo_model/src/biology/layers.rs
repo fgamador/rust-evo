@@ -143,6 +143,10 @@ impl CellLayer {
     }
 
     pub fn cost_control_request(&self, request: ControlRequest) -> CostedControlRequest {
+        if self.health == 0.0 {
+            return CostedControlRequest::new(request, BioEnergyDelta::new(0.0));
+        }
+
         match request.channel_index {
             0 => self.cost_restore_health(request),
             1 => self.cost_resize(request),
@@ -514,6 +518,19 @@ mod tests {
         let (_, _) = layer.after_influences(&env, Duration::new(0.5));
 
         assert_eq!(0.95, layer.health());
+    }
+
+    #[test]
+    fn dead_layer_costs_control_requests_at_zero() {
+        let mut layer = simple_cell_layer(Area::new(1.0), Density::new(1.0))
+            .with_health_parameters(LayerHealthParameters {
+                healing_energy_delta: BioEnergyDelta::new(-1.0),
+                entropic_damage_health_delta: 0.0,
+            });
+        layer.damage(1.0);
+        let control_request = ControlRequest::for_healing(0, 1.0);
+        let costed_request = layer.cost_control_request(control_request);
+        assert_eq!(costed_request, CostedControlRequest::new(control_request, BioEnergyDelta::new(0.0)));
     }
 
     #[test]

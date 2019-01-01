@@ -514,7 +514,8 @@ mod tests {
 
     #[test]
     fn thruster_layer_adds_force() {
-        let mut layer = CellLayer::new(Area::new(1.0), Density::new(1.0), Color::Green, Box::new(ThrusterCellLayerBrain::new()));
+        let mut layer = CellLayer::new(Area::new(1.0), Density::new(1.0), Color::Green,
+                                       Box::new(ThrusterCellLayerBrain::new()));
         layer.execute_control_request(
             BudgetedControlRequest::new(
                 CostedControlRequest::new(
@@ -532,7 +533,8 @@ mod tests {
 
     #[test]
     fn thruster_layer_force_is_reduced_by_reduced_health() {
-        let mut layer = CellLayer::new(Area::new(1.0), Density::new(1.0), Color::Green, Box::new(ThrusterCellLayerBrain::new()));
+        let mut layer = CellLayer::new(Area::new(1.0), Density::new(1.0), Color::Green,
+                                       Box::new(ThrusterCellLayerBrain::new()));
         layer.damage(0.5);
         layer.execute_control_request(
             BudgetedControlRequest::new(

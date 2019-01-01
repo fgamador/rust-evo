@@ -3,10 +3,12 @@ use biology::control::*;
 use biology::control_requests::*;
 use biology::layers::*;
 use environment::environment::*;
+use evo_view_model::Color;
 use physics::newtonian::*;
 use physics::quantities::*;
 use physics::shapes::*;
 use physics::sortable_graph::*;
+use std::f64::consts::PI;
 use std::ptr;
 
 #[derive(Debug, GraphNode, HasLocalEnvironment, NewtonianBody)]
@@ -36,6 +38,14 @@ impl Cell {
             control: Box::new(NullControl::new()),
             energy: BioEnergy::new(0.0),
         }
+    }
+
+    pub fn ball(radius: Length, mass: Mass, position: Position, velocity: Velocity) -> Self {
+        let area = PI * radius.sqr();
+        Self::new(position, velocity, vec![
+            Box::new(CellLayer::new(area, mass / area, Color::Green,
+                                    Box::new(NullCellLayerSpecialty::new())))
+        ])
     }
 
     pub fn with_control(mut self, control: Box<CellControl>) -> Self {
@@ -164,9 +174,7 @@ impl Onion for Cell {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use evo_view_model::Color;
     use std::f64;
-    use std::f64::consts::PI;
 
     #[test]
     fn cells_use_pointer_equality() {
@@ -206,6 +214,15 @@ mod tests {
                                  Box::new(simple_cell_layer(Area::new(2.0 * PI), Density::new(2.0))),
                              ]);
         assert_eq!(Mass::new(5.0 * PI), cell.mass());
+    }
+
+    #[test]
+    fn ball_as_cell() {
+        let ball = Cell::ball(Length::new(2.0), Mass::new(3.0), Position::new(1.0, -1.0), Velocity::new(-2.0, 3.0));
+        assert_eq!(Length::new(2.0), ball.radius());
+        assert_eq!(Mass::new(3.0), ball.mass());
+        assert_eq!(Position::new(1.0, -1.0), ball.center());
+        assert_eq!(Velocity::new(-2.0, 3.0), ball.velocity());
     }
 
     #[test]

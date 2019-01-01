@@ -500,6 +500,14 @@ impl Mul<Acceleration> for Mass {
     }
 }
 
+impl Div<Area> for Mass {
+    type Output = Density;
+
+    fn div(self, rhs: Area) -> Self::Output {
+        Density::new(self.value / rhs.value)
+    }
+}
+
 #[derive(Clone, Copy, Debug, PartialEq, PartialOrd)]
 pub struct Density {
     value: f64,

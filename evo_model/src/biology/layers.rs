@@ -131,6 +131,10 @@ impl CellLayer {
     }
 
     pub fn after_influences(&mut self, env: &LocalEnvironment, subtick_duration: Duration) -> (BioEnergy, Force) {
+        if self.health == 0.0 {
+            return (BioEnergy::ZERO, Force::ZERO);
+        }
+
         self.entropic_damage(subtick_duration);
         let health = self.health();
         let area = self.area();
@@ -581,6 +585,26 @@ mod tests {
         let (_, force) = layer.after_influences(&env, Duration::new(1.0));
 
         assert_eq!(Force::new(0.5, -0.5), force);
+    }
+
+    #[test]
+    fn dead_thruster_layer_adds_no_force() {
+        let mut layer = CellLayer::new(Area::new(1.0), Density::new(1.0), Color::Green,
+                                       Box::new(ThrusterCellLayerBrain::new()));
+        layer.execute_control_request(
+            BudgetedControlRequest::new(
+                CostedControlRequest::new(
+                    ControlRequest::new(0, 2, 1.0), BioEnergyDelta::ZERO), 1.0));
+        layer.execute_control_request(
+            BudgetedControlRequest::new(
+                CostedControlRequest::new(
+                    ControlRequest::new(0, 3, -1.0), BioEnergyDelta::ZERO), 1.0));
+        layer.damage(1.0);
+
+        let env = LocalEnvironment::new();
+        let (_, force) = layer.after_influences(&env, Duration::new(1.0));
+
+        assert_eq!(Force::new(0.0, 0.0), force);
     }
 
     #[test]

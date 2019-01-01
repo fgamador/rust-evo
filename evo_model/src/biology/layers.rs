@@ -52,7 +52,7 @@ impl OnionLayer for SimpleOnionLayer {
     }
 }
 
-pub trait CellLayer: OnionLayer {
+pub trait CellLayerOld: OnionLayer {
     fn area(&self) -> Area;
 
     fn mass(&self) -> Mass;
@@ -186,7 +186,7 @@ impl OnionLayer for CellLayer2 {
     }
 }
 
-impl CellLayer for CellLayer2 {
+impl CellLayerOld for CellLayer2 {
     fn area(&self) -> Area {
         self.area
     }

@@ -15,13 +15,13 @@ pub struct Cell {
     radius: Length,
     newtonian_state: NewtonianState,
     environment: LocalEnvironment,
-    layers: Vec<Box<CellLayer>>,
+    layers: Vec<Box<CellLayerOld>>,
     control: Box<CellControl>,
     energy: BioEnergy,
 }
 
 impl Cell {
-    pub fn new(position: Position, velocity: Velocity, mut layers: Vec<Box<CellLayer>>) -> Self {
+    pub fn new(position: Position, velocity: Velocity, mut layers: Vec<Box<CellLayerOld>>) -> Self {
         if layers.is_empty() {
             panic!("Cell must have at least one layer");
         }
@@ -52,7 +52,7 @@ impl Cell {
         self.energy
     }
 
-    fn update_layer_outer_radii(layers: &mut Vec<Box<CellLayer>>) -> Length {
+    fn update_layer_outer_radii(layers: &mut Vec<Box<CellLayerOld>>) -> Length {
         layers.iter_mut().fold(
             Length::new(0.0),
             |inner_radius, layer| {
@@ -61,7 +61,7 @@ impl Cell {
             })
     }
 
-    fn calc_mass(layers: &Vec<Box<CellLayer>>) -> Mass {
+    fn calc_mass(layers: &Vec<Box<CellLayerOld>>) -> Mass {
         layers.iter().fold(
             Mass::new(0.0), |mass, layer| mass + layer.mass())
     }
@@ -154,7 +154,7 @@ impl Circle for Cell {
 }
 
 impl Onion for Cell {
-    type Layer = CellLayer;
+    type Layer = CellLayerOld;
 
     fn layers(&self) -> &[Box<Self::Layer>] {
         &self.layers

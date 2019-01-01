@@ -58,12 +58,28 @@ pub struct LayerHealthParameters {
     pub entropic_damage_health_delta: f64,
 }
 
+impl LayerHealthParameters {
+    pub const DEFAULT: LayerHealthParameters = LayerHealthParameters {
+        healing_energy_delta: BioEnergyDelta::ZERO,
+        entropic_damage_health_delta: 0.0,
+    };
+}
+
 #[derive(Debug, Clone, Copy)]
 pub struct LayerResizeParameters {
     pub growth_energy_delta: BioEnergyDelta,
     pub max_growth_rate: f64,
     pub shrinkage_energy_delta: BioEnergyDelta,
     pub max_shrinkage_rate: f64,
+}
+
+impl LayerResizeParameters {
+    pub const DEFAULT: LayerResizeParameters = LayerResizeParameters {
+        growth_energy_delta: BioEnergyDelta::ZERO,
+        max_growth_rate: f64::INFINITY,
+        shrinkage_energy_delta: BioEnergyDelta::ZERO,
+        max_shrinkage_rate: f64::INFINITY,
+    };
 }
 
 #[derive(Debug)]
@@ -90,16 +106,8 @@ impl CellLayer {
             color,
             health: 1.0,
             // TODO pull these out and share them
-            health_parameters: LayerHealthParameters {
-                healing_energy_delta: BioEnergyDelta::ZERO,
-                entropic_damage_health_delta: 0.0,
-            },
-            resize_parameters: LayerResizeParameters {
-                growth_energy_delta: BioEnergyDelta::ZERO,
-                max_growth_rate: f64::INFINITY,
-                shrinkage_energy_delta: BioEnergyDelta::ZERO,
-                max_shrinkage_rate: f64::INFINITY,
-            },
+            health_parameters: LayerHealthParameters::DEFAULT,
+            resize_parameters: LayerResizeParameters::DEFAULT,
         }
     }
 

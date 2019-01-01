@@ -634,6 +634,20 @@ mod tests {
         assert_eq!(BioEnergy::new(0.75), energy);
     }
 
+    #[test]
+    fn dead_photo_layer_adds_no_energy() {
+        let mut layer = CellLayer::new(Area::new(1.0), Density::new(1.0), Color::Green,
+                                       Box::new(PhotoCellLayerBrain::new(1.0)));
+        layer.damage(1.0);
+
+        let mut env = LocalEnvironment::new();
+        env.add_light_intensity(1.0);
+
+        let (energy, _) = layer.after_influences(&env, Duration::new(1.0));
+
+        assert_eq!(BioEnergy::new(0.0), energy);
+    }
+
     fn simple_cell_layer(area: Area, density: Density) -> CellLayer {
         CellLayer::new(area, density, Color::Green, Box::new(NullCellLayerBrain::new()))
     }

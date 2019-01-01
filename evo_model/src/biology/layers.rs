@@ -311,7 +311,9 @@ impl CellLayer for CellLayer2 {
 
     fn after_influences(&mut self, env: &LocalEnvironment, subtick_duration: Duration) -> (BioEnergy, Force) {
         self.annulus.entropic_damage(subtick_duration);
-        self.brain.after_influences(env, subtick_duration)
+        let health = self.health();
+        let area = self.area();
+        self.brain.after_influences(env, subtick_duration, health, area)
     }
 
     fn cost_control_request(&self, request: ControlRequest) -> CostedControlRequest {
@@ -333,7 +335,7 @@ impl CellLayer for CellLayer2 {
 }
 
 pub trait CellLayerBrain: Debug {
-    fn after_influences(&mut self, _env: &LocalEnvironment, _subtick_duration: Duration) -> (BioEnergy, Force) {
+    fn after_influences(&mut self, _env: &LocalEnvironment, _subtick_duration: Duration, _health: f64, _area: Area) -> (BioEnergy, Force) {
         (BioEnergy::ZERO, Force::ZERO)
     }
 
@@ -365,7 +367,7 @@ impl ThrusterCellLayerBrain {
 }
 
 impl CellLayerBrain for ThrusterCellLayerBrain {
-    fn after_influences(&mut self, _env: &LocalEnvironment, _subtick_duration: Duration) -> (BioEnergy, Force) {
+    fn after_influences(&mut self, _env: &LocalEnvironment, _subtick_duration: Duration, _health: f64, _area: Area) -> (BioEnergy, Force) {
         (BioEnergy::ZERO, Force::new(self.force_x, self.force_y))
     }
 
@@ -382,6 +384,26 @@ impl CellLayerBrain for ThrusterCellLayerBrain {
             3 => self.force_y = health * request.value,
             _ => panic!("Invalid control input index: {}", request.channel_index)
         }
+    }
+}
+
+#[derive(Debug)]
+pub struct PhotoCellLayerBrain {
+    efficiency: f64,
+}
+
+impl PhotoCellLayerBrain {
+    pub fn new(efficiency: f64) -> Self {
+        PhotoCellLayerBrain {
+            efficiency
+        }
+    }
+}
+
+impl CellLayerBrain for PhotoCellLayerBrain {
+    fn after_influences(&mut self, env: &LocalEnvironment, subtick_duration: Duration, health: f64, area: Area) -> (BioEnergy, Force) {
+        (BioEnergy::new(env.light_intensity() * self.efficiency * health * area.value() * subtick_duration.value()),
+         Force::ZERO)
     }
 }
 

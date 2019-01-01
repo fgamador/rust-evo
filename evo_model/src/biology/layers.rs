@@ -301,8 +301,6 @@ impl CellLayerBrain for ThrusterCellLayerBrain {
 pub struct ThrusterLayer {
     annulus: Annulus,
     brain: Box<CellLayerBrain>,
-    force_x: f64,
-    force_y: f64,
 }
 
 impl ThrusterLayer {
@@ -317,8 +315,6 @@ impl ThrusterLayer {
         ThrusterLayer {
             annulus: Annulus::new(area, density, color),
             brain,
-            force_x: 0.0,
-            force_y: 0.0,
         }
     }
 

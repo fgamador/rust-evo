@@ -253,59 +253,6 @@ impl CellLayer for SimpleCellLayer {
     }
 }
 
-pub trait CellLayerBrain: Debug {
-    fn after_influences(&mut self, _env: &LocalEnvironment, _subtick_duration: Duration) -> (BioEnergy, Force) {
-        (BioEnergy::ZERO, Force::ZERO)
-    }
-
-    fn cost_control_request(&self, request: ControlRequest) -> CostedControlRequest {
-        CostedControlRequest::new(request, BioEnergyDelta::ZERO)
-    }
-
-    fn execute_control_request(&mut self, _request: BudgetedControlRequest, _health: f64) {}
-}
-
-#[derive(Debug)]
-pub struct NullCellLayerBrain {}
-
-impl CellLayerBrain for NullCellLayerBrain {}
-
-#[derive(Debug)]
-pub struct ThrusterCellLayerBrain {
-    force_x: f64,
-    force_y: f64,
-}
-
-impl ThrusterCellLayerBrain {
-    pub fn new() -> Self {
-        ThrusterCellLayerBrain {
-            force_x: 0.0,
-            force_y: 0.0,
-        }
-    }
-}
-
-impl CellLayerBrain for ThrusterCellLayerBrain {
-    fn after_influences(&mut self, _env: &LocalEnvironment, _subtick_duration: Duration) -> (BioEnergy, Force) {
-        (BioEnergy::ZERO, Force::new(self.force_x, self.force_y))
-    }
-
-    fn cost_control_request(&self, request: ControlRequest) -> CostedControlRequest {
-        match request.channel_index {
-            2 | 3 => CostedControlRequest::new(request, BioEnergyDelta::ZERO), // TODO
-            _ => panic!("Invalid control input index: {}", request.channel_index)
-        }
-    }
-
-    fn execute_control_request(&mut self, request: BudgetedControlRequest, health: f64) {
-        match request.channel_index {
-            2 => self.force_x = health * request.value,
-            3 => self.force_y = health * request.value,
-            _ => panic!("Invalid control input index: {}", request.channel_index)
-        }
-    }
-}
-
 #[derive(Debug)]
 pub struct CellLayer2 {
     annulus: Annulus,
@@ -381,6 +328,59 @@ impl CellLayer for CellLayer2 {
                 let health = self.health();
                 self.brain.execute_control_request(request, health)
             }
+        }
+    }
+}
+
+pub trait CellLayerBrain: Debug {
+    fn after_influences(&mut self, _env: &LocalEnvironment, _subtick_duration: Duration) -> (BioEnergy, Force) {
+        (BioEnergy::ZERO, Force::ZERO)
+    }
+
+    fn cost_control_request(&self, request: ControlRequest) -> CostedControlRequest {
+        CostedControlRequest::new(request, BioEnergyDelta::ZERO)
+    }
+
+    fn execute_control_request(&mut self, _request: BudgetedControlRequest, _health: f64) {}
+}
+
+#[derive(Debug)]
+pub struct NullCellLayerBrain {}
+
+impl CellLayerBrain for NullCellLayerBrain {}
+
+#[derive(Debug)]
+pub struct ThrusterCellLayerBrain {
+    force_x: f64,
+    force_y: f64,
+}
+
+impl ThrusterCellLayerBrain {
+    pub fn new() -> Self {
+        ThrusterCellLayerBrain {
+            force_x: 0.0,
+            force_y: 0.0,
+        }
+    }
+}
+
+impl CellLayerBrain for ThrusterCellLayerBrain {
+    fn after_influences(&mut self, _env: &LocalEnvironment, _subtick_duration: Duration) -> (BioEnergy, Force) {
+        (BioEnergy::ZERO, Force::new(self.force_x, self.force_y))
+    }
+
+    fn cost_control_request(&self, request: ControlRequest) -> CostedControlRequest {
+        match request.channel_index {
+            2 | 3 => CostedControlRequest::new(request, BioEnergyDelta::ZERO), // TODO
+            _ => panic!("Invalid control input index: {}", request.channel_index)
+        }
+    }
+
+    fn execute_control_request(&mut self, request: BudgetedControlRequest, health: f64) {
+        match request.channel_index {
+            2 => self.force_x = health * request.value,
+            3 => self.force_y = health * request.value,
+            _ => panic!("Invalid control input index: {}", request.channel_index)
         }
     }
 }

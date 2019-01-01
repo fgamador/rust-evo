@@ -265,7 +265,10 @@ pub struct NullCellLayerBrain {}
 impl CellLayerBrain for NullCellLayerBrain {}
 
 #[derive(Debug)]
-pub struct ThrusterCellLayerBrain {}
+pub struct ThrusterCellLayerBrain {
+    force_x: f64,
+    force_y: f64,
+}
 
 impl CellLayerBrain for ThrusterCellLayerBrain {}
 
@@ -279,7 +282,10 @@ pub struct ThrusterLayer {
 
 impl ThrusterLayer {
     pub fn new(area: Area, density: Density) -> Self {
-        Self::new2(area, density, Color::Green, Box::new(ThrusterCellLayerBrain {}))
+        Self::new2(area, density, Color::Green, Box::new(ThrusterCellLayerBrain {
+            force_x: 0.0,
+            force_y: 0.0,
+        }))
     }
 
     pub fn new2(area: Area, density: Density, color: Color, brain: Box<CellLayerBrain>) -> Self {

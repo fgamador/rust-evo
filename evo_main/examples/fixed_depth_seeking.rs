@@ -48,7 +48,7 @@ fn create_world() -> World<Cell> {
 }
 
 fn simple_cell_layer(area: Area, density: Density, color: Color) -> CellLayer {
-    CellLayer::new(area, density, color, Box::new(NullCellLayerBrain::new()))
+    CellLayer::new(area, density, color, Box::new(NullCellLayerSpecialty::new()))
 }
 
 #[derive(Debug)]

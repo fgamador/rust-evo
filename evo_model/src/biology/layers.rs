@@ -68,7 +68,7 @@ pub struct LayerResizeParameters {
 
 #[derive(Debug)]
 pub struct CellLayer {
-    brain: Box<CellLayerBrain>,
+    specialty: Box<CellLayerSpecialty>,
     area: Area,
     density: Density,
     mass: Mass,
@@ -80,9 +80,9 @@ pub struct CellLayer {
 }
 
 impl CellLayer {
-    pub fn new(area: Area, density: Density, color: Color, brain: Box<CellLayerBrain>) -> Self {
+    pub fn new(area: Area, density: Density, color: Color, specialty: Box<CellLayerSpecialty>) -> Self {
         CellLayer {
-            brain,
+            specialty,
             area,
             density,
             mass: area * density,
@@ -138,7 +138,7 @@ impl CellLayer {
         self.entropic_damage(subtick_duration);
         let health = self.health();
         let area = self.area();
-        self.brain.after_influences(env, subtick_duration, health, area)
+        self.specialty.after_influences(env, subtick_duration, health, area)
     }
 
     fn entropic_damage(&mut self, subtick_duration: Duration) {
@@ -154,7 +154,7 @@ impl CellLayer {
         match request.channel_index {
             0 => self.cost_restore_health(request),
             1 => self.cost_resize(request),
-            _ => self.brain.cost_control_request(request),
+            _ => self.specialty.cost_control_request(request),
         }
     }
 
@@ -183,7 +183,7 @@ impl CellLayer {
             1 => self.resize(request.value, request.budgeted_fraction),
             _ => {
                 let health = self.health();
-                self.brain.execute_control_request(request, health)
+                self.specialty.execute_control_request(request, health)
             }
         }
     }
@@ -225,7 +225,7 @@ impl OnionLayer for CellLayer {
     }
 }
 
-pub trait CellLayerBrain: Debug {
+pub trait CellLayerSpecialty: Debug {
     fn after_influences(&mut self, _env: &LocalEnvironment, _subtick_duration: Duration, _health: f64, _area: Area) -> (BioEnergy, Force) {
         (BioEnergy::ZERO, Force::ZERO)
     }
@@ -238,32 +238,32 @@ pub trait CellLayerBrain: Debug {
 }
 
 #[derive(Debug)]
-pub struct NullCellLayerBrain {}
+pub struct NullCellLayerSpecialty {}
 
-impl NullCellLayerBrain {
+impl NullCellLayerSpecialty {
     pub fn new() -> Self {
-        NullCellLayerBrain {}
+        NullCellLayerSpecialty {}
     }
 }
 
-impl CellLayerBrain for NullCellLayerBrain {}
+impl CellLayerSpecialty for NullCellLayerSpecialty {}
 
 #[derive(Debug)]
-pub struct ThrusterCellLayerBrain {
+pub struct ThrusterCellLayerSpecialty {
     force_x: f64,
     force_y: f64,
 }
 
-impl ThrusterCellLayerBrain {
+impl ThrusterCellLayerSpecialty {
     pub fn new() -> Self {
-        ThrusterCellLayerBrain {
+        ThrusterCellLayerSpecialty {
             force_x: 0.0,
             force_y: 0.0,
         }
     }
 }
 
-impl CellLayerBrain for ThrusterCellLayerBrain {
+impl CellLayerSpecialty for ThrusterCellLayerSpecialty {
     fn after_influences(&mut self, _env: &LocalEnvironment, _subtick_duration: Duration, _health: f64, _area: Area) -> (BioEnergy, Force) {
         (BioEnergy::ZERO, Force::new(self.force_x, self.force_y))
     }
@@ -285,19 +285,19 @@ impl CellLayerBrain for ThrusterCellLayerBrain {
 }
 
 #[derive(Debug)]
-pub struct PhotoCellLayerBrain {
+pub struct PhotoCellLayerSpecialty {
     efficiency: f64,
 }
 
-impl PhotoCellLayerBrain {
+impl PhotoCellLayerSpecialty {
     pub fn new(efficiency: f64) -> Self {
-        PhotoCellLayerBrain {
+        PhotoCellLayerSpecialty {
             efficiency
         }
     }
 }
 
-impl CellLayerBrain for PhotoCellLayerBrain {
+impl CellLayerSpecialty for PhotoCellLayerSpecialty {
     fn after_influences(&mut self, env: &LocalEnvironment, subtick_duration: Duration, health: f64, area: Area) -> (BioEnergy, Force) {
         (BioEnergy::new(env.light_intensity() * self.efficiency * health * area.value() * subtick_duration.value()),
          Force::ZERO)
@@ -551,7 +551,7 @@ mod tests {
     #[test]
     fn thruster_layer_adds_force() {
         let mut layer = CellLayer::new(Area::new(1.0), Density::new(1.0), Color::Green,
-                                       Box::new(ThrusterCellLayerBrain::new()));
+                                       Box::new(ThrusterCellLayerSpecialty::new()));
         layer.execute_control_request(
             BudgetedControlRequest::new(
                 CostedControlRequest::new(
@@ -570,7 +570,7 @@ mod tests {
     #[test]
     fn thruster_layer_force_is_reduced_by_reduced_health() {
         let mut layer = CellLayer::new(Area::new(1.0), Density::new(1.0), Color::Green,
-                                       Box::new(ThrusterCellLayerBrain::new()));
+                                       Box::new(ThrusterCellLayerSpecialty::new()));
         layer.damage(0.5);
         layer.execute_control_request(
             BudgetedControlRequest::new(
@@ -590,7 +590,7 @@ mod tests {
     #[test]
     fn dead_thruster_layer_adds_no_force() {
         let mut layer = CellLayer::new(Area::new(1.0), Density::new(1.0), Color::Green,
-                                       Box::new(ThrusterCellLayerBrain::new()));
+                                       Box::new(ThrusterCellLayerSpecialty::new()));
         layer.execute_control_request(
             BudgetedControlRequest::new(
                 CostedControlRequest::new(
@@ -610,7 +610,7 @@ mod tests {
     #[test]
     fn photo_layer_adds_energy_based_on_area_and_efficiency_and_duration() {
         let mut layer = CellLayer::new(Area::new(4.0), Density::new(1.0), Color::Green,
-                                       Box::new(PhotoCellLayerBrain::new(0.5)));
+                                       Box::new(PhotoCellLayerSpecialty::new(0.5)));
 
         let mut env = LocalEnvironment::new();
         env.add_light_intensity(10.0);
@@ -623,7 +623,7 @@ mod tests {
     #[test]
     fn photo_layer_energy_is_reduced_by_reduced_health() {
         let mut layer = CellLayer::new(Area::new(1.0), Density::new(1.0), Color::Green,
-                                       Box::new(PhotoCellLayerBrain::new(1.0)));
+                                       Box::new(PhotoCellLayerSpecialty::new(1.0)));
         layer.damage(0.25);
 
         let mut env = LocalEnvironment::new();
@@ -637,7 +637,7 @@ mod tests {
     #[test]
     fn dead_photo_layer_adds_no_energy() {
         let mut layer = CellLayer::new(Area::new(1.0), Density::new(1.0), Color::Green,
-                                       Box::new(PhotoCellLayerBrain::new(1.0)));
+                                       Box::new(PhotoCellLayerSpecialty::new(1.0)));
         layer.damage(1.0);
 
         let mut env = LocalEnvironment::new();
@@ -649,6 +649,6 @@ mod tests {
     }
 
     fn simple_cell_layer(area: Area, density: Density) -> CellLayer {
-        CellLayer::new(area, density, Color::Green, Box::new(NullCellLayerBrain::new()))
+        CellLayer::new(area, density, Color::Green, Box::new(NullCellLayerSpecialty::new()))
     }
 }

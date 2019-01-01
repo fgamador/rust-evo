@@ -27,7 +27,7 @@ fn create_world() -> World<Cell> {
             Cell::new(
                 Position::new(300.0, -300.0), Velocity::new(0.0, 0.0),
                 vec![
-                    Box::new(CellLayer::new(Area::new(200.0 * PI), Density::new(1.0), Color::Green, Box::new(ThrusterCellLayerBrain::new()))),
+                    Box::new(CellLayer::new(Area::new(200.0 * PI), Density::new(1.0), Color::Green, Box::new(ThrusterCellLayerSpecialty::new()))),
                 ])
                 .with_control(Box::new(
                     ThrustInSquareControl::new(0, 70.0, Direction::Left, 100, 200))),

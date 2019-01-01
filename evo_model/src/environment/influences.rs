@@ -457,6 +457,6 @@ mod tests {
     }
 
     fn simple_cell_layer(area: Area, density: Density) -> CellLayer {
-        CellLayer::new(area, density, Color::Green, Box::new(NullCellLayerBrain::new()))
+        CellLayer::new(area, density, Color::Green, Box::new(NullCellLayerSpecialty::new()))
     }
 }

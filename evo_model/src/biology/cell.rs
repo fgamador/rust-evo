@@ -243,7 +243,7 @@ mod tests {
     fn thruster_layer_adds_force_to_cell() {
         let mut cell = Cell::new(Position::new(1.0, 1.0), Velocity::new(1.0, 1.0),
                                  vec![
-                                     Box::new(CellLayer::new(Area::new(1.0), Density::new(1.0), Color::Green, Box::new(ThrusterCellLayerBrain::new()))),
+                                     Box::new(CellLayer::new(Area::new(1.0), Density::new(1.0), Color::Green, Box::new(ThrusterCellLayerSpecialty::new()))),
                                  ])
             .with_control(Box::new(SimpleThrusterControl::new(0, Force::new(1.0, -1.0))));
         cell.after_movement();
@@ -256,7 +256,7 @@ mod tests {
         let mut cell = Cell::new(Position::new(1.0, 1.0), Velocity::new(1.0, 1.0),
                                  vec![
                                      Box::new(CellLayer::new(Area::new(4.0), Density::new(1.0), Color::Green,
-                                                             Box::new(PhotoCellLayerBrain::new(0.5)))),
+                                                             Box::new(PhotoCellLayerSpecialty::new(0.5)))),
                                  ]);
         cell.environment_mut().add_light_intensity(10.0);
 
@@ -329,6 +329,6 @@ mod tests {
     }
 
     fn simple_cell_layer(area: Area, density: Density) -> CellLayer {
-        CellLayer::new(area, density, Color::Green, Box::new(NullCellLayerBrain::new()))
+        CellLayer::new(area, density, Color::Green, Box::new(NullCellLayerSpecialty::new()))
     }
 }

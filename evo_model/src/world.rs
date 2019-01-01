@@ -238,7 +238,7 @@ mod tests {
             .with_influence(Box::new(Sunlight::new(-10.0, 10.0, 0.0, 10.0)))
             .with_cell(Cell::new(Position::new(0.0, 0.0), Velocity::ZERO,
                                  vec![
-                                     Box::new(CellLayer::new(Area::new(10.0), Density::new(1.0), Color::Green, Box::new(PhotoCellLayerBrain::new(1.0)))),
+                                     Box::new(CellLayer::new(Area::new(10.0), Density::new(1.0), Color::Green, Box::new(PhotoCellLayerSpecialty::new(1.0)))),
                                  ]));
 
         world.tick();
@@ -253,7 +253,7 @@ mod tests {
             .with_cell(Cell::new(Position::new(0.0, 0.0), Velocity::new(0.0, 0.0),
                                  vec![
                                      Box::new(CellLayer::new(
-                                         Area::new(1.0), Density::new(1.0), Color::Green, Box::new(NullCellLayerBrain::new()))),
+                                         Area::new(1.0), Density::new(1.0), Color::Green, Box::new(NullCellLayerSpecialty::new()))),
                                  ])
                 .with_control(Box::new(ContinuousResizeControl::new(0, AreaDelta::new(2.0)))));
 
@@ -269,7 +269,7 @@ mod tests {
             .with_cell(Cell::new(Position::new(0.0, 0.0), Velocity::new(0.0, 0.0),
                                  vec![
                                      Box::new(CellLayer::new(Area::new(1.0), Density::new(1.0), Color::Green,
-                                                             Box::new(ThrusterCellLayerBrain::new()))),
+                                                             Box::new(ThrusterCellLayerSpecialty::new()))),
                                  ])
                 .with_control(Box::new(SimpleThrusterControl::new(0, Force::new(1.0, -1.0)))));
 
@@ -288,7 +288,7 @@ mod tests {
             .with_cell(Cell::new(Position::new(0.0, 0.0), Velocity::ZERO,
                                  vec![
                                      Box::new(CellLayer::new(Area::new(10.0), Density::new(1.0), Color::Green,
-                                                             Box::new(PhotoCellLayerBrain::new(1.0)))
+                                                             Box::new(PhotoCellLayerSpecialty::new(1.0)))
                                          .with_resize_parameters(LayerResizeParameters {
                                              growth_energy_delta: BioEnergyDelta::new(-10.0),
                                              max_growth_rate: f64::INFINITY,

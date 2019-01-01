@@ -313,10 +313,6 @@ pub struct ThrusterLayer {
 }
 
 impl ThrusterLayer {
-    pub fn new_old(area: Area, density: Density) -> Self {
-        Self::new(area, density, Color::Green, Box::new(ThrusterCellLayerBrain::new()))
-    }
-
     pub fn new(area: Area, density: Density, color: Color, brain: Box<CellLayerBrain>) -> Self {
         ThrusterLayer {
             annulus: Annulus::new(area, density, color),
@@ -686,7 +682,7 @@ mod tests {
 
     #[test]
     fn thruster_layer_adds_force() {
-        let mut layer = ThrusterLayer::new_old(Area::new(1.0), Density::new(1.0));
+        let mut layer = ThrusterLayer::new(Area::new(1.0), Density::new(1.0), Color::Green, Box::new(ThrusterCellLayerBrain::new()));
         layer.execute_control_request(
             BudgetedControlRequest::new(
                 CostedControlRequest::new(
@@ -704,7 +700,7 @@ mod tests {
 
     #[test]
     fn thruster_layer_force_is_reduced_by_reduced_health() {
-        let mut layer = ThrusterLayer::new_old(Area::new(1.0), Density::new(1.0));
+        let mut layer = ThrusterLayer::new(Area::new(1.0), Density::new(1.0), Color::Green, Box::new(ThrusterCellLayerBrain::new()));
         layer.damage(0.5);
         layer.execute_control_request(
             BudgetedControlRequest::new(
@@ -723,7 +719,7 @@ mod tests {
 
     #[test]
     fn thruster_layer_undergoes_entropic_damage() {
-        let mut layer = ThrusterLayer::new_old(Area::new(2.0), Density::new(1.0))
+        let mut layer = ThrusterLayer::new(Area::new(2.0), Density::new(1.0), Color::Green, Box::new(ThrusterCellLayerBrain::new()))
             .with_health_parameters(LayerHealthParameters {
                 healing_energy_delta: BioEnergyDelta::ZERO,
                 entropic_damage_health_delta: -0.1,

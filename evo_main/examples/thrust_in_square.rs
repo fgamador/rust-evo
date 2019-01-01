@@ -10,6 +10,7 @@ use evo_model::environment::influences::*;
 use evo_model::physics::quantities::*;
 use evo_model::world::World;
 use evo_main::main_support::init_and_run;
+use evo_view_model::Color;
 use std::f64::consts::PI;
 
 fn main() {
@@ -26,7 +27,7 @@ fn create_world() -> World<Cell> {
             Cell::new(
                 Position::new(300.0, -300.0), Velocity::new(0.0, 0.0),
                 vec![
-                    Box::new(ThrusterLayer::new_old(Area::new(200.0 * PI), Density::new(1.0))),
+                    Box::new(ThrusterLayer::new(Area::new(200.0 * PI), Density::new(1.0), Color::Green, Box::new(ThrusterCellLayerBrain::new()))),
                 ])
                 .with_control(Box::new(
                     ThrustInSquareControl::new(0, 70.0, Direction::Left, 100, 200))),

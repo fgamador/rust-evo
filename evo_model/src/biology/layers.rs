@@ -276,6 +276,15 @@ pub struct ThrusterCellLayerBrain {
     force_y: f64,
 }
 
+impl ThrusterCellLayerBrain {
+    pub fn new() -> Self {
+        ThrusterCellLayerBrain {
+            force_x: 0.0,
+            force_y: 0.0,
+        }
+    }
+}
+
 impl CellLayerBrain for ThrusterCellLayerBrain {
     fn after_influences(&mut self, _env: &LocalEnvironment, _subtick_duration: Duration) -> (BioEnergy, Force) {
         (BioEnergy::ZERO, Force::new(self.force_x, self.force_y))
@@ -305,10 +314,7 @@ pub struct ThrusterLayer {
 
 impl ThrusterLayer {
     pub fn new(area: Area, density: Density) -> Self {
-        Self::new2(area, density, Color::Green, Box::new(ThrusterCellLayerBrain {
-            force_x: 0.0,
-            force_y: 0.0,
-        }))
+        Self::new2(area, density, Color::Green, Box::new(ThrusterCellLayerBrain::new()))
     }
 
     pub fn new2(area: Area, density: Density, color: Color, brain: Box<CellLayerBrain>) -> Self {

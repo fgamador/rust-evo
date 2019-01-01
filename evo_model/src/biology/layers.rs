@@ -257,6 +257,12 @@ pub trait CellLayerBrain: Debug {
     fn after_influences(&mut self, _env: &LocalEnvironment, _subtick_duration: Duration) -> (BioEnergy, Force) {
         (BioEnergy::ZERO, Force::ZERO)
     }
+
+    fn cost_control_request(&self, request: ControlRequest) -> CostedControlRequest {
+        CostedControlRequest::new(request, BioEnergyDelta::ZERO)
+    }
+
+    fn execute_control_request(&mut self, _request: BudgetedControlRequest) {}
 }
 
 #[derive(Debug)]

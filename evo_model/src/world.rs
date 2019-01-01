@@ -238,7 +238,7 @@ mod tests {
             .with_influence(Box::new(Sunlight::new(-10.0, 10.0, 0.0, 10.0)))
             .with_cell(Cell::new(Position::new(0.0, 0.0), Velocity::ZERO,
                                  vec![
-                                     Box::new(PhotoLayer::new(Area::new(10.0), Density::new(1.0), 1.0)),
+                                     Box::new(CellLayer2::new(Area::new(10.0), Density::new(1.0), Color::Green, Box::new(PhotoCellLayerBrain::new(1.0)))),
                                  ]));
 
         world.tick();
@@ -268,7 +268,8 @@ mod tests {
         let mut world = World::new(Position::new(-10.0, -10.0), Position::new(10.0, 10.0))
             .with_cell(Cell::new(Position::new(0.0, 0.0), Velocity::new(0.0, 0.0),
                                  vec![
-                                     Box::new(CellLayer2::new(Area::new(1.0), Density::new(1.0), Color::Green, Box::new(ThrusterCellLayerBrain::new()))),
+                                     Box::new(CellLayer2::new(Area::new(1.0), Density::new(1.0), Color::Green,
+                                                              Box::new(ThrusterCellLayerBrain::new()))),
                                  ])
                 .with_control(Box::new(SimpleThrusterControl::new(0, Force::new(1.0, -1.0)))));
 
@@ -286,7 +287,8 @@ mod tests {
             .with_influence(Box::new(Sunlight::new(-10.0, 10.0, 0.0, 10.0)))
             .with_cell(Cell::new(Position::new(0.0, 0.0), Velocity::ZERO,
                                  vec![
-                                     Box::new(PhotoLayer::new(Area::new(10.0), Density::new(1.0), 1.0)
+                                     Box::new(CellLayer2::new(Area::new(10.0), Density::new(1.0), Color::Green,
+                                                              Box::new(PhotoCellLayerBrain::new(1.0)))
                                          .with_resize_parameters(LayerResizeParameters {
                                              growth_energy_delta: BioEnergyDelta::new(-10.0),
                                              max_growth_rate: f64::INFINITY,

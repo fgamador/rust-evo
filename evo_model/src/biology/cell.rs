@@ -263,7 +263,8 @@ mod tests {
     fn photo_layer_adds_energy_to_cell() {
         let mut cell = Cell::new(Position::new(1.0, 1.0), Velocity::new(1.0, 1.0),
                                  vec![
-                                     Box::new(PhotoLayer::new(Area::new(4.0), Density::new(1.0), 0.5)),
+                                     Box::new(CellLayer2::new(Area::new(4.0), Density::new(1.0), Color::Green,
+                                                              Box::new(PhotoCellLayerBrain::new(0.5)))),
                                  ]);
         cell.environment_mut().add_light_intensity(10.0);
 

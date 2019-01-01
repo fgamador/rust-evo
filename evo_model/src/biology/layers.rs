@@ -407,77 +407,6 @@ impl CellLayerBrain for PhotoCellLayerBrain {
     }
 }
 
-#[derive(Debug)]
-pub struct PhotoLayer {
-    annulus: Annulus,
-    efficiency: f64,
-}
-
-impl PhotoLayer {
-    pub fn new(area: Area, density: Density, efficiency: f64) -> Self {
-        PhotoLayer {
-            annulus: Annulus::new(area, density, Color::Green),
-            efficiency,
-        }
-    }
-
-    pub fn with_health_parameters(mut self, health_parameters: LayerHealthParameters) -> Self {
-        self.annulus.health_parameters = health_parameters;
-        self
-    }
-
-    pub fn with_resize_parameters(mut self, resize_parameters: LayerResizeParameters) -> Self {
-        self.annulus.resize_parameters = resize_parameters;
-        self
-    }
-}
-
-impl OnionLayer for PhotoLayer {
-    fn outer_radius(&self) -> Length {
-        self.annulus.outer_radius
-    }
-
-    fn color(&self) -> Color {
-        self.annulus.color
-    }
-
-    fn health(&self) -> f64 {
-        self.annulus.health
-    }
-}
-
-impl CellLayer for PhotoLayer {
-    fn area(&self) -> Area {
-        self.annulus.area
-    }
-
-    fn mass(&self) -> Mass {
-        self.annulus.mass
-    }
-
-    fn damage(&mut self, health_loss: f64) {
-        self.annulus.damage(health_loss);
-    }
-
-    fn update_outer_radius(&mut self, inner_radius: Length) {
-        self.annulus.update_outer_radius(inner_radius);
-    }
-
-    fn after_influences(&mut self, env: &LocalEnvironment, subtick_duration: Duration) -> (BioEnergy, Force) {
-        self.annulus.entropic_damage(subtick_duration);
-        (BioEnergy::new(env.light_intensity() * self.efficiency * self.health() * self.area().value() * subtick_duration.value()),
-         Force::ZERO)
-    }
-
-    fn cost_control_request(&self, request: ControlRequest) -> CostedControlRequest {
-        self.annulus.cost_control_request(request)
-    }
-
-    fn execute_control_request(&mut self, request: BudgetedControlRequest) {
-        self.annulus.execute_control_request(request);
-    }
-}
-
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -755,7 +684,8 @@ mod tests {
 
     #[test]
     fn photo_layer_adds_energy_based_on_area_and_efficiency_and_duration() {
-        let mut layer = CellLayer2::new(Area::new(4.0), Density::new(1.0), Color::Green, Box::new(PhotoCellLayerBrain::new(0.5)));
+        let mut layer = CellLayer2::new(Area::new(4.0), Density::new(1.0), Color::Green,
+                                        Box::new(PhotoCellLayerBrain::new(0.5)));
 
         let mut env = LocalEnvironment::new();
         env.add_light_intensity(10.0);
@@ -767,7 +697,8 @@ mod tests {
 
     #[test]
     fn photo_layer_energy_is_reduced_by_reduced_health() {
-        let mut layer = CellLayer2::new(Area::new(1.0), Density::new(1.0), Color::Green, Box::new(PhotoCellLayerBrain::new(1.0)));
+        let mut layer = CellLayer2::new(Area::new(1.0), Density::new(1.0), Color::Green,
+                                        Box::new(PhotoCellLayerBrain::new(1.0)));
         layer.damage(0.25);
 
         let mut env = LocalEnvironment::new();
@@ -780,7 +711,8 @@ mod tests {
 
     #[test]
     fn photo_layer_undergoes_entropic_damage() {
-        let mut layer = CellLayer2::new(Area::new(2.0), Density::new(1.0), Color::Green, Box::new(PhotoCellLayerBrain::new(1.0)))
+        let mut layer = CellLayer2::new(Area::new(2.0), Density::new(1.0), Color::Green,
+                                        Box::new(PhotoCellLayerBrain::new(1.0)))
             .with_health_parameters(LayerHealthParameters {
                 healing_energy_delta: BioEnergyDelta::ZERO,
                 entropic_damage_health_delta: -0.1,

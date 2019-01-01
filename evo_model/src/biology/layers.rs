@@ -307,14 +307,14 @@ impl CellLayerBrain for ThrusterCellLayerBrain {
 }
 
 #[derive(Debug)]
-pub struct ThrusterLayer {
+pub struct CellLayer2 {
     annulus: Annulus,
     brain: Box<CellLayerBrain>,
 }
 
-impl ThrusterLayer {
+impl CellLayer2 {
     pub fn new(area: Area, density: Density, color: Color, brain: Box<CellLayerBrain>) -> Self {
-        ThrusterLayer {
+        CellLayer2 {
             annulus: Annulus::new(area, density, color),
             brain,
         }
@@ -331,7 +331,7 @@ impl ThrusterLayer {
     }
 }
 
-impl OnionLayer for ThrusterLayer {
+impl OnionLayer for CellLayer2 {
     fn outer_radius(&self) -> Length {
         self.annulus.outer_radius
     }
@@ -345,7 +345,7 @@ impl OnionLayer for ThrusterLayer {
     }
 }
 
-impl CellLayer for ThrusterLayer {
+impl CellLayer for CellLayer2 {
     fn area(&self) -> Area {
         self.annulus.area
     }
@@ -682,7 +682,7 @@ mod tests {
 
     #[test]
     fn thruster_layer_adds_force() {
-        let mut layer = ThrusterLayer::new(Area::new(1.0), Density::new(1.0), Color::Green, Box::new(ThrusterCellLayerBrain::new()));
+        let mut layer = CellLayer2::new(Area::new(1.0), Density::new(1.0), Color::Green, Box::new(ThrusterCellLayerBrain::new()));
         layer.execute_control_request(
             BudgetedControlRequest::new(
                 CostedControlRequest::new(
@@ -700,7 +700,7 @@ mod tests {
 
     #[test]
     fn thruster_layer_force_is_reduced_by_reduced_health() {
-        let mut layer = ThrusterLayer::new(Area::new(1.0), Density::new(1.0), Color::Green, Box::new(ThrusterCellLayerBrain::new()));
+        let mut layer = CellLayer2::new(Area::new(1.0), Density::new(1.0), Color::Green, Box::new(ThrusterCellLayerBrain::new()));
         layer.damage(0.5);
         layer.execute_control_request(
             BudgetedControlRequest::new(
@@ -719,7 +719,7 @@ mod tests {
 
     #[test]
     fn thruster_layer_undergoes_entropic_damage() {
-        let mut layer = ThrusterLayer::new(Area::new(2.0), Density::new(1.0), Color::Green, Box::new(ThrusterCellLayerBrain::new()))
+        let mut layer = CellLayer2::new(Area::new(2.0), Density::new(1.0), Color::Green, Box::new(ThrusterCellLayerBrain::new()))
             .with_health_parameters(LayerHealthParameters {
                 healing_energy_delta: BioEnergyDelta::ZERO,
                 entropic_damage_health_delta: -0.1,

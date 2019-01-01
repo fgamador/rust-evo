@@ -268,7 +268,7 @@ mod tests {
         let mut world = World::new(Position::new(-10.0, -10.0), Position::new(10.0, 10.0))
             .with_cell(Cell::new(Position::new(0.0, 0.0), Velocity::new(0.0, 0.0),
                                  vec![
-                                     Box::new(ThrusterLayer::new(Area::new(1.0), Density::new(1.0), Color::Green, Box::new(ThrusterCellLayerBrain::new()))),
+                                     Box::new(CellLayer2::new(Area::new(1.0), Density::new(1.0), Color::Green, Box::new(ThrusterCellLayerBrain::new()))),
                                  ])
                 .with_control(Box::new(SimpleThrusterControl::new(0, Force::new(1.0, -1.0)))));
 

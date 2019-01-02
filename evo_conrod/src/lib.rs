@@ -146,8 +146,15 @@ pub mod feature {
                     evo_view_model::Color::Green => conrod::color::rgb(0.5, 1.0, 0.5),
                     evo_view_model::Color::White => conrod::color::rgb(1.0, 1.0, 1.0)
                 };
+
+            ConrodView::adjust_rgb_color_per_health(rgb_color, health)
+        }
+
+        fn adjust_rgb_color_per_health(rgb_color: Color, health: f32) -> Color {
             let Hsla(h, s, l, a) = rgb_color.to_hsl();
-            Color::Hsla(h, health * s, l, a)
+            let adjusted_s = health * s;
+            let adjusted_l = (0.5 + 0.5 * health) * l;
+            Color::Hsla(h, adjusted_s, adjusted_l, a)
         }
 
         fn render_and_display_ui(&mut self) {

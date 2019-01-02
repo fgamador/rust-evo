@@ -1,3 +1,4 @@
+use biology::cell::Cell;
 use environment::environment::*;
 use physics::bond::*;
 use physics::newtonian::*;
@@ -8,10 +9,8 @@ use physics::sortable_graph::*;
 use physics::spring::*;
 use physics::util::*;
 
-pub trait Influence<C>
-    where C: Circle + GraphNode + HasLocalEnvironment + NewtonianBody
-{
-    fn apply(&self, cell_graph: &mut SortableGraph<C, Bond, AngleGusset>);
+pub trait Influence {
+    fn apply(&self, cell_graph: &mut SortableGraph<Cell, Bond, AngleGusset>);
 }
 
 pub struct WallCollisions {
@@ -28,10 +27,8 @@ impl WallCollisions {
     }
 }
 
-impl<C> Influence<C> for WallCollisions
-    where C: Circle + GraphNode + HasLocalEnvironment + NewtonianBody
-{
-    fn apply(&self, cell_graph: &mut SortableGraph<C, Bond, AngleGusset>) {
+impl Influence for WallCollisions {
+    fn apply(&self, cell_graph: &mut SortableGraph<Cell, Bond, AngleGusset>) {
         let overlaps = self.walls.find_overlaps(cell_graph);
         for (handle, overlap) in overlaps {
             let cell = cell_graph.node_mut(handle);
@@ -54,10 +51,8 @@ impl PairCollisions {
     }
 }
 
-impl<C> Influence<C> for PairCollisions
-    where C: Circle + GraphNode + HasLocalEnvironment + NewtonianBody
-{
-    fn apply(&self, cell_graph: &mut SortableGraph<C, Bond, AngleGusset>) {
+impl Influence for PairCollisions {
+    fn apply(&self, cell_graph: &mut SortableGraph<Cell, Bond, AngleGusset>) {
         let overlaps = find_pair_overlaps(cell_graph);
         for (handle, overlap) in overlaps {
             let cell = cell_graph.node_mut(handle);
@@ -76,10 +71,8 @@ impl BondForces {
     }
 }
 
-impl<C> Influence<C> for BondForces
-    where C: Circle + GraphNode + HasLocalEnvironment + NewtonianBody
-{
-    fn apply(&self, cell_graph: &mut SortableGraph<C, Bond, AngleGusset>) {
+impl Influence for BondForces {
+    fn apply(&self, cell_graph: &mut SortableGraph<Cell, Bond, AngleGusset>) {
         let strains = calc_bond_strains(cell_graph);
         for (handle, strain) in strains {
             let cell = cell_graph.node_mut(handle);
@@ -97,10 +90,8 @@ impl BondAngleForces {
     }
 }
 
-impl<C> Influence<C> for BondAngleForces
-    where C: Circle + GraphNode + HasLocalEnvironment + NewtonianBody
-{
-    fn apply(&self, cell_graph: &mut SortableGraph<C, Bond, AngleGusset>) {
+impl Influence for BondAngleForces {
+    fn apply(&self, cell_graph: &mut SortableGraph<Cell, Bond, AngleGusset>) {
         let forces = calc_bond_angle_forces(cell_graph);
         for (handle, force) in forces {
             let cell = cell_graph.node_mut(handle);
@@ -109,26 +100,20 @@ impl<C> Influence<C> for BondAngleForces
     }
 }
 
-pub struct SimpleForceInfluence<C>
-    where C: Circle + HasLocalEnvironment + NewtonianBody
-{
-    influence_force: Box<SimpleInfluenceForce<C>>
+pub struct SimpleForceInfluence {
+    influence_force: Box<SimpleInfluenceForce>
 }
 
-impl<C> SimpleForceInfluence<C>
-    where C: Circle + HasLocalEnvironment + NewtonianBody
-{
-    pub fn new(influence_force: Box<SimpleInfluenceForce<C>>) -> Self {
+impl SimpleForceInfluence {
+    pub fn new(influence_force: Box<SimpleInfluenceForce>) -> Self {
         SimpleForceInfluence {
             influence_force
         }
     }
 }
 
-impl<C> Influence<C> for SimpleForceInfluence<C>
-    where C: Circle + GraphNode + HasLocalEnvironment + NewtonianBody
-{
-    fn apply(&self, cell_graph: &mut SortableGraph<C, Bond, AngleGusset>) {
+impl Influence for SimpleForceInfluence {
+    fn apply(&self, cell_graph: &mut SortableGraph<Cell, Bond, AngleGusset>) {
         for cell in cell_graph.unsorted_nodes_mut() {
             let force = self.influence_force.calc_force(cell);
             cell.forces_mut().add_force(force);
@@ -136,10 +121,8 @@ impl<C> Influence<C> for SimpleForceInfluence<C>
     }
 }
 
-pub trait SimpleInfluenceForce<C>
-    where C: Circle + HasLocalEnvironment + NewtonianBody
-{
-    fn calc_force(&self, cell: &C) -> Force;
+pub trait SimpleInfluenceForce {
+    fn calc_force(&self, cell: &Cell) -> Force;
 }
 
 #[derive(Debug)]
@@ -155,10 +138,8 @@ impl ConstantForce {
     }
 }
 
-impl<C> SimpleInfluenceForce<C> for ConstantForce
-    where C: Circle + HasLocalEnvironment + NewtonianBody
-{
-    fn calc_force(&self, _ball: &C) -> Force {
+impl SimpleInfluenceForce for ConstantForce {
+    fn calc_force(&self, _ball: &Cell) -> Force {
         self.force
     }
 }
@@ -176,10 +157,8 @@ impl WeightForce {
     }
 }
 
-impl<C> SimpleInfluenceForce<C> for WeightForce
-    where C: Circle + HasLocalEnvironment + NewtonianBody
-{
-    fn calc_force(&self, cell: &C) -> Force {
+impl SimpleInfluenceForce for WeightForce {
+    fn calc_force(&self, cell: &Cell) -> Force {
         cell.mass() * self.gravity
     }
 }
@@ -199,10 +178,8 @@ impl BuoyancyForce {
     }
 }
 
-impl<C> SimpleInfluenceForce<C> for BuoyancyForce
-    where C: Circle + HasLocalEnvironment + NewtonianBody
-{
-    fn calc_force(&self, cell: &C) -> Force
+impl SimpleInfluenceForce for BuoyancyForce {
+    fn calc_force(&self, cell: &Cell) -> Force
     {
         let displaced_fluid_mass = cell.area() * self.fluid_density;
         -(displaced_fluid_mass * self.gravity)
@@ -227,12 +204,8 @@ impl DragForce {
     }
 }
 
-impl<C> SimpleInfluenceForce<C> for DragForce
-    where C: Circle + HasLocalEnvironment + NewtonianBody
-{
-    fn calc_force(&self, cell: &C) -> Force
-        where C: Circle + NewtonianBody
-    {
+impl SimpleInfluenceForce for DragForce {
+    fn calc_force(&self, cell: &Cell) -> Force {
         Force::new(self.calc_drag(cell.radius().value(), cell.velocity().x()),
                    self.calc_drag(cell.radius().value(), cell.velocity().y()))
     }
@@ -251,10 +224,8 @@ impl UniversalOverlap {
     }
 }
 
-impl<C> Influence<C> for UniversalOverlap
-    where C: Circle + GraphNode + HasLocalEnvironment + NewtonianBody
-{
-    fn apply(&self, cell_graph: &mut SortableGraph<C, Bond, AngleGusset>) {
+impl Influence for UniversalOverlap {
+    fn apply(&self, cell_graph: &mut SortableGraph<Cell, Bond, AngleGusset>) {
         for cell in cell_graph.unsorted_nodes_mut() {
             cell.environment_mut().add_overlap(self.overlap);
         }
@@ -281,10 +252,8 @@ impl Sunlight {
     }
 }
 
-impl<C> Influence<C> for Sunlight
-    where C: Circle + GraphNode + HasLocalEnvironment + NewtonianBody
-{
-    fn apply(&self, cell_graph: &mut SortableGraph<C, Bond, AngleGusset>) {
+impl Influence for Sunlight {
+    fn apply(&self, cell_graph: &mut SortableGraph<Cell, Bond, AngleGusset>) {
         for cell in cell_graph.unsorted_nodes_mut() {
             let y = cell.center().y();
             cell.environment_mut().add_light_intensity(self.calc_light_intensity(y));
@@ -295,7 +264,6 @@ impl<C> Influence<C> for Sunlight
 #[cfg(test)]
 mod tests {
     use super::*;
-    use biology::cell::Cell;
     use biology::layers::*;
     use evo_view_model::Color;
     use std::f64::consts::PI;

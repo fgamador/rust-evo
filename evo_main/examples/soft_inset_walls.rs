@@ -12,7 +12,7 @@ fn main() {
     init_and_run(create_world());
 }
 
-fn create_world() -> World<Cell> {
+fn create_world() -> World {
     World::new(Position::new(-200.0, -200.0), Position::new(200.0, 200.0))
         .with_influences(vec![
             Box::new(WallCollisions::new(

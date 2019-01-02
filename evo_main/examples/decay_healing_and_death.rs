@@ -17,7 +17,7 @@ fn main() {
     init_and_run(create_world());
 }
 
-fn create_world() -> World<Cell> {
+fn create_world() -> World {
     World::new(Position::new(0.0, -400.0), Position::new(400.0, 0.0))
         .with_perimeter_walls()
         .with_sunlight(0.0, 10.0)

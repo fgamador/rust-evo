@@ -11,7 +11,7 @@ fn main() {
     init_and_run(create_world());
 }
 
-fn create_world() -> World<Cell> {
+fn create_world() -> World {
     let mut world = World::new(Position::new(-750.0, -350.0), Position::new(750.0, 350.0))
         .with_perimeter_walls()
         .with_influence(Box::new(PairCollisions::new()));

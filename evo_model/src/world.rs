@@ -1,26 +1,21 @@
-use biology::layers::*;
+use biology::cell::Cell;
 use environment::environment::*;
 use environment::influences::*;
 use physics::bond::*;
 use physics::newtonian::NewtonianBody;
 use physics::quantities::*;
-use physics::shapes::*;
 use physics::sortable_graph::*;
 use physics::spring::*;
 use TickCallbacks;
 
-pub struct World<C>
-    where C: Circle + GraphNode + HasLocalEnvironment + NewtonianBody + Onion + TickCallbacks
-{
+pub struct World {
     min_corner: Position,
     max_corner: Position,
-    cell_graph: SortableGraph<C, Bond, AngleGusset>,
-    influences: Vec<Box<Influence<C>>>,
+    cell_graph: SortableGraph<Cell, Bond, AngleGusset>,
+    influences: Vec<Box<Influence<Cell>>>,
 }
 
-impl<C> World<C>
-    where C: Circle + GraphNode + HasLocalEnvironment + NewtonianBody + Onion + TickCallbacks
-{
+impl World {
     pub fn new(min_corner: Position, max_corner: Position) -> Self {
         World {
             min_corner,
@@ -55,12 +50,12 @@ impl<C> World<C>
                           min_intensity, max_intensity)))
     }
 
-    pub fn with_influence(mut self, influence: Box<Influence<C>>) -> Self {
+    pub fn with_influence(mut self, influence: Box<Influence<Cell>>) -> Self {
         self.influences.push(influence);
         self
     }
 
-    pub fn with_influences(mut self, mut influences: Vec<Box<Influence<C>>>) -> Self {
+    pub fn with_influences(mut self, mut influences: Vec<Box<Influence<Cell>>>) -> Self {
         self.influences.append(&mut influences);
         self
     }
@@ -73,23 +68,23 @@ impl<C> World<C>
         self.max_corner
     }
 
-    pub fn with_cell(mut self, cell: C) -> Self {
+    pub fn with_cell(mut self, cell: Cell) -> Self {
         self.add_cell(cell);
         self
     }
 
-    pub fn with_cells(mut self, cells: Vec<C>) -> Self {
+    pub fn with_cells(mut self, cells: Vec<Cell>) -> Self {
         for cell in cells {
             self.add_cell(cell);
         }
         self
     }
 
-    pub fn add_cell(&mut self, cell: C) {
+    pub fn add_cell(&mut self, cell: Cell) {
         self.cell_graph.add_node(cell);
     }
 
-    pub fn cells(&self) -> &[C] {
+    pub fn cells(&self) -> &[Cell] {
         &self.cell_graph.unsorted_nodes()
     }
 
@@ -172,10 +167,11 @@ impl<C> World<C>
 #[cfg(test)]
 mod tests {
     use super::*;
-    use biology::cell::Cell;
     use biology::control::*;
+    use biology::layers::*;
     use evo_view_model::Color;
     use physics::overlap::Overlap;
+    use physics::shapes::*;
     use std::f64;
 
     #[test]

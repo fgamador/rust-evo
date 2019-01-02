@@ -8,17 +8,12 @@ pub mod physics;
 pub mod world;
 
 use biology::layers::*;
-use environment::environment::HasLocalEnvironment;
 use evo_view_model::ViewModel;
-use physics::newtonian::NewtonianBody;
 use physics::quantities::*;
 use physics::shapes::*;
-use physics::sortable_graph::GraphNode;
 use world::World;
 
-pub fn tick<C>(world: &mut World<C>, view_model: &mut ViewModel)
-    where C: Circle + GraphNode + HasLocalEnvironment + NewtonianBody + Onion + TickCallbacks
-{
+pub fn tick(world: &mut World, view_model: &mut ViewModel) {
     world.tick();
 
     view_model.bullseyes.clear();

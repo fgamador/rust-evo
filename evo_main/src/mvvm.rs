@@ -1,12 +1,6 @@
 use evo_conrod::feature::ConrodView;
 use evo_model;
-use evo_model::TickCallbacks;
-use evo_model::biology::layers::*;
-use evo_model::environment::environment::*;
-use evo_model::physics::newtonian::NewtonianBody;
 use evo_model::physics::quantities::*;
-use evo_model::physics::shapes::*;
-use evo_model::physics::sortable_graph::*;
 use evo_model::world::World;
 use evo_view_model;
 use evo_view_model::ViewModel;
@@ -14,19 +8,14 @@ use evo_view_model::CoordinateTransform;
 use std::thread;
 use std::time::{Duration, Instant};
 
-pub struct MVVM<C>(pub Model<C>, pub View, pub ViewModel)
-    where C: Circle + GraphNode + HasLocalEnvironment + NewtonianBody + Onion + TickCallbacks;
+pub struct MVVM(pub Model, pub View, pub ViewModel);
 
-pub struct Model<C>
-    where C: Circle + GraphNode + HasLocalEnvironment + NewtonianBody + Onion + TickCallbacks
-{
-    world: World<C>,
+pub struct Model {
+    world: World,
 }
 
-impl<C> Model<C>
-    where C: Circle + GraphNode + HasLocalEnvironment + NewtonianBody + Onion + TickCallbacks
-{
-    pub fn new(world: World<C>) -> Self {
+impl Model {
+    pub fn new(world: World) -> Self {
         Model {
             world
         }

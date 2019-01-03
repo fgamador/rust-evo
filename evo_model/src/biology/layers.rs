@@ -237,11 +237,11 @@ impl CellLayerBody {
 }
 
 trait CellLayerBrain: Debug {
-    fn after_influences(&mut self, state: &CellLayerBody, env: &LocalEnvironment, subtick_duration: Duration) -> (BioEnergy, Force);
+    fn after_influences(&mut self, body: &CellLayerBody, env: &LocalEnvironment, subtick_duration: Duration) -> (BioEnergy, Force);
 
-    fn cost_control_request(&self, state: &CellLayerBody, request: ControlRequest) -> CostedControlRequest;
+    fn cost_control_request(&self, body: &CellLayerBody, request: ControlRequest) -> CostedControlRequest;
 
-    fn execute_control_request(&mut self, state: &mut CellLayerBody, request: BudgetedControlRequest);
+    fn execute_control_request(&mut self, body: &mut CellLayerBody, request: BudgetedControlRequest);
 }
 
 #[derive(Debug)]
@@ -258,23 +258,23 @@ impl LivingCellLayerBrain {
 }
 
 impl CellLayerBrain for LivingCellLayerBrain {
-    fn after_influences(&mut self, state: &CellLayerBody, env: &LocalEnvironment, subtick_duration: Duration) -> (BioEnergy, Force) {
-        self.specialty.after_influences(env, subtick_duration, state.health, state.area)
+    fn after_influences(&mut self, body: &CellLayerBody, env: &LocalEnvironment, subtick_duration: Duration) -> (BioEnergy, Force) {
+        self.specialty.after_influences(env, subtick_duration, body.health, body.area)
     }
 
-    fn cost_control_request(&self, state: &CellLayerBody, request: ControlRequest) -> CostedControlRequest {
+    fn cost_control_request(&self, body: &CellLayerBody, request: ControlRequest) -> CostedControlRequest {
         match request.channel_index {
-            0 => state.cost_restore_health(request),
-            1 => state.cost_resize(request),
+            0 => body.cost_restore_health(request),
+            1 => body.cost_resize(request),
             _ => self.specialty.cost_control_request(request),
         }
     }
 
-    fn execute_control_request(&mut self, state: &mut CellLayerBody, request: BudgetedControlRequest) {
+    fn execute_control_request(&mut self, body: &mut CellLayerBody, request: BudgetedControlRequest) {
         match request.channel_index {
-            0 => state.restore_health(request.value, request.budgeted_fraction),
-            1 => state.resize(request.value, request.budgeted_fraction),
-            _ => self.specialty.execute_control_request(request, state.health)
+            0 => body.restore_health(request.value, request.budgeted_fraction),
+            1 => body.resize(request.value, request.budgeted_fraction),
+            _ => self.specialty.execute_control_request(request, body.health)
         }
     }
 }
@@ -289,15 +289,15 @@ impl DeadCellLayerBrain {
 }
 
 impl CellLayerBrain for DeadCellLayerBrain {
-    fn after_influences(&mut self, _state: &CellLayerBody, _env: &LocalEnvironment, _subtick_duration: Duration) -> (BioEnergy, Force) {
+    fn after_influences(&mut self, _body: &CellLayerBody, _env: &LocalEnvironment, _subtick_duration: Duration) -> (BioEnergy, Force) {
         (BioEnergy::ZERO, Force::ZERO)
     }
 
-    fn cost_control_request(&self, _state: &CellLayerBody, request: ControlRequest) -> CostedControlRequest {
+    fn cost_control_request(&self, _body: &CellLayerBody, request: ControlRequest) -> CostedControlRequest {
         CostedControlRequest::new(request, BioEnergyDelta::ZERO)
     }
 
-    fn execute_control_request(&mut self, _state: &mut CellLayerBody, _request: BudgetedControlRequest) {}
+    fn execute_control_request(&mut self, _body: &mut CellLayerBody, _request: BudgetedControlRequest) {}
 }
 
 pub trait CellLayerSpecialty: Debug {

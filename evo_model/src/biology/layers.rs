@@ -85,11 +85,16 @@ impl LayerResizeParameters {
 #[derive(Debug)]
 pub struct CellLayer {
     brain: Box<CellLayerBrain>,
+    state: CellLayerState,
+    color: Color,
+}
+
+#[derive(Debug)]
+struct CellLayerState {
     area: Area,
     density: Density,
     mass: Mass,
     outer_radius: Length,
-    color: Color,
     health: f64,
     health_parameters: LayerHealthParameters,
     resize_parameters: LayerResizeParameters,
@@ -99,53 +104,55 @@ impl CellLayer {
     pub fn new(area: Area, density: Density, color: Color, specialty: Box<CellLayerSpecialty>) -> Self {
         CellLayer {
             brain: Box::new(LivingCellLayerBrain::new(specialty)),
-            area,
-            density,
-            mass: area * density,
-            outer_radius: (area / PI).sqrt(),
+            state: CellLayerState {
+                area,
+                density,
+                mass: area * density,
+                outer_radius: (area / PI).sqrt(),
+                health: 1.0,
+                // TODO pull these out and share them
+                health_parameters: LayerHealthParameters::DEFAULT,
+                resize_parameters: LayerResizeParameters::DEFAULT,
+            },
             color,
-            health: 1.0,
-            // TODO pull these out and share them
-            health_parameters: LayerHealthParameters::DEFAULT,
-            resize_parameters: LayerResizeParameters::DEFAULT,
         }
     }
 
     pub fn with_health_parameters(mut self, health_parameters: LayerHealthParameters) -> Self {
-        self.health_parameters = health_parameters;
+        self.state.health_parameters = health_parameters;
         self
     }
 
     pub fn with_resize_parameters(mut self, resize_parameters: LayerResizeParameters) -> Self {
-        self.resize_parameters = resize_parameters;
+        self.state.resize_parameters = resize_parameters;
         self
     }
 
     pub fn area(&self) -> Area {
-        self.area
+        self.state.area
     }
 
     pub fn mass(&self) -> Mass {
-        self.mass
+        self.state.mass
     }
 
     pub fn damage(&mut self, health_loss: f64) {
         assert!(health_loss >= 0.0);
         // TODO move this into brain?
-        if self.health > 0.0 {
-            self.health = (self.health - health_loss).max(0.0);
-            if self.health == 0.0 {
+        if self.state.health > 0.0 {
+            self.state.health = (self.state.health - health_loss).max(0.0);
+            if self.state.health == 0.0 {
                 self.brain = Box::new(DeadCellLayerBrain::new());
             }
         }
     }
 
     pub fn update_outer_radius(&mut self, inner_radius: Length) {
-        self.outer_radius = (inner_radius.sqr() + self.area / PI).sqrt();
+        self.state.outer_radius = (inner_radius.sqr() + self.state.area / PI).sqrt();
     }
 
     pub fn after_influences(&mut self, env: &LocalEnvironment, subtick_duration: Duration) -> (BioEnergy, Force) {
-        if self.health == 0.0 {
+        if self.state.health == 0.0 {
             return (BioEnergy::ZERO, Force::ZERO);
         }
 
@@ -156,12 +163,12 @@ impl CellLayer {
     }
 
     fn entropic_damage(&mut self, subtick_duration: Duration) {
-        let subtick_decay = self.health_parameters.entropic_damage_health_delta * subtick_duration.value();
+        let subtick_decay = self.state.health_parameters.entropic_damage_health_delta * subtick_duration.value();
         self.damage(-subtick_decay);
     }
 
     pub fn cost_control_request(&self, request: ControlRequest) -> CostedControlRequest {
-        if self.health == 0.0 {
+        if self.state.health == 0.0 {
             return CostedControlRequest::new(request, BioEnergyDelta::new(0.0));
         }
 
@@ -174,21 +181,21 @@ impl CellLayer {
 
     fn cost_restore_health(&self, request: ControlRequest) -> CostedControlRequest {
         CostedControlRequest::new(request,
-                                  self.health_parameters.healing_energy_delta * self.area.value() * request.value)
+                                  self.state.health_parameters.healing_energy_delta * self.state.area.value() * request.value)
     }
 
     fn cost_resize(&self, request: ControlRequest) -> CostedControlRequest {
         let delta_area = self.bound_resize_delta_area(request.value);
         let energy_delta = if request.value >= 0.0 {
-            self.resize_parameters.growth_energy_delta
+            self.state.resize_parameters.growth_energy_delta
         } else {
-            -self.resize_parameters.shrinkage_energy_delta
+            -self.state.resize_parameters.shrinkage_energy_delta
         };
         CostedControlRequest::new(request, delta_area * energy_delta)
     }
 
     pub fn execute_control_request(&mut self, request: BudgetedControlRequest) {
-        if self.health == 0.0 {
+        if self.state.health == 0.0 {
             return;
         }
 
@@ -204,22 +211,22 @@ impl CellLayer {
 
     fn restore_health(&mut self, requested_delta_health: f64, budgeted_fraction: f64) {
         assert!(requested_delta_health >= 0.0);
-        self.health = (self.health + budgeted_fraction * requested_delta_health).min(1.0);
+        self.state.health = (self.state.health + budgeted_fraction * requested_delta_health).min(1.0);
     }
 
     fn resize(&mut self, requested_delta_area: f64, budgeted_fraction: f64) {
-        let delta_area = self.health * budgeted_fraction * self.bound_resize_delta_area(requested_delta_area);
-        self.area = Area::new((self.area.value() + delta_area).max(0.0));
-        self.mass = self.area * self.density;
+        let delta_area = self.state.health * budgeted_fraction * self.bound_resize_delta_area(requested_delta_area);
+        self.state.area = Area::new((self.state.area.value() + delta_area).max(0.0));
+        self.state.mass = self.state.area * self.state.density;
     }
 
     fn bound_resize_delta_area(&self, requested_delta_area: f64) -> f64 {
         if requested_delta_area >= 0.0 {
             // TODO a layer that starts with area 0.0 cannot grow
-            let max_delta_area = self.resize_parameters.max_growth_rate * self.area.value();
+            let max_delta_area = self.state.resize_parameters.max_growth_rate * self.state.area.value();
             requested_delta_area.min(max_delta_area)
         } else {
-            let min_delta_area = -self.resize_parameters.max_shrinkage_rate * self.area.value();
+            let min_delta_area = -self.state.resize_parameters.max_shrinkage_rate * self.state.area.value();
             requested_delta_area.max(min_delta_area)
         }
     }
@@ -227,7 +234,7 @@ impl CellLayer {
 
 impl OnionLayer for CellLayer {
     fn outer_radius(&self) -> Length {
-        self.outer_radius
+        self.state.outer_radius
     }
 
     fn color(&self) -> Color {
@@ -235,7 +242,7 @@ impl OnionLayer for CellLayer {
     }
 
     fn health(&self) -> f64 {
-        self.health
+        self.state.health
     }
 }
 

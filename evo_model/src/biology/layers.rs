@@ -174,6 +174,7 @@ struct CellLayerBody {
     outer_radius: Length,
     health: f64,
     color: Color,
+    // TODO move to CellLayerParameters struct?
     health_parameters: LayerHealthParameters,
     resize_parameters: LayerResizeParameters,
 }

@@ -85,12 +85,12 @@ impl LayerResizeParameters {
 #[derive(Debug)]
 pub struct CellLayer {
     brain: Box<CellLayerBrain>,
-    state: CellLayerState,
+    body: CellLayerBody,
     color: Color,
 }
 
 #[derive(Debug)]
-struct CellLayerState {
+struct CellLayerBody {
     area: Area,
     density: Density,
     mass: Mass,
@@ -104,7 +104,7 @@ impl CellLayer {
     pub fn new(area: Area, density: Density, color: Color, specialty: Box<CellLayerSpecialty>) -> Self {
         CellLayer {
             brain: Box::new(LivingCellLayerBrain::new(specialty)),
-            state: CellLayerState {
+            body: CellLayerBody {
                 area,
                 density,
                 mass: area * density,
@@ -119,64 +119,64 @@ impl CellLayer {
     }
 
     pub fn with_health_parameters(mut self, health_parameters: LayerHealthParameters) -> Self {
-        self.state.health_parameters = health_parameters;
+        self.body.health_parameters = health_parameters;
         self
     }
 
     pub fn with_resize_parameters(mut self, resize_parameters: LayerResizeParameters) -> Self {
-        self.state.resize_parameters = resize_parameters;
+        self.body.resize_parameters = resize_parameters;
         self
     }
 
     pub fn area(&self) -> Area {
-        self.state.area
+        self.body.area
     }
 
     pub fn mass(&self) -> Mass {
-        self.state.mass
+        self.body.mass
     }
 
     pub fn damage(&mut self, health_loss: f64) {
         assert!(health_loss >= 0.0);
         // TODO move this into brain?
-        if self.state.health > 0.0 {
-            self.state.health = (self.state.health - health_loss).max(0.0);
-            if self.state.health == 0.0 {
+        if self.body.health > 0.0 {
+            self.body.health = (self.body.health - health_loss).max(0.0);
+            if self.body.health == 0.0 {
                 self.brain = Box::new(DeadCellLayerBrain::new());
             }
         }
     }
 
     pub fn update_outer_radius(&mut self, inner_radius: Length) {
-        self.state.outer_radius = (inner_radius.sqr() + self.state.area / PI).sqrt();
+        self.body.outer_radius = (inner_radius.sqr() + self.body.area / PI).sqrt();
     }
 
     pub fn after_influences(&mut self, env: &LocalEnvironment, subtick_duration: Duration) -> (BioEnergy, Force) {
-        if self.state.health == 0.0 {
+        if self.body.health == 0.0 {
             return (BioEnergy::ZERO, Force::ZERO);
         }
 
         self.entropic_damage(subtick_duration);
-        self.brain.after_influences(&self.state, env, subtick_duration)
+        self.brain.after_influences(&self.body, env, subtick_duration)
     }
 
     fn entropic_damage(&mut self, subtick_duration: Duration) {
-        let subtick_decay = self.state.health_parameters.entropic_damage_health_delta * subtick_duration.value();
+        let subtick_decay = self.body.health_parameters.entropic_damage_health_delta * subtick_duration.value();
         self.damage(-subtick_decay);
     }
 
     pub fn cost_control_request(&self, request: ControlRequest) -> CostedControlRequest {
-        self.brain.cost_control_request(&self.state, request)
+        self.brain.cost_control_request(&self.body, request)
     }
 
     pub fn execute_control_request(&mut self, request: BudgetedControlRequest) {
-        self.brain.execute_control_request(&mut self.state, request);
+        self.brain.execute_control_request(&mut self.body, request);
     }
 }
 
 impl OnionLayer for CellLayer {
     fn outer_radius(&self) -> Length {
-        self.state.outer_radius
+        self.body.outer_radius
     }
 
     fn color(&self) -> Color {
@@ -184,16 +184,16 @@ impl OnionLayer for CellLayer {
     }
 
     fn health(&self) -> f64 {
-        self.state.health
+        self.body.health
     }
 }
 
 trait CellLayerBrain: Debug {
-    fn after_influences(&mut self, state: &CellLayerState, env: &LocalEnvironment, subtick_duration: Duration) -> (BioEnergy, Force);
+    fn after_influences(&mut self, state: &CellLayerBody, env: &LocalEnvironment, subtick_duration: Duration) -> (BioEnergy, Force);
 
-    fn cost_control_request(&self, state: &CellLayerState, request: ControlRequest) -> CostedControlRequest;
+    fn cost_control_request(&self, state: &CellLayerBody, request: ControlRequest) -> CostedControlRequest;
 
-    fn execute_control_request(&mut self, state: &mut CellLayerState, request: BudgetedControlRequest);
+    fn execute_control_request(&mut self, state: &mut CellLayerBody, request: BudgetedControlRequest);
 }
 
 #[derive(Debug)]
@@ -208,12 +208,12 @@ impl LivingCellLayerBrain {
         }
     }
 
-    fn cost_restore_health(state: &CellLayerState, request: ControlRequest) -> CostedControlRequest {
+    fn cost_restore_health(state: &CellLayerBody, request: ControlRequest) -> CostedControlRequest {
         CostedControlRequest::new(request,
                                   state.health_parameters.healing_energy_delta * state.area.value() * request.value)
     }
 
-    fn cost_resize(state: &CellLayerState, request: ControlRequest) -> CostedControlRequest {
+    fn cost_resize(state: &CellLayerBody, request: ControlRequest) -> CostedControlRequest {
         let delta_area = Self::bound_resize_delta_area(state, request.value);
         let energy_delta = if request.value >= 0.0 {
             state.resize_parameters.growth_energy_delta
@@ -223,18 +223,18 @@ impl LivingCellLayerBrain {
         CostedControlRequest::new(request, delta_area * energy_delta)
     }
 
-    fn restore_health(state: &mut CellLayerState, requested_delta_health: f64, budgeted_fraction: f64) {
+    fn restore_health(state: &mut CellLayerBody, requested_delta_health: f64, budgeted_fraction: f64) {
         assert!(requested_delta_health >= 0.0);
         state.health = (state.health + budgeted_fraction * requested_delta_health).min(1.0);
     }
 
-    fn resize(state: &mut CellLayerState, requested_delta_area: f64, budgeted_fraction: f64) {
+    fn resize(state: &mut CellLayerBody, requested_delta_area: f64, budgeted_fraction: f64) {
         let delta_area = state.health * budgeted_fraction * Self::bound_resize_delta_area(state, requested_delta_area);
         state.area = Area::new((state.area.value() + delta_area).max(0.0));
         state.mass = state.area * state.density;
     }
 
-    fn bound_resize_delta_area(state: &CellLayerState, requested_delta_area: f64) -> f64 {
+    fn bound_resize_delta_area(state: &CellLayerBody, requested_delta_area: f64) -> f64 {
         if requested_delta_area >= 0.0 {
             // TODO a layer that starts with area 0.0 cannot grow
             let max_delta_area = state.resize_parameters.max_growth_rate * state.area.value();
@@ -247,11 +247,11 @@ impl LivingCellLayerBrain {
 }
 
 impl CellLayerBrain for LivingCellLayerBrain {
-    fn after_influences(&mut self, state: &CellLayerState, env: &LocalEnvironment, subtick_duration: Duration) -> (BioEnergy, Force) {
+    fn after_influences(&mut self, state: &CellLayerBody, env: &LocalEnvironment, subtick_duration: Duration) -> (BioEnergy, Force) {
         self.specialty.after_influences(env, subtick_duration, state.health, state.area)
     }
 
-    fn cost_control_request(&self, state: &CellLayerState, request: ControlRequest) -> CostedControlRequest {
+    fn cost_control_request(&self, state: &CellLayerBody, request: ControlRequest) -> CostedControlRequest {
         match request.channel_index {
             0 => Self::cost_restore_health(state, request),
             1 => Self::cost_resize(state, request),
@@ -259,7 +259,7 @@ impl CellLayerBrain for LivingCellLayerBrain {
         }
     }
 
-    fn execute_control_request(&mut self, state: &mut CellLayerState, request: BudgetedControlRequest) {
+    fn execute_control_request(&mut self, state: &mut CellLayerBody, request: BudgetedControlRequest) {
         match request.channel_index {
             0 => Self::restore_health(state, request.value, request.budgeted_fraction),
             1 => Self::resize(state, request.value, request.budgeted_fraction),
@@ -278,15 +278,15 @@ impl DeadCellLayerBrain {
 }
 
 impl CellLayerBrain for DeadCellLayerBrain {
-    fn after_influences(&mut self, _state: &CellLayerState, _env: &LocalEnvironment, _subtick_duration: Duration) -> (BioEnergy, Force) {
+    fn after_influences(&mut self, _state: &CellLayerBody, _env: &LocalEnvironment, _subtick_duration: Duration) -> (BioEnergy, Force) {
         (BioEnergy::ZERO, Force::ZERO)
     }
 
-    fn cost_control_request(&self, _state: &CellLayerState, request: ControlRequest) -> CostedControlRequest {
+    fn cost_control_request(&self, _state: &CellLayerBody, request: ControlRequest) -> CostedControlRequest {
         CostedControlRequest::new(request, BioEnergyDelta::ZERO)
     }
 
-    fn execute_control_request(&mut self, _state: &mut CellLayerState, _request: BudgetedControlRequest) {}
+    fn execute_control_request(&mut self, _state: &mut CellLayerBody, _request: BudgetedControlRequest) {}
 }
 
 pub trait CellLayerSpecialty: Debug {

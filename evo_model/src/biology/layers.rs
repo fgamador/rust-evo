@@ -259,7 +259,7 @@ impl LivingCellLayerBrain {
 
 impl CellLayerBrain for LivingCellLayerBrain {
     fn after_influences(&mut self, body: &CellLayerBody, env: &LocalEnvironment, subtick_duration: Duration) -> (BioEnergy, Force) {
-        self.specialty.after_influences(env, subtick_duration, body.health, body.area)
+        self.specialty.after_influences(body, env, subtick_duration)
     }
 
     fn cost_control_request(&self, body: &CellLayerBody, request: ControlRequest) -> CostedControlRequest {
@@ -301,7 +301,7 @@ impl CellLayerBrain for DeadCellLayerBrain {
 }
 
 pub trait CellLayerSpecialty: Debug {
-    fn after_influences(&mut self, _env: &LocalEnvironment, _subtick_duration: Duration, _health: f64, _area: Area) -> (BioEnergy, Force) {
+    fn after_influences(&mut self, _body: &CellLayerBody, _env: &LocalEnvironment, _subtick_duration: Duration) -> (BioEnergy, Force) {
         (BioEnergy::ZERO, Force::ZERO)
     }
 
@@ -339,7 +339,7 @@ impl ThrusterCellLayerSpecialty {
 }
 
 impl CellLayerSpecialty for ThrusterCellLayerSpecialty {
-    fn after_influences(&mut self, _env: &LocalEnvironment, _subtick_duration: Duration, _health: f64, _area: Area) -> (BioEnergy, Force) {
+    fn after_influences(&mut self, _body: &CellLayerBody, _env: &LocalEnvironment, _subtick_duration: Duration) -> (BioEnergy, Force) {
         (BioEnergy::ZERO, Force::new(self.force_x, self.force_y))
     }
 
@@ -373,8 +373,8 @@ impl PhotoCellLayerSpecialty {
 }
 
 impl CellLayerSpecialty for PhotoCellLayerSpecialty {
-    fn after_influences(&mut self, env: &LocalEnvironment, subtick_duration: Duration, health: f64, area: Area) -> (BioEnergy, Force) {
-        (BioEnergy::new(env.light_intensity() * self.efficiency * health * area.value() * subtick_duration.value()),
+    fn after_influences(&mut self, body: &CellLayerBody, env: &LocalEnvironment, subtick_duration: Duration) -> (BioEnergy, Force) {
+        (BioEnergy::new(env.light_intensity() * self.efficiency * body.health * body.area.value() * subtick_duration.value()),
          Force::ZERO)
     }
 }

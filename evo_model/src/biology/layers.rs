@@ -215,7 +215,7 @@ impl LivingCellLayerBrain {
                                   state.health_parameters.healing_energy_delta * state.area.value() * request.value)
     }
 
-    fn cost_resize(&self, state: &CellLayerState, request: ControlRequest) -> CostedControlRequest {
+    fn cost_resize(state: &CellLayerState, request: ControlRequest) -> CostedControlRequest {
         let delta_area = Self::bound_resize_delta_area(state, request.value);
         let energy_delta = if request.value >= 0.0 {
             state.resize_parameters.growth_energy_delta
@@ -225,12 +225,12 @@ impl LivingCellLayerBrain {
         CostedControlRequest::new(request, delta_area * energy_delta)
     }
 
-    fn restore_health(&mut self, state: &mut CellLayerState, requested_delta_health: f64, budgeted_fraction: f64) {
+    fn restore_health(state: &mut CellLayerState, requested_delta_health: f64, budgeted_fraction: f64) {
         assert!(requested_delta_health >= 0.0);
         state.health = (state.health + budgeted_fraction * requested_delta_health).min(1.0);
     }
 
-    fn resize(&mut self, state: &mut CellLayerState, requested_delta_area: f64, budgeted_fraction: f64) {
+    fn resize(state: &mut CellLayerState, requested_delta_area: f64, budgeted_fraction: f64) {
         let delta_area = state.health * budgeted_fraction * Self::bound_resize_delta_area(state, requested_delta_area);
         state.area = Area::new((state.area.value() + delta_area).max(0.0));
         state.mass = state.area * state.density;
@@ -256,15 +256,15 @@ impl CellLayerBrain for LivingCellLayerBrain {
     fn cost_control_request(&self, state: &CellLayerState, request: ControlRequest) -> CostedControlRequest {
         match request.channel_index {
             0 => Self::cost_restore_health(state, request),
-            1 => self.cost_resize(state, request),
+            1 => Self::cost_resize(state, request),
             _ => self.specialty.cost_control_request(request),
         }
     }
 
     fn execute_control_request(&mut self, state: &mut CellLayerState, request: BudgetedControlRequest) {
         match request.channel_index {
-            0 => self.restore_health(state, request.value, request.budgeted_fraction),
-            1 => self.resize(state, request.value, request.budgeted_fraction),
+            0 => Self::restore_health(state, request.value, request.budgeted_fraction),
+            1 => Self::resize(state, request.value, request.budgeted_fraction),
             _ => {
                 let health = state.health;
                 self.specialty.execute_control_request(request, health)

@@ -216,7 +216,7 @@ impl LivingCellLayerBrain {
     }
 
     fn cost_resize(&self, state: &CellLayerState, request: ControlRequest) -> CostedControlRequest {
-        let delta_area = self.bound_resize_delta_area(state, request.value);
+        let delta_area = Self::bound_resize_delta_area(state, request.value);
         let energy_delta = if request.value >= 0.0 {
             state.resize_parameters.growth_energy_delta
         } else {
@@ -231,12 +231,12 @@ impl LivingCellLayerBrain {
     }
 
     fn resize(&mut self, state: &mut CellLayerState, requested_delta_area: f64, budgeted_fraction: f64) {
-        let delta_area = state.health * budgeted_fraction * self.bound_resize_delta_area(state, requested_delta_area);
+        let delta_area = state.health * budgeted_fraction * Self::bound_resize_delta_area(state, requested_delta_area);
         state.area = Area::new((state.area.value() + delta_area).max(0.0));
         state.mass = state.area * state.density;
     }
 
-    fn bound_resize_delta_area(&self, state: &CellLayerState, requested_delta_area: f64) -> f64 {
+    fn bound_resize_delta_area(state: &CellLayerState, requested_delta_area: f64) -> f64 {
         if requested_delta_area >= 0.0 {
             // TODO a layer that starts with area 0.0 cannot grow
             let max_delta_area = state.resize_parameters.max_growth_rate * state.area.value();

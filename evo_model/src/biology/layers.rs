@@ -168,30 +168,7 @@ impl CellLayer {
     }
 
     pub fn cost_control_request(&self, request: ControlRequest) -> CostedControlRequest {
-        if self.state.health == 0.0 {
-            return CostedControlRequest::new(request, BioEnergyDelta::new(0.0));
-        }
-
-        match request.channel_index {
-            0 => self.cost_restore_health(request),
-            1 => self.cost_resize(request),
-            _ => self.brain.cost_control_request(&self.state, request),
-        }
-    }
-
-    fn cost_restore_health(&self, request: ControlRequest) -> CostedControlRequest {
-        CostedControlRequest::new(request,
-                                  self.state.health_parameters.healing_energy_delta * self.state.area.value() * request.value)
-    }
-
-    fn cost_resize(&self, request: ControlRequest) -> CostedControlRequest {
-        let delta_area = self.bound_resize_delta_area(request.value);
-        let energy_delta = if request.value >= 0.0 {
-            self.state.resize_parameters.growth_energy_delta
-        } else {
-            -self.state.resize_parameters.shrinkage_energy_delta
-        };
-        CostedControlRequest::new(request, delta_area * energy_delta)
+        self.brain.cost_control_request(&self.state, request)
     }
 
     pub fn execute_control_request(&mut self, request: BudgetedControlRequest) {

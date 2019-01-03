@@ -84,7 +84,7 @@ impl LayerResizeParameters {
 
 #[derive(Debug)]
 pub struct CellLayer {
-    specialty: Box<CellLayerSpecialty>,
+    brain: Box<CellLayerBrain>,
     area: Area,
     density: Density,
     mass: Mass,
@@ -98,7 +98,7 @@ pub struct CellLayer {
 impl CellLayer {
     pub fn new(area: Area, density: Density, color: Color, specialty: Box<CellLayerSpecialty>) -> Self {
         CellLayer {
-            specialty,
+            brain: Box::new(LivingCellLayerBrain::new(specialty)),
             area,
             density,
             mass: area * density,
@@ -146,7 +146,7 @@ impl CellLayer {
         self.entropic_damage(subtick_duration);
         let health = self.health();
         let area = self.area();
-        self.specialty.after_influences(env, subtick_duration, health, area)
+        self.brain.after_influences(env, subtick_duration, health, area)
     }
 
     fn entropic_damage(&mut self, subtick_duration: Duration) {
@@ -162,7 +162,7 @@ impl CellLayer {
         match request.channel_index {
             0 => self.cost_restore_health(request),
             1 => self.cost_resize(request),
-            _ => self.specialty.cost_control_request(request),
+            _ => self.brain.cost_control_request(request),
         }
     }
 
@@ -191,7 +191,7 @@ impl CellLayer {
             1 => self.resize(request.value, request.budgeted_fraction),
             _ => {
                 let health = self.health();
-                self.specialty.execute_control_request(request, health)
+                self.brain.execute_control_request(request, health)
             }
         }
     }
@@ -233,7 +233,7 @@ impl OnionLayer for CellLayer {
     }
 }
 
-trait CellLayerBrains: Debug {
+trait CellLayerBrain: Debug {
     fn after_influences(&mut self, _env: &LocalEnvironment, _subtick_duration: Duration, _health: f64, _area: Area) -> (BioEnergy, Force) {
         (BioEnergy::ZERO, Force::ZERO)
     }
@@ -246,19 +246,19 @@ trait CellLayerBrains: Debug {
 }
 
 #[derive(Debug)]
-struct LivingCellLayerBrains {
+struct LivingCellLayerBrain {
     specialty: Box<CellLayerSpecialty>,
 }
 
-impl LivingCellLayerBrains {
+impl LivingCellLayerBrain {
     pub fn new(specialty: Box<CellLayerSpecialty>) -> Self {
-        LivingCellLayerBrains {
+        LivingCellLayerBrain {
             specialty
         }
     }
 }
 
-impl CellLayerBrains for LivingCellLayerBrains {
+impl CellLayerBrain for LivingCellLayerBrain {
     fn after_influences(&mut self, env: &LocalEnvironment, subtick_duration: Duration, health: f64, area: Area) -> (BioEnergy, Force) {
         self.specialty.after_influences(env, subtick_duration, health, area)
     }
@@ -273,15 +273,15 @@ impl CellLayerBrains for LivingCellLayerBrains {
 }
 
 #[derive(Debug)]
-struct DeadCellLayerBrains {}
+struct DeadCellLayerBrain {}
 
-impl DeadCellLayerBrains {
+impl DeadCellLayerBrain {
     pub fn new() -> Self {
-        DeadCellLayerBrains {}
+        DeadCellLayerBrain {}
     }
 }
 
-impl CellLayerBrains for DeadCellLayerBrains {
+impl CellLayerBrain for DeadCellLayerBrain {
     fn after_influences(&mut self, _env: &LocalEnvironment, _subtick_duration: Duration, _health: f64, _area: Area) -> (BioEnergy, Force) {
         (BioEnergy::ZERO, Force::ZERO)
     }

@@ -263,10 +263,7 @@ impl CellLayerBrain for LivingCellLayerBrain {
         match request.channel_index {
             0 => Self::restore_health(state, request.value, request.budgeted_fraction),
             1 => Self::resize(state, request.value, request.budgeted_fraction),
-            _ => {
-                let health = state.health;
-                self.specialty.execute_control_request(request, health)
-            }
+            _ => self.specialty.execute_control_request(request, state.health)
         }
     }
 }

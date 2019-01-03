@@ -175,7 +175,7 @@ impl CellLayer {
         match request.channel_index {
             0 => self.cost_restore_health(request),
             1 => self.cost_resize(request),
-            _ => self.brain.cost_control_request(request),
+            _ => self.brain.cost_control_request(&self.state, request),
         }
     }
 
@@ -249,7 +249,7 @@ impl OnionLayer for CellLayer {
 trait CellLayerBrain: Debug {
     fn after_influences(&mut self, env: &LocalEnvironment, subtick_duration: Duration, health: f64, area: Area) -> (BioEnergy, Force);
 
-    fn cost_control_request(&self, request: ControlRequest) -> CostedControlRequest;
+    fn cost_control_request(&self, state: &CellLayerState, request: ControlRequest) -> CostedControlRequest;
 
     fn execute_control_request(&mut self, request: BudgetedControlRequest, health: f64);
 }
@@ -260,9 +260,35 @@ struct LivingCellLayerBrain {
 }
 
 impl LivingCellLayerBrain {
-    pub fn new(specialty: Box<CellLayerSpecialty>) -> Self {
+    fn new(specialty: Box<CellLayerSpecialty>) -> Self {
         LivingCellLayerBrain {
             specialty
+        }
+    }
+
+    fn cost_restore_health(&self, state: &CellLayerState, request: ControlRequest) -> CostedControlRequest {
+        CostedControlRequest::new(request,
+                                  state.health_parameters.healing_energy_delta * state.area.value() * request.value)
+    }
+
+    fn cost_resize(&self, state: &CellLayerState, request: ControlRequest) -> CostedControlRequest {
+        let delta_area = self.bound_resize_delta_area(state, request.value);
+        let energy_delta = if request.value >= 0.0 {
+            state.resize_parameters.growth_energy_delta
+        } else {
+            -state.resize_parameters.shrinkage_energy_delta
+        };
+        CostedControlRequest::new(request, delta_area * energy_delta)
+    }
+
+    fn bound_resize_delta_area(&self, state: &CellLayerState, requested_delta_area: f64) -> f64 {
+        if requested_delta_area >= 0.0 {
+            // TODO a layer that starts with area 0.0 cannot grow
+            let max_delta_area = state.resize_parameters.max_growth_rate * state.area.value();
+            requested_delta_area.min(max_delta_area)
+        } else {
+            let min_delta_area = -state.resize_parameters.max_shrinkage_rate * state.area.value();
+            requested_delta_area.max(min_delta_area)
         }
     }
 }
@@ -272,8 +298,16 @@ impl CellLayerBrain for LivingCellLayerBrain {
         self.specialty.after_influences(env, subtick_duration, health, area)
     }
 
-    fn cost_control_request(&self, request: ControlRequest) -> CostedControlRequest {
-        self.specialty.cost_control_request(request)
+//    fn cost_control_request(&self, request: ControlRequest) -> CostedControlRequest {
+//        self.specialty.cost_control_request(request)
+//    }
+
+    fn cost_control_request(&self, state: &CellLayerState, request: ControlRequest) -> CostedControlRequest {
+        match request.channel_index {
+            0 => self.cost_restore_health(state, request),
+            1 => self.cost_resize(state, request),
+            _ => self.specialty.cost_control_request(request),
+        }
     }
 
     fn execute_control_request(&mut self, request: BudgetedControlRequest, health: f64) {
@@ -295,7 +329,7 @@ impl CellLayerBrain for DeadCellLayerBrain {
         (BioEnergy::ZERO, Force::ZERO)
     }
 
-    fn cost_control_request(&self, request: ControlRequest) -> CostedControlRequest {
+    fn cost_control_request(&self, _state: &CellLayerState, request: ControlRequest) -> CostedControlRequest {
         CostedControlRequest::new(request, BioEnergyDelta::ZERO)
     }
 

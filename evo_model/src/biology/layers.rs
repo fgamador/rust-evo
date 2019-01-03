@@ -86,15 +86,13 @@ impl LayerResizeParameters {
 pub struct CellLayer {
     brain: Box<CellLayerBrain>,
     body: CellLayerBody,
-    color: Color,
 }
 
 impl CellLayer {
     pub fn new(area: Area, density: Density, color: Color, specialty: Box<CellLayerSpecialty>) -> Self {
         CellLayer {
             brain: Box::new(LivingCellLayerBrain::new(specialty)),
-            body: CellLayerBody::new(area, density),
-            color,
+            body: CellLayerBody::new(area, density, color),
         }
     }
 
@@ -160,7 +158,7 @@ impl OnionLayer for CellLayer {
     }
 
     fn color(&self) -> Color {
-        self.color
+        self.body.color
     }
 
     fn health(&self) -> f64 {
@@ -175,18 +173,20 @@ struct CellLayerBody {
     mass: Mass,
     outer_radius: Length,
     health: f64,
+    color: Color,
     health_parameters: LayerHealthParameters,
     resize_parameters: LayerResizeParameters,
 }
 
 impl CellLayerBody {
-    fn new(area: Area, density: Density) -> Self {
+    fn new(area: Area, density: Density, color: Color) -> Self {
         CellLayerBody {
             area,
             density,
             mass: area * density,
             outer_radius: (area / PI).sqrt(),
             health: 1.0,
+            color,
             // TODO pull these out and share them
             health_parameters: LayerHealthParameters::DEFAULT,
             resize_parameters: LayerResizeParameters::DEFAULT,

@@ -157,9 +157,7 @@ impl CellLayer {
         }
 
         self.entropic_damage(subtick_duration);
-        let health = self.health();
-        let area = self.area();
-        self.brain.after_influences(env, subtick_duration, health, area)
+        self.brain.after_influences(&self.state, env, subtick_duration)
     }
 
     fn entropic_damage(&mut self, subtick_duration: Duration) {
@@ -191,7 +189,7 @@ impl OnionLayer for CellLayer {
 }
 
 trait CellLayerBrain: Debug {
-    fn after_influences(&mut self, env: &LocalEnvironment, subtick_duration: Duration, health: f64, area: Area) -> (BioEnergy, Force);
+    fn after_influences(&mut self, state: &CellLayerState, env: &LocalEnvironment, subtick_duration: Duration) -> (BioEnergy, Force);
 
     fn cost_control_request(&self, state: &CellLayerState, request: ControlRequest) -> CostedControlRequest;
 
@@ -249,8 +247,8 @@ impl LivingCellLayerBrain {
 }
 
 impl CellLayerBrain for LivingCellLayerBrain {
-    fn after_influences(&mut self, env: &LocalEnvironment, subtick_duration: Duration, health: f64, area: Area) -> (BioEnergy, Force) {
-        self.specialty.after_influences(env, subtick_duration, health, area)
+    fn after_influences(&mut self, state: &CellLayerState, env: &LocalEnvironment, subtick_duration: Duration) -> (BioEnergy, Force) {
+        self.specialty.after_influences(env, subtick_duration, state.health, state.area)
     }
 
     fn cost_control_request(&self, state: &CellLayerState, request: ControlRequest) -> CostedControlRequest {
@@ -283,7 +281,7 @@ impl DeadCellLayerBrain {
 }
 
 impl CellLayerBrain for DeadCellLayerBrain {
-    fn after_influences(&mut self, _env: &LocalEnvironment, _subtick_duration: Duration, _health: f64, _area: Area) -> (BioEnergy, Force) {
+    fn after_influences(&mut self, _state: &CellLayerState, _env: &LocalEnvironment, _subtick_duration: Duration) -> (BioEnergy, Force) {
         (BioEnergy::ZERO, Force::ZERO)
     }
 

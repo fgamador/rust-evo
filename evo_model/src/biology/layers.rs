@@ -167,7 +167,7 @@ impl OnionLayer for CellLayer {
 }
 
 #[derive(Debug)]
-struct CellLayerBody {
+pub struct CellLayerBody {
     area: Area,
     density: Density,
     mass: Mass,
@@ -274,7 +274,7 @@ impl CellLayerBrain for LivingCellLayerBrain {
         match request.channel_index {
             0 => body.restore_health(request.value, request.budgeted_fraction),
             1 => body.resize(request.value, request.budgeted_fraction),
-            _ => self.specialty.execute_control_request(request, body.health)
+            _ => self.specialty.execute_control_request(body, request)
         }
     }
 }
@@ -309,7 +309,7 @@ pub trait CellLayerSpecialty: Debug {
         CostedControlRequest::new(request, BioEnergyDelta::ZERO)
     }
 
-    fn execute_control_request(&mut self, _request: BudgetedControlRequest, _health: f64) {}
+    fn execute_control_request(&mut self, _body: &CellLayerBody, _request: BudgetedControlRequest) {}
 }
 
 #[derive(Debug)]
@@ -350,10 +350,10 @@ impl CellLayerSpecialty for ThrusterCellLayerSpecialty {
         }
     }
 
-    fn execute_control_request(&mut self, request: BudgetedControlRequest, health: f64) {
+    fn execute_control_request(&mut self, body: &CellLayerBody, request: BudgetedControlRequest) {
         match request.channel_index {
-            2 => self.force_x = health * request.value,
-            3 => self.force_y = health * request.value,
+            2 => self.force_x = body.health * request.value,
+            3 => self.force_y = body.health * request.value,
             _ => panic!("Invalid control input index: {}", request.channel_index)
         }
     }

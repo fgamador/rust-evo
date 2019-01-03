@@ -255,43 +255,6 @@ impl LivingCellLayerBrain {
             specialty
         }
     }
-
-    fn cost_restore_health(state: &CellLayerBody, request: ControlRequest) -> CostedControlRequest {
-        CostedControlRequest::new(request,
-                                  state.health_parameters.healing_energy_delta * state.area.value() * request.value)
-    }
-
-    fn cost_resize(state: &CellLayerBody, request: ControlRequest) -> CostedControlRequest {
-        let delta_area = Self::bound_resize_delta_area(state, request.value);
-        let energy_delta = if request.value >= 0.0 {
-            state.resize_parameters.growth_energy_delta
-        } else {
-            -state.resize_parameters.shrinkage_energy_delta
-        };
-        CostedControlRequest::new(request, delta_area * energy_delta)
-    }
-
-    fn restore_health(state: &mut CellLayerBody, requested_delta_health: f64, budgeted_fraction: f64) {
-        assert!(requested_delta_health >= 0.0);
-        state.health = (state.health + budgeted_fraction * requested_delta_health).min(1.0);
-    }
-
-    fn resize(state: &mut CellLayerBody, requested_delta_area: f64, budgeted_fraction: f64) {
-        let delta_area = state.health * budgeted_fraction * Self::bound_resize_delta_area(state, requested_delta_area);
-        state.area = Area::new((state.area.value() + delta_area).max(0.0));
-        state.mass = state.area * state.density;
-    }
-
-    fn bound_resize_delta_area(state: &CellLayerBody, requested_delta_area: f64) -> f64 {
-        if requested_delta_area >= 0.0 {
-            // TODO a layer that starts with area 0.0 cannot grow
-            let max_delta_area = state.resize_parameters.max_growth_rate * state.area.value();
-            requested_delta_area.min(max_delta_area)
-        } else {
-            let min_delta_area = -state.resize_parameters.max_shrinkage_rate * state.area.value();
-            requested_delta_area.max(min_delta_area)
-        }
-    }
 }
 
 impl CellLayerBrain for LivingCellLayerBrain {
@@ -301,16 +264,16 @@ impl CellLayerBrain for LivingCellLayerBrain {
 
     fn cost_control_request(&self, state: &CellLayerBody, request: ControlRequest) -> CostedControlRequest {
         match request.channel_index {
-            0 => Self::cost_restore_health(state, request),
-            1 => Self::cost_resize(state, request),
+            0 => state.cost_restore_health(request),
+            1 => state.cost_resize(request),
             _ => self.specialty.cost_control_request(request),
         }
     }
 
     fn execute_control_request(&mut self, state: &mut CellLayerBody, request: BudgetedControlRequest) {
         match request.channel_index {
-            0 => Self::restore_health(state, request.value, request.budgeted_fraction),
-            1 => Self::resize(state, request.value, request.budgeted_fraction),
+            0 => state.restore_health(request.value, request.budgeted_fraction),
+            1 => state.resize(request.value, request.budgeted_fraction),
             _ => self.specialty.execute_control_request(request, state.health)
         }
     }

@@ -210,7 +210,7 @@ impl LivingCellLayerBrain {
         }
     }
 
-    fn cost_restore_health(&self, state: &CellLayerState, request: ControlRequest) -> CostedControlRequest {
+    fn cost_restore_health(state: &CellLayerState, request: ControlRequest) -> CostedControlRequest {
         CostedControlRequest::new(request,
                                   state.health_parameters.healing_energy_delta * state.area.value() * request.value)
     }
@@ -255,7 +255,7 @@ impl CellLayerBrain for LivingCellLayerBrain {
 
     fn cost_control_request(&self, state: &CellLayerState, request: ControlRequest) -> CostedControlRequest {
         match request.channel_index {
-            0 => self.cost_restore_health(state, request),
+            0 => Self::cost_restore_health(state, request),
             1 => self.cost_resize(state, request),
             _ => self.specialty.cost_control_request(request),
         }

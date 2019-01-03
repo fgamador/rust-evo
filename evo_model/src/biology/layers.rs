@@ -240,15 +240,11 @@ impl OnionLayer for CellLayer {
 }
 
 trait CellLayerBrain: Debug {
-    fn after_influences(&mut self, _env: &LocalEnvironment, _subtick_duration: Duration, _health: f64, _area: Area) -> (BioEnergy, Force) {
-        (BioEnergy::ZERO, Force::ZERO)
-    }
+    fn after_influences(&mut self, env: &LocalEnvironment, subtick_duration: Duration, health: f64, area: Area) -> (BioEnergy, Force);
 
-    fn cost_control_request(&self, request: ControlRequest) -> CostedControlRequest {
-        CostedControlRequest::new(request, BioEnergyDelta::ZERO)
-    }
+    fn cost_control_request(&self, request: ControlRequest) -> CostedControlRequest;
 
-    fn execute_control_request(&mut self, _request: BudgetedControlRequest, _health: f64) {}
+    fn execute_control_request(&mut self, request: BudgetedControlRequest, health: f64);
 }
 
 #[derive(Debug)]

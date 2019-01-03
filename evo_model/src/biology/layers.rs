@@ -115,10 +115,9 @@ impl CellLayer {
     }
 
     pub fn damage(&mut self, health_loss: f64) {
-        assert!(health_loss >= 0.0);
         // TODO move this into brain?
         if self.body.health > 0.0 {
-            self.body.health = (self.body.health - health_loss).max(0.0);
+            self.body.damage(health_loss);
             if self.body.health == 0.0 {
                 self.brain = Box::new(DeadCellLayerBrain::new());
             }
@@ -192,6 +191,11 @@ impl CellLayerBody {
             health_parameters: LayerHealthParameters::DEFAULT,
             resize_parameters: LayerResizeParameters::DEFAULT,
         }
+    }
+
+    fn damage(&mut self, health_loss: f64) {
+        assert!(health_loss >= 0.0);
+        self.health = (self.health - health_loss).max(0.0);
     }
 
     fn update_outer_radius(&mut self, inner_radius: Length) {

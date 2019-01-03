@@ -233,6 +233,66 @@ impl OnionLayer for CellLayer {
     }
 }
 
+trait CellLayerBrains: Debug {
+    fn after_influences(&mut self, _env: &LocalEnvironment, _subtick_duration: Duration, _health: f64, _area: Area) -> (BioEnergy, Force) {
+        (BioEnergy::ZERO, Force::ZERO)
+    }
+
+    fn cost_control_request(&self, request: ControlRequest) -> CostedControlRequest {
+        CostedControlRequest::new(request, BioEnergyDelta::ZERO)
+    }
+
+    fn execute_control_request(&mut self, _request: BudgetedControlRequest, _health: f64) {}
+}
+
+#[derive(Debug)]
+struct LivingCellLayerBrains {
+    specialty: Box<CellLayerSpecialty>,
+}
+
+impl LivingCellLayerBrains {
+    pub fn new(specialty: Box<CellLayerSpecialty>) -> Self {
+        LivingCellLayerBrains {
+            specialty
+        }
+    }
+}
+
+impl CellLayerBrains for LivingCellLayerBrains {
+    fn after_influences(&mut self, env: &LocalEnvironment, subtick_duration: Duration, health: f64, area: Area) -> (BioEnergy, Force) {
+        self.specialty.after_influences(env, subtick_duration, health, area)
+    }
+
+    fn cost_control_request(&self, request: ControlRequest) -> CostedControlRequest {
+        self.specialty.cost_control_request(request)
+    }
+
+    fn execute_control_request(&mut self, request: BudgetedControlRequest, health: f64) {
+        self.specialty.execute_control_request(request, health)
+    }
+}
+
+#[derive(Debug)]
+struct DeadCellLayerBrains {}
+
+impl DeadCellLayerBrains {
+    pub fn new() -> Self {
+        DeadCellLayerBrains {}
+    }
+}
+
+impl CellLayerBrains for DeadCellLayerBrains {
+    fn after_influences(&mut self, _env: &LocalEnvironment, _subtick_duration: Duration, _health: f64, _area: Area) -> (BioEnergy, Force) {
+        (BioEnergy::ZERO, Force::ZERO)
+    }
+
+    fn cost_control_request(&self, request: ControlRequest) -> CostedControlRequest {
+        CostedControlRequest::new(request, BioEnergyDelta::ZERO)
+    }
+
+    fn execute_control_request(&mut self, _request: BudgetedControlRequest, _health: f64) {}
+}
+
 pub trait CellLayerSpecialty: Debug {
     fn after_influences(&mut self, _env: &LocalEnvironment, _subtick_duration: Duration, _health: f64, _area: Area) -> (BioEnergy, Force) {
         (BioEnergy::ZERO, Force::ZERO)

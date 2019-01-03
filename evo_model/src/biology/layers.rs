@@ -128,7 +128,7 @@ impl CellLayer {
     }
 
     pub fn update_outer_radius(&mut self, inner_radius: Length) {
-        self.body.outer_radius = (inner_radius.sqr() + self.body.area / PI).sqrt();
+        self.body.update_outer_radius(inner_radius);
     }
 
     pub fn after_influences(&mut self, env: &LocalEnvironment, subtick_duration: Duration) -> (BioEnergy, Force) {
@@ -191,6 +191,10 @@ impl CellLayerBody {
             health_parameters: LayerHealthParameters::DEFAULT,
             resize_parameters: LayerResizeParameters::DEFAULT,
         }
+    }
+
+    fn update_outer_radius(&mut self, inner_radius: Length) {
+        self.outer_radius = (inner_radius.sqr() + self.area / PI).sqrt();
     }
 }
 

@@ -137,7 +137,8 @@ pub mod feature {
 
         fn calc_rgb_color(color: evo_view_model::Color, health: f32) -> conrod::color::Color {
             if color == evo_view_model::Color::White {
-                // TODO if we don't do this, it appears as black. why?
+                // TODO if we don't do this, it appears as black.
+                // color.to_hsl() returns s == NaN for white.
                 return conrod::color::rgb(1.0, 1.0, 1.0);
             }
 

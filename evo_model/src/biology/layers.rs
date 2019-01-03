@@ -89,31 +89,11 @@ pub struct CellLayer {
     color: Color,
 }
 
-#[derive(Debug)]
-struct CellLayerBody {
-    area: Area,
-    density: Density,
-    mass: Mass,
-    outer_radius: Length,
-    health: f64,
-    health_parameters: LayerHealthParameters,
-    resize_parameters: LayerResizeParameters,
-}
-
 impl CellLayer {
     pub fn new(area: Area, density: Density, color: Color, specialty: Box<CellLayerSpecialty>) -> Self {
         CellLayer {
             brain: Box::new(LivingCellLayerBrain::new(specialty)),
-            body: CellLayerBody {
-                area,
-                density,
-                mass: area * density,
-                outer_radius: (area / PI).sqrt(),
-                health: 1.0,
-                // TODO pull these out and share them
-                health_parameters: LayerHealthParameters::DEFAULT,
-                resize_parameters: LayerResizeParameters::DEFAULT,
-            },
+            body: CellLayerBody::new(area, density),
             color,
         }
     }
@@ -185,6 +165,32 @@ impl OnionLayer for CellLayer {
 
     fn health(&self) -> f64 {
         self.body.health
+    }
+}
+
+#[derive(Debug)]
+struct CellLayerBody {
+    area: Area,
+    density: Density,
+    mass: Mass,
+    outer_radius: Length,
+    health: f64,
+    health_parameters: LayerHealthParameters,
+    resize_parameters: LayerResizeParameters,
+}
+
+impl CellLayerBody {
+    fn new(area: Area, density: Density) -> Self {
+        CellLayerBody {
+            area,
+            density,
+            mass: area * density,
+            outer_radius: (area / PI).sqrt(),
+            health: 1.0,
+            // TODO pull these out and share them
+            health_parameters: LayerHealthParameters::DEFAULT,
+            resize_parameters: LayerResizeParameters::DEFAULT,
+        }
     }
 }
 

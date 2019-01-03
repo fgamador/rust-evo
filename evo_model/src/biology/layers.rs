@@ -197,6 +197,43 @@ impl CellLayerBody {
     fn update_outer_radius(&mut self, inner_radius: Length) {
         self.outer_radius = (inner_radius.sqr() + self.area / PI).sqrt();
     }
+
+    fn cost_restore_health(&self, request: ControlRequest) -> CostedControlRequest {
+        CostedControlRequest::new(request,
+                                  self.health_parameters.healing_energy_delta * self.area.value() * request.value)
+    }
+
+    fn cost_resize(&self, request: ControlRequest) -> CostedControlRequest {
+        let delta_area = self.bound_resize_delta_area(request.value);
+        let energy_delta = if request.value >= 0.0 {
+            self.resize_parameters.growth_energy_delta
+        } else {
+            -self.resize_parameters.shrinkage_energy_delta
+        };
+        CostedControlRequest::new(request, delta_area * energy_delta)
+    }
+
+    fn restore_health(&mut self, requested_delta_health: f64, budgeted_fraction: f64) {
+        assert!(requested_delta_health >= 0.0);
+        self.health = (self.health + budgeted_fraction * requested_delta_health).min(1.0);
+    }
+
+    fn resize(&mut self, requested_delta_area: f64, budgeted_fraction: f64) {
+        let delta_area = self.health * budgeted_fraction * self.bound_resize_delta_area(requested_delta_area);
+        self.area = Area::new((self.area.value() + delta_area).max(0.0));
+        self.mass = self.area * self.density;
+    }
+
+    fn bound_resize_delta_area(&self, requested_delta_area: f64) -> f64 {
+        if requested_delta_area >= 0.0 {
+            // TODO a layer that starts with area 0.0 cannot grow
+            let max_delta_area = self.resize_parameters.max_growth_rate * self.area.value();
+            requested_delta_area.min(max_delta_area)
+        } else {
+            let min_delta_area = -self.resize_parameters.max_shrinkage_rate * self.area.value();
+            requested_delta_area.max(min_delta_area)
+        }
+    }
 }
 
 trait CellLayerBrain: Debug {

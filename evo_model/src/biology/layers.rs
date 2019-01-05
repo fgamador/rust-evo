@@ -84,15 +84,18 @@ impl LayerResizeParameters {
 
 #[derive(Debug)]
 pub struct CellLayer {
-    brain: Box<CellLayerBrain>,
+    brain: &'static CellLayerBrain,
     body: CellLayerBody,
     specialty: Box<CellLayerSpecialty>,
 }
 
 impl CellLayer {
+    const LIVING_BRAIN: LivingCellLayerBrain = LivingCellLayerBrain {};
+    const DEAD_BRAIN: DeadCellLayerBrain = DeadCellLayerBrain {};
+
     pub fn new(area: Area, density: Density, color: Color, specialty: Box<CellLayerSpecialty>) -> Self {
         CellLayer {
-            brain: Box::new(LivingCellLayerBrain::new()),
+            brain: &Self::LIVING_BRAIN,
             body: CellLayerBody::new(area, density, color),
             specialty,
         }
@@ -121,7 +124,7 @@ impl CellLayer {
         if self.body.health > 0.0 {
             self.body.damage(health_loss);
             if self.body.health == 0.0 {
-                self.brain = Box::new(DeadCellLayerBrain::new());
+                self.brain = &Self::DEAD_BRAIN;
             }
         }
     }
@@ -243,24 +246,20 @@ impl CellLayerBody {
 }
 
 trait CellLayerBrain: Debug {
-    fn after_influences(&mut self, specialty: &mut CellLayerSpecialty, body: &CellLayerBody, env: &LocalEnvironment, subtick_duration: Duration) -> (BioEnergy, Force);
+    fn after_influences(&self, specialty: &mut CellLayerSpecialty, body: &CellLayerBody, env: &LocalEnvironment, subtick_duration: Duration) -> (BioEnergy, Force);
 
     fn cost_control_request(&self, specialty: &mut CellLayerSpecialty, body: &CellLayerBody, request: ControlRequest) -> CostedControlRequest;
 
-    fn execute_control_request(&mut self, specialty: &mut CellLayerSpecialty, body: &mut CellLayerBody, request: BudgetedControlRequest);
+    fn execute_control_request(&self, specialty: &mut CellLayerSpecialty, body: &mut CellLayerBody, request: BudgetedControlRequest);
 }
 
 #[derive(Debug)]
 struct LivingCellLayerBrain {}
 
-impl LivingCellLayerBrain {
-    fn new() -> Self {
-        LivingCellLayerBrain {}
-    }
-}
+impl LivingCellLayerBrain {}
 
 impl CellLayerBrain for LivingCellLayerBrain {
-    fn after_influences(&mut self, specialty: &mut CellLayerSpecialty, body: &CellLayerBody, env: &LocalEnvironment, subtick_duration: Duration) -> (BioEnergy, Force) {
+    fn after_influences(&self, specialty: &mut CellLayerSpecialty, body: &CellLayerBody, env: &LocalEnvironment, subtick_duration: Duration) -> (BioEnergy, Force) {
         specialty.after_influences(body, env, subtick_duration)
     }
 
@@ -272,7 +271,7 @@ impl CellLayerBrain for LivingCellLayerBrain {
         }
     }
 
-    fn execute_control_request(&mut self, specialty: &mut CellLayerSpecialty, body: &mut CellLayerBody, request: BudgetedControlRequest) {
+    fn execute_control_request(&self, specialty: &mut CellLayerSpecialty, body: &mut CellLayerBody, request: BudgetedControlRequest) {
         match request.channel_index {
             0 => body.restore_health(request.value, request.budgeted_fraction),
             1 => body.resize(request.value, request.budgeted_fraction),
@@ -284,14 +283,10 @@ impl CellLayerBrain for LivingCellLayerBrain {
 #[derive(Debug)]
 struct DeadCellLayerBrain {}
 
-impl DeadCellLayerBrain {
-    pub fn new() -> Self {
-        DeadCellLayerBrain {}
-    }
-}
+impl DeadCellLayerBrain {}
 
 impl CellLayerBrain for DeadCellLayerBrain {
-    fn after_influences(&mut self, _specialty: &mut CellLayerSpecialty, _body: &CellLayerBody, _env: &LocalEnvironment, _subtick_duration: Duration) -> (BioEnergy, Force) {
+    fn after_influences(&self, _specialty: &mut CellLayerSpecialty, _body: &CellLayerBody, _env: &LocalEnvironment, _subtick_duration: Duration) -> (BioEnergy, Force) {
         (BioEnergy::ZERO, Force::ZERO)
     }
 
@@ -299,7 +294,7 @@ impl CellLayerBrain for DeadCellLayerBrain {
         CostedControlRequest::new(request, BioEnergyDelta::ZERO)
     }
 
-    fn execute_control_request(&mut self, _specialty: &mut CellLayerSpecialty, _body: &mut CellLayerBody, _request: BudgetedControlRequest) {}
+    fn execute_control_request(&self, _specialty: &mut CellLayerSpecialty, _body: &mut CellLayerBody, _request: BudgetedControlRequest) {}
 }
 
 pub trait CellLayerSpecialty: Debug {

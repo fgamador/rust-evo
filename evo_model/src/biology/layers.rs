@@ -86,13 +86,15 @@ impl LayerResizeParameters {
 pub struct CellLayer {
     brain: Box<CellLayerBrain>,
     body: CellLayerBody,
+    specialty: Box<CellLayerSpecialty>,
 }
 
 impl CellLayer {
     pub fn new(area: Area, density: Density, color: Color, specialty: Box<CellLayerSpecialty>) -> Self {
         CellLayer {
-            brain: Box::new(LivingCellLayerBrain::new(specialty)),
+            brain: Box::new(LivingCellLayerBrain::new()),
             body: CellLayerBody::new(area, density, color),
+            specialty,
         }
     }
 
@@ -134,7 +136,7 @@ impl CellLayer {
         }
 
         self.entropic_damage(subtick_duration);
-        self.brain.after_influences(&self.body, env, subtick_duration)
+        self.brain.after_influences(&mut *self.specialty, &self.body, env, subtick_duration)
     }
 
     fn entropic_damage(&mut self, subtick_duration: Duration) {
@@ -142,12 +144,12 @@ impl CellLayer {
         self.damage(-subtick_decay);
     }
 
-    pub fn cost_control_request(&self, request: ControlRequest) -> CostedControlRequest {
-        self.brain.cost_control_request(&self.body, request)
+    pub fn cost_control_request(&mut self, request: ControlRequest) -> CostedControlRequest {
+        self.brain.cost_control_request(&mut *self.specialty, &self.body, request)
     }
 
     pub fn execute_control_request(&mut self, request: BudgetedControlRequest) {
-        self.brain.execute_control_request(&mut self.body, request);
+        self.brain.execute_control_request(&mut *self.specialty, &mut self.body, request);
     }
 }
 
@@ -241,44 +243,40 @@ impl CellLayerBody {
 }
 
 trait CellLayerBrain: Debug {
-    fn after_influences(&mut self, body: &CellLayerBody, env: &LocalEnvironment, subtick_duration: Duration) -> (BioEnergy, Force);
+    fn after_influences(&mut self, specialty: &mut CellLayerSpecialty, body: &CellLayerBody, env: &LocalEnvironment, subtick_duration: Duration) -> (BioEnergy, Force);
 
-    fn cost_control_request(&self, body: &CellLayerBody, request: ControlRequest) -> CostedControlRequest;
+    fn cost_control_request(&self, specialty: &mut CellLayerSpecialty, body: &CellLayerBody, request: ControlRequest) -> CostedControlRequest;
 
-    fn execute_control_request(&mut self, body: &mut CellLayerBody, request: BudgetedControlRequest);
+    fn execute_control_request(&mut self, specialty: &mut CellLayerSpecialty, body: &mut CellLayerBody, request: BudgetedControlRequest);
 }
 
 #[derive(Debug)]
-struct LivingCellLayerBrain {
-    specialty: Box<CellLayerSpecialty>,
-}
+struct LivingCellLayerBrain {}
 
 impl LivingCellLayerBrain {
-    fn new(specialty: Box<CellLayerSpecialty>) -> Self {
-        LivingCellLayerBrain {
-            specialty
-        }
+    fn new() -> Self {
+        LivingCellLayerBrain {}
     }
 }
 
 impl CellLayerBrain for LivingCellLayerBrain {
-    fn after_influences(&mut self, body: &CellLayerBody, env: &LocalEnvironment, subtick_duration: Duration) -> (BioEnergy, Force) {
-        self.specialty.after_influences(body, env, subtick_duration)
+    fn after_influences(&mut self, specialty: &mut CellLayerSpecialty, body: &CellLayerBody, env: &LocalEnvironment, subtick_duration: Duration) -> (BioEnergy, Force) {
+        specialty.after_influences(body, env, subtick_duration)
     }
 
-    fn cost_control_request(&self, body: &CellLayerBody, request: ControlRequest) -> CostedControlRequest {
+    fn cost_control_request(&self, specialty: &mut CellLayerSpecialty, body: &CellLayerBody, request: ControlRequest) -> CostedControlRequest {
         match request.channel_index {
             0 => body.cost_restore_health(request),
             1 => body.cost_resize(request),
-            _ => self.specialty.cost_control_request(request),
+            _ => specialty.cost_control_request(request),
         }
     }
 
-    fn execute_control_request(&mut self, body: &mut CellLayerBody, request: BudgetedControlRequest) {
+    fn execute_control_request(&mut self, specialty: &mut CellLayerSpecialty, body: &mut CellLayerBody, request: BudgetedControlRequest) {
         match request.channel_index {
             0 => body.restore_health(request.value, request.budgeted_fraction),
             1 => body.resize(request.value, request.budgeted_fraction),
-            _ => self.specialty.execute_control_request(body, request)
+            _ => specialty.execute_control_request(body, request)
         }
     }
 }
@@ -293,15 +291,15 @@ impl DeadCellLayerBrain {
 }
 
 impl CellLayerBrain for DeadCellLayerBrain {
-    fn after_influences(&mut self, _body: &CellLayerBody, _env: &LocalEnvironment, _subtick_duration: Duration) -> (BioEnergy, Force) {
+    fn after_influences(&mut self, _specialty: &mut CellLayerSpecialty, _body: &CellLayerBody, _env: &LocalEnvironment, _subtick_duration: Duration) -> (BioEnergy, Force) {
         (BioEnergy::ZERO, Force::ZERO)
     }
 
-    fn cost_control_request(&self, _body: &CellLayerBody, request: ControlRequest) -> CostedControlRequest {
+    fn cost_control_request(&self, _specialty: &mut CellLayerSpecialty, _body: &CellLayerBody, request: ControlRequest) -> CostedControlRequest {
         CostedControlRequest::new(request, BioEnergyDelta::ZERO)
     }
 
-    fn execute_control_request(&mut self, _body: &mut CellLayerBody, _request: BudgetedControlRequest) {}
+    fn execute_control_request(&mut self, _specialty: &mut CellLayerSpecialty, _body: &mut CellLayerBody, _request: BudgetedControlRequest) {}
 }
 
 pub trait CellLayerSpecialty: Debug {
@@ -435,7 +433,7 @@ mod tests {
 
     #[test]
     fn layer_costs_resize_request() {
-        let layer = simple_cell_layer(Area::new(1.0), Density::new(1.0))
+        let mut layer = simple_cell_layer(Area::new(1.0), Density::new(1.0))
             .with_resize_parameters(LayerResizeParameters {
                 growth_energy_delta: BioEnergyDelta::new(-0.5),
                 max_growth_rate: f64::INFINITY,
@@ -475,7 +473,7 @@ mod tests {
 
     #[test]
     fn layer_growth_cost_is_limited_by_max_growth_rate() {
-        let layer = simple_cell_layer(Area::new(1.0), Density::new(1.0))
+        let mut layer = simple_cell_layer(Area::new(1.0), Density::new(1.0))
             .with_resize_parameters(LayerResizeParameters {
                 growth_energy_delta: BioEnergyDelta::new(-3.0),
                 max_growth_rate: 0.5,
@@ -505,7 +503,7 @@ mod tests {
 
     #[test]
     fn layer_shrinkage_yield_is_limited_by_max_shrinkage_rate() {
-        let layer = simple_cell_layer(Area::new(4.0), Density::new(1.0))
+        let mut layer = simple_cell_layer(Area::new(4.0), Density::new(1.0))
             .with_resize_parameters(LayerResizeParameters {
                 growth_energy_delta: BioEnergyDelta::ZERO,
                 max_growth_rate: f64::INFINITY,

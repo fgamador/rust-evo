@@ -140,8 +140,7 @@ impl CellLayer {
     }
 
     pub fn cost_control_request(&mut self, request: ControlRequest) -> CostedControlRequest {
-        let brain = self.body.brain;
-        brain.cost_control_request(&mut *self.specialty, &self.body, request)
+        self.body.brain.cost_control_request(&mut *self.specialty, &self.body, request)
     }
 
     pub fn execute_control_request(&mut self, request: BudgetedControlRequest) {

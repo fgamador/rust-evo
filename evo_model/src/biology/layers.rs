@@ -249,6 +249,8 @@ impl CellLayerBody {
 }
 
 trait CellLayerBrain: Debug {
+    fn damage(&self, body: &mut CellLayerBody, health_loss: f64);
+
     fn after_influences(&self, specialty: &mut CellLayerSpecialty, body: &CellLayerBody, env: &LocalEnvironment, subtick_duration: Duration) -> (BioEnergy, Force);
 
     fn cost_control_request(&self, specialty: &mut CellLayerSpecialty, body: &CellLayerBody, request: ControlRequest) -> CostedControlRequest;
@@ -262,6 +264,13 @@ struct LivingCellLayerBrain {}
 impl LivingCellLayerBrain {}
 
 impl CellLayerBrain for LivingCellLayerBrain {
+    fn damage(&self, body: &mut CellLayerBody, health_loss: f64) {
+        body.damage(health_loss);
+        if body.health == 0.0 {
+            body.brain = &CellLayer::DEAD_BRAIN;
+        }
+    }
+
     fn after_influences(&self, specialty: &mut CellLayerSpecialty, body: &CellLayerBody, env: &LocalEnvironment, subtick_duration: Duration) -> (BioEnergy, Force) {
         specialty.after_influences(body, env, subtick_duration)
     }
@@ -289,6 +298,8 @@ struct DeadCellLayerBrain {}
 impl DeadCellLayerBrain {}
 
 impl CellLayerBrain for DeadCellLayerBrain {
+    fn damage(&self, _body: &mut CellLayerBody, _health_loss: f64) {}
+
     fn after_influences(&self, _specialty: &mut CellLayerSpecialty, _body: &CellLayerBody, _env: &LocalEnvironment, _subtick_duration: Duration) -> (BioEnergy, Force) {
         (BioEnergy::ZERO, Force::ZERO)
     }

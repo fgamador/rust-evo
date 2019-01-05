@@ -84,8 +84,8 @@ impl LayerResizeParameters {
 
 #[derive(Debug)]
 pub struct CellLayer {
-    brain: &'static CellLayerBrain,
     body: CellLayerBody,
+    brain: &'static CellLayerBrain,
     specialty: Box<CellLayerSpecialty>,
 }
 
@@ -95,8 +95,8 @@ impl CellLayer {
 
     pub fn new(area: Area, density: Density, color: Color, specialty: Box<CellLayerSpecialty>) -> Self {
         CellLayer {
-            brain: &Self::LIVING_BRAIN,
             body: CellLayerBody::new(area, density, color),
+            brain: &Self::LIVING_BRAIN,
             specialty,
         }
     }

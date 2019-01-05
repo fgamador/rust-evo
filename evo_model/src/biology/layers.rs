@@ -118,13 +118,8 @@ impl CellLayer {
     }
 
     pub fn damage(&mut self, health_loss: f64) {
-        // TODO move this into brain?
-        if self.body.health > 0.0 {
-            self.body.damage(health_loss);
-            if self.body.health == 0.0 {
-                self.body.brain = &Self::DEAD_BRAIN;
-            }
-        }
+        let brain = self.body.brain;
+        brain.damage(&mut self.body, health_loss);
     }
 
     pub fn update_outer_radius(&mut self, inner_radius: Length) {

@@ -85,7 +85,6 @@ impl LayerResizeParameters {
 #[derive(Debug)]
 pub struct CellLayer {
     body: CellLayerBody,
-    brain: &'static CellLayerBrain,
     specialty: Box<CellLayerSpecialty>,
 }
 
@@ -96,7 +95,6 @@ impl CellLayer {
     pub fn new(area: Area, density: Density, color: Color, specialty: Box<CellLayerSpecialty>) -> Self {
         CellLayer {
             body: CellLayerBody::new(area, density, color),
-            brain: &Self::LIVING_BRAIN,
             specialty,
         }
     }
@@ -124,7 +122,7 @@ impl CellLayer {
         if self.body.health > 0.0 {
             self.body.damage(health_loss);
             if self.body.health == 0.0 {
-                self.brain = &Self::DEAD_BRAIN;
+                self.body.brain = &Self::DEAD_BRAIN;
             }
         }
     }
@@ -139,7 +137,8 @@ impl CellLayer {
         }
 
         self.entropic_damage(subtick_duration);
-        self.brain.after_influences(&mut *self.specialty, &self.body, env, subtick_duration)
+        let brain = self.body.brain;
+        brain.after_influences(&mut *self.specialty, &self.body, env, subtick_duration)
     }
 
     fn entropic_damage(&mut self, subtick_duration: Duration) {
@@ -148,11 +147,13 @@ impl CellLayer {
     }
 
     pub fn cost_control_request(&mut self, request: ControlRequest) -> CostedControlRequest {
-        self.brain.cost_control_request(&mut *self.specialty, &self.body, request)
+        let brain = self.body.brain;
+        brain.cost_control_request(&mut *self.specialty, &self.body, request)
     }
 
     pub fn execute_control_request(&mut self, request: BudgetedControlRequest) {
-        self.brain.execute_control_request(&mut *self.specialty, &mut self.body, request);
+        let brain = self.body.brain;
+        brain.execute_control_request(&mut *self.specialty, &mut self.body, request);
     }
 }
 
@@ -178,6 +179,7 @@ pub struct CellLayerBody {
     outer_radius: Length,
     health: f64,
     color: Color,
+    brain: &'static CellLayerBrain,
     // TODO move to CellLayerParameters struct?
     health_parameters: LayerHealthParameters,
     resize_parameters: LayerResizeParameters,
@@ -192,6 +194,7 @@ impl CellLayerBody {
             outer_radius: (area / PI).sqrt(),
             health: 1.0,
             color,
+            brain: &CellLayer::LIVING_BRAIN,
             // TODO pull these out and share them
             health_parameters: LayerHealthParameters::DEFAULT,
             resize_parameters: LayerResizeParameters::DEFAULT,

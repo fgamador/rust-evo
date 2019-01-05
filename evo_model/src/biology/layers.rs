@@ -118,8 +118,7 @@ impl CellLayer {
     }
 
     pub fn damage(&mut self, health_loss: f64) {
-        let brain = self.body.brain;
-        brain.damage(&mut self.body, health_loss);
+        self.body.brain.damage(&mut self.body, health_loss);
     }
 
     pub fn update_outer_radius(&mut self, inner_radius: Length) {
@@ -132,8 +131,7 @@ impl CellLayer {
         }
 
         self.entropic_damage(subtick_duration);
-        let brain = self.body.brain;
-        brain.after_influences(&mut *self.specialty, &self.body, env, subtick_duration)
+        self.body.brain.after_influences(&mut *self.specialty, &self.body, env, subtick_duration)
     }
 
     fn entropic_damage(&mut self, subtick_duration: Duration) {
@@ -147,8 +145,7 @@ impl CellLayer {
     }
 
     pub fn execute_control_request(&mut self, request: BudgetedControlRequest) {
-        let brain = self.body.brain;
-        brain.execute_control_request(&mut *self.specialty, &mut self.body, request);
+        self.body.brain.execute_control_request(&mut *self.specialty, &mut self.body, request);
     }
 }
 

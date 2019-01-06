@@ -126,8 +126,7 @@ impl CellLayer {
     }
 
     pub fn after_influences(&mut self, env: &LocalEnvironment, subtick_duration: Duration) -> (BioEnergy, Force) {
-        self.body.brain.entropic_damage(&mut self.body, subtick_duration);
-        self.body.brain.after_influences(&mut *self.specialty, &self.body, env, subtick_duration)
+        self.body.brain.after_influences(&mut *self.specialty, &mut self.body, env, subtick_duration)
     }
 
     pub fn cost_control_request(&mut self, request: ControlRequest) -> CostedControlRequest {
@@ -231,11 +230,9 @@ impl CellLayerBody {
 }
 
 trait CellLayerBrain: Debug {
-    fn entropic_damage(&self, body: &mut CellLayerBody, subtick_duration: Duration);
-
     fn damage(&self, body: &mut CellLayerBody, health_loss: f64);
 
-    fn after_influences(&self, specialty: &mut CellLayerSpecialty, body: &CellLayerBody, env: &LocalEnvironment, subtick_duration: Duration) -> (BioEnergy, Force);
+    fn after_influences(&self, specialty: &mut CellLayerSpecialty, body: &mut CellLayerBody, env: &LocalEnvironment, subtick_duration: Duration) -> (BioEnergy, Force);
 
     fn cost_control_request(&self, specialty: &mut CellLayerSpecialty, body: &CellLayerBody, request: ControlRequest) -> CostedControlRequest;
 
@@ -245,14 +242,14 @@ trait CellLayerBrain: Debug {
 #[derive(Debug)]
 struct LivingCellLayerBrain {}
 
-impl LivingCellLayerBrain {}
-
-impl CellLayerBrain for LivingCellLayerBrain {
+impl LivingCellLayerBrain {
     fn entropic_damage(&self, body: &mut CellLayerBody, subtick_duration: Duration) {
         let subtick_damage = body.health_parameters.entropic_damage_health_delta * subtick_duration.value();
         self.damage(body, -subtick_damage);
     }
+}
 
+impl CellLayerBrain for LivingCellLayerBrain {
     fn damage(&self, body: &mut CellLayerBody, health_loss: f64) {
         body.damage(health_loss);
         if body.health == 0.0 {
@@ -260,7 +257,8 @@ impl CellLayerBrain for LivingCellLayerBrain {
         }
     }
 
-    fn after_influences(&self, specialty: &mut CellLayerSpecialty, body: &CellLayerBody, env: &LocalEnvironment, subtick_duration: Duration) -> (BioEnergy, Force) {
+    fn after_influences(&self, specialty: &mut CellLayerSpecialty, body: &mut CellLayerBody, env: &LocalEnvironment, subtick_duration: Duration) -> (BioEnergy, Force) {
+        self.entropic_damage(body, subtick_duration);
         specialty.after_influences(body, env, subtick_duration)
     }
 
@@ -287,11 +285,9 @@ struct DeadCellLayerBrain {}
 impl DeadCellLayerBrain {}
 
 impl CellLayerBrain for DeadCellLayerBrain {
-    fn entropic_damage(&self, _body: &mut CellLayerBody, _subtick_duration: Duration) {}
-
     fn damage(&self, _body: &mut CellLayerBody, _health_loss: f64) {}
 
-    fn after_influences(&self, _specialty: &mut CellLayerSpecialty, _body: &CellLayerBody, _env: &LocalEnvironment, _subtick_duration: Duration) -> (BioEnergy, Force) {
+    fn after_influences(&self, _specialty: &mut CellLayerSpecialty, _body: &mut CellLayerBody, _env: &LocalEnvironment, _subtick_duration: Duration) -> (BioEnergy, Force) {
         (BioEnergy::ZERO, Force::ZERO)
     }
 

@@ -343,7 +343,8 @@ impl CellLayerSpecialty for ThrusterCellLayerSpecialty {
 
     fn cost_control_request(&self, request: ControlRequest) -> CostedControlRequest {
         match request.channel_index {
-            2 | 3 => CostedControlRequest::new(request, BioEnergyDelta::ZERO), // TODO
+            // TODO cost forces based on a parameter struct(?)
+            2 | 3 => CostedControlRequest::new(request, BioEnergyDelta::ZERO),
             _ => panic!("Invalid control input index: {}", request.channel_index)
         }
     }

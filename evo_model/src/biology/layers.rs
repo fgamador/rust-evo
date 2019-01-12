@@ -304,11 +304,11 @@ pub trait CellLayerSpecialty: Debug {
     }
 
     fn cost_control_request(&self, request: ControlRequest) -> CostedControlRequest {
-        panic!("Invalid control input index: {}", request.channel_index);
+        panic!("Invalid control channel index: {}", request.channel_index);
     }
 
     fn execute_control_request(&mut self, _body: &CellLayerBody, request: BudgetedControlRequest) {
-        panic!("Invalid control input index: {}", request.channel_index);
+        panic!("Invalid control channel index: {}", request.channel_index);
     }
 }
 
@@ -347,7 +347,7 @@ impl CellLayerSpecialty for ThrusterCellLayerSpecialty {
         match request.channel_index {
             // TODO cost forces based on a parameter struct(?)
             2 | 3 => CostedControlRequest::new(request, BioEnergyDelta::ZERO),
-            _ => panic!("Invalid control input index: {}", request.channel_index)
+            _ => panic!("Invalid control channel index: {}", request.channel_index)
         }
     }
 
@@ -355,7 +355,7 @@ impl CellLayerSpecialty for ThrusterCellLayerSpecialty {
         match request.channel_index {
             2 => self.force_x = body.health * request.value,
             3 => self.force_y = body.health * request.value,
-            _ => panic!("Invalid control input index: {}", request.channel_index)
+            _ => panic!("Invalid control channel index: {}", request.channel_index)
         }
     }
 }

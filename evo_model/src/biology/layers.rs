@@ -304,10 +304,12 @@ pub trait CellLayerSpecialty: Debug {
     }
 
     fn cost_control_request(&self, request: ControlRequest) -> CostedControlRequest {
-        CostedControlRequest::new(request, BioEnergyDelta::ZERO)
+        panic!("Invalid control input index: {}", request.channel_index);
     }
 
-    fn execute_control_request(&mut self, _body: &CellLayerBody, _request: BudgetedControlRequest) {}
+    fn execute_control_request(&mut self, _body: &CellLayerBody, request: BudgetedControlRequest) {
+        panic!("Invalid control input index: {}", request.channel_index);
+    }
 }
 
 #[derive(Debug)]

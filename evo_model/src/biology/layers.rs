@@ -1,3 +1,4 @@
+use biology::cell::Cell;
 use biology::control_requests::*;
 use environment::environment::LocalEnvironment;
 use evo_view_model::Color;
@@ -135,6 +136,10 @@ impl CellLayer {
 
     pub fn execute_control_request(&mut self, request: BudgetedControlRequest) {
         self.body.brain.execute_control_request(&mut *self.specialty, &mut self.body, request);
+    }
+
+    pub fn after_movement(&mut self) -> Option<Cell> {
+        None
     }
 }
 
@@ -377,6 +382,24 @@ impl CellLayerSpecialty for PhotoCellLayerSpecialty {
     fn after_influences(&mut self, body: &CellLayerBody, env: &LocalEnvironment, subtick_duration: Duration) -> (BioEnergy, Force) {
         (BioEnergy::new(env.light_intensity() * self.efficiency * body.health * body.area.value() * subtick_duration.value()),
          Force::ZERO)
+    }
+}
+
+#[derive(Debug)]
+pub struct BuddingCellLayerSpecialty {}
+
+impl BuddingCellLayerSpecialty {
+    pub fn new() -> Self {
+        BuddingCellLayerSpecialty {}
+    }
+}
+
+impl CellLayerSpecialty for BuddingCellLayerSpecialty {
+    fn execute_control_request(&mut self, _body: &CellLayerBody, request: BudgetedControlRequest) {
+        match request.channel_index {
+            2 => (),
+            _ => panic!("Invalid control channel index: {}", request.channel_index)
+        }
     }
 }
 
@@ -724,7 +747,22 @@ mod tests {
         assert_eq!(BioEnergy::new(0.0), energy);
     }
 
+    #[test]
+    fn budding_layer_does_not_create_child_if_not_asked_to() {
+        let mut layer = CellLayer::new(Area::new(1.0), Density::new(1.0), Color::Green,
+                                       Box::new(BuddingCellLayerSpecialty::new()));
+        layer.execute_control_request(fully_budgeted_request(0, 2, 0.0));
+        assert_eq!(None, layer.after_movement());
+    }
+
     fn simple_cell_layer(area: Area, density: Density) -> CellLayer {
         CellLayer::new(area, density, Color::Green, Box::new(NullCellLayerSpecialty::new()))
+    }
+
+    fn fully_budgeted_request(layer_index: usize, channel_index: usize, value: f64) -> BudgetedControlRequest {
+        BudgetedControlRequest::new(
+            CostedControlRequest::new(
+                ControlRequest::new(layer_index, channel_index, value),
+                BioEnergyDelta::ZERO), 1.0)
     }
 }

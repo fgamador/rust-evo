@@ -139,7 +139,7 @@ impl CellLayer {
     }
 
     pub fn after_movement(&mut self) -> Option<Cell> {
-        None
+        self.body.brain.after_movement(&mut *self.specialty)
     }
 }
 
@@ -242,6 +242,8 @@ trait CellLayerBrain: Debug {
     fn cost_control_request(&self, specialty: &mut CellLayerSpecialty, body: &CellLayerBody, request: ControlRequest) -> CostedControlRequest;
 
     fn execute_control_request(&self, specialty: &mut CellLayerSpecialty, body: &mut CellLayerBody, request: BudgetedControlRequest);
+
+    fn after_movement(&self, specialty: &mut CellLayerSpecialty) -> Option<Cell>;
 }
 
 #[derive(Debug)]
@@ -282,6 +284,10 @@ impl CellLayerBrain for LivingCellLayerBrain {
             _ => specialty.execute_control_request(body, request)
         }
     }
+
+    fn after_movement(&self, specialty: &mut CellLayerSpecialty) -> Option<Cell> {
+        specialty.after_movement()
+    }
 }
 
 #[derive(Debug)]
@@ -301,6 +307,10 @@ impl CellLayerBrain for DeadCellLayerBrain {
     }
 
     fn execute_control_request(&self, _specialty: &mut CellLayerSpecialty, _body: &mut CellLayerBody, _request: BudgetedControlRequest) {}
+
+    fn after_movement(&self, _specialty: &mut CellLayerSpecialty) -> Option<Cell> {
+        None
+    }
 }
 
 pub trait CellLayerSpecialty: Debug {
@@ -314,6 +324,10 @@ pub trait CellLayerSpecialty: Debug {
 
     fn execute_control_request(&mut self, _body: &CellLayerBody, request: BudgetedControlRequest) {
         panic!("Invalid control channel index: {}", request.channel_index);
+    }
+
+    fn after_movement(&mut self) -> Option<Cell> {
+        None
     }
 }
 
@@ -386,20 +400,29 @@ impl CellLayerSpecialty for PhotoCellLayerSpecialty {
 }
 
 #[derive(Debug)]
-pub struct BuddingCellLayerSpecialty {}
+pub struct BuddingCellLayerSpecialty {
+    donation_energy: BioEnergy
+}
 
 impl BuddingCellLayerSpecialty {
     pub fn new() -> Self {
-        BuddingCellLayerSpecialty {}
+        BuddingCellLayerSpecialty {
+            donation_energy: BioEnergy::ZERO
+        }
     }
 }
 
 impl CellLayerSpecialty for BuddingCellLayerSpecialty {
     fn execute_control_request(&mut self, _body: &CellLayerBody, request: BudgetedControlRequest) {
         match request.channel_index {
-            2 => (),
+            2 => self.donation_energy = BioEnergy::new(request.value),
             _ => panic!("Invalid control channel index: {}", request.channel_index)
         }
+    }
+
+    fn after_movement(&mut self) -> Option<Cell> {
+        // TODO
+        None
     }
 }
 
@@ -753,6 +776,14 @@ mod tests {
                                        Box::new(BuddingCellLayerSpecialty::new()));
         layer.execute_control_request(fully_budgeted_request(0, 2, 0.0));
         assert_eq!(None, layer.after_movement());
+    }
+
+    //#[test]
+    fn budding_layer_creates_child_if_asked_to() {
+        let mut layer = CellLayer::new(Area::new(1.0), Density::new(1.0), Color::Green,
+                                       Box::new(BuddingCellLayerSpecialty::new()));
+        layer.execute_control_request(fully_budgeted_request(0, 2, 1.0));
+        assert_ne!(None, layer.after_movement());
     }
 
     fn simple_cell_layer(area: Area, density: Density) -> CellLayer {

@@ -421,8 +421,13 @@ impl CellLayerSpecialty for BuddingCellLayerSpecialty {
     }
 
     fn after_movement(&mut self) -> Option<Cell> {
-        // TODO
-        None
+        if self.donation_energy.value() == 0.0 {
+            return None;
+        }
+
+        Some(Cell::new(Position::ORIGIN, Velocity::ZERO, vec![
+            Box::new(CellLayer::new(Area::new(0.0), Density::new(0.0), Color::Green, Box::new(NullCellLayerSpecialty::new())))
+        ]))
     }
 }
 
@@ -778,7 +783,7 @@ mod tests {
         assert_eq!(None, layer.after_movement());
     }
 
-    //#[test]
+    #[test]
     fn budding_layer_creates_child_if_asked_to() {
         let mut layer = CellLayer::new(Area::new(1.0), Density::new(1.0), Color::Green,
                                        Box::new(BuddingCellLayerSpecialty::new()));

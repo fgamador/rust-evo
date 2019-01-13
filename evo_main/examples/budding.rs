@@ -47,15 +47,15 @@ impl BuddingControl {
 
     fn parent_requests() -> Vec<ControlRequest> {
         vec![
-            EnergyGeneratingCellLayerSpecialty::energy_request(0, 1.0),
-            BuddingCellLayerSpecialty::budding_angle_request(1, PI / 2.0),
-            BuddingCellLayerSpecialty::donation_energy_request(1, 1.0),
+            EnergyGeneratingCellLayerSpecialty::energy_request(0, BioEnergy::new(1.0)),
+            BuddingCellLayerSpecialty::budding_angle_request(1, Angle::from_radians(PI / 2.0)),
+            BuddingCellLayerSpecialty::donation_energy_request(1, BioEnergy::new(1.0)),
         ]
     }
 
     fn child_requests() -> Vec<ControlRequest> {
         vec![
-            CellLayer::resize_request(1, 10.0)
+            CellLayer::resize_request(1, AreaDelta::new(10.0))
         ]
     }
 }

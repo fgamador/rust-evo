@@ -142,12 +142,12 @@ impl CellLayer {
         self.body.brain.after_movement(&mut *self.specialty)
     }
 
-    pub fn healing_request(layer_index: usize, value: f64) -> ControlRequest {
-        ControlRequest::new(layer_index, 0, value)
+    pub fn healing_request(layer_index: usize, delta_health: f64) -> ControlRequest {
+        ControlRequest::new(layer_index, 0, delta_health)
     }
 
-    pub fn resize_request(layer_index: usize, value: f64) -> ControlRequest {
-        ControlRequest::new(layer_index, 1, value)
+    pub fn resize_request(layer_index: usize, delta_area: AreaDelta) -> ControlRequest {
+        ControlRequest::new(layer_index, 1, delta_area.value())
     }
 }
 
@@ -432,8 +432,8 @@ impl EnergyGeneratingCellLayerSpecialty {
         }
     }
 
-    pub fn energy_request(layer_index: usize, value: f64) -> ControlRequest {
-        ControlRequest::new(layer_index, 2, value)
+    pub fn energy_request(layer_index: usize, energy: BioEnergy) -> ControlRequest {
+        ControlRequest::new(layer_index, 2, energy.value())
     }
 }
 
@@ -469,12 +469,12 @@ impl BuddingCellLayerSpecialty {
         }
     }
 
-    pub fn budding_angle_request(layer_index: usize, value: f64) -> ControlRequest {
-        ControlRequest::new(layer_index, 2, value)
+    pub fn budding_angle_request(layer_index: usize, angle: Angle) -> ControlRequest {
+        ControlRequest::new(layer_index, 2, angle.radians())
     }
 
-    pub fn donation_energy_request(layer_index: usize, value: f64) -> ControlRequest {
-        ControlRequest::new(layer_index, 3, value)
+    pub fn donation_energy_request(layer_index: usize, energy: BioEnergy) -> ControlRequest {
+        ControlRequest::new(layer_index, 3, energy.value())
     }
 }
 

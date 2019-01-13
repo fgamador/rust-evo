@@ -459,10 +459,7 @@ mod tests {
     #[test]
     fn layer_resize_updates_area_and_mass() {
         let mut layer = simple_cell_layer(Area::new(1.0), Density::new(2.0));
-        layer.execute_control_request(
-            BudgetedControlRequest::new(
-                CostedControlRequest::new(
-                    ControlRequest::for_resize(0, 2.0), BioEnergyDelta::ZERO), 1.0));
+        layer.execute_control_request(fully_budgeted_resize_request(0, 2.0));
         assert_eq!(Area::new(3.0), layer.area());
         assert_eq!(Mass::new(6.0), layer.mass());
     }
@@ -514,10 +511,7 @@ mod tests {
                 shrinkage_energy_delta: BioEnergyDelta::ZERO,
                 max_shrinkage_rate: f64::INFINITY,
             });
-        layer.execute_control_request(
-            BudgetedControlRequest::new(
-                CostedControlRequest::new(
-                    ControlRequest::for_resize(0, 10.0), BioEnergyDelta::ZERO), 1.0));
+        layer.execute_control_request(fully_budgeted_resize_request(0, 10.0));
         assert_eq!(Area::new(3.0), layer.area());
     }
 
@@ -544,10 +538,7 @@ mod tests {
                 shrinkage_energy_delta: BioEnergyDelta::ZERO,
                 max_shrinkage_rate: 0.25,
             });
-        layer.execute_control_request(
-            BudgetedControlRequest::new(
-                CostedControlRequest::new(
-                    ControlRequest::for_resize(0, -10.0), BioEnergyDelta::ZERO), 1.0));
+        layer.execute_control_request(fully_budgeted_resize_request(0, -10.0));
         assert_eq!(Area::new(1.5), layer.area());
     }
 
@@ -569,10 +560,7 @@ mod tests {
     fn layer_resize_is_reduced_by_reduced_health() {
         let mut layer = simple_cell_layer(Area::new(1.0), Density::new(1.0));
         layer.damage(0.5);
-        layer.execute_control_request(
-            BudgetedControlRequest::new(
-                CostedControlRequest::new(
-                    ControlRequest::for_resize(0, 10.0), BioEnergyDelta::ZERO), 1.0));
+        layer.execute_control_request(fully_budgeted_resize_request(0, 10.0));
         assert_eq!(Area::new(6.0), layer.area());
     }
 
@@ -595,10 +583,7 @@ mod tests {
     fn layer_health_can_be_restored() {
         let mut layer = simple_cell_layer(Area::new(1.0), Density::new(1.0));
         layer.damage(0.5);
-        layer.execute_control_request(
-            BudgetedControlRequest::new(
-                CostedControlRequest::new(
-                    ControlRequest::for_healing(0, 0.25), BioEnergyDelta::ZERO), 1.0));
+        layer.execute_control_request(fully_budgeted_healing_request(0, 0.25));
         assert_eq!(0.75, layer.health());
     }
 
@@ -606,10 +591,7 @@ mod tests {
     fn layer_health_cannot_be_restored_above_one() {
         let mut layer = simple_cell_layer(Area::new(1.0), Density::new(1.0));
         layer.damage(0.5);
-        layer.execute_control_request(
-            BudgetedControlRequest::new(
-                CostedControlRequest::new(
-                    ControlRequest::for_healing(0, 1.0), BioEnergyDelta::ZERO), 1.0));
+        layer.execute_control_request(fully_budgeted_healing_request(0, 1.0));
         assert_eq!(1.0, layer.health());
     }
 
@@ -668,10 +650,7 @@ mod tests {
     fn dead_layer_ignores_control_requests() {
         let mut layer = simple_cell_layer(Area::new(1.0), Density::new(1.0));
         layer.damage(1.0);
-        layer.execute_control_request(
-            BudgetedControlRequest::new(
-                CostedControlRequest::new(
-                    ControlRequest::for_healing(0, 1.0), BioEnergyDelta::ZERO), 1.0));
+        layer.execute_control_request(fully_budgeted_healing_request(0, 1.0));
         assert_eq!(0.0, layer.health());
     }
 
@@ -781,6 +760,20 @@ mod tests {
         BudgetedControlRequest::new(
             CostedControlRequest::new(
                 ControlRequest::new(layer_index, channel_index, value),
+                BioEnergyDelta::ZERO), 1.0)
+    }
+
+    fn fully_budgeted_healing_request(layer_index: usize, value: f64) -> BudgetedControlRequest {
+        BudgetedControlRequest::new(
+            CostedControlRequest::new(
+                ControlRequest::for_healing(layer_index, value),
+                BioEnergyDelta::ZERO), 1.0)
+    }
+
+    fn fully_budgeted_resize_request(layer_index: usize, value: f64) -> BudgetedControlRequest {
+        BudgetedControlRequest::new(
+            CostedControlRequest::new(
+                ControlRequest::for_resize(layer_index, value),
                 BioEnergyDelta::ZERO), 1.0)
     }
 }

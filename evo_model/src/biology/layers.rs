@@ -459,13 +459,17 @@ impl CellLayerSpecialty for EnergyGeneratingCellLayerSpecialty {
 
 #[derive(Debug)]
 pub struct BuddingCellLayerSpecialty {
-    donation_energy: BioEnergy
+    child_start_area: Area,
+    budding_angle: Angle,
+    donation_energy: BioEnergy,
 }
 
 impl BuddingCellLayerSpecialty {
-    pub fn new() -> Self {
+    pub fn new(child_start_area: Area) -> Self {
         BuddingCellLayerSpecialty {
-            donation_energy: BioEnergy::ZERO
+            child_start_area,
+            budding_angle: Angle::ZERO,
+            donation_energy: BioEnergy::ZERO,
         }
     }
 
@@ -805,7 +809,7 @@ mod tests {
     #[test]
     fn budding_layer_does_not_create_child_if_not_asked_to() {
         let mut layer = CellLayer::new(Area::new(1.0), Density::new(1.0), Color::Green,
-                                       Box::new(BuddingCellLayerSpecialty::new()));
+                                       Box::new(BuddingCellLayerSpecialty::new(Area::new(0.0))));
         layer.execute_control_request(fully_budgeted_request(0, 2, 0.0));
         assert_eq!(None, layer.after_movement());
     }
@@ -813,7 +817,7 @@ mod tests {
     #[test]
     fn budding_layer_creates_child_if_asked_to() {
         let mut layer = CellLayer::new(Area::new(1.0), Density::new(1.0), Color::Green,
-                                       Box::new(BuddingCellLayerSpecialty::new()));
+                                       Box::new(BuddingCellLayerSpecialty::new(Area::new(0.0))));
         layer.execute_control_request(fully_budgeted_request(0, 2, 1.0));
         assert_ne!(None, layer.after_movement());
     }

@@ -26,7 +26,7 @@ fn create_world() -> World {
                 Box::new(CellLayer::new(Area::new(50.0 * PI), Density::new(1.0), Color::White,
                                         Box::new(EnergyGeneratingCellLayerSpecialty::new()))),
                 Box::new(CellLayer::new(Area::new(50.0 * PI), Density::new(1.0), Color::Green,
-                                        Box::new(BuddingCellLayerSpecialty::new()))
+                                        Box::new(BuddingCellLayerSpecialty::new(Area::new(10.0))))
                     .with_resize_parameters(LayerResizeParameters {
                         growth_energy_delta: BioEnergyDelta::new(-1.0),
                         max_growth_rate: f64::INFINITY,

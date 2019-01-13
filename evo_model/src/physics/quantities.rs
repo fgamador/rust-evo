@@ -13,6 +13,8 @@ pub struct Angle {
 }
 
 impl Angle {
+    pub const ZERO: Angle = Angle { radians: 0.0 };
+
     pub fn from_radians(radians: f64) -> Self {
         Angle { radians: Angle::normalize_radians(radians) }
     }

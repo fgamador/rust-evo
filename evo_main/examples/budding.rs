@@ -25,7 +25,7 @@ fn create_world() -> World {
             vec![
                 Box::new(CellLayer::new(Area::new(50.0 * PI), Density::new(1.0), Color::White,
                                         Box::new(EnergyGeneratingCellLayerSpecialty::new()))),
-                Box::new(CellLayer::new(Area::new(200.0 * PI), Density::new(1.0), Color::Green,
+                Box::new(CellLayer::new(Area::new(50.0 * PI), Density::new(1.0), Color::Green,
                                         Box::new(BuddingCellLayerSpecialty::new()))
                     .with_resize_parameters(LayerResizeParameters {
                         growth_energy_delta: BioEnergyDelta::new(-1.0),
@@ -34,9 +34,30 @@ fn create_world() -> World {
                         max_shrinkage_rate: f64::INFINITY,
                     }))
             ])
-            .with_control(Box::new(ContinuousRequestsControl::new(vec![
-                ControlRequest::new(0, 2, 1.0),
-                ControlRequest::new(1, 2, PI / 2.0),
-                ControlRequest::new(1, 3, 1.0),
-            ]))))
+            .with_control(Box::new(BuddingControl::new(Area::new(100.0), Area::new(10.0)))))
+}
+
+#[derive(Debug)]
+pub struct BuddingControl {
+    min_parent_area: Area,
+    min_child_area: Area,
+}
+
+impl BuddingControl {
+    pub fn new(min_parent_area: Area, min_child_area: Area) -> Self {
+        BuddingControl {
+            min_parent_area,
+            min_child_area,
+        }
+    }
+}
+
+impl CellControl for BuddingControl {
+    fn get_control_requests(&mut self, _cell_state: &CellStateSnapshot) -> Vec<ControlRequest> {
+        vec![
+            ControlRequest::new(0, 2, 1.0),
+            ControlRequest::new(1, 2, PI / 2.0),
+            ControlRequest::new(1, 3, 1.0),
+        ]
+    }
 }

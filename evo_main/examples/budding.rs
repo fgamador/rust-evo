@@ -56,13 +56,13 @@ impl CellControl for BuddingControl {
     fn get_control_requests(&mut self, cell_state: &CellStateSnapshot) -> Vec<ControlRequest> {
         if cell_state.area >= self.min_parent_area {
             vec![
-                ControlRequest::new(0, 2, 1.0),
-                ControlRequest::new(1, 2, PI / 2.0),
-                ControlRequest::new(1, 3, 1.0),
+                EnergyGeneratingCellLayerSpecialty::energy_request(0, 1.0),
+                BuddingCellLayerSpecialty::budding_angle_request(1, PI / 2.0),
+                BuddingCellLayerSpecialty::donation_energy_request(1, 1.0),
             ]
         } else {
             vec![
-                ControlRequest::for_resize(1, self.child_delta_area.value())
+                CellLayer::resize_request(1, self.child_delta_area.value())
             ]
         }
     }

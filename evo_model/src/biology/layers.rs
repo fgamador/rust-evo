@@ -141,6 +141,14 @@ impl CellLayer {
     pub fn after_movement(&mut self) -> Option<Cell> {
         self.body.brain.after_movement(&mut *self.specialty)
     }
+
+    pub fn healing_request(layer_index: usize, value: f64) -> ControlRequest {
+        ControlRequest::new(layer_index, 0, value)
+    }
+
+    pub fn resize_request(layer_index: usize, value: f64) -> ControlRequest {
+        ControlRequest::new(layer_index, 1, value)
+    }
 }
 
 impl OnionLayer for CellLayer {
@@ -360,6 +368,14 @@ impl ThrusterCellLayerSpecialty {
             force_y: 0.0,
         }
     }
+
+    pub fn force_x_request(layer_index: usize, value: f64) -> ControlRequest {
+        ControlRequest::new(layer_index, 2, value)
+    }
+
+    pub fn force_y_request(layer_index: usize, value: f64) -> ControlRequest {
+        ControlRequest::new(layer_index, 3, value)
+    }
 }
 
 impl CellLayerSpecialty for ThrusterCellLayerSpecialty {
@@ -415,6 +431,10 @@ impl EnergyGeneratingCellLayerSpecialty {
             energy: BioEnergy::ZERO
         }
     }
+
+    pub fn energy_request(layer_index: usize, value: f64) -> ControlRequest {
+        ControlRequest::new(layer_index, 2, value)
+    }
 }
 
 impl CellLayerSpecialty for EnergyGeneratingCellLayerSpecialty {
@@ -447,6 +467,14 @@ impl BuddingCellLayerSpecialty {
         BuddingCellLayerSpecialty {
             donation_energy: BioEnergy::ZERO
         }
+    }
+
+    pub fn budding_angle_request(layer_index: usize, value: f64) -> ControlRequest {
+        ControlRequest::new(layer_index, 2, value)
+    }
+
+    pub fn donation_energy_request(layer_index: usize, value: f64) -> ControlRequest {
+        ControlRequest::new(layer_index, 3, value)
     }
 }
 

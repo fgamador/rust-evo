@@ -679,14 +679,8 @@ mod tests {
     fn thruster_layer_adds_force() {
         let mut layer = CellLayer::new(Area::new(1.0), Density::new(1.0), Color::Green,
                                        Box::new(ThrusterCellLayerSpecialty::new()));
-        layer.execute_control_request(
-            BudgetedControlRequest::new(
-                CostedControlRequest::new(
-                    ControlRequest::new(0, 2, 1.0), BioEnergyDelta::ZERO), 1.0));
-        layer.execute_control_request(
-            BudgetedControlRequest::new(
-                CostedControlRequest::new(
-                    ControlRequest::new(0, 3, -1.0), BioEnergyDelta::ZERO), 1.0));
+        layer.execute_control_request(fully_budgeted_request(0, 2, 1.0));
+        layer.execute_control_request(fully_budgeted_request(0, 3, -1.0));
 
         let env = LocalEnvironment::new();
         let (_, force) = layer.after_influences(&env, Duration::new(0.5));
@@ -699,14 +693,8 @@ mod tests {
         let mut layer = CellLayer::new(Area::new(1.0), Density::new(1.0), Color::Green,
                                        Box::new(ThrusterCellLayerSpecialty::new()));
         layer.damage(0.5);
-        layer.execute_control_request(
-            BudgetedControlRequest::new(
-                CostedControlRequest::new(
-                    ControlRequest::new(0, 2, 1.0), BioEnergyDelta::ZERO), 1.0));
-        layer.execute_control_request(
-            BudgetedControlRequest::new(
-                CostedControlRequest::new(
-                    ControlRequest::new(0, 3, -1.0), BioEnergyDelta::ZERO), 1.0));
+        layer.execute_control_request(fully_budgeted_request(0, 2, 1.0));
+        layer.execute_control_request(fully_budgeted_request(0, 3, -1.0));
 
         let env = LocalEnvironment::new();
         let (_, force) = layer.after_influences(&env, Duration::new(1.0));
@@ -718,14 +706,8 @@ mod tests {
     fn dead_thruster_layer_adds_no_force() {
         let mut layer = CellLayer::new(Area::new(1.0), Density::new(1.0), Color::Green,
                                        Box::new(ThrusterCellLayerSpecialty::new()));
-        layer.execute_control_request(
-            BudgetedControlRequest::new(
-                CostedControlRequest::new(
-                    ControlRequest::new(0, 2, 1.0), BioEnergyDelta::ZERO), 1.0));
-        layer.execute_control_request(
-            BudgetedControlRequest::new(
-                CostedControlRequest::new(
-                    ControlRequest::new(0, 3, -1.0), BioEnergyDelta::ZERO), 1.0));
+        layer.execute_control_request(fully_budgeted_request(0, 2, 1.0));
+        layer.execute_control_request(fully_budgeted_request(0, 3, -1.0));
         layer.damage(1.0);
 
         let env = LocalEnvironment::new();

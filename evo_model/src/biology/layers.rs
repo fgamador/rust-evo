@@ -318,6 +318,11 @@ pub trait CellLayerSpecialty: Debug {
         (BioEnergy::ZERO, Force::ZERO)
     }
 
+    // TODO spread and use this, e.g. for the invalid-index panic
+    fn max_control_channel_index(&self) -> usize {
+        1
+    }
+
     fn cost_control_request(&self, request: ControlRequest) -> CostedControlRequest {
         panic!("Invalid control channel index: {}", request.channel_index);
     }
@@ -405,9 +410,9 @@ pub struct EnergyGeneratingCellLayerSpecialty {
 }
 
 impl EnergyGeneratingCellLayerSpecialty {
-    pub fn new(energy: BioEnergy) -> Self {
+    pub fn new() -> Self {
         EnergyGeneratingCellLayerSpecialty {
-            energy
+            energy: BioEnergy::ZERO
         }
     }
 }
@@ -415,6 +420,20 @@ impl EnergyGeneratingCellLayerSpecialty {
 impl CellLayerSpecialty for EnergyGeneratingCellLayerSpecialty {
     fn after_influences(&mut self, body: &CellLayerBody, _env: &LocalEnvironment, subtick_duration: Duration) -> (BioEnergy, Force) {
         (self.energy * body.health * subtick_duration.value(), Force::ZERO)
+    }
+
+    fn cost_control_request(&self, request: ControlRequest) -> CostedControlRequest {
+        match request.channel_index {
+            2 => CostedControlRequest::new(request, BioEnergyDelta::ZERO),
+            _ => panic!("Invalid control channel index: {}", request.channel_index)
+        }
+    }
+
+    fn execute_control_request(&mut self, _body: &CellLayerBody, request: BudgetedControlRequest) {
+        match request.channel_index {
+            2 => self.energy = BioEnergy::new(request.value.max(0.0)),
+            _ => panic!("Invalid control channel index: {}", request.channel_index)
+        }
     }
 }
 

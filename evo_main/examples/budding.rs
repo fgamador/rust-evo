@@ -24,7 +24,7 @@ fn create_world() -> World {
             Position::new(200.0, -100.0), Velocity::ZERO,
             vec![
                 Box::new(CellLayer::new(Area::new(50.0 * PI), Density::new(1.0), Color::White,
-                                        Box::new(EnergyGeneratingCellLayerSpecialty::new(BioEnergy::new(1.0))))),
+                                        Box::new(EnergyGeneratingCellLayerSpecialty::new()))),
                 Box::new(CellLayer::new(Area::new(200.0 * PI), Density::new(1.0), Color::Green,
                                         Box::new(BuddingCellLayerSpecialty::new()))
                     .with_resize_parameters(LayerResizeParameters {
@@ -35,6 +35,7 @@ fn create_world() -> World {
                     }))
             ])
             .with_control(Box::new(ContinuousRequestsControl::new(vec![
+                ControlRequest::new(0, 2, 1.0),
                 ControlRequest::new(1, 2, PI / 2.0),
                 ControlRequest::new(1, 3, 1.0),
             ]))))

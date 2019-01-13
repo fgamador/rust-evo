@@ -8,6 +8,7 @@ pub trait CellControl: Debug {
 
 #[derive(Debug)]
 pub struct CellStateSnapshot {
+    pub area: Area,
     pub center: Position,
     pub velocity: Velocity,
 }
@@ -119,6 +120,7 @@ mod tests {
     #[test]
     fn continuous_resize_control_returns_request_to_grow_specified_layer() {
         let cell_state = CellStateSnapshot {
+            area: Area::new(0.0),
             center: Position::new(0.0, 0.0),
             velocity: Velocity::new(0.0, 0.0),
         };
@@ -130,6 +132,7 @@ mod tests {
     #[test]
     fn simple_thruster_control_returns_requests_for_force() {
         let cell_state = CellStateSnapshot {
+            area: Area::new(0.0),
             center: Position::new(0.0, 0.0),
             velocity: Velocity::new(0.0, 0.0),
         };

@@ -78,6 +78,7 @@ impl Cell {
 
     fn get_state_snapshot(&self) -> CellStateSnapshot {
         CellStateSnapshot {
+            area: self.area(),
             center: self.center(),
             velocity: self.velocity(),
         }

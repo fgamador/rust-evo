@@ -34,30 +34,36 @@ fn create_world() -> World {
                         max_shrinkage_rate: f64::INFINITY,
                     }))
             ])
-            .with_control(Box::new(BuddingControl::new(Area::new(100.0), Area::new(10.0)))))
+            .with_control(Box::new(BuddingControl::new(Area::new(100.0), AreaDelta::new(10.0)))))
 }
 
 #[derive(Debug)]
 pub struct BuddingControl {
     min_parent_area: Area,
-    min_child_area: Area,
+    child_delta_area: AreaDelta,
 }
 
 impl BuddingControl {
-    pub fn new(min_parent_area: Area, min_child_area: Area) -> Self {
+    pub fn new(min_parent_area: Area, child_delta_area: AreaDelta) -> Self {
         BuddingControl {
             min_parent_area,
-            min_child_area,
+            child_delta_area,
         }
     }
 }
 
 impl CellControl for BuddingControl {
-    fn get_control_requests(&mut self, _cell_state: &CellStateSnapshot) -> Vec<ControlRequest> {
-        vec![
-            ControlRequest::new(0, 2, 1.0),
-            ControlRequest::new(1, 2, PI / 2.0),
-            ControlRequest::new(1, 3, 1.0),
-        ]
+    fn get_control_requests(&mut self, cell_state: &CellStateSnapshot) -> Vec<ControlRequest> {
+        if cell_state.area >= self.min_parent_area {
+            vec![
+                ControlRequest::new(0, 2, 1.0),
+                ControlRequest::new(1, 2, PI / 2.0),
+                ControlRequest::new(1, 3, 1.0),
+            ]
+        } else {
+            vec![
+                ControlRequest::for_resize(1, self.child_delta_area.value())
+            ]
+        }
     }
 }

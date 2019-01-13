@@ -34,36 +34,38 @@ fn create_world() -> World {
                         max_shrinkage_rate: f64::INFINITY,
                     }))
             ])
-            .with_control(Box::new(BuddingControl::new(Area::new(100.0), AreaDelta::new(10.0)))))
+            .with_control(Box::new(BuddingControl {})))
 }
 
 #[derive(Debug)]
-pub struct BuddingControl {
-    min_parent_area: Area,
-    child_delta_area: AreaDelta,
-}
+pub struct BuddingControl {}
 
 impl BuddingControl {
-    pub fn new(min_parent_area: Area, child_delta_area: AreaDelta) -> Self {
-        BuddingControl {
-            min_parent_area,
-            child_delta_area,
-        }
+    fn is_parent(cell_state: &CellStateSnapshot) -> bool {
+        cell_state.area >= Area::new(100.0)
+    }
+
+    fn parent_requests() -> Vec<ControlRequest> {
+        vec![
+            EnergyGeneratingCellLayerSpecialty::energy_request(0, 1.0),
+            BuddingCellLayerSpecialty::budding_angle_request(1, PI / 2.0),
+            BuddingCellLayerSpecialty::donation_energy_request(1, 1.0),
+        ]
+    }
+
+    fn child_requests() -> Vec<ControlRequest> {
+        vec![
+            CellLayer::resize_request(1, 10.0)
+        ]
     }
 }
 
 impl CellControl for BuddingControl {
     fn get_control_requests(&mut self, cell_state: &CellStateSnapshot) -> Vec<ControlRequest> {
-        if cell_state.area >= self.min_parent_area {
-            vec![
-                EnergyGeneratingCellLayerSpecialty::energy_request(0, 1.0),
-                BuddingCellLayerSpecialty::budding_angle_request(1, PI / 2.0),
-                BuddingCellLayerSpecialty::donation_energy_request(1, 1.0),
-            ]
+        if Self::is_parent(cell_state) {
+            Self::parent_requests()
         } else {
-            vec![
-                CellLayer::resize_request(1, self.child_delta_area.value())
-            ]
+            Self::child_requests()
         }
     }
 }

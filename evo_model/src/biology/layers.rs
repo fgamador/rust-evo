@@ -400,6 +400,25 @@ impl CellLayerSpecialty for PhotoCellLayerSpecialty {
 }
 
 #[derive(Debug)]
+pub struct EnergyGeneratingCellLayerSpecialty {
+    energy: BioEnergy,
+}
+
+impl EnergyGeneratingCellLayerSpecialty {
+    pub fn new(energy: BioEnergy) -> Self {
+        EnergyGeneratingCellLayerSpecialty {
+            energy
+        }
+    }
+}
+
+impl CellLayerSpecialty for EnergyGeneratingCellLayerSpecialty {
+    fn after_influences(&mut self, body: &CellLayerBody, _env: &LocalEnvironment, subtick_duration: Duration) -> (BioEnergy, Force) {
+        (self.energy * body.health * subtick_duration.value(), Force::ZERO)
+    }
+}
+
+#[derive(Debug)]
 pub struct BuddingCellLayerSpecialty {
     donation_energy: BioEnergy
 }

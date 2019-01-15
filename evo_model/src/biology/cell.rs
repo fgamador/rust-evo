@@ -62,20 +62,6 @@ impl Cell {
         self.energy
     }
 
-    fn update_layer_outer_radii(layers: &mut Vec<Box<CellLayer>>) -> Length {
-        layers.iter_mut().fold(
-            Length::new(0.0),
-            |inner_radius, layer| {
-                layer.update_outer_radius(inner_radius);
-                layer.outer_radius()
-            })
-    }
-
-    fn calc_mass(layers: &Vec<Box<CellLayer>>) -> Mass {
-        layers.iter().fold(
-            Mass::new(0.0), |mass, layer| mass + layer.mass())
-    }
-
     fn do_budgeting(&mut self) -> Vec<BudgetedControlRequest> {
         let cell_state = self.get_state_snapshot();
 
@@ -130,6 +116,35 @@ impl Cell {
                       }
                   })
     }
+
+    fn run_layers(&mut self, budgeted_control_requests: &[BudgetedControlRequest]) -> Vec<Cell> {
+        let mut children = vec![];
+        for request in budgeted_control_requests {
+            let layer = &mut self.layers[request.layer_index];
+            layer.execute_control_request(*request);
+            if let Some(child) = layer.after_movement() {
+                children.push(child);
+            }
+        }
+
+        self.radius = Self::update_layer_outer_radii(&mut self.layers);
+        self.newtonian_state.mass = Self::calc_mass(&self.layers);
+        children
+    }
+
+    fn update_layer_outer_radii(layers: &mut Vec<Box<CellLayer>>) -> Length {
+        layers.iter_mut().fold(
+            Length::new(0.0),
+            |inner_radius, layer| {
+                layer.update_outer_radius(inner_radius);
+                layer.outer_radius()
+            })
+    }
+
+    fn calc_mass(layers: &Vec<Box<CellLayer>>) -> Mass {
+        layers.iter().fold(
+            Mass::new(0.0), |mass, layer| mass + layer.mass())
+    }
 }
 
 impl TickCallbacks for Cell {
@@ -144,20 +159,7 @@ impl TickCallbacks for Cell {
 
     fn after_movement(&mut self) -> Vec<Cell> {
         let budgeted_control_requests = self.do_budgeting();
-
-        let mut children = vec![];
-        for request in budgeted_control_requests {
-            let layer = &mut self.layers[request.layer_index];
-            layer.execute_control_request(request);
-            if let Some(child) = layer.after_movement() {
-                children.push(child);
-            }
-        }
-
-        self.radius = Self::update_layer_outer_radii(&mut self.layers);
-        self.newtonian_state.mass = Self::calc_mass(&self.layers);
-
-        children
+        self.run_layers(&budgeted_control_requests)
     }
 }
 

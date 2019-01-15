@@ -82,7 +82,7 @@ impl Cell {
         let control_requests = self.control.get_control_requests(&cell_state);
         let costed_requests = self.cost_control_requests(&control_requests);
         let (end_energy, budgeted_control_requests) =
-            Cell::budget_control_requests(self.energy, &costed_requests);
+            Self::budget_control_requests(self.energy, &costed_requests);
 
         self.energy = end_energy;
         budgeted_control_requests

@@ -7,6 +7,7 @@ pub mod environment;
 pub mod physics;
 pub mod world;
 
+use biology::cell::Cell;
 use biology::layers::*;
 use evo_view_model::ViewModel;
 use physics::quantities::*;
@@ -25,7 +26,7 @@ pub fn tick(world: &mut World, view_model: &mut ViewModel) {
 pub trait TickCallbacks {
     fn after_influences(&mut self, subtick_duration: Duration);
 
-    fn after_movement(&mut self);
+    fn after_movement(&mut self) -> Option<Cell>;
 }
 
 fn to_bullseye<C>(cell: &C) -> evo_view_model::Bullseye

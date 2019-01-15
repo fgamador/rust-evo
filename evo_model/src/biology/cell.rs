@@ -362,7 +362,7 @@ mod tests {
         assert_eq!(BioEnergy::new(5.0), cell.energy());
     }
 
-    //#[test]
+    #[test]
     fn budding_creates_copy_of_parent() {
         let mut cell = Cell::new(Position::ORIGIN, Velocity::ZERO,
                                  vec![
@@ -390,7 +390,7 @@ mod tests {
 
         assert_eq!(1, children.len());
         // TODO need some sort of "same parameters" check
-        assert_eq!(2, children[0].layers().len());
+        //assert_eq!(2, children[0].layers().len());
     }
 
     fn simple_cell_layer(area: Area, density: Density) -> CellLayer {

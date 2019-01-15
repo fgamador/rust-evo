@@ -130,7 +130,7 @@ impl TickCallbacks for Cell {
         }
     }
 
-    fn after_movement(&mut self) -> Option<Cell> {
+    fn after_movement(&mut self) -> Vec<Cell> {
         let cell_state = self.get_state_snapshot();
 
         let control_requests = self.control.get_control_requests(&cell_state);
@@ -146,7 +146,7 @@ impl TickCallbacks for Cell {
         self.radius = Self::update_layer_outer_radii(&mut self.layers);
         self.newtonian_state.mass = Self::calc_mass(&self.layers);
 
-        None
+        vec![]
     }
 }
 
@@ -373,13 +373,11 @@ mod tests {
                 BuddingCellLayerSpecialty::donation_energy_request(1, BioEnergy::new(1.0)),
             ])));
 
-        match cell.after_movement() {
-            None => panic!("No child created"),
-            Some(child) => {
-                // TODO need some sort of "same parameters" check
-                assert_eq!(2, child.layers().len());
-            }
-        }
+        let children = cell.after_movement();
+
+        assert_eq!(1, children.len());
+        // TODO need some sort of "same parameters" check
+        assert_eq!(2, children[0].layers().len());
     }
 
     fn simple_cell_layer(area: Area, density: Density) -> CellLayer {

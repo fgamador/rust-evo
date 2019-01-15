@@ -347,6 +347,36 @@ mod tests {
         assert_eq!(BioEnergy::new(5.0), cell.energy());
     }
 
+    #[test]
+    fn budding_creates_copy_of_parent() {
+        let mut cell = Cell::new(Position::ORIGIN, Velocity::ZERO,
+                                 vec![
+                                     Box::new(simple_cell_layer(Area::new(10.0), Density::new(1.0))
+                                         .with_resize_parameters(LayerResizeParameters {
+                                             growth_energy_delta: BioEnergyDelta::ZERO,
+                                             max_growth_rate: f64::INFINITY,
+                                             shrinkage_energy_delta: BioEnergyDelta::new(2.0),
+                                             max_shrinkage_rate: 0.5,
+                                         })),
+                                     Box::new(CellLayer::new(Area::new(5.0), Density::new(1.0), Color::White,
+                                                             Box::new(BuddingCellLayerSpecialty::new(Area::new(10.0))))
+                                         .with_resize_parameters(LayerResizeParameters {
+                                             growth_energy_delta: BioEnergyDelta::new(-1.0),
+                                             max_growth_rate: f64::INFINITY,
+                                             shrinkage_energy_delta: BioEnergyDelta::ZERO,
+                                             max_shrinkage_rate: f64::INFINITY,
+                                         })),
+                                 ])
+            .with_control(Box::new(ContinuousRequestsControl::new(vec![
+                BuddingCellLayerSpecialty::donation_energy_request(1, BioEnergy::new(1.0)),
+            ])));
+
+//        let Some(child) = cell.after_movement();
+//
+//        // TODO need some sort of "same parameters" check
+//        assert_eq!(2, child.layers().len());
+    }
+
     fn simple_cell_layer(area: Area, density: Density) -> CellLayer {
         CellLayer::new(area, density, Color::Green, Box::new(NullCellLayerSpecialty::new()))
     }

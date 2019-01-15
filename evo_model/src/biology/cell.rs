@@ -139,14 +139,19 @@ impl TickCallbacks for Cell {
             Cell::budget_control_requests(self.energy, &costed_requests);
         self.energy = end_energy;
 
+        let mut children = vec![];
         for request in budgeted_control_requests {
-            self.layers[request.layer_index].execute_control_request(request);
+            let layer = &mut self.layers[request.layer_index];
+            layer.execute_control_request(request);
+            if let Some(child) = layer.after_movement() {
+                children.push(child);
+            }
         }
 
         self.radius = Self::update_layer_outer_radii(&mut self.layers);
         self.newtonian_state.mass = Self::calc_mass(&self.layers);
 
-        vec![]
+        children
     }
 }
 

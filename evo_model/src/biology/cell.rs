@@ -76,6 +76,18 @@ impl Cell {
             Mass::new(0.0), |mass, layer| mass + layer.mass())
     }
 
+    fn do_budgeting(&mut self) -> Vec<BudgetedControlRequest> {
+        let cell_state = self.get_state_snapshot();
+
+        let control_requests = self.control.get_control_requests(&cell_state);
+        let costed_requests = self.cost_control_requests(&control_requests);
+        let (end_energy, budgeted_control_requests) =
+            Cell::budget_control_requests(self.energy, &costed_requests);
+
+        self.energy = end_energy;
+        budgeted_control_requests
+    }
+
     fn get_state_snapshot(&self) -> CellStateSnapshot {
         CellStateSnapshot {
             area: self.area(),
@@ -131,13 +143,7 @@ impl TickCallbacks for Cell {
     }
 
     fn after_movement(&mut self) -> Vec<Cell> {
-        let cell_state = self.get_state_snapshot();
-
-        let control_requests = self.control.get_control_requests(&cell_state);
-        let costed_requests = self.cost_control_requests(&control_requests);
-        let (end_energy, budgeted_control_requests) =
-            Cell::budget_control_requests(self.energy, &costed_requests);
-        self.energy = end_energy;
+        let budgeted_control_requests = self.do_budgeting();
 
         let mut children = vec![];
         for request in budgeted_control_requests {

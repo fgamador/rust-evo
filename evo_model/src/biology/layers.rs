@@ -483,9 +483,19 @@ impl BuddingCellLayerSpecialty {
 }
 
 impl CellLayerSpecialty for BuddingCellLayerSpecialty {
+//    fn cost_control_request(&self, request: ControlRequest) -> CostedControlRequest {
+//        match request.channel_index {
+//            2 => CostedControlRequest::new(request, BioEnergyDelta::ZERO),
+//            // TODO adjust donation_energy cost based on an efficiency?
+//            3 => CostedControlRequest::new(request, BioEnergyDelta::new(request.value)),
+//            _ => panic!("Invalid control channel index: {}", request.channel_index)
+//        }
+//    }
+
     fn execute_control_request(&mut self, _body: &CellLayerBody, request: BudgetedControlRequest) {
         match request.channel_index {
-            2 => self.donation_energy = BioEnergy::new(request.value),
+            2 => self.budding_angle = Angle::from_radians(request.value),
+            3 => self.donation_energy = BioEnergy::new(request.value),
             _ => panic!("Invalid control channel index: {}", request.channel_index)
         }
     }
@@ -810,7 +820,7 @@ mod tests {
     fn budding_layer_does_not_create_child_if_not_asked_to() {
         let mut layer = CellLayer::new(Area::new(1.0), Density::new(1.0), Color::Green,
                                        Box::new(BuddingCellLayerSpecialty::new(Area::new(0.0))));
-        layer.execute_control_request(fully_budgeted_request(0, 2, 0.0));
+        layer.execute_control_request(fully_budgeted_request(0, 3, 0.0));
         assert_eq!(None, layer.after_movement());
     }
 
@@ -818,7 +828,7 @@ mod tests {
     fn budding_layer_creates_child_if_asked_to() {
         let mut layer = CellLayer::new(Area::new(1.0), Density::new(1.0), Color::Green,
                                        Box::new(BuddingCellLayerSpecialty::new(Area::new(0.0))));
-        layer.execute_control_request(fully_budgeted_request(0, 2, 1.0));
+        layer.execute_control_request(fully_budgeted_request(0, 3, 1.0));
         assert_ne!(None, layer.after_movement());
     }
 

@@ -349,7 +349,7 @@ mod tests {
         assert_eq!(BioEnergy::new(5.0), cell.energy());
     }
 
-    #[test]
+    //#[test]
     fn budding_creates_copy_of_parent() {
         let mut cell = Cell::new(Position::ORIGIN, Velocity::ZERO,
                                  vec![
@@ -373,13 +373,13 @@ mod tests {
                 BuddingCellLayerSpecialty::donation_energy_request(1, BioEnergy::new(1.0)),
             ])));
 
-//        match cell.after_movement() {
-//            None => panic!("No child created"),
-//            Some(child) => {
-//                // TODO need some sort of "same parameters" check
-//                assert_eq!(2, child.layers().len());
-//            }
-//        }
+        match cell.after_movement() {
+            None => panic!("No child created"),
+            Some(child) => {
+                // TODO need some sort of "same parameters" check
+                assert_eq!(2, child.layers().len());
+            }
+        }
     }
 
     fn simple_cell_layer(area: Area, density: Density) -> CellLayer {

@@ -218,8 +218,9 @@ mod tests {
     }
 
     #[test]
-    fn ball_as_cell() {
-        let ball = Cell::ball(Length::new(2.0), Mass::new(3.0), Position::new(1.0, -1.0), Velocity::new(-2.0, 3.0));
+    fn cell_as_ball() {
+        let ball = Cell::ball(Length::new(2.0), Mass::new(3.0),
+                              Position::new(1.0, -1.0), Velocity::new(-2.0, 3.0));
         assert_eq!(Length::new(2.0), ball.radius());
         assert_eq!(Mass::new(3.0), ball.mass());
         assert_eq!(Position::new(1.0, -1.0), ball.center());

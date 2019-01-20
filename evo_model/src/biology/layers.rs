@@ -490,6 +490,14 @@ pub struct BuddingCellLayerSpecialty {
 }
 
 impl BuddingCellLayerSpecialty {
+    pub fn new(_prototype: &Cell) -> Self {
+        BuddingCellLayerSpecialty {
+            child_start_area: Area::new(0.0),
+            budding_angle: Angle::ZERO,
+            donation_energy: BioEnergy::ZERO,
+        }
+    }
+
     pub fn new2(child_start_area: Area) -> Self {
         BuddingCellLayerSpecialty {
             child_start_area,
@@ -849,6 +857,22 @@ mod tests {
         let (energy, _) = layer.after_influences(&env, Duration::new(1.0));
 
         assert_eq!(BioEnergy::new(0.0), energy);
+    }
+
+    //#[test]
+    fn budding_layer_clones_prototype() {
+        let prototype = Cell::new(Position::new(1.0, 1.0), Velocity::new(1.0, 1.0),
+                                  vec![
+                                      Box::new(simple_cell_layer(Area::new(PI), Density::new(1.0))),
+                                      Box::new(simple_cell_layer(Area::new(PI), Density::new(1.0)))
+                                  ]);
+        let mut layer = CellLayer::new(Area::new(1.0), Density::new(1.0), Color::Green,
+                                       Box::new(BuddingCellLayerSpecialty::new(&prototype)));
+        layer.execute_control_request(fully_budgeted_request(0, 3, 1.0));
+        match layer.after_movement() {
+            None => panic!(),
+            Some(child) => assert_eq!(child.layers().len(), prototype.layers().len())
+        }
     }
 
     #[test]

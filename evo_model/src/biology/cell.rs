@@ -11,7 +11,7 @@ use physics::sortable_graph::*;
 use std::f64::consts::PI;
 use std::ptr;
 
-#[derive(Debug, GraphNode, HasLocalEnvironment, NewtonianBody)]
+#[derive(Clone, Debug, GraphNode, HasLocalEnvironment, NewtonianBody)]
 pub struct Cell {
     graph_node_data: GraphNodeData,
     radius: Length,
@@ -191,6 +191,15 @@ impl Onion for Cell {
 mod tests {
     use super::*;
     use std::f64;
+
+    #[test]
+    fn can_clone_cell() {
+        let cell = Cell::new(Position::new(1.0, 1.0), Velocity::new(1.0, 1.0),
+                             vec![
+                                 Box::new(simple_cell_layer(Area::new(PI), Density::new(1.0)))
+                             ]);
+        let _clone = cell.clone();
+    }
 
     #[test]
     fn cells_use_pointer_equality() {

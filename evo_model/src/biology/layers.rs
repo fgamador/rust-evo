@@ -547,6 +547,12 @@ mod tests {
     use biology::control_requests::BudgetedControlRequest;
 
     #[test]
+    fn can_clone_layer() {
+        let layer = simple_cell_layer(Area::new(1.0), Density::new(1.0));
+        let _clone = layer.clone();
+    }
+
+    #[test]
     fn layer_calculates_mass() {
         let layer = simple_cell_layer(Area::new(2.0 * PI), Density::new(3.0));
         assert_eq!(Mass::new(6.0 * PI), layer.mass());
@@ -761,12 +767,6 @@ mod tests {
         layer.damage(1.0);
         layer.execute_control_request(fully_budgeted_healing_request(0, 1.0));
         assert_eq!(0.0, layer.health());
-    }
-
-    #[test]
-    fn can_clone_layer() {
-        let layer = simple_cell_layer(Area::new(1.0), Density::new(1.0));
-        let _clone = layer.clone();
     }
 
     #[test]

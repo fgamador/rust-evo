@@ -165,7 +165,7 @@ impl OnionLayer for CellLayer {
     }
 }
 
-#[derive(Debug)]
+#[derive(Clone, Debug)]
 pub struct CellLayerBody {
     area: Area,
     density: Density,

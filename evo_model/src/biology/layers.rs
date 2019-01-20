@@ -83,7 +83,7 @@ impl LayerResizeParameters {
     };
 }
 
-#[derive(Debug)]
+#[derive(Clone, Debug)]
 pub struct CellLayer {
     body: CellLayerBody,
     specialty: Box<CellLayerSpecialty>,
@@ -322,6 +322,8 @@ impl CellLayerBrain for DeadCellLayerBrain {
 }
 
 pub trait CellLayerSpecialty: Debug {
+    fn box_clone(&self) -> Box<CellLayerSpecialty>;
+
     fn after_influences(&mut self, _body: &CellLayerBody, _env: &LocalEnvironment, _subtick_duration: Duration) -> (BioEnergy, Force) {
         (BioEnergy::ZERO, Force::ZERO)
     }
@@ -344,6 +346,13 @@ pub trait CellLayerSpecialty: Debug {
     }
 }
 
+impl Clone for Box<CellLayerSpecialty>
+{
+    fn clone(&self) -> Box<CellLayerSpecialty> {
+        self.box_clone()
+    }
+}
+
 #[derive(Clone, Debug)]
 pub struct NullCellLayerSpecialty {}
 
@@ -353,7 +362,11 @@ impl NullCellLayerSpecialty {
     }
 }
 
-impl CellLayerSpecialty for NullCellLayerSpecialty {}
+impl CellLayerSpecialty for NullCellLayerSpecialty {
+    fn box_clone(&self) -> Box<CellLayerSpecialty> {
+        Box::new(self.clone())
+    }
+}
 
 #[derive(Clone, Debug)]
 pub struct ThrusterCellLayerSpecialty {
@@ -379,6 +392,10 @@ impl ThrusterCellLayerSpecialty {
 }
 
 impl CellLayerSpecialty for ThrusterCellLayerSpecialty {
+    fn box_clone(&self) -> Box<CellLayerSpecialty> {
+        Box::new(self.clone())
+    }
+
     fn after_influences(&mut self, _body: &CellLayerBody, _env: &LocalEnvironment, _subtick_duration: Duration) -> (BioEnergy, Force) {
         (BioEnergy::ZERO, Force::new(self.force_x, self.force_y))
     }
@@ -414,6 +431,10 @@ impl PhotoCellLayerSpecialty {
 }
 
 impl CellLayerSpecialty for PhotoCellLayerSpecialty {
+    fn box_clone(&self) -> Box<CellLayerSpecialty> {
+        Box::new(self.clone())
+    }
+
     fn after_influences(&mut self, body: &CellLayerBody, env: &LocalEnvironment, subtick_duration: Duration) -> (BioEnergy, Force) {
         (BioEnergy::new(env.light_intensity() * self.efficiency * body.health * body.area.value() * subtick_duration.value()),
          Force::ZERO)
@@ -438,6 +459,10 @@ impl EnergyGeneratingCellLayerSpecialty {
 }
 
 impl CellLayerSpecialty for EnergyGeneratingCellLayerSpecialty {
+    fn box_clone(&self) -> Box<CellLayerSpecialty> {
+        Box::new(self.clone())
+    }
+
     fn after_influences(&mut self, body: &CellLayerBody, _env: &LocalEnvironment, subtick_duration: Duration) -> (BioEnergy, Force) {
         (self.energy * body.health * subtick_duration.value(), Force::ZERO)
     }
@@ -483,6 +508,10 @@ impl BuddingCellLayerSpecialty {
 }
 
 impl CellLayerSpecialty for BuddingCellLayerSpecialty {
+    fn box_clone(&self) -> Box<CellLayerSpecialty> {
+        Box::new(self.clone())
+    }
+
     fn cost_control_request(&self, request: ControlRequest) -> CostedControlRequest {
         match request.channel_index {
             2 => CostedControlRequest::new(request, BioEnergyDelta::ZERO),
@@ -734,11 +763,11 @@ mod tests {
         assert_eq!(0.0, layer.health());
     }
 
-//    #[test]
-//    fn can_clone_layer() {
-//        let layer = simple_cell_layer(Area::new(1.0), Density::new(1.0));
-//        layer.clone();
-//    }
+    #[test]
+    fn can_clone_layer() {
+        let layer = simple_cell_layer(Area::new(1.0), Density::new(1.0));
+        let _clone = layer.clone();
+    }
 
     #[test]
     fn thruster_layer_adds_force() {

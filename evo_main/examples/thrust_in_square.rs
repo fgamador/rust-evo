@@ -42,7 +42,7 @@ pub enum Direction {
     Down,
 }
 
-#[derive(Debug)]
+#[derive(Clone, Debug)]
 pub struct ThrustInSquareControl {
     thruster_layer_index: usize,
     force: f64,
@@ -84,6 +84,10 @@ impl ThrustInSquareControl {
 }
 
 impl CellControl for ThrustInSquareControl {
+    fn box_clone(&self) -> Box<CellControl> {
+        Box::new(self.clone())
+    }
+
     fn get_control_requests(&mut self, _cell_state: &CellStateSnapshot) -> Vec<ControlRequest> {
         let force = if self.ticks < self.accel_ticks {
             Self::calc_force(self.force, self.direction)

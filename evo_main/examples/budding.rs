@@ -37,7 +37,7 @@ fn create_world() -> World {
             .with_control(Box::new(BuddingControl {})))
 }
 
-#[derive(Debug)]
+#[derive(Clone, Debug)]
 pub struct BuddingControl {}
 
 impl BuddingControl {
@@ -61,6 +61,10 @@ impl BuddingControl {
 }
 
 impl CellControl for BuddingControl {
+    fn box_clone(&self) -> Box<CellControl> {
+        Box::new(self.clone())
+    }
+
     fn get_control_requests(&mut self, cell_state: &CellStateSnapshot) -> Vec<ControlRequest> {
         if Self::is_parent(cell_state) {
             Self::parent_requests()

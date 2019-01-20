@@ -51,7 +51,7 @@ fn simple_cell_layer(area: Area, density: Density, color: Color) -> CellLayer {
     CellLayer::new(area, density, color, Box::new(NullCellLayerSpecialty::new()))
 }
 
-#[derive(Debug)]
+#[derive(Clone, Debug)]
 pub struct FixedDepthSeekingControl {
     float_layer_index: usize,
     target_y: f64,
@@ -67,6 +67,10 @@ impl FixedDepthSeekingControl {
 }
 
 impl CellControl for FixedDepthSeekingControl {
+    fn box_clone(&self) -> Box<CellControl> {
+        Box::new(self.clone())
+    }
+
     fn get_control_requests(&mut self, cell_state: &CellStateSnapshot) -> Vec<ControlRequest> {
         let y_offset = cell_state.center.y() - self.target_y;
         let target_velocity_y = -y_offset / 100.0;

@@ -3,7 +3,16 @@ use physics::quantities::*;
 use std::fmt::Debug;
 
 pub trait CellControl: Debug {
+    fn box_clone(&self) -> Box<CellControl>;
+
     fn get_control_requests(&mut self, cell_state: &CellStateSnapshot) -> Vec<ControlRequest>;
+}
+
+impl Clone for Box<CellControl>
+{
+    fn clone(&self) -> Box<CellControl> {
+        self.box_clone()
+    }
 }
 
 #[derive(Debug)]
@@ -13,7 +22,7 @@ pub struct CellStateSnapshot {
     pub velocity: Velocity,
 }
 
-#[derive(Debug)]
+#[derive(Clone, Debug)]
 pub struct NullControl {}
 
 impl NullControl {
@@ -23,12 +32,16 @@ impl NullControl {
 }
 
 impl CellControl for NullControl {
+    fn box_clone(&self) -> Box<CellControl> {
+        Box::new(self.clone())
+    }
+
     fn get_control_requests(&mut self, _cell_state: &CellStateSnapshot) -> Vec<ControlRequest> {
         vec![]
     }
 }
 
-#[derive(Debug)]
+#[derive(Clone, Debug)]
 pub struct CompositeControl {
     controls: Vec<Box<CellControl>>
 }
@@ -42,6 +55,10 @@ impl CompositeControl {
 }
 
 impl CellControl for CompositeControl {
+    fn box_clone(&self) -> Box<CellControl> {
+        Box::new(self.clone())
+    }
+
     fn get_control_requests(&mut self, cell_state: &CellStateSnapshot) -> Vec<ControlRequest> {
         self.controls.iter_mut()
             .flat_map(|control| control.get_control_requests(cell_state))
@@ -49,7 +66,7 @@ impl CellControl for CompositeControl {
     }
 }
 
-#[derive(Debug)]
+#[derive(Clone, Debug)]
 pub struct ContinuousRequestsControl {
     requests: Vec<ControlRequest>
 }
@@ -63,12 +80,16 @@ impl ContinuousRequestsControl {
 }
 
 impl CellControl for ContinuousRequestsControl {
+    fn box_clone(&self) -> Box<CellControl> {
+        Box::new(self.clone())
+    }
+
     fn get_control_requests(&mut self, _cell_state: &CellStateSnapshot) -> Vec<ControlRequest> {
         self.requests.clone()
     }
 }
 
-#[derive(Debug)]
+#[derive(Clone, Debug)]
 pub struct ContinuousResizeControl {
     layer_index: usize,
     resize_amount: AreaDelta,
@@ -84,12 +105,16 @@ impl ContinuousResizeControl {
 }
 
 impl CellControl for ContinuousResizeControl {
+    fn box_clone(&self) -> Box<CellControl> {
+        Box::new(self.clone())
+    }
+
     fn get_control_requests(&mut self, _cell_state: &CellStateSnapshot) -> Vec<ControlRequest> {
         vec![ControlRequest::for_resize(self.layer_index, self.resize_amount.value())]
     }
 }
 
-#[derive(Debug)]
+#[derive(Clone, Debug)]
 pub struct SimpleThrusterControl {
     thruster_layer_index: usize,
     force: Force,
@@ -105,6 +130,10 @@ impl SimpleThrusterControl {
 }
 
 impl CellControl for SimpleThrusterControl {
+    fn box_clone(&self) -> Box<CellControl> {
+        Box::new(self.clone())
+    }
+
     fn get_control_requests(&mut self, _cell_state: &CellStateSnapshot) -> Vec<ControlRequest> {
         vec![
             ControlRequest::new(self.thruster_layer_index, 2, self.force.x()),
@@ -116,6 +145,12 @@ impl CellControl for SimpleThrusterControl {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn can_clone_control() {
+        let control = NullControl::new();
+        let _clone = control.clone();
+    }
 
     #[test]
     fn continuous_resize_control_returns_request_to_grow_specified_layer() {

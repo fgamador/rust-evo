@@ -403,7 +403,7 @@ mod tests {
                                              max_shrinkage_rate: 0.5,
                                          })),
                                      Box::new(CellLayer::new(Area::new(5.0), Density::new(1.0), Color::White,
-                                                             Box::new(BuddingCellLayerSpecialty::new(Area::new(10.0))))
+                                                             Box::new(BuddingCellLayerSpecialty::new2(Area::new(10.0))))
                                          .with_resize_parameters(LayerResizeParameters {
                                              growth_energy_delta: BioEnergyDelta::new(-1.0),
                                              max_growth_rate: f64::INFINITY,

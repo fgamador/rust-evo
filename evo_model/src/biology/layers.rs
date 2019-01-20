@@ -490,7 +490,7 @@ pub struct BuddingCellLayerSpecialty {
 }
 
 impl BuddingCellLayerSpecialty {
-    pub fn new(child_start_area: Area) -> Self {
+    pub fn new2(child_start_area: Area) -> Self {
         BuddingCellLayerSpecialty {
             child_start_area,
             budding_angle: Angle::ZERO,
@@ -854,7 +854,7 @@ mod tests {
     #[test]
     fn budding_layer_does_not_create_child_if_not_asked_to() {
         let mut layer = CellLayer::new(Area::new(1.0), Density::new(1.0), Color::Green,
-                                       Box::new(BuddingCellLayerSpecialty::new(Area::new(0.0))));
+                                       Box::new(BuddingCellLayerSpecialty::new2(Area::new(0.0))));
         layer.execute_control_request(fully_budgeted_request(0, 3, 0.0));
         assert_eq!(None, layer.after_movement());
     }
@@ -862,7 +862,7 @@ mod tests {
     #[test]
     fn budding_layer_creates_child_if_asked_to() {
         let mut layer = CellLayer::new(Area::new(1.0), Density::new(1.0), Color::Green,
-                                       Box::new(BuddingCellLayerSpecialty::new(Area::new(0.0))));
+                                       Box::new(BuddingCellLayerSpecialty::new2(Area::new(0.0))));
         layer.execute_control_request(fully_budgeted_request(0, 3, 1.0));
         assert_ne!(None, layer.after_movement());
     }

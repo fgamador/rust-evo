@@ -40,6 +40,13 @@ impl Cell {
         }
     }
 
+    pub fn new_from_prototype(prototype: &Cell, position: Position, velocity: Velocity) -> Self {
+        let mut cell = prototype.clone();
+        cell.newtonian_state.position = position;
+        cell.newtonian_state.velocity = velocity;
+        cell
+    }
+
     pub fn ball(radius: Length, mass: Mass, position: Position, velocity: Velocity) -> Self {
         let area = PI * radius.sqr();
         Self::new(position, velocity, vec![
@@ -199,6 +206,19 @@ mod tests {
                                  Box::new(simple_cell_layer(Area::new(PI), Density::new(1.0)))
                              ]);
         let _clone = cell.clone();
+    }
+
+    #[test]
+    fn can_create_cell_from_prototype() {
+        let prototype = Cell::new(Position::new(1.0, 1.0), Velocity::new(1.0, 1.0),
+                                  vec![
+                                      Box::new(simple_cell_layer(Area::new(PI), Density::new(1.0)))
+                                  ]);
+        let cell = Cell::new_from_prototype(&prototype, Position::new(2.0, -2.0), Velocity::new(3.0, -3.0));
+        assert_eq!(prototype.radius(), cell.radius());
+        assert_eq!(prototype.mass(), cell.mass());
+        assert_eq!(Position::new(2.0, -2.0), cell.center());
+        assert_eq!(Velocity::new(3.0, -3.0), cell.velocity());
     }
 
     #[test]

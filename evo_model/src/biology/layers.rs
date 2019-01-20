@@ -344,7 +344,7 @@ pub trait CellLayerSpecialty: Debug {
     }
 }
 
-#[derive(Debug)]
+#[derive(Clone, Debug)]
 pub struct NullCellLayerSpecialty {}
 
 impl NullCellLayerSpecialty {
@@ -355,7 +355,7 @@ impl NullCellLayerSpecialty {
 
 impl CellLayerSpecialty for NullCellLayerSpecialty {}
 
-#[derive(Debug)]
+#[derive(Clone, Debug)]
 pub struct ThrusterCellLayerSpecialty {
     force_x: f64,
     force_y: f64,
@@ -400,7 +400,7 @@ impl CellLayerSpecialty for ThrusterCellLayerSpecialty {
     }
 }
 
-#[derive(Debug)]
+#[derive(Clone, Debug)]
 pub struct PhotoCellLayerSpecialty {
     efficiency: f64,
 }
@@ -420,7 +420,7 @@ impl CellLayerSpecialty for PhotoCellLayerSpecialty {
     }
 }
 
-#[derive(Debug)]
+#[derive(Clone, Debug)]
 pub struct EnergyGeneratingCellLayerSpecialty {
     energy: BioEnergy,
 }
@@ -457,7 +457,7 @@ impl CellLayerSpecialty for EnergyGeneratingCellLayerSpecialty {
     }
 }
 
-#[derive(Debug)]
+#[derive(Clone, Debug)]
 pub struct BuddingCellLayerSpecialty {
     child_start_area: Area,
     budding_angle: Angle,
@@ -733,6 +733,12 @@ mod tests {
         layer.execute_control_request(fully_budgeted_healing_request(0, 1.0));
         assert_eq!(0.0, layer.health());
     }
+
+//    #[test]
+//    fn can_clone_layer() {
+//        let layer = simple_cell_layer(Area::new(1.0), Density::new(1.0));
+//        layer.clone();
+//    }
 
     #[test]
     fn thruster_layer_adds_force() {

@@ -871,6 +871,7 @@ mod tests {
         layer.execute_control_request(fully_budgeted_request(0, 3, 1.0));
         match layer.after_movement() {
             None => panic!(),
+            // TODO check position (requires passing cell-state-snapshot to after_movement)
             Some(child) => assert_eq!(child.layers().len(), prototype.layers().len())
         }
     }

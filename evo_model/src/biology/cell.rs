@@ -126,6 +126,8 @@ impl Cell {
 
     fn run_layers(&mut self, budgeted_control_requests: &[BudgetedControlRequest]) -> Vec<Cell> {
         let mut children = vec![];
+        // TODO do healing first
+        // TODO after_movement -> after_control_requests; do in own loop
         for request in budgeted_control_requests {
             let layer = &mut self.layers[request.layer_index];
             layer.execute_control_request(*request);

@@ -18,14 +18,6 @@ impl ControlRequest {
             value,
         }
     }
-
-    pub fn for_healing(layer_index: usize, value: f64) -> Self {
-        Self::new(layer_index, 0, value)
-    }
-
-    pub fn for_resize(layer_index: usize, value: f64) -> Self {
-        Self::new(layer_index, 1, value)
-    }
 }
 
 #[derive(Clone, Copy, Debug, PartialEq)]

@@ -76,6 +76,6 @@ impl CellControl for FixedDepthSeekingControl {
         let target_velocity_y = -y_offset / 100.0;
         let target_delta_vy = target_velocity_y - cell_state.velocity.y();
         let desired_delta_area = target_delta_vy * 10.0;
-        vec![ControlRequest::for_resize(self.float_layer_index, desired_delta_area)]
+        vec![CellLayer::resize_request(self.float_layer_index, AreaDelta::new(desired_delta_area))]
     }
 }

@@ -206,6 +206,8 @@ pub struct AreaDelta {
 }
 
 impl AreaDelta {
+    pub const ZERO: AreaDelta = AreaDelta { value: 0.0 };
+
     pub fn new(value: f64) -> Self {
         AreaDelta { value }
     }

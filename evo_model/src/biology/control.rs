@@ -1,4 +1,5 @@
 use biology::control_requests::*;
+use biology::layers::CellLayer;
 use physics::quantities::*;
 use std::fmt::Debug;
 
@@ -110,7 +111,7 @@ impl CellControl for ContinuousResizeControl {
     }
 
     fn get_control_requests(&mut self, _cell_state: &CellStateSnapshot) -> Vec<ControlRequest> {
-        vec![ControlRequest::for_resize(self.layer_index, self.resize_amount.value())]
+        vec![CellLayer::resize_request(self.layer_index, self.resize_amount)]
     }
 }
 
@@ -161,7 +162,7 @@ mod tests {
         };
         let mut control = ContinuousResizeControl::new(1, AreaDelta::new(0.5));
         let requests = control.get_control_requests(&cell_state);
-        assert_eq!(requests, vec![ControlRequest::for_resize(1, 0.5)]);
+        assert_eq!(requests, vec![CellLayer::resize_request(1, AreaDelta::new(0.5))]);
     }
 
     #[test]

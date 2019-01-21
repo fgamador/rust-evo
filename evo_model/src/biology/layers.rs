@@ -876,21 +876,21 @@ mod tests {
         }
     }
 
-    #[test]
-    fn budding_layer_does_not_create_child_if_not_asked_to() {
-        let mut layer = CellLayer::new(Area::new(1.0), Density::new(1.0), Color::Green,
-                                       Box::new(BuddingCellLayerSpecialty::new2(Area::new(0.0))));
-        layer.execute_control_request(fully_budgeted_request(0, 3, 0.0));
-        assert_eq!(None, layer.after_movement());
-    }
+//    #[test]
+//    fn budding_layer_does_not_create_child_if_not_asked_to() {
+//        let mut layer = CellLayer::new(Area::new(1.0), Density::new(1.0), Color::Green,
+//                                       Box::new(BuddingCellLayerSpecialty::new2(Area::new(0.0))));
+//        layer.execute_control_request(fully_budgeted_request(0, 3, 0.0));
+//        assert_eq!(None, layer.after_movement());
+//    }
 
-    #[test]
-    fn budding_layer_creates_child_if_asked_to() {
-        let mut layer = CellLayer::new(Area::new(1.0), Density::new(1.0), Color::Green,
-                                       Box::new(BuddingCellLayerSpecialty::new2(Area::new(0.0))));
-        layer.execute_control_request(fully_budgeted_request(0, 3, 1.0));
-        assert_ne!(None, layer.after_movement());
-    }
+//    #[test]
+//    fn budding_layer_creates_child_if_asked_to() {
+//        let mut layer = CellLayer::new(Area::new(1.0), Density::new(1.0), Color::Green,
+//                                       Box::new(BuddingCellLayerSpecialty::new2(Area::new(0.0))));
+//        layer.execute_control_request(fully_budgeted_request(0, 3, 1.0));
+//        assert_ne!(None, layer.after_movement());
+//    }
 
     fn simple_cell_layer(area: Area, density: Density) -> CellLayer {
         CellLayer::new(area, density, Color::Green, Box::new(NullCellLayerSpecialty::new()))

@@ -862,7 +862,7 @@ mod tests {
     }
 
     #[test]
-    fn budding_layer_does_not_create_child_if_not_asked_to() {
+    fn budding_layer_does_not_create_child_if_given_zero_energy() {
         let mut layer = CellLayer::new(Area::new(1.0), Density::new(1.0), Color::Green,
                                        Box::new(BuddingCellLayerSpecialty::new(create_child)));
         layer.execute_control_request(fully_budgeted_request(0, 3, 0.0));

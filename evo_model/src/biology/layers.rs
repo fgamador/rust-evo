@@ -484,23 +484,15 @@ impl CellLayerSpecialty for EnergyGeneratingCellLayerSpecialty {
 
 #[derive(Clone, Debug)]
 pub struct BuddingCellLayerSpecialty {
-    child_start_area: Area,
+    create_child: fn(center: Position, velocity: Velocity) -> Cell,
     budding_angle: Angle,
     donation_energy: BioEnergy,
 }
 
 impl BuddingCellLayerSpecialty {
-    pub fn new(_prototype: &Cell) -> Self {
+    pub fn new(create_child: fn(center: Position, velocity: Velocity) -> Cell) -> Self {
         BuddingCellLayerSpecialty {
-            child_start_area: Area::new(0.0),
-            budding_angle: Angle::ZERO,
-            donation_energy: BioEnergy::ZERO,
-        }
-    }
-
-    pub fn new2(child_start_area: Area) -> Self {
-        BuddingCellLayerSpecialty {
-            child_start_area,
+            create_child,
             budding_angle: Angle::ZERO,
             donation_energy: BioEnergy::ZERO,
         }
@@ -542,9 +534,7 @@ impl CellLayerSpecialty for BuddingCellLayerSpecialty {
             return None;
         }
 
-        Some(Cell::new(Position::ORIGIN, Velocity::ZERO, vec![
-            Box::new(CellLayer::new(Area::new(0.0), Density::new(0.0), Color::Green, Box::new(NullCellLayerSpecialty::new())))
-        ]))
+        Some((self.create_child)(Position::ORIGIN, Velocity::ZERO))
     }
 }
 
@@ -859,38 +849,33 @@ mod tests {
         assert_eq!(BioEnergy::new(0.0), energy);
     }
 
-    //#[test]
-    fn budding_layer_clones_prototype() {
-        let prototype = Cell::new(Position::new(1.0, 1.0), Velocity::new(1.0, 1.0),
-                                  vec![
-                                      Box::new(simple_cell_layer(Area::new(PI), Density::new(1.0))),
-                                      Box::new(simple_cell_layer(Area::new(PI), Density::new(1.0)))
-                                  ]);
+    #[test]
+    fn budding_layer_creates_child() {
         let mut layer = CellLayer::new(Area::new(1.0), Density::new(1.0), Color::Green,
-                                       Box::new(BuddingCellLayerSpecialty::new(&prototype)));
+                                       Box::new(BuddingCellLayerSpecialty::new(create_child)));
         layer.execute_control_request(fully_budgeted_request(0, 3, 1.0));
         match layer.after_movement() {
             None => panic!(),
             // TODO check position (requires passing cell-state-snapshot to after_movement)
-            Some(child) => assert_eq!(child.layers().len(), prototype.layers().len())
+            Some(child) => assert_eq!(2, child.layers().len())
         }
     }
 
-//    #[test]
-//    fn budding_layer_does_not_create_child_if_not_asked_to() {
-//        let mut layer = CellLayer::new(Area::new(1.0), Density::new(1.0), Color::Green,
-//                                       Box::new(BuddingCellLayerSpecialty::new2(Area::new(0.0))));
-//        layer.execute_control_request(fully_budgeted_request(0, 3, 0.0));
-//        assert_eq!(None, layer.after_movement());
-//    }
+    #[test]
+    fn budding_layer_does_not_create_child_if_not_asked_to() {
+        let mut layer = CellLayer::new(Area::new(1.0), Density::new(1.0), Color::Green,
+                                       Box::new(BuddingCellLayerSpecialty::new(create_child)));
+        layer.execute_control_request(fully_budgeted_request(0, 3, 0.0));
+        assert_eq!(None, layer.after_movement());
+    }
 
-//    #[test]
-//    fn budding_layer_creates_child_if_asked_to() {
-//        let mut layer = CellLayer::new(Area::new(1.0), Density::new(1.0), Color::Green,
-//                                       Box::new(BuddingCellLayerSpecialty::new2(Area::new(0.0))));
-//        layer.execute_control_request(fully_budgeted_request(0, 3, 1.0));
-//        assert_ne!(None, layer.after_movement());
-//    }
+    fn create_child(center: Position, velocity: Velocity) -> Cell {
+        Cell::new(center, velocity,
+                  vec![
+                      Box::new(simple_cell_layer(Area::new(PI), Density::new(1.0))),
+                      Box::new(simple_cell_layer(Area::new(PI), Density::new(1.0)))
+                  ])
+    }
 
     fn simple_cell_layer(area: Area, density: Density) -> CellLayer {
         CellLayer::new(area, density, Color::Green, Box::new(NullCellLayerSpecialty::new()))

@@ -295,7 +295,7 @@ impl CellLayerBrain for LivingCellLayerBrain {
     }
 
     fn after_control_requests(&self, specialty: &mut CellLayerSpecialty, cell_state: &CellStateSnapshot) -> Option<Cell> {
-        specialty.after_control_requests()
+        specialty.after_control_requests(cell_state)
     }
 }
 
@@ -342,7 +342,7 @@ pub trait CellLayerSpecialty: Debug {
         panic!("Invalid control channel index: {}", request.channel_index);
     }
 
-    fn after_control_requests(&mut self) -> Option<Cell> {
+    fn after_control_requests(&mut self, _cell_state: &CellStateSnapshot) -> Option<Cell> {
         None
     }
 }
@@ -530,7 +530,7 @@ impl CellLayerSpecialty for BuddingCellLayerSpecialty {
         }
     }
 
-    fn after_control_requests(&mut self) -> Option<Cell> {
+    fn after_control_requests(&mut self, cell_state: &CellStateSnapshot) -> Option<Cell> {
         if self.donation_energy.value() == 0.0 {
             return None;
         }

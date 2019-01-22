@@ -123,7 +123,7 @@ impl Cell {
         for request in budgeted_control_requests {
             let layer = &mut self.layers[request.layer_index];
             layer.execute_control_request(*request);
-            if let Some(child) = layer.after_movement() {
+            if let Some(child) = layer.after_control_requests() {
                 children.push(child);
             }
         }

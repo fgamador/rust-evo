@@ -140,7 +140,7 @@ impl CellLayer {
     }
 
     pub fn after_control_requests(&mut self, cell_state: &CellStateSnapshot) -> Option<Cell> {
-        self.body.brain.after_movement(&mut *self.specialty)
+        self.body.brain.after_control_requests(&mut *self.specialty)
     }
 
     pub fn healing_request(layer_index: usize, delta_health: f64) -> ControlRequest {
@@ -252,7 +252,7 @@ trait CellLayerBrain: Debug {
 
     fn execute_control_request(&self, specialty: &mut CellLayerSpecialty, body: &mut CellLayerBody, request: BudgetedControlRequest);
 
-    fn after_movement(&self, specialty: &mut CellLayerSpecialty) -> Option<Cell>;
+    fn after_control_requests(&self, specialty: &mut CellLayerSpecialty) -> Option<Cell>;
 }
 
 #[derive(Debug)]
@@ -294,7 +294,7 @@ impl CellLayerBrain for LivingCellLayerBrain {
         }
     }
 
-    fn after_movement(&self, specialty: &mut CellLayerSpecialty) -> Option<Cell> {
+    fn after_control_requests(&self, specialty: &mut CellLayerSpecialty) -> Option<Cell> {
         specialty.after_movement()
     }
 }
@@ -317,7 +317,7 @@ impl CellLayerBrain for DeadCellLayerBrain {
 
     fn execute_control_request(&self, _specialty: &mut CellLayerSpecialty, _body: &mut CellLayerBody, _request: BudgetedControlRequest) {}
 
-    fn after_movement(&self, _specialty: &mut CellLayerSpecialty) -> Option<Cell> {
+    fn after_control_requests(&self, _specialty: &mut CellLayerSpecialty) -> Option<Cell> {
         None
     }
 }

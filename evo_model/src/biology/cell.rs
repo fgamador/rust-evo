@@ -81,14 +81,6 @@ impl Cell {
         budgeted_control_requests
     }
 
-    fn get_state_snapshot(&self) -> CellStateSnapshot {
-        CellStateSnapshot {
-            area: self.area(),
-            center: self.center(),
-            velocity: self.velocity(),
-        }
-    }
-
     fn cost_control_requests(&mut self, control_requests: &Vec<ControlRequest>) -> Vec<CostedControlRequest> {
         control_requests.iter()
             .map(|req| self.layers[req.layer_index].cost_control_request(*req))
@@ -139,6 +131,14 @@ impl Cell {
         self.radius = Self::update_layer_outer_radii(&mut self.layers);
         self.newtonian_state.mass = Self::calc_mass(&self.layers);
         children
+    }
+
+    fn get_state_snapshot(&self) -> CellStateSnapshot {
+        CellStateSnapshot {
+            area: self.area(),
+            center: self.center(),
+            velocity: self.velocity(),
+        }
     }
 
     fn update_layer_outer_radii(layers: &mut Vec<Box<CellLayer>>) -> Length {

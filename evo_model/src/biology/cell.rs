@@ -117,12 +117,16 @@ impl Cell {
     }
 
     fn run_layers(&mut self, budgeted_control_requests: &[BudgetedControlRequest]) -> Vec<Cell> {
-        let mut children = vec![];
         // TODO do healing first
-        // TODO after_movement -> after_control_requests; do in own loop
         for request in budgeted_control_requests {
             let layer = &mut self.layers[request.layer_index];
             layer.execute_control_request(*request);
+        }
+
+        // TODO test: inner layer grows while outer layer buds at correct distance
+        let mut children = vec![];
+        for request in budgeted_control_requests {
+            let layer = &mut self.layers[request.layer_index];
             if let Some(child) = layer.after_control_requests() {
                 children.push(child);
             }

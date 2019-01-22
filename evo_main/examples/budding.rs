@@ -10,7 +10,7 @@ use evo_model::physics::quantities::*;
 use evo_model::world::World;
 use evo_main::main_support::init_and_run;
 use evo_view_model::Color;
-use std::f64;
+//use std::f64;
 use std::f64::consts::PI;
 
 fn main() {

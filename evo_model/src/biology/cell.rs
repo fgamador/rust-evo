@@ -69,7 +69,7 @@ impl Cell {
         self.energy
     }
 
-    fn do_budgeting(&mut self) -> Vec<BudgetedControlRequest> {
+    fn get_budgeted_control_requests(&mut self) -> Vec<BudgetedControlRequest> {
         let cell_state = self.get_state_snapshot();
 
         let control_requests = self.control.get_control_requests(&cell_state);
@@ -172,7 +172,7 @@ impl TickCallbacks for Cell {
     }
 
     fn after_movement(&mut self) -> Vec<Cell> {
-        let budgeted_control_requests = self.do_budgeting();
+        let budgeted_control_requests = self.get_budgeted_control_requests();
         self.run_layers(&budgeted_control_requests)
     }
 }

@@ -535,6 +535,10 @@ impl CellLayerSpecialty for BuddingCellLayerSpecialty {
             return None;
         }
 
+        // TODO need child's radius...
+//        let x_offset = (cell_state.radius + child.radius) * self.budding_angle.cos();
+//        let y_offset = (cell_state.radius + child.radius) * self.budding_angle.sin();
+//        let child_center = cell_state.center + Position::new(x_offset, y_offset);
         Some((self.create_child)(Position::ORIGIN, cell_state.velocity))
     }
 }

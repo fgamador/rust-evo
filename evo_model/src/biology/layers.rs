@@ -896,10 +896,7 @@ mod tests {
     }
 
     fn fully_budgeted_request(layer_index: usize, channel_index: usize, value: f64) -> BudgetedControlRequest {
-        BudgetedControlRequest::new(
-            CostedControlRequest::new(
-                ControlRequest::new(layer_index, channel_index, value),
-                BioEnergyDelta::ZERO), 1.0)
+        fully_budgeted(ControlRequest::new(layer_index, channel_index, value))
     }
 
     fn fully_budgeted_healing_request(layer_index: usize, value: f64) -> BudgetedControlRequest {
@@ -914,5 +911,9 @@ mod tests {
             CostedControlRequest::new(
                 CellLayer::resize_request(layer_index, AreaDelta::new(value)),
                 BioEnergyDelta::ZERO), 1.0)
+    }
+
+    fn fully_budgeted(control_request: ControlRequest) -> BudgetedControlRequest {
+        BudgetedControlRequest::new(CostedControlRequest::new(control_request, BioEnergyDelta::ZERO), 1.0)
     }
 }

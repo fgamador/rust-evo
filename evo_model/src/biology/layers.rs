@@ -535,15 +535,16 @@ impl CellLayerSpecialty for BuddingCellLayerSpecialty {
             return None;
         }
 
-        Some((self.create_child)(Position::ORIGIN, Velocity::ZERO))
+        Some((self.create_child)(Position::ORIGIN, cell_state.velocity))
     }
 }
 
 #[cfg(test)]
 mod tests {
     use super::*;
-    use environment::environment::LocalEnvironment;
     use biology::control_requests::BudgetedControlRequest;
+    use environment::environment::LocalEnvironment;
+    use physics::newtonian::NewtonianBody;
 
     #[test]
     fn can_clone_layer() {
@@ -851,14 +852,23 @@ mod tests {
     }
 
     #[test]
-    fn budding_layer_creates_child() {
+    fn budding_layer_creates_child_with_right_state() {
         let mut layer = CellLayer::new(Area::new(1.0), Density::new(1.0), Color::Green,
                                        Box::new(BuddingCellLayerSpecialty::new(create_child)));
         layer.execute_control_request(fully_budgeted_request(0, 3, 1.0));
-        match layer.after_control_requests(&CellStateSnapshot::ZEROS) {
+        let cell_state = CellStateSnapshot {
+            radius: Length::new(2.0),
+            area: Area::new(3.0),
+            center: Position::new(1.0, -1.0),
+            velocity: Velocity::new(2.0, -2.0),
+        };
+        match layer.after_control_requests(&cell_state) {
             None => panic!(),
             // TODO check position (requires passing cell-state-snapshot to after_movement)
-            Some(child) => assert_eq!(2, child.layers().len())
+            Some(child) => {
+                assert_eq!(2, child.layers().len());
+                assert_eq!(cell_state.velocity, child.velocity());
+            }
         }
     }
 

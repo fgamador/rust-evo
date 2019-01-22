@@ -1,4 +1,5 @@
 use biology::cell::Cell;
+use biology::control::CellStateSnapshot;
 use biology::control_requests::*;
 use environment::environment::LocalEnvironment;
 use evo_view_model::Color;
@@ -138,7 +139,7 @@ impl CellLayer {
         self.body.brain.execute_control_request(&mut *self.specialty, &mut self.body, request);
     }
 
-    pub fn after_control_requests(&mut self) -> Option<Cell> {
+    pub fn after_control_requests(&mut self, cell_state: &CellStateSnapshot) -> Option<Cell> {
         self.body.brain.after_movement(&mut *self.specialty)
     }
 
@@ -854,7 +855,7 @@ mod tests {
         let mut layer = CellLayer::new(Area::new(1.0), Density::new(1.0), Color::Green,
                                        Box::new(BuddingCellLayerSpecialty::new(create_child)));
         layer.execute_control_request(fully_budgeted_request(0, 3, 1.0));
-        match layer.after_control_requests() {
+        match layer.after_control_requests(&CellStateSnapshot::ZEROS) {
             None => panic!(),
             // TODO check position (requires passing cell-state-snapshot to after_movement)
             Some(child) => assert_eq!(2, child.layers().len())
@@ -866,7 +867,7 @@ mod tests {
         let mut layer = CellLayer::new(Area::new(1.0), Density::new(1.0), Color::Green,
                                        Box::new(BuddingCellLayerSpecialty::new(create_child)));
         layer.execute_control_request(fully_budgeted_request(0, 3, 0.0));
-        assert_eq!(None, layer.after_control_requests());
+        assert_eq!(None, layer.after_control_requests(&CellStateSnapshot::ZEROS));
     }
 
     fn create_child(center: Position, velocity: Velocity) -> Cell {

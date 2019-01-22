@@ -125,9 +125,10 @@ impl Cell {
 
         // TODO test: inner layer grows while outer layer buds at correct distance
         let mut children = vec![];
+        let cell_state = self.get_state_snapshot();
         for request in budgeted_control_requests {
             let layer = &mut self.layers[request.layer_index];
-            if let Some(child) = layer.after_control_requests() {
+            if let Some(child) = layer.after_control_requests(&cell_state) {
                 children.push(child);
             }
         }

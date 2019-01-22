@@ -855,8 +855,10 @@ mod tests {
     fn budding_layer_creates_child_with_right_state() {
         let mut layer = CellLayer::new(Area::new(1.0), Density::new(1.0), Color::Green,
                                        Box::new(BuddingCellLayerSpecialty::new(create_child)));
-        layer.execute_control_request(fully_budgeted_request(0, 2, PI / 2.0));
-        layer.execute_control_request(fully_budgeted_request(0, 3, 1.0));
+        layer.execute_control_request(fully_budgeted(
+            BuddingCellLayerSpecialty::budding_angle_request(0, Angle::from_radians(PI / 2.0))));
+        layer.execute_control_request(fully_budgeted(
+            BuddingCellLayerSpecialty::donation_energy_request(0, BioEnergy::new(1.0))));
         let cell_state = CellStateSnapshot {
             radius: Length::new(2.0),
             area: Area::new(3.0),

@@ -18,9 +18,19 @@ impl Clone for Box<CellControl>
 
 #[derive(Debug)]
 pub struct CellStateSnapshot {
+    pub radius: Length,
     pub area: Area,
     pub center: Position,
     pub velocity: Velocity,
+}
+
+impl CellStateSnapshot {
+    pub const ZEROS: CellStateSnapshot = CellStateSnapshot {
+        radius: Length::ZERO,
+        area: Area::ZERO,
+        center: Position::ORIGIN,
+        velocity: Velocity::ZERO,
+    };
 }
 
 #[derive(Clone, Debug)]
@@ -155,25 +165,15 @@ mod tests {
 
     #[test]
     fn continuous_resize_control_returns_request_to_grow_specified_layer() {
-        let cell_state = CellStateSnapshot {
-            area: Area::new(0.0),
-            center: Position::new(0.0, 0.0),
-            velocity: Velocity::new(0.0, 0.0),
-        };
         let mut control = ContinuousResizeControl::new(1, AreaDelta::new(0.5));
-        let requests = control.get_control_requests(&cell_state);
+        let requests = control.get_control_requests(&CellStateSnapshot::ZEROS);
         assert_eq!(requests, vec![CellLayer::resize_request(1, AreaDelta::new(0.5))]);
     }
 
     #[test]
     fn simple_thruster_control_returns_requests_for_force() {
-        let cell_state = CellStateSnapshot {
-            area: Area::new(0.0),
-            center: Position::new(0.0, 0.0),
-            velocity: Velocity::new(0.0, 0.0),
-        };
         let mut control = SimpleThrusterControl::new(2, Force::new(1.0, -1.0));
-        let requests = control.get_control_requests(&cell_state);
+        let requests = control.get_control_requests(&CellStateSnapshot::ZEROS);
         assert_eq!(requests,
                    vec![
                        ControlRequest::new(2, 2, 1.0),

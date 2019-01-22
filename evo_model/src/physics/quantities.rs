@@ -74,6 +74,8 @@ pub struct Length {
 }
 
 impl Length {
+    pub const ZERO: Length = Length { value: 0.0 };
+
     pub fn new(value: f64) -> Self {
         if value < 0.0 {
             panic!("Negative length: {}", value);
@@ -122,6 +124,8 @@ pub struct Area {
 }
 
 impl Area {
+    pub const ZERO: Area = Area { value: 0.0 };
+
     pub fn new(value: f64) -> Self {
         if value < 0.0 {
             panic!("Negative area: {}", value);

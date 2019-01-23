@@ -862,7 +862,7 @@ mod tests {
         let mut layer = CellLayer::new(Area::new(1.0), Density::new(1.0), Color::Green,
                                        Box::new(BuddingCellLayerSpecialty::new(create_child)));
         layer.execute_control_request(fully_budgeted(
-            BuddingCellLayerSpecialty::budding_angle_request(0, Angle::from_radians(PI / 2.0))));
+            BuddingCellLayerSpecialty::budding_angle_request(0, Angle::from_radians(0.0))));
         layer.execute_control_request(fully_budgeted(
             BuddingCellLayerSpecialty::donation_energy_request(0, BioEnergy::new(1.0))));
         let cell_state = CellStateSnapshot {
@@ -875,10 +875,11 @@ mod tests {
             None => panic!(),
             Some(child) => {
                 assert_eq!(2, child.layers().len());
-//                assert_eq!(Position::new(cell_state.center.x() + cell_state.radius.value() + child.radius().value(),
-//                                         cell_state.center.y()),
-//                           child.center());
+                assert_eq!(Position::new(cell_state.center.x() + cell_state.radius.value() + child.radius().value(),
+                                         cell_state.center.y()),
+                           child.center());
                 assert_eq!(cell_state.velocity, child.velocity());
+                assert_eq!(BioEnergy::new(1.0), child.energy());
             }
         }
     }

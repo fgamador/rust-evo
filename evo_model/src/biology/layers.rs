@@ -485,13 +485,13 @@ impl CellLayerSpecialty for EnergyGeneratingCellLayerSpecialty {
 
 #[derive(Clone, Debug)]
 pub struct BuddingCellLayerSpecialty {
-    create_child: fn(center: Position, velocity: Velocity) -> Cell,
+    create_child: fn() -> Cell,
     budding_angle: Angle,
     donation_energy: BioEnergy,
 }
 
 impl BuddingCellLayerSpecialty {
-    pub fn new(create_child: fn(center: Position, velocity: Velocity) -> Cell) -> Self {
+    pub fn new(create_child: fn() -> Cell) -> Self {
         BuddingCellLayerSpecialty {
             create_child,
             budding_angle: Angle::ZERO,
@@ -535,11 +535,13 @@ impl CellLayerSpecialty for BuddingCellLayerSpecialty {
             return None;
         }
 
-        // TODO need child's radius...
-//        let x_offset = (cell_state.radius + child.radius) * self.budding_angle.cos();
-//        let y_offset = (cell_state.radius + child.radius) * self.budding_angle.sin();
-//        let child_center = cell_state.center + Position::new(x_offset, y_offset);
-        Some((self.create_child)(Position::ORIGIN, cell_state.velocity))
+        let mut child = (self.create_child)();
+        let x_offset = (cell_state.radius + child.radius()) * self.budding_angle.cos();
+        let y_offset = (cell_state.radius + child.radius()) * self.budding_angle.sin();
+        child.set_initial_position(cell_state.center + Displacement::new(x_offset.value(), y_offset.value()));
+        child.set_initial_velocity(cell_state.velocity);
+        child.set_initial_energy(self.donation_energy);
+        Some(child)
     }
 }
 
@@ -889,8 +891,8 @@ mod tests {
         assert_eq!(None, layer.after_control_requests(&CellStateSnapshot::ZEROS));
     }
 
-    fn create_child(center: Position, velocity: Velocity) -> Cell {
-        Cell::new(center, velocity,
+    fn create_child() -> Cell {
+        Cell::new(Position::ORIGIN, Velocity::ZERO,
                   vec![
                       Box::new(simple_cell_layer(Area::new(PI), Density::new(1.0))),
                       Box::new(simple_cell_layer(Area::new(PI), Density::new(1.0)))

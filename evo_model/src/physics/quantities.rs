@@ -34,6 +34,10 @@ impl Angle {
     pub fn radians(&self) -> f64 {
         self.radians
     }
+
+    pub fn cos(&self) -> f64 { self.radians.cos() }
+
+    pub fn sin(&self) -> f64 { self.radians.sin() }
 }
 
 impl Sub for Angle {
@@ -91,6 +95,14 @@ impl Length {
 
     pub fn sqr(&self) -> Area {
         Area::new(self.value * self.value)
+    }
+}
+
+impl Add for Length {
+    type Output = Length;
+
+    fn add(self, rhs: Length) -> Self::Output {
+        Length::new(self.value + rhs.value)
     }
 }
 

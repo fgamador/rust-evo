@@ -69,6 +69,18 @@ impl Cell {
         self.energy
     }
 
+    pub fn set_initial_position(&mut self, position: Position) {
+        self.newtonian_state.position = position;
+    }
+
+    pub fn set_initial_velocity(&mut self, velocity: Velocity) {
+        self.newtonian_state.velocity = velocity;
+    }
+
+    pub fn set_initial_energy(&mut self, energy: BioEnergy) {
+        self.energy = energy;
+    }
+
     fn get_budgeted_control_requests(&mut self) -> Vec<BudgetedControlRequest> {
         let cell_state = self.get_state_snapshot();
 

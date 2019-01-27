@@ -218,7 +218,6 @@ impl Onion for Cell {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use std::f64;
 
     #[test]
     fn can_clone_cell() {
@@ -310,9 +309,7 @@ mod tests {
                                      Box::new(simple_cell_layer(Area::new(1.0), Density::new(1.0))
                                          .with_resize_parameters(LayerResizeParameters {
                                              growth_energy_delta: BioEnergyDelta::new(-1.0),
-                                             max_growth_rate: f64::INFINITY,
-                                             shrinkage_energy_delta: BioEnergyDelta::ZERO,
-                                             max_shrinkage_rate: 1.0,
+                                             ..LayerResizeParameters::UNLIMITED
                                          })),
                                  ])
             .with_control(Box::new(ContinuousResizeControl::new(0, AreaDelta::new(2.0))))
@@ -387,17 +384,15 @@ mod tests {
                                  vec![
                                      Box::new(simple_cell_layer(Area::new(10.0), Density::new(1.0))
                                          .with_resize_parameters(LayerResizeParameters {
-                                             growth_energy_delta: BioEnergyDelta::ZERO,
-                                             max_growth_rate: f64::INFINITY,
                                              shrinkage_energy_delta: BioEnergyDelta::new(2.0),
                                              max_shrinkage_rate: 0.5,
+                                             ..LayerResizeParameters::UNLIMITED
                                          })),
                                      Box::new(simple_cell_layer(Area::new(5.0), Density::new(1.0))
                                          .with_resize_parameters(LayerResizeParameters {
                                              growth_energy_delta: BioEnergyDelta::new(-1.0),
                                              max_growth_rate: 1.0,
-                                             shrinkage_energy_delta: BioEnergyDelta::ZERO,
-                                             max_shrinkage_rate: 1.0,
+                                             ..LayerResizeParameters::UNLIMITED
                                          })),
                                  ])
             .with_control(Box::new(ContinuousRequestsControl::new(vec![

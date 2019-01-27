@@ -971,6 +971,10 @@ mod tests {
     }
 
     fn fully_budgeted(control_request: ControlRequest) -> BudgetedControlRequest {
-        BudgetedControlRequest::new(CostedControlRequest::new(control_request, BioEnergyDelta::ZERO), 1.0)
+        budgeted(control_request, BioEnergyDelta::ZERO, 1.0)
+    }
+
+    fn budgeted(control_request: ControlRequest, cost: BioEnergyDelta, budgeted_fraction: f64) -> BudgetedControlRequest {
+        BudgetedControlRequest::new(CostedControlRequest::new(control_request, cost), budgeted_fraction)
     }
 }

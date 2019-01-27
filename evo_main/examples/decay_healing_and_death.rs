@@ -28,9 +28,7 @@ fn create_world() -> World {
                                         Box::new(PhotoCellLayerSpecialty::new(1.0)))
                     .with_resize_parameters(LayerResizeParameters {
                         growth_energy_delta: BioEnergyDelta::new(-1.0),
-                        max_growth_rate: f64::INFINITY,
-                        shrinkage_energy_delta: BioEnergyDelta::ZERO,
-                        max_shrinkage_rate: 1.0,
+                        ..LayerResizeParameters::UNLIMITED
                     })
                     .with_health_parameters(LayerHealthParameters {
                         healing_energy_delta: BioEnergyDelta::ZERO,

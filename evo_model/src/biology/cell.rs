@@ -416,11 +416,9 @@ mod tests {
     fn budding_creates_child_with_right_state() {
         let mut cell = Cell::new(Position::new(2.0, -2.0), Velocity::new(3.0, -3.0),
                                  vec![
-                                     Box::new(simple_cell_layer(Area::new(10.0), Density::new(1.0))
-                                         .with_resize_parameters(LayerResizeParameters::UNLIMITED)),
+                                     Box::new(simple_cell_layer(Area::new(10.0), Density::new(1.0))),
                                      Box::new(CellLayer::new(Area::new(5.0), Density::new(1.0), Color::White,
-                                                             Box::new(BuddingCellLayerSpecialty::new(create_child)))
-                                         .with_resize_parameters(LayerResizeParameters::UNLIMITED)),
+                                                             Box::new(BuddingCellLayerSpecialty::new(create_child)))),
                                  ])
             .with_control(Box::new(ContinuousRequestsControl::new(vec![
                 CellLayer::resize_request(0, AreaDelta::new(10.0)),

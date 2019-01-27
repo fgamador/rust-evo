@@ -383,7 +383,7 @@ mod tests {
         let costed_request = CostedControlRequest::new(
             ControlRequest::ZEROS, BioEnergyDelta::new(0.0));
 
-        let (_, budgeted_requests) = Cell::budget_control_requests(BioEnergy::new(1.0), &vec![costed_request]);
+        let (_, budgeted_requests) = Cell::budget_control_requests(BioEnergy::new(0.0), &vec![costed_request]);
 
         assert_eq!(budgeted_requests[0].budgeted_fraction, 1.0);
     }

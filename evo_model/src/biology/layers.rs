@@ -516,7 +516,6 @@ impl CellLayerSpecialty for BuddingCellLayerSpecialty {
     fn cost_control_request(&self, request: ControlRequest) -> CostedControlRequest {
         match request.channel_index {
             2 => CostedControlRequest::new(request, BioEnergyDelta::ZERO),
-            // TODO adjust donation_energy cost based on an efficiency?
             3 => CostedControlRequest::new(request, BioEnergyDelta::new(request.value)),
             _ => panic!("Invalid control channel index: {}", request.channel_index)
         }

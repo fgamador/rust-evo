@@ -128,25 +128,25 @@ impl Cell {
                   })
     }
 
-    fn run_layers(&mut self, budgeted_control_requests: &[BudgetedControlRequest]) -> Vec<Cell> {
+    fn execute_control_requests(&mut self, budgeted_control_requests: &[BudgetedControlRequest]) {
         // TODO do healing first
         for request in budgeted_control_requests {
             let layer = &mut self.layers[request.layer_index];
             layer.execute_control_request(*request);
         }
+        self.radius = Self::update_layer_outer_radii(&mut self.layers);
+        self.newtonian_state.mass = Self::calc_mass(&self.layers);
+    }
 
+    fn after_control_requests(&mut self) -> Vec<Cell> {
         // TODO test: inner layer grows while outer layer buds at correct distance
         let mut children = vec![];
         let cell_state = self.get_state_snapshot();
-        for request in budgeted_control_requests {
-            let layer = &mut self.layers[request.layer_index];
+        for layer in &mut self.layers {
             if let Some(child) = layer.after_control_requests(&cell_state) {
                 children.push(child);
             }
         }
-
-        self.radius = Self::update_layer_outer_radii(&mut self.layers);
-        self.newtonian_state.mass = Self::calc_mass(&self.layers);
         children
     }
 
@@ -186,7 +186,8 @@ impl TickCallbacks for Cell {
 
     fn after_movement(&mut self) -> Vec<Cell> {
         let budgeted_control_requests = self.get_budgeted_control_requests();
-        self.run_layers(&budgeted_control_requests)
+        self.execute_control_requests(&budgeted_control_requests);
+        self.after_control_requests()
     }
 }
 

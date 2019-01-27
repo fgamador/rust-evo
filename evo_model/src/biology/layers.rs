@@ -116,6 +116,11 @@ impl CellLayer {
         self
     }
 
+    pub fn dead(mut self) -> Self {
+        self.damage(1.0);
+        self
+    }
+
     pub fn area(&self) -> Area {
         self.body.area
     }
@@ -683,8 +688,8 @@ mod tests {
 
     #[test]
     fn layer_resize_is_reduced_by_reduced_health() {
-        let mut layer = simple_cell_layer(Area::new(1.0), Density::new(1.0));
-        layer.damage(0.5);
+        let mut layer = simple_cell_layer(Area::new(1.0), Density::new(1.0))
+            .with_health(0.5);
         layer.execute_control_request(fully_budgeted_resize_request(0, 10.0));
         assert_eq!(Area::new(6.0), layer.area());
     }
@@ -697,8 +702,8 @@ mod tests {
                 max_growth_rate: f64::INFINITY,
                 shrinkage_energy_delta: BioEnergyDelta::ZERO,
                 max_shrinkage_rate: f64::INFINITY,
-            });
-        layer.damage(0.5);
+            })
+            .with_health(0.5);
         let control_request = CellLayer::resize_request(0, AreaDelta::new(1.0));
         let costed_request = layer.cost_control_request(control_request);
         assert_eq!(costed_request, CostedControlRequest::new(control_request, BioEnergyDelta::new(-1.0)));
@@ -706,24 +711,24 @@ mod tests {
 
     #[test]
     fn layer_health_can_be_restored() {
-        let mut layer = simple_cell_layer(Area::new(1.0), Density::new(1.0));
-        layer.damage(0.5);
+        let mut layer = simple_cell_layer(Area::new(1.0), Density::new(1.0))
+            .with_health(0.5);
         layer.execute_control_request(fully_budgeted_healing_request(0, 0.25));
         assert_eq!(0.75, layer.health());
     }
 
     #[test]
     fn layer_health_cannot_be_restored_above_one() {
-        let mut layer = simple_cell_layer(Area::new(1.0), Density::new(1.0));
-        layer.damage(0.5);
+        let mut layer = simple_cell_layer(Area::new(1.0), Density::new(1.0))
+            .with_health(0.5);
         layer.execute_control_request(fully_budgeted_healing_request(0, 1.0));
         assert_eq!(1.0, layer.health());
     }
 
     #[test]
     fn layer_health_restoration_is_limited_by_budgeted_fraction() {
-        let mut layer = simple_cell_layer(Area::new(1.0), Density::new(1.0));
-        layer.damage(0.5);
+        let mut layer = simple_cell_layer(Area::new(1.0), Density::new(1.0))
+            .with_health(0.5);
         layer.execute_control_request(budgeted(
             CellLayer::healing_request(0, 0.5),
             BioEnergyDelta::ZERO, 0.5));
@@ -736,8 +741,8 @@ mod tests {
             .with_health_parameters(LayerHealthParameters {
                 healing_energy_delta: BioEnergyDelta::new(-3.0),
                 entropic_damage_health_delta: 0.0,
-            });
-        layer.damage(0.5);
+            })
+            .with_health(0.5);
         let control_request = CellLayer::healing_request(0, 0.25);
         let costed_request = layer.cost_control_request(control_request);
         assert_eq!(costed_request, CostedControlRequest::new(control_request, BioEnergyDelta::new(-1.5)));
@@ -763,8 +768,8 @@ mod tests {
             .with_health_parameters(LayerHealthParameters {
                 healing_energy_delta: BioEnergyDelta::new(-1.0),
                 entropic_damage_health_delta: 0.0,
-            });
-        layer.damage(1.0);
+            })
+            .dead();
         let control_request = CellLayer::healing_request(0, 1.0);
         let costed_request = layer.cost_control_request(control_request);
         assert_eq!(costed_request, CostedControlRequest::new(control_request, BioEnergyDelta::new(0.0)));
@@ -772,8 +777,8 @@ mod tests {
 
     #[test]
     fn dead_layer_ignores_control_requests() {
-        let mut layer = simple_cell_layer(Area::new(1.0), Density::new(1.0));
-        layer.damage(1.0);
+        let mut layer = simple_cell_layer(Area::new(1.0), Density::new(1.0))
+            .dead();
         layer.execute_control_request(fully_budgeted_healing_request(0, 1.0));
         assert_eq!(0.0, layer.health());
     }
@@ -811,8 +816,8 @@ mod tests {
     #[test]
     fn thruster_layer_force_is_limited_by_health() {
         let mut layer = CellLayer::new(Area::new(1.0), Density::new(1.0), Color::Green,
-                                       Box::new(ThrusterCellLayerSpecialty::new()));
-        layer.damage(0.5);
+                                       Box::new(ThrusterCellLayerSpecialty::new()))
+            .with_health(0.5);
         layer.execute_control_request(fully_budgeted(ThrusterCellLayerSpecialty::force_x_request(0, 1.0)));
         layer.execute_control_request(fully_budgeted(ThrusterCellLayerSpecialty::force_y_request(0, -1.0)));
 
@@ -852,8 +857,8 @@ mod tests {
     #[test]
     fn photo_layer_energy_is_limited_by_health() {
         let mut layer = CellLayer::new(Area::new(1.0), Density::new(1.0), Color::Green,
-                                       Box::new(PhotoCellLayerSpecialty::new(1.0)));
-        layer.damage(0.25);
+                                       Box::new(PhotoCellLayerSpecialty::new(1.0)))
+            .with_health(0.75);
 
         let mut env = LocalEnvironment::new();
         env.add_light_intensity(1.0);
@@ -866,8 +871,8 @@ mod tests {
     #[test]
     fn dead_photo_layer_adds_no_energy() {
         let mut layer = CellLayer::new(Area::new(1.0), Density::new(1.0), Color::Green,
-                                       Box::new(PhotoCellLayerSpecialty::new(1.0)));
-        layer.damage(1.0);
+                                       Box::new(PhotoCellLayerSpecialty::new(1.0)))
+            .dead();
 
         let mut env = LocalEnvironment::new();
         env.add_light_intensity(1.0);

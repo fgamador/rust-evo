@@ -621,10 +621,9 @@ mod tests {
     #[test]
     fn layer_growth_is_limited_by_budgeted_fraction() {
         let mut layer = simple_cell_layer(Area::new(2.0), Density::new(1.0));
-        layer.execute_control_request(
-            BudgetedControlRequest::new(
-                CostedControlRequest::new(
-                    CellLayer::resize_request(0, AreaDelta::new(2.0)), BioEnergyDelta::ZERO), 0.5));
+        layer.execute_control_request(budgeted(
+            CellLayer::resize_request(0, AreaDelta::new(2.0)),
+            BioEnergyDelta::ZERO, 0.5));
         assert_eq!(Area::new(3.0), layer.area());
     }
 
@@ -725,10 +724,9 @@ mod tests {
     fn layer_health_restoration_is_limited_by_budgeted_fraction() {
         let mut layer = simple_cell_layer(Area::new(1.0), Density::new(1.0));
         layer.damage(0.5);
-        layer.execute_control_request(
-            BudgetedControlRequest::new(
-                CostedControlRequest::new(
-                    CellLayer::healing_request(0, 0.5), BioEnergyDelta::ZERO), 0.5));
+        layer.execute_control_request(budgeted(
+            CellLayer::healing_request(0, 0.5),
+            BioEnergyDelta::ZERO, 0.5));
         assert_eq!(0.75, layer.health());
     }
 
@@ -797,18 +795,12 @@ mod tests {
     fn thruster_layer_force_is_limited_by_budget() {
         let mut layer = CellLayer::new(Area::new(1.0), Density::new(1.0), Color::Green,
                                        Box::new(ThrusterCellLayerSpecialty::new()));
-        layer.execute_control_request(
-            BudgetedControlRequest::new(
-                CostedControlRequest::new(
-                    ThrusterCellLayerSpecialty::force_x_request(0, 1.0),
-                    BioEnergyDelta::new(1.0)),
-                0.5));
-        layer.execute_control_request(
-            BudgetedControlRequest::new(
-                CostedControlRequest::new(
-                    ThrusterCellLayerSpecialty::force_y_request(0, -1.0),
-                    BioEnergyDelta::new(1.0)),
-                0.25));
+        layer.execute_control_request(budgeted(
+            ThrusterCellLayerSpecialty::force_x_request(0, 1.0),
+            BioEnergyDelta::new(1.0), 0.5));
+        layer.execute_control_request(budgeted(
+            ThrusterCellLayerSpecialty::force_y_request(0, -1.0),
+            BioEnergyDelta::new(1.0), 0.25));
 
         let env = LocalEnvironment::new();
         let (_, force) = layer.after_influences(&env, Duration::new(1.0));
@@ -925,12 +917,9 @@ mod tests {
     fn budding_energy_is_limited_by_budget() {
         let mut layer = CellLayer::new(Area::new(1.0), Density::new(1.0), Color::Green,
                                        Box::new(BuddingCellLayerSpecialty::new(create_child)));
-        layer.execute_control_request(
-            BudgetedControlRequest::new(
-                CostedControlRequest::new(
-                    BuddingCellLayerSpecialty::donation_energy_request(0, BioEnergy::new(1.0)),
-                    BioEnergyDelta::new(1.0)),
-                0.5));
+        layer.execute_control_request(budgeted(
+            BuddingCellLayerSpecialty::donation_energy_request(0, BioEnergy::new(1.0)),
+            BioEnergyDelta::new(1.0), 0.5));
         match layer.after_control_requests(&CellStateSnapshot::ZEROS) {
             None => panic!(),
             Some(child) => assert_eq!(BioEnergy::new(0.5), child.energy())

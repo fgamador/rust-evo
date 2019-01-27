@@ -387,35 +387,47 @@ mod tests {
     }
 
     #[test]
-    fn budgeting_permits_full_request_expenses_if_there_is_enough_energy() {
-        let dummy_control_request = CellLayer::resize_request(0, AreaDelta::ZERO);
-        let costed_requests = vec![
-            CostedControlRequest::new(dummy_control_request, BioEnergyDelta::new(-1.5)),
-            CostedControlRequest::new(dummy_control_request, BioEnergyDelta::new(1.0)),
-        ];
+    fn budgeting_returns_remaining_energy() {
+        let costed_request = CostedControlRequest::new(
+            ControlRequest::ZEROS, BioEnergyDelta::new(-1.0));
 
-        let result = Cell::budget_control_requests(BioEnergy::new(3.0), &costed_requests);
+        let (energy, _) = Cell::budget_control_requests(BioEnergy::new(2.0), &vec![costed_request]);
 
-        assert_eq!(result, (BioEnergy::new(2.5), vec![
-            BudgetedControlRequest::new(costed_requests[0], 1.0),
-            BudgetedControlRequest::new(costed_requests[1], 1.0),
-        ]));
+        assert_eq!(energy, BioEnergy::new(1.0));
     }
 
     #[test]
-    fn budgeting_scales_request_expenses_if_there_is_not_enough_energy() {
-        let dummy_control_request = CellLayer::resize_request(0, AreaDelta::ZERO);
+    fn energy_yielding_request_offsets_cost_of_other_request() {
         let costed_requests = vec![
-            CostedControlRequest::new(dummy_control_request, BioEnergyDelta::new(-6.0)),
-            CostedControlRequest::new(dummy_control_request, BioEnergyDelta::new(1.0)),
+            CostedControlRequest::new(
+                ControlRequest::ZEROS, BioEnergyDelta::new(1.0)),
+            CostedControlRequest::new(
+                ControlRequest::ZEROS, BioEnergyDelta::new(-1.0))
         ];
 
-        let result = Cell::budget_control_requests(BioEnergy::new(2.0), &costed_requests);
+        let (_, budgeted_requests) = Cell::budget_control_requests(BioEnergy::new(0.0), &costed_requests);
 
-        assert_eq!(result, (BioEnergy::ZERO, vec![
-            BudgetedControlRequest::new(costed_requests[0], 0.5),
+        assert_eq!(budgeted_requests, vec![
+            BudgetedControlRequest::new(costed_requests[0], 1.0),
             BudgetedControlRequest::new(costed_requests[1], 1.0),
-        ]));
+        ]);
+    }
+
+    #[test]
+    fn energy_yielding_request_offsets_cost_of_other_request_with_scaling() {
+        let costed_requests = vec![
+            CostedControlRequest::new(
+                ControlRequest::ZEROS, BioEnergyDelta::new(1.0)),
+            CostedControlRequest::new(
+                ControlRequest::ZEROS, BioEnergyDelta::new(-2.0))
+        ];
+
+        let (_, budgeted_requests) = Cell::budget_control_requests(BioEnergy::new(0.0), &costed_requests);
+
+        assert_eq!(budgeted_requests, vec![
+            BudgetedControlRequest::new(costed_requests[0], 1.0),
+            BudgetedControlRequest::new(costed_requests[1], 0.5),
+        ]);
     }
 
     #[test]

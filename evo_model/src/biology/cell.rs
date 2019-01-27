@@ -312,7 +312,7 @@ mod tests {
                                              growth_energy_delta: BioEnergyDelta::new(-1.0),
                                              max_growth_rate: f64::INFINITY,
                                              shrinkage_energy_delta: BioEnergyDelta::ZERO,
-                                             max_shrinkage_rate: f64::INFINITY,
+                                             max_shrinkage_rate: 1.0,
                                          })),
                                  ])
             .with_control(Box::new(ContinuousResizeControl::new(0, AreaDelta::new(2.0))))
@@ -397,7 +397,7 @@ mod tests {
                                              growth_energy_delta: BioEnergyDelta::new(-1.0),
                                              max_growth_rate: 1.0,
                                              shrinkage_energy_delta: BioEnergyDelta::ZERO,
-                                             max_shrinkage_rate: f64::INFINITY,
+                                             max_shrinkage_rate: 1.0,
                                          })),
                                  ])
             .with_control(Box::new(ContinuousRequestsControl::new(vec![

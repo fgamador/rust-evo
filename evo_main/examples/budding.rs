@@ -31,7 +31,7 @@ fn create_world() -> World {
 //                        growth_energy_delta: BioEnergyDelta::new(-1.0),
 //                        max_growth_rate: f64::INFINITY,
 //                        shrinkage_energy_delta: BioEnergyDelta::ZERO,
-//                        max_shrinkage_rate: f64::INFINITY,
+//                        max_shrinkage_rate: 1.0,
 //                    }))
             ])
             .with_control(Box::new(BuddingControl {})))

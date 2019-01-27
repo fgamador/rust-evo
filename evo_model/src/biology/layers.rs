@@ -784,8 +784,8 @@ mod tests {
     fn thruster_layer_adds_force() {
         let mut layer = CellLayer::new(Area::new(1.0), Density::new(1.0), Color::Green,
                                        Box::new(ThrusterCellLayerSpecialty::new()));
-        layer.execute_control_request(fully_budgeted_request(0, 2, 1.0));
-        layer.execute_control_request(fully_budgeted_request(0, 3, -1.0));
+        layer.execute_control_request(fully_budgeted(ThrusterCellLayerSpecialty::force_x_request(0, 1.0)));
+        layer.execute_control_request(fully_budgeted(ThrusterCellLayerSpecialty::force_y_request(0, -1.0)));
 
         let env = LocalEnvironment::new();
         let (_, force) = layer.after_influences(&env, Duration::new(0.5));
@@ -798,8 +798,8 @@ mod tests {
         let mut layer = CellLayer::new(Area::new(1.0), Density::new(1.0), Color::Green,
                                        Box::new(ThrusterCellLayerSpecialty::new()));
         layer.damage(0.5);
-        layer.execute_control_request(fully_budgeted_request(0, 2, 1.0));
-        layer.execute_control_request(fully_budgeted_request(0, 3, -1.0));
+        layer.execute_control_request(fully_budgeted(ThrusterCellLayerSpecialty::force_x_request(0, 1.0)));
+        layer.execute_control_request(fully_budgeted(ThrusterCellLayerSpecialty::force_y_request(0, -1.0)));
 
         let env = LocalEnvironment::new();
         let (_, force) = layer.after_influences(&env, Duration::new(1.0));
@@ -811,8 +811,8 @@ mod tests {
     fn dead_thruster_layer_adds_no_force() {
         let mut layer = CellLayer::new(Area::new(1.0), Density::new(1.0), Color::Green,
                                        Box::new(ThrusterCellLayerSpecialty::new()));
-        layer.execute_control_request(fully_budgeted_request(0, 2, 1.0));
-        layer.execute_control_request(fully_budgeted_request(0, 3, -1.0));
+        layer.execute_control_request(fully_budgeted(ThrusterCellLayerSpecialty::force_x_request(0, 1.0)));
+        layer.execute_control_request(fully_budgeted(ThrusterCellLayerSpecialty::force_y_request(0, -1.0)));
         layer.damage(1.0);
 
         let env = LocalEnvironment::new();
@@ -937,10 +937,6 @@ mod tests {
 
     fn simple_cell_layer(area: Area, density: Density) -> CellLayer {
         CellLayer::new(area, density, Color::Green, Box::new(NullCellLayerSpecialty::new()))
-    }
-
-    fn fully_budgeted_request(layer_index: usize, channel_index: usize, value: f64) -> BudgetedControlRequest {
-        fully_budgeted(ControlRequest::new(layer_index, channel_index, value))
     }
 
     fn fully_budgeted_healing_request(layer_index: usize, value: f64) -> BudgetedControlRequest {

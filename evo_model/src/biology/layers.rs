@@ -477,7 +477,7 @@ impl CellLayerSpecialty for EnergyGeneratingCellLayerSpecialty {
 
     fn execute_control_request(&mut self, _body: &CellLayerBody, request: BudgetedControlRequest) {
         match request.channel_index {
-            2 => self.energy = BioEnergy::new(request.value.max(0.0)),
+            2 => self.energy = request.budgeted_fraction * BioEnergy::new(request.value.max(0.0)),
             _ => panic!("Invalid control channel index: {}", request.channel_index)
         }
     }
@@ -525,7 +525,7 @@ impl CellLayerSpecialty for BuddingCellLayerSpecialty {
     fn execute_control_request(&mut self, _body: &CellLayerBody, request: BudgetedControlRequest) {
         match request.channel_index {
             2 => self.budding_angle = Angle::from_radians(request.value),
-            3 => self.donation_energy = BioEnergy::new(request.value),
+            3 => self.donation_energy = request.budgeted_fraction * BioEnergy::new(request.value),
             _ => panic!("Invalid control channel index: {}", request.channel_index)
         }
     }
@@ -889,8 +889,25 @@ mod tests {
     fn budding_layer_does_not_create_child_if_given_zero_energy() {
         let mut layer = CellLayer::new(Area::new(1.0), Density::new(1.0), Color::Green,
                                        Box::new(BuddingCellLayerSpecialty::new(create_child)));
-        layer.execute_control_request(fully_budgeted_request(0, 3, 0.0));
+        layer.execute_control_request(fully_budgeted(
+            BuddingCellLayerSpecialty::donation_energy_request(0, BioEnergy::new(0.0))));
         assert_eq!(None, layer.after_control_requests(&CellStateSnapshot::ZEROS));
+    }
+
+    #[test]
+    fn budding_layer_uses_only_budgeted_energy() {
+        let mut layer = CellLayer::new(Area::new(1.0), Density::new(1.0), Color::Green,
+                                       Box::new(BuddingCellLayerSpecialty::new(create_child)));
+        layer.execute_control_request(
+            BudgetedControlRequest::new(
+                CostedControlRequest::new(
+                    BuddingCellLayerSpecialty::donation_energy_request(0, BioEnergy::new(1.0)),
+                    BioEnergyDelta::new(1.0)),
+                0.5));
+        match layer.after_control_requests(&CellStateSnapshot::ZEROS) {
+            None => panic!(),
+            Some(child) => assert_eq!(BioEnergy::new(0.5), child.energy())
+        }
     }
 
     fn create_child() -> Cell {

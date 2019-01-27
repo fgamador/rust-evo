@@ -614,9 +614,7 @@ mod tests {
         let mut layer = simple_cell_layer(Area::new(1.0), Density::new(1.0))
             .with_resize_parameters(LayerResizeParameters {
                 growth_energy_delta: BioEnergyDelta::new(-0.5),
-                max_growth_rate: f64::INFINITY,
-                shrinkage_energy_delta: BioEnergyDelta::ZERO,
-                max_shrinkage_rate: 1.0,
+                ..LayerResizeParameters::UNLIMITED
             });
         let costed_request = layer.cost_control_request(CellLayer::resize_request(0, AreaDelta::new(3.0)));
         assert_eq!(costed_request, CostedControlRequest::new(
@@ -636,10 +634,8 @@ mod tests {
     fn layer_growth_is_limited_by_max_growth_rate() {
         let mut layer = simple_cell_layer(Area::new(2.0), Density::new(1.0))
             .with_resize_parameters(LayerResizeParameters {
-                growth_energy_delta: BioEnergyDelta::ZERO,
                 max_growth_rate: 0.5,
-                shrinkage_energy_delta: BioEnergyDelta::ZERO,
-                max_shrinkage_rate: 1.0,
+                ..LayerResizeParameters::UNLIMITED
             });
         layer.execute_control_request(fully_budgeted_resize_request(0, 10.0));
         assert_eq!(Area::new(3.0), layer.area());
@@ -651,8 +647,7 @@ mod tests {
             .with_resize_parameters(LayerResizeParameters {
                 growth_energy_delta: BioEnergyDelta::new(-3.0),
                 max_growth_rate: 0.5,
-                shrinkage_energy_delta: BioEnergyDelta::ZERO,
-                max_shrinkage_rate: 1.0,
+                ..LayerResizeParameters::UNLIMITED
             });
         let control_request = CellLayer::resize_request(0, AreaDelta::new(2.0));
         let costed_request = layer.cost_control_request(control_request);
@@ -663,10 +658,8 @@ mod tests {
     fn layer_shrinkage_is_limited_by_max_shrinkage_rate() {
         let mut layer = simple_cell_layer(Area::new(2.0), Density::new(1.0))
             .with_resize_parameters(LayerResizeParameters {
-                growth_energy_delta: BioEnergyDelta::ZERO,
-                max_growth_rate: f64::INFINITY,
-                shrinkage_energy_delta: BioEnergyDelta::ZERO,
                 max_shrinkage_rate: 0.25,
+                ..LayerResizeParameters::UNLIMITED
             });
         layer.execute_control_request(fully_budgeted_resize_request(0, -10.0));
         assert_eq!(Area::new(1.5), layer.area());
@@ -676,10 +669,9 @@ mod tests {
     fn layer_shrinkage_yield_is_limited_by_max_shrinkage_rate() {
         let mut layer = simple_cell_layer(Area::new(4.0), Density::new(1.0))
             .with_resize_parameters(LayerResizeParameters {
-                growth_energy_delta: BioEnergyDelta::ZERO,
-                max_growth_rate: f64::INFINITY,
                 shrinkage_energy_delta: BioEnergyDelta::new(3.0),
                 max_shrinkage_rate: 0.5,
+                ..LayerResizeParameters::UNLIMITED
             });
         let control_request = CellLayer::resize_request(0, AreaDelta::new(-10.0));
         let costed_request = layer.cost_control_request(control_request);
@@ -699,9 +691,7 @@ mod tests {
         let mut layer = simple_cell_layer(Area::new(1.0), Density::new(1.0))
             .with_resize_parameters(LayerResizeParameters {
                 growth_energy_delta: BioEnergyDelta::new(-1.0),
-                max_growth_rate: f64::INFINITY,
-                shrinkage_energy_delta: BioEnergyDelta::ZERO,
-                max_shrinkage_rate: 1.0,
+                ..LayerResizeParameters::UNLIMITED
             })
             .with_health(0.5);
         let control_request = CellLayer::resize_request(0, AreaDelta::new(1.0));

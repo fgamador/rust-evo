@@ -416,8 +416,8 @@ impl CellLayerSpecialty for ThrusterCellLayerSpecialty {
 
     fn execute_control_request(&mut self, body: &CellLayerBody, request: BudgetedControlRequest) {
         match request.channel_index {
-            2 => self.force_x = body.health * request.value,
-            3 => self.force_y = body.health * request.value,
+            2 => self.force_x = body.health * request.budgeted_fraction * request.value,
+            3 => self.force_y = body.health * request.budgeted_fraction * request.value,
             _ => panic!("Invalid control channel index: {}", request.channel_index)
         }
     }
@@ -791,6 +791,29 @@ mod tests {
         let (_, force) = layer.after_influences(&env, Duration::new(0.5));
 
         assert_eq!(Force::new(1.0, -1.0), force);
+    }
+
+    #[test]
+    fn thruster_layer_force_is_limited_by_budget() {
+        let mut layer = CellLayer::new(Area::new(1.0), Density::new(1.0), Color::Green,
+                                       Box::new(ThrusterCellLayerSpecialty::new()));
+        layer.execute_control_request(
+            BudgetedControlRequest::new(
+                CostedControlRequest::new(
+                    ThrusterCellLayerSpecialty::force_x_request(0, 1.0),
+                    BioEnergyDelta::new(1.0)),
+                0.5));
+        layer.execute_control_request(
+            BudgetedControlRequest::new(
+                CostedControlRequest::new(
+                    ThrusterCellLayerSpecialty::force_y_request(0, -1.0),
+                    BioEnergyDelta::new(1.0)),
+                0.25));
+
+        let env = LocalEnvironment::new();
+        let (_, force) = layer.after_influences(&env, Duration::new(1.0));
+
+        assert_eq!(Force::new(0.5, -0.25), force);
     }
 
     #[test]

@@ -794,7 +794,7 @@ mod tests {
     }
 
     #[test]
-    fn thruster_layer_force_is_reduced_by_reduced_health() {
+    fn thruster_layer_force_is_limited_by_health() {
         let mut layer = CellLayer::new(Area::new(1.0), Density::new(1.0), Color::Green,
                                        Box::new(ThrusterCellLayerSpecialty::new()));
         layer.damage(0.5);

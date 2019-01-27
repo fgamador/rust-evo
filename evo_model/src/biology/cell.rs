@@ -412,36 +412,39 @@ mod tests {
         assert_eq!(BioEnergy::new(5.0), cell.energy());
     }
 
-//    #[test]
-//    fn budding_creates_copy_of_parent() {
-//        let mut cell = Cell::new(Position::ORIGIN, Velocity::ZERO,
-//                                 vec![
-//                                     Box::new(simple_cell_layer(Area::new(10.0), Density::new(1.0))
-//                                         .with_resize_parameters(LayerResizeParameters {
-//                                             growth_energy_delta: BioEnergyDelta::ZERO,
-//                                             max_growth_rate: f64::INFINITY,
-//                                             shrinkage_energy_delta: BioEnergyDelta::new(2.0),
-//                                             max_shrinkage_rate: 0.5,
-//                                         })),
-//                                     Box::new(CellLayer::new(Area::new(5.0), Density::new(1.0), Color::White,
-//                                                             Box::new(BuddingCellLayerSpecialty::new2(Area::new(10.0))))
-//                                         .with_resize_parameters(LayerResizeParameters {
-//                                             growth_energy_delta: BioEnergyDelta::new(-1.0),
-//                                             max_growth_rate: f64::INFINITY,
-//                                             shrinkage_energy_delta: BioEnergyDelta::ZERO,
-//                                             max_shrinkage_rate: f64::INFINITY,
-//                                         })),
-//                                 ])
-//            .with_control(Box::new(ContinuousRequestsControl::new(vec![
-//                BuddingCellLayerSpecialty::donation_energy_request(1, BioEnergy::new(1.0)),
-//            ])));
-//
-//        let children = cell.after_movement();
-//
-//        assert_eq!(1, children.len());
-//        // TODO need some sort of "same parameters" check
-//        //assert_eq!(2, children[0].layers().len());
-//    }
+    #[test]
+    fn budding_creates_child_with_right_state() {
+        let mut cell = Cell::new(Position::new(2.0, -2.0), Velocity::new(3.0, -3.0),
+                                 vec![
+                                     Box::new(simple_cell_layer(Area::new(10.0), Density::new(1.0))
+                                         .with_resize_parameters(LayerResizeParameters::UNLIMITED)),
+                                     Box::new(CellLayer::new(Area::new(5.0), Density::new(1.0), Color::White,
+                                                             Box::new(BuddingCellLayerSpecialty::new(create_child)))
+                                         .with_resize_parameters(LayerResizeParameters::UNLIMITED)),
+                                 ])
+            .with_control(Box::new(ContinuousRequestsControl::new(vec![
+                CellLayer::resize_request(0, AreaDelta::new(10.0)),
+                BuddingCellLayerSpecialty::budding_angle_request(1, Angle::from_radians(0.0)),
+                BuddingCellLayerSpecialty::donation_energy_request(1, BioEnergy::new(1.0)),
+            ])));
+
+        let children = cell.after_movement();
+
+        assert_eq!(children.len(), 1);
+        let child = &children[0];
+        assert_eq!(child.center(),
+                   Position::new(cell.center().x() + cell.radius().value() + child.radius().value(),
+                                 cell.center().y()));
+        assert_eq!(child.velocity(), cell.velocity());
+        assert_eq!(child.energy(), BioEnergy::new(1.0));
+    }
+
+    fn create_child() -> Cell {
+        Cell::new(Position::ORIGIN, Velocity::ZERO,
+                  vec![
+                      Box::new(simple_cell_layer(Area::new(PI), Density::new(1.0)))
+                  ])
+    }
 
     fn simple_cell_layer(area: Area, density: Density) -> CellLayer {
         CellLayer::new(area, density, Color::Green, Box::new(NullCellLayerSpecialty::new()))

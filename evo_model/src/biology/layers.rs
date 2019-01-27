@@ -76,11 +76,11 @@ pub struct LayerResizeParameters {
 }
 
 impl LayerResizeParameters {
-    pub const DEFAULT: LayerResizeParameters = LayerResizeParameters {
+    pub const UNLIMITED: LayerResizeParameters = LayerResizeParameters {
         growth_energy_delta: BioEnergyDelta::ZERO,
         max_growth_rate: f64::INFINITY,
         shrinkage_energy_delta: BioEnergyDelta::ZERO,
-        max_shrinkage_rate: f64::INFINITY,
+        max_shrinkage_rate: 1.0,
     };
 }
 
@@ -192,7 +192,7 @@ impl CellLayerBody {
             brain: &CellLayer::LIVING_BRAIN,
             // TODO pull these out and share them
             health_parameters: LayerHealthParameters::DEFAULT,
-            resize_parameters: LayerResizeParameters::DEFAULT,
+            resize_parameters: LayerResizeParameters::UNLIMITED,
         }
     }
 

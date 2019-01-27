@@ -347,6 +347,16 @@ mod tests {
     }
 
     #[test]
+    fn zero_cost_requests_get_fully_budgeted() {
+        let costed_request = CostedControlRequest::new(
+            ControlRequest::ZEROS, BioEnergyDelta::new(0.0));
+
+        let (_, budgeted_requests) = Cell::budget_control_requests(BioEnergy::new(0.0), &vec![costed_request]);
+
+        assert_eq!(budgeted_requests[0].budgeted_fraction, 1.0);
+    }
+
+    #[test]
     fn budgeting_permits_full_request_expenses_if_there_is_enough_energy() {
         let dummy_control_request = CellLayer::resize_request(0, AreaDelta::ZERO);
         let costed_requests = vec![
@@ -376,16 +386,6 @@ mod tests {
             BudgetedControlRequest::new(costed_requests[0], 0.5),
             BudgetedControlRequest::new(costed_requests[1], 1.0),
         ]));
-    }
-
-    #[test]
-    fn zero_cost_requests_get_fully_budgeted() {
-        let costed_request = CostedControlRequest::new(
-            ControlRequest::ZEROS, BioEnergyDelta::new(0.0));
-
-        let (_, budgeted_requests) = Cell::budget_control_requests(BioEnergy::new(0.0), &vec![costed_request]);
-
-        assert_eq!(budgeted_requests[0].budgeted_fraction, 1.0);
     }
 
     #[test]

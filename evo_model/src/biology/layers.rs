@@ -899,7 +899,7 @@ mod tests {
     }
 
     #[test]
-    fn budding_layer_uses_only_budgeted_energy() {
+    fn budding_energy_is_limited_by_budget() {
         let mut layer = CellLayer::new(Area::new(1.0), Density::new(1.0), Color::Green,
                                        Box::new(BuddingCellLayerSpecialty::new(create_child)));
         layer.execute_control_request(

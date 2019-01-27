@@ -616,7 +616,7 @@ mod tests {
                 growth_energy_delta: BioEnergyDelta::new(-0.5),
                 max_growth_rate: f64::INFINITY,
                 shrinkage_energy_delta: BioEnergyDelta::ZERO,
-                max_shrinkage_rate: f64::INFINITY,
+                max_shrinkage_rate: 1.0,
             });
         let costed_request = layer.cost_control_request(CellLayer::resize_request(0, AreaDelta::new(3.0)));
         assert_eq!(costed_request, CostedControlRequest::new(
@@ -639,7 +639,7 @@ mod tests {
                 growth_energy_delta: BioEnergyDelta::ZERO,
                 max_growth_rate: 0.5,
                 shrinkage_energy_delta: BioEnergyDelta::ZERO,
-                max_shrinkage_rate: f64::INFINITY,
+                max_shrinkage_rate: 1.0,
             });
         layer.execute_control_request(fully_budgeted_resize_request(0, 10.0));
         assert_eq!(Area::new(3.0), layer.area());
@@ -652,7 +652,7 @@ mod tests {
                 growth_energy_delta: BioEnergyDelta::new(-3.0),
                 max_growth_rate: 0.5,
                 shrinkage_energy_delta: BioEnergyDelta::ZERO,
-                max_shrinkage_rate: f64::INFINITY,
+                max_shrinkage_rate: 1.0,
             });
         let control_request = CellLayer::resize_request(0, AreaDelta::new(2.0));
         let costed_request = layer.cost_control_request(control_request);
@@ -701,7 +701,7 @@ mod tests {
                 growth_energy_delta: BioEnergyDelta::new(-1.0),
                 max_growth_rate: f64::INFINITY,
                 shrinkage_energy_delta: BioEnergyDelta::ZERO,
-                max_shrinkage_rate: f64::INFINITY,
+                max_shrinkage_rate: 1.0,
             })
             .with_health(0.5);
         let control_request = CellLayer::resize_request(0, AreaDelta::new(1.0));

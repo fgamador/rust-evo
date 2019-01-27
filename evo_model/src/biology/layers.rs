@@ -835,7 +835,7 @@ mod tests {
     }
 
     #[test]
-    fn photo_layer_energy_is_reduced_by_reduced_health() {
+    fn photo_layer_energy_is_limited_by_health() {
         let mut layer = CellLayer::new(Area::new(1.0), Density::new(1.0), Color::Green,
                                        Box::new(PhotoCellLayerSpecialty::new(1.0)));
         layer.damage(0.25);

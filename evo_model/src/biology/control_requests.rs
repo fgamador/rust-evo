@@ -8,7 +8,7 @@ pub struct ControlRequest {
 }
 
 impl ControlRequest {
-    pub const NULL_REQUEST: ControlRequest =
+    pub const ZEROS: ControlRequest =
         ControlRequest { layer_index: 0, channel_index: 0, value: 0.0 };
 
     pub fn new(layer_index: usize, channel_index: usize, value: f64) -> Self {

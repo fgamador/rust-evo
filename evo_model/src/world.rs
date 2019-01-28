@@ -223,7 +223,7 @@ mod tests {
         world.tick();
 
         let ball = &world.cells()[0];
-        assert_eq!(Force::new(0.0, 0.0), ball.forces().net_force());
+        assert_eq!(ball.forces().net_force(), Force::new(0.0, 0.0));
     }
 
     #[test]
@@ -238,7 +238,7 @@ mod tests {
         world.tick();
 
         let cell = &world.cells()[0];
-        assert_eq!(50.0, cell.energy().value().round());
+        assert_eq!(cell.energy().value().round(), 50.0);
     }
 
     #[test]
@@ -254,7 +254,7 @@ mod tests {
         world.tick();
 
         let cell = &world.cells()[0];
-        assert_eq!(Area::new(3.0), cell.area());
+        assert_eq!(cell.area(), Area::new(3.0));
     }
 
     #[test]
@@ -293,6 +293,6 @@ mod tests {
         world.tick();
 
         let cell = &world.cells()[0];
-        assert_eq!(15.0, cell.area().value().round());
+        assert_eq!(cell.area().value().round(), 15.0);
     }
 }

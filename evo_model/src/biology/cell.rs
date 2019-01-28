@@ -60,6 +60,11 @@ impl Cell {
         self
     }
 
+    pub fn with_initial_position(mut self, position: Position) -> Self {
+        self.newtonian_state.position = position;
+        self
+    }
+
     pub fn with_initial_energy(mut self, energy: BioEnergy) -> Self {
         self.energy = energy;
         self

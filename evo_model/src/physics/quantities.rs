@@ -16,7 +16,7 @@ impl Angle {
     pub const ZERO: Angle = Angle { radians: 0.0 };
 
     pub fn from_radians(radians: f64) -> Self {
-        Angle { radians: Angle::normalize_radians(radians) }
+        Angle { radians: Self::normalize_radians(radians) }
     }
 
     fn normalize_radians(radians: f64) -> f64 {
@@ -56,6 +56,12 @@ impl Add<Deflection> for Angle {
     }
 }
 
+impl AddAssign<Deflection> for Angle {
+    fn add_assign(&mut self, rhs: Deflection) {
+        self.radians = Self::normalize_radians(self.radians + rhs.radians);
+    }
+}
+
 #[derive(Clone, Copy, Debug, PartialEq, PartialOrd)]
 pub struct Deflection {
     radians: f64,
@@ -69,6 +75,14 @@ impl Deflection {
     #[allow(dead_code)]
     pub fn radians(&self) -> f64 {
         self.radians
+    }
+}
+
+impl Add for Deflection {
+    type Output = Deflection;
+
+    fn add(self, rhs: Deflection) -> Self::Output {
+        Deflection::from_radians(self.radians + rhs.radians)
     }
 }
 

@@ -145,7 +145,8 @@ pub mod feature {
             let rgb_color =
                 match color {
                     evo_view_model::Color::Green => conrod::color::rgb(0.5, 1.0, 0.5),
-                    evo_view_model::Color::White => conrod::color::rgb(1.0, 1.0, 1.0)
+                    evo_view_model::Color::White => conrod::color::rgb(1.0, 1.0, 1.0),
+                    evo_view_model::Color::Yellow => conrod::color::rgb(0.5, 0.5, 0.0),
                 };
 
             ConrodView::adjust_color_per_health(rgb_color, health)

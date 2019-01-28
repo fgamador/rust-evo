@@ -10,6 +10,7 @@ pub enum Event {
 pub enum Color {
     Green,
     White,
+    Yellow,
 }
 
 #[derive(Clone, Copy, Debug)]

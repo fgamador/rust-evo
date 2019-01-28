@@ -158,8 +158,12 @@ impl World {
     }
 
     fn after_movement(&mut self) -> () {
+        let mut children: Vec<Cell> = vec![];
         for cell in self.cell_graph.unsorted_nodes_mut() {
-            cell.after_movement();
+            children.append(&mut cell.after_movement());
+        }
+        for child in children {
+            self.add_cell(child);
         }
     }
 }
@@ -294,5 +298,31 @@ mod tests {
 
         let cell = &world.cells()[0];
         assert_eq!(cell.area().value().round(), 15.0);
+    }
+
+    #[test]
+    fn new_cells_get_added_to_world() {
+        let mut world = World::new(Position::ORIGIN, Position::ORIGIN)
+            .with_cell(Cell::new(Position::ORIGIN, Velocity::ZERO,
+                                 vec![
+                                     Box::new(CellLayer::new(Area::new(1.0), Density::new(1.0), Color::Green,
+                                                             Box::new(BuddingCellLayerSpecialty::new(create_child))))
+                                 ])
+                .with_control(Box::new(ContinuousRequestsControl::new(vec![
+                    BuddingCellLayerSpecialty::donation_energy_request(0, BioEnergy::new(1.0)),
+                ]))));
+
+        world.tick();
+
+        assert_eq!(world.cells().len(), 2);
+    }
+
+    fn create_child() -> Cell {
+        Cell::new(Position::ORIGIN, Velocity::ZERO,
+                  vec![Box::new(simple_cell_layer(Area::new(1.0), Density::new(1.0)))])
+    }
+
+    fn simple_cell_layer(area: Area, density: Density) -> CellLayer {
+        CellLayer::new(area, density, Color::Green, Box::new(NullCellLayerSpecialty::new()))
     }
 }

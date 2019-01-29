@@ -6,6 +6,7 @@ use evo_model::biology::cell::Cell;
 use evo_model::biology::control::*;
 use evo_model::biology::control_requests::*;
 use evo_model::biology::layers::*;
+use evo_model::environment::influences::*;
 use evo_model::physics::quantities::*;
 use evo_model::world::World;
 use evo_main::main_support::init_and_run;
@@ -20,6 +21,7 @@ fn main() {
 fn create_world() -> World {
     World::new(Position::new(0.0, -400.0), Position::new(400.0, 0.0))
         .with_perimeter_walls()
+        .with_influence(Box::new(PairCollisions::new()))
         .with_cell(create_child().with_initial_position(Position::new(200.0, -100.0)))
 }
 
@@ -51,7 +53,7 @@ impl BuddingControl {
     }
 
     fn is_parent(cell_state: &CellStateSnapshot) -> bool {
-        cell_state.area >= Area::new(100.0)
+        cell_state.area >= Area::new(1000.0)
     }
 
     fn parent_requests(&mut self) -> Vec<ControlRequest> {

@@ -545,10 +545,8 @@ impl CellLayerSpecialty for BuddingCellLayerSpecialty {
         }
 
         let mut child = (self.create_child)();
-        // TODO move to Displacement::from_polar?
-        let x_offset = (cell_state.radius + child.radius()) * self.budding_angle.cos();
-        let y_offset = (cell_state.radius + child.radius()) * self.budding_angle.sin();
-        child.set_initial_position(cell_state.center + Displacement::new(x_offset.value(), y_offset.value()));
+        let offset = Displacement::from_polar(cell_state.radius + child.radius(), self.budding_angle);
+        child.set_initial_position(cell_state.center + offset);
         child.set_initial_velocity(cell_state.velocity);
         child.set_initial_energy(self.donation_energy);
         Some(child)

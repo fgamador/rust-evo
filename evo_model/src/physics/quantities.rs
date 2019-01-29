@@ -325,6 +325,13 @@ impl Displacement {
         Displacement { x, y }
     }
 
+    pub fn from_polar(radius: Length, angle: Angle) -> Self {
+        Displacement {
+            x: radius.value() * angle.cos(),
+            y: radius.value() * angle.sin(),
+        }
+    }
+
     #[allow(dead_code)]
     pub fn x(&self) -> f64 {
         self.x

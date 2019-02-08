@@ -61,12 +61,6 @@ impl NeuralNet {
         self.node_values[self.num_inputs as usize + index]
     }
 
-    pub fn identity(_op: &Op, _node_values: &mut Vec<f32>) {}
-
-    pub fn plus_one(op: &Op, node_values: &mut Vec<f32>) {
-        node_values[op.output_index as usize] += 1.0;
-    }
-
     pub fn sigmoidal(op: &Op, node_values: &mut Vec<f32>) {
         node_values[op.output_index as usize] = Self::sigmoidal_fn(node_values[op.output_index as usize]);
     }
@@ -86,7 +80,7 @@ mod tests {
 
     #[test]
     fn initial_fully_connected() {
-        let mut nnet = NeuralNet::new(3, 2, 0.5, NeuralNet::plus_one);
+        let mut nnet = NeuralNet::new(3, 2, 0.5, plus_one);
         nnet.set_input(0, 2.0);
         nnet.set_input(1, 3.0);
         nnet.set_input(2, 4.0);
@@ -96,4 +90,8 @@ mod tests {
     }
 
     // TODO clear between runs
+
+    pub fn plus_one(op: &Op, node_values: &mut Vec<f32>) {
+        node_values[op.output_index as usize] += 1.0;
+    }
 }

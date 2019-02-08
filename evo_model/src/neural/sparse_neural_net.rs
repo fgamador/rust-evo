@@ -45,8 +45,6 @@ impl NeuralNet {
         for op in &self.ops {
             (op.op_fn)(op, &mut self.node_values);
         }
-        // TODO initial hack
-        //self.node_values[1] = (self.activation_fn)(self.initial_weight * self.node_values[0]);
     }
 
     pub fn output(&self, index: usize) -> f32 {
@@ -60,8 +58,11 @@ impl NeuralNet {
         node_values[op.output_index as usize] += 1.0;
     }
 
-    // TODO turn into op
-    pub fn sigmoidal(val: f32) -> f32 {
+    pub fn sigmoidal(op: &Op, node_values: &mut Vec<f32>) {
+        node_values[op.output_index as usize] = Self::sigmoidal_fn(node_values[op.output_index as usize]);
+    }
+
+    fn sigmoidal_fn(val: f32) -> f32 {
         1.0_f32 / (1.0_f32 + (-4.9_f32 * val).exp())
     }
 

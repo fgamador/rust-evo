@@ -32,7 +32,7 @@ impl NeuralNet {
 
     pub fn run(&mut self) {
         // TODO initial hack
-        self.node_values[1] = self.initial_weight * self.node_values[0];
+        self.node_values[1] = (self.activation_fn)(self.initial_weight * self.node_values[0]);
     }
 
     pub fn output(&self, index: usize) -> f32 {
@@ -42,6 +42,10 @@ impl NeuralNet {
 
     pub fn identity(val: f32) -> f32 {
         val
+    }
+
+    pub fn plus_one(val: f32) -> f32 {
+        val + 1.0
     }
 
     pub fn sigmoidal(val: f32) -> f32 {
@@ -55,10 +59,10 @@ mod tests {
 
     #[test]
     fn simplest_net() {
-        let mut nnet = NeuralNet::new(1, 1, 0.5, NeuralNet::identity);
+        let mut nnet = NeuralNet::new(1, 1, 0.5, NeuralNet::plus_one);
         nnet.set_input(0, 3.0);
         nnet.run();
-        assert_eq!(nnet.output(0), 1.5);
+        assert_eq!(nnet.output(0), 2.5);
     }
 
 //    #[test]

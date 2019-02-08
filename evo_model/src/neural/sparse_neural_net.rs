@@ -24,16 +24,25 @@ impl NeuralNet {
             num_inputs,
             num_outputs,
             node_values: vec![],
-            ops: Vec::with_capacity((num_inputs * num_outputs + num_outputs) as usize),
+            ops: vec![],
         };
-        nnet.node_values.resize((num_inputs + num_outputs) as usize, 0.0);
+        nnet.init_node_values(num_inputs, num_outputs);
+        nnet.init_ops(num_inputs, num_outputs, initial_weight, transfer_op);
+        nnet
+    }
+
+    fn init_node_values(&mut self, num_inputs: u16, num_outputs: u16) {
+        self.node_values.resize((num_inputs + num_outputs) as usize, 0.0);
+    }
+
+    fn init_ops(&mut self, num_inputs: u16, num_outputs: u16, initial_weight: f32, transfer_op: fn(&Op, &mut Vec<f32>)) {
+        self.ops.reserve((num_inputs * num_outputs + num_outputs) as usize);
         for output_index in num_inputs..num_inputs + num_outputs {
             for input_index in 0..num_inputs {
-                nnet.ops.push(Op { input_index, output_index, weight: initial_weight, op_fn: Self::add_weighted });
+                self.ops.push(Op { input_index, output_index, weight: initial_weight, op_fn: Self::add_weighted });
             }
-            nnet.ops.push(Op { input_index: 0, output_index, weight: 0.0, op_fn: transfer_op });
+            self.ops.push(Op { input_index: 0, output_index, weight: 0.0, op_fn: transfer_op });
         }
-        nnet
     }
 
     pub fn set_input(&mut self, index: usize, val: f32) {

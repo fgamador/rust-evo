@@ -4,6 +4,7 @@ extern crate evo_model_derive;
 
 pub mod biology;
 pub mod environment;
+pub mod neural;
 pub mod physics;
 pub mod world;
 

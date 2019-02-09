@@ -45,6 +45,31 @@ impl NeuralNet {
         }
     }
 
+    // TODO test
+    pub fn clear_node_values(&mut self) {
+        let len = self.node_values.len();
+        self.node_values.clear();
+        self.node_values.resize(len, 0.0);
+
+//        extern crate libc;
+//        use std::mem;
+//
+//        fn main() {
+//            let mut buffer: Vec<u32> = vec![42; 20];
+//            println!("{:?}", buffer);
+//
+//            // overwrite the buffer with all zeros
+//            unsafe {
+//                libc::memset(
+//                    buffer.as_mut_ptr() as _,
+//                    0,
+//                    buffer.len() * mem::size_of::<u32>(),
+//                );
+//            }
+//            println!("{:?}", buffer);
+//        }
+    }
+
     pub fn set_input(&mut self, index: usize, val: f32) {
         assert!(index < self.num_inputs as usize);
         self.node_values[index] = val;

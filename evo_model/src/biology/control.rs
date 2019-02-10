@@ -24,7 +24,7 @@ impl CellStateSnapshot {
     };
 }
 
-#[derive(Clone, Debug)]
+#[derive(Debug)]
 pub struct NullControl {}
 
 impl NullControl {

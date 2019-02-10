@@ -37,8 +37,7 @@ fn create_world() -> World {
                     Box::new(simple_cell_layer(
                         Area::new(300.0 * PI), Density::new(0.00075), Color::Green)),
                 ])
-                .with_control(Box::new(NullControl{})),
-                //.with_control(Box::new(NeuralNetControl::new(0))),
+                .with_control(Box::new(NeuralNetControl::new(0))),
         ])
 }
 
@@ -54,7 +53,7 @@ pub struct NeuralNetControl {
 impl NeuralNetControl {
     pub fn new(float_layer_index: usize) -> Self {
         NeuralNetControl {
-            nnet: NeuralNet::new(1, 1, 0.01, NeuralNet::sigmoidal),
+            nnet: NeuralNet::new(1, 1, -1.0, NeuralNet::sigmoidal),
             float_layer_index,
         }
     }

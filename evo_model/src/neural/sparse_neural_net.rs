@@ -39,15 +39,20 @@ impl SparseNeuralNet {
     fn init_ops(&mut self, num_inputs: u16, num_outputs: u16, initial_weight: f32, transfer_op: fn(&Op, &mut Vec<f32>)) {
         self.ops.reserve((num_inputs * num_outputs + num_outputs) as usize);
         for output_index in (1 + num_inputs)..(1 + num_inputs + num_outputs) {
-            for input_index in 1..(1 + num_inputs) {
+            for input_index in 0..(1 + num_inputs) {
                 self.ops.push(Op { input_index, output_index, weight: initial_weight, op_fn: Self::add_weighted });
             }
             self.ops.push(Op { input_index: 0, output_index, weight: 0.0, op_fn: transfer_op });
         }
     }
 
-    pub fn set_weight(&mut self, _from_index: usize, _to_index: usize, _weight: f32) {
-        // TODO
+    pub fn set_weight(&mut self, from_index: usize, to_index: usize, weight: f32) {
+        // TODO need more efficient way
+        for op in &mut self.ops {
+            if op.input_index as usize == from_index && op.output_index as usize == to_index {
+                op.weight = weight;
+            }
+        }
     }
 
     pub fn set_input(&mut self, index: usize, val: f32) {
@@ -116,15 +121,13 @@ mod tests {
         assert_eq!(nnet.output(0), 3.0);
     }
 
-//    #[test]
-//    fn bias_node() {
-//        let mut nnet = SparseNeuralNet::fully_connected(1, 1, 1.0, identity);
-//        nnet.set_input(0, 1.0);
-//        nnet.run();
-//        nnet.set_input(0, 3.0);
-//        nnet.run();
-//        assert_eq!(nnet.output(0), 3.0);
-//    }
+    #[test]
+    fn bias_node() {
+        let mut nnet = SparseNeuralNet::fully_connected(1, 1, 1.0, identity);
+        nnet.set_input(0, 3.0);
+        nnet.run();
+        assert_eq!(nnet.output(0), 4.0);
+    }
 
     fn identity(_op: &Op, _node_values: &mut Vec<f32>) {}
 

@@ -84,7 +84,7 @@ impl LayerResizeParameters {
     };
 }
 
-#[derive(Clone, Debug)]
+#[derive(Debug)]
 pub struct CellLayer {
     body: CellLayerBody,
     specialty: Box<CellLayerSpecialty>,
@@ -176,7 +176,7 @@ impl OnionLayer for CellLayer {
     }
 }
 
-#[derive(Clone, Debug)]
+#[derive(Debug)]
 pub struct CellLayerBody {
     area: Area,
     density: Density,
@@ -333,8 +333,6 @@ impl CellLayerBrain for DeadCellLayerBrain {
 }
 
 pub trait CellLayerSpecialty: Debug {
-    fn box_clone(&self) -> Box<CellLayerSpecialty>;
-
     fn after_influences(&mut self, _body: &CellLayerBody, _env: &LocalEnvironment, _subtick_duration: Duration) -> (BioEnergy, Force) {
         (BioEnergy::ZERO, Force::ZERO)
     }
@@ -357,14 +355,7 @@ pub trait CellLayerSpecialty: Debug {
     }
 }
 
-impl Clone for Box<CellLayerSpecialty>
-{
-    fn clone(&self) -> Box<CellLayerSpecialty> {
-        self.box_clone()
-    }
-}
-
-#[derive(Clone, Debug)]
+#[derive(Debug)]
 pub struct NullCellLayerSpecialty {}
 
 impl NullCellLayerSpecialty {
@@ -373,13 +364,9 @@ impl NullCellLayerSpecialty {
     }
 }
 
-impl CellLayerSpecialty for NullCellLayerSpecialty {
-    fn box_clone(&self) -> Box<CellLayerSpecialty> {
-        Box::new(self.clone())
-    }
-}
+impl CellLayerSpecialty for NullCellLayerSpecialty {}
 
-#[derive(Clone, Debug)]
+#[derive(Debug)]
 pub struct ThrusterCellLayerSpecialty {
     force_x: f64,
     force_y: f64,
@@ -403,10 +390,6 @@ impl ThrusterCellLayerSpecialty {
 }
 
 impl CellLayerSpecialty for ThrusterCellLayerSpecialty {
-    fn box_clone(&self) -> Box<CellLayerSpecialty> {
-        Box::new(self.clone())
-    }
-
     fn after_influences(&mut self, _body: &CellLayerBody, _env: &LocalEnvironment, _subtick_duration: Duration) -> (BioEnergy, Force) {
         (BioEnergy::ZERO, Force::new(self.force_x, self.force_y))
     }
@@ -428,7 +411,7 @@ impl CellLayerSpecialty for ThrusterCellLayerSpecialty {
     }
 }
 
-#[derive(Clone, Debug)]
+#[derive(Debug)]
 pub struct PhotoCellLayerSpecialty {
     efficiency: f64,
 }
@@ -442,17 +425,13 @@ impl PhotoCellLayerSpecialty {
 }
 
 impl CellLayerSpecialty for PhotoCellLayerSpecialty {
-    fn box_clone(&self) -> Box<CellLayerSpecialty> {
-        Box::new(self.clone())
-    }
-
     fn after_influences(&mut self, body: &CellLayerBody, env: &LocalEnvironment, subtick_duration: Duration) -> (BioEnergy, Force) {
         (BioEnergy::new(env.light_intensity() * self.efficiency * body.health * body.area.value() * subtick_duration.value()),
          Force::ZERO)
     }
 }
 
-#[derive(Clone, Debug)]
+#[derive(Debug)]
 pub struct EnergyGeneratingCellLayerSpecialty {
     energy: BioEnergy,
 }
@@ -470,10 +449,6 @@ impl EnergyGeneratingCellLayerSpecialty {
 }
 
 impl CellLayerSpecialty for EnergyGeneratingCellLayerSpecialty {
-    fn box_clone(&self) -> Box<CellLayerSpecialty> {
-        Box::new(self.clone())
-    }
-
     fn after_influences(&mut self, body: &CellLayerBody, _env: &LocalEnvironment, subtick_duration: Duration) -> (BioEnergy, Force) {
         (self.energy * body.health * subtick_duration.value(), Force::ZERO)
     }
@@ -493,7 +468,7 @@ impl CellLayerSpecialty for EnergyGeneratingCellLayerSpecialty {
     }
 }
 
-#[derive(Clone, Debug)]
+#[derive(Debug)]
 pub struct BuddingCellLayerSpecialty {
     create_child: fn() -> Cell,
     budding_angle: Angle,
@@ -519,10 +494,6 @@ impl BuddingCellLayerSpecialty {
 }
 
 impl CellLayerSpecialty for BuddingCellLayerSpecialty {
-    fn box_clone(&self) -> Box<CellLayerSpecialty> {
-        Box::new(self.clone())
-    }
-
     fn cost_control_request(&self, request: ControlRequest) -> CostedControlRequest {
         match request.channel_index {
             2 => CostedControlRequest::new(request, BioEnergyDelta::ZERO),
@@ -559,12 +530,6 @@ mod tests {
     use biology::control_requests::BudgetedControlRequest;
     use environment::environment::LocalEnvironment;
     use physics::newtonian::NewtonianBody;
-
-    #[test]
-    fn can_clone_layer() {
-        let layer = simple_cell_layer(Area::new(1.0), Density::new(1.0));
-        let _clone = layer.clone();
-    }
 
     #[test]
     fn layer_calculates_mass() {

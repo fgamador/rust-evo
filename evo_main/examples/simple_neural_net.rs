@@ -65,7 +65,6 @@ impl CellControl for NeuralNetControl {
     }
 
     fn get_control_requests(&mut self, cell_state: &CellStateSnapshot) -> Vec<ControlRequest> {
-        self.nnet.clear_node_values();
         self.nnet.set_input(0, cell_state.center.y() as f32);
         self.nnet.run();
         let desired_delta_area = self.nnet.output(0) as f64;

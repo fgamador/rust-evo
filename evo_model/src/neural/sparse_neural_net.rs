@@ -45,37 +45,13 @@ impl SparseNeuralNet {
         }
     }
 
-    // TODO test
-    pub fn clear_node_values(&mut self) {
-        let len = self.node_values.len();
-        self.node_values.clear();
-        self.node_values.resize(len, 0.0);
-
-//        extern crate libc;
-//        use std::mem;
-//
-//        fn main() {
-//            let mut buffer: Vec<u32> = vec![42; 20];
-//            println!("{:?}", buffer);
-//
-//            // overwrite the buffer with all zeros
-//            unsafe {
-//                libc::memset(
-//                    buffer.as_mut_ptr() as _,
-//                    0,
-//                    buffer.len() * mem::size_of::<u32>(),
-//                );
-//            }
-//            println!("{:?}", buffer);
-//        }
-    }
-
     pub fn set_input(&mut self, index: usize, val: f32) {
         assert!(index < self.num_inputs as usize);
         self.node_values[index] = val;
     }
 
     pub fn run(&mut self) {
+        self.clear_computed_values();
         for op in &self.ops {
             (op.op_fn)(op, &mut self.node_values);
         }
@@ -84,6 +60,12 @@ impl SparseNeuralNet {
     pub fn output(&self, index: usize) -> f32 {
         assert!(index < self.num_outputs as usize);
         self.node_values[self.num_inputs as usize + index]
+    }
+
+    pub fn clear_computed_values(&mut self) {
+        let len = self.node_values.len();
+        self.node_values.truncate(self.num_inputs as usize);
+        self.node_values.resize(len, 0.0);
     }
 
     pub fn sigmoidal(op: &Op, node_values: &mut Vec<f32>) {
@@ -114,7 +96,17 @@ mod tests {
         assert_eq!(nnet.output(1), 5.5);
     }
 
-    // TODO clear between runs
+    #[test]
+    fn run_clears_previous_values() {
+        let mut nnet = SparseNeuralNet::fully_connected(1, 1, 1.0, identity);
+        nnet.set_input(0, 1.0);
+        nnet.run();
+        nnet.set_input(0, 3.0);
+        nnet.run();
+        assert_eq!(nnet.output(0), 3.0);
+    }
+
+    fn identity(_op: &Op, _node_values: &mut Vec<f32>) {}
 
     fn plus_one(op: &Op, node_values: &mut Vec<f32>) {
         node_values[op.output_index as usize] += 1.0;

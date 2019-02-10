@@ -52,10 +52,12 @@ pub struct NeuralNetControl {
 
 impl NeuralNetControl {
     pub fn new(float_layer_index: usize) -> Self {
-        NeuralNetControl {
-            nnet: SparseNeuralNet::fully_connected(1, 1, -1.0, SparseNeuralNet::sigmoidal),
+        let mut control = NeuralNetControl {
+            nnet: SparseNeuralNet::fully_connected(1, 1, -1.0, SparseNeuralNet::identity),
             float_layer_index,
-        }
+        };
+        control.nnet.set_weight(0, 2, -100.0);
+        control
     }
 }
 

@@ -78,16 +78,18 @@ impl SparseNeuralNet {
         self.node_values.resize(len, 0.0);
     }
 
+    fn add_weighted(op: &Op, node_values: &mut Vec<f32>) {
+        node_values[op.output_index as usize] += op.weight * node_values[op.input_index as usize];
+    }
+
+    pub fn identity(_op: &Op, _node_values: &mut Vec<f32>) {}
+
     pub fn sigmoidal(op: &Op, node_values: &mut Vec<f32>) {
         node_values[op.output_index as usize] = Self::sigmoidal_fn(node_values[op.output_index as usize]);
     }
 
     fn sigmoidal_fn(val: f32) -> f32 {
         1.0_f32 / (1.0_f32 + (-4.9_f32 * val).exp())
-    }
-
-    fn add_weighted(op: &Op, node_values: &mut Vec<f32>) {
-        node_values[op.output_index as usize] += op.weight * node_values[op.input_index as usize];
     }
 }
 
@@ -111,7 +113,7 @@ mod tests {
 
     #[test]
     fn run_clears_previous_values() {
-        let mut nnet = SparseNeuralNet::fully_connected(1, 1, 1.0, identity);
+        let mut nnet = SparseNeuralNet::fully_connected(1, 1, 1.0, SparseNeuralNet::identity);
         nnet.set_weight(0, 2, 0.0);
 
         nnet.set_input(0, 1.0);
@@ -123,13 +125,11 @@ mod tests {
 
     #[test]
     fn bias_node() {
-        let mut nnet = SparseNeuralNet::fully_connected(1, 1, 1.0, identity);
+        let mut nnet = SparseNeuralNet::fully_connected(1, 1, 1.0, SparseNeuralNet::identity);
         nnet.set_input(0, 3.0);
         nnet.run();
         assert_eq!(nnet.output(0), 4.0);
     }
-
-    fn identity(_op: &Op, _node_values: &mut Vec<f32>) {}
 
     fn plus_one(op: &Op, node_values: &mut Vec<f32>) {
         node_values[op.output_index as usize] += 1.0;

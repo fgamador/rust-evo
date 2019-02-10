@@ -45,6 +45,10 @@ impl SparseNeuralNet {
         }
     }
 
+    pub fn set_weight(&mut self, from_index: usize, to_index: usize, val: f32) {
+        // TODO
+    }
+
     pub fn set_input(&mut self, index: usize, val: f32) {
         assert!(index < self.num_inputs as usize);
         self.node_values[index] = val;
@@ -86,8 +90,11 @@ mod tests {
     use super::*;
 
     #[test]
-    fn run_two_layer() {
+    fn two_layer_fully_connected_no_bias() {
         let mut nnet = SparseNeuralNet::fully_connected(3, 2, 0.5, plus_one);
+        nnet.set_weight(0, 4, 0.0);
+        nnet.set_weight(0, 5, 0.0);
+
         nnet.set_input(0, 2.0);
         nnet.set_input(1, 3.0);
         nnet.set_input(2, 4.0);
@@ -99,12 +106,24 @@ mod tests {
     #[test]
     fn run_clears_previous_values() {
         let mut nnet = SparseNeuralNet::fully_connected(1, 1, 1.0, identity);
+        nnet.set_weight(0, 2, 0.0);
+
         nnet.set_input(0, 1.0);
         nnet.run();
         nnet.set_input(0, 3.0);
         nnet.run();
         assert_eq!(nnet.output(0), 3.0);
     }
+
+//    #[test]
+//    fn bias_node() {
+//        let mut nnet = SparseNeuralNet::fully_connected(1, 1, 1.0, identity);
+//        nnet.set_input(0, 1.0);
+//        nnet.run();
+//        nnet.set_input(0, 3.0);
+//        nnet.run();
+//        assert_eq!(nnet.output(0), 3.0);
+//    }
 
     fn identity(_op: &Op, _node_values: &mut Vec<f32>) {}
 

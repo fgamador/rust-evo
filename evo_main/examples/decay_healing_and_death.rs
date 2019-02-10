@@ -38,7 +38,7 @@ fn create_world() -> World {
             .with_control(Box::new(GrowThenHealControl::new(0, 100, AreaDelta::new(10.0), 100, 0.01))))
 }
 
-#[derive(Clone, Debug)]
+#[derive(Debug)]
 pub struct GrowThenHealControl {
     layer_index: usize,
     growth_ticks: u32,
@@ -62,10 +62,6 @@ impl GrowThenHealControl {
 }
 
 impl CellControl for GrowThenHealControl {
-    fn box_clone(&self) -> Box<CellControl> {
-        Box::new(self.clone())
-    }
-
     fn get_control_requests(&mut self, _cell_state: &CellStateSnapshot) -> Vec<ControlRequest> {
         let request =
             if self.ticks <= self.growth_ticks {

@@ -36,7 +36,7 @@ fn create_child() -> Cell {
         .with_control(Box::new(BuddingControl::new()))
 }
 
-#[derive(Clone, Debug)]
+#[derive(Debug)]
 pub struct BuddingControl {
     budding_ticks: u32,
     budding_angle: Angle,
@@ -80,10 +80,6 @@ impl BuddingControl {
 }
 
 impl CellControl for BuddingControl {
-    fn box_clone(&self) -> Box<CellControl> {
-        Box::new(self.clone())
-    }
-
     fn get_control_requests(&mut self, cell_state: &CellStateSnapshot) -> Vec<ControlRequest> {
         if Self::is_parent(cell_state) {
             self.parent_requests()

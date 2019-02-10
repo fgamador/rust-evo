@@ -62,10 +62,6 @@ impl NeuralNetControl {
 }
 
 impl CellControl for NeuralNetControl {
-    fn box_clone(&self) -> Box<CellControl> {
-        Box::new(NullControl {})
-    }
-
     fn get_control_requests(&mut self, cell_state: &CellStateSnapshot) -> Vec<ControlRequest> {
         self.nnet.set_input(0, cell_state.center.y() as f32);
         self.nnet.run();

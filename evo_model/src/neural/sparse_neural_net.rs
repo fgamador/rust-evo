@@ -104,7 +104,7 @@ mod tests {
     use super::*;
 
     #[test]
-    fn initial_fully_connected() {
+    fn run_two_layer() {
         let mut nnet = SparseNeuralNet::fully_connected(3, 2, 0.5, plus_one);
         nnet.set_input(0, 2.0);
         nnet.set_input(1, 3.0);

@@ -46,14 +46,14 @@ fn simple_cell_layer(area: Area, density: Density, color: Color) -> CellLayer {
 }
 
 pub struct NeuralNetControl {
-    nnet: NeuralNet,
+    nnet: SparseNeuralNet,
     float_layer_index: usize,
 }
 
 impl NeuralNetControl {
     pub fn new(float_layer_index: usize) -> Self {
         NeuralNetControl {
-            nnet: NeuralNet::new(1, 1, -1.0, NeuralNet::sigmoidal),
+            nnet: SparseNeuralNet::new(1, 1, -1.0, SparseNeuralNet::sigmoidal),
             float_layer_index,
         }
     }

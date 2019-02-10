@@ -11,16 +11,16 @@ pub struct Op {
     op_fn: fn(&Op, &mut Vec<f32>),
 }
 
-pub struct NeuralNet {
+pub struct SparseNeuralNet {
     num_inputs: u16,
     num_outputs: u16,
     node_values: Vec<f32>,
     ops: Vec<Op>,
 }
 
-impl NeuralNet {
+impl SparseNeuralNet {
     pub fn new(num_inputs: u16, num_outputs: u16, initial_weight: f32, transfer_op: fn(&Op, &mut Vec<f32>)) -> Self {
-        let mut nnet = NeuralNet {
+        let mut nnet = SparseNeuralNet {
             num_inputs,
             num_outputs,
             node_values: vec![],
@@ -105,7 +105,7 @@ mod tests {
 
     #[test]
     fn initial_fully_connected() {
-        let mut nnet = NeuralNet::new(3, 2, 0.5, plus_one);
+        let mut nnet = SparseNeuralNet::new(3, 2, 0.5, plus_one);
         nnet.set_input(0, 2.0);
         nnet.set_input(1, 3.0);
         nnet.set_input(2, 4.0);

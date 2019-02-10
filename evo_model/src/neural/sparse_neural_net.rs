@@ -32,26 +32,27 @@ impl SparseNeuralNet {
     }
 
     fn init_node_values(&mut self, num_inputs: u16, num_outputs: u16) {
-        self.node_values.resize((num_inputs + num_outputs) as usize, 0.0);
+        self.node_values.push(1.0);
+        self.node_values.resize((1 + num_inputs + num_outputs) as usize, 0.0);
     }
 
     fn init_ops(&mut self, num_inputs: u16, num_outputs: u16, initial_weight: f32, transfer_op: fn(&Op, &mut Vec<f32>)) {
         self.ops.reserve((num_inputs * num_outputs + num_outputs) as usize);
-        for output_index in num_inputs..num_inputs + num_outputs {
-            for input_index in 0..num_inputs {
+        for output_index in (1 + num_inputs)..(1 + num_inputs + num_outputs) {
+            for input_index in 1..(1 + num_inputs) {
                 self.ops.push(Op { input_index, output_index, weight: initial_weight, op_fn: Self::add_weighted });
             }
             self.ops.push(Op { input_index: 0, output_index, weight: 0.0, op_fn: transfer_op });
         }
     }
 
-    pub fn set_weight(&mut self, from_index: usize, to_index: usize, val: f32) {
+    pub fn set_weight(&mut self, _from_index: usize, _to_index: usize, _weight: f32) {
         // TODO
     }
 
     pub fn set_input(&mut self, index: usize, val: f32) {
         assert!(index < self.num_inputs as usize);
-        self.node_values[index] = val;
+        self.node_values[1 + index] = val;
     }
 
     pub fn run(&mut self) {
@@ -63,12 +64,12 @@ impl SparseNeuralNet {
 
     pub fn output(&self, index: usize) -> f32 {
         assert!(index < self.num_outputs as usize);
-        self.node_values[self.num_inputs as usize + index]
+        self.node_values[1 + self.num_inputs as usize + index]
     }
 
     pub fn clear_computed_values(&mut self) {
         let len = self.node_values.len();
-        self.node_values.truncate(self.num_inputs as usize);
+        self.node_values.truncate(1 + self.num_inputs as usize);
         self.node_values.resize(len, 0.0);
     }
 

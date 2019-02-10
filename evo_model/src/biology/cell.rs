@@ -11,7 +11,7 @@ use physics::sortable_graph::*;
 use std::f64::consts::PI;
 use std::ptr;
 
-#[derive(Clone, Debug, GraphNode, HasLocalEnvironment, NewtonianBody)]
+#[derive(Debug, GraphNode, HasLocalEnvironment, NewtonianBody)]
 pub struct Cell {
     graph_node_data: GraphNodeData,
     radius: Length,
@@ -38,13 +38,6 @@ impl Cell {
             control: Box::new(NullControl::new()),
             energy: BioEnergy::new(0.0),
         }
-    }
-
-    pub fn new_from_prototype(prototype: &Cell, position: Position, velocity: Velocity) -> Self {
-        let mut cell = prototype.clone();
-        cell.newtonian_state.position = position;
-        cell.newtonian_state.velocity = velocity;
-        cell
     }
 
     pub fn ball(radius: Length, mass: Mass, position: Position, velocity: Velocity) -> Self {
@@ -223,28 +216,6 @@ impl Onion for Cell {
 #[cfg(test)]
 mod tests {
     use super::*;
-
-    #[test]
-    fn can_clone_cell() {
-        let cell = Cell::new(Position::new(1.0, 1.0), Velocity::new(1.0, 1.0),
-                             vec![
-                                 Box::new(simple_cell_layer(Area::new(PI), Density::new(1.0)))
-                             ]);
-        let _clone = cell.clone();
-    }
-
-    #[test]
-    fn can_create_cell_from_prototype() {
-        let prototype = Cell::new(Position::new(1.0, 1.0), Velocity::new(1.0, 1.0),
-                                  vec![
-                                      Box::new(simple_cell_layer(Area::new(PI), Density::new(1.0)))
-                                  ]);
-        let cell = Cell::new_from_prototype(&prototype, Position::new(2.0, -2.0), Velocity::new(3.0, -3.0));
-        assert_eq!(prototype.radius(), cell.radius());
-        assert_eq!(prototype.mass(), cell.mass());
-        assert_eq!(Position::new(2.0, -2.0), cell.center());
-        assert_eq!(Velocity::new(3.0, -3.0), cell.velocity());
-    }
 
     #[test]
     fn cells_use_pointer_equality() {

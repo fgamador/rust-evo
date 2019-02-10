@@ -116,7 +116,7 @@ mod tests {
 
     // TODO clear between runs
 
-    pub fn plus_one(op: &Op, node_values: &mut Vec<f32>) {
+    fn plus_one(op: &Op, node_values: &mut Vec<f32>) {
         node_values[op.output_index as usize] += 1.0;
     }
 }

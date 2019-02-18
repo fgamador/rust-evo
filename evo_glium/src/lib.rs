@@ -9,7 +9,7 @@ pub mod bullseye_drawing;
 
 use background_drawing::*;
 use bullseye_drawing::*;
-use view_model::ViewModel;
+use evo_view_model::ViewModel;
 
 type Point = [f32; 2];
 
@@ -66,10 +66,10 @@ impl GliumView {
         !closed
     }
 
-    fn view_model_bullseyes_to_drawing_bullseyes(bullseyes: &[view_model::Bullseye]) -> Vec<Bullseye> {
+    fn view_model_bullseyes_to_drawing_bullseyes(bullseyes: &[evo_view_model::Bullseye]) -> Vec<Bullseye> {
         bullseyes.iter().map(|bullseye| Bullseye {
             center: [bullseye.center.x as f32, bullseye.center.y as f32],
-            radius: bullseye.rings[0].outer_radius as f32,
+            radius: bullseye.rings.last().unwrap().outer_radius as f32,
         }).collect()
     }
 

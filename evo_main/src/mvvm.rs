@@ -1,4 +1,5 @@
 use evo_conrod::feature::ConrodView;
+use evo_glium::GliumView;
 use evo_model;
 use evo_model::physics::quantities::*;
 use evo_model::world::World;
@@ -28,6 +29,7 @@ impl Model {
 
 pub struct View {
     view: ConrodView,
+    //view: GliumView,
     next_tick: Instant,
 }
 
@@ -36,6 +38,9 @@ impl View {
         let transform = Self::create_coordinate_transform(world_min_corner, world_max_corner);
         View {
             view: ConrodView::new(transform),
+//            view: GliumView::new(
+//                [world_min_corner.x() as f32, world_min_corner.y() as f32],
+//                [world_max_corner.x() as f32, world_max_corner.y() as f32]),
             next_tick: Instant::now(),
         }
     }

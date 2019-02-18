@@ -1,5 +1,3 @@
-pub mod events;
-
 #[derive(Clone, Copy, Debug, Eq, Hash, PartialEq)]
 pub enum Event {
     Rendered,

@@ -6,13 +6,13 @@ use mvvm::*;
 
 pub fn init_and_run(world: World) {
     let mut event_manager: EventManager<Event, MVVM> = EventManager::new();
-    wire_up_events(&mut event_manager);
+//    wire_up_events(&mut event_manager);
     let view = View::new(world.min_corner(), world.max_corner());
     let mvvm = MVVM(Model::new(world), view, ViewModel::new());
     run(event_manager, mvvm);
 }
 
-fn wire_up_events(event_manager: &mut EventManager<Event, MVVM>) {
+fn _wire_up_events(event_manager: &mut EventManager<Event, MVVM>) {
     event_manager.add_listener(Event::Rendered, |event_queue, subject| {
         let MVVM(ref mut model, _, ref mut view_model) = subject;
         model.tick(view_model);
@@ -26,7 +26,13 @@ fn wire_up_events(event_manager: &mut EventManager<Event, MVVM>) {
     });
 }
 
-fn run(mut event_manager: EventManager<Event, MVVM>, mut mvvm: MVVM) {
-    event_manager.events().push(Event::Rendered);
-    event_manager.fire_events(&mut mvvm);
+fn run(mut _event_manager: EventManager<Event, MVVM>, mut mvvm: MVVM) {
+//    event_manager.events().push(Event::Rendered);
+//    event_manager.fire_events(&mut mvvm);
+    let mut done = false;
+    while !done {
+        let MVVM(ref mut model, ref mut view, ref mut view_model) = mvvm;
+        model.tick(view_model);
+        done = !view.render(view_model);
+    }
 }

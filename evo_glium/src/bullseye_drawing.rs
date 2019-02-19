@@ -92,10 +92,11 @@ impl BullseyeDrawing {
         }
 
         void main() {
-            circle_point_out.radius = circle_in[0].radius;
+            float radius = circle_in[0].radii[circle_in[0].num_radii - 1u];
+            circle_point_out.radius = radius;
             circle_point_out.radii = circle_in[0].radii;
             circle_point_out.num_radii = circle_in[0].num_radii;
-            emit_circle_bounding_box(circle_in[0].center, circle_in[0].radius);
+            emit_circle_bounding_box(circle_in[0].center, radius);
         }
     "#;
 

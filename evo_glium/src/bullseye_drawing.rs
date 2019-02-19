@@ -41,14 +41,12 @@ impl BullseyeDrawing {
 
         out Circle {
             vec2 center;
-            float radius;
             float radii[4];
             uint num_radii;
         } circle_out;
 
         void main() {
             circle_out.center = center;
-            circle_out.radius = radii_0_3[num_radii - 1u];
             circle_out.radii = float[](radii_0_3[0], radii_0_3[1], radii_0_3[3], radii_0_3[3]);
             circle_out.num_radii = num_radii;
         }
@@ -64,7 +62,6 @@ impl BullseyeDrawing {
 
         in Circle {
             vec2 center;
-            float radius;
             float radii[4];
             uint num_radii;
         } circle_in[];

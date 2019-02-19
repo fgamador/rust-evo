@@ -42,11 +42,15 @@ impl BullseyeDrawing {
         out Circle {
             vec2 center;
             float radius;
+            float radii[4];
+            uint num_radii;
         } circle_out;
 
         void main() {
             circle_out.center = center;
             circle_out.radius = radii_0_3[num_radii - 1u];
+            //circle_out.radii = radii_0_3;
+            circle_out.num_radii = num_radii;
         }
     "#;
 
@@ -61,11 +65,15 @@ impl BullseyeDrawing {
         in Circle {
             vec2 center;
             float radius;
+            float radii[4];
+            uint num_radii;
         } circle_in[];
 
         out CirclePoint {
             vec2 offset;
             float radius;
+            float radii[4];
+            uint num_radii;
         } circle_point_out;
 
         void emit_circle_bounding_box_corner(in vec2 center, in float radius, in vec2 corner) {
@@ -76,7 +84,6 @@ impl BullseyeDrawing {
         }
 
         void emit_circle_bounding_box(in vec2 center, in float radius) {
-            circle_point_out.radius = radius;
             emit_circle_bounding_box_corner(center, radius, vec2(-1.0, -1.0));
             emit_circle_bounding_box_corner(center, radius, vec2(-1.0, 1.0));
             emit_circle_bounding_box_corner(center, radius, vec2(1.0, -1.0));
@@ -85,6 +92,9 @@ impl BullseyeDrawing {
         }
 
         void main() {
+            circle_point_out.radius = circle_in[0].radius;
+            circle_point_out.radii = circle_in[0].radii;
+            circle_point_out.num_radii = circle_in[0].num_radii;
             emit_circle_bounding_box(circle_in[0].center, circle_in[0].radius);
         }
     "#;
@@ -97,6 +107,8 @@ impl BullseyeDrawing {
         in CirclePoint {
             vec2 offset;
             float radius;
+            float radii[4];
+            uint num_radii;
         } circle_point_in;
 
         out vec4 color;

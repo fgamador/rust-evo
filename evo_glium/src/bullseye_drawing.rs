@@ -4,6 +4,8 @@ use glium::Surface;
 pub struct Bullseye {
     pub center: [f32; 2],
     pub radius: f32,
+    pub radii: [f32; 8],
+    pub num_radii: u32,
 }
 
 implement_vertex!(Bullseye, center, radius);
@@ -36,6 +38,8 @@ impl BullseyeDrawing {
 
         in vec2 center;
         in float radius;
+        in float radii[8];
+        in uint num_radii;
 
         out Circle {
             vec2 center;

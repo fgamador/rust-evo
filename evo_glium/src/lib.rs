@@ -80,7 +80,7 @@ impl GliumView {
         }
         Bullseye {
             center: [bullseye.center.x as f32, bullseye.center.y as f32],
-            radii,
+            radii_0_3: radii,
             num_radii: bullseye.rings.len() as u32,
         }
     }

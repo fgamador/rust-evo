@@ -3,11 +3,11 @@ use glium::Surface;
 #[derive(Clone, Copy)]
 pub struct Bullseye {
     pub center: [f32; 2],
-    pub radii: [f32; 4],
+    pub radii_0_3: [f32; 4],
     pub num_radii: u32,
 }
 
-implement_vertex!(Bullseye, center, radii, num_radii);
+implement_vertex!(Bullseye, center, radii_0_3, num_radii);
 
 pub struct BullseyeDrawing {
     pub shader_program: glium::Program,
@@ -36,7 +36,7 @@ impl BullseyeDrawing {
         #version 330 core
 
         in vec2 center;
-        in vec4 radii;
+        in vec4 radii_0_3;
         in uint num_radii;
 
         out Circle {
@@ -46,7 +46,7 @@ impl BullseyeDrawing {
 
         void main() {
             circle_out.center = center;
-            circle_out.radius = radii[num_radii - 1u];
+            circle_out.radius = radii_0_3[num_radii - 1u];
         }
     "#;
 

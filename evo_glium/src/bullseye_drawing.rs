@@ -89,10 +89,11 @@ impl BullseyeDrawing {
         }
 
         void main() {
-            float radius = circle_in[0].radii[circle_in[0].num_radii - 1u];
+            uint num_radii = circle_in[0].num_radii;
+            float radius = circle_in[0].radii[num_radii - 1u];
             circle_point_out.radius = radius;
             circle_point_out.radii = circle_in[0].radii;
-            circle_point_out.num_radii = circle_in[0].num_radii;
+            circle_point_out.num_radii = num_radii;
             emit_circle_bounding_box(circle_in[0].center, radius);
         }
     "#;
@@ -112,10 +113,14 @@ impl BullseyeDrawing {
         out vec4 color;
 
         void main() {
+            //float radius = circle_point_in.radii[circle_point_in.num_radii - 1u];
+            //float radius = circle_point_in.radii[circle_point_in.num_radii];
+            //float radius = circle_point_in.radii[0];
+            float radius = circle_point_in.radius;
             float dist = sqrt(dot(circle_point_in.offset, circle_point_in.offset));
-            if (dist <= circle_point_in.radius / 2.0)
+            if (dist <= radius / 2.0)
                 color = circle_color / 2.0;
-            else if (dist <= circle_point_in.radius)
+            else if (dist <= radius)
                 color = circle_color;
             else
                 discard;

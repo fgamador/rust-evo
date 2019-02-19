@@ -1,4 +1,4 @@
-use evo_conrod::feature::ConrodView;
+//use evo_conrod::feature::ConrodView;
 use evo_glium::GliumView;
 use evo_model;
 use evo_model::physics::quantities::*;
@@ -28,24 +28,24 @@ impl Model {
 }
 
 pub struct View {
-    view: ConrodView,
-    //view: GliumView,
+    //view: ConrodView,
+    view: GliumView,
     next_tick: Instant,
 }
 
 impl View {
     pub fn new(world_min_corner: Position, world_max_corner: Position) -> Self {
-        let transform = Self::create_coordinate_transform(world_min_corner, world_max_corner);
+//        let transform = Self::_create_coordinate_transform(world_min_corner, world_max_corner);
         View {
-            view: ConrodView::new(transform),
-//            view: GliumView::new(
-//                [world_min_corner.x() as f32, world_min_corner.y() as f32],
-//                [world_max_corner.x() as f32, world_max_corner.y() as f32]),
+//            view: ConrodView::new(transform),
+            view: GliumView::new(
+                [world_min_corner.x() as f32, world_min_corner.y() as f32],
+                [world_max_corner.x() as f32, world_max_corner.y() as f32]),
             next_tick: Instant::now(),
         }
     }
 
-    fn create_coordinate_transform(input_min_corner: Position, input_max_corner: Position) -> CoordinateTransform {
+    fn _create_coordinate_transform(input_min_corner: Position, input_max_corner: Position) -> CoordinateTransform {
         let input_window = evo_view_model::Rectangle {
             min_corner: evo_view_model::Point {
                 x: input_min_corner.x(),

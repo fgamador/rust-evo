@@ -32,9 +32,12 @@ impl GliumView {
         let display = glium::Display::new(window, context, &events_loop).unwrap();
         let background_drawing = BackgroundDrawing::new(&display);
         let bullseye_drawing = BullseyeDrawing::new(&display);
-        let world_dim = [world_max_corner[0] - world_min_corner[0], world_max_corner[1] - world_min_corner[1]];
         let world = vec![
-            World { dimensions: world_dim, top_color: [0.0, 0.1, 0.5], bottom_color: [0.0, 0.0, 0.0] }
+            World {
+                corners: [world_min_corner[0], world_min_corner[1], world_max_corner[0], world_max_corner[1]],
+                top_color: [0.0, 0.1, 0.5],
+                bottom_color: [0.0, 0.0, 0.0],
+            }
         ];
         let world_vb = glium::VertexBuffer::new(&display, &world).unwrap();
 

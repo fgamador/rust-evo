@@ -1,13 +1,13 @@
 use glium::Surface;
 
-#[derive(Clone, Copy)]
+#[derive(Clone, Copy, Debug)]
 pub struct World {
-    pub dimensions: [f32; 2],
+    pub corners: [f32; 4],
     pub top_color: [f32; 3],
     pub bottom_color: [f32; 3],
 }
 
-implement_vertex!(World, dimensions, top_color, bottom_color);
+implement_vertex!(World, corners, top_color, bottom_color);
 
 pub struct BackgroundDrawing {
     pub shader_program: glium::Program,
@@ -34,18 +34,18 @@ impl BackgroundDrawing {
     const VERTEX_SHADER_SRC: &'static str = r#"
         #version 330 core
 
-        in vec2 dimensions;
+        in vec4 corners;
         in vec3 top_color;
         in vec3 bottom_color;
 
         out World {
-            vec2 dimensions;
+            vec4 corners;
             vec3 top_color;
             vec3 bottom_color;
         } world_out;
 
         void main() {
-            world_out.dimensions = dimensions;
+            world_out.corners = corners;
             world_out.top_color = top_color;
             world_out.bottom_color = bottom_color;
         }
@@ -60,7 +60,7 @@ impl BackgroundDrawing {
         layout (triangle_strip, max_vertices = 4) out;
 
         in World {
-            vec2 dimensions;
+            vec4 corners;
             vec3 top_color;
             vec3 bottom_color;
         } world_in[];
@@ -69,22 +69,22 @@ impl BackgroundDrawing {
             vec3 color;
         } point_out;
 
-        void emit_corner(in vec2 dimensions, in vec2 multiplier, in vec3 color) {
+        void emit_corner(in vec4 corners, in int x_index, in int y_index, in vec3 color) {
             point_out.color = color;
-            gl_Position = screen_transform * vec4(dimensions * multiplier, 0.0, 1.0);
+            gl_Position = screen_transform * vec4(corners[x_index], corners[y_index], 0.0, 1.0);
             EmitVertex();
         }
 
-        void emit_quad(in vec2 dimensions, in vec3 top_color, in vec3 bottom_color) {
-            emit_corner(dimensions, vec2(-0.5, -0.5), bottom_color);
-            emit_corner(dimensions, vec2(-0.5, 0.5), top_color);
-            emit_corner(dimensions, vec2(0.5, -0.5), bottom_color);
-            emit_corner(dimensions, vec2(0.5, 0.5), top_color);
+        void emit_quad(in vec4 corners, in vec3 top_color, in vec3 bottom_color) {
+            emit_corner(corners, 0, 1, bottom_color);
+            emit_corner(corners, 0, 3, top_color);
+            emit_corner(corners, 2, 1, bottom_color);
+            emit_corner(corners, 2, 3, top_color);
             EndPrimitive();
         }
 
         void main() {
-            emit_quad(world_in[0].dimensions, world_in[0].top_color, world_in[0].bottom_color);
+            emit_quad(world_in[0].corners, world_in[0].top_color, world_in[0].bottom_color);
         }
     "#;
 

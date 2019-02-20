@@ -74,14 +74,16 @@ impl GliumView {
     }
 
     fn view_model_bullseye_to_drawing_bullseye(bullseye: &evo_view_model::Bullseye) -> Bullseye {
-        let mut radii = [0.0_f32; 4];
+        let mut radii = [0.0_f32; 8];
+        assert!(bullseye.rings.len() <= radii.len());
         for (i, ring) in bullseye.rings.iter().enumerate() {
             radii[i] = ring.outer_radius as f32;
         }
         Bullseye {
             center: [bullseye.center.x as f32, bullseye.center.y as f32],
-            radii_0_3: radii,
             num_radii: bullseye.rings.len() as u32,
+            radii_0_3: [radii[0], radii[1], radii[2], radii[3]],
+            radii_4_7: [radii[4], radii[5], radii[6], radii[7]],
         }
     }
 

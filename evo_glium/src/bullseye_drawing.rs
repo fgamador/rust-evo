@@ -5,9 +5,10 @@ pub struct Bullseye {
     pub center: [f32; 2],
     pub num_radii: u32,
     pub radii_0_3: [f32; 4],
+    pub radii_4_7: [f32; 4],
 }
 
-implement_vertex!(Bullseye, center, num_radii, radii_0_3);
+implement_vertex!(Bullseye, center, num_radii, radii_0_3, radii_4_7);
 
 pub struct BullseyeDrawing {
     pub shader_program: glium::Program,
@@ -38,17 +39,20 @@ impl BullseyeDrawing {
         in vec2 center;
         in uint num_radii;
         in vec4 radii_0_3;
+        in vec4 radii_4_7;
 
         out Circle {
             vec2 center;
             uint num_radii;
-            float radii[4];
+            float radii[8];
         } circle_out;
 
         void main() {
             circle_out.center = center;
             circle_out.num_radii = num_radii;
-            circle_out.radii = float[](radii_0_3[0], radii_0_3[1], radii_0_3[2], radii_0_3[3]);
+            circle_out.radii = float[](
+                radii_0_3[0], radii_0_3[1], radii_0_3[2], radii_0_3[3],
+                radii_4_7[0], radii_4_7[1], radii_4_7[2], radii_4_7[3]);
         }
     "#;
 
@@ -63,13 +67,13 @@ impl BullseyeDrawing {
         in Circle {
             vec2 center;
             uint num_radii;
-            float radii[4];
+            float radii[8];
         } circle_in[];
 
         out CirclePoint {
             vec2 offset;
             flat uint num_radii;
-            flat float radii[4];
+            flat float radii[8];
         } circle_point_out;
 
         void emit_circle_bounding_box_corner(in vec2 center, in float radius, in vec2 corner) {
@@ -104,7 +108,7 @@ impl BullseyeDrawing {
         in CirclePoint {
             vec2 offset;
             flat uint num_radii;
-            flat float radii[4];
+            flat float radii[8];
         } circle_point_in;
 
         out vec4 color;

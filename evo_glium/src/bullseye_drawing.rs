@@ -27,7 +27,12 @@ impl BullseyeDrawing {
 
     pub fn draw<T>(&self, frame: &mut glium::Frame, vertex_buffer: &glium::VertexBuffer<T>, screen_transform: [[f32; 4]; 4]) where T: Copy {
         let uniforms = uniform! {
-            circle_color: [0.85_f32, 0.1_f32, 0.1_f32, 1.0_f32],
+            circle_colors_0_3: [
+                [1.0_f32, 1.0_f32, 1.0_f32, 1.0_f32],
+                [0.1_f32, 0.8_f32, 0.1_f32, 1.0_f32],
+                [0.0_f32, 0.0_f32, 0.0_f32, 1.0_f32],
+                [0.0_f32, 0.0_f32, 0.0_f32, 1.0_f32],
+             ],
             screen_transform: screen_transform
         };
         frame.draw(vertex_buffer, &self.indices, &self.shader_program, &uniforms, &Default::default()).unwrap();
@@ -103,7 +108,7 @@ impl BullseyeDrawing {
     const FRAGMENT_SHADER_SRC: &'static str = r#"
         #version 330 core
 
-        uniform vec4 circle_color;
+        uniform mat4 circle_colors_0_3;
 
         in CirclePoint {
             vec2 offset;
@@ -117,7 +122,7 @@ impl BullseyeDrawing {
             float radius = circle_point_in.radii[circle_point_in.num_radii - 1u];
             float dist = sqrt(dot(circle_point_in.offset, circle_point_in.offset));
             if (dist <= radius)
-                color = circle_color;
+                color = circle_colors_0_3[1];
             else
                 discard;
         }

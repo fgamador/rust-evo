@@ -47,8 +47,9 @@ impl BullseyeDrawing {
 
         void main() {
             circle_out.center = center;
-            circle_out.radii = float[](radii_0_3[0], radii_0_3[1], radii_0_3[3], radii_0_3[3]);
-            circle_out.num_radii = num_radii;
+            circle_out.radii = float[](radii_0_3[0], radii_0_3[1], radii_0_3[2], radii_0_3[3]);
+            //circle_out.num_radii = num_radii;
+            circle_out.num_radii = 1u;
         }
     "#;
 
@@ -88,11 +89,11 @@ impl BullseyeDrawing {
         }
 
         void main() {
-            uint num_radii = circle_in[0].num_radii;
-            float radius = circle_in[0].radii[num_radii - 1u];
+            //uint num_radii = circle_in[0].num_radii;
+            uint num_radii = 1u;
             circle_point_out.radii = circle_in[0].radii;
-            //circle_point_out.num_radii = num_radii;
-            circle_point_out.num_radii = 1u;
+            circle_point_out.num_radii = num_radii;
+            float radius = circle_in[0].radii[num_radii - 1u];
             emit_circle_bounding_box(circle_in[0].center, radius);
         }
     "#;

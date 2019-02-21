@@ -95,10 +95,10 @@ impl BackgroundDrawing {
             vec3 color;
         } point_in;
 
-        out vec4 fragment_color;
+        out vec4 color_out;
 
         void main() {
-            fragment_color = vec4(point_in.color, 1.0);
+            color_out = vec4(point_in.color, 1.0);
         }
     "#;
 }

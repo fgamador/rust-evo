@@ -122,10 +122,10 @@ impl CellDrawing {
             flat float radii[8];
         } cell_point_in;
 
-        out vec4 color;
+        out vec4 color_out;
 
         void emit_color(in uint layer_index) {
-            color = (layer_index < 4u)
+            color_out = (layer_index < 4u)
                 ? layer_colors_0_3[layer_index]
                 : layer_colors_4_7[layer_index - 4u];
         }

@@ -5,10 +5,10 @@ extern crate evo_view_model;
 use glium::{glutin, Surface};
 
 pub mod background_drawing;
-pub mod bullseye_drawing;
+pub mod cell_drawing;
 
 use background_drawing::*;
-use bullseye_drawing::*;
+use cell_drawing::*;
 use evo_view_model::ViewModel;
 
 type Point = [f32; 2];

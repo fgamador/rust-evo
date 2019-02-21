@@ -69,17 +69,17 @@ impl GliumView {
         !closed
     }
 
-    fn view_model_bullseyes_to_drawing_bullseyes(bullseyes: &[evo_view_model::Bullseye]) -> Vec<Bullseye> {
+    fn view_model_bullseyes_to_drawing_bullseyes(bullseyes: &[evo_view_model::Bullseye]) -> Vec<Cell> {
         bullseyes.iter().map(Self::view_model_bullseye_to_drawing_bullseye).collect()
     }
 
-    fn view_model_bullseye_to_drawing_bullseye(bullseye: &evo_view_model::Bullseye) -> Bullseye {
+    fn view_model_bullseye_to_drawing_bullseye(bullseye: &evo_view_model::Bullseye) -> Cell {
         let mut radii = [0.0_f32; 8];
         assert!(bullseye.rings.len() <= radii.len());
         for (i, ring) in bullseye.rings.iter().enumerate() {
             radii[i] = ring.outer_radius as f32;
         }
-        Bullseye {
+        Cell {
             center: [bullseye.center.x as f32, bullseye.center.y as f32],
             num_radii: bullseye.rings.len() as u32,
             radii_0_3: [radii[0], radii[1], radii[2], radii[3]],
@@ -87,7 +87,7 @@ impl GliumView {
         }
     }
 
-    fn draw_frame(&mut self, bullseyes: &Vec<Bullseye>) {
+    fn draw_frame(&mut self, bullseyes: &Vec<Cell>) {
         let bullseyes_vb = glium::VertexBuffer::new(&self.display, &bullseyes).unwrap();
         let screen_transform = self.current_screen_transform();
         let mut frame = self.display.draw();

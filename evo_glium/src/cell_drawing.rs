@@ -1,14 +1,14 @@
 use glium::Surface;
 
 #[derive(Clone, Copy)]
-pub struct Bullseye {
+pub struct Cell {
     pub center: [f32; 2],
     pub num_radii: u32,
     pub radii_0_3: [f32; 4],
     pub radii_4_7: [f32; 4],
 }
 
-implement_vertex!(Bullseye, center, num_radii, radii_0_3, radii_4_7);
+implement_vertex!(Cell, center, num_radii, radii_0_3, radii_4_7);
 
 pub struct CellDrawing {
     pub shader_program: glium::Program,

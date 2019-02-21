@@ -27,13 +27,19 @@ impl CellDrawing {
 
     pub fn draw<T>(&self, frame: &mut glium::Frame, vertex_buffer: &glium::VertexBuffer<T>, screen_transform: [[f32; 4]; 4]) where T: Copy {
         let uniforms = uniform! {
+            screen_transform: screen_transform,
             layer_colors_0_3: [
                 [1.0_f32, 1.0_f32, 1.0_f32, 1.0_f32],
                 [0.1_f32, 0.8_f32, 0.1_f32, 1.0_f32],
                 [0.0_f32, 0.0_f32, 0.0_f32, 1.0_f32],
                 [0.0_f32, 0.0_f32, 0.0_f32, 1.0_f32],
-             ],
-            screen_transform: screen_transform
+            ],
+            layer_colors_4_7: [
+                [0.0_f32, 0.0_f32, 0.0_f32, 1.0_f32],
+                [0.0_f32, 0.0_f32, 0.0_f32, 1.0_f32],
+                [0.0_f32, 0.0_f32, 0.0_f32, 1.0_f32],
+                [0.0_f32, 0.0_f32, 0.0_f32, 1.0_f32],
+            ],
         };
         frame.draw(vertex_buffer, &self.indices, &self.shader_program, &uniforms, &Default::default()).unwrap();
     }
@@ -109,6 +115,7 @@ impl CellDrawing {
         #version 330 core
 
         uniform mat4 layer_colors_0_3;
+        uniform mat4 layer_colors_4_7;
 
         in CellPoint {
             vec2 offset;

@@ -131,12 +131,18 @@ impl CellDrawing {
 
         out vec4 color;
 
+        void emit_color(in uint layer_index) {
+            color = (layer_index < 4u)
+                ? layer_colors_0_3[layer_index]
+                : layer_colors_4_7[layer_index - 4u];
+        }
+
         void main() {
             float dist = sqrt(dot(cell_point_in.offset, cell_point_in.offset));
 
             for (uint i = 0u; i < min(4u, cell_point_in.num_radii); ++i) {
                 if (dist <= cell_point_in.radii_0_3[i]) {
-                    color = layer_colors_0_3[i];
+                    emit_color(i);
                     return;
                 }
             }

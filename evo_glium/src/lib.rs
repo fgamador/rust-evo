@@ -19,7 +19,7 @@ pub struct GliumView {
     world_min_corner: Point,
     world_max_corner: Point,
     background_drawing: BackgroundDrawing,
-    bullseye_drawing: BullseyeDrawing,
+    bullseye_drawing: CellDrawing,
     world_vb: glium::VertexBuffer<World>,
 }
 
@@ -31,7 +31,7 @@ impl GliumView {
         let context = glutin::ContextBuilder::new();
         let display = glium::Display::new(window, context, &events_loop).unwrap();
         let background_drawing = BackgroundDrawing::new(&display);
-        let bullseye_drawing = BullseyeDrawing::new(&display);
+        let bullseye_drawing = CellDrawing::new(&display);
         let world = vec![
             World {
                 corners: [world_min_corner[0], world_min_corner[1], world_max_corner[0], world_max_corner[1]],

@@ -10,14 +10,14 @@ pub struct Bullseye {
 
 implement_vertex!(Bullseye, center, num_radii, radii_0_3, radii_4_7);
 
-pub struct BullseyeDrawing {
+pub struct CellDrawing {
     pub shader_program: glium::Program,
     pub indices: glium::index::NoIndices,
 }
 
-impl BullseyeDrawing {
+impl CellDrawing {
     pub fn new(display: &glium::Display) -> Self {
-        BullseyeDrawing {
+        CellDrawing {
             shader_program: glium::Program::from_source(
                 display, Self::VERTEX_SHADER_SRC, Self::FRAGMENT_SHADER_SRC,
                 Some(Self::GEOMETRY_SHADER_SRC)).unwrap(),

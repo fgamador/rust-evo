@@ -126,12 +126,15 @@ impl CellDrawing {
         out vec4 color;
 
         void main() {
-            float radius = cell_point_in.radii[cell_point_in.num_radii - 1u];
             float dist = sqrt(dot(cell_point_in.offset, cell_point_in.offset));
-            if (dist <= radius)
-                color = layer_colors_0_3[1];
-            else
-                discard;
+            for (uint i = 0u; i < min(4, cell_point_in.num_radii); ++i) {
+                if (dist <= cell_point_in.radii[i]) {
+                    color = layer_colors_0_3[i];
+                    return;
+                }
+            }
+
+            discard;
         }
     "#;
 }

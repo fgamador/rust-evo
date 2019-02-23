@@ -10,7 +10,7 @@ pub struct Cell {
     pub health_4_7: [f32; 4],
 }
 
-implement_vertex!(Cell, center, num_radii, radii_0_3, radii_4_7);
+implement_vertex!(Cell, center, num_radii, radii_0_3, radii_4_7, health_0_3, health_4_7);
 
 pub struct CellDrawing {
     pub shader_program: glium::Program,
@@ -45,11 +45,14 @@ impl CellDrawing {
         in uint num_radii;
         in vec4 radii_0_3;
         in vec4 radii_4_7;
+        in vec4 health_0_3;
+        in vec4 health_4_7;
 
         out Cell {
             vec2 center;
             uint num_radii;
             float radii[8];
+            float health[8];
         } cell_out;
 
         void main() {
@@ -57,6 +60,8 @@ impl CellDrawing {
             cell_out.num_radii = num_radii;
             cell_out.radii = float[](radii_0_3[0], radii_0_3[1], radii_0_3[2], radii_0_3[3],
                                      radii_4_7[0], radii_4_7[1], radii_4_7[2], radii_4_7[3]);
+            cell_out.health = float[](health_0_3[0], health_0_3[1], health_0_3[2], health_0_3[3],
+                                      health_4_7[0], health_4_7[1], health_4_7[2], health_4_7[3]);
         }
     "#;
 
@@ -72,12 +77,14 @@ impl CellDrawing {
             vec2 center;
             uint num_radii;
             float radii[8];
+            float health[8];
         } cell_in[];
 
         out CellPoint {
             vec2 offset;
             flat uint num_radii;
             flat float radii[8];
+            flat float health[8];
         } cell_point_out;
 
         void emit_circle_bounding_box_corner(in vec2 center, in float radius, in vec2 corner) {
@@ -85,6 +92,7 @@ impl CellDrawing {
             cell_point_out.offset = offset;
             cell_point_out.num_radii = cell_in[0].num_radii;
             cell_point_out.radii = cell_in[0].radii;
+            cell_point_out.health = cell_in[0].health;
             gl_Position = screen_transform * vec4(center + offset, 0.0, 1.0);
             EmitVertex();
         }
@@ -114,6 +122,7 @@ impl CellDrawing {
             vec2 offset;
             flat uint num_radii;
             flat float radii[8];
+            flat float health[8];
         } cell_point_in;
 
         out vec4 color_out;

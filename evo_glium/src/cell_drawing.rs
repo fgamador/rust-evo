@@ -160,9 +160,9 @@ impl CellDrawing {
         }
 
         void main() {
-            float dist_from_center = sqrt(dot(cell_point_in.offset, cell_point_in.offset));
+            float radial_offset = sqrt(dot(cell_point_in.offset, cell_point_in.offset));
             for (uint i = 0u; i < min(8u, cell_point_in.num_layers); ++i) {
-                if (dist_from_center <= cell_point_in.radii[i]) {
+                if (radial_offset <= cell_point_in.radii[i]) {
                     emit_color(i, cell_point_in.health[i]);
                     return;
                 }

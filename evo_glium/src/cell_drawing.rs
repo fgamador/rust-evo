@@ -6,6 +6,8 @@ pub struct Cell {
     pub num_radii: u32,
     pub radii_0_3: [f32; 4],
     pub radii_4_7: [f32; 4],
+    pub health_0_3: [f32; 4],
+    pub health_4_7: [f32; 4],
 }
 
 implement_vertex!(Cell, center, num_radii, radii_0_3, radii_4_7);

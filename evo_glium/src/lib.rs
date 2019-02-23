@@ -101,13 +101,13 @@ impl GliumView {
         ]
     }
 
-    fn draw_frame(&mut self, bullseyes: &Vec<Cell>, layer_colors: [[f32; 4]; 8]) {
-        let bullseyes_vb = glium::VertexBuffer::new(&self.display, &bullseyes).unwrap();
+    fn draw_frame(&mut self, cells: &Vec<Cell>, layer_colors: [[f32; 4]; 8]) {
+        let cells_vb = glium::VertexBuffer::new(&self.display, &cells).unwrap();
         let screen_transform = self.current_screen_transform();
         let mut frame = self.display.draw();
         frame.clear_color(0.0, 0.0, 0.0, 1.0);
         self.background_drawing.draw(&mut frame, &self.world_vb, screen_transform);
-        self.cell_drawing.draw(&mut frame, &bullseyes_vb, screen_transform, layer_colors);
+        self.cell_drawing.draw(&mut frame, &cells_vb, screen_transform, layer_colors);
         frame.finish().unwrap();
     }
 

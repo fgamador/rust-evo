@@ -3,14 +3,14 @@ use glium::Surface;
 #[derive(Clone, Copy)]
 pub struct Cell {
     pub center: [f32; 2],
-    pub num_radii: u32,
+    pub num_layers: u32,
     pub radii_0_3: [f32; 4],
     pub radii_4_7: [f32; 4],
     pub health_0_3: [f32; 4],
     pub health_4_7: [f32; 4],
 }
 
-implement_vertex!(Cell, center, num_radii, radii_0_3, radii_4_7, health_0_3, health_4_7);
+implement_vertex!(Cell, center, num_layers, radii_0_3, radii_4_7, health_0_3, health_4_7);
 
 pub struct CellDrawing {
     pub shader_program: glium::Program,
@@ -42,7 +42,7 @@ impl CellDrawing {
         #version 330 core
 
         in vec2 center;
-        in uint num_radii;
+        in uint num_layers;
         in vec4 radii_0_3;
         in vec4 radii_4_7;
         in vec4 health_0_3;
@@ -50,14 +50,14 @@ impl CellDrawing {
 
         out Cell {
             vec2 center;
-            uint num_radii;
+            uint num_layers;
             float radii[8];
             float health[8];
         } cell_out;
 
         void main() {
             cell_out.center = center;
-            cell_out.num_radii = num_radii;
+            cell_out.num_layers = num_layers;
             cell_out.radii = float[](radii_0_3[0], radii_0_3[1], radii_0_3[2], radii_0_3[3],
                                      radii_4_7[0], radii_4_7[1], radii_4_7[2], radii_4_7[3]);
             cell_out.health = float[](health_0_3[0], health_0_3[1], health_0_3[2], health_0_3[3],
@@ -75,14 +75,14 @@ impl CellDrawing {
 
         in Cell {
             vec2 center;
-            uint num_radii;
+            uint num_layers;
             float radii[8];
             float health[8];
         } cell_in[];
 
         out CellPoint {
             vec2 offset;
-            flat uint num_radii;
+            flat uint num_layers;
             flat float radii[8];
             flat float health[8];
         } cell_point_out;
@@ -90,7 +90,7 @@ impl CellDrawing {
         void emit_circle_bounding_box_corner(in vec2 center, in float radius, in vec2 corner) {
             vec2 offset = vec2(radius, radius) * corner;
             cell_point_out.offset = offset;
-            cell_point_out.num_radii = cell_in[0].num_radii;
+            cell_point_out.num_layers = cell_in[0].num_layers;
             cell_point_out.radii = cell_in[0].radii;
             cell_point_out.health = cell_in[0].health;
             gl_Position = screen_transform * vec4(center + offset, 0.0, 1.0);
@@ -106,8 +106,8 @@ impl CellDrawing {
         }
 
         void main() {
-            uint num_radii = cell_in[0].num_radii;
-            float radius = cell_in[0].radii[num_radii - 1u];
+            uint num_layers = cell_in[0].num_layers;
+            float radius = cell_in[0].radii[num_layers - 1u];
             emit_circle_bounding_box(cell_in[0].center, radius);
         }
     "#;
@@ -120,7 +120,7 @@ impl CellDrawing {
 
         in CellPoint {
             vec2 offset;
-            flat uint num_radii;
+            flat uint num_layers;
             flat float radii[8];
             flat float health[8];
         } cell_point_in;
@@ -161,7 +161,7 @@ impl CellDrawing {
 
         void main() {
             float dist_from_center = sqrt(dot(cell_point_in.offset, cell_point_in.offset));
-            for (uint i = 0u; i < min(8u, cell_point_in.num_radii); ++i) {
+            for (uint i = 0u; i < min(8u, cell_point_in.num_layers); ++i) {
                 if (dist_from_center <= cell_point_in.radii[i]) {
                     emit_color(i, cell_point_in.health[i]);
                     return;

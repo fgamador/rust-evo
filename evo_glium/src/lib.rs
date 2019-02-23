@@ -84,7 +84,7 @@ impl GliumView {
         }
         Cell {
             center: [bullseye.center.x as f32, bullseye.center.y as f32],
-            num_radii: bullseye.rings.len() as u32,
+            num_layers: bullseye.rings.len() as u32,
             radii_0_3: [radii[0], radii[1], radii[2], radii[3]],
             radii_4_7: [radii[4], radii[5], radii[6], radii[7]],
             health_0_3: [health[0], health[1], health[2], health[3]],

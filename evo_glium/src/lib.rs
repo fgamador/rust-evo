@@ -19,7 +19,7 @@ pub struct GliumView {
     world_min_corner: Point,
     world_max_corner: Point,
     background_drawing: BackgroundDrawing,
-    bullseye_drawing: CellDrawing,
+    cell_drawing: CellDrawing,
     world_vb: glium::VertexBuffer<World>,
 }
 
@@ -47,7 +47,7 @@ impl GliumView {
             world_min_corner,
             world_max_corner,
             background_drawing,
-            bullseye_drawing,
+            cell_drawing: bullseye_drawing,
             world_vb,
         }
     }
@@ -107,7 +107,7 @@ impl GliumView {
         let mut frame = self.display.draw();
         frame.clear_color(0.0, 0.0, 0.0, 1.0);
         self.background_drawing.draw(&mut frame, &self.world_vb, screen_transform);
-        self.bullseye_drawing.draw(&mut frame, &bullseyes_vb, screen_transform, layer_colors);
+        self.cell_drawing.draw(&mut frame, &bullseyes_vb, screen_transform, layer_colors);
         frame.finish().unwrap();
     }
 

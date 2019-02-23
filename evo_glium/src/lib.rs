@@ -57,7 +57,8 @@ impl GliumView {
             return false;
         }
 
-        self.draw_frame(&Self::view_model_bullseyes_to_drawing_cells(&view_model.bullseyes));
+        self.draw_frame(&Self::view_model_bullseyes_to_drawing_cells(&view_model.bullseyes),
+                        Self::get_layer_colors(&view_model.bullseyes));
         true
     }
 
@@ -87,10 +88,8 @@ impl GliumView {
         }
     }
 
-    fn draw_frame(&mut self, bullseyes: &Vec<Cell>) {
-        let bullseyes_vb = glium::VertexBuffer::new(&self.display, &bullseyes).unwrap();
-        let screen_transform = self.current_screen_transform();
-        let layer_colors = [
+    fn get_layer_colors(bullseyes: &[evo_view_model::Bullseye]) -> [[f32; 4]; 8] {
+        [
             [1.0_f32, 1.0_f32, 1.0_f32, 1.0_f32],
             [0.1_f32, 0.8_f32, 0.1_f32, 1.0_f32],
             [0.0_f32, 0.0_f32, 0.0_f32, 1.0_f32],
@@ -99,7 +98,12 @@ impl GliumView {
             [0.0_f32, 0.0_f32, 0.0_f32, 1.0_f32],
             [0.0_f32, 0.0_f32, 0.0_f32, 1.0_f32],
             [0.0_f32, 0.0_f32, 0.0_f32, 1.0_f32],
-        ];
+        ]
+    }
+
+    fn draw_frame(&mut self, bullseyes: &Vec<Cell>, layer_colors: [[f32; 4]; 8]) {
+        let bullseyes_vb = glium::VertexBuffer::new(&self.display, &bullseyes).unwrap();
+        let screen_transform = self.current_screen_transform();
         let mut frame = self.display.draw();
         frame.clear_color(0.0, 0.0, 0.0, 1.0);
         self.background_drawing.draw(&mut frame, &self.world_vb, screen_transform);

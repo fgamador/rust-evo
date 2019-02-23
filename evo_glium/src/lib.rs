@@ -57,7 +57,7 @@ impl GliumView {
             return false;
         }
 
-        self.draw_frame(&Self::view_model_bullseyes_to_drawing_bullseyes(&view_model.bullseyes));
+        self.draw_frame(&Self::view_model_bullseyes_to_drawing_cells(&view_model.bullseyes));
         true
     }
 
@@ -69,11 +69,11 @@ impl GliumView {
         !closed
     }
 
-    fn view_model_bullseyes_to_drawing_bullseyes(bullseyes: &[evo_view_model::Bullseye]) -> Vec<Cell> {
-        bullseyes.iter().map(Self::view_model_bullseye_to_drawing_bullseye).collect()
+    fn view_model_bullseyes_to_drawing_cells(bullseyes: &[evo_view_model::Bullseye]) -> Vec<Cell> {
+        bullseyes.iter().map(Self::view_model_bullseye_to_drawing_cell).collect()
     }
 
-    fn view_model_bullseye_to_drawing_bullseye(bullseye: &evo_view_model::Bullseye) -> Cell {
+    fn view_model_bullseye_to_drawing_cell(bullseye: &evo_view_model::Bullseye) -> Cell {
         let mut radii = [0.0_f32; 8];
         assert!(bullseye.rings.len() <= radii.len());
         for (i, ring) in bullseye.rings.iter().enumerate() {

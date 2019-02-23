@@ -89,16 +89,10 @@ impl GliumView {
     }
 
     fn get_layer_colors(bullseyes: &[evo_view_model::Bullseye]) -> [[f32; 4]; 8] {
-        [
-            [1.0_f32, 1.0_f32, 1.0_f32, 1.0_f32],
-            [0.1_f32, 0.8_f32, 0.1_f32, 1.0_f32],
-            [0.0_f32, 0.0_f32, 0.0_f32, 1.0_f32],
-            [0.0_f32, 0.0_f32, 0.0_f32, 1.0_f32],
-            [0.0_f32, 0.0_f32, 0.0_f32, 1.0_f32],
-            [0.0_f32, 0.0_f32, 0.0_f32, 1.0_f32],
-            [0.0_f32, 0.0_f32, 0.0_f32, 1.0_f32],
-            [0.0_f32, 0.0_f32, 0.0_f32, 1.0_f32],
-        ]
+        let mut layer_colors: [[f32; 4]; 8] = [[0.0, 0.0, 0.0, 1.0]; 8];
+        layer_colors[0] = [1.0, 1.0, 1.0, 1.0];
+        layer_colors[1] = [0.1, 0.8, 0.1, 1.0];
+        layer_colors
     }
 
     fn draw_frame(&mut self, cells: &Vec<Cell>, layer_colors: [[f32; 4]; 8]) {

@@ -90,9 +90,22 @@ impl GliumView {
 
     fn get_layer_colors(bullseyes: &[evo_view_model::Bullseye]) -> [[f32; 4]; 8] {
         let mut layer_colors: [[f32; 4]; 8] = [[0.0, 0.0, 0.0, 1.0]; 8];
-        layer_colors[0] = [1.0, 1.0, 1.0, 1.0];
-        layer_colors[1] = [0.1, 0.8, 0.1, 1.0];
+        if !bullseyes.is_empty() {
+            let sample_cell = &bullseyes[0];
+            assert!(sample_cell.rings.len() <= layer_colors.len());
+            for (i, ring) in sample_cell.rings.iter().enumerate() {
+                layer_colors[i] = Self::convert_to_rgb_color(ring.color);
+            }
+        }
         layer_colors
+    }
+
+    fn convert_to_rgb_color(color: evo_view_model::Color) -> [f32; 4] {
+        match color {
+            evo_view_model::Color::Green => [0.1, 0.8, 0.1, 1.0],
+            evo_view_model::Color::White => [1.0, 1.0, 1.0, 1.0],
+            evo_view_model::Color::Yellow => [0.7, 0.7, 0.0, 1.0],
+        }
     }
 
     fn draw_frame(&mut self, cells: &Vec<Cell>, layer_colors: [[f32; 4]; 8]) {

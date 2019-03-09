@@ -11,8 +11,8 @@ pub fn init_and_run(world: World) {
 fn run(mut mvvm: MVVM) {
     let mut done = false;
     while !done {
-        let MVVM(ref mut model, ref mut view, ref mut view_model) = mvvm;
-        model.tick(view_model);
+        let MVVM(ref mut model, ref mut view, ref mut _view_model) = mvvm;
+        model.world.tick();
         done = !view.render(&model.world);
     }
 }

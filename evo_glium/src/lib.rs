@@ -13,7 +13,6 @@ use cell_drawing::*;
 use evo_model::biology::layers::Onion;
 use evo_model::biology::layers::OnionLayer;
 use evo_model::physics::shapes::Circle;
-use evo_view_model::ViewModel;
 
 type Point = [f32; 2];
 
@@ -58,7 +57,7 @@ impl GliumView {
         }
     }
 
-    pub fn once(&mut self, world: &evo_model::world::World, view_model: &ViewModel) -> bool {
+    pub fn once(&mut self, world: &evo_model::world::World) -> bool {
         if !self.handle_events() {
             return false;
         }

@@ -13,6 +13,6 @@ fn run(mut mvvm: MVVM) {
     while !done {
         let MVVM(ref mut model, ref mut view, ref mut view_model) = mvvm;
         model.tick(view_model);
-        done = !view.render(&model.world, view_model);
+        done = !view.render(&model.world);
     }
 }

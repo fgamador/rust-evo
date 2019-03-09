@@ -3,7 +3,7 @@ extern crate evo_model;
 extern crate evo_view_model;
 
 pub mod main_support;
-pub mod mvvm;
+pub mod view;
 
 use evo_model::biology::cell::Cell;
 use evo_model::physics::quantities::*;

@@ -4,7 +4,6 @@ version = "0.1.0"
 authors = ["Franz Amador <franzamador@gmail.com>"]
 
 [dependencies]
-evo_conrod = { path = "../evo_conrod" }
 evo_glium = { path = "../evo_glium" }
 evo_model = { path = "../evo_model" }
 evo_view_model = { path = "../evo_view_model" }

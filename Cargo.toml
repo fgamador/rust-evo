@@ -1,7 +1,7 @@
 [workspace]
 
 members = [
-    "evo_conrod",
+    "evo_glium",
     "evo_main",
     "evo_model",
     "evo_model/evo_model_derive",

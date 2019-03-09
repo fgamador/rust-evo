@@ -265,7 +265,6 @@ impl Influence for Sunlight {
 mod tests {
     use super::*;
     use biology::layers::*;
-    use evo_view_model::Color;
     use std::f64::consts::PI;
 
     #[test]

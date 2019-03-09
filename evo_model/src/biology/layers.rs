@@ -2,12 +2,18 @@ use biology::cell::Cell;
 use biology::control::CellStateSnapshot;
 use biology::control_requests::*;
 use environment::environment::LocalEnvironment;
-use evo_view_model::Color;
 use physics::quantities::*;
 use physics::shapes::Circle;
 use std::f64;
 use std::f64::consts::PI;
 use std::fmt::Debug;
+
+#[derive(Clone, Copy, Debug, Eq, Hash, PartialEq)]
+pub enum Color {
+    Green,
+    White,
+    Yellow,
+}
 
 pub trait Onion: Circle {
     type Layer: OnionLayer + ?Sized;

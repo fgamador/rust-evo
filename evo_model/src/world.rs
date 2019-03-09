@@ -173,7 +173,6 @@ mod tests {
     use super::*;
     use biology::control::*;
     use biology::layers::*;
-    use evo_view_model::Color;
     use physics::overlap::Overlap;
     use physics::shapes::*;
 

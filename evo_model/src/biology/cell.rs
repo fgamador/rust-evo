@@ -3,7 +3,6 @@ use biology::control::*;
 use biology::control_requests::*;
 use biology::layers::*;
 use environment::environment::*;
-use evo_view_model::Color;
 use physics::newtonian::*;
 use physics::quantities::*;
 use physics::shapes::*;

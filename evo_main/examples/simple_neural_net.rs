@@ -11,7 +11,6 @@ use evo_model::neural::sparse_neural_net::*;
 use evo_model::physics::quantities::*;
 use evo_model::world::World;
 use evo_main::main_support::init_and_run;
-use evo_view_model::Color;
 use std::f64::consts::PI;
 use std::fmt::Error;
 use std::fmt::Formatter;

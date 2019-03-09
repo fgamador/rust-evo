@@ -10,7 +10,9 @@ pub mod cell_drawing;
 
 use background_drawing::*;
 use cell_drawing::*;
-use evo_model::world;
+use evo_model::biology::layers::Onion;
+use evo_model::biology::layers::OnionLayer;
+use evo_model::physics::shapes::Circle;
 use evo_view_model::ViewModel;
 
 type Point = [f32; 2];
@@ -56,12 +58,12 @@ impl GliumView {
         }
     }
 
-    pub fn once(&mut self, world: &world::World, view_model: &ViewModel) -> bool {
+    pub fn once(&mut self, world: &evo_model::world::World, view_model: &ViewModel) -> bool {
         if !self.handle_events() {
             return false;
         }
 
-        self.draw_frame(&Self::view_model_bullseyes_to_drawing_cells(world, &view_model.bullseyes),
+        self.draw_frame(&Self::view_model_bullseyes_to_drawing_cells(world),
                         Self::get_layer_colors(world, &view_model.bullseyes));
         true
     }
@@ -74,21 +76,21 @@ impl GliumView {
         !closed
     }
 
-    fn view_model_bullseyes_to_drawing_cells(world: &world::World, bullseyes: &[evo_view_model::Bullseye]) -> Vec<Cell> {
-        bullseyes.iter().map(Self::view_model_bullseye_to_drawing_cell).collect()
+    fn view_model_bullseyes_to_drawing_cells(world: &evo_model::world::World) -> Vec<Cell> {
+        world.cells().iter().map(Self::model_cell_to_drawing_cell).collect()
     }
 
-    fn view_model_bullseye_to_drawing_cell(bullseye: &evo_view_model::Bullseye) -> Cell {
+    fn model_cell_to_drawing_cell(cell: &evo_model::biology::cell::Cell) -> Cell {
         let mut radii: [f32; 8] = [0.0; 8];
         let mut health: [f32; 8] = [0.0; 8];
-        assert!(bullseye.rings.len() <= radii.len());
-        for (i, ring) in bullseye.rings.iter().enumerate() {
-            radii[i] = ring.outer_radius as f32;
-            health[i] = ring.health as f32;
+        assert!(cell.layers().len() <= radii.len());
+        for (i, layer) in cell.layers().iter().enumerate() {
+            radii[i] = layer.outer_radius().value() as f32;
+            health[i] = layer.health() as f32;
         }
         Cell {
-            center: [bullseye.center.x as f32, bullseye.center.y as f32],
-            num_layers: bullseye.rings.len() as u32,
+            center: [cell.center().x() as f32, cell.center().y() as f32],
+            num_layers: cell.layers().len() as u32,
             radii_0_3: [radii[0], radii[1], radii[2], radii[3]],
             radii_4_7: [radii[4], radii[5], radii[6], radii[7]],
             health_0_3: [health[0], health[1], health[2], health[3]],
@@ -96,7 +98,7 @@ impl GliumView {
         }
     }
 
-    fn get_layer_colors(world: &world::World, bullseyes: &[evo_view_model::Bullseye]) -> [[f32; 4]; 8] {
+    fn get_layer_colors(world: &evo_model::world::World, bullseyes: &[evo_view_model::Bullseye]) -> [[f32; 4]; 8] {
         let mut layer_colors: [[f32; 4]; 8] = [[0.0, 0.0, 0.0, 1.0]; 8];
         if !bullseyes.is_empty() {
             let sample_cell = &bullseyes[0];

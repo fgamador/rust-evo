@@ -1,18 +1,15 @@
 use evo_model::world::World;
-use evo_view_model::ViewModel;
 use mvvm::*;
 
 pub fn init_and_run(world: World) {
     let view = View::new(world.min_corner(), world.max_corner());
-    let mvvm = MVVM(Model::new(world), view, ViewModel::new());
-    run(mvvm);
+    run(world, view);
 }
 
-fn run(mut mvvm: MVVM) {
+fn run(mut world: World, mut view: View) {
     let mut done = false;
     while !done {
-        let MVVM(ref mut model, ref mut view, ref mut _view_model) = mvvm;
-        model.world.tick();
-        done = !view.render(&model.world);
+        world.tick();
+        done = !view.render(&world);
     }
 }

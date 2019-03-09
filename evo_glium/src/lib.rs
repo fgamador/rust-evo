@@ -61,8 +61,8 @@ impl GliumView {
             return false;
         }
 
-        self.draw_frame(&Self::view_model_bullseyes_to_drawing_cells(&view_model.bullseyes),
-                        Self::get_layer_colors(&view_model.bullseyes));
+        self.draw_frame(&Self::view_model_bullseyes_to_drawing_cells(world, &view_model.bullseyes),
+                        Self::get_layer_colors(world, &view_model.bullseyes));
         true
     }
 
@@ -74,7 +74,7 @@ impl GliumView {
         !closed
     }
 
-    fn view_model_bullseyes_to_drawing_cells(bullseyes: &[evo_view_model::Bullseye]) -> Vec<Cell> {
+    fn view_model_bullseyes_to_drawing_cells(world: &world::World, bullseyes: &[evo_view_model::Bullseye]) -> Vec<Cell> {
         bullseyes.iter().map(Self::view_model_bullseye_to_drawing_cell).collect()
     }
 
@@ -96,7 +96,7 @@ impl GliumView {
         }
     }
 
-    fn get_layer_colors(bullseyes: &[evo_view_model::Bullseye]) -> [[f32; 4]; 8] {
+    fn get_layer_colors(world: &world::World, bullseyes: &[evo_view_model::Bullseye]) -> [[f32; 4]; 8] {
         let mut layer_colors: [[f32; 4]; 8] = [[0.0, 0.0, 0.0, 1.0]; 8];
         if !bullseyes.is_empty() {
             let sample_cell = &bullseyes[0];

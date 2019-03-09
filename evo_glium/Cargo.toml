@@ -5,5 +5,4 @@ authors = ["Franz Amador <franzamador@gmail.com>"]
 
 [dependencies]
 evo_model = { path = "../evo_model" }
-evo_view_model = { path = "../evo_view_model" }
 glium = "0.22.0"

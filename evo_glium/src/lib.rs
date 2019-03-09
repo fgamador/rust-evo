@@ -1,7 +1,6 @@
 #[macro_use]
 extern crate glium;
 extern crate evo_model;
-extern crate evo_view_model;
 
 use glium::{glutin, Surface};
 

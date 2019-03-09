@@ -5,5 +5,4 @@ members = [
     "evo_main",
     "evo_model",
     "evo_model/evo_model_derive",
-    "evo_view_model",
 ]

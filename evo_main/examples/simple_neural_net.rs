@@ -1,6 +1,5 @@
 extern crate evo_main;
 extern crate evo_model;
-extern crate evo_view_model;
 
 use evo_model::biology::control::*;
 use evo_model::biology::control_requests::*;

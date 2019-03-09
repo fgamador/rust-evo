@@ -1,5 +1,6 @@
 #[macro_use]
 extern crate glium;
+extern crate evo_model;
 extern crate evo_view_model;
 
 use glium::{glutin, Surface};
@@ -9,6 +10,7 @@ pub mod cell_drawing;
 
 use background_drawing::*;
 use cell_drawing::*;
+use evo_model::world;
 use evo_view_model::ViewModel;
 
 type Point = [f32; 2];
@@ -54,7 +56,7 @@ impl GliumView {
         }
     }
 
-    pub fn once(&mut self, view_model: &ViewModel) -> bool {
+    pub fn once(&mut self, world: &world::World, view_model: &ViewModel) -> bool {
         if !self.handle_events() {
             return false;
         }

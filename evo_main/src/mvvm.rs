@@ -12,7 +12,7 @@ use std::time::{Duration, Instant};
 pub struct MVVM(pub Model, pub View, pub ViewModel);
 
 pub struct Model {
-    world: World,
+    pub world: World,
 }
 
 impl Model {
@@ -59,9 +59,9 @@ impl View {
         CoordinateTransform::new(input_window)
     }
 
-    pub fn render(&mut self, view_model: &mut ViewModel) -> bool {
+    pub fn render(&mut self, world: &World, view_model: &mut ViewModel) -> bool {
         self.await_next_tick();
-        self.view.once(view_model)
+        self.view.once(world, view_model)
     }
 
     fn await_next_tick(&mut self) {

@@ -64,7 +64,7 @@ impl GliumView {
         }
 
         self.draw_frame(&Self::view_model_bullseyes_to_drawing_cells(world),
-                        Self::get_layer_colors(world, &view_model.bullseyes));
+                        Self::get_layer_colors(world));
         true
     }
 
@@ -98,13 +98,13 @@ impl GliumView {
         }
     }
 
-    fn get_layer_colors(world: &evo_model::world::World, bullseyes: &[evo_view_model::Bullseye]) -> [[f32; 4]; 8] {
+    fn get_layer_colors(world: &evo_model::world::World) -> [[f32; 4]; 8] {
         let mut layer_colors: [[f32; 4]; 8] = [[0.0, 0.0, 0.0, 1.0]; 8];
-        if !bullseyes.is_empty() {
-            let sample_cell = &bullseyes[0];
-            assert!(sample_cell.rings.len() <= layer_colors.len());
-            for (i, ring) in sample_cell.rings.iter().enumerate() {
-                layer_colors[i] = Self::convert_to_rgb_color(ring.color);
+        if !world.cells().is_empty() {
+            let sample_cell = &world.cells()[0];
+            assert!(sample_cell.layers().len() <= layer_colors.len());
+            for (i, layer) in sample_cell.layers().iter().enumerate() {
+                layer_colors[i] = Self::convert_to_rgb_color(layer.color());
             }
         }
         layer_colors

@@ -9,10 +9,7 @@ pub mod physics;
 pub mod world;
 
 use biology::cell::Cell;
-use biology::layers::*;
 use physics::quantities::*;
-use physics::shapes::*;
-use world::World;
 
 pub trait TickCallbacks {
     fn after_influences(&mut self, subtick_duration: Duration);

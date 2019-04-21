@@ -1,12 +1,12 @@
-use biology::cell::Cell;
-use environment::environment::*;
-use environment::influences::*;
-use physics::bond::*;
-use physics::newtonian::NewtonianBody;
-use physics::quantities::*;
-use physics::sortable_graph::*;
-use physics::spring::*;
-use TickCallbacks;
+use crate::biology::cell::Cell;
+use crate::environment::environment::*;
+use crate::environment::influences::*;
+use crate::physics::bond::*;
+use crate::physics::newtonian::NewtonianBody;
+use crate::physics::quantities::*;
+use crate::physics::sortable_graph::*;
+use crate::physics::spring::*;
+use crate::TickCallbacks;
 
 pub struct World {
     min_corner: Position,
@@ -171,10 +171,10 @@ impl World {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use biology::control::*;
-    use biology::layers::*;
-    use physics::overlap::Overlap;
-    use physics::shapes::*;
+    use crate::biology::control::*;
+    use crate::biology::layers::*;
+    use crate::physics::overlap::Overlap;
+    use crate::physics::shapes::*;
 
     #[test]
     fn tick_moves_ball() {

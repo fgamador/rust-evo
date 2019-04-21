@@ -1,13 +1,13 @@
-use biology::cell::Cell;
-use environment::environment::*;
-use physics::bond::*;
-use physics::newtonian::*;
-use physics::overlap::*;
-use physics::quantities::*;
-use physics::shapes::Circle;
-use physics::sortable_graph::*;
-use physics::spring::*;
-use physics::util::*;
+use crate::biology::cell::Cell;
+use crate::environment::environment::*;
+use crate::physics::bond::*;
+use crate::physics::newtonian::*;
+use crate::physics::overlap::*;
+use crate::physics::quantities::*;
+use crate::physics::shapes::Circle;
+use crate::physics::sortable_graph::*;
+use crate::physics::spring::*;
+use crate::physics::util::*;
 
 pub trait Influence {
     fn apply(&self, cell_graph: &mut SortableGraph<Cell, Bond, AngleGusset>);
@@ -264,7 +264,7 @@ impl Influence for Sunlight {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use biology::layers::*;
+    use crate::biology::layers::*;
     use std::f64::consts::PI;
 
     #[test]

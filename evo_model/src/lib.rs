@@ -7,8 +7,8 @@ pub mod neural;
 pub mod physics;
 pub mod world;
 
-use biology::cell::Cell;
-use physics::quantities::*;
+use crate::biology::cell::Cell;
+use crate::physics::quantities::*;
 
 pub trait TickCallbacks {
     fn after_influences(&mut self, subtick_duration: Duration);

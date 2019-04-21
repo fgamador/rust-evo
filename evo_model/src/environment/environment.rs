@@ -1,4 +1,4 @@
-use physics::overlap::*;
+use crate::physics::overlap::*;
 
 pub trait HasLocalEnvironment {
     fn environment(&self) -> &LocalEnvironment;
@@ -43,7 +43,7 @@ impl LocalEnvironment {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use physics::quantities::*;
+    use crate::physics::quantities::*;
 
     #[test]
     fn add_overlap() {

@@ -1,7 +1,7 @@
-use physics::quantities::*;
-use physics::shapes::*;
-use physics::sortable_graph::*;
-use physics::util::*;
+use crate::physics::quantities::*;
+use crate::physics::shapes::*;
+use crate::physics::sortable_graph::*;
+use crate::physics::util::*;
 use std::f64;
 use std::f64::consts::PI;
 
@@ -152,7 +152,7 @@ fn calc_force_from_tangential_force(origin: Position, point: Position, tangentia
 #[cfg(test)]
 mod tests {
     use super::*;
-    use physics::simple_graph_elements::*;
+    use crate::physics::simple_graph_elements::*;
 
     #[test]
     #[should_panic]

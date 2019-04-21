@@ -1,4 +1,4 @@
-use physics::quantities::*;
+use crate::physics::quantities::*;
 
 #[derive(Clone, Copy, Debug, PartialEq)]
 pub struct ControlRequest {

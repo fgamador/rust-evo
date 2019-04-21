@@ -1,4 +1,4 @@
-use physics::quantities::*;
+use crate::physics::quantities::*;
 
 pub trait NewtonianBody {
     fn mass(&self) -> Mass;

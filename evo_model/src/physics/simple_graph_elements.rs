@@ -1,6 +1,6 @@
-use physics::quantities::*;
-use physics::shapes::*;
-use physics::sortable_graph::*;
+use crate::physics::quantities::*;
+use crate::physics::shapes::*;
+use crate::physics::sortable_graph::*;
 
 #[derive(Clone, Debug, GraphNode, PartialEq)]
 pub struct SimpleGraphNode {

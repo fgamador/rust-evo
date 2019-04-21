@@ -1,12 +1,12 @@
-use TickCallbacks;
-use biology::control::*;
-use biology::control_requests::*;
-use biology::layers::*;
-use environment::environment::*;
-use physics::newtonian::*;
-use physics::quantities::*;
-use physics::shapes::*;
-use physics::sortable_graph::*;
+use crate::TickCallbacks;
+use crate::biology::control::*;
+use crate::biology::control_requests::*;
+use crate::biology::layers::*;
+use crate::environment::environment::*;
+use crate::physics::newtonian::*;
+use crate::physics::quantities::*;
+use crate::physics::shapes::*;
+use crate::physics::sortable_graph::*;
 use std::f64::consts::PI;
 use std::ptr;
 

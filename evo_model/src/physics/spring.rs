@@ -1,4 +1,4 @@
-use physics::quantities::*;
+use crate::physics::quantities::*;
 
 pub trait Spring {
     fn to_force(&self, compression: Displacement) -> Force;

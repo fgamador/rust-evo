@@ -1,9 +1,9 @@
-use biology::cell::Cell;
-use biology::control::CellStateSnapshot;
-use biology::control_requests::*;
-use environment::environment::LocalEnvironment;
-use physics::quantities::*;
-use physics::shapes::Circle;
+use crate::biology::cell::Cell;
+use crate::biology::control::CellStateSnapshot;
+use crate::biology::control_requests::*;
+use crate::environment::environment::LocalEnvironment;
+use crate::physics::quantities::*;
+use crate::physics::shapes::Circle;
 use std::f64;
 use std::f64::consts::PI;
 use std::fmt::Debug;
@@ -533,9 +533,9 @@ impl CellLayerSpecialty for BuddingCellLayerSpecialty {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use biology::control_requests::BudgetedControlRequest;
-    use environment::environment::LocalEnvironment;
-    use physics::newtonian::NewtonianBody;
+    use crate::biology::control_requests::BudgetedControlRequest;
+    use crate::environment::environment::LocalEnvironment;
+    use crate::physics::newtonian::NewtonianBody;
 
     #[test]
     fn layer_calculates_mass() {

@@ -2,6 +2,7 @@
 name = "evo_model"
 version = "0.1.0"
 authors = ["Franz Amador <franzamador@gmail.com>"]
+edition = "2018"
 
 [dependencies]
 evo_model_derive = { path = "evo_model_derive" }

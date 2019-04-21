@@ -1,6 +1,6 @@
-use biology::control_requests::*;
-use biology::layers::CellLayer;
-use physics::quantities::*;
+use crate::biology::control_requests::*;
+use crate::biology::layers::CellLayer;
+use crate::physics::quantities::*;
 use std::fmt::Debug;
 
 pub trait CellControl: Debug {

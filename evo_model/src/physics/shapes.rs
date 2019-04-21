@@ -1,4 +1,4 @@
-use physics::quantities::*;
+use crate::physics::quantities::*;
 use std::f64::consts::PI;
 
 pub trait Circle {

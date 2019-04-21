@@ -231,7 +231,7 @@ impl GraphMetaEdgeData {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use physics::simple_graph_elements::*;
+    use crate::physics::simple_graph_elements::*;
 
     #[test]
     fn added_node_has_correct_handle() {

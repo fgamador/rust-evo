@@ -1,8 +1,8 @@
-use physics::quantities::*;
-use physics::shapes::*;
-use physics::sortable_graph::*;
-use physics::spring::*;
-use physics::util::*;
+use crate::physics::quantities::*;
+use crate::physics::shapes::*;
+use crate::physics::sortable_graph::*;
+use crate::physics::spring::*;
+use crate::physics::util::*;
 use std::cmp::Ordering;
 
 // TODO add width to Overlap, or maybe make incursion magnitude an Area
@@ -148,7 +148,7 @@ impl PossibleCirclePairOverlap {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use physics::simple_graph_elements::*;
+    use crate::physics::simple_graph_elements::*;
 
     #[test]
     fn no_wall_overlaps() {

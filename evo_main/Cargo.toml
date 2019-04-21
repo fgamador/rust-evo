@@ -2,6 +2,7 @@
 name = "evo_main"
 version = "0.1.0"
 authors = ["Franz Amador <franzamador@gmail.com>"]
+edition = "2018"
 
 [dependencies]
 evo_glium = { path = "../evo_glium" }

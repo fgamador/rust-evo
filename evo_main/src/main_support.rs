@@ -1,5 +1,5 @@
 use evo_model::world::World;
-use view::*;
+use crate::view::*;
 
 pub fn init_and_run(world: World) {
     let view = View::new(world.min_corner(), world.max_corner());

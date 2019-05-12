@@ -19,7 +19,7 @@ pub struct SparseNeuralNet {
 }
 
 impl SparseNeuralNet {
-    pub fn fully_connected(num_inputs: u16, num_outputs: u16, initial_weight: f32, transfer_op: fn(&Op, &mut Vec<f32>)) -> Self {
+    pub fn fully_connected(num_inputs: u16, num_outputs: u16, initial_weight: f32, transfer_fn: fn(&Op, &mut Vec<f32>)) -> Self {
         let mut nnet = SparseNeuralNet {
             num_inputs,
             num_outputs,
@@ -27,7 +27,7 @@ impl SparseNeuralNet {
             ops: vec![],
         };
         nnet.init_node_values(num_inputs, num_outputs);
-        nnet.init_ops(num_inputs, num_outputs, initial_weight, transfer_op);
+        nnet.init_ops(num_inputs, num_outputs, initial_weight, transfer_fn);
         nnet
     }
 
@@ -36,13 +36,13 @@ impl SparseNeuralNet {
         self.node_values.resize((1 + num_inputs + num_outputs) as usize, 0.0);
     }
 
-    fn init_ops(&mut self, num_inputs: u16, num_outputs: u16, initial_weight: f32, transfer_op: fn(&Op, &mut Vec<f32>)) {
+    fn init_ops(&mut self, num_inputs: u16, num_outputs: u16, initial_weight: f32, transfer_fn: fn(&Op, &mut Vec<f32>)) {
         self.ops.reserve((num_inputs * num_outputs + num_outputs) as usize);
         for output_index in (1 + num_inputs)..(1 + num_inputs + num_outputs) {
             for input_index in 0..(1 + num_inputs) {
                 self.ops.push(Op { input_index, output_index, weight: initial_weight, op_fn: Self::add_weighted });
             }
-            self.ops.push(Op { input_index: 0, output_index, weight: 0.0, op_fn: transfer_op });
+            self.ops.push(Op { input_index: 0, output_index, weight: 0.0, op_fn: transfer_fn });
         }
     }
 

@@ -17,7 +17,7 @@ pub struct Cell {
     newtonian_state: NewtonianState,
     environment: LocalEnvironment,
     layers: Vec<Box<CellLayer>>,
-    control: Box<CellControl>,
+    control: Box<dyn CellControl>,
     energy: BioEnergy,
 }
 

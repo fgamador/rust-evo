@@ -90,7 +90,7 @@ impl Cell {
         budgeted_control_requests
     }
 
-    fn cost_control_requests(&mut self, control_requests: &Vec<ControlRequest>) -> Vec<CostedControlRequest> {
+    fn cost_control_requests(&mut self, control_requests: &[ControlRequest]) -> Vec<CostedControlRequest> {
         control_requests.iter()
             .map(|req| self.layers[req.layer_index].cost_control_request(*req))
             .collect()
@@ -165,7 +165,7 @@ impl Cell {
             })
     }
 
-    fn calc_mass(layers: &Vec<Box<CellLayer>>) -> Mass {
+    fn calc_mass(layers: &[Box<CellLayer>]) -> Mass {
         layers.iter().fold(
             Mass::new(0.0), |mass, layer| mass + layer.mass())
     }

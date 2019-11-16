@@ -38,11 +38,11 @@ impl SimpleCircleNode {
 
 impl Circle for SimpleCircleNode {
     fn radius(&self) -> Length {
-        return self.radius;
+         self.radius
     }
 
     fn center(&self) -> Position {
-        return self.center;
+         self.center
     }
 }
 

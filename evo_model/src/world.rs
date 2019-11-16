@@ -150,14 +150,14 @@ impl World {
         }
     }
 
-    fn clear_influences(&mut self) -> () {
+    fn clear_influences(&mut self) {
         for cell in self.cell_graph.unsorted_nodes_mut() {
             cell.environment_mut().clear();
             cell.forces_mut().clear();
         }
     }
 
-    fn after_movement(&mut self) -> () {
+    fn after_movement(&mut self) {
         let mut children: Vec<Cell> = vec![];
         for cell in self.cell_graph.unsorted_nodes_mut() {
             children.append(&mut cell.after_movement());

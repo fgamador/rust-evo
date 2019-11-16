@@ -31,13 +31,13 @@ impl Angle {
     }
 
     #[allow(dead_code)]
-    pub fn radians(&self) -> f64 {
+    pub fn radians(self) -> f64 {
         self.radians
     }
 
-    pub fn cos(&self) -> f64 { self.radians.cos() }
+    pub fn cos(self) -> f64 { self.radians.cos() }
 
-    pub fn sin(&self) -> f64 { self.radians.sin() }
+    pub fn sin(self) -> f64 { self.radians.sin() }
 }
 
 impl Sub for Angle {
@@ -73,7 +73,7 @@ impl Deflection {
     }
 
     #[allow(dead_code)]
-    pub fn radians(&self) -> f64 {
+    pub fn radians(self) -> f64 {
         self.radians
     }
 }
@@ -103,11 +103,11 @@ impl Length {
     }
 
     #[allow(dead_code)]
-    pub fn value(&self) -> f64 {
+    pub fn value(self) -> f64 {
         self.value
     }
 
-    pub fn sqr(&self) -> Area {
+    pub fn sqr(self) -> Area {
         Area::new(self.value * self.value)
     }
 }
@@ -161,11 +161,11 @@ impl Area {
     }
 
     #[allow(dead_code)]
-    pub fn value(&self) -> f64 {
+    pub fn value(self) -> f64 {
         self.value
     }
 
-    pub fn sqrt(&self) -> Length {
+    pub fn sqrt(self) -> Length {
         Length::new(self.value.sqrt())
     }
 }
@@ -243,7 +243,7 @@ impl AreaDelta {
     }
 
     #[allow(dead_code)]
-    pub fn value(&self) -> f64 {
+    pub fn value(self) -> f64 {
         self.value
     }
 }
@@ -382,7 +382,7 @@ impl Duration {
     }
 
     #[allow(dead_code)]
-    pub fn value(&self) -> f64 {
+    pub fn value(self) -> f64 {
         self.value
     }
 }
@@ -520,7 +520,7 @@ impl Mass {
     }
 
     #[allow(dead_code)]
-    pub fn value(&self) -> f64 {
+    pub fn value(self) -> f64 {
         self.value
     }
 }
@@ -564,7 +564,7 @@ impl Density {
     }
 
     #[allow(dead_code)]
-    pub fn value(&self) -> f64 {
+    pub fn value(self) -> f64 {
         self.value
     }
 }
@@ -635,7 +635,7 @@ impl Torque {
     }
 
     #[allow(dead_code)]
-    pub fn value(&self) -> f64 {
+    pub fn value(self) -> f64 {
         self.value
     }
 }
@@ -665,11 +665,11 @@ impl BioEnergy {
     }
 
     #[allow(dead_code)]
-    pub fn value(&self) -> f64 {
+    pub fn value(self) -> f64 {
         self.value
     }
 
-    pub fn min(&self, e: BioEnergy) -> BioEnergy {
+    pub fn min(self, e: BioEnergy) -> BioEnergy {
         BioEnergy::new(self.value.min(e.value))
     }
 }
@@ -761,7 +761,7 @@ impl BioEnergyDelta {
     }
 
     #[allow(dead_code)]
-    pub fn value(&self) -> f64 {
+    pub fn value(self) -> f64 {
         self.value
     }
 }

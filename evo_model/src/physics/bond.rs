@@ -11,7 +11,7 @@ pub struct Bond {
 }
 
 impl Bond {
-    pub fn new(circle1: &GraphNode, circle2: &GraphNode) -> Self {
+    pub fn new(circle1: &dyn GraphNode, circle2: &dyn GraphNode) -> Self {
         assert_ne!(circle1.node_handle(), circle2.node_handle());
         Bond {
             edge_data: GraphEdgeData::new(circle1.node_handle(), circle2.node_handle())

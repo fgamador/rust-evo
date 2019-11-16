@@ -15,11 +15,11 @@ pub trait Influence {
 
 pub struct WallCollisions {
     walls: Walls,
-    spring: Box<Spring>,
+    spring: Box<dyn Spring>,
 }
 
 impl WallCollisions {
-    pub fn new(min_corner: Position, max_corner: Position, spring: Box<Spring>) -> Self {
+    pub fn new(min_corner: Position, max_corner: Position, spring: Box<dyn Spring>) -> Self {
         WallCollisions {
             walls: Walls::new(min_corner, max_corner),
             spring,
@@ -101,11 +101,11 @@ impl Influence for BondAngleForces {
 }
 
 pub struct SimpleForceInfluence {
-    influence_force: Box<SimpleInfluenceForce>
+    influence_force: Box<dyn SimpleInfluenceForce>
 }
 
 impl SimpleForceInfluence {
-    pub fn new(influence_force: Box<SimpleInfluenceForce>) -> Self {
+    pub fn new(influence_force: Box<dyn SimpleInfluenceForce>) -> Self {
         SimpleForceInfluence {
             influence_force
         }

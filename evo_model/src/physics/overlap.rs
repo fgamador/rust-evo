@@ -19,7 +19,7 @@ impl Overlap
         Overlap { incursion }
     }
 
-    pub fn to_force(&self, spring: &Spring) -> Force {
+    pub fn to_force(&self, spring: &dyn Spring) -> Force {
         spring.to_force(self.incursion)
     }
 }

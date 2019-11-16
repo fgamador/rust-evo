@@ -12,7 +12,7 @@ pub struct World {
     min_corner: Position,
     max_corner: Position,
     cell_graph: SortableGraph<Cell, Bond, AngleGusset>,
-    influences: Vec<Box<Influence>>,
+    influences: Vec<Box<dyn Influence>>,
 }
 
 impl World {
@@ -50,12 +50,12 @@ impl World {
                           min_intensity, max_intensity)))
     }
 
-    pub fn with_influence(mut self, influence: Box<Influence>) -> Self {
+    pub fn with_influence(mut self, influence: Box<dyn Influence>) -> Self {
         self.influences.push(influence);
         self
     }
 
-    pub fn with_influences(mut self, mut influences: Vec<Box<Influence>>) -> Self {
+    pub fn with_influences(mut self, mut influences: Vec<Box<dyn Influence>>) -> Self {
         self.influences.append(&mut influences);
         self
     }

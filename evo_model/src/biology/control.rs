@@ -41,11 +41,11 @@ impl CellControl for NullControl {
 
 #[derive(Debug)]
 pub struct CompositeControl {
-    controls: Vec<Box<CellControl>>
+    controls: Vec<Box<dyn CellControl>>
 }
 
 impl CompositeControl {
-    pub fn new(controls: Vec<Box<CellControl>>) -> Self {
+    pub fn new(controls: Vec<Box<dyn CellControl>>) -> Self {
         CompositeControl {
             controls
         }

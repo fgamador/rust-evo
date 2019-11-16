@@ -93,14 +93,14 @@ impl LayerResizeParameters {
 #[derive(Debug)]
 pub struct CellLayer {
     body: CellLayerBody,
-    specialty: Box<CellLayerSpecialty>,
+    specialty: Box<dyn CellLayerSpecialty>,
 }
 
 impl CellLayer {
     const LIVING_BRAIN: LivingCellLayerBrain = LivingCellLayerBrain {};
     const DEAD_BRAIN: DeadCellLayerBrain = DeadCellLayerBrain {};
 
-    pub fn new(area: Area, density: Density, color: Color, specialty: Box<CellLayerSpecialty>) -> Self {
+    pub fn new(area: Area, density: Density, color: Color, specialty: Box<dyn CellLayerSpecialty>) -> Self {
         CellLayer {
             body: CellLayerBody::new(area, density, color),
             specialty,
@@ -190,7 +190,7 @@ pub struct CellLayerBody {
     outer_radius: Length,
     health: f64,
     color: Color,
-    brain: &'static CellLayerBrain,
+    brain: &'static dyn CellLayerBrain,
     // TODO move to CellLayerParameters struct?
     health_parameters: LayerHealthParameters,
     resize_parameters: LayerResizeParameters,
@@ -262,13 +262,13 @@ impl CellLayerBody {
 trait CellLayerBrain: Debug {
     fn damage(&self, body: &mut CellLayerBody, health_loss: f64);
 
-    fn after_influences(&self, specialty: &mut CellLayerSpecialty, body: &mut CellLayerBody, env: &LocalEnvironment, subtick_duration: Duration) -> (BioEnergy, Force);
+    fn after_influences(&self, specialty: &mut dyn CellLayerSpecialty, body: &mut CellLayerBody, env: &LocalEnvironment, subtick_duration: Duration) -> (BioEnergy, Force);
 
-    fn cost_control_request(&self, specialty: &mut CellLayerSpecialty, body: &CellLayerBody, request: ControlRequest) -> CostedControlRequest;
+    fn cost_control_request(&self, specialty: &mut dyn CellLayerSpecialty, body: &CellLayerBody, request: ControlRequest) -> CostedControlRequest;
 
-    fn execute_control_request(&self, specialty: &mut CellLayerSpecialty, body: &mut CellLayerBody, request: BudgetedControlRequest);
+    fn execute_control_request(&self, specialty: &mut dyn CellLayerSpecialty, body: &mut CellLayerBody, request: BudgetedControlRequest);
 
-    fn after_control_requests(&self, specialty: &mut CellLayerSpecialty, cell_state: &CellStateSnapshot) -> Option<Cell>;
+    fn after_control_requests(&self, specialty: &mut dyn CellLayerSpecialty, cell_state: &CellStateSnapshot) -> Option<Cell>;
 }
 
 #[derive(Debug)]
@@ -289,12 +289,12 @@ impl CellLayerBrain for LivingCellLayerBrain {
         }
     }
 
-    fn after_influences(&self, specialty: &mut CellLayerSpecialty, body: &mut CellLayerBody, env: &LocalEnvironment, subtick_duration: Duration) -> (BioEnergy, Force) {
+    fn after_influences(&self, specialty: &mut dyn CellLayerSpecialty, body: &mut CellLayerBody, env: &LocalEnvironment, subtick_duration: Duration) -> (BioEnergy, Force) {
         self.entropic_damage(body, subtick_duration);
         specialty.after_influences(body, env, subtick_duration)
     }
 
-    fn cost_control_request(&self, specialty: &mut CellLayerSpecialty, body: &CellLayerBody, request: ControlRequest) -> CostedControlRequest {
+    fn cost_control_request(&self, specialty: &mut dyn CellLayerSpecialty, body: &CellLayerBody, request: ControlRequest) -> CostedControlRequest {
         match request.channel_index {
             0 => body.cost_restore_health(request),
             1 => body.cost_resize(request),
@@ -302,7 +302,7 @@ impl CellLayerBrain for LivingCellLayerBrain {
         }
     }
 
-    fn execute_control_request(&self, specialty: &mut CellLayerSpecialty, body: &mut CellLayerBody, request: BudgetedControlRequest) {
+    fn execute_control_request(&self, specialty: &mut dyn CellLayerSpecialty, body: &mut CellLayerBody, request: BudgetedControlRequest) {
         match request.channel_index {
             0 => body.restore_health(request.value, request.budgeted_fraction),
             1 => body.resize(request.value, request.budgeted_fraction),
@@ -310,7 +310,7 @@ impl CellLayerBrain for LivingCellLayerBrain {
         }
     }
 
-    fn after_control_requests(&self, specialty: &mut CellLayerSpecialty, cell_state: &CellStateSnapshot) -> Option<Cell> {
+    fn after_control_requests(&self, specialty: &mut dyn CellLayerSpecialty, cell_state: &CellStateSnapshot) -> Option<Cell> {
         specialty.after_control_requests(cell_state)
     }
 }
@@ -323,17 +323,17 @@ impl DeadCellLayerBrain {}
 impl CellLayerBrain for DeadCellLayerBrain {
     fn damage(&self, _body: &mut CellLayerBody, _health_loss: f64) {}
 
-    fn after_influences(&self, _specialty: &mut CellLayerSpecialty, _body: &mut CellLayerBody, _env: &LocalEnvironment, _subtick_duration: Duration) -> (BioEnergy, Force) {
+    fn after_influences(&self, _specialty: &mut dyn CellLayerSpecialty, _body: &mut CellLayerBody, _env: &LocalEnvironment, _subtick_duration: Duration) -> (BioEnergy, Force) {
         (BioEnergy::ZERO, Force::ZERO)
     }
 
-    fn cost_control_request(&self, _specialty: &mut CellLayerSpecialty, _body: &CellLayerBody, request: ControlRequest) -> CostedControlRequest {
+    fn cost_control_request(&self, _specialty: &mut dyn CellLayerSpecialty, _body: &CellLayerBody, request: ControlRequest) -> CostedControlRequest {
         CostedControlRequest::new(request, BioEnergyDelta::ZERO)
     }
 
-    fn execute_control_request(&self, _specialty: &mut CellLayerSpecialty, _body: &mut CellLayerBody, _request: BudgetedControlRequest) {}
+    fn execute_control_request(&self, _specialty: &mut dyn CellLayerSpecialty, _body: &mut CellLayerBody, _request: BudgetedControlRequest) {}
 
-    fn after_control_requests(&self, _specialty: &mut CellLayerSpecialty, _cell_state: &CellStateSnapshot) -> Option<Cell> {
+    fn after_control_requests(&self, _specialty: &mut dyn CellLayerSpecialty, _cell_state: &CellStateSnapshot) -> Option<Cell> {
         None
     }
 }

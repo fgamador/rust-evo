@@ -8,7 +8,7 @@ use syn::{parse_macro_input, DeriveInput};
 pub fn graph_edge_derive(input: TokenStream) -> TokenStream {
     trait_derive(input, |ast| {
         let name = &ast.ident;
-        let field_name = get_field_name_of_struct_type(&ast.data, "GraphEdgeData");
+        let field_name = get_name_of_field_that_is_struct_of_type(&ast.data, "GraphEdgeData");
 
         quote! {
             impl GraphEdge for #name {
@@ -40,7 +40,7 @@ pub fn graph_edge_derive(input: TokenStream) -> TokenStream {
 pub fn graph_meta_edge_derive(input: TokenStream) -> TokenStream {
     trait_derive(input, |ast| {
         let name = &ast.ident;
-        let field_name = get_field_name_of_struct_type(&ast.data, "GraphMetaEdgeData");
+        let field_name = get_name_of_field_that_is_struct_of_type(&ast.data, "GraphMetaEdgeData");
 
         quote! {
             impl GraphMetaEdge for #name {
@@ -68,7 +68,7 @@ pub fn graph_meta_edge_derive(input: TokenStream) -> TokenStream {
 pub fn graph_node_derive(input: TokenStream) -> TokenStream {
     trait_derive(input, |ast| {
         let name = &ast.ident;
-        let field_name = get_field_name_of_struct_type(&ast.data, "GraphNodeData");
+        let field_name = get_name_of_field_that_is_struct_of_type(&ast.data, "GraphNodeData");
 
         quote! {
             impl GraphNode for #name {
@@ -92,7 +92,7 @@ pub fn graph_node_derive(input: TokenStream) -> TokenStream {
 pub fn has_local_environment_derive(input: TokenStream) -> TokenStream {
     trait_derive(input, |ast| {
         let name = &ast.ident;
-        let field_name = get_field_name_of_struct_type(&ast.data, "LocalEnvironment");
+        let field_name = get_name_of_field_that_is_struct_of_type(&ast.data, "LocalEnvironment");
 
         quote! {
             impl HasLocalEnvironment for #name {
@@ -112,7 +112,7 @@ pub fn has_local_environment_derive(input: TokenStream) -> TokenStream {
 pub fn newtonian_body_derive(input: TokenStream) -> TokenStream {
     trait_derive(input, |ast| {
         let name = &ast.ident;
-        let field_name = get_field_name_of_struct_type(&ast.data, "NewtonianState");
+        let field_name = get_name_of_field_that_is_struct_of_type(&ast.data, "NewtonianState");
 
         quote! {
             impl NewtonianBody for #name {
@@ -160,7 +160,7 @@ fn trait_derive<F>(input: TokenStream, impl_trait: F) -> TokenStream
     TokenStream::from(expanded)
 }
 
-fn get_field_name_of_struct_type<'a>(data: &'a syn::Data, type_name: &str) -> &'a syn::Ident {
+fn get_name_of_field_that_is_struct_of_type<'a>(data: &'a syn::Data, type_name: &str) -> &'a syn::Ident {
     let fields = get_fields_that_are_structs_of_type(data, type_name);
     if fields.len() != 1 {
         panic!("Macro must be applied to a struct with exactly one field of type {}", type_name);

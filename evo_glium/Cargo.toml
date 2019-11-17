@@ -6,4 +6,4 @@ edition = "2018"
 
 [dependencies]
 evo_model = { path = "../evo_model" }
-glium = "0.22.0"
+glium = "0.25.1"

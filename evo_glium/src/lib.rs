@@ -129,7 +129,7 @@ impl GliumView {
 
     fn current_screen_transform(&mut self) -> [[f32; 4]; 4] {
         // TODO more efficient to do this only on glutin::WindowEvent::Resized
-        let window_size = self.display.gl_window().get_inner_size().unwrap();
+        let window_size = self.display.gl_window().window().get_inner_size().unwrap();
         let window_dim = [window_size.width as f32, window_size.height as f32];
         Self::calc_screen_transform(self.world_min_corner, self.world_max_corner, window_dim)
     }

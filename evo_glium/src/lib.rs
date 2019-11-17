@@ -117,7 +117,7 @@ impl GliumView {
         }
     }
 
-    fn draw_frame(&mut self, cells: &Vec<Cell>, layer_colors: [[f32; 4]; 8]) {
+    fn draw_frame(&mut self, cells: &[Cell], layer_colors: [[f32; 4]; 8]) {
         let cells_vb = glium::VertexBuffer::new(&self.display, &cells).unwrap();
         let screen_transform = self.current_screen_transform();
         let mut frame = self.display.draw();

@@ -1,5 +1,5 @@
 use crate::biology::cell::Cell;
-use crate::environment::environment::*;
+use crate::environment::local_environment::*;
 use crate::environment::influences::*;
 use crate::physics::bond::*;
 use crate::physics::newtonian::NewtonianBody;

@@ -1,7 +1,7 @@
 use crate::biology::cell::Cell;
 use crate::biology::control::CellStateSnapshot;
 use crate::biology::control_requests::*;
-use crate::environment::environment::LocalEnvironment;
+use crate::environment::local_environment::LocalEnvironment;
 use crate::physics::quantities::*;
 use crate::physics::shapes::Circle;
 use std::f64;
@@ -534,7 +534,7 @@ impl CellLayerSpecialty for BuddingCellLayerSpecialty {
 mod tests {
     use super::*;
     use crate::biology::control_requests::BudgetedControlRequest;
-    use crate::environment::environment::LocalEnvironment;
+    use crate::environment::local_environment::LocalEnvironment;
     use crate::physics::newtonian::NewtonianBody;
 
     #[test]

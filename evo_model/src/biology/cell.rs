@@ -2,7 +2,7 @@ use crate::TickCallbacks;
 use crate::biology::control::*;
 use crate::biology::control_requests::*;
 use crate::biology::layers::*;
-use crate::environment::environment::*;
+use crate::environment::local_environment::*;
 use crate::physics::newtonian::*;
 use crate::physics::quantities::*;
 use crate::physics::shapes::*;

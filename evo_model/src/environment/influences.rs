@@ -1,5 +1,5 @@
 use crate::biology::cell::Cell;
-use crate::environment::environment::*;
+use crate::environment::local_environment::*;
 use crate::physics::bond::*;
 use crate::physics::newtonian::*;
 use crate::physics::overlap::*;

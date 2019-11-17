@@ -134,6 +134,7 @@ impl GliumView {
         Self::calc_screen_transform(self.world_min_corner, self.world_max_corner, window_dim)
     }
 
+    #[allow(clippy::useless_let_if_seq)]
     fn calc_screen_transform(world_min_corner: Point, world_max_corner: Point, window_dim: [f32; 2]) -> [[f32; 4]; 4] {
         let world_dim = [world_max_corner[0] - world_min_corner[0], world_max_corner[1] - world_min_corner[1]];
 

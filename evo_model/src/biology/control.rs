@@ -28,6 +28,7 @@ impl CellStateSnapshot {
 pub struct NullControl {}
 
 impl NullControl {
+    #[allow(clippy::new_without_default)]
     pub fn new() -> Self {
         NullControl {}
     }

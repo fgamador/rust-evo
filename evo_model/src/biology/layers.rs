@@ -365,6 +365,7 @@ pub trait CellLayerSpecialty: Debug {
 pub struct NullCellLayerSpecialty {}
 
 impl NullCellLayerSpecialty {
+    #[allow(clippy::new_without_default)]
     pub fn new() -> Self {
         NullCellLayerSpecialty {}
     }
@@ -379,6 +380,7 @@ pub struct ThrusterCellLayerSpecialty {
 }
 
 impl ThrusterCellLayerSpecialty {
+    #[allow(clippy::new_without_default)]
     pub fn new() -> Self {
         ThrusterCellLayerSpecialty {
             force_x: 0.0,
@@ -443,6 +445,7 @@ pub struct EnergyGeneratingCellLayerSpecialty {
 }
 
 impl EnergyGeneratingCellLayerSpecialty {
+    #[allow(clippy::new_without_default)]
     pub fn new() -> Self {
         EnergyGeneratingCellLayerSpecialty {
             energy: BioEnergy::ZERO

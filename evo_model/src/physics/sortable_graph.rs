@@ -10,6 +10,7 @@ pub struct SortableGraph<N: GraphNode, E: GraphEdge, ME: GraphMetaEdge> {
 }
 
 impl<N: GraphNode, E: GraphEdge, ME: GraphMetaEdge> SortableGraph<N, E, ME> {
+    #[allow(clippy::new_without_default)]
     pub fn new() -> Self {
         SortableGraph {
             unsorted_nodes: vec![],
@@ -123,6 +124,7 @@ pub struct GraphNodeData {
 }
 
 impl GraphNodeData {
+    #[allow(clippy::new_without_default)]
     pub fn new() -> Self {
         GraphNodeData {
             node_handle: NodeHandle::unset(),

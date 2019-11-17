@@ -44,6 +44,7 @@ pub struct PairCollisions {
 }
 
 impl PairCollisions {
+    #[allow(clippy::new_without_default)]
     pub fn new() -> Self {
         PairCollisions {
             spring: LinearSpring::new(1.0)
@@ -66,6 +67,7 @@ impl Influence for PairCollisions {
 pub struct BondForces {}
 
 impl BondForces {
+    #[allow(clippy::new_without_default)]
     pub fn new() -> Self {
         BondForces {}
     }
@@ -85,6 +87,7 @@ impl Influence for BondForces {
 pub struct BondAngleForces {}
 
 impl BondAngleForces {
+    #[allow(clippy::new_without_default)]
     pub fn new() -> Self {
         BondAngleForces {}
     }

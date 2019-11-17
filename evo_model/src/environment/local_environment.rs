@@ -13,6 +13,7 @@ pub struct LocalEnvironment {
 }
 
 impl LocalEnvironment {
+    #[allow(clippy::new_without_default)]
     pub fn new() -> Self {
         LocalEnvironment {
             overlaps: vec![],

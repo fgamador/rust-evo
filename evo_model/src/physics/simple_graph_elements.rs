@@ -8,6 +8,7 @@ pub struct SimpleGraphNode {
 }
 
 impl SimpleGraphNode {
+    #[allow(clippy::new_without_default)]
     pub fn new() -> Self {
         SimpleGraphNode {
             graph_node_data: GraphNodeData::new(),

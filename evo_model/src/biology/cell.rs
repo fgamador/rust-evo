@@ -10,6 +10,7 @@ use crate::physics::sortable_graph::*;
 use std::f64::consts::PI;
 use std::ptr;
 
+#[allow(clippy::vec_box)]
 #[derive(Debug, GraphNode, HasLocalEnvironment, NewtonianBody)]
 pub struct Cell {
     graph_node_data: GraphNodeData,
@@ -22,6 +23,7 @@ pub struct Cell {
 }
 
 impl Cell {
+    #[allow(clippy::vec_box)]
     pub fn new(position: Position, velocity: Velocity, mut layers: Vec<Box<CellLayer>>) -> Self {
         if layers.is_empty() {
             panic!("Cell must have at least one layer");
@@ -156,6 +158,7 @@ impl Cell {
         }
     }
 
+    #[allow(clippy::vec_box)]
     fn update_layer_outer_radii(layers: &mut Vec<Box<CellLayer>>) -> Length {
         layers.iter_mut().fold(
             Length::new(0.0),

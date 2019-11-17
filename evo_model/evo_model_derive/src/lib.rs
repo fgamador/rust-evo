@@ -161,14 +161,14 @@ fn trait_derive<F>(input: TokenStream, impl_trait: F) -> TokenStream
 }
 
 fn get_field_name_of_struct_type<'a>(data: &'a syn::Data, type_name: &str) -> &'a syn::Ident {
-    let fields = get_fields_of_struct_type(data, type_name);
+    let fields = get_fields_that_have_struct_type(data, type_name);
     if fields.len() != 1 {
         panic!("Macro must be applied to a struct with exactly one field of type {}", type_name);
     }
     fields[0].ident.as_ref().unwrap()
 }
 
-fn get_fields_of_struct_type<'a>(data: &'a syn::Data, type_name: &str) -> Vec<&'a syn::Field> {
+fn get_fields_that_have_struct_type<'a>(data: &'a syn::Data, type_name: &str) -> Vec<&'a syn::Field> {
     match data {
         syn::Data::Struct(data) => {
             match &data.fields {

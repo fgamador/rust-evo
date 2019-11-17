@@ -184,9 +184,9 @@ fn get_fields_of_struct_type<'a>(data: &'a syn::Data, type_name: &str) -> Vec<&'
 
 fn field_is_struct_of_type(field: &syn::Field, type_name: &str) -> bool {
     match &field.ty {
-        syn::Type::Path(syn::TypePath { qself: _, path: syn::Path { leading_colon: _, segments } }) => {
+        syn::Type::Path(syn::TypePath { path: syn::Path { segments, .. }, .. }) => {
             match segments.last() {
-                Some(syn::PathSegment { ident, arguments: _ }) => ident == type_name,
+                Some(syn::PathSegment { ident, .. }) => ident == type_name,
                 _ => false
             }
         }

@@ -5,6 +5,7 @@ pub fn sqr(x: f64) -> f64 {
 }
 
 // Stolen from https://users.rust-lang.org/t/assert-eq-for-float-numbers/7034/4
+#[allow(clippy::float_cmp)]
 pub fn nearly_equal(a: f64, b: f64) -> bool {
     let abs_a = a.abs();
     let abs_b = b.abs();

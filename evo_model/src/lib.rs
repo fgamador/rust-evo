@@ -13,5 +13,5 @@ use crate::physics::quantities::*;
 pub trait TickCallbacks {
     fn after_influences(&mut self, subtick_duration: Duration);
 
-    fn after_movement(&mut self) -> Vec<Cell>;
+    fn after_movement(&mut self) -> (bool, Vec<Cell>);
 }

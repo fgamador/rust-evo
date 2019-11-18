@@ -184,10 +184,10 @@ impl TickCallbacks for Cell {
         }
     }
 
-    fn after_movement(&mut self) -> Vec<Cell> {
+    fn after_movement(&mut self) -> (bool, Vec<Cell>) {
         let budgeted_control_requests = self.get_budgeted_control_requests();
         self.execute_control_requests(&budgeted_control_requests);
-        self.after_control_requests()
+        (true, self.after_control_requests())
     }
 }
 
@@ -451,7 +451,7 @@ mod tests {
                 BuddingCellLayerSpecialty::donation_energy_request(1, BioEnergy::new(1.0)),
             ])));
 
-        let children = cell.after_movement();
+        let (_, children) = cell.after_movement();
 
         assert_eq!(children.len(), 1);
         let child = &children[0];

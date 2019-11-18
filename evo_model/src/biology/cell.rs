@@ -137,7 +137,7 @@ impl Cell {
         self.newtonian_state.mass = Self::calc_mass(&self.layers);
     }
 
-    fn after_control_requests(&mut self) -> Vec<Cell> {
+    fn after_control_requests(&mut self) -> (bool, Vec<Cell>) {
         // TODO test: inner layer grows while outer layer buds at correct distance
         let mut children = vec![];
         let cell_state = self.get_state_snapshot();
@@ -146,7 +146,7 @@ impl Cell {
                 children.push(child);
             }
         }
-        children
+        (true, children)
     }
 
     fn get_state_snapshot(&self) -> CellStateSnapshot {
@@ -187,7 +187,7 @@ impl TickCallbacks for Cell {
     fn after_movement(&mut self) -> (bool, Vec<Cell>) {
         let budgeted_control_requests = self.get_budgeted_control_requests();
         self.execute_control_requests(&budgeted_control_requests);
-        (true, self.after_control_requests())
+        self.after_control_requests()
     }
 }
 

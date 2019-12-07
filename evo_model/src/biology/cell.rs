@@ -68,6 +68,10 @@ impl Cell {
         self.energy
     }
 
+    pub fn is_alive(&self) -> bool {
+        self.layers.iter().any(|layer| !layer.is_dead())
+    }
+
     pub fn set_initial_position(&mut self, position: Position) {
         self.newtonian_state.position = position;
     }
@@ -257,6 +261,26 @@ mod tests {
                                  Box::new(simple_cell_layer(Area::new(2.0 * PI), Density::new(2.0))),
                              ]);
         assert_eq!(Mass::new(5.0 * PI), cell.mass());
+    }
+
+    #[test]
+    fn cell_with_all_dead_layers_is_dead() {
+        let cell = Cell::new(Position::ORIGIN, Velocity::ZERO,
+                             vec![
+                                 Box::new(simple_cell_layer(Area::new(1.0), Density::new(1.0)).dead()),
+                                 Box::new(simple_cell_layer(Area::new(1.0), Density::new(1.0)).dead()),
+                             ]);
+        assert!(!cell.is_alive());
+    }
+
+    #[test]
+    fn cell_with_one_live_layer_is_alive() {
+        let cell = Cell::new(Position::ORIGIN, Velocity::ZERO,
+                             vec![
+                                 Box::new(simple_cell_layer(Area::new(1.0), Density::new(1.0))),
+                                 Box::new(simple_cell_layer(Area::new(1.0), Density::new(1.0)).dead()),
+                             ]);
+        assert!(cell.is_alive());
     }
 
     #[test]

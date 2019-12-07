@@ -69,7 +69,7 @@ impl Cell {
     }
 
     pub fn is_alive(&self) -> bool {
-        self.layers.iter().any(|layer| !layer.is_dead())
+        self.layers.iter().any(|layer| layer.is_alive())
     }
 
     pub fn set_initial_position(&mut self, position: Position) {

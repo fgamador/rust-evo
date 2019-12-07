@@ -127,11 +127,7 @@ impl CellLayer {
         self
     }
 
-    pub fn is_dead(&self) -> bool {
-        !self.is_alive()
-    }
-
-    fn is_alive(&self) -> bool {
+    pub fn is_alive(&self) -> bool {
         self.health() > 0.0
     }
 
@@ -593,14 +589,14 @@ mod tests {
     fn layer_with_some_health_is_not_dead() {
         let mut layer = simple_cell_layer(Area::new(1.0), Density::new(1.0));
         layer.damage(0.99);
-        assert!(!layer.is_dead());
+        assert!(layer.is_alive());
     }
 
     #[test]
     fn layer_with_zero_health_is_dead() {
         let mut layer = simple_cell_layer(Area::new(1.0), Density::new(1.0));
         layer.damage(1.0);
-        assert!(layer.is_dead());
+        assert!(!layer.is_alive());
     }
 
     #[test]

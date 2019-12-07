@@ -221,11 +221,11 @@ mod tests {
 
     #[test]
     fn cells_use_pointer_equality() {
-        let cell1 = Cell::new(Position::new(1.0, 1.0), Velocity::new(1.0, 1.0),
+        let cell1 = Cell::new(Position::ORIGIN, Velocity::ZERO,
                               vec![
                                   Box::new(simple_cell_layer(Area::new(PI), Density::new(1.0)))
                               ]);
-        let cell2 = Cell::new(Position::new(1.0, 1.0), Velocity::new(1.0, 1.0),
+        let cell2 = Cell::new(Position::ORIGIN, Velocity::ZERO,
                               vec![
                                   Box::new(simple_cell_layer(Area::new(PI), Density::new(1.0)))
                               ]);
@@ -236,12 +236,12 @@ mod tests {
     #[test]
     #[should_panic]
     fn cell_must_have_layers() {
-        Cell::new(Position::new(1.0, 1.0), Velocity::new(1.0, 1.0), vec![]);
+        Cell::new(Position::ORIGIN, Velocity::ZERO, vec![]);
     }
 
     #[test]
     fn cell_has_radius_of_outer_layer() {
-        let cell = Cell::new(Position::new(1.0, 1.0), Velocity::new(1.0, 1.0),
+        let cell = Cell::new(Position::ORIGIN, Velocity::ZERO,
                              vec![
                                  Box::new(simple_cell_layer(Area::new(PI), Density::new(1.0))),
                                  Box::new(simple_cell_layer(Area::new(3.0 * PI), Density::new(1.0))),
@@ -251,7 +251,7 @@ mod tests {
 
     #[test]
     fn cell_has_mass_of_all_layers() {
-        let cell = Cell::new(Position::new(1.0, 1.0), Velocity::new(1.0, 1.0),
+        let cell = Cell::new(Position::ORIGIN, Velocity::ZERO,
                              vec![
                                  Box::new(simple_cell_layer(Area::new(PI), Density::new(1.0))),
                                  Box::new(simple_cell_layer(Area::new(2.0 * PI), Density::new(2.0))),
@@ -271,7 +271,7 @@ mod tests {
 
     #[test]
     fn cell_with_continuous_growth_control_grows_on_first_tick() {
-        let mut cell = Cell::new(Position::new(1.0, 1.0), Velocity::new(1.0, 1.0),
+        let mut cell = Cell::new(Position::ORIGIN, Velocity::ZERO,
                                  vec![
                                      Box::new(simple_cell_layer(Area::new(10.0), Density::new(1.0))),
                                  ])
@@ -300,7 +300,7 @@ mod tests {
 
     #[test]
     fn thruster_layer_adds_force_to_cell() {
-        let mut cell = Cell::new(Position::new(1.0, 1.0), Velocity::new(1.0, 1.0),
+        let mut cell = Cell::new(Position::ORIGIN, Velocity::ZERO,
                                  vec![
                                      Box::new(CellLayer::new(Area::new(1.0), Density::new(1.0), Color::Green, Box::new(ThrusterCellLayerSpecialty::new()))),
                                  ])
@@ -312,7 +312,7 @@ mod tests {
 
     #[test]
     fn photo_layer_adds_energy_to_cell() {
-        let mut cell = Cell::new(Position::new(1.0, 1.0), Velocity::new(1.0, 1.0),
+        let mut cell = Cell::new(Position::new(1.0, 1.0), Velocity::ZERO,
                                  vec![
                                      Box::new(CellLayer::new(Area::new(4.0), Density::new(1.0), Color::Green,
                                                              Box::new(PhotoCellLayerSpecialty::new(0.5)))),

@@ -318,6 +318,7 @@ mod tests {
     }
 
     #[test]
+    #[ignore]
     fn dead_cells_get_removed_from_world() {
         let mut world = World::new(Position::ORIGIN, Position::ORIGIN)
             .with_cell(Cell::new(Position::ORIGIN, Velocity::ZERO,
@@ -327,7 +328,7 @@ mod tests {
 
         world.tick();
 
-        // TODO assert_eq!(world.cells().len(), 0);
+        assert_eq!(world.cells().len(), 0);
     }
 
     fn create_child() -> Cell {

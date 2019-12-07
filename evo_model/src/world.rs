@@ -316,6 +316,19 @@ mod tests {
         assert_eq!(world.cells().len(), 2);
     }
 
+    #[test]
+    fn dead_cells_get_removed_from_world() {
+        let mut world = World::new(Position::ORIGIN, Position::ORIGIN)
+            .with_cell(Cell::new(Position::ORIGIN, Velocity::ZERO,
+                                 vec![
+                                     Box::new(simple_cell_layer(Area::new(1.0), Density::new(1.0)).dead())
+                                 ]));
+
+        world.tick();
+
+        // TODO assert_eq!(world.cells().len(), 0);
+    }
+
     fn create_child() -> Cell {
         Cell::new(Position::ORIGIN, Velocity::ZERO,
                   vec![Box::new(simple_cell_layer(Area::new(1.0), Density::new(1.0)))])

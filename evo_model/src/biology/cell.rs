@@ -150,7 +150,7 @@ impl Cell {
                 children.push(child);
             }
         }
-        (true, children)
+        (self.is_alive(), children)
     }
 
     fn get_state_snapshot(&self) -> CellStateSnapshot {

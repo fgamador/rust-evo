@@ -132,7 +132,7 @@ impl CellLayer {
     }
 
     fn is_alive(&self) -> bool {
-        self.health() != 0.0
+        self.health() > 0.0
     }
 
     pub fn area(&self) -> Area {

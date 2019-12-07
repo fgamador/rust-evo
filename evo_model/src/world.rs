@@ -160,8 +160,8 @@ impl World {
     fn after_movement(&mut self) {
         let mut children: Vec<Cell> = vec![];
         for cell in self.cell_graph.unsorted_nodes_mut() {
-            let (alive, new_cells) = cell.after_movement();
-            children.append(&mut (alive, new_cells).1);
+            let (_alive, mut new_cells) = cell.after_movement();
+            children.append(&mut new_cells);
         }
         for child in children {
             self.add_cell(child);

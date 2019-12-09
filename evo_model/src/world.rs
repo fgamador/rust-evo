@@ -163,8 +163,8 @@ impl World {
             let (_alive, mut cell_children) = cell.after_movement();
             new_cells.append(&mut cell_children);
         }
-        for child in new_cells {
-            self.add_cell(child);
+        for new_cell in new_cells {
+            self.add_cell(new_cell);
         }
     }
 }

@@ -35,7 +35,7 @@ impl Walls {
         Walls { min_corner, max_corner }
     }
 
-    pub fn find_overlaps<'a, C, E, ME>(&self, graph: &'a mut SortableGraph<C, E, ME>) -> Vec<(NodeHandle, Overlap)>
+    pub fn find_overlaps<C, E, ME>(&self, graph: &mut SortableGraph<C, E, ME>) -> Vec<(NodeHandle, Overlap)>
         where C: Circle + GraphNode, E: GraphEdge, ME: GraphMetaEdge
     {
         let mut overlaps: Vec<(NodeHandle, Overlap)> = Vec::with_capacity(graph.unsorted_nodes().len() / 2);

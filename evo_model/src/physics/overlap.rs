@@ -64,7 +64,7 @@ impl Walls {
     }
 }
 
-pub fn find_pair_overlaps<'a, C, E, ME>(graph: &'a mut SortableGraph<C, E, ME>) -> Vec<(NodeHandle, Overlap)>
+pub fn find_pair_overlaps<C, E, ME>(graph: &mut SortableGraph<C, E, ME>) -> Vec<(NodeHandle, Overlap)>
     where C: Circle + GraphNode, E: GraphEdge, ME: GraphMetaEdge
 {
     graph.sort_node_handles(cmp_by_min_x);

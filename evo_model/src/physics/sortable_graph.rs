@@ -28,6 +28,10 @@ impl<N: GraphNode, E: GraphEdge, ME: GraphMetaEdge> SortableGraph<N, E, ME> {
         node_handle
     }
 
+    pub fn remove_nodes(&mut self, _handles: Vec<NodeHandle>) {
+        // TODO
+    }
+
     pub fn add_edge(&mut self, mut edge: E) -> EdgeHandle {
         edge.graph_edge_data_mut().edge_handle.index = self.edges.len();
         let edge_handle = edge.edge_handle();

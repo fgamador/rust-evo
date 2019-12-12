@@ -5,13 +5,14 @@ use crate::physics::sortable_graph::*;
 #[derive(Clone, Debug, GraphNode, PartialEq)]
 pub struct SimpleGraphNode {
     graph_node_data: GraphNodeData,
+    pub id: i32,
 }
 
 impl SimpleGraphNode {
-    #[allow(clippy::new_without_default)]
-    pub fn new() -> Self {
+    pub fn new(id: i32) -> Self {
         SimpleGraphNode {
             graph_node_data: GraphNodeData::new(),
+            id,
         }
     }
 }
@@ -39,11 +40,11 @@ impl SimpleCircleNode {
 
 impl Circle for SimpleCircleNode {
     fn radius(&self) -> Length {
-         self.radius
+        self.radius
     }
 
     fn center(&self) -> Position {
-         self.center
+        self.center
     }
 }
 

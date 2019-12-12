@@ -244,7 +244,7 @@ mod tests {
     fn added_node_has_correct_handle() {
         let mut graph: SortableGraph<SimpleGraphNode, SimpleGraphEdge, SimpleGraphMetaEdge> = SortableGraph::new();
 
-        let handle = graph.add_node(SimpleGraphNode::new());
+        let handle = graph.add_node(SimpleGraphNode::new(0));
 
         assert_eq!(handle, graph.unsorted_nodes()[0].node_handle());
     }
@@ -252,7 +252,7 @@ mod tests {
     #[test]
     fn can_remove_only_node() {
         let mut graph: SortableGraph<SimpleGraphNode, SimpleGraphEdge, SimpleGraphMetaEdge> = SortableGraph::new();
-        let handle = graph.add_node(SimpleGraphNode::new());
+        let handle = graph.add_node(SimpleGraphNode::new(0));
 
         graph.remove_nodes(vec![handle]);
 
@@ -260,10 +260,22 @@ mod tests {
     }
 
     #[test]
+    fn can_remove_last_node() {
+        let mut graph: SortableGraph<SimpleGraphNode, SimpleGraphEdge, SimpleGraphMetaEdge> = SortableGraph::new();
+        graph.add_node(SimpleGraphNode::new(0));
+        let handle = graph.add_node(SimpleGraphNode::new(1));
+
+        graph.remove_nodes(vec![handle]);
+
+        assert_eq!(graph.unsorted_nodes.len(), 1);
+        assert_eq!(graph.unsorted_nodes()[0].id, 0);
+    }
+
+    #[test]
     fn can_fetch_node_by_handle() {
         let mut graph: SortableGraph<SimpleGraphNode, SimpleGraphEdge, SimpleGraphMetaEdge> = SortableGraph::new();
 
-        let handle = graph.add_node(SimpleGraphNode::new());
+        let handle = graph.add_node(SimpleGraphNode::new(0));
 
         assert_eq!(graph.unsorted_nodes()[0], *graph.node(handle));
     }
@@ -272,8 +284,8 @@ mod tests {
     fn added_edge_has_correct_handles() {
         let mut graph: SortableGraph<SimpleGraphNode, SimpleGraphEdge, SimpleGraphMetaEdge> = SortableGraph::new();
 
-        graph.add_node(SimpleGraphNode::new());
-        graph.add_node(SimpleGraphNode::new());
+        graph.add_node(SimpleGraphNode::new(0));
+        graph.add_node(SimpleGraphNode::new(1));
 
         let edge = SimpleGraphEdge::new(&graph.unsorted_nodes()[0], &graph.unsorted_nodes()[1]);
         graph.add_edge(edge);
@@ -290,9 +302,9 @@ mod tests {
     fn added_meta_edge_has_correct_handles() {
         let mut graph: SortableGraph<SimpleGraphNode, SimpleGraphEdge, SimpleGraphMetaEdge> = SortableGraph::new();
 
-        graph.add_node(SimpleGraphNode::new());
-        graph.add_node(SimpleGraphNode::new());
-        graph.add_node(SimpleGraphNode::new());
+        graph.add_node(SimpleGraphNode::new(0));
+        graph.add_node(SimpleGraphNode::new(1));
+        graph.add_node(SimpleGraphNode::new(2));
 
         let edge = SimpleGraphEdge::new(&graph.unsorted_nodes()[0], &graph.unsorted_nodes()[1]);
         graph.add_edge(edge);
@@ -313,9 +325,9 @@ mod tests {
     fn have_edge() {
         let mut graph: SortableGraph<SimpleGraphNode, SimpleGraphEdge, SimpleGraphMetaEdge> = SortableGraph::new();
 
-        graph.add_node(SimpleGraphNode::new());
-        graph.add_node(SimpleGraphNode::new());
-        graph.add_node(SimpleGraphNode::new());
+        graph.add_node(SimpleGraphNode::new(0));
+        graph.add_node(SimpleGraphNode::new(1));
+        graph.add_node(SimpleGraphNode::new(2));
 
         let edge = SimpleGraphEdge::new(&graph.unsorted_nodes()[0], &graph.unsorted_nodes()[1]);
         graph.add_edge(edge);

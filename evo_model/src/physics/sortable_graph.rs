@@ -251,6 +251,15 @@ mod tests {
     }
 
     #[test]
+    fn can_fetch_node_by_handle() {
+        let mut graph: SortableGraph<SimpleGraphNode, SimpleGraphEdge, SimpleGraphMetaEdge> = SortableGraph::new();
+
+        let handle = graph.add_node(SimpleGraphNode::new(0));
+
+        assert_eq!(graph.unsorted_nodes()[0], *graph.node(handle));
+    }
+
+    #[test]
     fn can_remove_only_node() {
         let mut graph: SortableGraph<SimpleGraphNode, SimpleGraphEdge, SimpleGraphMetaEdge> = SortableGraph::new();
         let handle = graph.add_node(SimpleGraphNode::new(0));
@@ -282,15 +291,6 @@ mod tests {
 
         assert_eq!(graph.unsorted_nodes.len(), 1);
         assert_eq!(graph.unsorted_nodes()[0].id, 1);
-    }
-
-    #[test]
-    fn can_fetch_node_by_handle() {
-        let mut graph: SortableGraph<SimpleGraphNode, SimpleGraphEdge, SimpleGraphMetaEdge> = SortableGraph::new();
-
-        let handle = graph.add_node(SimpleGraphNode::new(0));
-
-        assert_eq!(graph.unsorted_nodes()[0], *graph.node(handle));
     }
 
     #[test]

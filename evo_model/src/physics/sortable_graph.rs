@@ -29,8 +29,9 @@ impl<N: GraphNode, E: GraphEdge, ME: GraphMetaEdge> SortableGraph<N, E, ME> {
     }
 
     pub fn remove_nodes(&mut self, handles: Vec<NodeHandle>) {
-        // TODO
-        self.unsorted_nodes.truncate(self.unsorted_nodes.len() - handles.len());
+        for handle in handles {
+            self.unsorted_nodes.swap_remove(handle.index);
+        }
     }
 
     pub fn add_edge(&mut self, mut edge: E) -> EdgeHandle {
@@ -263,12 +264,24 @@ mod tests {
     fn can_remove_last_node() {
         let mut graph: SortableGraph<SimpleGraphNode, SimpleGraphEdge, SimpleGraphMetaEdge> = SortableGraph::new();
         graph.add_node(SimpleGraphNode::new(0));
-        let handle = graph.add_node(SimpleGraphNode::new(1));
+        let node1_handle = graph.add_node(SimpleGraphNode::new(1));
 
-        graph.remove_nodes(vec![handle]);
+        graph.remove_nodes(vec![node1_handle]);
 
         assert_eq!(graph.unsorted_nodes.len(), 1);
         assert_eq!(graph.unsorted_nodes()[0].id, 0);
+    }
+
+    #[test]
+    fn can_remove_non_last_node() {
+        let mut graph: SortableGraph<SimpleGraphNode, SimpleGraphEdge, SimpleGraphMetaEdge> = SortableGraph::new();
+        let node0_handle = graph.add_node(SimpleGraphNode::new(0));
+        graph.add_node(SimpleGraphNode::new(1));
+
+        graph.remove_nodes(vec![node0_handle]);
+
+        assert_eq!(graph.unsorted_nodes.len(), 1);
+        assert_eq!(graph.unsorted_nodes()[0].id, 1);
     }
 
     #[test]

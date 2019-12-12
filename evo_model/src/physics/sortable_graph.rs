@@ -260,16 +260,6 @@ mod tests {
     }
 
     #[test]
-    fn can_remove_only_node() {
-        let mut graph: SortableGraph<SimpleGraphNode, SimpleGraphEdge, SimpleGraphMetaEdge> = SortableGraph::new();
-        let handle = graph.add_node(SimpleGraphNode::new(0));
-
-        graph.remove_nodes(vec![handle]);
-
-        assert!(graph.unsorted_nodes.is_empty());
-    }
-
-    #[test]
     fn can_remove_last_node() {
         let mut graph: SortableGraph<SimpleGraphNode, SimpleGraphEdge, SimpleGraphMetaEdge> = SortableGraph::new();
         graph.add_node(SimpleGraphNode::new(0));

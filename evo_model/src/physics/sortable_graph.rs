@@ -28,8 +28,9 @@ impl<N: GraphNode, E: GraphEdge, ME: GraphMetaEdge> SortableGraph<N, E, ME> {
         node_handle
     }
 
-    pub fn remove_nodes(&mut self, _handles: Vec<NodeHandle>) {
+    pub fn remove_nodes(&mut self, handles: Vec<NodeHandle>) {
         // TODO
+        self.unsorted_nodes.truncate(self.unsorted_nodes.len() - handles.len());
     }
 
     pub fn add_edge(&mut self, mut edge: E) -> EdgeHandle {
@@ -246,6 +247,16 @@ mod tests {
         let handle = graph.add_node(SimpleGraphNode::new());
 
         assert_eq!(handle, graph.unsorted_nodes()[0].node_handle());
+    }
+
+    #[test]
+    fn can_remove_only_node() {
+        let mut graph: SortableGraph<SimpleGraphNode, SimpleGraphEdge, SimpleGraphMetaEdge> = SortableGraph::new();
+        let handle = graph.add_node(SimpleGraphNode::new());
+
+        graph.remove_nodes(vec![handle]);
+
+        assert!(graph.unsorted_nodes.is_empty());
     }
 
     #[test]

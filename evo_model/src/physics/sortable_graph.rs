@@ -32,7 +32,7 @@ impl<N: GraphNode, E: GraphEdge, ME: GraphMetaEdge> SortableGraph<N, E, ME> {
         for handle in handles {
             self.unsorted_nodes.swap_remove(handle.index);
             if handle.index < self.unsorted_nodes.len() {
-                self.unsorted_nodes[handle.index].graph_node_data_mut().node_handle.index = handle.index;
+                self.node_mut(handle).graph_node_data_mut().node_handle = handle;
             }
             // TODO the handle of the last node is now "handle"
         }

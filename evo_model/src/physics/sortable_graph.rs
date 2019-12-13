@@ -36,7 +36,8 @@ impl<N: GraphNode, E: GraphEdge, ME: GraphMetaEdge> SortableGraph<N, E, ME> {
     /// panic on index out-of-bounds if we're removing nodes at the end of `unsorted_nodes`.
     ///
     /// 2) Worse, this function changes the nodes referenced by some of the remaining handles.
-    /// Never retain handles across a call to this function.
+    /// Never retain handles across a call to this function. (This is why it takes ownership
+    /// of `handles`: to send a (weak) signal that `handles` is no longer valid.)
     pub fn remove_nodes(&mut self, handles: Vec<NodeHandle>) {
         for handle in handles.iter().rev() {
             self.unsorted_nodes.swap_remove(handle.index);
@@ -273,40 +274,17 @@ mod tests {
     }
 
     #[test]
-    fn can_remove_last_node() {
-        let mut graph: SortableGraph<SimpleGraphNode, SimpleGraphEdge, SimpleGraphMetaEdge> = SortableGraph::new();
-        graph.add_node(SimpleGraphNode::new(0));
-        let node1_handle = graph.add_node(SimpleGraphNode::new(1));
-
-        graph.remove_nodes(vec![node1_handle]);
-
-        assert_eq!(graph.unsorted_nodes.len(), 1);
-        assert_eq!(graph.unsorted_nodes()[0].id, 0);
-        assert_eq!(graph.unsorted_nodes()[0].node_handle().index, 0);
-    }
-
-    #[test]
-    fn can_remove_non_last_node() {
+    fn can_remove_last_and_nonlast_nodes() {
         let mut graph: SortableGraph<SimpleGraphNode, SimpleGraphEdge, SimpleGraphMetaEdge> = SortableGraph::new();
         let node0_handle = graph.add_node(SimpleGraphNode::new(0));
         graph.add_node(SimpleGraphNode::new(1));
+        let node2_handle = graph.add_node(SimpleGraphNode::new(2));
 
-        graph.remove_nodes(vec![node0_handle]);
+        graph.remove_nodes(vec![node0_handle, node2_handle]);
 
         assert_eq!(graph.unsorted_nodes.len(), 1);
         assert_eq!(graph.unsorted_nodes()[0].id, 1);
         assert_eq!(graph.unsorted_nodes()[0].node_handle().index, 0);
-    }
-
-    #[test]
-    fn can_remove_both_nodes() {
-        let mut graph: SortableGraph<SimpleGraphNode, SimpleGraphEdge, SimpleGraphMetaEdge> = SortableGraph::new();
-        let node0_handle = graph.add_node(SimpleGraphNode::new(0));
-        let node1_handle = graph.add_node(SimpleGraphNode::new(1));
-
-        graph.remove_nodes(vec![node0_handle, node1_handle]);
-
-        assert!(graph.unsorted_nodes.is_empty());
     }
 
     #[test]

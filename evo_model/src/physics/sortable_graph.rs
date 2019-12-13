@@ -31,6 +31,10 @@ impl<N: GraphNode, E: GraphEdge, ME: GraphMetaEdge> SortableGraph<N, E, ME> {
     pub fn remove_nodes(&mut self, handles: Vec<NodeHandle>) {
         for handle in handles {
             self.unsorted_nodes.swap_remove(handle.index);
+            if handle.index < self.unsorted_nodes.len() {
+                self.unsorted_nodes[handle.index].graph_node_data_mut().node_handle.index = handle.index;
+            }
+            // TODO the handle of the last node is now "handle"
         }
     }
 
@@ -269,6 +273,7 @@ mod tests {
 
         assert_eq!(graph.unsorted_nodes.len(), 1);
         assert_eq!(graph.unsorted_nodes()[0].id, 0);
+        assert_eq!(graph.unsorted_nodes()[0].node_handle().index, 0);
     }
 
     #[test]
@@ -281,6 +286,19 @@ mod tests {
 
         assert_eq!(graph.unsorted_nodes.len(), 1);
         assert_eq!(graph.unsorted_nodes()[0].id, 1);
+        assert_eq!(graph.unsorted_nodes()[0].node_handle().index, 0);
+    }
+
+    #[test]
+    #[ignore]
+    fn can_remove_both_nodes() {
+        let mut graph: SortableGraph<SimpleGraphNode, SimpleGraphEdge, SimpleGraphMetaEdge> = SortableGraph::new();
+        let node0_handle = graph.add_node(SimpleGraphNode::new(0));
+        let node1_handle = graph.add_node(SimpleGraphNode::new(1));
+
+        graph.remove_nodes(vec![node0_handle, node1_handle]);
+
+        assert!(graph.unsorted_nodes.is_empty());
     }
 
     #[test]

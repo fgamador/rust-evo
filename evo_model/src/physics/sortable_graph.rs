@@ -28,13 +28,22 @@ impl<N: GraphNode, E: GraphEdge, ME: GraphMetaEdge> SortableGraph<N, E, ME> {
         node_handle
     }
 
+    /// Removes the nodes referenced by `handles`.
+    ///
+    /// Warning: this function has two big gotchas:
+    ///
+    /// 1) `handles` should be in ascending order of `index`. If not, the function will
+    /// panic on index out-of-bounds if we're removing nodes at the end of `unsorted_nodes`.
+    ///
+    /// 2) Worse, this function changes the nodes referenced by some of the remaining handles.
+    /// Never retain handles across a call to this function.
     pub fn remove_nodes(&mut self, handles: Vec<NodeHandle>) {
-        for handle in handles {
+        for handle in handles.iter().rev() {
             self.unsorted_nodes.swap_remove(handle.index);
             if handle.index < self.unsorted_nodes.len() {
-                self.node_mut(handle).graph_node_data_mut().node_handle = handle;
+                self.node_mut(*handle).graph_node_data_mut().node_handle = *handle;
             }
-            // TODO the handle of the last node is now "handle"
+            // TODO obsolete edges, handles in remaining edges
         }
     }
 
@@ -290,7 +299,6 @@ mod tests {
     }
 
     #[test]
-    #[ignore]
     fn can_remove_both_nodes() {
         let mut graph: SortableGraph<SimpleGraphNode, SimpleGraphEdge, SimpleGraphMetaEdge> = SortableGraph::new();
         let node0_handle = graph.add_node(SimpleGraphNode::new(0));

@@ -273,18 +273,14 @@ mod tests {
     #[test]
     fn added_node_has_correct_handle() {
         let mut graph: SortableGraph<SimpleGraphNode, SimpleGraphEdge, SimpleGraphMetaEdge> = SortableGraph::new();
-
         let handle = graph.add_node(SimpleGraphNode::new(0));
-
         assert_eq!(handle, graph.unsorted_nodes()[0].node_handle());
     }
 
     #[test]
     fn can_fetch_node_by_handle() {
         let mut graph: SortableGraph<SimpleGraphNode, SimpleGraphEdge, SimpleGraphMetaEdge> = SortableGraph::new();
-
         let handle = graph.add_node(SimpleGraphNode::new(0));
-
         assert_eq!(graph.unsorted_nodes()[0], *graph.node(handle));
     }
 
@@ -306,11 +302,10 @@ mod tests {
     fn added_edge_has_correct_handles() {
         let mut graph: SortableGraph<SimpleGraphNode, SimpleGraphEdge, SimpleGraphMetaEdge> = SortableGraph::new();
 
-        graph.add_node(SimpleGraphNode::new(0));
-        graph.add_node(SimpleGraphNode::new(1));
+        let node0_handle = graph.add_node(SimpleGraphNode::new(0));
+        let node1_handle = graph.add_node(SimpleGraphNode::new(1));
 
-        let edge = SimpleGraphEdge::new(&graph.unsorted_nodes()[0], &graph.unsorted_nodes()[1]);
-        graph.add_edge(edge);
+        graph.add_edge(SimpleGraphEdge::new(graph.node(node0_handle), graph.node(node1_handle)));
 
         let node1 = &graph.unsorted_nodes()[0];
         let node2 = &graph.unsorted_nodes()[1];
@@ -326,52 +321,53 @@ mod tests {
 
         let node0_handle = graph.add_node(SimpleGraphNode::new(0));
         let node1_handle = graph.add_node(SimpleGraphNode::new(1));
-        let edge_handle = graph.add_edge(
+        let node2_handle = graph.add_node(SimpleGraphNode::new(2));
+        let edge01_handle = graph.add_edge(
             SimpleGraphEdge::new(graph.node(node0_handle), graph.node(node1_handle)));
+        graph.add_edge(
+            SimpleGraphEdge::new(graph.node(node1_handle), graph.node(node2_handle)));
 
-        graph.remove_edges(vec![edge_handle]);
+        graph.remove_edges(vec![edge01_handle]);
 
-        assert_eq!(graph.edges().len(), 0);
+        assert_eq!(graph.edges().len(), 1);
         assert_eq!(graph.node(node0_handle).graph_node_data().edge_handles.len(), 0);
-        assert_eq!(graph.node(node1_handle).graph_node_data().edge_handles.len(), 0);
+        assert_eq!(graph.node(node1_handle).graph_node_data().edge_handles.len(), 1);
+        assert_eq!(graph.node(node2_handle).graph_node_data().edge_handles.len(), 1);
     }
 
     #[test]
     fn have_edge() {
         let mut graph: SortableGraph<SimpleGraphNode, SimpleGraphEdge, SimpleGraphMetaEdge> = SortableGraph::new();
 
-        graph.add_node(SimpleGraphNode::new(0));
-        graph.add_node(SimpleGraphNode::new(1));
-        graph.add_node(SimpleGraphNode::new(2));
+        let node0_handle = graph.add_node(SimpleGraphNode::new(0));
+        let node1_handle = graph.add_node(SimpleGraphNode::new(1));
+        let node2_handle = graph.add_node(SimpleGraphNode::new(2));
+        graph.add_edge(
+            SimpleGraphEdge::new(graph.node(node0_handle), graph.node(node1_handle)));
 
-        let edge = SimpleGraphEdge::new(&graph.unsorted_nodes()[0], &graph.unsorted_nodes()[1]);
-        graph.add_edge(edge);
-
-        assert!(graph.have_edge(&graph.unsorted_nodes()[0], &graph.unsorted_nodes()[1]));
-        assert!(graph.have_edge(&graph.unsorted_nodes()[1], &graph.unsorted_nodes()[0]));
-        assert!(!graph.have_edge(&graph.unsorted_nodes()[0], &graph.unsorted_nodes()[2]));
+        assert!(graph.have_edge(&graph.node(node0_handle), &graph.node(node1_handle)));
+        assert!(graph.have_edge(&graph.node(node1_handle), &graph.node(node0_handle)));
+        assert!(!graph.have_edge(&graph.node(node0_handle), &graph.node(node2_handle)));
     }
 
     #[test]
     fn added_meta_edge_has_correct_handles() {
         let mut graph: SortableGraph<SimpleGraphNode, SimpleGraphEdge, SimpleGraphMetaEdge> = SortableGraph::new();
 
-        graph.add_node(SimpleGraphNode::new(0));
-        graph.add_node(SimpleGraphNode::new(1));
-        graph.add_node(SimpleGraphNode::new(2));
+        let node0_handle = graph.add_node(SimpleGraphNode::new(0));
+        let node1_handle = graph.add_node(SimpleGraphNode::new(1));
+        let node2_handle = graph.add_node(SimpleGraphNode::new(2));
 
-        let edge = SimpleGraphEdge::new(&graph.unsorted_nodes()[0], &graph.unsorted_nodes()[1]);
-        graph.add_edge(edge);
-        let edge = SimpleGraphEdge::new(&graph.unsorted_nodes()[1], &graph.unsorted_nodes()[2]);
-        graph.add_edge(edge);
+        let edge01_handle = graph.add_edge(
+            SimpleGraphEdge::new(graph.node(node0_handle), graph.node(node1_handle)));
+        let edge12_handle = graph.add_edge(
+            SimpleGraphEdge::new(graph.node(node1_handle), graph.node(node2_handle)));
 
-        let meta_edge = SimpleGraphMetaEdge::new(&graph.edges()[0], &graph.edges()[1]);
-        graph.add_meta_edge(meta_edge);
+        graph.add_meta_edge(
+            SimpleGraphMetaEdge::new(graph.edge(edge01_handle), graph.edge(edge12_handle)));
 
-        let edge1 = &graph.edges()[0];
-        let edge2 = &graph.edges()[1];
         let meta_edge = &graph.meta_edges()[0];
-        assert_eq!(edge1, graph.edge(meta_edge.edge1_handle()));
-        assert_eq!(edge2, graph.edge(meta_edge.edge2_handle()));
+        assert_eq!(meta_edge.edge1_handle(), edge01_handle);
+        assert_eq!(meta_edge.edge2_handle(), edge12_handle);
     }
 }

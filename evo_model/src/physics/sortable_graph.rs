@@ -291,7 +291,7 @@ mod tests {
     }
 
     #[test]
-    fn can_remove_last_and_nonlast_nodes() {
+    fn can_remove_last_and_non_last_nodes() {
         let mut graph: SortableGraph<SimpleGraphNode, SimpleGraphEdge, SimpleGraphMetaEdge> = SortableGraph::new();
         let node0_handle = graph.add_node(SimpleGraphNode::new(0));
         graph.add_node(SimpleGraphNode::new(1));
@@ -300,8 +300,9 @@ mod tests {
         graph.remove_nodes(vec![node0_handle, node2_handle]);
 
         assert_eq!(graph.unsorted_nodes.len(), 1);
-        assert_eq!(graph.unsorted_nodes()[0].id, 1);
-        assert_eq!(graph.unsorted_nodes()[0].node_handle().index, 0);
+        let node = &graph.unsorted_nodes()[0];
+        assert_eq!(node.id, 1);
+        assert_eq!(node.node_handle().index, 0);
     }
 
     #[test]

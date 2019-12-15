@@ -273,15 +273,21 @@ mod tests {
     #[test]
     fn added_node_has_correct_handle() {
         let mut graph: SortableGraph<SimpleGraphNode, SimpleGraphEdge, SimpleGraphMetaEdge> = SortableGraph::new();
-        let handle = graph.add_node(SimpleGraphNode::new(0));
-        assert_eq!(handle, graph.unsorted_nodes()[0].node_handle());
+
+        let node_handle = graph.add_node(SimpleGraphNode::new(0));
+
+        let node = &graph.unsorted_nodes()[0];
+        assert_eq!(node.node_handle(), node_handle);
     }
 
     #[test]
     fn can_fetch_node_by_handle() {
         let mut graph: SortableGraph<SimpleGraphNode, SimpleGraphEdge, SimpleGraphMetaEdge> = SortableGraph::new();
-        let handle = graph.add_node(SimpleGraphNode::new(0));
-        assert_eq!(graph.unsorted_nodes()[0], *graph.node(handle));
+
+        let node_handle = graph.add_node(SimpleGraphNode::new(0));
+
+        let node = &graph.unsorted_nodes()[0];
+        assert_eq!(*graph.node(node_handle), *node);
     }
 
     #[test]

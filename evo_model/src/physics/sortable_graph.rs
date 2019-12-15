@@ -61,6 +61,21 @@ impl<N: GraphNode, E: GraphEdge, ME: GraphMetaEdge> SortableGraph<N, E, ME> {
         self.node_mut(node_handle).graph_node_data_mut().edge_handles.push(edge_handle);
     }
 
+    pub fn remove_edges(&mut self, edge_handles: Vec<EdgeHandle>) {
+        for edge_handle in edge_handles.iter().rev() {
+            self.remove_edge_from_node(self.edge(*edge_handle).node1_handle(), *edge_handle);
+            self.remove_edge_from_node(self.edge(*edge_handle).node2_handle(), *edge_handle);
+            self.edges.swap_remove(edge_handle.index);
+            // TODO obsolete meta-edges, handles in remaining meta-edges
+        }
+    }
+
+    fn remove_edge_from_node(&mut self, node_handle: NodeHandle, edge_handle: EdgeHandle) {
+        let edge_handles = &mut self.node_mut(node_handle).graph_node_data_mut().edge_handles;
+        let index = edge_handles.iter().position(|&h| h == edge_handle).unwrap();
+        edge_handles.swap_remove(index);
+    }
+
     pub fn add_meta_edge(&mut self, meta_edge: ME) {
 //        edge.graph_edge_data_mut().edge_handle.index = self.meta_edges.len();
 //        let edge_handle = edge.edge_handle();
@@ -303,6 +318,22 @@ mod tests {
         assert_eq!(edge, graph.edge(edge.edge_handle()));
         assert_eq!(node1, graph.node(edge.node1_handle()));
         assert_eq!(node2, graph.node(edge.node2_handle()));
+    }
+
+    #[test]
+    fn can_remove_edge() {
+        let mut graph: SortableGraph<SimpleGraphNode, SimpleGraphEdge, SimpleGraphMetaEdge> = SortableGraph::new();
+
+        let node0_handle = graph.add_node(SimpleGraphNode::new(0));
+        let node1_handle = graph.add_node(SimpleGraphNode::new(1));
+        let edge_handle = graph.add_edge(
+            SimpleGraphEdge::new(graph.node(node0_handle), graph.node(node1_handle)));
+
+        graph.remove_edges(vec![edge_handle]);
+
+        assert_eq!(graph.edges().len(), 0);
+        assert_eq!(graph.node(node0_handle).graph_node_data().edge_handles.len(), 0);
+        assert_eq!(graph.node(node1_handle).graph_node_data().edge_handles.len(), 0);
     }
 
     #[test]

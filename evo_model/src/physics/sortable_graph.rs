@@ -305,14 +305,13 @@ mod tests {
         let node0_handle = graph.add_node(SimpleGraphNode::new(0));
         let node1_handle = graph.add_node(SimpleGraphNode::new(1));
 
-        graph.add_edge(SimpleGraphEdge::new(graph.node(node0_handle), graph.node(node1_handle)));
+        let edge_handle = graph.add_edge(
+            SimpleGraphEdge::new(graph.node(node0_handle), graph.node(node1_handle)));
 
-        let node1 = &graph.unsorted_nodes()[0];
-        let node2 = &graph.unsorted_nodes()[1];
         let edge = &graph.edges()[0];
-        assert_eq!(edge, graph.edge(edge.edge_handle()));
-        assert_eq!(node1, graph.node(edge.node1_handle()));
-        assert_eq!(node2, graph.node(edge.node2_handle()));
+        assert_eq!(edge.edge_handle(), edge_handle);
+        assert_eq!(edge.node1_handle(), node0_handle);
+        assert_eq!(edge.node2_handle(), node1_handle);
     }
 
     #[test]

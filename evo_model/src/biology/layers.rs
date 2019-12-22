@@ -739,7 +739,7 @@ mod tests {
             });
 
         let env = LocalEnvironment::new();
-        let (_, _) = layer.after_influences(&env, Duration::new(0.5));
+        layer.after_influences(&env, Duration::new(0.5));
 
         assert_eq!(0.95, layer.health());
     }

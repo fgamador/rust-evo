@@ -7,6 +7,7 @@ use crate::physics::shapes::Circle;
 use std::f64;
 use std::f64::consts::PI;
 use std::fmt::Debug;
+use crate::physics::overlap::Overlap;
 
 #[derive(Clone, Copy, Debug, Eq, Hash, PartialEq)]
 pub enum Color {
@@ -64,13 +65,14 @@ impl OnionLayer for SimpleOnionLayer {
 pub struct LayerHealthParameters {
     pub healing_energy_delta: BioEnergyDelta,
     pub entropic_damage_health_delta: f64,
-    // TODO pub overlap_damage_health_delta: f64,
+    pub overlap_damage_health_delta: f64,
 }
 
 impl LayerHealthParameters {
     pub const DEFAULT: LayerHealthParameters = LayerHealthParameters {
         healing_energy_delta: BioEnergyDelta::ZERO,
         entropic_damage_health_delta: 0.0,
+        overlap_damage_health_delta: 0.0,
     };
 }
 
@@ -284,6 +286,12 @@ impl LivingCellLayerBrain {
         let subtick_damage = body.health_parameters.entropic_damage_health_delta * subtick_duration.value();
         self.damage(body, -subtick_damage);
     }
+
+    fn overlap_damage(&self, body: &mut CellLayerBody, overlaps: &[Overlap]) {
+        let overlap_damage = overlaps.iter().fold(0.0, |total_damage, overlap|
+            total_damage + body.health_parameters.overlap_damage_health_delta * overlap.magnitude());
+        self.damage(body, -overlap_damage);
+    }
 }
 
 impl CellLayerBrain for LivingCellLayerBrain {
@@ -296,7 +304,7 @@ impl CellLayerBrain for LivingCellLayerBrain {
 
     fn after_influences(&self, specialty: &mut dyn CellLayerSpecialty, body: &mut CellLayerBody, env: &LocalEnvironment, subtick_duration: Duration) -> (BioEnergy, Force) {
         self.entropic_damage(body, subtick_duration);
-        // TODO self.overlap_damage(body, env.overlaps()); but just for outer layer?
+        self.overlap_damage(body, env.overlaps());
         specialty.after_influences(body, env, subtick_duration)
     }
 
@@ -545,6 +553,7 @@ mod tests {
     use crate::biology::control_requests::BudgetedControlRequest;
     use crate::environment::local_environment::LocalEnvironment;
     use crate::physics::newtonian::NewtonianBody;
+    use crate::physics::overlap::Overlap;
 
     #[test]
     fn layer_calculates_mass() {
@@ -723,6 +732,7 @@ mod tests {
             .with_health_parameters(LayerHealthParameters {
                 healing_energy_delta: BioEnergyDelta::new(-3.0),
                 entropic_damage_health_delta: 0.0,
+                overlap_damage_health_delta: 0.0,
             })
             .with_health(0.5);
         let control_request = CellLayer::healing_request(0, 0.25);
@@ -736,9 +746,26 @@ mod tests {
             .with_health_parameters(LayerHealthParameters {
                 healing_energy_delta: BioEnergyDelta::ZERO,
                 entropic_damage_health_delta: -0.25,
+                overlap_damage_health_delta: 0.0,
             });
 
         let env = LocalEnvironment::new();
+        layer.after_influences(&env, Duration::new(0.5));
+
+        assert_eq!(layer.health(), 0.875);
+    }
+
+    #[test]
+    fn overlap_damages_outer_layer() {
+        let mut layer = simple_cell_layer(Area::new(2.0), Density::new(1.0))
+            .with_health_parameters(LayerHealthParameters {
+                healing_energy_delta: BioEnergyDelta::ZERO,
+                entropic_damage_health_delta: 0.0,
+                overlap_damage_health_delta: -0.25,
+            });
+
+        let mut env = LocalEnvironment::new();
+        env.add_overlap(Overlap::new(Displacement::new(0.5, 0.0)));
         layer.after_influences(&env, Duration::new(0.5));
 
         assert_eq!(layer.health(), 0.875);
@@ -750,6 +777,7 @@ mod tests {
             .with_health_parameters(LayerHealthParameters {
                 healing_energy_delta: BioEnergyDelta::new(-1.0),
                 entropic_damage_health_delta: 0.0,
+                overlap_damage_health_delta: 0.0,
             })
             .dead();
         let control_request = CellLayer::healing_request(0, 1.0);

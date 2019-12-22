@@ -19,6 +19,8 @@ impl Overlap
         Overlap { incursion }
     }
 
+    pub fn magnitude(&self) -> f64 { self.incursion.length().value() }
+
     pub fn to_force(&self, spring: &dyn Spring) -> Force {
         spring.to_force(self.incursion)
     }

@@ -64,6 +64,7 @@ impl OnionLayer for SimpleOnionLayer {
 pub struct LayerHealthParameters {
     pub healing_energy_delta: BioEnergyDelta,
     pub entropic_damage_health_delta: f64,
+    // TODO pub overlap_damage_health_delta: f64,
 }
 
 impl LayerHealthParameters {
@@ -295,6 +296,7 @@ impl CellLayerBrain for LivingCellLayerBrain {
 
     fn after_influences(&self, specialty: &mut dyn CellLayerSpecialty, body: &mut CellLayerBody, env: &LocalEnvironment, subtick_duration: Duration) -> (BioEnergy, Force) {
         self.entropic_damage(body, subtick_duration);
+        // TODO self.overlap_damage(body, env.overlaps()); but just for outer layer?
         specialty.after_influences(body, env, subtick_duration)
     }
 

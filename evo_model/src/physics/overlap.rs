@@ -5,7 +5,7 @@ use crate::physics::spring::*;
 use crate::physics::util::*;
 use std::cmp::Ordering;
 
-// TODO add width to Overlap, or maybe make incursion magnitude an Area
+// TODO add width to Overlap, or maybe make incursion magnitude an Area (incursion * min(diameter))
 
 #[derive(Clone, Copy, Debug, PartialEq)]
 pub struct Overlap

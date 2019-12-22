@@ -735,13 +735,13 @@ mod tests {
         let mut layer = simple_cell_layer(Area::new(2.0), Density::new(1.0))
             .with_health_parameters(LayerHealthParameters {
                 healing_energy_delta: BioEnergyDelta::ZERO,
-                entropic_damage_health_delta: -0.1,
+                entropic_damage_health_delta: -0.25,
             });
 
         let env = LocalEnvironment::new();
         layer.after_influences(&env, Duration::new(0.5));
 
-        assert_eq!(0.95, layer.health());
+        assert_eq!(layer.health(), 0.875);
     }
 
     #[test]

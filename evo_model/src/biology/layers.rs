@@ -742,7 +742,7 @@ mod tests {
 
     #[test]
     fn layer_undergoes_entropic_damage() {
-        let mut layer = simple_cell_layer(Area::new(2.0), Density::new(1.0))
+        let mut layer = simple_cell_layer(Area::new(1.0), Density::new(1.0))
             .with_health_parameters(LayerHealthParameters {
                 healing_energy_delta: BioEnergyDelta::ZERO,
                 entropic_damage_health_delta: -0.25,
@@ -757,7 +757,7 @@ mod tests {
 
     #[test]
     fn overlap_damages_outer_layer() {
-        let mut layer = simple_cell_layer(Area::new(2.0), Density::new(1.0))
+        let mut layer = simple_cell_layer(Area::new(1.0), Density::new(1.0))
             .with_health_parameters(LayerHealthParameters {
                 healing_energy_delta: BioEnergyDelta::ZERO,
                 entropic_damage_health_delta: 0.0,

@@ -195,6 +195,7 @@ impl OnionLayer for CellLayer {
 }
 
 // CellLayerBody is separate from CellLayer so it can be mutably passed to CellLayerSpecialty.
+// CellLayerBrain is in CellLayerBody so the brain can change its body to use a new brain.
 #[derive(Debug)]
 pub struct CellLayerBody {
     area: Area,
@@ -274,7 +275,6 @@ impl CellLayerBody {
     }
 }
 
-// TODO Can we move brain out of body?
 trait CellLayerBrain: Debug {
     fn damage(&self, body: &mut CellLayerBody, health_loss: f64);
 

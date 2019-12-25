@@ -440,17 +440,17 @@ mod tests {
                                  vec![
                                      Box::new(simple_cell_layer(Area::new(1.0), Density::new(1.0))
                                          .with_health_parameters(LayerHealthParameters {
-                                             overlap_damage_health_delta: -0.5,
+                                             overlap_damage_health_delta: -1.0,
                                              ..LayerHealthParameters::DEFAULT
                                          })),
                                      Box::new(simple_cell_layer(Area::new(1.0), Density::new(1.0))
                                          .with_health_parameters(LayerHealthParameters {
-                                             overlap_damage_health_delta: -0.5,
+                                             overlap_damage_health_delta: -1.0,
                                              ..LayerHealthParameters::DEFAULT
                                          })),
                                  ]);
 
-        cell.environment_mut().add_overlap(Overlap::new(Displacement::new(0.5, 0.0)));
+        cell.environment_mut().add_overlap(Overlap::new(Displacement::new(1.0, 0.0)));
         cell.after_influences(Duration::new(1.0));
 
         assert_eq!(cell.layers()[0].health(), 1.0);

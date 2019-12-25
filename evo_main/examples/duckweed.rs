@@ -51,14 +51,18 @@ impl FixedDepthSeekingControl {
             target_y,
         }
     }
-}
 
-impl CellControl for FixedDepthSeekingControl {
-    fn get_control_requests(&mut self, cell_state: &CellStateSnapshot) -> Vec<ControlRequest> {
+    fn float_layer_resize_request(&self, cell_state: &CellStateSnapshot) -> ControlRequest {
         let y_offset = cell_state.center.y() - self.target_y;
         let target_velocity_y = -y_offset / 100.0;
         let target_delta_vy = target_velocity_y - cell_state.velocity.y();
         let desired_delta_area = target_delta_vy * 10.0;
-        vec![CellLayer::resize_request(self.float_layer_index, AreaDelta::new(desired_delta_area))]
+        CellLayer::resize_request(self.float_layer_index, AreaDelta::new(desired_delta_area))
+    }
+}
+
+impl CellControl for FixedDepthSeekingControl {
+    fn get_control_requests(&mut self, cell_state: &CellStateSnapshot) -> Vec<ControlRequest> {
+        vec![self.float_layer_resize_request(cell_state)]
     }
 }

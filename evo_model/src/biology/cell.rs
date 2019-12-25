@@ -435,7 +435,7 @@ mod tests {
     }
 
     #[test]
-    fn overlap_damages_surface_layer() {
+    fn overlap_damages_only_surface_layer() {
         let mut cell = Cell::new(Position::ORIGIN, Velocity::ZERO,
                                  vec![
                                      Box::new(simple_cell_layer(Area::new(1.0), Density::new(1.0))

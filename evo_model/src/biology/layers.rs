@@ -16,6 +16,7 @@ pub enum Color {
     Yellow,
 }
 
+// TODO Do we still need Onion and OnionLayer? Can we merge them into Cell and Layer?
 pub trait Onion: Circle {
     type Layer: OnionLayer + ?Sized;
 
@@ -193,6 +194,7 @@ impl OnionLayer for CellLayer {
     }
 }
 
+// CellLayerBody is separate from CellLayer so it can be mutably passed to CellLayerSpecialty.
 #[derive(Debug)]
 pub struct CellLayerBody {
     area: Area,
@@ -272,6 +274,7 @@ impl CellLayerBody {
     }
 }
 
+// TODO Can we move brain out of body?
 trait CellLayerBrain: Debug {
     fn damage(&self, body: &mut CellLayerBody, health_loss: f64);
 

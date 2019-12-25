@@ -4,7 +4,6 @@ use crate::biology::control_requests::*;
 use crate::biology::layers::*;
 use crate::environment::local_environment::*;
 use crate::physics::newtonian::*;
-use crate::physics::overlap::Overlap;
 use crate::physics::quantities::*;
 use crate::physics::shapes::*;
 use crate::physics::sortable_graph::*;
@@ -224,6 +223,7 @@ impl Onion for Cell {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::physics::overlap::Overlap;
 
     #[test]
     fn cells_use_pointer_equality() {

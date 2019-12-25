@@ -742,8 +742,7 @@ mod tests {
         let mut layer = simple_cell_layer(Area::new(2.0), Density::new(1.0))
             .with_health_parameters(LayerHealthParameters {
                 healing_energy_delta: BioEnergyDelta::new(-3.0),
-                entropic_damage_health_delta: 0.0,
-                overlap_damage_health_delta: 0.0,
+                ..LayerHealthParameters::DEFAULT
             })
             .with_health(0.5);
         let control_request = CellLayer::healing_request(0, 0.25);
@@ -755,9 +754,8 @@ mod tests {
     fn layer_undergoes_entropic_damage() {
         let mut layer = simple_cell_layer(Area::new(1.0), Density::new(1.0))
             .with_health_parameters(LayerHealthParameters {
-                healing_energy_delta: BioEnergyDelta::ZERO,
                 entropic_damage_health_delta: -0.25,
-                overlap_damage_health_delta: 0.0,
+                ..LayerHealthParameters::DEFAULT
             });
 
         let env = LocalEnvironment::new();
@@ -770,9 +768,8 @@ mod tests {
     fn overlap_damages_surface_layer() {
         let mut layer = simple_cell_layer(Area::new(1.0), Density::new(1.0))
             .with_health_parameters(LayerHealthParameters {
-                healing_energy_delta: BioEnergyDelta::ZERO,
-                entropic_damage_health_delta: 0.0,
                 overlap_damage_health_delta: -0.25,
+                ..LayerHealthParameters::DEFAULT
             });
         layer.mark_as_surface();
 
@@ -787,9 +784,8 @@ mod tests {
     fn overlap_does_not_damage_interior_layer() {
         let mut layer = simple_cell_layer(Area::new(1.0), Density::new(1.0))
             .with_health_parameters(LayerHealthParameters {
-                healing_energy_delta: BioEnergyDelta::ZERO,
-                entropic_damage_health_delta: 0.0,
                 overlap_damage_health_delta: -0.25,
+                ..LayerHealthParameters::DEFAULT
             });
 
         let mut env = LocalEnvironment::new();
@@ -804,8 +800,7 @@ mod tests {
         let mut layer = simple_cell_layer(Area::new(1.0), Density::new(1.0))
             .with_health_parameters(LayerHealthParameters {
                 healing_energy_delta: BioEnergyDelta::new(-1.0),
-                entropic_damage_health_delta: 0.0,
-                overlap_damage_health_delta: 0.0,
+                ..LayerHealthParameters::DEFAULT
             })
             .dead();
         let control_request = CellLayer::healing_request(0, 1.0);

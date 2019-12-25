@@ -130,6 +130,10 @@ impl CellLayer {
         self
     }
 
+    pub fn mark_as_surface(&mut self) {
+        self.body.is_surface = true;
+    }
+
     pub fn is_alive(&self) -> bool {
         self.health() > 0.0
     }
@@ -195,6 +199,7 @@ pub struct CellLayerBody {
     density: Density,
     mass: Mass,
     outer_radius: Length,
+    is_surface: bool,
     health: f64,
     color: Color,
     brain: &'static dyn CellLayerBrain,
@@ -210,6 +215,7 @@ impl CellLayerBody {
             density,
             mass: area * density,
             outer_radius: (area / PI).sqrt(),
+            is_surface: false,
             health: 1.0,
             color,
             brain: &CellLayer::LIVING_BRAIN,
@@ -304,7 +310,9 @@ impl CellLayerBrain for LivingCellLayerBrain {
 
     fn after_influences(&self, specialty: &mut dyn CellLayerSpecialty, body: &mut CellLayerBody, env: &LocalEnvironment, subtick_duration: Duration) -> (BioEnergy, Force) {
         self.entropic_damage(body, subtick_duration);
-        self.overlap_damage(body, env.overlaps());
+        if body.is_surface {
+            self.overlap_damage(body, env.overlaps());
+        }
         specialty.after_influences(body, env, subtick_duration)
     }
 
@@ -756,7 +764,24 @@ mod tests {
     }
 
     #[test]
-    fn overlap_damages_outer_layer() {
+    fn overlap_damages_surface_layer() {
+        let mut layer = simple_cell_layer(Area::new(1.0), Density::new(1.0))
+            .with_health_parameters(LayerHealthParameters {
+                healing_energy_delta: BioEnergyDelta::ZERO,
+                entropic_damage_health_delta: 0.0,
+                overlap_damage_health_delta: -0.25,
+            });
+        layer.mark_as_surface();
+
+        let mut env = LocalEnvironment::new();
+        env.add_overlap(Overlap::new(Displacement::new(0.5, 0.0)));
+        layer.after_influences(&env, Duration::new(1.0));
+
+        assert_eq!(layer.health(), 0.875);
+    }
+
+    #[test]
+    fn overlap_does_not_damage_interior_layer() {
         let mut layer = simple_cell_layer(Area::new(1.0), Density::new(1.0))
             .with_health_parameters(LayerHealthParameters {
                 healing_energy_delta: BioEnergyDelta::ZERO,
@@ -766,9 +791,9 @@ mod tests {
 
         let mut env = LocalEnvironment::new();
         env.add_overlap(Overlap::new(Displacement::new(0.5, 0.0)));
-        layer.after_influences(&env, Duration::new(0.5));
+        layer.after_influences(&env, Duration::new(1.0));
 
-        assert_eq!(layer.health(), 0.875);
+        assert_eq!(layer.health(), 1.0);
     }
 
     #[test]

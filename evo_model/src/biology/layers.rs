@@ -2,12 +2,12 @@ use crate::biology::cell::Cell;
 use crate::biology::control::CellStateSnapshot;
 use crate::biology::control_requests::*;
 use crate::environment::local_environment::LocalEnvironment;
+use crate::physics::overlap::Overlap;
 use crate::physics::quantities::*;
 use crate::physics::shapes::Circle;
 use std::f64;
 use std::f64::consts::PI;
 use std::fmt::Debug;
-use crate::physics::overlap::Overlap;
 
 #[derive(Clone, Copy, Debug, Eq, Hash, PartialEq)]
 pub enum Color {

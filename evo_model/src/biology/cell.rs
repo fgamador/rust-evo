@@ -4,6 +4,7 @@ use crate::biology::control_requests::*;
 use crate::biology::layers::*;
 use crate::environment::local_environment::*;
 use crate::physics::newtonian::*;
+use crate::physics::overlap::Overlap;
 use crate::physics::quantities::*;
 use crate::physics::shapes::*;
 use crate::physics::sortable_graph::*;
@@ -30,6 +31,7 @@ impl Cell {
         }
 
         let radius = Self::update_layer_outer_radii(&mut layers);
+        layers.last_mut().unwrap().mark_as_surface();
         Cell {
             graph_node_data: GraphNodeData::new(),
             radius,
@@ -430,6 +432,29 @@ mod tests {
             BudgetedControlRequest::new(costed_requests[0], 1.0),
             BudgetedControlRequest::new(costed_requests[1], 0.5),
         ]);
+    }
+
+    #[test]
+    fn overlap_damages_surface_layer() {
+        let mut cell = Cell::new(Position::ORIGIN, Velocity::ZERO,
+                                 vec![
+                                     Box::new(simple_cell_layer(Area::new(1.0), Density::new(1.0))
+                                         .with_health_parameters(LayerHealthParameters {
+                                             overlap_damage_health_delta: -0.5,
+                                             ..LayerHealthParameters::DEFAULT
+                                         })),
+                                     Box::new(simple_cell_layer(Area::new(1.0), Density::new(1.0))
+                                         .with_health_parameters(LayerHealthParameters {
+                                             overlap_damage_health_delta: -0.5,
+                                             ..LayerHealthParameters::DEFAULT
+                                         })),
+                                 ]);
+
+        cell.environment_mut().add_overlap(Overlap::new(Displacement::new(0.5, 0.0)));
+        cell.after_influences(Duration::new(1.0));
+
+        assert_eq!(cell.layers()[0].health(), 1.0);
+        assert!(cell.layers()[1].health() < 1.0);
     }
 
     #[test]

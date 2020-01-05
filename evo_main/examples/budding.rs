@@ -62,7 +62,7 @@ impl BuddingControl {
         }
     }
 
-    fn is_parent(cell_state: &CellStateSnapshot) -> bool {
+    fn is_mature(cell_state: &CellStateSnapshot) -> bool {
         cell_state.area >= Area::new(1000.0)
     }
 
@@ -91,7 +91,7 @@ impl BuddingControl {
 
 impl CellControl for BuddingControl {
     fn get_control_requests(&mut self, cell_state: &CellStateSnapshot) -> Vec<ControlRequest> {
-        if Self::is_parent(cell_state) {
+        if Self::is_mature(cell_state) {
             self.parent_requests()
         } else {
             Self::child_requests(self.budding_layer_index)

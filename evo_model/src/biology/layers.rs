@@ -186,9 +186,11 @@ impl CellLayer {
     }
 
     pub fn after_control_requests(&mut self, cell_state: &CellStateSnapshot) -> Option<Cell> {
-        self.body
+        let child = self
+            .body
             .brain
-            .after_control_requests(&mut *self.specialty, cell_state)
+            .after_control_requests(&mut *self.specialty, cell_state);
+        child
     }
 
     pub fn healing_request(layer_index: usize, delta_health: f64) -> ControlRequest {

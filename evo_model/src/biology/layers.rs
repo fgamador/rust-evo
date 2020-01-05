@@ -669,6 +669,9 @@ impl CellLayerSpecialty for BuddingCellLayerSpecialty {
         child.set_initial_position(cell_state.center + offset);
         child.set_initial_velocity(cell_state.velocity);
         child.set_initial_energy(self.donation_energy);
+
+        self.donation_energy = BioEnergy::ZERO;
+
         Some(child)
     }
 }
@@ -1143,8 +1146,26 @@ mod tests {
             BuddingCellLayerSpecialty::donation_energy_request(0, BioEnergy::new(0.0)),
         ));
         assert_eq!(
-            None,
-            layer.after_control_requests(&CellStateSnapshot::ZEROS)
+            layer.after_control_requests(&CellStateSnapshot::ZEROS),
+            None
+        );
+    }
+
+    #[test]
+    fn budding_layer_does_not_remember_previous_donation_energy() {
+        let mut layer = CellLayer::new(
+            Area::new(1.0),
+            Density::new(1.0),
+            Color::Green,
+            Box::new(BuddingCellLayerSpecialty::new(create_child)),
+        );
+        layer.execute_control_request(fully_budgeted(
+            BuddingCellLayerSpecialty::donation_energy_request(0, BioEnergy::new(1.0)),
+        ));
+        layer.after_control_requests(&CellStateSnapshot::ZEROS);
+        assert_eq!(
+            layer.after_control_requests(&CellStateSnapshot::ZEROS),
+            None
         );
     }
 

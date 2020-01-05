@@ -81,7 +81,7 @@ impl BuddingControl {
         ]
     }
 
-    fn child_requests(budding_layer_index: usize) -> Vec<ControlRequest> {
+    fn youth_requests(budding_layer_index: usize) -> Vec<ControlRequest> {
         vec![
             CellLayer::resize_request(0, AreaDelta::new(5.0)),
             CellLayer::resize_request(budding_layer_index, AreaDelta::new(5.0)),
@@ -94,7 +94,7 @@ impl CellControl for BuddingControl {
         if Self::is_adult(cell_state) {
             self.adult_requests()
         } else {
-            Self::child_requests(self.budding_layer_index)
+            Self::youth_requests(self.budding_layer_index)
         }
     }
 }

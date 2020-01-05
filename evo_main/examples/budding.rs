@@ -66,7 +66,7 @@ impl BuddingControl {
         cell_state.area >= Area::new(1000.0)
     }
 
-    fn parent_requests(&mut self) -> Vec<ControlRequest> {
+    fn adult_requests(&mut self) -> Vec<ControlRequest> {
         let mut donation_energy = BioEnergy::new(0.0);
         self.tick += 1;
         if self.tick == self.budding_ticks {
@@ -92,7 +92,7 @@ impl BuddingControl {
 impl CellControl for BuddingControl {
     fn get_control_requests(&mut self, cell_state: &CellStateSnapshot) -> Vec<ControlRequest> {
         if Self::is_adult(cell_state) {
-            self.parent_requests()
+            self.adult_requests()
         } else {
             Self::child_requests(self.budding_layer_index)
         }

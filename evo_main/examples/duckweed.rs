@@ -44,18 +44,18 @@ fn create_world() -> World {
                 )),
             ],
         )
-        .with_control(Box::new(FixedDepthSeekingControl::new(0, -50.0)))])
+        .with_control(Box::new(DuckweedControl::new(0, -50.0)))])
 }
 
 #[derive(Debug)]
-pub struct FixedDepthSeekingControl {
+pub struct DuckweedControl {
     float_layer_index: usize,
     target_y: f64,
 }
 
-impl FixedDepthSeekingControl {
+impl DuckweedControl {
     pub fn new(float_layer_index: usize, target_y: f64) -> Self {
-        FixedDepthSeekingControl {
+        DuckweedControl {
             float_layer_index,
             target_y,
         }
@@ -70,7 +70,7 @@ impl FixedDepthSeekingControl {
     }
 }
 
-impl CellControl for FixedDepthSeekingControl {
+impl CellControl for DuckweedControl {
     fn get_control_requests(&mut self, cell_state: &CellStateSnapshot) -> Vec<ControlRequest> {
         vec![self.float_layer_resize_request(cell_state)]
     }

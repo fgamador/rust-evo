@@ -18,17 +18,36 @@ impl BackgroundDrawing {
     pub fn new(display: &glium::Display) -> Self {
         BackgroundDrawing {
             shader_program: glium::Program::from_source(
-                display, Self::VERTEX_SHADER_SRC, Self::FRAGMENT_SHADER_SRC,
-                Some(Self::GEOMETRY_SHADER_SRC)).unwrap(),
+                display,
+                Self::VERTEX_SHADER_SRC,
+                Self::FRAGMENT_SHADER_SRC,
+                Some(Self::GEOMETRY_SHADER_SRC),
+            )
+            .unwrap(),
             indices: glium::index::NoIndices(glium::index::PrimitiveType::Points),
         }
     }
 
-    pub fn draw<T>(&self, frame: &mut glium::Frame, vertex_buffer: &glium::VertexBuffer<T>, screen_transform: [[f32; 4]; 4]) where T: Copy {
+    pub fn draw<T>(
+        &self,
+        frame: &mut glium::Frame,
+        vertex_buffer: &glium::VertexBuffer<T>,
+        screen_transform: [[f32; 4]; 4],
+    ) where
+        T: Copy,
+    {
         let uniforms = uniform! {
             screen_transform: screen_transform
         };
-        frame.draw(vertex_buffer, &self.indices, &self.shader_program, &uniforms, &Default::default()).unwrap();
+        frame
+            .draw(
+                vertex_buffer,
+                &self.indices,
+                &self.shader_program,
+                &uniforms,
+                &Default::default(),
+            )
+            .unwrap();
     }
 
     const VERTEX_SHADER_SRC: &'static str = r#"

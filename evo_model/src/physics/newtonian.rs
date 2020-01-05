@@ -21,7 +21,12 @@ pub struct NewtonianState {
 
 impl NewtonianState {
     pub fn new(mass: Mass, position: Position, velocity: Velocity) -> NewtonianState {
-        NewtonianState { mass, position, velocity, forces: Forces::new(0.0, 0.0) }
+        NewtonianState {
+            mass,
+            position,
+            velocity,
+            forces: Forces::new(0.0, 0.0),
+        }
     }
 }
 
@@ -67,7 +72,9 @@ pub struct Forces {
 
 impl Forces {
     pub fn new(initial_x: f64, initial_y: f64) -> Forces {
-        Forces { net_force: Force::new(initial_x, initial_y) }
+        Forces {
+            net_force: Force::new(initial_x, initial_y),
+        }
     }
 
     pub fn add_force(&mut self, f: Force) {
@@ -90,7 +97,10 @@ mod tests {
     #[test]
     fn coasting() {
         let mut subject = SimpleBody::new(
-            Mass::new(2.0), Position::new(-1.0, 1.5), Velocity::new(1.0, 2.0));
+            Mass::new(2.0),
+            Position::new(-1.0, 1.5),
+            Velocity::new(1.0, 2.0),
+        );
         subject.move_for(Duration::new(0.5));
         assert_eq!(Position::new(-0.5, 2.5), subject.position());
         assert_eq!(Velocity::new(1.0, 2.0), subject.velocity());
@@ -99,7 +109,10 @@ mod tests {
     #[test]
     fn kicked() {
         let mut subject = SimpleBody::new(
-            Mass::new(2.0), Position::new(-1.0, 2.0), Velocity::new(1.0, -1.0));
+            Mass::new(2.0),
+            Position::new(-1.0, 2.0),
+            Velocity::new(1.0, -1.0),
+        );
         subject.kick(Impulse::new(0.5, 0.5));
         assert_eq!(Position::new(-1.0, 2.0), subject.position());
         assert_eq!(Velocity::new(1.25, -0.75), subject.velocity());
@@ -121,7 +134,11 @@ mod tests {
 
     #[test]
     fn exert_forces() {
-        let mut ball = SimpleBody::new(Mass::new(1.0), Position::new(1.0, 1.0), Velocity::new(1.0, 1.0));
+        let mut ball = SimpleBody::new(
+            Mass::new(1.0),
+            Position::new(1.0, 1.0),
+            Velocity::new(1.0, 1.0),
+        );
         ball.state.forces.add_force(Force::new(1.0, 1.0));
         ball.exert_forces(Duration::new(1.0));
         assert_eq!(Velocity::new(2.0, 2.0), ball.velocity());
@@ -135,7 +152,7 @@ mod tests {
     impl SimpleBody {
         fn new(mass: Mass, position: Position, velocity: Velocity) -> SimpleBody {
             SimpleBody {
-                state: NewtonianState::new(mass, position, velocity)
+                state: NewtonianState::new(mass, position, velocity),
             }
         }
     }

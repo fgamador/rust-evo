@@ -19,7 +19,12 @@ pub struct SparseNeuralNet {
 }
 
 impl SparseNeuralNet {
-    pub fn fully_connected(num_inputs: u16, num_outputs: u16, initial_weight: f32, transfer_fn: fn(&Op, &mut Vec<f32>)) -> Self {
+    pub fn fully_connected(
+        num_inputs: u16,
+        num_outputs: u16,
+        initial_weight: f32,
+        transfer_fn: fn(&Op, &mut Vec<f32>),
+    ) -> Self {
         let mut nnet = SparseNeuralNet {
             num_inputs,
             num_outputs,
@@ -33,16 +38,34 @@ impl SparseNeuralNet {
 
     fn init_node_values(&mut self, num_inputs: u16, num_outputs: u16) {
         self.node_values.push(1.0);
-        self.node_values.resize((1 + num_inputs + num_outputs) as usize, 0.0);
+        self.node_values
+            .resize((1 + num_inputs + num_outputs) as usize, 0.0);
     }
 
-    fn init_ops(&mut self, num_inputs: u16, num_outputs: u16, initial_weight: f32, transfer_fn: fn(&Op, &mut Vec<f32>)) {
-        self.ops.reserve((num_inputs * num_outputs + num_outputs) as usize);
+    fn init_ops(
+        &mut self,
+        num_inputs: u16,
+        num_outputs: u16,
+        initial_weight: f32,
+        transfer_fn: fn(&Op, &mut Vec<f32>),
+    ) {
+        self.ops
+            .reserve((num_inputs * num_outputs + num_outputs) as usize);
         for output_index in (1 + num_inputs)..=(num_inputs + num_outputs) {
             for input_index in 0..=num_inputs {
-                self.ops.push(Op { input_index, output_index, weight: initial_weight, op_fn: Self::add_weighted });
+                self.ops.push(Op {
+                    input_index,
+                    output_index,
+                    weight: initial_weight,
+                    op_fn: Self::add_weighted,
+                });
             }
-            self.ops.push(Op { input_index: 0, output_index, weight: 0.0, op_fn: transfer_fn });
+            self.ops.push(Op {
+                input_index: 0,
+                output_index,
+                weight: 0.0,
+                op_fn: transfer_fn,
+            });
         }
     }
 
@@ -85,7 +108,8 @@ impl SparseNeuralNet {
     pub fn identity(_op: &Op, _node_values: &mut Vec<f32>) {}
 
     pub fn sigmoidal(op: &Op, node_values: &mut Vec<f32>) {
-        node_values[op.output_index as usize] = Self::sigmoidal_fn(node_values[op.output_index as usize]);
+        node_values[op.output_index as usize] =
+            Self::sigmoidal_fn(node_values[op.output_index as usize]);
     }
 
     fn sigmoidal_fn(val: f32) -> f32 {

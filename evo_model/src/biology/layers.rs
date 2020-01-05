@@ -104,7 +104,12 @@ impl CellLayer {
     const LIVING_BRAIN: LivingCellLayerBrain = LivingCellLayerBrain {};
     const DEAD_BRAIN: DeadCellLayerBrain = DeadCellLayerBrain {};
 
-    pub fn new(area: Area, density: Density, color: Color, specialty: Box<dyn CellLayerSpecialty>) -> Self {
+    pub fn new(
+        area: Area,
+        density: Density,
+        color: Color,
+        specialty: Box<dyn CellLayerSpecialty>,
+    ) -> Self {
         CellLayer {
             body: CellLayerBody::new(area, density, color),
             specialty,
@@ -155,20 +160,35 @@ impl CellLayer {
         self.body.update_outer_radius(inner_radius);
     }
 
-    pub fn after_influences(&mut self, env: &LocalEnvironment, subtick_duration: Duration) -> (BioEnergy, Force) {
-        self.body.brain.after_influences(&mut *self.specialty, &mut self.body, env, subtick_duration)
+    pub fn after_influences(
+        &mut self,
+        env: &LocalEnvironment,
+        subtick_duration: Duration,
+    ) -> (BioEnergy, Force) {
+        self.body.brain.after_influences(
+            &mut *self.specialty,
+            &mut self.body,
+            env,
+            subtick_duration,
+        )
     }
 
     pub fn cost_control_request(&mut self, request: ControlRequest) -> CostedControlRequest {
-        self.body.brain.cost_control_request(&mut *self.specialty, &self.body, request)
+        self.body
+            .brain
+            .cost_control_request(&mut *self.specialty, &self.body, request)
     }
 
     pub fn execute_control_request(&mut self, request: BudgetedControlRequest) {
-        self.body.brain.execute_control_request(&mut *self.specialty, &mut self.body, request);
+        self.body
+            .brain
+            .execute_control_request(&mut *self.specialty, &mut self.body, request);
     }
 
     pub fn after_control_requests(&mut self, cell_state: &CellStateSnapshot) -> Option<Cell> {
-        self.body.brain.after_control_requests(&mut *self.specialty, cell_state)
+        self.body
+            .brain
+            .after_control_requests(&mut *self.specialty, cell_state)
     }
 
     pub fn healing_request(layer_index: usize, delta_health: f64) -> ControlRequest {
@@ -238,8 +258,10 @@ impl CellLayerBody {
     }
 
     fn cost_restore_health(&self, request: ControlRequest) -> CostedControlRequest {
-        CostedControlRequest::new(request,
-                                  self.health_parameters.healing_energy_delta * self.area.value() * request.value)
+        CostedControlRequest::new(
+            request,
+            self.health_parameters.healing_energy_delta * self.area.value() * request.value,
+        )
     }
 
     fn cost_resize(&self, request: ControlRequest) -> CostedControlRequest {
@@ -258,7 +280,8 @@ impl CellLayerBody {
     }
 
     fn resize(&mut self, requested_delta_area: f64, budgeted_fraction: f64) {
-        let delta_area = self.health * budgeted_fraction * self.bound_resize_delta_area(requested_delta_area);
+        let delta_area =
+            self.health * budgeted_fraction * self.bound_resize_delta_area(requested_delta_area);
         self.area = Area::new((self.area.value() + delta_area).max(0.0));
         self.mass = self.area * self.density;
     }
@@ -278,13 +301,33 @@ impl CellLayerBody {
 trait CellLayerBrain: Debug {
     fn damage(&self, body: &mut CellLayerBody, health_loss: f64);
 
-    fn after_influences(&self, specialty: &mut dyn CellLayerSpecialty, body: &mut CellLayerBody, env: &LocalEnvironment, subtick_duration: Duration) -> (BioEnergy, Force);
+    fn after_influences(
+        &self,
+        specialty: &mut dyn CellLayerSpecialty,
+        body: &mut CellLayerBody,
+        env: &LocalEnvironment,
+        subtick_duration: Duration,
+    ) -> (BioEnergy, Force);
 
-    fn cost_control_request(&self, specialty: &mut dyn CellLayerSpecialty, body: &CellLayerBody, request: ControlRequest) -> CostedControlRequest;
+    fn cost_control_request(
+        &self,
+        specialty: &mut dyn CellLayerSpecialty,
+        body: &CellLayerBody,
+        request: ControlRequest,
+    ) -> CostedControlRequest;
 
-    fn execute_control_request(&self, specialty: &mut dyn CellLayerSpecialty, body: &mut CellLayerBody, request: BudgetedControlRequest);
+    fn execute_control_request(
+        &self,
+        specialty: &mut dyn CellLayerSpecialty,
+        body: &mut CellLayerBody,
+        request: BudgetedControlRequest,
+    );
 
-    fn after_control_requests(&self, specialty: &mut dyn CellLayerSpecialty, cell_state: &CellStateSnapshot) -> Option<Cell>;
+    fn after_control_requests(
+        &self,
+        specialty: &mut dyn CellLayerSpecialty,
+        cell_state: &CellStateSnapshot,
+    ) -> Option<Cell>;
 }
 
 #[derive(Debug)]
@@ -292,13 +335,15 @@ struct LivingCellLayerBrain {}
 
 impl LivingCellLayerBrain {
     fn entropic_damage(&self, body: &mut CellLayerBody, subtick_duration: Duration) {
-        let subtick_damage = body.health_parameters.entropic_damage_health_delta * subtick_duration.value();
+        let subtick_damage =
+            body.health_parameters.entropic_damage_health_delta * subtick_duration.value();
         self.damage(body, -subtick_damage);
     }
 
     fn overlap_damage(&self, body: &mut CellLayerBody, overlaps: &[Overlap]) {
-        let overlap_damage = overlaps.iter().fold(0.0, |total_damage, overlap|
-            total_damage + body.health_parameters.overlap_damage_health_delta * overlap.magnitude());
+        let overlap_damage = overlaps.iter().fold(0.0, |total_damage, overlap| {
+            total_damage + body.health_parameters.overlap_damage_health_delta * overlap.magnitude()
+        });
         self.damage(body, -overlap_damage);
     }
 }
@@ -311,7 +356,13 @@ impl CellLayerBrain for LivingCellLayerBrain {
         }
     }
 
-    fn after_influences(&self, specialty: &mut dyn CellLayerSpecialty, body: &mut CellLayerBody, env: &LocalEnvironment, subtick_duration: Duration) -> (BioEnergy, Force) {
+    fn after_influences(
+        &self,
+        specialty: &mut dyn CellLayerSpecialty,
+        body: &mut CellLayerBody,
+        env: &LocalEnvironment,
+        subtick_duration: Duration,
+    ) -> (BioEnergy, Force) {
         self.entropic_damage(body, subtick_duration);
         if body.is_surface {
             self.overlap_damage(body, env.overlaps());
@@ -319,7 +370,12 @@ impl CellLayerBrain for LivingCellLayerBrain {
         specialty.after_influences(body, env, subtick_duration)
     }
 
-    fn cost_control_request(&self, specialty: &mut dyn CellLayerSpecialty, body: &CellLayerBody, request: ControlRequest) -> CostedControlRequest {
+    fn cost_control_request(
+        &self,
+        specialty: &mut dyn CellLayerSpecialty,
+        body: &CellLayerBody,
+        request: ControlRequest,
+    ) -> CostedControlRequest {
         match request.channel_index {
             0 => body.cost_restore_health(request),
             1 => body.cost_resize(request),
@@ -327,15 +383,24 @@ impl CellLayerBrain for LivingCellLayerBrain {
         }
     }
 
-    fn execute_control_request(&self, specialty: &mut dyn CellLayerSpecialty, body: &mut CellLayerBody, request: BudgetedControlRequest) {
+    fn execute_control_request(
+        &self,
+        specialty: &mut dyn CellLayerSpecialty,
+        body: &mut CellLayerBody,
+        request: BudgetedControlRequest,
+    ) {
         match request.channel_index {
             0 => body.restore_health(request.value, request.budgeted_fraction),
             1 => body.resize(request.value, request.budgeted_fraction),
-            _ => specialty.execute_control_request(body, request)
+            _ => specialty.execute_control_request(body, request),
         }
     }
 
-    fn after_control_requests(&self, specialty: &mut dyn CellLayerSpecialty, cell_state: &CellStateSnapshot) -> Option<Cell> {
+    fn after_control_requests(
+        &self,
+        specialty: &mut dyn CellLayerSpecialty,
+        cell_state: &CellStateSnapshot,
+    ) -> Option<Cell> {
         specialty.after_control_requests(cell_state)
     }
 }
@@ -348,23 +413,49 @@ impl DeadCellLayerBrain {}
 impl CellLayerBrain for DeadCellLayerBrain {
     fn damage(&self, _body: &mut CellLayerBody, _health_loss: f64) {}
 
-    fn after_influences(&self, _specialty: &mut dyn CellLayerSpecialty, _body: &mut CellLayerBody, _env: &LocalEnvironment, _subtick_duration: Duration) -> (BioEnergy, Force) {
+    fn after_influences(
+        &self,
+        _specialty: &mut dyn CellLayerSpecialty,
+        _body: &mut CellLayerBody,
+        _env: &LocalEnvironment,
+        _subtick_duration: Duration,
+    ) -> (BioEnergy, Force) {
         (BioEnergy::ZERO, Force::ZERO)
     }
 
-    fn cost_control_request(&self, _specialty: &mut dyn CellLayerSpecialty, _body: &CellLayerBody, request: ControlRequest) -> CostedControlRequest {
+    fn cost_control_request(
+        &self,
+        _specialty: &mut dyn CellLayerSpecialty,
+        _body: &CellLayerBody,
+        request: ControlRequest,
+    ) -> CostedControlRequest {
         CostedControlRequest::new(request, BioEnergyDelta::ZERO)
     }
 
-    fn execute_control_request(&self, _specialty: &mut dyn CellLayerSpecialty, _body: &mut CellLayerBody, _request: BudgetedControlRequest) {}
+    fn execute_control_request(
+        &self,
+        _specialty: &mut dyn CellLayerSpecialty,
+        _body: &mut CellLayerBody,
+        _request: BudgetedControlRequest,
+    ) {
+    }
 
-    fn after_control_requests(&self, _specialty: &mut dyn CellLayerSpecialty, _cell_state: &CellStateSnapshot) -> Option<Cell> {
+    fn after_control_requests(
+        &self,
+        _specialty: &mut dyn CellLayerSpecialty,
+        _cell_state: &CellStateSnapshot,
+    ) -> Option<Cell> {
         None
     }
 }
 
 pub trait CellLayerSpecialty: Debug {
-    fn after_influences(&mut self, _body: &CellLayerBody, _env: &LocalEnvironment, _subtick_duration: Duration) -> (BioEnergy, Force) {
+    fn after_influences(
+        &mut self,
+        _body: &CellLayerBody,
+        _env: &LocalEnvironment,
+        _subtick_duration: Duration,
+    ) -> (BioEnergy, Force) {
         (BioEnergy::ZERO, Force::ZERO)
     }
 
@@ -423,7 +514,12 @@ impl ThrusterCellLayerSpecialty {
 }
 
 impl CellLayerSpecialty for ThrusterCellLayerSpecialty {
-    fn after_influences(&mut self, _body: &CellLayerBody, _env: &LocalEnvironment, _subtick_duration: Duration) -> (BioEnergy, Force) {
+    fn after_influences(
+        &mut self,
+        _body: &CellLayerBody,
+        _env: &LocalEnvironment,
+        _subtick_duration: Duration,
+    ) -> (BioEnergy, Force) {
         (BioEnergy::ZERO, Force::new(self.force_x, self.force_y))
     }
 
@@ -431,7 +527,7 @@ impl CellLayerSpecialty for ThrusterCellLayerSpecialty {
         match request.channel_index {
             // TODO cost forces based on a parameter struct(?)
             2 | 3 => CostedControlRequest::new(request, BioEnergyDelta::ZERO),
-            _ => panic!("Invalid control channel index: {}", request.channel_index)
+            _ => panic!("Invalid control channel index: {}", request.channel_index),
         }
     }
 
@@ -439,7 +535,7 @@ impl CellLayerSpecialty for ThrusterCellLayerSpecialty {
         match request.channel_index {
             2 => self.force_x = body.health * request.budgeted_fraction * request.value,
             3 => self.force_y = body.health * request.budgeted_fraction * request.value,
-            _ => panic!("Invalid control channel index: {}", request.channel_index)
+            _ => panic!("Invalid control channel index: {}", request.channel_index),
         }
     }
 }
@@ -451,16 +547,27 @@ pub struct PhotoCellLayerSpecialty {
 
 impl PhotoCellLayerSpecialty {
     pub fn new(efficiency: f64) -> Self {
-        PhotoCellLayerSpecialty {
-            efficiency
-        }
+        PhotoCellLayerSpecialty { efficiency }
     }
 }
 
 impl CellLayerSpecialty for PhotoCellLayerSpecialty {
-    fn after_influences(&mut self, body: &CellLayerBody, env: &LocalEnvironment, subtick_duration: Duration) -> (BioEnergy, Force) {
-        (BioEnergy::new(env.light_intensity() * self.efficiency * body.health * body.area.value() * subtick_duration.value()),
-         Force::ZERO)
+    fn after_influences(
+        &mut self,
+        body: &CellLayerBody,
+        env: &LocalEnvironment,
+        subtick_duration: Duration,
+    ) -> (BioEnergy, Force) {
+        (
+            BioEnergy::new(
+                env.light_intensity()
+                    * self.efficiency
+                    * body.health
+                    * body.area.value()
+                    * subtick_duration.value(),
+            ),
+            Force::ZERO,
+        )
     }
 }
 
@@ -473,7 +580,7 @@ impl EnergyGeneratingCellLayerSpecialty {
     #[allow(clippy::new_without_default)]
     pub fn new() -> Self {
         EnergyGeneratingCellLayerSpecialty {
-            energy: BioEnergy::ZERO
+            energy: BioEnergy::ZERO,
         }
     }
 
@@ -483,21 +590,29 @@ impl EnergyGeneratingCellLayerSpecialty {
 }
 
 impl CellLayerSpecialty for EnergyGeneratingCellLayerSpecialty {
-    fn after_influences(&mut self, body: &CellLayerBody, _env: &LocalEnvironment, subtick_duration: Duration) -> (BioEnergy, Force) {
-        (self.energy * body.health * subtick_duration.value(), Force::ZERO)
+    fn after_influences(
+        &mut self,
+        body: &CellLayerBody,
+        _env: &LocalEnvironment,
+        subtick_duration: Duration,
+    ) -> (BioEnergy, Force) {
+        (
+            self.energy * body.health * subtick_duration.value(),
+            Force::ZERO,
+        )
     }
 
     fn cost_control_request(&self, request: ControlRequest) -> CostedControlRequest {
         match request.channel_index {
             2 => CostedControlRequest::new(request, BioEnergyDelta::ZERO),
-            _ => panic!("Invalid control channel index: {}", request.channel_index)
+            _ => panic!("Invalid control channel index: {}", request.channel_index),
         }
     }
 
     fn execute_control_request(&mut self, _body: &CellLayerBody, request: BudgetedControlRequest) {
         match request.channel_index {
             2 => self.energy = request.budgeted_fraction * BioEnergy::new(request.value.max(0.0)),
-            _ => panic!("Invalid control channel index: {}", request.channel_index)
+            _ => panic!("Invalid control channel index: {}", request.channel_index),
         }
     }
 }
@@ -532,15 +647,18 @@ impl CellLayerSpecialty for BuddingCellLayerSpecialty {
         match request.channel_index {
             2 => CostedControlRequest::new(request, BioEnergyDelta::ZERO),
             3 => CostedControlRequest::new(request, BioEnergyDelta::new(request.value)),
-            _ => panic!("Invalid control channel index: {}", request.channel_index)
+            _ => panic!("Invalid control channel index: {}", request.channel_index),
         }
     }
 
     fn execute_control_request(&mut self, body: &CellLayerBody, request: BudgetedControlRequest) {
         match request.channel_index {
             2 => self.budding_angle = Angle::from_radians(request.value),
-            3 => self.donation_energy = body.health * request.budgeted_fraction * BioEnergy::new(request.value),
-            _ => panic!("Invalid control channel index: {}", request.channel_index)
+            3 => {
+                self.donation_energy =
+                    body.health * request.budgeted_fraction * BioEnergy::new(request.value)
+            }
+            _ => panic!("Invalid control channel index: {}", request.channel_index),
         }
     }
 
@@ -550,7 +668,8 @@ impl CellLayerSpecialty for BuddingCellLayerSpecialty {
         }
 
         let mut child = (self.create_child)();
-        let offset = Displacement::from_polar(cell_state.radius + child.radius(), self.budding_angle);
+        let offset =
+            Displacement::from_polar(cell_state.radius + child.radius(), self.budding_angle);
         child.set_initial_position(cell_state.center + offset);
         child.set_initial_velocity(cell_state.velocity);
         child.set_initial_energy(self.donation_energy);
@@ -628,9 +747,15 @@ mod tests {
                 growth_energy_delta: BioEnergyDelta::new(-0.5),
                 ..LayerResizeParameters::UNLIMITED
             });
-        let costed_request = layer.cost_control_request(CellLayer::resize_request(0, AreaDelta::new(3.0)));
-        assert_eq!(costed_request, CostedControlRequest::new(
-            CellLayer::resize_request(0, AreaDelta::new(3.0)), BioEnergyDelta::new(-1.5)));
+        let costed_request =
+            layer.cost_control_request(CellLayer::resize_request(0, AreaDelta::new(3.0)));
+        assert_eq!(
+            costed_request,
+            CostedControlRequest::new(
+                CellLayer::resize_request(0, AreaDelta::new(3.0)),
+                BioEnergyDelta::new(-1.5)
+            )
+        );
     }
 
     #[test]
@@ -638,7 +763,9 @@ mod tests {
         let mut layer = simple_cell_layer(Area::new(2.0), Density::new(1.0));
         layer.execute_control_request(budgeted(
             CellLayer::resize_request(0, AreaDelta::new(2.0)),
-            BioEnergyDelta::ZERO, 0.5));
+            BioEnergyDelta::ZERO,
+            0.5,
+        ));
         assert_eq!(Area::new(3.0), layer.area());
     }
 
@@ -663,7 +790,10 @@ mod tests {
             });
         let control_request = CellLayer::resize_request(0, AreaDelta::new(2.0));
         let costed_request = layer.cost_control_request(control_request);
-        assert_eq!(costed_request, CostedControlRequest::new(control_request, BioEnergyDelta::new(-1.5)));
+        assert_eq!(
+            costed_request,
+            CostedControlRequest::new(control_request, BioEnergyDelta::new(-1.5))
+        );
     }
 
     #[test]
@@ -687,13 +817,15 @@ mod tests {
             });
         let control_request = CellLayer::resize_request(0, AreaDelta::new(-10.0));
         let costed_request = layer.cost_control_request(control_request);
-        assert_eq!(costed_request, CostedControlRequest::new(control_request, BioEnergyDelta::new(6.0)));
+        assert_eq!(
+            costed_request,
+            CostedControlRequest::new(control_request, BioEnergyDelta::new(6.0))
+        );
     }
 
     #[test]
     fn layer_resize_is_reduced_by_reduced_health() {
-        let mut layer = simple_cell_layer(Area::new(1.0), Density::new(1.0))
-            .with_health(0.5);
+        let mut layer = simple_cell_layer(Area::new(1.0), Density::new(1.0)).with_health(0.5);
         layer.execute_control_request(fully_budgeted_resize_request(0, 10.0));
         assert_eq!(Area::new(6.0), layer.area());
     }
@@ -708,32 +840,34 @@ mod tests {
             .with_health(0.5);
         let control_request = CellLayer::resize_request(0, AreaDelta::new(1.0));
         let costed_request = layer.cost_control_request(control_request);
-        assert_eq!(costed_request, CostedControlRequest::new(control_request, BioEnergyDelta::new(-1.0)));
+        assert_eq!(
+            costed_request,
+            CostedControlRequest::new(control_request, BioEnergyDelta::new(-1.0))
+        );
     }
 
     #[test]
     fn layer_health_can_be_restored() {
-        let mut layer = simple_cell_layer(Area::new(1.0), Density::new(1.0))
-            .with_health(0.5);
+        let mut layer = simple_cell_layer(Area::new(1.0), Density::new(1.0)).with_health(0.5);
         layer.execute_control_request(fully_budgeted_healing_request(0, 0.25));
         assert_eq!(0.75, layer.health());
     }
 
     #[test]
     fn layer_health_cannot_be_restored_above_one() {
-        let mut layer = simple_cell_layer(Area::new(1.0), Density::new(1.0))
-            .with_health(0.5);
+        let mut layer = simple_cell_layer(Area::new(1.0), Density::new(1.0)).with_health(0.5);
         layer.execute_control_request(fully_budgeted_healing_request(0, 1.0));
         assert_eq!(1.0, layer.health());
     }
 
     #[test]
     fn layer_health_restoration_is_limited_by_budgeted_fraction() {
-        let mut layer = simple_cell_layer(Area::new(1.0), Density::new(1.0))
-            .with_health(0.5);
+        let mut layer = simple_cell_layer(Area::new(1.0), Density::new(1.0)).with_health(0.5);
         layer.execute_control_request(budgeted(
             CellLayer::healing_request(0, 0.5),
-            BioEnergyDelta::ZERO, 0.5));
+            BioEnergyDelta::ZERO,
+            0.5,
+        ));
         assert_eq!(0.75, layer.health());
     }
 
@@ -747,7 +881,10 @@ mod tests {
             .with_health(0.5);
         let control_request = CellLayer::healing_request(0, 0.25);
         let costed_request = layer.cost_control_request(control_request);
-        assert_eq!(costed_request, CostedControlRequest::new(control_request, BioEnergyDelta::new(-1.5)));
+        assert_eq!(
+            costed_request,
+            CostedControlRequest::new(control_request, BioEnergyDelta::new(-1.5))
+        );
     }
 
     #[test]
@@ -805,23 +942,33 @@ mod tests {
             .dead();
         let control_request = CellLayer::healing_request(0, 1.0);
         let costed_request = layer.cost_control_request(control_request);
-        assert_eq!(costed_request, CostedControlRequest::new(control_request, BioEnergyDelta::new(0.0)));
+        assert_eq!(
+            costed_request,
+            CostedControlRequest::new(control_request, BioEnergyDelta::new(0.0))
+        );
     }
 
     #[test]
     fn dead_layer_ignores_control_requests() {
-        let mut layer = simple_cell_layer(Area::new(1.0), Density::new(1.0))
-            .dead();
+        let mut layer = simple_cell_layer(Area::new(1.0), Density::new(1.0)).dead();
         layer.execute_control_request(fully_budgeted_healing_request(0, 1.0));
         assert_eq!(0.0, layer.health());
     }
 
     #[test]
     fn thruster_layer_adds_force() {
-        let mut layer = CellLayer::new(Area::new(1.0), Density::new(1.0), Color::Green,
-                                       Box::new(ThrusterCellLayerSpecialty::new()));
-        layer.execute_control_request(fully_budgeted(ThrusterCellLayerSpecialty::force_x_request(0, 1.0)));
-        layer.execute_control_request(fully_budgeted(ThrusterCellLayerSpecialty::force_y_request(0, -1.0)));
+        let mut layer = CellLayer::new(
+            Area::new(1.0),
+            Density::new(1.0),
+            Color::Green,
+            Box::new(ThrusterCellLayerSpecialty::new()),
+        );
+        layer.execute_control_request(fully_budgeted(ThrusterCellLayerSpecialty::force_x_request(
+            0, 1.0,
+        )));
+        layer.execute_control_request(fully_budgeted(ThrusterCellLayerSpecialty::force_y_request(
+            0, -1.0,
+        )));
 
         let env = LocalEnvironment::new();
         let (_, force) = layer.after_influences(&env, Duration::new(0.5));
@@ -831,14 +978,22 @@ mod tests {
 
     #[test]
     fn thruster_layer_force_is_limited_by_budget() {
-        let mut layer = CellLayer::new(Area::new(1.0), Density::new(1.0), Color::Green,
-                                       Box::new(ThrusterCellLayerSpecialty::new()));
+        let mut layer = CellLayer::new(
+            Area::new(1.0),
+            Density::new(1.0),
+            Color::Green,
+            Box::new(ThrusterCellLayerSpecialty::new()),
+        );
         layer.execute_control_request(budgeted(
             ThrusterCellLayerSpecialty::force_x_request(0, 1.0),
-            BioEnergyDelta::new(1.0), 0.5));
+            BioEnergyDelta::new(1.0),
+            0.5,
+        ));
         layer.execute_control_request(budgeted(
             ThrusterCellLayerSpecialty::force_y_request(0, -1.0),
-            BioEnergyDelta::new(1.0), 0.25));
+            BioEnergyDelta::new(1.0),
+            0.25,
+        ));
 
         let env = LocalEnvironment::new();
         let (_, force) = layer.after_influences(&env, Duration::new(1.0));
@@ -848,11 +1003,19 @@ mod tests {
 
     #[test]
     fn thruster_layer_force_is_limited_by_health() {
-        let mut layer = CellLayer::new(Area::new(1.0), Density::new(1.0), Color::Green,
-                                       Box::new(ThrusterCellLayerSpecialty::new()))
-            .with_health(0.5);
-        layer.execute_control_request(fully_budgeted(ThrusterCellLayerSpecialty::force_x_request(0, 1.0)));
-        layer.execute_control_request(fully_budgeted(ThrusterCellLayerSpecialty::force_y_request(0, -1.0)));
+        let mut layer = CellLayer::new(
+            Area::new(1.0),
+            Density::new(1.0),
+            Color::Green,
+            Box::new(ThrusterCellLayerSpecialty::new()),
+        )
+        .with_health(0.5);
+        layer.execute_control_request(fully_budgeted(ThrusterCellLayerSpecialty::force_x_request(
+            0, 1.0,
+        )));
+        layer.execute_control_request(fully_budgeted(ThrusterCellLayerSpecialty::force_y_request(
+            0, -1.0,
+        )));
 
         let env = LocalEnvironment::new();
         let (_, force) = layer.after_influences(&env, Duration::new(1.0));
@@ -862,10 +1025,18 @@ mod tests {
 
     #[test]
     fn dead_thruster_layer_adds_no_force() {
-        let mut layer = CellLayer::new(Area::new(1.0), Density::new(1.0), Color::Green,
-                                       Box::new(ThrusterCellLayerSpecialty::new()));
-        layer.execute_control_request(fully_budgeted(ThrusterCellLayerSpecialty::force_x_request(0, 1.0)));
-        layer.execute_control_request(fully_budgeted(ThrusterCellLayerSpecialty::force_y_request(0, -1.0)));
+        let mut layer = CellLayer::new(
+            Area::new(1.0),
+            Density::new(1.0),
+            Color::Green,
+            Box::new(ThrusterCellLayerSpecialty::new()),
+        );
+        layer.execute_control_request(fully_budgeted(ThrusterCellLayerSpecialty::force_x_request(
+            0, 1.0,
+        )));
+        layer.execute_control_request(fully_budgeted(ThrusterCellLayerSpecialty::force_y_request(
+            0, -1.0,
+        )));
         layer.damage(1.0);
 
         let env = LocalEnvironment::new();
@@ -876,8 +1047,12 @@ mod tests {
 
     #[test]
     fn photo_layer_adds_energy_based_on_area_and_efficiency_and_duration() {
-        let mut layer = CellLayer::new(Area::new(4.0), Density::new(1.0), Color::Green,
-                                       Box::new(PhotoCellLayerSpecialty::new(0.5)));
+        let mut layer = CellLayer::new(
+            Area::new(4.0),
+            Density::new(1.0),
+            Color::Green,
+            Box::new(PhotoCellLayerSpecialty::new(0.5)),
+        );
 
         let mut env = LocalEnvironment::new();
         env.add_light_intensity(10.0);
@@ -889,9 +1064,13 @@ mod tests {
 
     #[test]
     fn photo_layer_energy_is_limited_by_health() {
-        let mut layer = CellLayer::new(Area::new(1.0), Density::new(1.0), Color::Green,
-                                       Box::new(PhotoCellLayerSpecialty::new(1.0)))
-            .with_health(0.75);
+        let mut layer = CellLayer::new(
+            Area::new(1.0),
+            Density::new(1.0),
+            Color::Green,
+            Box::new(PhotoCellLayerSpecialty::new(1.0)),
+        )
+        .with_health(0.75);
 
         let mut env = LocalEnvironment::new();
         env.add_light_intensity(1.0);
@@ -903,9 +1082,13 @@ mod tests {
 
     #[test]
     fn dead_photo_layer_adds_no_energy() {
-        let mut layer = CellLayer::new(Area::new(1.0), Density::new(1.0), Color::Green,
-                                       Box::new(PhotoCellLayerSpecialty::new(1.0)))
-            .dead();
+        let mut layer = CellLayer::new(
+            Area::new(1.0),
+            Density::new(1.0),
+            Color::Green,
+            Box::new(PhotoCellLayerSpecialty::new(1.0)),
+        )
+        .dead();
 
         let mut env = LocalEnvironment::new();
         env.add_light_intensity(1.0);
@@ -917,12 +1100,18 @@ mod tests {
 
     #[test]
     fn budding_layer_creates_child_with_right_state() {
-        let mut layer = CellLayer::new(Area::new(1.0), Density::new(1.0), Color::Green,
-                                       Box::new(BuddingCellLayerSpecialty::new(create_child)));
+        let mut layer = CellLayer::new(
+            Area::new(1.0),
+            Density::new(1.0),
+            Color::Green,
+            Box::new(BuddingCellLayerSpecialty::new(create_child)),
+        );
         layer.execute_control_request(fully_budgeted(
-            BuddingCellLayerSpecialty::budding_angle_request(0, Angle::from_radians(0.0))));
+            BuddingCellLayerSpecialty::budding_angle_request(0, Angle::from_radians(0.0)),
+        ));
         layer.execute_control_request(fully_budgeted(
-            BuddingCellLayerSpecialty::donation_energy_request(0, BioEnergy::new(1.0))));
+            BuddingCellLayerSpecialty::donation_energy_request(0, BioEnergy::new(1.0)),
+        ));
         let cell_state = CellStateSnapshot {
             radius: Length::new(2.0),
             area: Area::new(3.0),
@@ -933,9 +1122,13 @@ mod tests {
             None => panic!(),
             Some(child) => {
                 assert_eq!(2, child.layers().len());
-                assert_eq!(Position::new(cell_state.center.x() + cell_state.radius.value() + child.radius().value(),
-                                         cell_state.center.y()),
-                           child.center());
+                assert_eq!(
+                    Position::new(
+                        cell_state.center.x() + cell_state.radius.value() + child.radius().value(),
+                        cell_state.center.y()
+                    ),
+                    child.center()
+                );
                 assert_eq!(cell_state.velocity, child.velocity());
                 assert_eq!(BioEnergy::new(1.0), child.energy());
             }
@@ -944,49 +1137,76 @@ mod tests {
 
     #[test]
     fn budding_layer_does_not_create_child_if_given_zero_energy() {
-        let mut layer = CellLayer::new(Area::new(1.0), Density::new(1.0), Color::Green,
-                                       Box::new(BuddingCellLayerSpecialty::new(create_child)));
+        let mut layer = CellLayer::new(
+            Area::new(1.0),
+            Density::new(1.0),
+            Color::Green,
+            Box::new(BuddingCellLayerSpecialty::new(create_child)),
+        );
         layer.execute_control_request(fully_budgeted(
-            BuddingCellLayerSpecialty::donation_energy_request(0, BioEnergy::new(0.0))));
-        assert_eq!(None, layer.after_control_requests(&CellStateSnapshot::ZEROS));
+            BuddingCellLayerSpecialty::donation_energy_request(0, BioEnergy::new(0.0)),
+        ));
+        assert_eq!(
+            None,
+            layer.after_control_requests(&CellStateSnapshot::ZEROS)
+        );
     }
 
     #[test]
     fn budding_energy_is_limited_by_budget() {
-        let mut layer = CellLayer::new(Area::new(1.0), Density::new(1.0), Color::Green,
-                                       Box::new(BuddingCellLayerSpecialty::new(create_child)));
+        let mut layer = CellLayer::new(
+            Area::new(1.0),
+            Density::new(1.0),
+            Color::Green,
+            Box::new(BuddingCellLayerSpecialty::new(create_child)),
+        );
         layer.execute_control_request(budgeted(
             BuddingCellLayerSpecialty::donation_energy_request(0, BioEnergy::new(1.0)),
-            BioEnergyDelta::new(1.0), 0.5));
+            BioEnergyDelta::new(1.0),
+            0.5,
+        ));
         match layer.after_control_requests(&CellStateSnapshot::ZEROS) {
             None => panic!(),
-            Some(child) => assert_eq!(BioEnergy::new(0.5), child.energy())
+            Some(child) => assert_eq!(BioEnergy::new(0.5), child.energy()),
         }
     }
 
     #[test]
     fn budding_energy_is_limited_by_health() {
-        let mut layer = CellLayer::new(Area::new(1.0), Density::new(1.0), Color::Green,
-                                       Box::new(BuddingCellLayerSpecialty::new(create_child)))
-            .with_health(0.5);
+        let mut layer = CellLayer::new(
+            Area::new(1.0),
+            Density::new(1.0),
+            Color::Green,
+            Box::new(BuddingCellLayerSpecialty::new(create_child)),
+        )
+        .with_health(0.5);
         layer.execute_control_request(fully_budgeted(
-            BuddingCellLayerSpecialty::donation_energy_request(0, BioEnergy::new(1.0))));
+            BuddingCellLayerSpecialty::donation_energy_request(0, BioEnergy::new(1.0)),
+        ));
         match layer.after_control_requests(&CellStateSnapshot::ZEROS) {
             None => panic!(),
-            Some(child) => assert_eq!(BioEnergy::new(0.5), child.energy())
+            Some(child) => assert_eq!(BioEnergy::new(0.5), child.energy()),
         }
     }
 
     fn create_child() -> Cell {
-        Cell::new(Position::ORIGIN, Velocity::ZERO,
-                  vec![
-                      Box::new(simple_cell_layer(Area::new(PI), Density::new(1.0))),
-                      Box::new(simple_cell_layer(Area::new(PI), Density::new(1.0)))
-                  ])
+        Cell::new(
+            Position::ORIGIN,
+            Velocity::ZERO,
+            vec![
+                Box::new(simple_cell_layer(Area::new(PI), Density::new(1.0))),
+                Box::new(simple_cell_layer(Area::new(PI), Density::new(1.0))),
+            ],
+        )
     }
 
     fn simple_cell_layer(area: Area, density: Density) -> CellLayer {
-        CellLayer::new(area, density, Color::Green, Box::new(NullCellLayerSpecialty::new()))
+        CellLayer::new(
+            area,
+            density,
+            Color::Green,
+            Box::new(NullCellLayerSpecialty::new()),
+        )
     }
 
     fn fully_budgeted_healing_request(layer_index: usize, value: f64) -> BudgetedControlRequest {
@@ -994,14 +1214,24 @@ mod tests {
     }
 
     fn fully_budgeted_resize_request(layer_index: usize, value: f64) -> BudgetedControlRequest {
-        fully_budgeted(CellLayer::resize_request(layer_index, AreaDelta::new(value)))
+        fully_budgeted(CellLayer::resize_request(
+            layer_index,
+            AreaDelta::new(value),
+        ))
     }
 
     fn fully_budgeted(control_request: ControlRequest) -> BudgetedControlRequest {
         budgeted(control_request, BioEnergyDelta::ZERO, 1.0)
     }
 
-    fn budgeted(control_request: ControlRequest, cost: BioEnergyDelta, budgeted_fraction: f64) -> BudgetedControlRequest {
-        BudgetedControlRequest::new(CostedControlRequest::new(control_request, cost), budgeted_fraction)
+    fn budgeted(
+        control_request: ControlRequest,
+        cost: BioEnergyDelta,
+        budgeted_fraction: f64,
+    ) -> BudgetedControlRequest {
+        BudgetedControlRequest::new(
+            CostedControlRequest::new(control_request, cost),
+            budgeted_fraction,
+        )
     }
 }

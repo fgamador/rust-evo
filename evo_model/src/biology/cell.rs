@@ -1,4 +1,3 @@
-use crate::TickCallbacks;
 use crate::biology::control::*;
 use crate::biology::control_requests::*;
 use crate::biology::layers::*;
@@ -7,6 +6,7 @@ use crate::physics::newtonian::*;
 use crate::physics::quantities::*;
 use crate::physics::shapes::*;
 use crate::physics::sortable_graph::*;
+use crate::TickCallbacks;
 use std::f64::consts::PI;
 use std::ptr;
 
@@ -44,10 +44,16 @@ impl Cell {
 
     pub fn ball(radius: Length, mass: Mass, position: Position, velocity: Velocity) -> Self {
         let area = PI * radius.sqr();
-        Self::new(position, velocity, vec![
-            Box::new(CellLayer::new(area, mass / area, Color::Green,
-                                    Box::new(NullCellLayerSpecialty::new())))
-        ])
+        Self::new(
+            position,
+            velocity,
+            vec![Box::new(CellLayer::new(
+                area,
+                mass / area,
+                Color::Green,
+                Box::new(NullCellLayerSpecialty::new()),
+            ))],
+        )
     }
 
     pub fn with_control(mut self, control: Box<dyn CellControl>) -> Self {
@@ -97,39 +103,53 @@ impl Cell {
         budgeted_control_requests
     }
 
-    fn cost_control_requests(&mut self, control_requests: &[ControlRequest]) -> Vec<CostedControlRequest> {
-        control_requests.iter()
+    fn cost_control_requests(
+        &mut self,
+        control_requests: &[ControlRequest],
+    ) -> Vec<CostedControlRequest> {
+        control_requests
+            .iter()
             .map(|req| self.layers[req.layer_index].cost_control_request(*req))
             .collect()
     }
 
-    fn budget_control_requests(start_energy: BioEnergy, costed_requests: &[CostedControlRequest])
-                               -> (BioEnergy, Vec<BudgetedControlRequest>) {
+    fn budget_control_requests(
+        start_energy: BioEnergy,
+        costed_requests: &[CostedControlRequest],
+    ) -> (BioEnergy, Vec<BudgetedControlRequest>) {
         let (income, expense) = Self::summarize_request_energy_deltas(costed_requests);
         let available_energy = start_energy + income;
         let budgeted_fraction = (available_energy.value() / expense.value()).min(1.0);
         let adjusted_expense = (expense * budgeted_fraction).min(available_energy);
         let end_energy = available_energy - adjusted_expense;
-        let budgeted_requests = costed_requests.iter()
+        let budgeted_requests = costed_requests
+            .iter()
             .map(|costed_request| {
-                let request_budgeted_fraction = if costed_request.energy_delta.value() < 0.0 { budgeted_fraction } else { 1.0 };
+                let request_budgeted_fraction = if costed_request.energy_delta.value() < 0.0 {
+                    budgeted_fraction
+                } else {
+                    1.0
+                };
                 BudgetedControlRequest::new(*costed_request, request_budgeted_fraction)
             })
             .collect();
         (end_energy, budgeted_requests)
     }
 
-    fn summarize_request_energy_deltas(costed_requests: &[CostedControlRequest]) -> (BioEnergy, BioEnergy) {
-        costed_requests.iter()
-            .fold((BioEnergy::new(0.0), BioEnergy::new(0.0)),
-                  |(income, expense), request| {
-                      let energy_delta = request.energy_delta;
-                      if energy_delta.value() > 0.0 {
-                          (income + energy_delta, expense)
-                      } else {
-                          (income, expense - energy_delta)
-                      }
-                  })
+    fn summarize_request_energy_deltas(
+        costed_requests: &[CostedControlRequest],
+    ) -> (BioEnergy, BioEnergy) {
+        costed_requests.iter().fold(
+            (BioEnergy::new(0.0), BioEnergy::new(0.0)),
+            |(income, expense), request| {
+                let energy_delta = request.energy_delta;
+                if energy_delta.value() > 0.0 {
+                    (income + energy_delta, expense)
+                } else {
+                    (income, expense - energy_delta)
+                }
+            },
+        )
     }
 
     fn execute_control_requests(&mut self, budgeted_control_requests: &[BudgetedControlRequest]) {
@@ -165,17 +185,18 @@ impl Cell {
 
     #[allow(clippy::vec_box)]
     fn update_layer_outer_radii(layers: &mut Vec<Box<CellLayer>>) -> Length {
-        layers.iter_mut().fold(
-            Length::new(0.0),
-            |inner_radius, layer| {
+        layers
+            .iter_mut()
+            .fold(Length::new(0.0), |inner_radius, layer| {
                 layer.update_outer_radius(inner_radius);
                 layer.outer_radius()
             })
     }
 
     fn calc_mass(layers: &[Box<CellLayer>]) -> Mass {
-        layers.iter().fold(
-            Mass::new(0.0), |mass, layer| mass + layer.mass())
+        layers
+            .iter()
+            .fold(Mass::new(0.0), |mass, layer| mass + layer.mass())
     }
 }
 
@@ -227,14 +248,22 @@ mod tests {
 
     #[test]
     fn cells_use_pointer_equality() {
-        let cell1 = Cell::new(Position::ORIGIN, Velocity::ZERO,
-                              vec![
-                                  Box::new(simple_cell_layer(Area::new(PI), Density::new(1.0)))
-                              ]);
-        let cell2 = Cell::new(Position::ORIGIN, Velocity::ZERO,
-                              vec![
-                                  Box::new(simple_cell_layer(Area::new(PI), Density::new(1.0)))
-                              ]);
+        let cell1 = Cell::new(
+            Position::ORIGIN,
+            Velocity::ZERO,
+            vec![Box::new(simple_cell_layer(
+                Area::new(PI),
+                Density::new(1.0),
+            ))],
+        );
+        let cell2 = Cell::new(
+            Position::ORIGIN,
+            Velocity::ZERO,
+            vec![Box::new(simple_cell_layer(
+                Area::new(PI),
+                Density::new(1.0),
+            ))],
+        );
         assert_eq!(cell1, cell1);
         assert_ne!(cell1, cell2);
     }
@@ -247,48 +276,64 @@ mod tests {
 
     #[test]
     fn cell_has_radius_of_outer_layer() {
-        let cell = Cell::new(Position::ORIGIN, Velocity::ZERO,
-                             vec![
-                                 Box::new(simple_cell_layer(Area::new(PI), Density::new(1.0))),
-                                 Box::new(simple_cell_layer(Area::new(3.0 * PI), Density::new(1.0))),
-                             ]);
+        let cell = Cell::new(
+            Position::ORIGIN,
+            Velocity::ZERO,
+            vec![
+                Box::new(simple_cell_layer(Area::new(PI), Density::new(1.0))),
+                Box::new(simple_cell_layer(Area::new(3.0 * PI), Density::new(1.0))),
+            ],
+        );
         assert_eq!(Length::new(2.0), cell.radius());
     }
 
     #[test]
     fn cell_has_mass_of_all_layers() {
-        let cell = Cell::new(Position::ORIGIN, Velocity::ZERO,
-                             vec![
-                                 Box::new(simple_cell_layer(Area::new(PI), Density::new(1.0))),
-                                 Box::new(simple_cell_layer(Area::new(2.0 * PI), Density::new(2.0))),
-                             ]);
+        let cell = Cell::new(
+            Position::ORIGIN,
+            Velocity::ZERO,
+            vec![
+                Box::new(simple_cell_layer(Area::new(PI), Density::new(1.0))),
+                Box::new(simple_cell_layer(Area::new(2.0 * PI), Density::new(2.0))),
+            ],
+        );
         assert_eq!(Mass::new(5.0 * PI), cell.mass());
     }
 
     #[test]
     fn cell_with_all_dead_layers_is_dead() {
-        let cell = Cell::new(Position::ORIGIN, Velocity::ZERO,
-                             vec![
-                                 Box::new(simple_cell_layer(Area::new(1.0), Density::new(1.0)).dead()),
-                                 Box::new(simple_cell_layer(Area::new(1.0), Density::new(1.0)).dead()),
-                             ]);
+        let cell = Cell::new(
+            Position::ORIGIN,
+            Velocity::ZERO,
+            vec![
+                Box::new(simple_cell_layer(Area::new(1.0), Density::new(1.0)).dead()),
+                Box::new(simple_cell_layer(Area::new(1.0), Density::new(1.0)).dead()),
+            ],
+        );
         assert!(!cell.is_alive());
     }
 
     #[test]
     fn cell_with_one_live_layer_is_alive() {
-        let cell = Cell::new(Position::ORIGIN, Velocity::ZERO,
-                             vec![
-                                 Box::new(simple_cell_layer(Area::new(1.0), Density::new(1.0))),
-                                 Box::new(simple_cell_layer(Area::new(1.0), Density::new(1.0)).dead()),
-                             ]);
+        let cell = Cell::new(
+            Position::ORIGIN,
+            Velocity::ZERO,
+            vec![
+                Box::new(simple_cell_layer(Area::new(1.0), Density::new(1.0))),
+                Box::new(simple_cell_layer(Area::new(1.0), Density::new(1.0)).dead()),
+            ],
+        );
         assert!(cell.is_alive());
     }
 
     #[test]
     fn cell_as_ball() {
-        let ball = Cell::ball(Length::new(2.0), Mass::new(3.0),
-                              Position::new(1.0, -1.0), Velocity::new(-2.0, 3.0));
+        let ball = Cell::ball(
+            Length::new(2.0),
+            Mass::new(3.0),
+            Position::new(1.0, -1.0),
+            Velocity::new(-2.0, 3.0),
+        );
         assert_eq!(Length::new(2.0), ball.radius());
         assert_eq!(Mass::new(3.0), ball.mass());
         assert_eq!(Position::new(1.0, -1.0), ball.center());
@@ -297,27 +342,41 @@ mod tests {
 
     #[test]
     fn cell_with_continuous_growth_control_grows_on_first_tick() {
-        let mut cell = Cell::new(Position::ORIGIN, Velocity::ZERO,
-                                 vec![
-                                     Box::new(simple_cell_layer(Area::new(10.0), Density::new(1.0))),
-                                 ])
-            .with_control(Box::new(ContinuousResizeControl::new(0, AreaDelta::new(0.5))));
+        let mut cell = Cell::new(
+            Position::ORIGIN,
+            Velocity::ZERO,
+            vec![Box::new(simple_cell_layer(
+                Area::new(10.0),
+                Density::new(1.0),
+            ))],
+        )
+        .with_control(Box::new(ContinuousResizeControl::new(
+            0,
+            AreaDelta::new(0.5),
+        )));
         cell.after_movement();
         assert_eq!(Mass::new(10.5), cell.mass());
     }
 
     #[test]
     fn layer_growth_cost_reduces_cell_energy() {
-        let mut cell = Cell::new(Position::ORIGIN, Velocity::ZERO,
-                                 vec![
-                                     Box::new(simple_cell_layer(Area::new(1.0), Density::new(1.0))
-                                         .with_resize_parameters(LayerResizeParameters {
-                                             growth_energy_delta: BioEnergyDelta::new(-1.0),
-                                             ..LayerResizeParameters::UNLIMITED
-                                         })),
-                                 ])
-            .with_control(Box::new(ContinuousResizeControl::new(0, AreaDelta::new(2.0))))
-            .with_initial_energy(BioEnergy::new(10.0));
+        let mut cell = Cell::new(
+            Position::ORIGIN,
+            Velocity::ZERO,
+            vec![Box::new(
+                simple_cell_layer(Area::new(1.0), Density::new(1.0)).with_resize_parameters(
+                    LayerResizeParameters {
+                        growth_energy_delta: BioEnergyDelta::new(-1.0),
+                        ..LayerResizeParameters::UNLIMITED
+                    },
+                ),
+            )],
+        )
+        .with_control(Box::new(ContinuousResizeControl::new(
+            0,
+            AreaDelta::new(2.0),
+        )))
+        .with_initial_energy(BioEnergy::new(10.0));
 
         cell.after_movement();
 
@@ -326,11 +385,20 @@ mod tests {
 
     #[test]
     fn thruster_layer_adds_force_to_cell() {
-        let mut cell = Cell::new(Position::ORIGIN, Velocity::ZERO,
-                                 vec![
-                                     Box::new(CellLayer::new(Area::new(1.0), Density::new(1.0), Color::Green, Box::new(ThrusterCellLayerSpecialty::new()))),
-                                 ])
-            .with_control(Box::new(SimpleThrusterControl::new(0, Force::new(1.0, -1.0))));
+        let mut cell = Cell::new(
+            Position::ORIGIN,
+            Velocity::ZERO,
+            vec![Box::new(CellLayer::new(
+                Area::new(1.0),
+                Density::new(1.0),
+                Color::Green,
+                Box::new(ThrusterCellLayerSpecialty::new()),
+            ))],
+        )
+        .with_control(Box::new(SimpleThrusterControl::new(
+            0,
+            Force::new(1.0, -1.0),
+        )));
         cell.after_movement();
         cell.after_influences(Duration::new(1.0));
         assert_eq!(Force::new(1.0, -1.0), cell.forces().net_force());
@@ -338,11 +406,16 @@ mod tests {
 
     #[test]
     fn photo_layer_adds_energy_to_cell() {
-        let mut cell = Cell::new(Position::ORIGIN, Velocity::ZERO,
-                                 vec![
-                                     Box::new(CellLayer::new(Area::new(4.0), Density::new(1.0), Color::Green,
-                                                             Box::new(PhotoCellLayerSpecialty::new(0.5)))),
-                                 ]);
+        let mut cell = Cell::new(
+            Position::ORIGIN,
+            Velocity::ZERO,
+            vec![Box::new(CellLayer::new(
+                Area::new(4.0),
+                Density::new(1.0),
+                Color::Green,
+                Box::new(PhotoCellLayerSpecialty::new(0.5)),
+            ))],
+        );
         cell.environment_mut().add_light_intensity(10.0);
 
         cell.after_influences(Duration::new(1.0));
@@ -352,48 +425,52 @@ mod tests {
 
     #[test]
     fn zero_cost_request_gets_fully_budgeted() {
-        let costed_request = CostedControlRequest::new(
-            ControlRequest::ZEROS, BioEnergyDelta::new(0.0));
+        let costed_request =
+            CostedControlRequest::new(ControlRequest::ZEROS, BioEnergyDelta::new(0.0));
 
-        let (_, budgeted_requests) = Cell::budget_control_requests(BioEnergy::new(0.0), &vec![costed_request]);
+        let (_, budgeted_requests) =
+            Cell::budget_control_requests(BioEnergy::new(0.0), &vec![costed_request]);
 
         assert_eq!(budgeted_requests[0].budgeted_fraction, 1.0);
     }
 
     #[test]
     fn energy_yielding_request_gets_fully_budgeted() {
-        let costed_request = CostedControlRequest::new(
-            ControlRequest::ZEROS, BioEnergyDelta::new(1.0));
+        let costed_request =
+            CostedControlRequest::new(ControlRequest::ZEROS, BioEnergyDelta::new(1.0));
 
-        let (_, budgeted_requests) = Cell::budget_control_requests(BioEnergy::new(0.0), &vec![costed_request]);
+        let (_, budgeted_requests) =
+            Cell::budget_control_requests(BioEnergy::new(0.0), &vec![costed_request]);
 
         assert_eq!(budgeted_requests[0].budgeted_fraction, 1.0);
     }
 
     #[test]
     fn request_gets_fully_budgeted_if_cell_has_enough_energy() {
-        let costed_request = CostedControlRequest::new(
-            ControlRequest::ZEROS, BioEnergyDelta::new(-1.0));
+        let costed_request =
+            CostedControlRequest::new(ControlRequest::ZEROS, BioEnergyDelta::new(-1.0));
 
-        let (_, budgeted_requests) = Cell::budget_control_requests(BioEnergy::new(1.0), &vec![costed_request]);
+        let (_, budgeted_requests) =
+            Cell::budget_control_requests(BioEnergy::new(1.0), &vec![costed_request]);
 
         assert_eq!(budgeted_requests[0].budgeted_fraction, 1.0);
     }
 
     #[test]
     fn request_budget_gets_scaled_if_cell_does_not_have_enough_energy() {
-        let costed_request = CostedControlRequest::new(
-            ControlRequest::ZEROS, BioEnergyDelta::new(-2.0));
+        let costed_request =
+            CostedControlRequest::new(ControlRequest::ZEROS, BioEnergyDelta::new(-2.0));
 
-        let (_, budgeted_requests) = Cell::budget_control_requests(BioEnergy::new(1.0), &vec![costed_request]);
+        let (_, budgeted_requests) =
+            Cell::budget_control_requests(BioEnergy::new(1.0), &vec![costed_request]);
 
         assert_eq!(budgeted_requests[0].budgeted_fraction, 0.5);
     }
 
     #[test]
     fn budgeting_returns_remaining_energy() {
-        let costed_request = CostedControlRequest::new(
-            ControlRequest::ZEROS, BioEnergyDelta::new(-1.0));
+        let costed_request =
+            CostedControlRequest::new(ControlRequest::ZEROS, BioEnergyDelta::new(-1.0));
 
         let (energy, _) = Cell::budget_control_requests(BioEnergy::new(2.0), &vec![costed_request]);
 
@@ -403,54 +480,67 @@ mod tests {
     #[test]
     fn energy_yielding_request_offsets_cost_of_other_request() {
         let costed_requests = vec![
-            CostedControlRequest::new(
-                ControlRequest::ZEROS, BioEnergyDelta::new(1.0)),
-            CostedControlRequest::new(
-                ControlRequest::ZEROS, BioEnergyDelta::new(-1.0))
+            CostedControlRequest::new(ControlRequest::ZEROS, BioEnergyDelta::new(1.0)),
+            CostedControlRequest::new(ControlRequest::ZEROS, BioEnergyDelta::new(-1.0)),
         ];
 
-        let (_, budgeted_requests) = Cell::budget_control_requests(BioEnergy::new(0.0), &costed_requests);
+        let (_, budgeted_requests) =
+            Cell::budget_control_requests(BioEnergy::new(0.0), &costed_requests);
 
-        assert_eq!(budgeted_requests, vec![
-            BudgetedControlRequest::new(costed_requests[0], 1.0),
-            BudgetedControlRequest::new(costed_requests[1], 1.0),
-        ]);
+        assert_eq!(
+            budgeted_requests,
+            vec![
+                BudgetedControlRequest::new(costed_requests[0], 1.0),
+                BudgetedControlRequest::new(costed_requests[1], 1.0),
+            ]
+        );
     }
 
     #[test]
     fn energy_yielding_request_offsets_cost_of_other_request_with_scaling() {
         let costed_requests = vec![
-            CostedControlRequest::new(
-                ControlRequest::ZEROS, BioEnergyDelta::new(1.0)),
-            CostedControlRequest::new(
-                ControlRequest::ZEROS, BioEnergyDelta::new(-2.0))
+            CostedControlRequest::new(ControlRequest::ZEROS, BioEnergyDelta::new(1.0)),
+            CostedControlRequest::new(ControlRequest::ZEROS, BioEnergyDelta::new(-2.0)),
         ];
 
-        let (_, budgeted_requests) = Cell::budget_control_requests(BioEnergy::new(0.0), &costed_requests);
+        let (_, budgeted_requests) =
+            Cell::budget_control_requests(BioEnergy::new(0.0), &costed_requests);
 
-        assert_eq!(budgeted_requests, vec![
-            BudgetedControlRequest::new(costed_requests[0], 1.0),
-            BudgetedControlRequest::new(costed_requests[1], 0.5),
-        ]);
+        assert_eq!(
+            budgeted_requests,
+            vec![
+                BudgetedControlRequest::new(costed_requests[0], 1.0),
+                BudgetedControlRequest::new(costed_requests[1], 0.5),
+            ]
+        );
     }
 
     #[test]
     fn overlap_damages_only_surface_layer() {
-        let mut cell = Cell::new(Position::ORIGIN, Velocity::ZERO,
-                                 vec![
-                                     Box::new(simple_cell_layer(Area::new(1.0), Density::new(1.0))
-                                         .with_health_parameters(LayerHealthParameters {
-                                             overlap_damage_health_delta: -1.0,
-                                             ..LayerHealthParameters::DEFAULT
-                                         })),
-                                     Box::new(simple_cell_layer(Area::new(1.0), Density::new(1.0))
-                                         .with_health_parameters(LayerHealthParameters {
-                                             overlap_damage_health_delta: -1.0,
-                                             ..LayerHealthParameters::DEFAULT
-                                         })),
-                                 ]);
+        let mut cell =
+            Cell::new(
+                Position::ORIGIN,
+                Velocity::ZERO,
+                vec![
+                    Box::new(
+                        simple_cell_layer(Area::new(1.0), Density::new(1.0))
+                            .with_health_parameters(LayerHealthParameters {
+                                overlap_damage_health_delta: -1.0,
+                                ..LayerHealthParameters::DEFAULT
+                            }),
+                    ),
+                    Box::new(
+                        simple_cell_layer(Area::new(1.0), Density::new(1.0))
+                            .with_health_parameters(LayerHealthParameters {
+                                overlap_damage_health_delta: -1.0,
+                                ..LayerHealthParameters::DEFAULT
+                            }),
+                    ),
+                ],
+            );
 
-        cell.environment_mut().add_overlap(Overlap::new(Displacement::new(1.0, 0.0)));
+        cell.environment_mut()
+            .add_overlap(Overlap::new(Displacement::new(1.0, 0.0)));
         cell.after_influences(Duration::new(1.0));
 
         assert_eq!(cell.layers()[0].health(), 1.0);
@@ -459,21 +549,29 @@ mod tests {
 
     #[test]
     fn layer_shrinkage_allows_layer_growth_within_limits() {
-        let mut cell = Cell::new(Position::ORIGIN, Velocity::ZERO,
-                                 vec![
-                                     Box::new(simple_cell_layer(Area::new(10.0), Density::new(1.0))
-                                         .with_resize_parameters(LayerResizeParameters {
-                                             shrinkage_energy_delta: BioEnergyDelta::new(2.0),
-                                             max_shrinkage_rate: 0.5,
-                                             ..LayerResizeParameters::UNLIMITED
-                                         })),
-                                     Box::new(simple_cell_layer(Area::new(5.0), Density::new(1.0))
-                                         .with_resize_parameters(LayerResizeParameters {
-                                             growth_energy_delta: BioEnergyDelta::new(-1.0),
-                                             max_growth_rate: 1.0,
-                                             ..LayerResizeParameters::UNLIMITED
-                                         })),
-                                 ])
+        let mut cell =
+            Cell::new(
+                Position::ORIGIN,
+                Velocity::ZERO,
+                vec![
+                    Box::new(
+                        simple_cell_layer(Area::new(10.0), Density::new(1.0))
+                            .with_resize_parameters(LayerResizeParameters {
+                                shrinkage_energy_delta: BioEnergyDelta::new(2.0),
+                                max_shrinkage_rate: 0.5,
+                                ..LayerResizeParameters::UNLIMITED
+                            }),
+                    ),
+                    Box::new(
+                        simple_cell_layer(Area::new(5.0), Density::new(1.0))
+                            .with_resize_parameters(LayerResizeParameters {
+                                growth_energy_delta: BioEnergyDelta::new(-1.0),
+                                max_growth_rate: 1.0,
+                                ..LayerResizeParameters::UNLIMITED
+                            }),
+                    ),
+                ],
+            )
             .with_control(Box::new(ContinuousRequestsControl::new(vec![
                 CellLayer::resize_request(0, AreaDelta::new(-100.0)),
                 CellLayer::resize_request(1, AreaDelta::new(100.0)),
@@ -488,37 +586,57 @@ mod tests {
 
     #[test]
     fn budding_creates_child_with_right_state() {
-        let mut cell = Cell::new(Position::new(2.0, -2.0), Velocity::new(3.0, -3.0),
-                                 vec![
-                                     Box::new(simple_cell_layer(Area::new(10.0), Density::new(1.0))),
-                                     Box::new(CellLayer::new(Area::new(5.0), Density::new(1.0), Color::White,
-                                                             Box::new(BuddingCellLayerSpecialty::new(create_child)))),
-                                 ])
-            .with_control(Box::new(ContinuousRequestsControl::new(vec![
-                CellLayer::resize_request(0, AreaDelta::new(10.0)),
-                BuddingCellLayerSpecialty::budding_angle_request(1, Angle::from_radians(0.0)),
-                BuddingCellLayerSpecialty::donation_energy_request(1, BioEnergy::new(1.0)),
-            ])));
+        let mut cell = Cell::new(
+            Position::new(2.0, -2.0),
+            Velocity::new(3.0, -3.0),
+            vec![
+                Box::new(simple_cell_layer(Area::new(10.0), Density::new(1.0))),
+                Box::new(CellLayer::new(
+                    Area::new(5.0),
+                    Density::new(1.0),
+                    Color::White,
+                    Box::new(BuddingCellLayerSpecialty::new(create_child)),
+                )),
+            ],
+        )
+        .with_control(Box::new(ContinuousRequestsControl::new(vec![
+            CellLayer::resize_request(0, AreaDelta::new(10.0)),
+            BuddingCellLayerSpecialty::budding_angle_request(1, Angle::from_radians(0.0)),
+            BuddingCellLayerSpecialty::donation_energy_request(1, BioEnergy::new(1.0)),
+        ])));
 
         let (_, children) = cell.after_movement();
 
         assert_eq!(children.len(), 1);
         let child = &children[0];
-        assert_eq!(child.center(),
-                   Position::new(cell.center().x() + cell.radius().value() + child.radius().value(),
-                                 cell.center().y()));
+        assert_eq!(
+            child.center(),
+            Position::new(
+                cell.center().x() + cell.radius().value() + child.radius().value(),
+                cell.center().y()
+            )
+        );
         assert_eq!(child.velocity(), cell.velocity());
         assert_eq!(child.energy(), BioEnergy::new(1.0));
     }
 
     fn create_child() -> Cell {
-        Cell::new(Position::ORIGIN, Velocity::ZERO,
-                  vec![
-                      Box::new(simple_cell_layer(Area::new(PI), Density::new(1.0)))
-                  ])
+        Cell::new(
+            Position::ORIGIN,
+            Velocity::ZERO,
+            vec![Box::new(simple_cell_layer(
+                Area::new(PI),
+                Density::new(1.0),
+            ))],
+        )
     }
 
     fn simple_cell_layer(area: Area, density: Density) -> CellLayer {
-        CellLayer::new(area, density, Color::Green, Box::new(NullCellLayerSpecialty::new()))
+        CellLayer::new(
+            area,
+            density,
+            Color::Green,
+            Box::new(NullCellLayerSpecialty::new()),
+        )
     }
 }

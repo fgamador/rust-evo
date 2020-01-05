@@ -16,7 +16,9 @@ impl Angle {
     pub const ZERO: Angle = Angle { radians: 0.0 };
 
     pub fn from_radians(radians: f64) -> Self {
-        Angle { radians: Self::normalize_radians(radians) }
+        Angle {
+            radians: Self::normalize_radians(radians),
+        }
     }
 
     fn normalize_radians(radians: f64) -> f64 {
@@ -35,9 +37,13 @@ impl Angle {
         self.radians
     }
 
-    pub fn cos(self) -> f64 { self.radians.cos() }
+    pub fn cos(self) -> f64 {
+        self.radians.cos()
+    }
 
-    pub fn sin(self) -> f64 { self.radians.sin() }
+    pub fn sin(self) -> f64 {
+        self.radians.sin()
+    }
 }
 
 impl Sub for Angle {
@@ -292,7 +298,11 @@ impl Position {
     pub fn to_polar_angle(&self, origin: Position) -> Angle {
         let displacement = *self - origin;
         let radians = displacement.y.atan2(displacement.x);
-        Angle::from_radians(if radians >= 0.0 { radians } else { radians + 2.0 * PI })
+        Angle::from_radians(if radians >= 0.0 {
+            radians
+        } else {
+            radians + 2.0 * PI
+        })
     }
 }
 
@@ -812,7 +822,10 @@ mod tests {
 
     #[test]
     fn normalize_negative_angle() {
-        assert_eq!(Angle::from_radians(2.0 * PI - 1.0), Angle::from_radians(-1.0));
+        assert_eq!(
+            Angle::from_radians(2.0 * PI - 1.0),
+            Angle::from_radians(-1.0)
+        );
     }
 
     #[test]
@@ -822,13 +835,18 @@ mod tests {
 
     #[test]
     fn subtract_angles() {
-        assert_eq!(Deflection::from_radians(1.0),
-                   Angle::from_radians(2.5) - Angle::from_radians(1.5));
+        assert_eq!(
+            Deflection::from_radians(1.0),
+            Angle::from_radians(2.5) - Angle::from_radians(1.5)
+        );
     }
 
     #[test]
     fn add_deflection_to_angle() {
-        assert_eq!(Angle::from_radians(3.0), Angle::from_radians(1.0) + Deflection::from_radians(2.0));
+        assert_eq!(
+            Angle::from_radians(3.0),
+            Angle::from_radians(1.0) + Deflection::from_radians(2.0)
+        );
     }
 
     #[test]
@@ -865,14 +883,18 @@ mod tests {
 
     #[test]
     fn displace_position() {
-        assert_eq!(Position::new(2.0, 1.0),
-                   Position::new(1.5, 1.5) + Displacement::new(0.5, -0.5));
+        assert_eq!(
+            Position::new(2.0, 1.0),
+            Position::new(1.5, 1.5) + Displacement::new(0.5, -0.5)
+        );
     }
 
     #[test]
     fn subtract_positions() {
-        assert_eq!(Displacement::new(0.5, -0.5),
-                   Position::new(2.0, 1.0) - Position::new(1.5, 1.5));
+        assert_eq!(
+            Displacement::new(0.5, -0.5),
+            Position::new(2.0, 1.0) - Position::new(1.5, 1.5)
+        );
     }
 
     #[test]
@@ -901,8 +923,10 @@ mod tests {
 
     #[test]
     fn add_displacements() {
-        assert_eq!(Displacement::new(2.0, 1.0),
-                   Displacement::new(1.5, 1.5) + Displacement::new(0.5, -0.5));
+        assert_eq!(
+            Displacement::new(2.0, 1.0),
+            Displacement::new(1.5, 1.5) + Displacement::new(0.5, -0.5)
+        );
     }
 
     #[test]
@@ -912,14 +936,18 @@ mod tests {
 
     #[test]
     fn displacement_max() {
-        assert_eq!(Displacement::new(1.5, -0.25),
-                   Displacement::new(1.5, -0.5).max(Displacement::new(0.5, -0.25)));
+        assert_eq!(
+            Displacement::new(1.5, -0.25),
+            Displacement::new(1.5, -0.5).max(Displacement::new(0.5, -0.25))
+        );
     }
 
     #[test]
     fn displacement_min() {
-        assert_eq!(Displacement::new(0.5, -0.5),
-                   Displacement::new(1.5, -0.25).min(Displacement::new(0.5, -0.5)));
+        assert_eq!(
+            Displacement::new(0.5, -0.5),
+            Displacement::new(1.5, -0.25).min(Displacement::new(0.5, -0.5))
+        );
     }
 
     #[test]
@@ -929,32 +957,42 @@ mod tests {
 
     #[test]
     fn change_velocity() {
-        assert_eq!(Velocity::new(1.0, 2.0),
-                   Velocity::new(1.5, 1.5) + DeltaV::new(-0.5, 0.5));
+        assert_eq!(
+            Velocity::new(1.0, 2.0),
+            Velocity::new(1.5, 1.5) + DeltaV::new(-0.5, 0.5)
+        );
     }
 
     #[test]
     fn velocity_to_displacement() {
-        assert_eq!(Displacement::new(0.75, -0.25),
-                   Velocity::new(1.5, -0.5) * Duration::new(0.5));
+        assert_eq!(
+            Displacement::new(0.75, -0.25),
+            Velocity::new(1.5, -0.5) * Duration::new(0.5)
+        );
     }
 
     #[test]
     fn multiply_mass_by_acceleration() {
-        assert_eq!(Force::new(0.75, -0.25),
-                   Mass::new(0.5) * Acceleration::new(1.5, -0.5));
+        assert_eq!(
+            Force::new(0.75, -0.25),
+            Mass::new(0.5) * Acceleration::new(1.5, -0.5)
+        );
     }
 
     #[test]
     fn impulse_to_delta_v() {
-        assert_eq!(DeltaV::new(0.75, -0.25),
-                   Impulse::new(1.5, -0.5) / Mass::new(2.0));
+        assert_eq!(
+            DeltaV::new(0.75, -0.25),
+            Impulse::new(1.5, -0.5) / Mass::new(2.0)
+        );
     }
 
     #[test]
     fn add_forces() {
-        assert_eq!(Force::new(0.75, -0.25),
-                   Force::new(1.5, -0.5) + Force::new(-0.75, 0.25));
+        assert_eq!(
+            Force::new(0.75, -0.25),
+            Force::new(1.5, -0.5) + Force::new(-0.75, 0.25)
+        );
     }
 
     #[test]
@@ -966,8 +1004,10 @@ mod tests {
 
     #[test]
     fn force_to_impulse() {
-        assert_eq!(Impulse::new(0.75, -0.25),
-                   Force::new(1.5, -0.5) * Duration::new(0.5));
+        assert_eq!(
+            Impulse::new(0.75, -0.25),
+            Force::new(1.5, -0.5) * Duration::new(0.5)
+        );
     }
 
     #[test]

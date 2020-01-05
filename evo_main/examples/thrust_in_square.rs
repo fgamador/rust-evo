@@ -1,14 +1,14 @@
 extern crate evo_main;
 extern crate evo_model;
 
+use evo_main::main_support::init_and_run;
+use evo_model::biology::cell::Cell;
 use evo_model::biology::control::*;
 use evo_model::biology::control_requests::*;
 use evo_model::biology::layers::*;
-use evo_model::biology::cell::Cell;
 use evo_model::environment::influences::*;
 use evo_model::physics::quantities::*;
 use evo_model::world::World;
-use evo_main::main_support::init_and_run;
 use std::f64::consts::PI;
 
 fn main() {
@@ -18,18 +18,26 @@ fn main() {
 fn create_world() -> World {
     World::new(Position::new(0.0, -400.0), Position::new(400.0, 0.0))
         .with_perimeter_walls()
-        .with_influences(vec![
-            Box::new(SimpleForceInfluence::new(Box::new(DragForce::new(2.0))))
-        ])
-        .with_cells(vec![
-            Cell::new(
-                Position::new(300.0, -300.0), Velocity::new(0.0, 0.0),
-                vec![
-                    Box::new(CellLayer::new(Area::new(200.0 * PI), Density::new(1.0), Color::Green, Box::new(ThrusterCellLayerSpecialty::new()))),
-                ])
-                .with_control(Box::new(
-                    ThrustInSquareControl::new(0, 70.0, Direction::Left, 100, 200))),
-        ])
+        .with_influences(vec![Box::new(SimpleForceInfluence::new(Box::new(
+            DragForce::new(2.0),
+        )))])
+        .with_cells(vec![Cell::new(
+            Position::new(300.0, -300.0),
+            Velocity::new(0.0, 0.0),
+            vec![Box::new(CellLayer::new(
+                Area::new(200.0 * PI),
+                Density::new(1.0),
+                Color::Green,
+                Box::new(ThrusterCellLayerSpecialty::new()),
+            ))],
+        )
+        .with_control(Box::new(ThrustInSquareControl::new(
+            0,
+            70.0,
+            Direction::Left,
+            100,
+            200,
+        )))])
 }
 
 #[derive(Debug, Clone, Copy)]
@@ -51,7 +59,13 @@ pub struct ThrustInSquareControl {
 }
 
 impl ThrustInSquareControl {
-    pub fn new(thruster_layer_index: usize, force: f64, initial_direction: Direction, accel_ticks: u32, ticks_before_turn: u32) -> Self {
+    pub fn new(
+        thruster_layer_index: usize,
+        force: f64,
+        initial_direction: Direction,
+        accel_ticks: u32,
+        ticks_before_turn: u32,
+    ) -> Self {
         ThrustInSquareControl {
             thruster_layer_index,
             force,

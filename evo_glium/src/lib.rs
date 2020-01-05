@@ -37,13 +37,16 @@ impl GliumView {
         let display = glium::Display::new(window, context, &events_loop).unwrap();
         let background_drawing = BackgroundDrawing::new(&display);
         let bullseye_drawing = CellDrawing::new(&display);
-        let world = vec![
-            World {
-                corners: [world_min_corner[0], world_min_corner[1], world_max_corner[0], world_max_corner[1]],
-                top_color: [0.0, 0.1, 0.5],
-                bottom_color: [0.0, 0.0, 0.0],
-            }
-        ];
+        let world = vec![World {
+            corners: [
+                world_min_corner[0],
+                world_min_corner[1],
+                world_max_corner[0],
+                world_max_corner[1],
+            ],
+            top_color: [0.0, 0.1, 0.5],
+            bottom_color: [0.0, 0.0, 0.0],
+        }];
         let world_vb = glium::VertexBuffer::new(&display, &world).unwrap();
 
         GliumView {
@@ -62,8 +65,10 @@ impl GliumView {
             return false;
         }
 
-        self.draw_frame(&Self::view_model_bullseyes_to_drawing_cells(world),
-                        Self::get_layer_colors(world));
+        self.draw_frame(
+            &Self::view_model_bullseyes_to_drawing_cells(world),
+            Self::get_layer_colors(world),
+        );
         true
     }
 
@@ -76,7 +81,11 @@ impl GliumView {
     }
 
     fn view_model_bullseyes_to_drawing_cells(world: &evo_model::world::World) -> Vec<Cell> {
-        world.cells().iter().map(Self::model_cell_to_drawing_cell).collect()
+        world
+            .cells()
+            .iter()
+            .map(Self::model_cell_to_drawing_cell)
+            .collect()
     }
 
     fn model_cell_to_drawing_cell(cell: &evo_model::biology::cell::Cell) -> Cell {
@@ -122,8 +131,10 @@ impl GliumView {
         let screen_transform = self.current_screen_transform();
         let mut frame = self.display.draw();
         frame.clear_color(0.0, 0.0, 0.0, 1.0);
-        self.background_drawing.draw(&mut frame, &self.world_vb, screen_transform);
-        self.cell_drawing.draw(&mut frame, &cells_vb, screen_transform, layer_colors);
+        self.background_drawing
+            .draw(&mut frame, &self.world_vb, screen_transform);
+        self.cell_drawing
+            .draw(&mut frame, &cells_vb, screen_transform, layer_colors);
         frame.finish().unwrap();
     }
 
@@ -135,8 +146,15 @@ impl GliumView {
     }
 
     #[allow(clippy::useless_let_if_seq)]
-    fn calc_screen_transform(world_min_corner: Point, world_max_corner: Point, window_dim: [f32; 2]) -> [[f32; 4]; 4] {
-        let world_dim = [world_max_corner[0] - world_min_corner[0], world_max_corner[1] - world_min_corner[1]];
+    fn calc_screen_transform(
+        world_min_corner: Point,
+        world_max_corner: Point,
+        window_dim: [f32; 2],
+    ) -> [[f32; 4]; 4] {
+        let world_dim = [
+            world_max_corner[0] - world_min_corner[0],
+            world_max_corner[1] - world_min_corner[1],
+        ];
 
         let x_scale;
         let y_scale;
@@ -168,10 +186,11 @@ impl GliumView {
                 glutin::WindowEvent::CloseRequested => true,
                 // Break from the loop upon `Escape`.
                 glutin::WindowEvent::KeyboardInput {
-                    input: glutin::KeyboardInput {
-                        virtual_keycode: Some(glutin::VirtualKeyCode::Escape),
-                        ..
-                    },
+                    input:
+                        glutin::KeyboardInput {
+                            virtual_keycode: Some(glutin::VirtualKeyCode::Escape),
+                            ..
+                        },
                     ..
                 } => true,
                 _ => false,

@@ -33,7 +33,9 @@ impl LocalEnvironment {
         self.light_intensity += light_intensity;
     }
 
-    pub fn light_intensity(&self) -> f64 { self.light_intensity }
+    pub fn light_intensity(&self) -> f64 {
+        self.light_intensity
+    }
 
     pub fn clear(&mut self) {
         self.overlaps.clear();

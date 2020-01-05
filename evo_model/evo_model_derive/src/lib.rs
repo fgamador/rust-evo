@@ -153,44 +153,55 @@ pub fn newtonian_body_derive(input: TokenStream) -> TokenStream {
 }
 
 fn trait_derive<F>(input: TokenStream, impl_trait: F) -> TokenStream
-    where F: Fn(&syn::DeriveInput) -> proc_macro2::TokenStream
+where
+    F: Fn(&syn::DeriveInput) -> proc_macro2::TokenStream,
 {
     let ast = parse_macro_input!(input as DeriveInput);
     let expanded = impl_trait(&ast);
     TokenStream::from(expanded)
 }
 
-fn get_name_of_field_that_is_struct_of_type<'a>(data: &'a syn::Data, type_name: &str) -> &'a syn::Ident {
+fn get_name_of_field_that_is_struct_of_type<'a>(
+    data: &'a syn::Data,
+    type_name: &str,
+) -> &'a syn::Ident {
     let fields = get_fields_that_are_structs_of_type(data, type_name);
     if fields.len() != 1 {
-        panic!("Macro must be applied to a struct with exactly one field of type {}", type_name);
+        panic!(
+            "Macro must be applied to a struct with exactly one field of type {}",
+            type_name
+        );
     }
     fields[0].ident.as_ref().unwrap()
 }
 
-fn get_fields_that_are_structs_of_type<'a>(data: &'a syn::Data, type_name: &str) -> Vec<&'a syn::Field> {
+fn get_fields_that_are_structs_of_type<'a>(
+    data: &'a syn::Data,
+    type_name: &str,
+) -> Vec<&'a syn::Field> {
     match data {
-        syn::Data::Struct(data) => {
-            match &data.fields {
-                syn::Fields::Named(fields) => {
-                    fields.named.iter().filter(|f| field_is_struct_of_type(f, type_name)).collect()
-                }
-                _ => vec![]
-            }
-        }
-        _ => vec![]
+        syn::Data::Struct(data) => match &data.fields {
+            syn::Fields::Named(fields) => fields
+                .named
+                .iter()
+                .filter(|f| field_is_struct_of_type(f, type_name))
+                .collect(),
+            _ => vec![],
+        },
+        _ => vec![],
     }
 }
 
 fn field_is_struct_of_type(field: &syn::Field, type_name: &str) -> bool {
     match &field.ty {
-        syn::Type::Path(syn::TypePath { path: syn::Path { segments, .. }, .. }) => {
-            match segments.last() {
-                Some(syn::PathSegment { ident, .. }) => ident == type_name,
-                _ => false
-            }
-        }
-        _ => false
+        syn::Type::Path(syn::TypePath {
+            path: syn::Path { segments, .. },
+            ..
+        }) => match segments.last() {
+            Some(syn::PathSegment { ident, .. }) => ident == type_name,
+            _ => false,
+        },
+        _ => false,
     }
 }
 

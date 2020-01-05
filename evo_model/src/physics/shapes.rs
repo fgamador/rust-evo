@@ -11,8 +11,10 @@ pub trait Circle {
     }
 
     fn to_bounding_box(&self) -> Rectangle {
-        Rectangle::new(Position::new(self.min_x(), self.min_y()),
-                       Position::new(self.max_x(), self.max_y()))
+        Rectangle::new(
+            Position::new(self.min_x(), self.min_y()),
+            Position::new(self.max_x(), self.max_y()),
+        )
     }
 
     fn min_x(&self) -> f64 {
@@ -40,7 +42,10 @@ pub struct Rectangle {
 
 impl Rectangle {
     pub fn new(min_corner: Position, max_corner: Position) -> Rectangle {
-        Rectangle { min_corner, max_corner }
+        Rectangle {
+            min_corner,
+            max_corner,
+        }
     }
 
     pub fn min_corner(&self) -> Position {
@@ -98,7 +103,7 @@ impl Circle for SimpleCircle {
     }
 
     fn center(&self) -> Position {
-         self.center
+        self.center
     }
 }
 
@@ -116,9 +121,10 @@ mod tests {
     #[test]
     fn circle_bounding_box() {
         let subject = SimpleCircle::new(Position::new(-0.5, 0.5), Length::new(1.0));
-        assert_eq!(Rectangle::new(Position::new(-1.5, -0.5),
-                                  Position::new(0.5, 1.5)),
-                   subject.to_bounding_box());
+        assert_eq!(
+            Rectangle::new(Position::new(-1.5, -0.5), Position::new(0.5, 1.5)),
+            subject.to_bounding_box()
+        );
     }
 
     #[test]
@@ -134,28 +140,22 @@ mod tests {
 
     #[test]
     fn rectangles_with_only_x_overlap() {
-        let rect1 = Rectangle::new(Position::new(0.0, 0.0),
-                                   Position::new(1.5, 1.0));
-        let rect2 = Rectangle::new(Position::new(1.0, 1.0),
-                                   Position::new(2.0, 2.0));
+        let rect1 = Rectangle::new(Position::new(0.0, 0.0), Position::new(1.5, 1.0));
+        let rect2 = Rectangle::new(Position::new(1.0, 1.0), Position::new(2.0, 2.0));
         assert!(!rect1.overlaps(rect2));
     }
 
     #[test]
     fn rectangles_with_only_y_overlap() {
-        let rect1 = Rectangle::new(Position::new(0.0, 0.0),
-                                   Position::new(1.0, 1.5));
-        let rect2 = Rectangle::new(Position::new(1.0, 1.0),
-                                   Position::new(2.0, 2.0));
+        let rect1 = Rectangle::new(Position::new(0.0, 0.0), Position::new(1.0, 1.5));
+        let rect2 = Rectangle::new(Position::new(1.0, 1.0), Position::new(2.0, 2.0));
         assert!(!rect1.overlaps(rect2));
     }
 
     #[test]
     fn rectangles_that_overlap() {
-        let rect1 = Rectangle::new(Position::new(0.0, 0.0),
-                                   Position::new(1.5, 1.5));
-        let rect2 = Rectangle::new(Position::new(1.0, 1.0),
-                                   Position::new(2.0, 2.0));
+        let rect1 = Rectangle::new(Position::new(0.0, 0.0), Position::new(1.5, 1.5));
+        let rect2 = Rectangle::new(Position::new(1.0, 1.0), Position::new(2.0, 2.0));
         assert!(rect1.overlaps(rect2));
     }
 }

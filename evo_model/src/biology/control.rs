@@ -42,20 +42,19 @@ impl CellControl for NullControl {
 
 #[derive(Debug)]
 pub struct CompositeControl {
-    controls: Vec<Box<dyn CellControl>>
+    controls: Vec<Box<dyn CellControl>>,
 }
 
 impl CompositeControl {
     pub fn new(controls: Vec<Box<dyn CellControl>>) -> Self {
-        CompositeControl {
-            controls
-        }
+        CompositeControl { controls }
     }
 }
 
 impl CellControl for CompositeControl {
     fn get_control_requests(&mut self, cell_state: &CellStateSnapshot) -> Vec<ControlRequest> {
-        self.controls.iter_mut()
+        self.controls
+            .iter_mut()
             .flat_map(|control| control.get_control_requests(cell_state))
             .collect()
     }
@@ -63,14 +62,12 @@ impl CellControl for CompositeControl {
 
 #[derive(Debug)]
 pub struct ContinuousRequestsControl {
-    requests: Vec<ControlRequest>
+    requests: Vec<ControlRequest>,
 }
 
 impl ContinuousRequestsControl {
     pub fn new(requests: Vec<ControlRequest>) -> Self {
-        ContinuousRequestsControl {
-            requests
-        }
+        ContinuousRequestsControl { requests }
     }
 }
 
@@ -97,7 +94,10 @@ impl ContinuousResizeControl {
 
 impl CellControl for ContinuousResizeControl {
     fn get_control_requests(&mut self, _cell_state: &CellStateSnapshot) -> Vec<ControlRequest> {
-        vec![CellLayer::resize_request(self.layer_index, self.resize_amount)]
+        vec![CellLayer::resize_request(
+            self.layer_index,
+            self.resize_amount,
+        )]
     }
 }
 
@@ -133,17 +133,22 @@ mod tests {
     fn continuous_resize_control_returns_request_to_grow_specified_layer() {
         let mut control = ContinuousResizeControl::new(1, AreaDelta::new(0.5));
         let requests = control.get_control_requests(&CellStateSnapshot::ZEROS);
-        assert_eq!(requests, vec![CellLayer::resize_request(1, AreaDelta::new(0.5))]);
+        assert_eq!(
+            requests,
+            vec![CellLayer::resize_request(1, AreaDelta::new(0.5))]
+        );
     }
 
     #[test]
     fn simple_thruster_control_returns_requests_for_force() {
         let mut control = SimpleThrusterControl::new(2, Force::new(1.0, -1.0));
         let requests = control.get_control_requests(&CellStateSnapshot::ZEROS);
-        assert_eq!(requests,
-                   vec![
-                       ControlRequest::new(2, 2, 1.0),
-                       ControlRequest::new(2, 3, -1.0)
-                   ]);
+        assert_eq!(
+            requests,
+            vec![
+                ControlRequest::new(2, 2, 1.0),
+                ControlRequest::new(2, 3, -1.0)
+            ]
+        );
     }
 }

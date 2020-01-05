@@ -1,6 +1,7 @@
 extern crate evo_main;
 extern crate evo_model;
 
+use evo_main::main_support::init_and_run;
 use evo_model::biology::cell::Cell;
 use evo_model::biology::control::*;
 use evo_model::biology::control_requests::*;
@@ -8,7 +9,6 @@ use evo_model::biology::layers::*;
 use evo_model::environment::influences::*;
 use evo_model::physics::quantities::*;
 use evo_model::world::World;
-use evo_main::main_support::init_and_run;
 use std::f64::consts::PI;
 
 fn main() {
@@ -23,14 +23,25 @@ fn create_world() -> World {
 }
 
 fn create_child() -> Cell {
-    Cell::new(Position::ORIGIN, Velocity::ZERO,
-              vec![
-                  Box::new(CellLayer::new(Area::new(5.0 * PI), Density::new(1.0), Color::Yellow,
-                                          Box::new(EnergyGeneratingCellLayerSpecialty::new()))),
-                  Box::new(CellLayer::new(Area::new(5.0 * PI), Density::new(1.0), Color::Green,
-                                          Box::new(BuddingCellLayerSpecialty::new(create_child))))
-              ])
-        .with_control(Box::new(BuddingControl::new()))
+    Cell::new(
+        Position::ORIGIN,
+        Velocity::ZERO,
+        vec![
+            Box::new(CellLayer::new(
+                Area::new(5.0 * PI),
+                Density::new(1.0),
+                Color::Yellow,
+                Box::new(EnergyGeneratingCellLayerSpecialty::new()),
+            )),
+            Box::new(CellLayer::new(
+                Area::new(5.0 * PI),
+                Density::new(1.0),
+                Color::Green,
+                Box::new(BuddingCellLayerSpecialty::new(create_child)),
+            )),
+        ],
+    )
+    .with_control(Box::new(BuddingControl::new()))
 }
 
 #[derive(Debug)]

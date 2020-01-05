@@ -56,7 +56,7 @@ pub struct SimpleGraphEdge {
 impl SimpleGraphEdge {
     pub fn new(node1: &dyn GraphNode, node2: &dyn GraphNode) -> Self {
         SimpleGraphEdge {
-            edge_data: GraphEdgeData::new(node1.node_handle(), node2.node_handle())
+            edge_data: GraphEdgeData::new(node1.node_handle(), node2.node_handle()),
         }
     }
 }
@@ -69,7 +69,7 @@ pub struct SimpleGraphMetaEdge {
 impl SimpleGraphMetaEdge {
     pub fn new(edge1: &dyn GraphEdge, edge2: &dyn GraphEdge) -> Self {
         SimpleGraphMetaEdge {
-            meta_edge_data: GraphMetaEdgeData::new(edge1.edge_handle(), edge2.edge_handle())
+            meta_edge_data: GraphMetaEdgeData::new(edge1.edge_handle(), edge2.edge_handle()),
         }
     }
 }

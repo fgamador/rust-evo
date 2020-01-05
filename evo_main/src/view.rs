@@ -14,7 +14,8 @@ impl View {
         View {
             view: GliumView::new(
                 [world_min_corner.x() as f32, world_min_corner.y() as f32],
-                [world_max_corner.x() as f32, world_max_corner.y() as f32]),
+                [world_max_corner.x() as f32, world_max_corner.y() as f32],
+            ),
             next_tick: Instant::now(),
         }
     }

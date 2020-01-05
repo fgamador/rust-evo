@@ -1,6 +1,6 @@
 use crate::biology::cell::Cell;
-use crate::environment::local_environment::*;
 use crate::environment::influences::*;
+use crate::environment::local_environment::*;
 use crate::physics::bond::*;
 use crate::physics::newtonian::NewtonianBody;
 use crate::physics::quantities::*;
@@ -26,28 +26,32 @@ impl World {
     }
 
     pub fn with_standard_influences(self) -> Self {
-        self.with_perimeter_walls()
-            .with_influences(vec![
-                Box::new(PairCollisions::new()),
-                Box::new(BondForces::new()),
-                Box::new(BondAngleForces::new()),
-            ])
+        self.with_perimeter_walls().with_influences(vec![
+            Box::new(PairCollisions::new()),
+            Box::new(BondForces::new()),
+            Box::new(BondAngleForces::new()),
+        ])
     }
 
     pub fn with_perimeter_walls(self) -> Self {
         let world_min_corner = self.min_corner();
         let world_max_corner = self.max_corner();
-        self.with_influence(Box::new(
-            WallCollisions::new(world_min_corner, world_max_corner,
-                                Box::new(LinearSpring::new(1.0)))))
+        self.with_influence(Box::new(WallCollisions::new(
+            world_min_corner,
+            world_max_corner,
+            Box::new(LinearSpring::new(1.0)),
+        )))
     }
 
     pub fn with_sunlight(self, min_intensity: f64, max_intensity: f64) -> Self {
         let world_min_corner = self.min_corner();
         let world_max_corner = self.max_corner();
-        self.with_influence(Box::new(
-            Sunlight::new(world_min_corner.y(), world_max_corner.y(),
-                          min_intensity, max_intensity)))
+        self.with_influence(Box::new(Sunlight::new(
+            world_min_corner.y(),
+            world_max_corner.y(),
+            min_intensity,
+            max_intensity,
+        )))
     }
 
     pub fn with_influence(mut self, influence: Box<dyn Influence>) -> Self {
@@ -106,7 +110,11 @@ impl World {
 
     pub fn with_angle_gussets(mut self, index_pairs_with_angles: Vec<(usize, usize, f64)>) -> Self {
         for tuple in index_pairs_with_angles {
-            let gusset = AngleGusset::new(&self.bonds()[tuple.0], &self.bonds()[tuple.1], Angle::from_radians(tuple.2));
+            let gusset = AngleGusset::new(
+                &self.bonds()[tuple.0],
+                &self.bonds()[tuple.1],
+                Angle::from_radians(tuple.2),
+            );
             self.add_angle_gusset(gusset);
         }
         self
@@ -184,9 +192,13 @@ mod tests {
 
     #[test]
     fn tick_moves_ball() {
-        let mut world = World::new(Position::new(0.0, 0.0), Position::new(0.0, 0.0))
-            .with_cell(Cell::ball(Length::new(1.0), Mass::new(1.0),
-                                  Position::new(0.0, 0.0), Velocity::new(1.0, 1.0)));
+        let mut world =
+            World::new(Position::new(0.0, 0.0), Position::new(0.0, 0.0)).with_cell(Cell::ball(
+                Length::new(1.0),
+                Mass::new(1.0),
+                Position::new(0.0, 0.0),
+                Velocity::new(1.0, 1.0),
+            ));
 
         world.tick();
 
@@ -198,9 +210,15 @@ mod tests {
     #[test]
     fn tick_with_force_accelerates_ball() {
         let mut world = World::new(Position::new(0.0, 0.0), Position::new(0.0, 0.0))
-            .with_influence(Box::new(SimpleForceInfluence::new(Box::new(ConstantForce::new(Force::new(1.0, 1.0))))))
-            .with_cell(Cell::ball(Length::new(1.0), Mass::new(1.0),
-                                  Position::new(0.0, 0.0), Velocity::new(0.0, 0.0)));
+            .with_influence(Box::new(SimpleForceInfluence::new(Box::new(
+                ConstantForce::new(Force::new(1.0, 1.0)),
+            ))))
+            .with_cell(Cell::ball(
+                Length::new(1.0),
+                Mass::new(1.0),
+                Position::new(0.0, 0.0),
+                Velocity::new(0.0, 0.0),
+            ));
 
         world.tick();
 
@@ -212,9 +230,15 @@ mod tests {
     #[test]
     fn overlaps_do_not_persist() {
         let mut world = World::new(Position::new(0.0, 0.0), Position::new(0.0, 0.0))
-            .with_influence(Box::new(UniversalOverlap::new(Overlap::new(Displacement::new(1.0, 1.0)))))
-            .with_cell(Cell::ball(Length::new(1.0), Mass::new(1.0),
-                                  Position::new(0.0, 0.0), Velocity::new(0.0, 0.0)));
+            .with_influence(Box::new(UniversalOverlap::new(Overlap::new(
+                Displacement::new(1.0, 1.0),
+            ))))
+            .with_cell(Cell::ball(
+                Length::new(1.0),
+                Mass::new(1.0),
+                Position::new(0.0, 0.0),
+                Velocity::new(0.0, 0.0),
+            ));
 
         world.tick();
 
@@ -225,9 +249,15 @@ mod tests {
     #[test]
     fn forces_do_not_persist() {
         let mut world = World::new(Position::new(0.0, 0.0), Position::new(0.0, 0.0))
-            .with_influence(Box::new(SimpleForceInfluence::new(Box::new(ConstantForce::new(Force::new(1.0, 1.0))))))
-            .with_cell(Cell::ball(Length::new(1.0), Mass::new(1.0),
-                                  Position::new(0.0, 0.0), Velocity::new(0.0, 0.0)));
+            .with_influence(Box::new(SimpleForceInfluence::new(Box::new(
+                ConstantForce::new(Force::new(1.0, 1.0)),
+            ))))
+            .with_cell(Cell::ball(
+                Length::new(1.0),
+                Mass::new(1.0),
+                Position::new(0.0, 0.0),
+                Velocity::new(0.0, 0.0),
+            ));
 
         world.tick();
 
@@ -239,10 +269,16 @@ mod tests {
     fn tick_runs_photo_layer() {
         let mut world = World::new(Position::new(0.0, 0.0), Position::new(0.0, 0.0))
             .with_influence(Box::new(Sunlight::new(-10.0, 10.0, 0.0, 10.0)))
-            .with_cell(Cell::new(Position::new(0.0, 0.0), Velocity::ZERO,
-                                 vec![
-                                     Box::new(CellLayer::new(Area::new(10.0), Density::new(1.0), Color::Green, Box::new(PhotoCellLayerSpecialty::new(1.0)))),
-                                 ]));
+            .with_cell(Cell::new(
+                Position::new(0.0, 0.0),
+                Velocity::ZERO,
+                vec![Box::new(CellLayer::new(
+                    Area::new(10.0),
+                    Density::new(1.0),
+                    Color::Green,
+                    Box::new(PhotoCellLayerSpecialty::new(1.0)),
+                ))],
+            ));
 
         world.tick();
 
@@ -252,13 +288,22 @@ mod tests {
 
     #[test]
     fn tick_runs_cell_growth() {
-        let mut world = World::new(Position::new(0.0, 0.0), Position::new(0.0, 0.0))
-            .with_cell(Cell::new(Position::new(0.0, 0.0), Velocity::new(0.0, 0.0),
-                                 vec![
-                                     Box::new(CellLayer::new(
-                                         Area::new(1.0), Density::new(1.0), Color::Green, Box::new(NullCellLayerSpecialty::new()))),
-                                 ])
-                .with_control(Box::new(ContinuousResizeControl::new(0, AreaDelta::new(2.0)))));
+        let mut world = World::new(Position::new(0.0, 0.0), Position::new(0.0, 0.0)).with_cell(
+            Cell::new(
+                Position::new(0.0, 0.0),
+                Velocity::new(0.0, 0.0),
+                vec![Box::new(CellLayer::new(
+                    Area::new(1.0),
+                    Density::new(1.0),
+                    Color::Green,
+                    Box::new(NullCellLayerSpecialty::new()),
+                ))],
+            )
+            .with_control(Box::new(ContinuousResizeControl::new(
+                0,
+                AreaDelta::new(2.0),
+            ))),
+        );
 
         world.tick();
 
@@ -269,12 +314,22 @@ mod tests {
     #[test]
     fn tick_runs_cell_thruster() {
         let mut world = World::new(Position::new(-10.0, -10.0), Position::new(10.0, 10.0))
-            .with_cell(Cell::new(Position::new(0.0, 0.0), Velocity::new(0.0, 0.0),
-                                 vec![
-                                     Box::new(CellLayer::new(Area::new(1.0), Density::new(1.0), Color::Green,
-                                                             Box::new(ThrusterCellLayerSpecialty::new()))),
-                                 ])
-                .with_control(Box::new(SimpleThrusterControl::new(0, Force::new(1.0, -1.0)))));
+            .with_cell(
+                Cell::new(
+                    Position::new(0.0, 0.0),
+                    Velocity::new(0.0, 0.0),
+                    vec![Box::new(CellLayer::new(
+                        Area::new(1.0),
+                        Density::new(1.0),
+                        Color::Green,
+                        Box::new(ThrusterCellLayerSpecialty::new()),
+                    ))],
+                )
+                .with_control(Box::new(SimpleThrusterControl::new(
+                    0,
+                    Force::new(1.0, -1.0),
+                ))),
+            );
 
         world.tick();
         world.tick();
@@ -288,16 +343,28 @@ mod tests {
     fn growth_is_limited_by_energy() {
         let mut world = World::new(Position::new(-10.0, -10.0), Position::new(10.0, 10.0))
             .with_influence(Box::new(Sunlight::new(-10.0, 10.0, 0.0, 10.0)))
-            .with_cell(Cell::new(Position::new(0.0, 0.0), Velocity::ZERO,
-                                 vec![
-                                     Box::new(CellLayer::new(Area::new(10.0), Density::new(1.0), Color::Green,
-                                                             Box::new(PhotoCellLayerSpecialty::new(1.0)))
-                                         .with_resize_parameters(LayerResizeParameters {
-                                             growth_energy_delta: BioEnergyDelta::new(-10.0),
-                                             ..LayerResizeParameters::UNLIMITED
-                                         }))
-                                 ])
-                .with_control(Box::new(ContinuousResizeControl::new(0, AreaDelta::new(100.0)))));
+            .with_cell(
+                Cell::new(
+                    Position::new(0.0, 0.0),
+                    Velocity::ZERO,
+                    vec![Box::new(
+                        CellLayer::new(
+                            Area::new(10.0),
+                            Density::new(1.0),
+                            Color::Green,
+                            Box::new(PhotoCellLayerSpecialty::new(1.0)),
+                        )
+                        .with_resize_parameters(LayerResizeParameters {
+                            growth_energy_delta: BioEnergyDelta::new(-10.0),
+                            ..LayerResizeParameters::UNLIMITED
+                        }),
+                    )],
+                )
+                .with_control(Box::new(ContinuousResizeControl::new(
+                    0,
+                    AreaDelta::new(100.0),
+                ))),
+            );
 
         world.tick();
 
@@ -307,15 +374,21 @@ mod tests {
 
     #[test]
     fn new_cells_get_added_to_world() {
-        let mut world = World::new(Position::ORIGIN, Position::ORIGIN)
-            .with_cell(Cell::new(Position::ORIGIN, Velocity::ZERO,
-                                 vec![
-                                     Box::new(CellLayer::new(Area::new(1.0), Density::new(1.0), Color::Green,
-                                                             Box::new(BuddingCellLayerSpecialty::new(create_child))))
-                                 ])
-                .with_control(Box::new(ContinuousRequestsControl::new(vec![
-                    BuddingCellLayerSpecialty::donation_energy_request(0, BioEnergy::new(1.0)),
-                ]))));
+        let mut world = World::new(Position::ORIGIN, Position::ORIGIN).with_cell(
+            Cell::new(
+                Position::ORIGIN,
+                Velocity::ZERO,
+                vec![Box::new(CellLayer::new(
+                    Area::new(1.0),
+                    Density::new(1.0),
+                    Color::Green,
+                    Box::new(BuddingCellLayerSpecialty::new(create_child)),
+                ))],
+            )
+            .with_control(Box::new(ContinuousRequestsControl::new(vec![
+                BuddingCellLayerSpecialty::donation_energy_request(0, BioEnergy::new(1.0)),
+            ]))),
+        );
 
         world.tick();
 
@@ -324,11 +397,13 @@ mod tests {
 
     #[test]
     fn dead_cells_get_removed_from_world() {
-        let mut world = World::new(Position::ORIGIN, Position::ORIGIN)
-            .with_cell(Cell::new(Position::ORIGIN, Velocity::ZERO,
-                                 vec![
-                                     Box::new(simple_cell_layer(Area::new(1.0), Density::new(1.0)).dead())
-                                 ]));
+        let mut world = World::new(Position::ORIGIN, Position::ORIGIN).with_cell(Cell::new(
+            Position::ORIGIN,
+            Velocity::ZERO,
+            vec![Box::new(
+                simple_cell_layer(Area::new(1.0), Density::new(1.0)).dead(),
+            )],
+        ));
 
         world.tick();
 
@@ -336,11 +411,22 @@ mod tests {
     }
 
     fn create_child() -> Cell {
-        Cell::new(Position::ORIGIN, Velocity::ZERO,
-                  vec![Box::new(simple_cell_layer(Area::new(1.0), Density::new(1.0)))])
+        Cell::new(
+            Position::ORIGIN,
+            Velocity::ZERO,
+            vec![Box::new(simple_cell_layer(
+                Area::new(1.0),
+                Density::new(1.0),
+            ))],
+        )
     }
 
     fn simple_cell_layer(area: Area, density: Density) -> CellLayer {
-        CellLayer::new(area, density, Color::Green, Box::new(NullCellLayerSpecialty::new()))
+        CellLayer::new(
+            area,
+            density,
+            Color::Green,
+            Box::new(NullCellLayerSpecialty::new()),
+        )
     }
 }

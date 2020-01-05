@@ -7,14 +7,14 @@ use std::f64::consts::PI;
 
 #[derive(Clone, Debug, GraphEdge, PartialEq)]
 pub struct Bond {
-    edge_data: GraphEdgeData
+    edge_data: GraphEdgeData,
 }
 
 impl Bond {
     pub fn new(circle1: &dyn GraphNode, circle2: &dyn GraphNode) -> Self {
         assert_ne!(circle1.node_handle(), circle2.node_handle());
         Bond {
-            edge_data: GraphEdgeData::new(circle1.node_handle(), circle2.node_handle())
+            edge_data: GraphEdgeData::new(circle1.node_handle(), circle2.node_handle()),
         }
     }
 
@@ -24,13 +24,11 @@ impl Bond {
 }
 
 #[derive(Clone, Copy, Debug, PartialEq)]
-pub struct BondStrain
-{
+pub struct BondStrain {
     strain: Displacement,
 }
 
-impl BondStrain
-{
+impl BondStrain {
     pub fn new(strain: Displacement) -> Self {
         BondStrain { strain }
     }
@@ -38,12 +36,18 @@ impl BondStrain
     // TODO move this to a Spring class
     pub fn to_force(&self) -> Force {
         const SPRING_CONSTANT: f64 = 1.0;
-        Force::new(self.strain.x() * SPRING_CONSTANT, self.strain.y() * SPRING_CONSTANT)
+        Force::new(
+            self.strain.x() * SPRING_CONSTANT,
+            self.strain.y() * SPRING_CONSTANT,
+        )
     }
 }
 
-pub fn calc_bond_strains<C>(graph: &SortableGraph<C, Bond, AngleGusset>) -> Vec<(NodeHandle, BondStrain)>
-    where C: Circle + GraphNode
+pub fn calc_bond_strains<C>(
+    graph: &SortableGraph<C, Bond, AngleGusset>,
+) -> Vec<(NodeHandle, BondStrain)>
+where
+    C: Circle + GraphNode,
 {
     let mut strains: Vec<(NodeHandle, BondStrain)> = Vec::with_capacity(graph.edges().len() * 2);
     for bond in graph.edges() {
@@ -58,7 +62,8 @@ pub fn calc_bond_strains<C>(graph: &SortableGraph<C, Bond, AngleGusset>) -> Vec<
 }
 
 fn calc_bond_strain<C>(circle1: &C, circle2: &C) -> Displacement
-    where C: Circle
+where
+    C: Circle,
 {
     let x_offset = circle1.center().x() - circle2.center().x();
     let y_offset = circle1.center().y() - circle2.center().y();
@@ -91,8 +96,11 @@ impl AngleGusset {
     }
 }
 
-pub fn calc_bond_angle_forces<C>(graph: &SortableGraph<C, Bond, AngleGusset>) -> Vec<(NodeHandle, Force)>
-    where C: Circle + GraphNode
+pub fn calc_bond_angle_forces<C>(
+    graph: &SortableGraph<C, Bond, AngleGusset>,
+) -> Vec<(NodeHandle, Force)>
+where
+    C: Circle + GraphNode,
 {
     let mut forces: Vec<(NodeHandle, Force)> = Vec::with_capacity(graph.meta_edges().len() * 2);
     for gusset in graph.meta_edges() {
@@ -103,9 +111,12 @@ pub fn calc_bond_angle_forces<C>(graph: &SortableGraph<C, Bond, AngleGusset>) ->
     forces
 }
 
-fn calc_bond_angle_force_pair<C>(gusset: &AngleGusset, graph: &SortableGraph<C, Bond, AngleGusset>)
-                                 -> ((NodeHandle, Force), (NodeHandle, Force))
-    where C: Circle + GraphNode
+fn calc_bond_angle_force_pair<C>(
+    gusset: &AngleGusset,
+    graph: &SortableGraph<C, Bond, AngleGusset>,
+) -> ((NodeHandle, Force), (NodeHandle, Force))
+where
+    C: Circle + GraphNode,
 {
     let bond1 = graph.edge(gusset.edge1_handle());
     let bond2 = graph.edge(gusset.edge2_handle());
@@ -117,21 +128,31 @@ fn calc_bond_angle_force_pair<C>(gusset: &AngleGusset, graph: &SortableGraph<C, 
     let bond_angle = calc_bond_angle(node0.center(), node1.center(), node2.center());
     let torque = calc_torque_from_angle_deflection(bond_angle - gusset.angle);
 
-    let node1_tangential_force = calc_tangential_force_from_torque(node0.center(), node1.center(), torque);
-    let node1_force = calc_force_from_tangential_force(node0.center(), node1.center(), node1_tangential_force);
+    let node1_tangential_force =
+        calc_tangential_force_from_torque(node0.center(), node1.center(), torque);
+    let node1_force =
+        calc_force_from_tangential_force(node0.center(), node1.center(), node1_tangential_force);
 
-    let node2_tangential_force = calc_tangential_force_from_torque(node0.center(), node2.center(), -torque);
-    let node2_force = calc_force_from_tangential_force(node0.center(), node2.center(), node2_tangential_force);
+    let node2_tangential_force =
+        calc_tangential_force_from_torque(node0.center(), node2.center(), -torque);
+    let node2_force =
+        calc_force_from_tangential_force(node0.center(), node2.center(), node2_tangential_force);
 
-    ((node1.node_handle(), node1_force),
-     (node2.node_handle(), node2_force))
+    (
+        (node1.node_handle(), node1_force),
+        (node2.node_handle(), node2_force),
+    )
 }
 
 fn calc_bond_angle(origin: Position, point1: Position, point2: Position) -> Angle {
     let angle1 = point1.to_polar_angle(origin);
     let angle2 = point2.to_polar_angle(origin);
     let radians = angle2.radians() - angle1.radians();
-    Angle::from_radians(if radians >= 0.0 { radians } else { radians + 2.0 * PI })
+    Angle::from_radians(if radians >= 0.0 {
+        radians
+    } else {
+        radians + 2.0 * PI
+    })
 }
 
 fn calc_torque_from_angle_deflection(deflection: Deflection) -> Torque {
@@ -143,10 +164,17 @@ fn calc_tangential_force_from_torque(origin: Position, point: Position, torque: 
     -torque.value() / point.to_polar_radius(origin).value()
 }
 
-fn calc_force_from_tangential_force(origin: Position, point: Position, tangential_force: f64) -> Force {
-    let force_angle = point.to_polar_angle(origin) + Deflection::from_radians(tangential_force.signum() * PI / 2.0);
-    Force::new(tangential_force.abs() * force_angle.radians().cos(),
-               tangential_force.abs() * force_angle.radians().sin())
+fn calc_force_from_tangential_force(
+    origin: Position,
+    point: Position,
+    tangential_force: f64,
+) -> Force {
+    let force_angle = point.to_polar_angle(origin)
+        + Deflection::from_radians(tangential_force.signum() * PI / 2.0);
+    Force::new(
+        tangential_force.abs() * force_angle.radians().cos(),
+        tangential_force.abs() * force_angle.radians().sin(),
+    )
 }
 
 #[cfg(test)]
@@ -243,7 +271,8 @@ mod tests {
     #[test]
     fn calcs_tangential_force_from_torque() {
         let origin = Position::new(1.0, 1.0);
-        let tangential_force = calc_tangential_force_from_torque(origin, Position::new(3.0, 1.0), -Torque::new(3.0));
+        let tangential_force =
+            calc_tangential_force_from_torque(origin, Position::new(3.0, 1.0), -Torque::new(3.0));
         assert_eq!(1.5, tangential_force);
     }
 
@@ -255,19 +284,36 @@ mod tests {
         assert_eq!(1.5, force.y());
     }
 
-    fn add_simple_circle_node(graph: &mut SortableGraph<SimpleCircleNode, Bond, AngleGusset>,
-                              center: (f64, f64), radius: f64) -> NodeHandle {
-        graph.add_node(SimpleCircleNode::new(Position::new(center.0, center.1), Length::new(radius)))
+    fn add_simple_circle_node(
+        graph: &mut SortableGraph<SimpleCircleNode, Bond, AngleGusset>,
+        center: (f64, f64),
+        radius: f64,
+    ) -> NodeHandle {
+        graph.add_node(SimpleCircleNode::new(
+            Position::new(center.0, center.1),
+            Length::new(radius),
+        ))
     }
 
-    fn add_bond(graph: &mut SortableGraph<SimpleCircleNode, Bond, AngleGusset>,
-                node1: NodeHandle, node2: NodeHandle) -> EdgeHandle {
+    fn add_bond(
+        graph: &mut SortableGraph<SimpleCircleNode, Bond, AngleGusset>,
+        node1: NodeHandle,
+        node2: NodeHandle,
+    ) -> EdgeHandle {
         let bond = Bond::new(graph.node(node1), graph.node(node2));
         graph.add_edge(bond)
     }
 
-    fn add_angle_gusset(graph: &mut SortableGraph<SimpleCircleNode, Bond, AngleGusset>,
-                        bond1: EdgeHandle, bond2: EdgeHandle, radians: f64) -> AngleGusset {
-        AngleGusset::new(graph.edge(bond1), graph.edge(bond2), Angle::from_radians(radians))
+    fn add_angle_gusset(
+        graph: &mut SortableGraph<SimpleCircleNode, Bond, AngleGusset>,
+        bond1: EdgeHandle,
+        bond2: EdgeHandle,
+        radians: f64,
+    ) -> AngleGusset {
+        AngleGusset::new(
+            graph.edge(bond1),
+            graph.edge(bond2),
+            Angle::from_radians(radians),
+        )
     }
 }

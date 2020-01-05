@@ -8,8 +8,11 @@ pub struct ControlRequest {
 }
 
 impl ControlRequest {
-    pub const ZEROS: ControlRequest =
-        ControlRequest { layer_index: 0, channel_index: 0, value: 0.0 };
+    pub const ZEROS: ControlRequest = ControlRequest {
+        layer_index: 0,
+        channel_index: 0,
+        value: 0.0,
+    };
 
     pub fn new(layer_index: usize, channel_index: usize, value: f64) -> Self {
         ControlRequest {
@@ -29,13 +32,12 @@ pub struct CostedControlRequest {
 }
 
 impl CostedControlRequest {
-    pub const NULL_REQUEST: CostedControlRequest =
-        CostedControlRequest {
-            layer_index: 0,
-            channel_index: 0,
-            value: 0.0,
-            energy_delta: BioEnergyDelta::ZERO,
-        };
+    pub const NULL_REQUEST: CostedControlRequest = CostedControlRequest {
+        layer_index: 0,
+        channel_index: 0,
+        value: 0.0,
+        energy_delta: BioEnergyDelta::ZERO,
+    };
 
     pub fn new(control_request: ControlRequest, energy_delta: BioEnergyDelta) -> Self {
         CostedControlRequest {
@@ -57,14 +59,13 @@ pub struct BudgetedControlRequest {
 }
 
 impl BudgetedControlRequest {
-    pub const NULL_REQUEST: BudgetedControlRequest =
-        BudgetedControlRequest {
-            layer_index: 0,
-            channel_index: 0,
-            value: 0.0,
-            energy_delta: BioEnergyDelta::ZERO,
-            budgeted_fraction: 1.0,
-        };
+    pub const NULL_REQUEST: BudgetedControlRequest = BudgetedControlRequest {
+        layer_index: 0,
+        channel_index: 0,
+        value: 0.0,
+        energy_delta: BioEnergyDelta::ZERO,
+        budgeted_fraction: 1.0,
+    };
 
     pub fn new(costed_request: CostedControlRequest, budgeted_fraction: f64) -> Self {
         BudgetedControlRequest {

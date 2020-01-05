@@ -437,8 +437,7 @@ impl CellLayerBrain for DeadCellLayerBrain {
         _specialty: &mut dyn CellLayerSpecialty,
         _body: &mut CellLayerBody,
         _request: BudgetedControlRequest,
-    ) {
-    }
+    ) {}
 
     fn after_control_requests(
         &self,
@@ -654,10 +653,10 @@ impl CellLayerSpecialty for BuddingCellLayerSpecialty {
     fn execute_control_request(&mut self, body: &CellLayerBody, request: BudgetedControlRequest) {
         match request.channel_index {
             2 => self.budding_angle = Angle::from_radians(request.value),
-            3 => {
+            3 =>
                 self.donation_energy =
                     body.health * request.budgeted_fraction * BioEnergy::new(request.value)
-            }
+            ,
             _ => panic!("Invalid control channel index: {}", request.channel_index),
         }
     }
@@ -753,7 +752,7 @@ mod tests {
             costed_request,
             CostedControlRequest::new(
                 CellLayer::resize_request(0, AreaDelta::new(3.0)),
-                BioEnergyDelta::new(-1.5)
+                BioEnergyDelta::new(-1.5),
             )
         );
     }
@@ -1009,7 +1008,7 @@ mod tests {
             Color::Green,
             Box::new(ThrusterCellLayerSpecialty::new()),
         )
-        .with_health(0.5);
+            .with_health(0.5);
         layer.execute_control_request(fully_budgeted(ThrusterCellLayerSpecialty::force_x_request(
             0, 1.0,
         )));
@@ -1070,7 +1069,7 @@ mod tests {
             Color::Green,
             Box::new(PhotoCellLayerSpecialty::new(1.0)),
         )
-        .with_health(0.75);
+            .with_health(0.75);
 
         let mut env = LocalEnvironment::new();
         env.add_light_intensity(1.0);
@@ -1088,7 +1087,7 @@ mod tests {
             Color::Green,
             Box::new(PhotoCellLayerSpecialty::new(1.0)),
         )
-        .dead();
+            .dead();
 
         let mut env = LocalEnvironment::new();
         env.add_light_intensity(1.0);
@@ -1125,7 +1124,7 @@ mod tests {
                 assert_eq!(
                     Position::new(
                         cell_state.center.x() + cell_state.radius.value() + child.radius().value(),
-                        cell_state.center.y()
+                        cell_state.center.y(),
                     ),
                     child.center()
                 );
@@ -1179,7 +1178,7 @@ mod tests {
             Color::Green,
             Box::new(BuddingCellLayerSpecialty::new(create_child)),
         )
-        .with_health(0.5);
+            .with_health(0.5);
         layer.execute_control_request(fully_budgeted(
             BuddingCellLayerSpecialty::donation_energy_request(0, BioEnergy::new(1.0)),
         ));

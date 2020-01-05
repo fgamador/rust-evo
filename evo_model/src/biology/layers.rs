@@ -653,10 +653,7 @@ impl CellLayerSpecialty for BuddingCellLayerSpecialty {
     fn execute_control_request(&mut self, body: &CellLayerBody, request: BudgetedControlRequest) {
         match request.channel_index {
             2 => self.budding_angle = Angle::from_radians(request.value),
-            3 =>
-                self.donation_energy =
-                    body.health * request.budgeted_fraction * BioEnergy::new(request.value)
-            ,
+            3 => self.donation_energy = body.health * request.budgeted_fraction * BioEnergy::new(request.value),
             _ => panic!("Invalid control channel index: {}", request.channel_index),
         }
     }

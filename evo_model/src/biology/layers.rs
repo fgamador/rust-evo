@@ -705,42 +705,42 @@ mod tests {
     #[test]
     fn layer_calculates_mass() {
         let layer = simple_cell_layer(Area::new(2.0 * PI), Density::new(3.0));
-        assert_eq!(Mass::new(6.0 * PI), layer.mass());
+        assert_eq!(layer.mass(), Mass::new(6.0 * PI));
     }
 
     #[test]
     fn single_layer_calculates_outer_radius() {
         let layer = simple_cell_layer(Area::new(4.0 * PI), Density::new(1.0));
-        assert_eq!(Length::new(2.0), layer.outer_radius());
+        assert_eq!(layer.outer_radius(), Length::new(2.0));
     }
 
     #[test]
     fn layer_updates_outer_radius_based_on_inner_radius() {
         let mut layer = simple_cell_layer(Area::new(3.0 * PI), Density::new(1.0));
         layer.update_outer_radius(Length::new(1.0));
-        assert_eq!(Length::new(2.0), layer.outer_radius());
+        assert_eq!(layer.outer_radius(), Length::new(2.0));
     }
 
     #[test]
     fn layer_resize_updates_area_and_mass() {
         let mut layer = simple_cell_layer(Area::new(1.0), Density::new(2.0));
         layer.execute_control_request(fully_budgeted_resize_request(0, 2.0));
-        assert_eq!(Area::new(3.0), layer.area());
-        assert_eq!(Mass::new(6.0), layer.mass());
+        assert_eq!(layer.area(), Area::new(3.0));
+        assert_eq!(layer.mass(), Mass::new(6.0));
     }
 
     #[test]
     fn layer_damage_reduces_health() {
         let mut layer = simple_cell_layer(Area::new(1.0), Density::new(1.0));
         layer.damage(0.25);
-        assert_eq!(0.75, layer.health());
+        assert_eq!(layer.health(), 0.75);
     }
 
     #[test]
     fn layer_damage_cannot_reduce_health_below_zero() {
         let mut layer = simple_cell_layer(Area::new(1.0), Density::new(1.0));
         layer.damage(2.0);
-        assert_eq!(0.0, layer.health());
+        assert_eq!(layer.health(), 0.0);
     }
 
     #[test]
@@ -783,7 +783,7 @@ mod tests {
             BioEnergyDelta::ZERO,
             0.5,
         ));
-        assert_eq!(Area::new(3.0), layer.area());
+        assert_eq!(layer.area(), Area::new(3.0));
     }
 
     #[test]
@@ -794,7 +794,7 @@ mod tests {
                 ..LayerResizeParameters::UNLIMITED
             });
         layer.execute_control_request(fully_budgeted_resize_request(0, 10.0));
-        assert_eq!(Area::new(3.0), layer.area());
+        assert_eq!(layer.area(), Area::new(3.0));
     }
 
     #[test]
@@ -821,7 +821,7 @@ mod tests {
                 ..LayerResizeParameters::UNLIMITED
             });
         layer.execute_control_request(fully_budgeted_resize_request(0, -10.0));
-        assert_eq!(Area::new(1.5), layer.area());
+        assert_eq!(layer.area(), Area::new(1.5));
     }
 
     #[test]
@@ -844,7 +844,7 @@ mod tests {
     fn layer_resize_is_reduced_by_reduced_health() {
         let mut layer = simple_cell_layer(Area::new(1.0), Density::new(1.0)).with_health(0.5);
         layer.execute_control_request(fully_budgeted_resize_request(0, 10.0));
-        assert_eq!(Area::new(6.0), layer.area());
+        assert_eq!(layer.area(), Area::new(6.0));
     }
 
     #[test]
@@ -867,14 +867,14 @@ mod tests {
     fn layer_health_can_be_restored() {
         let mut layer = simple_cell_layer(Area::new(1.0), Density::new(1.0)).with_health(0.5);
         layer.execute_control_request(fully_budgeted_healing_request(0, 0.25));
-        assert_eq!(0.75, layer.health());
+        assert_eq!(layer.health(), 0.75);
     }
 
     #[test]
     fn layer_health_cannot_be_restored_above_one() {
         let mut layer = simple_cell_layer(Area::new(1.0), Density::new(1.0)).with_health(0.5);
         layer.execute_control_request(fully_budgeted_healing_request(0, 1.0));
-        assert_eq!(1.0, layer.health());
+        assert_eq!(layer.health(), 1.0);
     }
 
     #[test]
@@ -885,7 +885,7 @@ mod tests {
             BioEnergyDelta::ZERO,
             0.5,
         ));
-        assert_eq!(0.75, layer.health());
+        assert_eq!(layer.health(), 0.75);
     }
 
     #[test]
@@ -969,7 +969,7 @@ mod tests {
     fn dead_layer_ignores_control_requests() {
         let mut layer = simple_cell_layer(Area::new(1.0), Density::new(1.0)).dead();
         layer.execute_control_request(fully_budgeted_healing_request(0, 1.0));
-        assert_eq!(0.0, layer.health());
+        assert_eq!(layer.health(), 0.0);
     }
 
     #[test]
@@ -990,7 +990,7 @@ mod tests {
         let env = LocalEnvironment::new();
         let (_, force) = layer.after_influences(&env, Duration::new(0.5));
 
-        assert_eq!(Force::new(1.0, -1.0), force);
+        assert_eq!(force, Force::new(1.0, -1.0));
     }
 
     #[test]
@@ -1015,7 +1015,7 @@ mod tests {
         let env = LocalEnvironment::new();
         let (_, force) = layer.after_influences(&env, Duration::new(1.0));
 
-        assert_eq!(Force::new(0.5, -0.25), force);
+        assert_eq!(force, Force::new(0.5, -0.25));
     }
 
     #[test]
@@ -1037,7 +1037,7 @@ mod tests {
         let env = LocalEnvironment::new();
         let (_, force) = layer.after_influences(&env, Duration::new(1.0));
 
-        assert_eq!(Force::new(0.5, -0.5), force);
+        assert_eq!(force, Force::new(0.5, -0.5));
     }
 
     #[test]
@@ -1059,7 +1059,7 @@ mod tests {
         let env = LocalEnvironment::new();
         let (_, force) = layer.after_influences(&env, Duration::new(1.0));
 
-        assert_eq!(Force::new(0.0, 0.0), force);
+        assert_eq!(force, Force::new(0.0, 0.0));
     }
 
     #[test]
@@ -1076,7 +1076,7 @@ mod tests {
 
         let (energy, _) = layer.after_influences(&env, Duration::new(0.5));
 
-        assert_eq!(BioEnergy::new(10.0), energy);
+        assert_eq!(energy, BioEnergy::new(10.0));
     }
 
     #[test]
@@ -1094,7 +1094,7 @@ mod tests {
 
         let (energy, _) = layer.after_influences(&env, Duration::new(1.0));
 
-        assert_eq!(BioEnergy::new(0.75), energy);
+        assert_eq!(energy, BioEnergy::new(0.75));
     }
 
     #[test]
@@ -1112,7 +1112,7 @@ mod tests {
 
         let (energy, _) = layer.after_influences(&env, Duration::new(1.0));
 
-        assert_eq!(BioEnergy::new(0.0), energy);
+        assert_eq!(energy, BioEnergy::new(0.0));
     }
 
     #[test]
@@ -1185,8 +1185,8 @@ mod tests {
                     ),
                     child.center()
                 );
-                assert_eq!(cell_state.velocity, child.velocity());
-                assert_eq!(BioEnergy::new(1.0), child.energy());
+                assert_eq!(child.velocity(), cell_state.velocity);
+                assert_eq!(child.energy(), BioEnergy::new(1.0));
             }
         }
     }

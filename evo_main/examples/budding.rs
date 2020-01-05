@@ -41,19 +41,21 @@ fn create_child() -> Cell {
             )),
         ],
     )
-    .with_control(Box::new(BuddingControl::new()))
+    .with_control(Box::new(BuddingControl::new(1)))
 }
 
 #[derive(Debug)]
 pub struct BuddingControl {
+    budding_layer_index: usize,
     budding_ticks: u32,
     budding_angle: Angle,
     tick: u32,
 }
 
 impl BuddingControl {
-    fn new() -> Self {
+    fn new(budding_layer_index: usize) -> Self {
         BuddingControl {
+            budding_layer_index,
             budding_ticks: 100,
             budding_angle: Angle::from_radians(0.0),
             tick: 0,
@@ -74,15 +76,15 @@ impl BuddingControl {
         }
         vec![
             EnergyGeneratingCellLayerSpecialty::energy_request(0, BioEnergy::new(1.0)),
-            BuddingCellLayerSpecialty::budding_angle_request(1, self.budding_angle),
-            BuddingCellLayerSpecialty::donation_energy_request(1, donation_energy),
+            BuddingCellLayerSpecialty::budding_angle_request(self.budding_layer_index, self.budding_angle),
+            BuddingCellLayerSpecialty::donation_energy_request(self.budding_layer_index, donation_energy),
         ]
     }
 
-    fn child_requests() -> Vec<ControlRequest> {
+    fn child_requests(budding_layer_index: usize) -> Vec<ControlRequest> {
         vec![
             CellLayer::resize_request(0, AreaDelta::new(5.0)),
-            CellLayer::resize_request(1, AreaDelta::new(5.0)),
+            CellLayer::resize_request(budding_layer_index, AreaDelta::new(5.0)),
         ]
     }
 }
@@ -92,7 +94,7 @@ impl CellControl for BuddingControl {
         if Self::is_parent(cell_state) {
             self.parent_requests()
         } else {
-            Self::child_requests()
+            Self::child_requests(self.budding_layer_index)
         }
     }
 }

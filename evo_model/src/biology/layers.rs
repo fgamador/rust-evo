@@ -190,6 +190,7 @@ impl CellLayer {
             .body
             .brain
             .after_control_requests(&mut *self.specialty, cell_state);
+        self.specialty.reset();
         child
     }
 
@@ -477,6 +478,8 @@ pub trait CellLayerSpecialty: Debug {
     fn after_control_requests(&mut self, _cell_state: &CellStateSnapshot) -> Option<Cell> {
         None
     }
+
+    fn reset(&mut self) {}
 }
 
 #[derive(Debug)]
@@ -645,10 +648,6 @@ impl BuddingCellLayerSpecialty {
         child
     }
 
-    fn reset(&mut self) {
-        self.donation_energy = BioEnergy::ZERO;
-    }
-
     pub fn budding_angle_request(layer_index: usize, angle: Angle) -> ControlRequest {
         ControlRequest::new(layer_index, 2, angle.radians())
     }
@@ -683,9 +682,11 @@ impl CellLayerSpecialty for BuddingCellLayerSpecialty {
             return None;
         }
 
-        let child = self.create_and_init_child(cell_state);
-        self.reset();
-        Some(child)
+        Some(self.create_and_init_child(cell_state))
+    }
+
+    fn reset(&mut self) {
+        self.donation_energy = BioEnergy::ZERO;
     }
 }
 

@@ -56,20 +56,28 @@ fn create_cell() -> Cell {
             )),
         ],
     )
-    .with_control(Box::new(DuckweedControl::new(0, -50.0)))
+    .with_control(Box::new(DuckweedControl::new(0, -50.0, 2)))
 }
 
 #[derive(Debug)]
 pub struct DuckweedControl {
     float_layer_index: usize,
     target_y: f64,
+    budding_layer_index: usize,
+    budding_ticks: u32,
+    budding_angle: Angle,
+    tick: u32,
 }
 
 impl DuckweedControl {
-    pub fn new(float_layer_index: usize, target_y: f64) -> Self {
+    pub fn new(float_layer_index: usize, target_y: f64, budding_layer_index: usize) -> Self {
         DuckweedControl {
             float_layer_index,
             target_y,
+            budding_layer_index,
+            budding_ticks: 100,
+            budding_angle: Angle::from_radians(0.0),
+            tick: 0,
         }
     }
 

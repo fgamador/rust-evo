@@ -27,11 +27,11 @@ fn create_world() -> World {
             Box::new(SimpleForceInfluence::new(Box::new(DragForce::new(0.005)))),
         ])
         .with_cells(vec![
-            create_child().with_initial_position(Position::new(200.0, -50.0))
+            create_cell().with_initial_position(Position::new(200.0, -50.0))
         ])
 }
 
-fn create_child() -> Cell {
+fn create_cell() -> Cell {
     Cell::new(
         Position::ORIGIN,
         Velocity::ZERO,
@@ -47,6 +47,12 @@ fn create_child() -> Cell {
                 Density::new(0.00075),
                 Color::Green,
                 Box::new(PhotoCellLayerSpecialty::new(1.0)),
+            )),
+            Box::new(CellLayer::new(
+                Area::new(100.0 * PI),
+                Density::new(0.00075),
+                Color::Yellow,
+                Box::new(BuddingCellLayerSpecialty::new(create_cell)),
             )),
         ],
     )

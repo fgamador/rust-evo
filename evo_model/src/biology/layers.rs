@@ -437,7 +437,8 @@ impl CellLayerBrain for DeadCellLayerBrain {
         _specialty: &mut dyn CellLayerSpecialty,
         _body: &mut CellLayerBody,
         _request: BudgetedControlRequest,
-    ) {}
+    ) {
+    }
 
     fn after_control_requests(
         &self,
@@ -632,6 +633,20 @@ impl BuddingCellLayerSpecialty {
         }
     }
 
+    fn create_and_init_child(&mut self, cell_state: &CellStateSnapshot) -> Cell {
+        let mut child = (self.create_child)();
+        let offset =
+            Displacement::from_polar(cell_state.radius + child.radius(), self.budding_angle);
+        child.set_initial_position(cell_state.center + offset);
+        child.set_initial_velocity(cell_state.velocity);
+        child.set_initial_energy(self.donation_energy);
+        child
+    }
+
+    fn reset(&mut self) {
+        self.donation_energy = BioEnergy::ZERO;
+    }
+
     pub fn budding_angle_request(layer_index: usize, angle: Angle) -> ControlRequest {
         ControlRequest::new(layer_index, 2, angle.radians())
     }
@@ -653,7 +668,10 @@ impl CellLayerSpecialty for BuddingCellLayerSpecialty {
     fn execute_control_request(&mut self, body: &CellLayerBody, request: BudgetedControlRequest) {
         match request.channel_index {
             2 => self.budding_angle = Angle::from_radians(request.value),
-            3 => self.donation_energy = body.health * request.budgeted_fraction * BioEnergy::new(request.value),
+            3 => {
+                self.donation_energy =
+                    body.health * request.budgeted_fraction * BioEnergy::new(request.value)
+            }
             _ => panic!("Invalid control channel index: {}", request.channel_index),
         }
     }
@@ -663,15 +681,8 @@ impl CellLayerSpecialty for BuddingCellLayerSpecialty {
             return None;
         }
 
-        let mut child = (self.create_child)();
-        let offset =
-            Displacement::from_polar(cell_state.radius + child.radius(), self.budding_angle);
-        child.set_initial_position(cell_state.center + offset);
-        child.set_initial_velocity(cell_state.velocity);
-        child.set_initial_energy(self.donation_energy);
-
-        self.donation_energy = BioEnergy::ZERO;
-
+        let child = self.create_and_init_child(cell_state);
+        self.reset();
         Some(child)
     }
 }
@@ -1008,7 +1019,7 @@ mod tests {
             Color::Green,
             Box::new(ThrusterCellLayerSpecialty::new()),
         )
-            .with_health(0.5);
+        .with_health(0.5);
         layer.execute_control_request(fully_budgeted(ThrusterCellLayerSpecialty::force_x_request(
             0, 1.0,
         )));
@@ -1069,7 +1080,7 @@ mod tests {
             Color::Green,
             Box::new(PhotoCellLayerSpecialty::new(1.0)),
         )
-            .with_health(0.75);
+        .with_health(0.75);
 
         let mut env = LocalEnvironment::new();
         env.add_light_intensity(1.0);
@@ -1087,7 +1098,7 @@ mod tests {
             Color::Green,
             Box::new(PhotoCellLayerSpecialty::new(1.0)),
         )
-            .dead();
+        .dead();
 
         let mut env = LocalEnvironment::new();
         env.add_light_intensity(1.0);
@@ -1196,7 +1207,7 @@ mod tests {
             Color::Green,
             Box::new(BuddingCellLayerSpecialty::new(create_child)),
         )
-            .with_health(0.5);
+        .with_health(0.5);
         layer.execute_control_request(fully_budgeted(
             BuddingCellLayerSpecialty::donation_energy_request(0, BioEnergy::new(1.0)),
         ));

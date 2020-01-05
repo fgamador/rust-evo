@@ -67,9 +67,10 @@ impl BuddingControl {
     }
 
     fn adult_requests(&mut self) -> Vec<ControlRequest> {
-        let mut requests = vec![
-            EnergyGeneratingCellLayerSpecialty::energy_request(0, BioEnergy::new(1.0)),
-        ];
+        let mut requests = vec![EnergyGeneratingCellLayerSpecialty::energy_request(
+            0,
+            BioEnergy::new(1.0),
+        )];
         requests.append(&mut self.budding_requests());
         requests
     }
@@ -80,8 +81,14 @@ impl BuddingControl {
             self.tick = 0;
             self.budding_angle += Deflection::from_radians(PI / 4.0);
             vec![
-                BuddingCellLayerSpecialty::budding_angle_request(self.budding_layer_index, self.budding_angle),
-                BuddingCellLayerSpecialty::donation_energy_request(self.budding_layer_index, BioEnergy::new(1.0)),
+                BuddingCellLayerSpecialty::budding_angle_request(
+                    self.budding_layer_index,
+                    self.budding_angle,
+                ),
+                BuddingCellLayerSpecialty::donation_energy_request(
+                    self.budding_layer_index,
+                    BioEnergy::new(1.0),
+                ),
             ]
         } else {
             vec![]

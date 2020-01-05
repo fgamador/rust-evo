@@ -30,13 +30,13 @@ fn create_child() -> Cell {
             Box::new(CellLayer::new(
                 Area::new(5.0 * PI),
                 Density::new(1.0),
-                Color::Yellow,
+                Color::Green,
                 Box::new(EnergyGeneratingCellLayerSpecialty::new()),
             )),
             Box::new(CellLayer::new(
                 Area::new(5.0 * PI),
                 Density::new(1.0),
-                Color::Green,
+                Color::Yellow,
                 Box::new(BuddingCellLayerSpecialty::new(create_child)),
             )),
         ],

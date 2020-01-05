@@ -26,13 +26,13 @@ fn create_world() -> World {
             )))),
             Box::new(SimpleForceInfluence::new(Box::new(DragForce::new(0.005)))),
         ])
-        .with_cells(vec![create_child()])
+        .with_cells(vec![create_child().with_initial_position(Position::new(200.0, -50.0))])
 }
 
 fn create_child() -> Cell {
     Cell::new(
-        Position::new(200.0, -50.0),
-        Velocity::new(0.0, 0.0),
+        Position::ORIGIN,
+        Velocity::ZERO,
         vec![
             Box::new(CellLayer::new(
                 Area::new(200.0 * PI),

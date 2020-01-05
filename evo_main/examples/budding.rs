@@ -84,9 +84,7 @@ impl BuddingControl {
                 BuddingCellLayerSpecialty::donation_energy_request(self.budding_layer_index, BioEnergy::new(1.0)),
             ]
         } else {
-            vec![
-                BuddingCellLayerSpecialty::donation_energy_request(self.budding_layer_index, BioEnergy::new(0.0)),
-            ]
+            vec![]
         }
     }
 

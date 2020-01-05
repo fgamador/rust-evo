@@ -620,6 +620,10 @@ impl CellLayerSpecialty for EnergyGeneratingCellLayerSpecialty {
             _ => panic!("Invalid control channel index: {}", request.channel_index),
         }
     }
+
+    fn reset(&mut self) {
+        self.energy = BioEnergy::ZERO;
+    }
 }
 
 #[derive(Debug)]
@@ -1128,6 +1132,26 @@ mod tests {
         let (energy, _) = layer.after_influences(&env, Duration::new(1.0));
 
         assert_eq!(energy, BioEnergy::new(2.0));
+    }
+
+    #[test]
+    fn energy_generating_layer_does_not_remember_previous_requested_energy() {
+        let mut layer = CellLayer::new(
+            Area::new(1.0),
+            Density::new(1.0),
+            Color::Green,
+            Box::new(EnergyGeneratingCellLayerSpecialty::new()),
+        );
+
+        layer.execute_control_request(fully_budgeted(
+            EnergyGeneratingCellLayerSpecialty::energy_request(0, BioEnergy::new(2.0)),
+        ));
+        layer.after_control_requests(&CellStateSnapshot::ZEROS);
+
+        let env = LocalEnvironment::new();
+        let (energy, _) = layer.after_influences(&env, Duration::new(1.0));
+
+        assert_eq!(energy, BioEnergy::ZERO);
     }
 
     #[test]

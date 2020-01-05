@@ -26,25 +26,28 @@ fn create_world() -> World {
             )))),
             Box::new(SimpleForceInfluence::new(Box::new(DragForce::new(0.005)))),
         ])
-        .with_cells(vec![Cell::new(
-            Position::new(200.0, -50.0),
-            Velocity::new(0.0, 0.0),
-            vec![
-                Box::new(CellLayer::new(
-                    Area::new(200.0 * PI),
-                    Density::new(0.0004),
-                    Color::White,
-                    Box::new(NullCellLayerSpecialty::new()),
-                )),
-                Box::new(CellLayer::new(
-                    Area::new(300.0 * PI),
-                    Density::new(0.00075),
-                    Color::Green,
-                    Box::new(PhotoCellLayerSpecialty::new(1.0)),
-                )),
-            ],
-        )
-        .with_control(Box::new(DuckweedControl::new(0, -50.0)))])
+        .with_cells(vec![create_child()])
+}
+
+fn create_child() -> Cell {
+    Cell::new(
+        Position::new(200.0, -50.0),
+        Velocity::new(0.0, 0.0),
+        vec![
+            Box::new(CellLayer::new(
+                Area::new(200.0 * PI),
+                Density::new(0.0004),
+                Color::White,
+                Box::new(NullCellLayerSpecialty::new()),
+            )),
+            Box::new(CellLayer::new(
+                Area::new(300.0 * PI),
+                Density::new(0.00075),
+                Color::Green,
+                Box::new(PhotoCellLayerSpecialty::new(1.0)),
+            )),
+        ],
+    ).with_control(Box::new(DuckweedControl::new(0, -50.0)))
 }
 
 #[derive(Debug)]

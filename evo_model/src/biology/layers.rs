@@ -1112,6 +1112,25 @@ mod tests {
     }
 
     #[test]
+    fn energy_generating_layer_adds_energy() {
+        let mut layer = CellLayer::new(
+            Area::new(1.0),
+            Density::new(1.0),
+            Color::Green,
+            Box::new(EnergyGeneratingCellLayerSpecialty::new()),
+        );
+
+        layer.execute_control_request(fully_budgeted(
+            EnergyGeneratingCellLayerSpecialty::energy_request(0, BioEnergy::new(2.0)),
+        ));
+
+        let env = LocalEnvironment::new();
+        let (energy, _) = layer.after_influences(&env, Duration::new(1.0));
+
+        assert_eq!(energy, BioEnergy::new(2.0));
+    }
+
+    #[test]
     fn budding_layer_creates_child_with_right_state() {
         let mut layer = CellLayer::new(
             Area::new(1.0),

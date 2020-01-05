@@ -101,10 +101,7 @@ impl Length {
     pub const ZERO: Length = Length { value: 0.0 };
 
     pub fn new(value: f64) -> Self {
-        if value < 0.0 {
-            panic!("Negative length: {}", value);
-        }
-
+        assert!(value >= 0.0);
         Length { value }
     }
 
@@ -159,10 +156,7 @@ impl Area {
     pub const ZERO: Area = Area { value: 0.0 };
 
     pub fn new(value: f64) -> Self {
-        if value < 0.0 {
-            panic!("Negative area: {}", value);
-        }
-
+        assert!(value >= 0.0);
         Area { value }
     }
 
@@ -566,10 +560,7 @@ pub struct Density {
 
 impl Density {
     pub fn new(value: f64) -> Self {
-        if value < 0.0 {
-            panic!("Negative density: {}", value);
-        }
-
+        assert!(value >= 0.0);
         Density { value }
     }
 

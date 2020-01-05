@@ -18,6 +18,7 @@ fn main() {
 fn create_world() -> World {
     World::new(Position::new(0.0, -400.0), Position::new(400.0, 0.0))
         .with_perimeter_walls()
+        .with_sunlight(0.0, 10.0)
         .with_influences(vec![
             Box::new(SimpleForceInfluence::new(Box::new(WeightForce::new(-0.05)))),
             Box::new(SimpleForceInfluence::new(Box::new(BuoyancyForce::new(-0.03, 0.001)))),
@@ -32,7 +33,7 @@ fn create_world() -> World {
                         Box::new(NullCellLayerSpecialty::new()))),
                     Box::new(CellLayer::new(
                         Area::new(300.0 * PI), Density::new(0.00075), Color::Green,
-                        Box::new(NullCellLayerSpecialty::new()))),
+                        Box::new(PhotoCellLayerSpecialty::new(1.0)))),
                 ])
                 .with_control(Box::new(FixedDepthSeekingControl::new(0, -50.0))),
         ])

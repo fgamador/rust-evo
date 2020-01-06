@@ -75,7 +75,7 @@ impl GliumView {
     fn handle_events(&mut self) -> bool {
         let mut closed = false;
         self.events_loop.poll_events(|event| {
-            closed = Self::is_window_close(&event);
+            closed |= Self::is_window_close(&event);
         });
         !closed
     }

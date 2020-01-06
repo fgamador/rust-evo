@@ -60,7 +60,7 @@ impl GliumView {
         }
     }
 
-    pub fn once(&mut self, world: &evo_model::world::World) -> bool {
+    pub fn render(&mut self, world: &evo_model::world::World) -> bool {
         if !self.handle_events() {
             return false;
         }

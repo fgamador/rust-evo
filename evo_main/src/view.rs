@@ -17,6 +17,6 @@ impl View {
     }
 
     pub fn render(&mut self, world: &World) -> bool {
-        self.view.once(world)
+        self.view.render(world)
     }
 }

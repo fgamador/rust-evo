@@ -7,9 +7,7 @@ pub fn init_and_run(world: World) {
 }
 
 fn run(mut world: World, mut view: View) {
-    let mut done = false;
-    while !done {
+    while view.render(&world) {
         world.tick();
-        done = !view.render(&world);
     }
 }

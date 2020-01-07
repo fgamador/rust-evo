@@ -15,3 +15,9 @@ pub trait TickCallbacks {
 
     fn after_movement(&mut self) -> (bool, Vec<Cell>);
 }
+
+pub enum UserAction {
+    Exit,
+    SingleTick,
+    PauseOrPlay,
+}

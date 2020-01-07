@@ -9,7 +9,6 @@ pub fn init_and_run(world: World) {
     run(world, view);
 }
 
-
 fn run(mut world: World, mut view: View) {
     normal_speed(&mut world, &mut view);
 }
@@ -17,7 +16,7 @@ fn run(mut world: World, mut view: View) {
 fn normal_speed(world: &mut World, view: &mut View) {
     let mut next_tick = Instant::now();
     while view.check_for_user_action() != Some(UserAction::Exit) {
-        view.render(&world);
+        view.render(world);
         next_tick += Duration::from_millis(16);
         await_next_tick(next_tick);
         world.tick();

@@ -185,23 +185,22 @@ impl GliumView {
         match event {
             glutin::Event::WindowEvent { event, .. } => match event {
                 glutin::WindowEvent::CloseRequested => Some(UserAction::Exit),
-                // Break from the loop upon `Escape`.
                 glutin::WindowEvent::KeyboardInput {
                     input:
                         glutin::KeyboardInput {
-                            virtual_keycode: Some(code),
+                            virtual_keycode: Some(keycode),
                             ..
                         },
                     ..
-                } => Self::interpret_key_as_user_action(code),
+                } => Self::interpret_key_as_user_action(keycode),
                 _ => None,
             },
             _ => None,
         }
     }
 
-    fn interpret_key_as_user_action(code: &glutin::VirtualKeyCode) -> Option<UserAction> {
-        match code {
+    fn interpret_key_as_user_action(keycode: &glutin::VirtualKeyCode) -> Option<UserAction> {
+        match keycode {
             glutin::VirtualKeyCode::Escape
             | glutin::VirtualKeyCode::Q
             | glutin::VirtualKeyCode::X => Some(UserAction::Exit),

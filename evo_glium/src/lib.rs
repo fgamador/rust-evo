@@ -62,7 +62,7 @@ impl GliumView {
     }
 
     pub fn render(&mut self, world: &evo_model::world::World) -> bool {
-        if !self.handle_events() {
+        if self.handle_events() == Some(UserAction::Exit) {
             return false;
         }
 
@@ -73,14 +73,14 @@ impl GliumView {
         true
     }
 
-    fn handle_events(&mut self) -> bool {
+    fn handle_events(&mut self) -> Option<UserAction> {
         let mut user_action = None;
         self.events_loop.poll_events(|event| {
             if user_action == None {
                 user_action = Self::interpret_event_as_user_action(&event);
             }
         });
-        user_action != Some(UserAction::Exit)
+        user_action
     }
 
     fn view_model_bullseyes_to_drawing_cells(world: &evo_model::world::World) -> Vec<Cell> {

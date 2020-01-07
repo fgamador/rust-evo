@@ -76,7 +76,7 @@ impl GliumView {
     fn handle_events(&mut self) -> bool {
         let mut closed = false;
         self.events_loop.poll_events(|event| {
-            closed |= Self::classify_event(&event) == Some(UserAction::Exit);
+            closed |= Self::interpret_event_as_user_action(&event) == Some(UserAction::Exit);
         });
         !closed
     }
@@ -181,7 +181,7 @@ impl GliumView {
         ]
     }
 
-    fn classify_event(event: &glutin::Event) -> Option<UserAction> {
+    fn interpret_event_as_user_action(event: &glutin::Event) -> Option<UserAction> {
         match event {
             glutin::Event::WindowEvent { event, .. } => match event {
                 glutin::WindowEvent::CloseRequested => Some(UserAction::Exit),
@@ -193,14 +193,14 @@ impl GliumView {
                             ..
                         },
                     ..
-                } => Self::classify_virtual_key_code(code),
+                } => Self::interpret_key_as_user_action(code),
                 _ => None,
             },
             _ => None,
         }
     }
 
-    fn classify_virtual_key_code(code: &glutin::VirtualKeyCode) -> Option<UserAction> {
+    fn interpret_key_as_user_action(code: &glutin::VirtualKeyCode) -> Option<UserAction> {
         match code {
             glutin::VirtualKeyCode::Escape
             | glutin::VirtualKeyCode::Q

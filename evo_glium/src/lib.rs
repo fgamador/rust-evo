@@ -189,13 +189,20 @@ impl GliumView {
                 glutin::WindowEvent::KeyboardInput {
                     input:
                         glutin::KeyboardInput {
-                            virtual_keycode: Some(glutin::VirtualKeyCode::Escape),
+                            virtual_keycode: Some(code),
                             ..
                         },
                     ..
-                } => Some(UserAction::Exit),
+                } => Self::classify_virtual_key_code(code),
                 _ => None,
             },
+            _ => None,
+        }
+    }
+
+    fn classify_virtual_key_code(code: &glutin::VirtualKeyCode) -> Option<UserAction> {
+        match code {
+            glutin::VirtualKeyCode::Escape => Some(UserAction::Exit),
             _ => None,
         }
     }

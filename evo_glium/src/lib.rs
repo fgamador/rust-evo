@@ -61,26 +61,11 @@ impl GliumView {
         }
     }
 
-    pub fn render(&mut self, world: &evo_model::world::World) -> bool {
-        if self.check_for_user_action() == Some(UserAction::Exit) {
-            return false;
-        }
-
+    pub fn render(&mut self, world: &evo_model::world::World) {
         self.draw_frame(
             &Self::view_model_bullseyes_to_drawing_cells(world),
             Self::get_layer_colors(world),
         );
-        true
-    }
-
-    fn check_for_user_action(&mut self) -> Option<UserAction> {
-        let mut user_action = None;
-        self.events_loop.poll_events(|event| {
-            if user_action == None {
-                user_action = Self::interpret_event_as_user_action(&event);
-            }
-        });
-        user_action
     }
 
     fn view_model_bullseyes_to_drawing_cells(world: &evo_model::world::World) -> Vec<Cell> {
@@ -183,6 +168,16 @@ impl GliumView {
         ]
     }
 
+    pub fn check_for_user_action(&mut self) -> Option<UserAction> {
+        let mut user_action = None;
+        self.events_loop.poll_events(|event| {
+            if user_action == None {
+                user_action = Self::interpret_event_as_user_action(&event);
+            }
+        });
+        user_action
+    }
+
     fn interpret_event_as_user_action(event: &glutin::Event) -> Option<UserAction> {
         match event {
             glutin::Event::WindowEvent { event, .. } => match event {
@@ -194,14 +189,14 @@ impl GliumView {
                             ..
                         },
                     ..
-                } => Self::interpret_key_as_user_action(keycode),
+                } => Self::interpret_key_as_user_action(*keycode),
                 _ => None,
             },
             _ => None,
         }
     }
 
-    fn interpret_key_as_user_action(keycode: &glutin::VirtualKeyCode) -> Option<UserAction> {
+    fn interpret_key_as_user_action(keycode: glutin::VirtualKeyCode) -> Option<UserAction> {
         match keycode {
             glutin::VirtualKeyCode::Escape
             | glutin::VirtualKeyCode::Q

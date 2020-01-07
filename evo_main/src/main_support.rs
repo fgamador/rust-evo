@@ -1,5 +1,6 @@
 use crate::view::*;
 use evo_model::world::World;
+use evo_model::UserAction;
 use std::thread;
 use std::time::{Duration, Instant};
 
@@ -10,7 +11,8 @@ pub fn init_and_run(world: World) {
 
 fn run(mut world: World, mut view: View) {
     let mut next_tick = Instant::now();
-    while view.render(&world) {
+    while view.check_for_user_action() != Some(UserAction::Exit) {
+        view.render(&world);
         next_tick += Duration::from_millis(16);
         await_next_tick(next_tick);
         world.tick();

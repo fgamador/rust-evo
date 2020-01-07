@@ -1,6 +1,7 @@
 use evo_glium::GliumView;
 use evo_model::physics::quantities::*;
 use evo_model::world::World;
+use evo_model::UserAction;
 
 pub struct View {
     view: GliumView,
@@ -16,7 +17,11 @@ impl View {
         }
     }
 
-    pub fn render(&mut self, world: &World) -> bool {
-        self.view.render(world)
+    pub fn check_for_user_action(&mut self) -> Option<UserAction> {
+        self.view.check_for_user_action()
+    }
+
+    pub fn render(&mut self, world: &World) {
+        self.view.render(world);
     }
 }

@@ -21,6 +21,10 @@ impl View {
         self.view.check_for_user_action()
     }
 
+    pub fn wait_for_user_action(&mut self) -> UserAction {
+        self.view.wait_for_user_action()
+    }
+
     pub fn render(&mut self, world: &World) {
         self.view.render(world);
     }

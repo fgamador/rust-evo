@@ -16,6 +16,7 @@ pub trait TickCallbacks {
     fn after_movement(&mut self) -> (bool, Vec<Cell>);
 }
 
+#[derive(Clone, Copy, Debug, PartialEq)]
 pub enum UserAction {
     Exit,
     SingleTick,

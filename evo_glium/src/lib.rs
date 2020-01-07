@@ -76,7 +76,7 @@ impl GliumView {
     fn handle_events(&mut self) -> bool {
         let mut closed = false;
         self.events_loop.poll_events(|event| {
-            closed |= Self::is_window_close(&event);
+            closed |= Self::classify_event(&event) == Some(UserAction::Exit);
         });
         !closed
     }
@@ -181,10 +181,10 @@ impl GliumView {
         ]
     }
 
-    fn is_window_close(event: &glutin::Event) -> bool {
+    fn classify_event(event: &glutin::Event) -> Option<UserAction> {
         match event {
             glutin::Event::WindowEvent { event, .. } => match event {
-                glutin::WindowEvent::CloseRequested => true,
+                glutin::WindowEvent::CloseRequested => Some(UserAction::Exit),
                 // Break from the loop upon `Escape`.
                 glutin::WindowEvent::KeyboardInput {
                     input:
@@ -193,10 +193,10 @@ impl GliumView {
                             ..
                         },
                     ..
-                } => true,
-                _ => false,
+                } => Some(UserAction::Exit),
+                _ => None,
             },
-            _ => false,
+            _ => None,
         }
     }
 }

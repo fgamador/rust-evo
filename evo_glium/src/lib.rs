@@ -62,7 +62,7 @@ impl GliumView {
     }
 
     pub fn render(&mut self, world: &evo_model::world::World) -> bool {
-        if self.handle_events() == Some(UserAction::Exit) {
+        if self.check_for_user_action() == Some(UserAction::Exit) {
             return false;
         }
 
@@ -73,7 +73,7 @@ impl GliumView {
         true
     }
 
-    fn handle_events(&mut self) -> Option<UserAction> {
+    fn check_for_user_action(&mut self) -> Option<UserAction> {
         let mut user_action = None;
         self.events_loop.poll_events(|event| {
             if user_action == None {

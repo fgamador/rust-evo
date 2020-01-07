@@ -202,7 +202,9 @@ impl GliumView {
 
     fn classify_virtual_key_code(code: &glutin::VirtualKeyCode) -> Option<UserAction> {
         match code {
-            glutin::VirtualKeyCode::Escape => Some(UserAction::Exit),
+            glutin::VirtualKeyCode::Escape
+            | glutin::VirtualKeyCode::Q
+            | glutin::VirtualKeyCode::X => Some(UserAction::Exit),
             _ => None,
         }
     }

@@ -169,13 +169,27 @@ impl GliumView {
     }
 
     pub fn check_for_user_action(&mut self) -> Option<UserAction> {
-        let mut user_action = None;
+        let mut result = None;
         self.events_loop.poll_events(|event| {
-            if user_action == None {
-                user_action = Self::interpret_event_as_user_action(&event);
+            // drain the event queue, capturing the first user action
+            if result == None {
+                result = Self::interpret_event_as_user_action(&event);
             }
         });
-        user_action
+        result
+    }
+
+    pub fn wait_for_user_action(&mut self) -> UserAction {
+        let mut result = UserAction::Exit; // bogus initial value
+        self.events_loop.run_forever(|event| -> glutin::ControlFlow {
+            if let Some(user_action) = Self::interpret_event_as_user_action(&event) {
+                result = user_action;
+                return glutin::ControlFlow::Break;
+            } else {
+                return glutin::ControlFlow::Continue;
+            }
+        });
+        result
     }
 
     fn interpret_event_as_user_action(event: &glutin::Event) -> Option<UserAction> {
@@ -184,10 +198,10 @@ impl GliumView {
                 glutin::WindowEvent::CloseRequested => Some(UserAction::Exit),
                 glutin::WindowEvent::KeyboardInput {
                     input:
-                        glutin::KeyboardInput {
-                            virtual_keycode: Some(keycode),
-                            ..
-                        },
+                    glutin::KeyboardInput {
+                        virtual_keycode: Some(keycode),
+                        ..
+                    },
                     ..
                 } => Self::interpret_key_as_user_action(*keycode),
                 _ => None,
@@ -201,6 +215,8 @@ impl GliumView {
             glutin::VirtualKeyCode::Escape
             | glutin::VirtualKeyCode::Q
             | glutin::VirtualKeyCode::X => Some(UserAction::Exit),
+            glutin::VirtualKeyCode::P => Some(UserAction::PauseOrPlay),
+            glutin::VirtualKeyCode::S => Some(UserAction::SingleTick),
             _ => None,
         }
     }

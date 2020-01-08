@@ -201,11 +201,11 @@ impl GliumView {
                     input:
                         glutin::KeyboardInput {
                             state: glutin::ElementState::Pressed,
-                            virtual_keycode: Some(keycode),
+                            virtual_keycode: Some(key_code),
                             ..
                         },
                     ..
-                } => Self::interpret_key_as_user_action(*keycode),
+                } => Self::interpret_key_as_user_action(*key_code),
                 _ => None,
             },
             _ => None,

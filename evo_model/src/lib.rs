@@ -20,5 +20,5 @@ pub trait TickCallbacks {
 pub enum UserAction {
     Exit,
     SingleTick,
-    PauseOrPlay,
+    PlayToggle,
 }

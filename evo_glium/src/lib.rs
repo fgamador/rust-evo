@@ -215,7 +215,7 @@ impl GliumView {
             glutin::VirtualKeyCode::Escape
             | glutin::VirtualKeyCode::Q
             | glutin::VirtualKeyCode::X => Some(UserAction::Exit),
-            glutin::VirtualKeyCode::P => Some(UserAction::PauseOrPlay),
+            glutin::VirtualKeyCode::P => Some(UserAction::PlayToggle),
             glutin::VirtualKeyCode::S => Some(UserAction::SingleTick),
             _ => None,
         }

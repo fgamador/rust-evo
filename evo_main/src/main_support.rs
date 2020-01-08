@@ -10,6 +10,7 @@ pub fn init_and_run(world: World) {
 }
 
 fn run(mut world: World, mut view: View) {
+    view.render(&world);
     normal_speed(&mut world, &mut view);
 }
 
@@ -22,10 +23,10 @@ fn normal_speed(world: &mut World, view: &mut View) -> UserAction {
             }
         }
 
-        view.render(world);
         next_tick += Duration::from_millis(16);
         await_next_tick(next_tick);
         world.tick();
+        view.render(world);
     }
 }
 

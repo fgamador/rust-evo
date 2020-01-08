@@ -200,6 +200,7 @@ impl GliumView {
                 glutin::WindowEvent::KeyboardInput {
                     input:
                         glutin::KeyboardInput {
+                            state: glutin::ElementState::Pressed,
                             virtual_keycode: Some(keycode),
                             ..
                         },

@@ -185,9 +185,9 @@ impl GliumView {
             .run_forever(|event| -> glutin::ControlFlow {
                 if let Some(user_action) = Self::interpret_event_as_user_action(&event) {
                     result = user_action;
-                    return glutin::ControlFlow::Break;
+                    glutin::ControlFlow::Break
                 } else {
-                    return glutin::ControlFlow::Continue;
+                    glutin::ControlFlow::Continue
                 }
             });
         result

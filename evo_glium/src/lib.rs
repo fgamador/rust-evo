@@ -181,14 +181,15 @@ impl GliumView {
 
     pub fn wait_for_user_action(&mut self) -> UserAction {
         let mut result = UserAction::Exit; // bogus initial value
-        self.events_loop.run_forever(|event| -> glutin::ControlFlow {
-            if let Some(user_action) = Self::interpret_event_as_user_action(&event) {
-                result = user_action;
-                return glutin::ControlFlow::Break;
-            } else {
-                return glutin::ControlFlow::Continue;
-            }
-        });
+        self.events_loop
+            .run_forever(|event| -> glutin::ControlFlow {
+                if let Some(user_action) = Self::interpret_event_as_user_action(&event) {
+                    result = user_action;
+                    return glutin::ControlFlow::Break;
+                } else {
+                    return glutin::ControlFlow::Continue;
+                }
+            });
         result
     }
 
@@ -198,10 +199,10 @@ impl GliumView {
                 glutin::WindowEvent::CloseRequested => Some(UserAction::Exit),
                 glutin::WindowEvent::KeyboardInput {
                     input:
-                    glutin::KeyboardInput {
-                        virtual_keycode: Some(keycode),
-                        ..
-                    },
+                        glutin::KeyboardInput {
+                            virtual_keycode: Some(keycode),
+                            ..
+                        },
                     ..
                 } => Self::interpret_key_as_user_action(*keycode),
                 _ => None,

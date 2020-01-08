@@ -26,9 +26,13 @@ fn normal_speed(world: &mut World, view: &mut View) -> UserAction {
             }
         }
 
-        world.tick();
-        view.render(world);
+        single_tick(world, view);
     }
+}
+
+fn single_tick(world: &mut World, view: &mut View) {
+    world.tick();
+    view.render(world);
 }
 
 fn await_next_tick(next_tick: Instant) {

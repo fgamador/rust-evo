@@ -17,7 +17,10 @@ fn normal_speed(world: &mut World, view: &mut View) -> UserAction {
     let mut next_tick = Instant::now();
     loop {
         if let Some(user_action) = view.check_for_user_action() {
-            return user_action;
+            match user_action {
+                UserAction::Exit | UserAction::PauseOrPlay => return user_action,
+                _ => ()
+            }
         }
 
         view.render(world);

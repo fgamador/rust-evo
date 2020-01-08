@@ -17,14 +17,15 @@ fn run(mut world: World, mut view: View) {
 fn normal_speed(world: &mut World, view: &mut View) -> UserAction {
     let mut next_tick = Instant::now();
     loop {
+        next_tick += Duration::from_millis(16);
+        await_next_tick(next_tick);
+
         if let Some(user_action) = view.check_for_user_action() {
             if let UserAction::Exit | UserAction::PlayToggle = user_action {
                 return user_action;
             }
         }
 
-        next_tick += Duration::from_millis(16);
-        await_next_tick(next_tick);
         world.tick();
         view.render(world);
     }

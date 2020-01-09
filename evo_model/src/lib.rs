@@ -18,6 +18,7 @@ pub trait TickCallbacks {
 
 #[derive(Clone, Copy, Debug, PartialEq)]
 pub enum UserAction {
+    DebugPrint,
     Exit,
     SingleTick,
     PlayToggle,

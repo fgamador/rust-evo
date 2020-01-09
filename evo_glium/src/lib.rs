@@ -214,6 +214,7 @@ impl GliumView {
 
     fn interpret_key_as_user_action(key_code: glutin::VirtualKeyCode) -> Option<UserAction> {
         match key_code {
+            glutin::VirtualKeyCode::D => Some(UserAction::DebugPrint),
             glutin::VirtualKeyCode::Escape
             | glutin::VirtualKeyCode::Q
             | glutin::VirtualKeyCode::X => Some(UserAction::Exit),

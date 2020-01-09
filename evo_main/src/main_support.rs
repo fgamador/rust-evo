@@ -14,6 +14,7 @@ fn run(mut world: World, mut view: View) {
     let mut user_action = UserAction::PlayToggle;
     loop {
         match user_action {
+            UserAction::DebugPrint => world.debug_print_cells(),
             UserAction::Exit => return,
             UserAction::PlayToggle => if normal_speed(&mut world, &mut view) == UserAction::Exit {
                 return;

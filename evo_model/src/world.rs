@@ -124,6 +124,10 @@ impl World {
         self.cell_graph.add_meta_edge(gusset);
     }
 
+    pub fn debug_print_cells(&self) {
+        println!("{:#?}", self.cell_graph);
+    }
+
     pub fn tick(&mut self) {
         let tick_duration = Duration::new(1.0);
         let subticks_per_tick = 2;

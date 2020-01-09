@@ -11,18 +11,16 @@ pub fn init_and_run(world: World) {
 
 fn run(mut world: World, mut view: View) {
     view.render(&world);
+    let mut user_action = UserAction::PlayToggle;
     loop {
-        if normal_speed(&mut world, &mut view) == UserAction::Exit {
-            return;
-        }
-        match view.wait_for_user_action() {
-            UserAction::Exit => {
+        match user_action {
+            UserAction::Exit => return,
+            UserAction::PlayToggle => if normal_speed(&mut world, &mut view) == UserAction::Exit {
                 return;
             }
-            UserAction::PlayToggle => {
-            }
-            UserAction::SingleTick => single_tick(&mut world, &mut view),
+            UserAction::SingleTick => single_tick(&mut world, &mut view)
         }
+        user_action = view.wait_for_user_action();
     }
 }
 

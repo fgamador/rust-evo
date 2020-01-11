@@ -162,6 +162,11 @@ impl NodeHandle {
     pub fn unset() -> Self {
         NodeHandle { index: usize::MAX }
     }
+
+    #[allow(dead_code)]
+    pub fn index(self) -> usize {
+        self.index
+    }
 }
 
 #[derive(Clone, Debug, PartialEq)]

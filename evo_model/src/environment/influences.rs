@@ -33,8 +33,9 @@ impl Influence for WallCollisions {
         for (handle, overlap) in overlaps {
             let cell = cell_graph.node_mut(handle);
             cell.environment_mut().add_overlap(overlap);
-            cell.forces_mut()
-                .add_force(overlap.to_force(&(*self.spring)));
+            let force = overlap.to_force(&(*self.spring));
+            trace!("Cell {} Wall {:?}", cell.node_handle().index(), force);
+            cell.forces_mut().add_force(force);
         }
     }
 }
@@ -59,7 +60,9 @@ impl Influence for PairCollisions {
         for (handle, overlap) in overlaps {
             let cell = cell_graph.node_mut(handle);
             cell.environment_mut().add_overlap(overlap);
-            cell.forces_mut().add_force(overlap.to_force(&self.spring));
+            let force = overlap.to_force(&self.spring);
+            trace!("Cell {} Pair {:?}", cell.node_handle().index(), force);
+            cell.forces_mut().add_force(force);
         }
     }
 }
@@ -79,7 +82,9 @@ impl Influence for BondForces {
         let strains = calc_bond_strains(cell_graph);
         for (handle, strain) in strains {
             let cell = cell_graph.node_mut(handle);
-            cell.forces_mut().add_force(strain.to_force());
+            let force = strain.to_force();
+            trace!("Cell {} Bond {:?}", cell.node_handle().index(), force);
+            cell.forces_mut().add_force(force);
         }
     }
 }
@@ -99,6 +104,7 @@ impl Influence for BondAngleForces {
         let forces = calc_bond_angle_forces(cell_graph);
         for (handle, force) in forces {
             let cell = cell_graph.node_mut(handle);
+            trace!("Cell {} BondAngle {:?}", cell.node_handle().index(), force);
             cell.forces_mut().add_force(force);
         }
     }
@@ -159,7 +165,9 @@ impl WeightForce {
 
 impl SimpleInfluenceForce for WeightForce {
     fn calc_force(&self, cell: &Cell) -> Force {
-        cell.mass() * self.gravity
+        let force = cell.mass() * self.gravity;
+        trace!("Cell {} Weight {:?}", cell.node_handle().index(), force);
+        force
     }
 }
 
@@ -181,7 +189,9 @@ impl BuoyancyForce {
 impl SimpleInfluenceForce for BuoyancyForce {
     fn calc_force(&self, cell: &Cell) -> Force {
         let displaced_fluid_mass = cell.area() * self.fluid_density;
-        -(displaced_fluid_mass * self.gravity)
+        let force = -(displaced_fluid_mass * self.gravity);
+        trace!("Cell {} Buoyancy {:?}", cell.node_handle().index(), force);
+        force
     }
 }
 
@@ -202,10 +212,12 @@ impl DragForce {
 
 impl SimpleInfluenceForce for DragForce {
     fn calc_force(&self, cell: &Cell) -> Force {
-        Force::new(
+        let force = Force::new(
             self.calc_drag(cell.radius().value(), cell.velocity().x()),
             self.calc_drag(cell.radius().value(), cell.velocity().y()),
-        )
+        );
+        trace!("Cell {} Drag {:?}", cell.node_handle().index(), force);
+        force
     }
 }
 

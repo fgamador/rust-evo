@@ -7,3 +7,5 @@ edition = "2018"
 [dependencies]
 evo_glium = { path = "../evo_glium" }
 evo_model = { path = "../evo_model" }
+log = { version = "0.4" }
+simple_logger = "1.4.0"

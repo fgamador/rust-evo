@@ -5,6 +5,8 @@ use std::thread;
 use std::time::{Duration, Instant};
 
 pub fn init_and_run(world: World) {
+    simple_logger::init().unwrap();
+
     let view = View::new(world.min_corner(), world.max_corner());
     run(world, view);
 }
@@ -16,10 +18,12 @@ fn run(mut world: World, mut view: View) {
         match user_action {
             UserAction::DebugPrint => world.debug_print_cells(),
             UserAction::Exit => return,
-            UserAction::PlayToggle => if normal_speed(&mut world, &mut view) == UserAction::Exit {
-                return;
+            UserAction::PlayToggle => {
+                if normal_speed(&mut world, &mut view) == UserAction::Exit {
+                    return;
+                }
             }
-            UserAction::SingleTick => single_tick(&mut world, &mut view)
+            UserAction::SingleTick => single_tick(&mut world, &mut view),
         }
         user_action = view.wait_for_user_action();
     }

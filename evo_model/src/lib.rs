@@ -1,5 +1,7 @@
 #[macro_use]
 extern crate evo_model_derive;
+#[macro_use]
+extern crate log;
 
 pub mod biology;
 pub mod environment;

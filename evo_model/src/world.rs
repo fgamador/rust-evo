@@ -217,10 +217,10 @@ mod tests {
     #[test]
     fn tick_moves_ball() {
         let mut world =
-            World::new(Position::new(0.0, 0.0), Position::new(0.0, 0.0)).with_cell(Cell::ball(
+            World::new(Position::ORIGIN, Position::ORIGIN).with_cell(Cell::ball(
                 Length::new(1.0),
                 Mass::new(1.0),
-                Position::new(0.0, 0.0),
+                Position::ORIGIN,
                 Velocity::new(1.0, 1.0),
             ));
 
@@ -233,15 +233,15 @@ mod tests {
 
     #[test]
     fn tick_with_force_accelerates_ball() {
-        let mut world = World::new(Position::new(0.0, 0.0), Position::new(0.0, 0.0))
+        let mut world = World::new(Position::ORIGIN, Position::ORIGIN)
             .with_influence(Box::new(SimpleForceInfluence::new(Box::new(
                 ConstantForce::new(Force::new(1.0, 1.0)),
             ))))
             .with_cell(Cell::ball(
                 Length::new(1.0),
                 Mass::new(1.0),
-                Position::new(0.0, 0.0),
-                Velocity::new(0.0, 0.0),
+                Position::ORIGIN,
+                Velocity::ZERO,
             ));
 
         world.tick();
@@ -253,15 +253,15 @@ mod tests {
 
     #[test]
     fn overlaps_do_not_persist() {
-        let mut world = World::new(Position::new(0.0, 0.0), Position::new(0.0, 0.0))
+        let mut world = World::new(Position::ORIGIN, Position::ORIGIN)
             .with_influence(Box::new(UniversalOverlap::new(Overlap::new(
                 Displacement::new(1.0, 1.0),
             ))))
             .with_cell(Cell::ball(
                 Length::new(1.0),
                 Mass::new(1.0),
-                Position::new(0.0, 0.0),
-                Velocity::new(0.0, 0.0),
+                Position::ORIGIN,
+                Velocity::ZERO,
             ));
 
         world.tick();
@@ -272,15 +272,15 @@ mod tests {
 
     #[test]
     fn forces_do_not_persist() {
-        let mut world = World::new(Position::new(0.0, 0.0), Position::new(0.0, 0.0))
+        let mut world = World::new(Position::ORIGIN, Position::ORIGIN)
             .with_influence(Box::new(SimpleForceInfluence::new(Box::new(
                 ConstantForce::new(Force::new(1.0, 1.0)),
             ))))
             .with_cell(Cell::ball(
                 Length::new(1.0),
                 Mass::new(1.0),
-                Position::new(0.0, 0.0),
-                Velocity::new(0.0, 0.0),
+                Position::ORIGIN,
+                Velocity::ZERO,
             ));
 
         world.tick();
@@ -291,10 +291,10 @@ mod tests {
 
     #[test]
     fn tick_runs_photo_layer() {
-        let mut world = World::new(Position::new(0.0, 0.0), Position::new(0.0, 0.0))
+        let mut world = World::new(Position::ORIGIN, Position::ORIGIN)
             .with_influence(Box::new(Sunlight::new(-10.0, 10.0, 0.0, 10.0)))
             .with_cell(Cell::new(
-                Position::new(0.0, 0.0),
+                Position::ORIGIN,
                 Velocity::ZERO,
                 vec![Box::new(CellLayer::new(
                     Area::new(10.0),
@@ -312,10 +312,10 @@ mod tests {
 
     #[test]
     fn tick_runs_cell_growth() {
-        let mut world = World::new(Position::new(0.0, 0.0), Position::new(0.0, 0.0)).with_cell(
+        let mut world = World::new(Position::ORIGIN, Position::ORIGIN).with_cell(
             Cell::new(
-                Position::new(0.0, 0.0),
-                Velocity::new(0.0, 0.0),
+                Position::ORIGIN,
+                Velocity::ZERO,
                 vec![Box::new(CellLayer::new(
                     Area::new(1.0),
                     Density::new(1.0),
@@ -340,8 +340,8 @@ mod tests {
         let mut world = World::new(Position::new(-10.0, -10.0), Position::new(10.0, 10.0))
             .with_cell(
                 Cell::new(
-                    Position::new(0.0, 0.0),
-                    Velocity::new(0.0, 0.0),
+                    Position::ORIGIN,
+                    Velocity::ZERO,
                     vec![Box::new(CellLayer::new(
                         Area::new(1.0),
                         Density::new(1.0),
@@ -369,7 +369,7 @@ mod tests {
             .with_influence(Box::new(Sunlight::new(-10.0, 10.0, 0.0, 10.0)))
             .with_cell(
                 Cell::new(
-                    Position::new(0.0, 0.0),
+                    Position::ORIGIN,
                     Velocity::ZERO,
                     vec![Box::new(
                         CellLayer::new(

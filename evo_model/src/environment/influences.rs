@@ -294,9 +294,9 @@ mod tests {
         wall_collisions.apply(&mut cell_graph);
 
         let ball = cell_graph.node(ball_handle);
-        assert_eq!(1, ball.environment().overlaps().len());
-        assert_ne!(0.0, ball.forces().net_force().x());
-        assert_ne!(0.0, ball.forces().net_force().y());
+        assert_eq!(ball.environment().overlaps().len(), 1);
+        assert_ne!(ball.forces().net_force().x(), 0.0);
+        assert_ne!(ball.forces().net_force().y(), 0.0);
     }
 
     #[test]
@@ -319,14 +319,14 @@ mod tests {
         pair_collisions.apply(&mut cell_graph);
 
         let ball1 = cell_graph.node(ball1_handle);
-        assert_eq!(1, ball1.environment().overlaps().len());
-        assert_ne!(0.0, ball1.forces().net_force().x());
-        assert_ne!(0.0, ball1.forces().net_force().y());
+        assert_eq!(ball1.environment().overlaps().len(), 1);
+        assert_ne!(ball1.forces().net_force().x(), 0.0);
+        assert_ne!(ball1.forces().net_force().y(), 0.0);
 
         let ball2 = cell_graph.node(ball2_handle);
-        assert_eq!(1, ball2.environment().overlaps().len());
-        assert_ne!(0.0, ball2.forces().net_force().x());
-        assert_ne!(0.0, ball2.forces().net_force().y());
+        assert_eq!(ball2.environment().overlaps().len(), 1);
+        assert_ne!(ball2.forces().net_force().x(), 0.0);
+        assert_ne!(ball2.forces().net_force().y(), 0.0);
     }
 
     #[test]
@@ -351,12 +351,12 @@ mod tests {
         bond_forces.apply(&mut cell_graph);
 
         let ball1 = cell_graph.node(ball1_handle);
-        assert_ne!(0.0, ball1.forces().net_force().x());
-        assert_ne!(0.0, ball1.forces().net_force().y());
+        assert_ne!(ball1.forces().net_force().x(), 0.0);
+        assert_ne!(ball1.forces().net_force().y(), 0.0);
 
         let ball2 = cell_graph.node(ball2_handle);
-        assert_ne!(0.0, ball2.forces().net_force().x());
-        assert_ne!(0.0, ball2.forces().net_force().y());
+        assert_ne!(ball2.forces().net_force().x(), 0.0);
+        assert_ne!(ball2.forces().net_force().y(), 0.0);
     }
 
     #[test]
@@ -415,7 +415,7 @@ mod tests {
         influence.apply(&mut cell_graph);
 
         let ball = cell_graph.node(ball_handle);
-        assert_eq!(force, ball.forces().net_force());
+        assert_eq!(ball.forces().net_force(), force);
     }
 
     #[test]
@@ -427,7 +427,7 @@ mod tests {
             Position::new(0.0, 0.0),
             Velocity::ZERO,
         );
-        assert_eq!(Force::new(0.0, -6.0), weight.calc_force(&ball));
+        assert_eq!(weight.calc_force(&ball), Force::new(0.0, -6.0));
     }
 
     #[test]
@@ -440,8 +440,8 @@ mod tests {
             Velocity::ZERO,
         );
         let force = buoyancy.calc_force(&ball);
-        assert_eq!(0.0, force.x());
-        assert_eq!(16.0, force.y().round());
+        assert_eq!(force.x(), 0.0);
+        assert_eq!(force.y().round(), 16.0);
     }
 
     #[test]
@@ -453,7 +453,7 @@ mod tests {
             Position::new(0.0, 0.0),
             Velocity::new(2.0, -3.0),
         );
-        assert_eq!(Force::new(-4.0, 9.0), drag.calc_force(&ball));
+        assert_eq!(drag.calc_force(&ball), Force::new(-4.0, 9.0));
     }
 
     #[test]
@@ -485,7 +485,7 @@ mod tests {
         sunlight.apply(&mut cell_graph);
 
         let cell = cell_graph.node(cell_handle);
-        assert_eq!(15.0, cell.environment().light_intensity());
+        assert_eq!(cell.environment().light_intensity(), 15.0);
     }
 
     #[test]
@@ -504,7 +504,7 @@ mod tests {
         sunlight.apply(&mut cell_graph);
 
         let cell = cell_graph.node(cell_handle);
-        assert_eq!(0.0, cell.environment().light_intensity());
+        assert_eq!(cell.environment().light_intensity(), 0.0);
     }
 
     fn simple_cell_layer(area: Area, density: Density) -> CellLayer {

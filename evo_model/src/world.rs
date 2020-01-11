@@ -129,8 +129,11 @@ impl World {
     }
 
     pub fn tick(&mut self) {
+        self.tick_for_subticks(2);
+    }
+
+    fn tick_for_subticks(&mut self, subticks_per_tick: u32) {
         let tick_duration = Duration::new(1.0);
-        let subticks_per_tick: u32 = 2;
         let subtick_duration = tick_duration / (subticks_per_tick as f64);
 
         for subtick in 0..subticks_per_tick {
@@ -147,8 +150,18 @@ impl World {
 
     fn pre_subtick_logging(&self, subtick: u32) {
         for cell in self.cell_graph.unsorted_nodes() {
-            trace!("Subtick {} Cell {} {:?}", subtick, cell.node_handle().index(), cell.velocity());
-            trace!("Subtick {} Cell {} {:?}", subtick, cell.node_handle().index(), cell.position());
+            trace!(
+                "Subtick {} Cell {} {:?}",
+                subtick,
+                cell.node_handle().index(),
+                cell.velocity()
+            );
+            trace!(
+                "Subtick {} Cell {} {:?}",
+                subtick,
+                cell.node_handle().index(),
+                cell.position()
+            );
         }
     }
 
@@ -216,13 +229,12 @@ mod tests {
 
     #[test]
     fn tick_moves_ball() {
-        let mut world =
-            World::new(Position::ORIGIN, Position::ORIGIN).with_cell(Cell::ball(
-                Length::new(1.0),
-                Mass::new(1.0),
-                Position::ORIGIN,
-                Velocity::new(1.0, 1.0),
-            ));
+        let mut world = World::new(Position::ORIGIN, Position::ORIGIN).with_cell(Cell::ball(
+            Length::new(1.0),
+            Mass::new(1.0),
+            Position::ORIGIN,
+            Velocity::new(1.0, 1.0),
+        ));
 
         world.tick();
 
@@ -287,6 +299,27 @@ mod tests {
 
         let ball = &world.cells()[0];
         assert_eq!(ball.forces().net_force(), Force::new(0.0, 0.0));
+    }
+
+    #[test]
+    #[ignore]
+    fn cannot_bounce_off_drag_force() {
+        let mut world = World::new(Position::ORIGIN, Position::ORIGIN)
+            .with_cell(Cell::ball(
+                Length::new(10.0),
+                Mass::new(0.01),
+                Position::ORIGIN,
+                Velocity::new(10.0, 10.0),
+            ))
+            .with_influence(Box::new(SimpleForceInfluence::new(Box::new(
+                DragForce::new(0.01),
+            ))));
+
+        world.tick_for_subticks(1);
+
+        let ball = &world.cells()[0];
+        assert!(ball.velocity().x() >= 0.0);
+        assert!(ball.velocity().y() >= 0.0);
     }
 
     #[test]

@@ -134,24 +134,22 @@ impl World {
         let subtick_duration = tick_duration / (subticks_per_tick as f64);
 
         for _subtick in 0..subticks_per_tick {
-            for cell in self.cell_graph.unsorted_nodes_mut() {
-                trace!("Cell {} {:?}", cell.node_handle().index(), cell.velocity());
-                trace!("Cell {} {:?}", cell.node_handle().index(), cell.position());
-            }
+            self.pre_subtick_logging();
             self.apply_influences();
             self.after_influences(subtick_duration);
             self.exert_forces(subtick_duration);
-            for cell in self.cell_graph.unsorted_nodes_mut() {
-                trace!(
-                    "Cell {} Net {:?}",
-                    cell.node_handle().index(),
-                    cell.forces().net_force()
-                );
-            }
+            self.post_subtick_logging();
             self.clear_influences();
         }
 
         self.after_movement();
+    }
+
+    fn pre_subtick_logging(&self) {
+        for cell in self.cell_graph.unsorted_nodes() {
+            trace!("Cell {} {:?}", cell.node_handle().index(), cell.velocity());
+            trace!("Cell {} {:?}", cell.node_handle().index(), cell.position());
+        }
     }
 
     fn apply_influences(&mut self) {
@@ -170,6 +168,16 @@ impl World {
         for cell in self.cell_graph.unsorted_nodes_mut() {
             cell.exert_forces(subtick_duration);
             cell.move_for(subtick_duration);
+        }
+    }
+
+    fn post_subtick_logging(&self) {
+        for cell in self.cell_graph.unsorted_nodes() {
+            trace!(
+                "Cell {} Net {:?}",
+                cell.node_handle().index(),
+                cell.forces().net_force()
+            );
         }
     }
 

@@ -457,6 +457,19 @@ mod tests {
     }
 
     #[test]
+    #[ignore]
+    fn drag_force_is_bounded() {
+        let drag = DragForce::new(0.5);
+        let ball = Cell::ball(
+            Length::new(10.0),
+            Mass::new(0.01),
+            Position::ORIGIN,
+            Velocity::new(10.0, -10.0),
+        );
+        assert_eq!(drag.calc_force(&ball), Force::new(-0.1, 0.1));
+    }
+
+    #[test]
     fn sunlight_adds_light() {
         let sunlight = Sunlight::new(-10.0, 10.0, 10.0, 20.0);
         let mut cell_graph = SortableGraph::new();

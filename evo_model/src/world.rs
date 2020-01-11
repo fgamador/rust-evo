@@ -302,7 +302,6 @@ mod tests {
     }
 
     #[test]
-    #[ignore]
     fn cannot_bounce_off_drag_force() {
         let mut world = World::new(Position::ORIGIN, Position::ORIGIN)
             .with_cell(Cell::ball(

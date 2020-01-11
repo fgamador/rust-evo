@@ -205,16 +205,28 @@ impl DragForce {
         DragForce { viscosity }
     }
 
-    fn calc_drag(&self, radius: f64, velocity: f64) -> f64 {
-        -velocity.signum() * self.viscosity * radius * sqr(velocity)
+    fn calc_drag(&self, mass: Mass, radius: Length, velocity: f64) -> f64 {
+        -velocity.signum()
+            * self
+                .instantaneous_abs_drag(radius, velocity)
+                .min(self.abs_drag_that_will_stop_the_cell(mass, velocity))
+    }
+
+    fn instantaneous_abs_drag(&self, radius: Length, velocity: f64) -> f64 {
+        self.viscosity * radius.value() * sqr(velocity)
+    }
+
+    // TODO this assumes a subtick length of 1.0...
+    fn abs_drag_that_will_stop_the_cell(&self, mass: Mass, velocity: f64) -> f64 {
+        mass.value() * velocity.abs()
     }
 }
 
 impl SimpleInfluenceForce for DragForce {
     fn calc_force(&self, cell: &Cell) -> Force {
         let force = Force::new(
-            self.calc_drag(cell.radius().value(), cell.velocity().x()),
-            self.calc_drag(cell.radius().value(), cell.velocity().y()),
+            self.calc_drag(cell.mass(), cell.radius(), cell.velocity().x()),
+            self.calc_drag(cell.mass(), cell.radius(), cell.velocity().y()),
         );
         trace!("Cell {} Drag {:?}", cell.node_handle().index(), force);
         force
@@ -449,7 +461,7 @@ mod tests {
         let drag = DragForce::new(0.5);
         let ball = Cell::ball(
             Length::new(2.0),
-            Mass::new(1.0),
+            Mass::new(10.0),
             Position::new(0.0, 0.0),
             Velocity::new(2.0, -3.0),
         );
@@ -457,8 +469,7 @@ mod tests {
     }
 
     #[test]
-    #[ignore]
-    fn drag_force_is_bounded() {
+    fn drag_force_is_limited_to_force_that_will_stop_cell() {
         let drag = DragForce::new(0.5);
         let ball = Cell::ball(
             Length::new(10.0),

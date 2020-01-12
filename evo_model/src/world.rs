@@ -129,11 +129,10 @@ impl World {
     }
 
     pub fn tick(&mut self) {
-        self.tick_for_subticks(2);
+        self.tick_with(Duration::new(1.0), 2);
     }
 
-    fn tick_for_subticks(&mut self, subticks_per_tick: u32) {
-        let tick_duration = Duration::new(1.0);
+    fn tick_with(&mut self, tick_duration: Duration, subticks_per_tick: u32) {
         let subtick_duration = tick_duration / (subticks_per_tick as f64);
 
         for subtick in 0..subticks_per_tick {
@@ -314,7 +313,7 @@ mod tests {
                 DragForce::new(0.01),
             ))));
 
-        world.tick_for_subticks(1);
+        world.tick_with(Duration::new(1.0), 1);
 
         let ball = &world.cells()[0];
         assert!(ball.velocity().x() >= 0.0);

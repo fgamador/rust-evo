@@ -10,11 +10,12 @@ use std::cmp::Ordering;
 #[derive(Clone, Copy, Debug, PartialEq)]
 pub struct Overlap {
     incursion: Displacement,
+    width: f64,
 }
 
 impl Overlap {
-    pub fn new(incursion: Displacement) -> Self {
-        Overlap { incursion }
+    pub fn new(incursion: Displacement, width: f64) -> Self {
+        Overlap { incursion, width }
     }
 
     pub fn magnitude(&self) -> f64 {
@@ -54,7 +55,7 @@ impl Walls {
 
         for circle in graph.unsorted_nodes() {
             if let Some(overlap) = self.calc_overlap(circle) {
-                overlaps.push((circle.node_handle(), Overlap::new(overlap)));
+                overlaps.push((circle.node_handle(), Overlap::new(overlap, 1.0)));
             }
         }
 
@@ -108,8 +109,8 @@ where
             }
 
             if let Some(incursion) = calc_incursion(circle1, circle2) {
-                overlaps.push((*handle1, Overlap::new(incursion)));
-                overlaps.push((*handle2, Overlap::new(-incursion)));
+                overlaps.push((*handle1, Overlap::new(incursion, 1.0)));
+                overlaps.push((*handle2, Overlap::new(-incursion, 1.0)));
             }
         }
     }
@@ -203,7 +204,7 @@ mod tests {
         assert_eq!(
             (
                 graph.node_handles()[0],
-                Overlap::new(Displacement::new(0.5, 0.25))
+                Overlap::new(Displacement::new(0.5, 0.25), 1.0)
             ),
             overlaps[0]
         );
@@ -225,7 +226,7 @@ mod tests {
         assert_eq!(
             (
                 graph.node_handles()[0],
-                Overlap::new(Displacement::new(-0.5, -0.75))
+                Overlap::new(Displacement::new(-0.5, -0.75), 1.0)
             ),
             overlaps[0]
         );
@@ -336,7 +337,7 @@ mod tests {
     #[test]
     fn overlap_to_force() {
         let spring = LinearSpring::new(1.0);
-        let overlap = Overlap::new(Displacement::new(2.0, -3.0));
+        let overlap = Overlap::new(Displacement::new(2.0, -3.0), 1.0);
         assert_eq!(Force::new(2.0, -3.0), overlap.to_force(&spring));
     }
 }

@@ -928,7 +928,7 @@ mod tests {
         layer.mark_as_surface();
 
         let mut env = LocalEnvironment::new();
-        env.add_overlap(Overlap::new(Displacement::new(0.5, 0.0)));
+        env.add_overlap(Overlap::new(Displacement::new(0.5, 0.0), 1.0));
         layer.after_influences(&env, Duration::new(1.0));
 
         assert_eq!(layer.health(), 0.875);
@@ -943,7 +943,7 @@ mod tests {
             });
 
         let mut env = LocalEnvironment::new();
-        env.add_overlap(Overlap::new(Displacement::new(0.5, 0.0)));
+        env.add_overlap(Overlap::new(Displacement::new(0.5, 0.0), 1.0));
         layer.after_influences(&env, Duration::new(1.0));
 
         assert_eq!(layer.health(), 1.0);

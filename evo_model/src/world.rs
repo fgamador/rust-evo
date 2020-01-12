@@ -267,6 +267,7 @@ mod tests {
         let mut world = World::new(Position::ORIGIN, Position::ORIGIN)
             .with_influence(Box::new(UniversalOverlap::new(Overlap::new(
                 Displacement::new(1.0, 1.0),
+                1.0,
             ))))
             .with_cell(Cell::ball(
                 Length::new(1.0),

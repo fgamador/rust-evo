@@ -540,7 +540,7 @@ mod tests {
             );
 
         cell.environment_mut()
-            .add_overlap(Overlap::new(Displacement::new(1.0, 0.0)));
+            .add_overlap(Overlap::new(Displacement::new(1.0, 0.0), 1.0));
         cell.after_influences(Duration::new(1.0));
 
         assert_eq!(cell.layers()[0].health(), 1.0);

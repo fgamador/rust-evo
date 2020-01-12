@@ -51,8 +51,8 @@ mod tests {
     #[test]
     fn add_overlap() {
         let mut env = LocalEnvironment::new();
-        env.add_overlap(Overlap::new(Displacement::new(1.0, 1.0)));
-        env.add_overlap(Overlap::new(Displacement::new(1.0, 1.0)));
+        env.add_overlap(Overlap::new(Displacement::new(1.0, 1.0), 1.0));
+        env.add_overlap(Overlap::new(Displacement::new(1.0, 1.0), 1.0));
         assert_eq!(2, env.overlaps().len());
     }
 
@@ -67,7 +67,7 @@ mod tests {
     #[test]
     fn clear_local_environment() {
         let mut env = LocalEnvironment::new();
-        env.add_overlap(Overlap::new(Displacement::new(1.0, 1.0)));
+        env.add_overlap(Overlap::new(Displacement::new(1.0, 1.0), 1.0));
         env.add_light_intensity(1.0);
 
         env.clear();

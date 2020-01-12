@@ -137,7 +137,7 @@ impl World {
 
         for subtick in 0..subticks_per_tick {
             self.pre_subtick_logging(subtick);
-            self.apply_influences();
+            self.apply_influences(subtick_duration);
             self.after_influences(subtick_duration);
             self.exert_forces(subtick_duration);
             self.post_subtick_logging(subtick);
@@ -164,7 +164,7 @@ impl World {
         }
     }
 
-    fn apply_influences(&mut self) {
+    fn apply_influences(&mut self, subtick_duration: Duration) {
         for influence in &self.influences {
             influence.apply(&mut self.cell_graph);
         }

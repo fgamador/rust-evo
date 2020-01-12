@@ -54,26 +54,26 @@ impl Walls {
             Vec::with_capacity(graph.unsorted_nodes().len() / 2);
 
         for circle in graph.unsorted_nodes() {
-            if let Some(overlap) = self.calc_overlap(circle) {
-                overlaps.push((circle.node_handle(), Overlap::new(overlap, 1.0)));
+            if let Some(incursion) = self.calc_incursion(circle) {
+                overlaps.push((circle.node_handle(), Overlap::new(incursion, 1.0)));
             }
         }
 
         overlaps
     }
 
-    fn calc_overlap<C>(&self, circle: &C) -> Option<Displacement>
+    fn calc_incursion<C>(&self, circle: &C) -> Option<Displacement>
     where
         C: Circle + GraphNode,
     {
         let circle_box = circle.to_bounding_box();
-        let min_corner_overlap =
+        let min_corner_incursion =
             (self.min_corner - circle_box.min_corner()).max(Displacement::ZERO);
-        let max_corner_overlap =
+        let max_corner_incursion =
             (self.max_corner - circle_box.max_corner()).min(Displacement::ZERO);
-        let overlap = min_corner_overlap + max_corner_overlap;
-        if overlap != Displacement::ZERO {
-            Some(overlap)
+        let incursion = min_corner_incursion + max_corner_incursion;
+        if incursion != Displacement::ZERO {
+            Some(incursion)
         } else {
             None
         }

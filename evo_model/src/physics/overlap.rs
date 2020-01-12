@@ -200,13 +200,13 @@ mod tests {
 
         let overlaps = subject.find_overlaps(&mut graph);
 
-        assert_eq!(1, overlaps.len());
+        assert_eq!(overlaps.len(), 1);
         assert_eq!(
+            overlaps[0],
             (
                 graph.node_handles()[0],
                 Overlap::new(Displacement::new(0.5, 0.25), 1.0)
-            ),
-            overlaps[0]
+            )
         );
     }
 
@@ -222,13 +222,13 @@ mod tests {
 
         let overlaps = subject.find_overlaps(&mut graph);
 
-        assert_eq!(1, overlaps.len());
+        assert_eq!(overlaps.len(), 1);
         assert_eq!(
+            overlaps[0],
             (
                 graph.node_handles()[0],
                 Overlap::new(Displacement::new(-0.5, -0.75), 1.0)
-            ),
-            overlaps[0]
+            )
         );
     }
 
@@ -241,7 +241,7 @@ mod tests {
         let overlap = calc_incursion(&circle1, &circle2).unwrap();
 
         // overlap/hypotenuse 5 has legs 3 and 4
-        assert_eq!(Displacement::new(-3.0, -4.0), overlap);
+        assert_eq!(overlap, Displacement::new(-3.0, -4.0));
     }
 
     #[test]
@@ -252,7 +252,7 @@ mod tests {
         let overlap = calc_incursion(&circle1, &circle2);
 
         // what else could we do?
-        assert_eq!(None, overlap);
+        assert_eq!(overlap, None);
     }
 
     #[test]
@@ -262,7 +262,7 @@ mod tests {
 
         let overlap = calc_incursion(&circle1, &circle2);
 
-        assert_eq!(None, overlap);
+        assert_eq!(overlap, None);
     }
 
     #[test]
@@ -280,9 +280,9 @@ mod tests {
 
         let overlaps = find_pair_overlaps(&mut graph);
 
-        assert_eq!(2, overlaps.len());
-        assert_eq!(graph.node_handles()[0], overlaps[0].0);
-        assert_eq!(graph.node_handles()[1], overlaps[1].0);
+        assert_eq!(overlaps.len(), 2);
+        assert_eq!(overlaps[0].0, graph.node_handles()[0]);
+        assert_eq!(overlaps[1].0, graph.node_handles()[1]);
     }
 
     #[test]
@@ -327,17 +327,17 @@ mod tests {
 
         let overlaps = find_pair_overlaps(&mut graph);
 
-        assert_eq!(4, overlaps.len());
-        assert_eq!(graph.node_handles()[0], overlaps[0].0);
-        assert_eq!(graph.node_handles()[1], overlaps[1].0);
-        assert_eq!(graph.node_handles()[1], overlaps[2].0);
-        assert_eq!(graph.node_handles()[2], overlaps[3].0);
+        assert_eq!(overlaps.len(), 4);
+        assert_eq!(overlaps[0].0, graph.node_handles()[0]);
+        assert_eq!(overlaps[1].0, graph.node_handles()[1]);
+        assert_eq!(overlaps[2].0, graph.node_handles()[1]);
+        assert_eq!(overlaps[3].0, graph.node_handles()[2]);
     }
 
     #[test]
     fn overlap_to_force() {
         let spring = LinearSpring::new(1.0);
         let overlap = Overlap::new(Displacement::new(2.0, -3.0), 1.0);
-        assert_eq!(Force::new(2.0, -3.0), overlap.to_force(&spring));
+        assert_eq!(overlap.to_force(&spring), Force::new(2.0, -3.0));
     }
 }

@@ -237,9 +237,9 @@ impl DragForce {
         subtick_duration: Duration,
     ) -> f64 {
         -velocity.signum()
-            * self
-                .instantaneous_abs_drag(radius, velocity)
-                .min(self.abs_drag_that_will_stop_the_cell(mass, velocity, subtick_duration))
+            * self.instantaneous_abs_drag(radius, velocity).min(
+                Self::abs_drag_that_will_stop_the_cell(mass, velocity, subtick_duration),
+            )
     }
 
     fn instantaneous_abs_drag(&self, radius: Length, velocity: f64) -> f64 {
@@ -247,7 +247,6 @@ impl DragForce {
     }
 
     fn abs_drag_that_will_stop_the_cell(
-        &self,
         mass: Mass,
         velocity: f64,
         subtick_duration: Duration,

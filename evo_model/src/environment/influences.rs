@@ -51,15 +51,13 @@ impl Influence for WallCollisions {
 
 #[derive(Debug)]
 pub struct PairCollisions {
-    spring: LinearSpring,
+    spring: Box<dyn Spring>,
 }
 
 impl PairCollisions {
     #[allow(clippy::new_without_default)]
-    pub fn new() -> Self {
-        PairCollisions {
-            spring: LinearSpring::new(0.05),
-        }
+    pub fn new(spring: Box<dyn Spring>) -> Self {
+        PairCollisions { spring }
     }
 }
 
@@ -73,7 +71,7 @@ impl Influence for PairCollisions {
         for (handle, overlap) in overlaps {
             let cell = cell_graph.node_mut(handle);
             cell.environment_mut().add_overlap(overlap);
-            let force = overlap.to_force(&self.spring);
+            let force = overlap.to_force(&*self.spring);
             trace!("Cell {} Pair {:?}", cell.node_handle().index(), force);
             cell.forces_mut().add_force(force);
         }
@@ -366,7 +364,7 @@ mod tests {
     #[test]
     fn pair_collisions_add_overlaps_and_forces() {
         let mut cell_graph = SortableGraph::new();
-        let pair_collisions = PairCollisions::new();
+        let pair_collisions = PairCollisions::new(Box::new(LinearSpring::new(1.0)));
         let ball1_handle = cell_graph.add_node(Cell::ball(
             Length::new(1.0),
             Mass::new(1.0),

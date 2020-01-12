@@ -14,14 +14,12 @@ fn main() {
 
 fn create_world() -> World {
     World::new(Position::new(-200.0, -200.0), Position::new(200.0, 200.0))
-        .with_influences(vec![
-            Box::new(WallCollisions::new(
-                Position::new(-150.0, -150.0),
-                Position::new(150.0, 150.0),
-                Box::new(LinearSpring::new(0.01)),
-            )),
-            Box::new(PairCollisions::new()),
-        ])
+        .with_influence(Box::new(WallCollisions::new(
+            Position::new(-150.0, -150.0),
+            Position::new(150.0, 150.0),
+            Box::new(LinearSpring::new(0.01)),
+        )))
+        .with_pair_collisions()
         .with_cells(vec![
             Cell::ball(
                 Length::new(20.0),

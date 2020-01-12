@@ -1,7 +1,7 @@
 use crate::physics::quantities::*;
 use std::fmt::Debug;
 
-pub trait Spring : Debug {
+pub trait Spring: Debug {
     fn to_force(&self, compression: Displacement) -> Force;
 }
 

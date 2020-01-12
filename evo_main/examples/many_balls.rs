@@ -3,7 +3,6 @@ extern crate evo_model;
 
 use evo_main::main_support::init_and_run;
 use evo_model::biology::cell::Cell;
-use evo_model::environment::influences::*;
 use evo_model::physics::quantities::*;
 use evo_model::world::World;
 
@@ -14,7 +13,7 @@ fn main() {
 fn create_world() -> World {
     let mut world = World::new(Position::new(-750.0, -350.0), Position::new(750.0, 350.0))
         .with_perimeter_walls()
-        .with_influence(Box::new(PairCollisions::new()));
+        .with_pair_collisions();
     for i in 0..48 {
         for j in 0..21 {
             world = world.with_cell(Cell::ball(

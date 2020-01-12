@@ -26,11 +26,12 @@ impl World {
     }
 
     pub fn with_standard_influences(self) -> Self {
-        self.with_perimeter_walls().with_influences(vec![
-            Box::new(PairCollisions::new()),
-            Box::new(BondForces::new()),
-            Box::new(BondAngleForces::new()),
-        ])
+        self.with_perimeter_walls()
+            .with_pair_collisions()
+            .with_influences(vec![
+                Box::new(BondForces::new()),
+                Box::new(BondAngleForces::new()),
+            ])
     }
 
     pub fn with_perimeter_walls(self) -> Self {
@@ -41,6 +42,12 @@ impl World {
             world_max_corner,
             Box::new(LinearSpring::new(0.05)),
         )))
+    }
+
+    pub fn with_pair_collisions(self) -> Self {
+        self.with_influence(Box::new(PairCollisions::new(Box::new(LinearSpring::new(
+            0.05,
+        )))))
     }
 
     pub fn with_sunlight(self, min_intensity: f64, max_intensity: f64) -> Self {

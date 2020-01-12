@@ -166,7 +166,7 @@ impl World {
 
     fn apply_influences(&mut self, subtick_duration: Duration) {
         for influence in &self.influences {
-            influence.apply(&mut self.cell_graph);
+            influence.apply(&mut self.cell_graph, subtick_duration);
         }
     }
 

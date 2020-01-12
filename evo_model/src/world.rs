@@ -39,7 +39,7 @@ impl World {
         self.with_influence(Box::new(WallCollisions::new(
             world_min_corner,
             world_max_corner,
-            Box::new(LinearSpring::new(1.0)),
+            Box::new(LinearSpring::new(0.05)),
         )))
     }
 

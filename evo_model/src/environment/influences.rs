@@ -57,7 +57,7 @@ impl PairCollisions {
     #[allow(clippy::new_without_default)]
     pub fn new() -> Self {
         PairCollisions {
-            spring: LinearSpring::new(1.0),
+            spring: LinearSpring::new(0.05),
         }
     }
 }

@@ -609,6 +609,14 @@ impl AddAssign for Force {
     }
 }
 
+impl Mul<f64> for Force {
+    type Output = Force;
+
+    fn mul(self, rhs: f64) -> Self::Output {
+        Force::new(self.x * rhs, self.y * rhs)
+    }
+}
+
 impl Mul<Duration> for Force {
     type Output = Impulse;
 

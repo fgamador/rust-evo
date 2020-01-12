@@ -55,7 +55,10 @@ impl Walls {
 
         for circle in graph.unsorted_nodes() {
             if let Some(incursion) = self.calc_incursion(circle) {
-                overlaps.push((circle.node_handle(), Overlap::new(incursion, 1.0)));
+                overlaps.push((
+                    circle.node_handle(),
+                    Overlap::new(incursion, circle.radius().value()),
+                ));
             }
         }
 
@@ -109,8 +112,9 @@ where
             }
 
             if let Some(incursion) = calc_incursion(circle1, circle2) {
-                overlaps.push((*handle1, Overlap::new(incursion, 1.0)));
-                overlaps.push((*handle2, Overlap::new(-incursion, 1.0)));
+                let width = circle1.radius().value().min(circle2.radius().value());
+                overlaps.push((*handle1, Overlap::new(incursion, width)));
+                overlaps.push((*handle2, Overlap::new(-incursion, width)));
             }
         }
     }
@@ -189,12 +193,12 @@ mod tests {
     }
 
     #[test]
-    fn min_corner_wall_overlap() {
+    fn min_corner_wall_overlap_uses_radius_as_width() {
         let mut graph: SortableGraph<SimpleCircleNode, SimpleGraphEdge, SimpleGraphMetaEdge> =
             SortableGraph::new();
         graph.add_node(SimpleCircleNode::new(
             Position::new(-9.5, -4.25),
-            Length::new(1.0),
+            Length::new(2.0),
         ));
         let subject = Walls::new(Position::new(-10.0, -5.0), Position::new(10.0, 2.0));
 
@@ -205,18 +209,18 @@ mod tests {
             overlaps[0],
             (
                 graph.node_handles()[0],
-                Overlap::new(Displacement::new(0.5, 0.25), 1.0)
+                Overlap::new(Displacement::new(1.5, 1.25), 2.0)
             )
         );
     }
 
     #[test]
-    fn max_corner_wall_overlap() {
+    fn max_corner_wall_overlap_uses_radius_as_width() {
         let mut graph: SortableGraph<SimpleCircleNode, SimpleGraphEdge, SimpleGraphMetaEdge> =
             SortableGraph::new();
         graph.add_node(SimpleCircleNode::new(
             Position::new(9.5, 1.75),
-            Length::new(1.0),
+            Length::new(2.0),
         ));
         let subject = Walls::new(Position::new(-10.0, -5.0), Position::new(10.0, 2.0));
 
@@ -227,7 +231,7 @@ mod tests {
             overlaps[0],
             (
                 graph.node_handles()[0],
-                Overlap::new(Displacement::new(-0.5, -0.75), 1.0)
+                Overlap::new(Displacement::new(-1.5, -1.75), 2.0)
             )
         );
     }
@@ -266,23 +270,35 @@ mod tests {
     }
 
     #[test]
-    fn graph_pair_overlap() {
+    fn graph_pair_overlaps_use_min_radius_as_width() {
         let mut graph: SortableGraph<SimpleCircleNode, SimpleGraphEdge, SimpleGraphMetaEdge> =
             SortableGraph::new();
         graph.add_node(SimpleCircleNode::new(
             Position::new(0.0, 0.0),
-            Length::new(1.0),
+            Length::new(1.5),
         ));
         graph.add_node(SimpleCircleNode::new(
-            Position::new(1.5, 0.0),
-            Length::new(1.0),
+            Position::new(2.0, 0.0),
+            Length::new(2.0),
         ));
 
         let overlaps = find_pair_overlaps(&mut graph);
 
         assert_eq!(overlaps.len(), 2);
-        assert_eq!(overlaps[0].0, graph.node_handles()[0]);
-        assert_eq!(overlaps[1].0, graph.node_handles()[1]);
+        assert_eq!(
+            overlaps[0],
+            (
+                graph.node_handles()[0],
+                Overlap::new(Displacement::new(-1.5, 0.0), 1.5)
+            )
+        );
+        assert_eq!(
+            overlaps[1],
+            (
+                graph.node_handles()[1],
+                Overlap::new(Displacement::new(1.5, 0.0), 1.5)
+            )
+        );
     }
 
     #[test]

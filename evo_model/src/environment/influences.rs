@@ -17,6 +17,7 @@ pub trait Influence {
     );
 }
 
+#[derive(Debug)]
 pub struct WallCollisions {
     walls: Walls,
     spring: Box<dyn Spring>,

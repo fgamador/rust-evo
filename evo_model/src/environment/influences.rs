@@ -229,28 +229,48 @@ impl DragForce {
         DragForce { viscosity }
     }
 
-    fn calc_drag(&self, mass: Mass, radius: Length, velocity: f64) -> f64 {
+    fn calc_drag(
+        &self,
+        mass: Mass,
+        radius: Length,
+        velocity: f64,
+        subtick_duration: Duration,
+    ) -> f64 {
         -velocity.signum()
             * self
                 .instantaneous_abs_drag(radius, velocity)
-                .min(self.abs_drag_that_will_stop_the_cell(mass, velocity))
+                .min(self.abs_drag_that_will_stop_the_cell(mass, velocity, subtick_duration))
     }
 
     fn instantaneous_abs_drag(&self, radius: Length, velocity: f64) -> f64 {
         self.viscosity * radius.value() * sqr(velocity)
     }
 
-    // TODO this assumes a subtick length of 1.0...
-    fn abs_drag_that_will_stop_the_cell(&self, mass: Mass, velocity: f64) -> f64 {
-        mass.value() * velocity.abs()
+    fn abs_drag_that_will_stop_the_cell(
+        &self,
+        mass: Mass,
+        velocity: f64,
+        subtick_duration: Duration,
+    ) -> f64 {
+        mass.value() * velocity.abs() / subtick_duration.value()
     }
 }
 
 impl SimpleInfluenceForce for DragForce {
-    fn calc_force(&self, cell: &Cell, _subtick_duration: Duration) -> Force {
+    fn calc_force(&self, cell: &Cell, subtick_duration: Duration) -> Force {
         let force = Force::new(
-            self.calc_drag(cell.mass(), cell.radius(), cell.velocity().x()),
-            self.calc_drag(cell.mass(), cell.radius(), cell.velocity().y()),
+            self.calc_drag(
+                cell.mass(),
+                cell.radius(),
+                cell.velocity().x(),
+                subtick_duration,
+            ),
+            self.calc_drag(
+                cell.mass(),
+                cell.radius(),
+                cell.velocity().y(),
+                subtick_duration,
+            ),
         );
         trace!("Cell {} Drag {:?}", cell.node_handle().index(), force);
         force
@@ -517,7 +537,7 @@ mod tests {
         );
         assert_eq!(
             drag.calc_force(&ball, Duration::new(0.5)),
-            Force::new(-0.1, 0.1)
+            Force::new(-0.2, 0.2)
         );
     }
 

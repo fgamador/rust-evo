@@ -20,7 +20,7 @@ fn create_world() -> World {
     World::new(Position::new(0.0, -400.0), Position::new(400.0, 0.0))
         .with_perimeter_walls()
         .with_pair_collisions()
-        .with_sunlight(0.0, 10.0)
+        .with_sunlight(0.0, 1.0)
         .with_influences(vec![
             Box::new(SimpleForceInfluence::new(Box::new(WeightForce::new(-0.05)))),
             Box::new(SimpleForceInfluence::new(Box::new(BuoyancyForce::new(
@@ -28,9 +28,9 @@ fn create_world() -> World {
             )))),
             Box::new(SimpleForceInfluence::new(Box::new(DragForce::new(0.005)))),
         ])
-        .with_cells(vec![
-            create_cell().with_initial_position(Position::new(200.0, -50.0))
-        ])
+        .with_cells(vec![create_cell()
+            .with_initial_position(Position::new(200.0, -50.0))
+            .with_initial_energy(BioEnergy::new(100.0))])
 }
 
 fn create_cell() -> Cell {
@@ -46,14 +46,14 @@ fn create_cell() -> Cell {
                     Box::new(NullCellLayerSpecialty::new()),
                 )
                 .with_resize_parameters(LayerResizeParameters {
-                    growth_energy_delta: BioEnergyDelta::new(0.0),
-                    max_growth_rate: f64::INFINITY,
-                    shrinkage_energy_delta: BioEnergyDelta::new(0.0),
-                    max_shrinkage_rate: 1.0,
+                    growth_energy_delta: BioEnergyDelta::new(100.0),
+                    max_growth_rate: 10.0,
+                    shrinkage_energy_delta: BioEnergyDelta::new(1.0),
+                    max_shrinkage_rate: 0.5,
                 })
                 .with_health_parameters(LayerHealthParameters {
-                    healing_energy_delta: BioEnergyDelta::new(0.0),
-                    entropic_damage_health_delta: 0.0,
+                    healing_energy_delta: BioEnergyDelta::new(1.0),
+                    entropic_damage_health_delta: -0.1,
                     overlap_damage_health_delta: 0.0,
                 }),
             ),
@@ -62,17 +62,17 @@ fn create_cell() -> Cell {
                     Area::new(5.0 * PI),
                     Density::new(0.00075),
                     Color::Green,
-                    Box::new(PhotoCellLayerSpecialty::new(1.0)),
+                    Box::new(PhotoCellLayerSpecialty::new(0.01)),
                 )
                 .with_resize_parameters(LayerResizeParameters {
-                    growth_energy_delta: BioEnergyDelta::new(0.0),
-                    max_growth_rate: f64::INFINITY,
+                    growth_energy_delta: BioEnergyDelta::new(1000.0),
+                    max_growth_rate: 10.0,
                     shrinkage_energy_delta: BioEnergyDelta::new(0.0),
-                    max_shrinkage_rate: 1.0,
+                    max_shrinkage_rate: 0.1,
                 })
                 .with_health_parameters(LayerHealthParameters {
-                    healing_energy_delta: BioEnergyDelta::new(0.0),
-                    entropic_damage_health_delta: 0.0,
+                    healing_energy_delta: BioEnergyDelta::new(1.0),
+                    entropic_damage_health_delta: -0.5,
                     overlap_damage_health_delta: 0.0,
                 }),
             ),
@@ -90,9 +90,9 @@ fn create_cell() -> Cell {
                     max_shrinkage_rate: 1.0,
                 })
                 .with_health_parameters(LayerHealthParameters {
-                    healing_energy_delta: BioEnergyDelta::new(0.0),
-                    entropic_damage_health_delta: 0.0,
-                    overlap_damage_health_delta: 0.0,
+                    healing_energy_delta: BioEnergyDelta::new(1.0),
+                    entropic_damage_health_delta: -0.5,
+                    overlap_damage_health_delta: -0.5,
                 }),
             ),
         ],
@@ -157,15 +157,15 @@ impl DuckweedControl {
         self.budding_angle += Deflection::from_radians(PI / 4.0);
         vec![
             BuddingCellLayerSpecialty::budding_angle_request(2, self.budding_angle),
-            BuddingCellLayerSpecialty::donation_energy_request(2, BioEnergy::new(1.0)),
+            BuddingCellLayerSpecialty::donation_energy_request(2, BioEnergy::new(100.0)),
         ]
     }
 
     fn healing_requests(&self, _cell_state: &CellStateSnapshot) -> Vec<ControlRequest> {
         vec![
-            CellLayer::healing_request(0, 0.0),
-            CellLayer::healing_request(1, 0.0),
-            CellLayer::healing_request(2, 0.0),
+            CellLayer::healing_request(0, 100.0),
+            CellLayer::healing_request(1, 100.0),
+            CellLayer::healing_request(2, 100.0),
         ]
     }
 }

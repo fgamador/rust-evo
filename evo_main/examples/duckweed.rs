@@ -9,6 +9,7 @@ use evo_model::biology::layers::*;
 use evo_model::environment::influences::*;
 use evo_model::physics::quantities::*;
 use evo_model::world::World;
+use std::f64;
 use std::f64::consts::PI;
 
 fn main() {
@@ -37,24 +38,63 @@ fn create_cell() -> Cell {
         Position::ORIGIN,
         Velocity::ZERO,
         vec![
-            Box::new(CellLayer::new(
-                Area::new(5.0 * PI),
-                Density::new(0.0004),
-                Color::White,
-                Box::new(NullCellLayerSpecialty::new()),
-            )),
-            Box::new(CellLayer::new(
-                Area::new(5.0 * PI),
-                Density::new(0.00075),
-                Color::Green,
-                Box::new(PhotoCellLayerSpecialty::new(1.0)),
-            )),
-            Box::new(CellLayer::new(
-                Area::new(5.0 * PI),
-                Density::new(0.00075),
-                Color::Yellow,
-                Box::new(BuddingCellLayerSpecialty::new(create_cell)),
-            )),
+            Box::new(
+                CellLayer::new(
+                    Area::new(5.0 * PI),
+                    Density::new(0.0004),
+                    Color::White,
+                    Box::new(NullCellLayerSpecialty::new()),
+                )
+                .with_resize_parameters(LayerResizeParameters {
+                    growth_energy_delta: BioEnergyDelta::new(0.0),
+                    max_growth_rate: f64::INFINITY,
+                    shrinkage_energy_delta: BioEnergyDelta::new(0.0),
+                    max_shrinkage_rate: 1.0,
+                })
+                .with_health_parameters(LayerHealthParameters {
+                    healing_energy_delta: BioEnergyDelta::new(0.0),
+                    entropic_damage_health_delta: 0.0,
+                    overlap_damage_health_delta: 0.0,
+                }),
+            ),
+            Box::new(
+                CellLayer::new(
+                    Area::new(5.0 * PI),
+                    Density::new(0.00075),
+                    Color::Green,
+                    Box::new(PhotoCellLayerSpecialty::new(1.0)),
+                )
+                .with_resize_parameters(LayerResizeParameters {
+                    growth_energy_delta: BioEnergyDelta::new(0.0),
+                    max_growth_rate: f64::INFINITY,
+                    shrinkage_energy_delta: BioEnergyDelta::new(0.0),
+                    max_shrinkage_rate: 1.0,
+                })
+                .with_health_parameters(LayerHealthParameters {
+                    healing_energy_delta: BioEnergyDelta::new(0.0),
+                    entropic_damage_health_delta: 0.0,
+                    overlap_damage_health_delta: 0.0,
+                }),
+            ),
+            Box::new(
+                CellLayer::new(
+                    Area::new(5.0 * PI),
+                    Density::new(0.00075),
+                    Color::Yellow,
+                    Box::new(BuddingCellLayerSpecialty::new(create_cell)),
+                )
+                .with_resize_parameters(LayerResizeParameters {
+                    growth_energy_delta: BioEnergyDelta::new(0.0),
+                    max_growth_rate: f64::INFINITY,
+                    shrinkage_energy_delta: BioEnergyDelta::new(0.0),
+                    max_shrinkage_rate: 1.0,
+                })
+                .with_health_parameters(LayerHealthParameters {
+                    healing_energy_delta: BioEnergyDelta::new(0.0),
+                    entropic_damage_health_delta: 0.0,
+                    overlap_damage_health_delta: 0.0,
+                }),
+            ),
         ],
     )
     .with_control(Box::new(DuckweedControl::new(-50.0)))

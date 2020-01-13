@@ -125,15 +125,18 @@ impl DuckweedControl {
     fn adult_requests(&mut self, cell_state: &CellStateSnapshot) -> Vec<ControlRequest> {
         let mut requests = vec![self.float_layer_resize_request(cell_state)];
         requests.append(&mut self.budding_requests());
+        requests.append(&mut self.healing_requests(cell_state));
         requests
     }
 
     fn youth_requests(&self, cell_state: &CellStateSnapshot) -> Vec<ControlRequest> {
-        vec![
+        let mut requests = vec![
             self.float_layer_resize_request(cell_state),
             CellLayer::resize_request(1, AreaDelta::new(5.0)),
             CellLayer::resize_request(2, AreaDelta::new(5.0)),
-        ]
+        ];
+        requests.append(&mut self.healing_requests(cell_state));
+        requests
     }
 
     fn float_layer_resize_request(&self, cell_state: &CellStateSnapshot) -> ControlRequest {
@@ -155,6 +158,14 @@ impl DuckweedControl {
         vec![
             BuddingCellLayerSpecialty::budding_angle_request(2, self.budding_angle),
             BuddingCellLayerSpecialty::donation_energy_request(2, BioEnergy::new(1.0)),
+        ]
+    }
+
+    fn healing_requests(&self, _cell_state: &CellStateSnapshot) -> Vec<ControlRequest> {
+        vec![
+            CellLayer::healing_request(0, 0.0),
+            CellLayer::healing_request(1, 0.0),
+            CellLayer::healing_request(2, 0.0),
         ]
     }
 }

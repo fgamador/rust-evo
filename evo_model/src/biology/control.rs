@@ -13,6 +13,7 @@ pub struct CellStateSnapshot {
     pub area: Area,
     pub center: Position,
     pub velocity: Velocity,
+    pub layers: Vec<CellLayerStateSnapshot>,
 }
 
 impl CellStateSnapshot {
@@ -21,7 +22,13 @@ impl CellStateSnapshot {
         area: Area::ZERO,
         center: Position::ORIGIN,
         velocity: Velocity::ZERO,
+        layers: Vec::new(),
     };
+}
+
+#[derive(Debug)]
+pub struct CellLayerStateSnapshot {
+    pub health: f64,
 }
 
 #[derive(Debug)]

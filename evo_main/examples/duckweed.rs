@@ -61,8 +61,8 @@ fn create_float_layer() -> Box<CellLayer> {
             max_shrinkage_rate: 0.5,
         })
         .with_health_parameters(LayerHealthParameters {
-            healing_energy_delta: BioEnergyDelta::new(1.0),
-            entropic_damage_health_delta: -0.1,
+            healing_energy_delta: BioEnergyDelta::new(0.0),
+            entropic_damage_health_delta: -0.01,
             overlap_damage_health_delta: 0.0,
         }),
     )
@@ -83,8 +83,8 @@ fn create_photo_layer() -> Box<CellLayer> {
             max_shrinkage_rate: 0.1,
         })
         .with_health_parameters(LayerHealthParameters {
-            healing_energy_delta: BioEnergyDelta::new(1.0),
-            entropic_damage_health_delta: -0.5,
+            healing_energy_delta: BioEnergyDelta::new(0.0),
+            entropic_damage_health_delta: -0.01,
             overlap_damage_health_delta: 0.0,
         }),
     )
@@ -105,8 +105,8 @@ fn create_budding_layer() -> Box<CellLayer> {
             max_shrinkage_rate: 1.0,
         })
         .with_health_parameters(LayerHealthParameters {
-            healing_energy_delta: BioEnergyDelta::new(1.0),
-            entropic_damage_health_delta: -0.5,
+            healing_energy_delta: BioEnergyDelta::new(0.0),
+            entropic_damage_health_delta: -0.01,
             overlap_damage_health_delta: -0.5,
         }),
     )
@@ -136,7 +136,7 @@ impl DuckweedControl {
 
     fn adult_requests(&mut self, cell_state: &CellStateSnapshot) -> Vec<ControlRequest> {
         let mut requests = vec![self.float_layer_resize_request(cell_state)];
-        requests.append(&mut self.budding_requests());
+        //requests.append(&mut self.budding_requests());
         requests.append(&mut self.healing_requests(cell_state));
         requests
     }
@@ -175,9 +175,9 @@ impl DuckweedControl {
 
     fn healing_requests(&self, _cell_state: &CellStateSnapshot) -> Vec<ControlRequest> {
         vec![
-            CellLayer::healing_request(0, 100.0),
-            CellLayer::healing_request(1, 100.0),
-            CellLayer::healing_request(2, 100.0),
+            CellLayer::healing_request(0, 0.01),
+            CellLayer::healing_request(1, 0.01),
+            CellLayer::healing_request(2, 0.01),
         ]
     }
 }

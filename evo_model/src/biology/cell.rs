@@ -180,7 +180,18 @@ impl Cell {
             area: self.area(),
             center: self.center(),
             velocity: self.velocity(),
+            layers: self.get_layer_state_snapshots(),
         }
+    }
+
+    fn get_layer_state_snapshots(&self) -> Vec<CellLayerStateSnapshot> {
+        let mut result = Vec::with_capacity(self.layers.len());
+        for layer in &self.layers {
+            result.push(CellLayerStateSnapshot {
+                health: layer.health(),
+            });
+        }
+        result
     }
 
     #[allow(clippy::vec_box)]

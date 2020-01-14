@@ -91,16 +91,11 @@ impl Cell {
         self.energy = energy;
     }
 
-    fn get_budgeted_control_requests(&mut self) -> Vec<BudgetedControlRequest> {
+    fn get_budgeted_control_requests(&mut self) -> (BioEnergy, Vec<BudgetedControlRequest>) {
         let cell_state = self.get_state_snapshot();
-
         let control_requests = self.control.get_control_requests(&cell_state);
         let costed_requests = self.cost_control_requests(&control_requests);
-        let (end_energy, budgeted_control_requests) =
-            Self::budget_control_requests(self.energy, &costed_requests);
-
-        self.energy = end_energy;
-        budgeted_control_requests
+        Self::budget_control_requests(self.energy, &costed_requests)
     }
 
     fn cost_control_requests(
@@ -222,7 +217,8 @@ impl TickCallbacks for Cell {
     }
 
     fn after_movement(&mut self) -> (bool, Vec<Cell>) {
-        let budgeted_control_requests = self.get_budgeted_control_requests();
+        let (end_energy, budgeted_control_requests) = self.get_budgeted_control_requests();
+        self.energy = end_energy;
         self.execute_control_requests(&budgeted_control_requests);
         self.after_control_requests()
     }

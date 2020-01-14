@@ -75,6 +75,12 @@ impl LayerHealthParameters {
         entropic_damage_health_delta: 0.0,
         overlap_damage_health_delta: 0.0,
     };
+
+    fn validate(&self) {
+        assert!(self.healing_energy_delta.value() <= 0.0);
+        assert!(self.entropic_damage_health_delta <= 0.0);
+        assert!(self.overlap_damage_health_delta <= 0.0);
+    }
 }
 
 #[derive(Debug, Clone, Copy)]
@@ -92,6 +98,13 @@ impl LayerResizeParameters {
         shrinkage_energy_delta: BioEnergyDelta::ZERO,
         max_shrinkage_rate: 1.0,
     };
+
+    fn validate(&self) {
+        assert!(self.growth_energy_delta.value() <= 0.0);
+        assert!(self.max_growth_rate >= 0.0);
+        // self.shrinkage_energy_delta can be negative or positive
+        assert!(self.max_shrinkage_rate >= 0.0);
+    }
 }
 
 #[derive(Debug)]
@@ -117,16 +130,19 @@ impl CellLayer {
     }
 
     pub fn with_health_parameters(mut self, health_parameters: LayerHealthParameters) -> Self {
+        health_parameters.validate();
         self.body.health_parameters = health_parameters;
         self
     }
 
     pub fn with_resize_parameters(mut self, resize_parameters: LayerResizeParameters) -> Self {
+        resize_parameters.validate();
         self.body.resize_parameters = resize_parameters;
         self
     }
 
     pub fn with_health(mut self, health: f64) -> Self {
+        assert!(health >= 0.0);
         self.body.health = health;
         self
     }

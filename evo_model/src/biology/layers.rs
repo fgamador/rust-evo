@@ -1173,6 +1173,7 @@ mod tests {
             area: Area::new(3.0),
             center: Position::new(1.0, -1.0),
             velocity: Velocity::new(2.0, -2.0),
+            layers: Vec::new(),
         };
         match layer.after_control_requests(&cell_state) {
             None => panic!(),

@@ -55,13 +55,13 @@ fn create_float_layer() -> Box<CellLayer> {
             Box::new(NullCellLayerSpecialty::new()),
         )
         .with_resize_parameters(LayerResizeParameters {
-            growth_energy_delta: BioEnergyDelta::new(100.0),
+            growth_energy_delta: BioEnergyDelta::new(-1.0),
             max_growth_rate: 10.0,
             shrinkage_energy_delta: BioEnergyDelta::new(1.0),
             max_shrinkage_rate: 0.5,
         })
         .with_health_parameters(LayerHealthParameters {
-            healing_energy_delta: BioEnergyDelta::new(0.0),
+            healing_energy_delta: BioEnergyDelta::new(-1.0),
             entropic_damage_health_delta: -0.01,
             overlap_damage_health_delta: 0.0,
         }),
@@ -74,16 +74,16 @@ fn create_photo_layer() -> Box<CellLayer> {
             Area::new(5.0 * PI),
             Density::new(0.00075),
             Color::Green,
-            Box::new(PhotoCellLayerSpecialty::new(0.01)),
+            Box::new(PhotoCellLayerSpecialty::new(0.05)),
         )
         .with_resize_parameters(LayerResizeParameters {
-            growth_energy_delta: BioEnergyDelta::new(1000.0),
+            growth_energy_delta: BioEnergyDelta::new(-1.0),
             max_growth_rate: 10.0,
             shrinkage_energy_delta: BioEnergyDelta::new(0.0),
             max_shrinkage_rate: 0.1,
         })
         .with_health_parameters(LayerHealthParameters {
-            healing_energy_delta: BioEnergyDelta::new(0.0),
+            healing_energy_delta: BioEnergyDelta::new(-1.0),
             entropic_damage_health_delta: -0.01,
             overlap_damage_health_delta: 0.0,
         }),
@@ -105,7 +105,7 @@ fn create_budding_layer() -> Box<CellLayer> {
             max_shrinkage_rate: 1.0,
         })
         .with_health_parameters(LayerHealthParameters {
-            healing_energy_delta: BioEnergyDelta::new(0.0),
+            healing_energy_delta: BioEnergyDelta::new(-1.0),
             entropic_damage_health_delta: -0.01,
             overlap_damage_health_delta: -0.5,
         }),
@@ -136,7 +136,7 @@ impl DuckweedControl {
 
     fn adult_requests(&mut self, cell_state: &CellStateSnapshot) -> Vec<ControlRequest> {
         let mut requests = vec![self.float_layer_resize_request(cell_state)];
-        //requests.append(&mut self.budding_requests());
+        // TODO requests.append(&mut self.budding_requests());
         requests.append(&mut self.healing_requests(cell_state));
         requests
     }
@@ -173,12 +173,13 @@ impl DuckweedControl {
         ]
     }
 
-    fn healing_requests(&self, _cell_state: &CellStateSnapshot) -> Vec<ControlRequest> {
-        vec![
-            CellLayer::healing_request(0, 0.01),
-            CellLayer::healing_request(1, 0.01),
-            CellLayer::healing_request(2, 0.01),
-        ]
+    fn healing_requests(&self, cell_state: &CellStateSnapshot) -> Vec<ControlRequest> {
+        let mut requests = Vec::with_capacity(cell_state.layers.len());
+        for (i, layer) in cell_state.layers.iter().enumerate() {
+            let delta_health = 1.0 - layer.health;
+            requests.push(CellLayer::healing_request(i, delta_health));
+        }
+        requests
     }
 }
 

@@ -1,4 +1,5 @@
 use crate::biology::cell::Cell;
+//use crate::biology::layers::{Onion, OnionLayer};
 use crate::environment::influences::*;
 use crate::environment::local_environment::*;
 use crate::physics::bond::*;
@@ -192,6 +193,15 @@ impl World {
 
     fn post_subtick_logging(&self, subtick: u32) {
         for cell in self.cell_graph.unsorted_nodes() {
+            //            println!(
+            //                "Subtick {} Cell {} Energy {} Health0 {} Health1 {} Health2 {}",
+            //                subtick,
+            //                cell.node_handle().index(),
+            //                cell.energy().value(),
+            //                cell.layers()[0].health(),
+            //                cell.layers()[1].health(),
+            //                cell.layers()[2].health()
+            //            );
             trace!(
                 "Subtick {} Cell {} Net {:?}",
                 subtick,

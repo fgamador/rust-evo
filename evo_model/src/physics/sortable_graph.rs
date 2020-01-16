@@ -51,7 +51,8 @@ impl<N: GraphNode, E: GraphEdge, ME: GraphMetaEdge> SortableGraph<N, E, ME> {
 
     fn remove_obsolete_node_handles(&mut self) {
         let first_invalid_index = self.unsorted_nodes.len();
-        self.sortable_node_handles.retain(|h| h.index < first_invalid_index);
+        self.sortable_node_handles
+            .retain(|h| h.index < first_invalid_index);
     }
 
     pub fn add_edge(&mut self, mut edge: E) -> EdgeHandle {

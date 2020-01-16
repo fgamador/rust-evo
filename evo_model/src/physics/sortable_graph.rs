@@ -46,6 +46,12 @@ impl<N: GraphNode, E: GraphEdge, ME: GraphMetaEdge> SortableGraph<N, E, ME> {
             }
             // TODO obsolete edges, handles to swapped nodes in remaining edges
         }
+        self.remove_obsolete_node_handles();
+    }
+
+    fn remove_obsolete_node_handles(&mut self) {
+        let first_invalid_index = self.unsorted_nodes.len();
+        self.sortable_node_handles.retain(|h| h.index < first_invalid_index);
     }
 
     pub fn add_edge(&mut self, mut edge: E) -> EdgeHandle {
@@ -323,6 +329,8 @@ mod tests {
         let node = &graph.unsorted_nodes()[0];
         assert_eq!(node.id, 1);
         assert_eq!(node.node_handle().index, 0);
+        assert_eq!(graph.sortable_node_handles.len(), 1);
+        assert_eq!(graph.sortable_node_handles[0].index, 0);
     }
 
     #[test]

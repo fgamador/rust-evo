@@ -74,7 +74,7 @@ fn create_photo_layer() -> Box<CellLayer> {
             Area::new(5.0 * PI),
             Density::new(0.00075),
             Color::Green,
-            Box::new(PhotoCellLayerSpecialty::new(0.05)),
+            Box::new(PhotoCellLayerSpecialty::new(0.1)),
         )
         .with_resize_parameters(LayerResizeParameters {
             growth_energy_delta: BioEnergyDelta::new(-1.0),
@@ -136,7 +136,7 @@ impl DuckweedControl {
 
     fn adult_requests(&mut self, cell_state: &CellStateSnapshot) -> Vec<ControlRequest> {
         let mut requests = vec![self.float_layer_resize_request(cell_state)];
-        // TODO requests.append(&mut self.budding_requests());
+        requests.append(&mut self.budding_requests());
         requests.append(&mut self.healing_requests(cell_state));
         requests
     }

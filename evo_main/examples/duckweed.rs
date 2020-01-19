@@ -16,15 +16,24 @@ fn main() {
     init_and_run(create_world());
 }
 
+const FLUID_DENSITY: f64 = 0.001;
+const FLOAT_LAYER_DENSITY: f64 = 0.0001;
+const PHOTO_LAYER_DENSITY: f64 = 0.002;
+const BUDDING_LAYER_DENSITY: f64 = 0.002;
+const GRAVITY: f64 = -0.05;
+
 fn create_world() -> World {
     World::new(Position::new(0.0, -400.0), Position::new(400.0, 0.0))
         .with_perimeter_walls()
         .with_pair_collisions()
         .with_sunlight(0.0, 1.0)
         .with_influences(vec![
-            Box::new(SimpleForceInfluence::new(Box::new(WeightForce::new(-0.05)))),
+            Box::new(SimpleForceInfluence::new(Box::new(WeightForce::new(
+                GRAVITY,
+            )))),
             Box::new(SimpleForceInfluence::new(Box::new(BuoyancyForce::new(
-                -0.03, 0.001,
+                GRAVITY,
+                FLUID_DENSITY,
             )))),
             Box::new(SimpleForceInfluence::new(Box::new(DragForce::new(0.005)))),
         ])
@@ -50,14 +59,14 @@ fn create_float_layer() -> Box<CellLayer> {
     Box::new(
         CellLayer::new(
             Area::new(5.0 * PI),
-            Density::new(0.0004),
+            Density::new(FLOAT_LAYER_DENSITY),
             Color::White,
             Box::new(NullCellLayerSpecialty::new()),
         )
         .with_resize_parameters(LayerResizeParameters {
-            growth_energy_delta: BioEnergyDelta::new(-1.0),
+            growth_energy_delta: BioEnergyDelta::new(-0.1),
             max_growth_rate: 10.0,
-            shrinkage_energy_delta: BioEnergyDelta::new(1.0),
+            shrinkage_energy_delta: BioEnergyDelta::new(-0.01),
             max_shrinkage_rate: 0.5,
         })
         .with_health_parameters(LayerHealthParameters {
@@ -72,9 +81,9 @@ fn create_photo_layer() -> Box<CellLayer> {
     Box::new(
         CellLayer::new(
             Area::new(5.0 * PI),
-            Density::new(0.00075),
+            Density::new(PHOTO_LAYER_DENSITY),
             Color::Green,
-            Box::new(PhotoCellLayerSpecialty::new(0.1)),
+            Box::new(PhotoCellLayerSpecialty::new(0.5)),
         )
         .with_resize_parameters(LayerResizeParameters {
             growth_energy_delta: BioEnergyDelta::new(-1.0),
@@ -94,7 +103,7 @@ fn create_budding_layer() -> Box<CellLayer> {
     Box::new(
         CellLayer::new(
             Area::new(5.0 * PI),
-            Density::new(0.00075),
+            Density::new(BUDDING_LAYER_DENSITY),
             Color::Yellow,
             Box::new(BuddingCellLayerSpecialty::new(create_cell)),
         )
@@ -152,10 +161,18 @@ impl DuckweedControl {
     }
 
     fn float_layer_resize_request(&self, cell_state: &CellStateSnapshot) -> ControlRequest {
-        let y_offset = cell_state.center.y() - self.target_y;
-        let target_velocity_y = -y_offset / 100.0;
-        let target_delta_vy = target_velocity_y - cell_state.velocity.y();
-        let desired_delta_area = target_delta_vy * 10.0;
+        let y_ratio = self.target_y / cell_state.center.y();
+        let target_density = y_ratio * FLUID_DENSITY;
+        let float_layer = &cell_state.layers[0];
+        let photo_layer = &cell_state.layers[1];
+        let budding_layer = &cell_state.layers[2];
+
+        let target_float_area = ((photo_layer.area.value()
+            * (PHOTO_LAYER_DENSITY - target_density)
+            + (budding_layer.area.value() * (BUDDING_LAYER_DENSITY - target_density)))
+            / (target_density - FLOAT_LAYER_DENSITY))
+            .max(0.0);
+        let desired_delta_area = target_float_area - float_layer.area.value();
         CellLayer::resize_request(0, AreaDelta::new(desired_delta_area))
     }
 

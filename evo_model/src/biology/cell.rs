@@ -30,7 +30,6 @@ impl Cell {
         }
 
         let radius = Self::update_layer_outer_radii(&mut layers);
-        layers.last_mut().unwrap().mark_as_surface();
         Cell {
             graph_node_data: GraphNodeData::new(),
             radius,
@@ -526,7 +525,7 @@ mod tests {
     }
 
     #[test]
-    fn overlap_damages_only_surface_layer() {
+    fn overlap_damages_all_layers() {
         let mut cell =
             Cell::new(
                 Position::ORIGIN,
@@ -553,7 +552,7 @@ mod tests {
             .add_overlap(Overlap::new(Displacement::new(1.0, 0.0), 1.0));
         cell.after_influences(Duration::new(1.0));
 
-        assert_eq!(cell.layers()[0].health(), 1.0);
+        assert!(cell.layers()[0].health() < 1.0);
         assert!(cell.layers()[1].health() < 1.0);
     }
 

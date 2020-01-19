@@ -21,6 +21,7 @@ const FLOAT_LAYER_DENSITY: f64 = 0.0001;
 const PHOTO_LAYER_DENSITY: f64 = 0.002;
 const BUDDING_LAYER_DENSITY: f64 = 0.002;
 const GRAVITY: f64 = -0.05;
+const OVERLAP_DAMAGE_HEALTH_DELTA: f64 = -0.1;
 
 fn create_world() -> World {
     World::new(Position::new(0.0, -400.0), Position::new(400.0, 0.0))
@@ -72,7 +73,7 @@ fn create_float_layer() -> Box<CellLayer> {
         .with_health_parameters(LayerHealthParameters {
             healing_energy_delta: BioEnergyDelta::new(-1.0),
             entropic_damage_health_delta: -0.01,
-            overlap_damage_health_delta: 0.0,
+            overlap_damage_health_delta: OVERLAP_DAMAGE_HEALTH_DELTA,
         }),
     )
 }
@@ -94,7 +95,7 @@ fn create_photo_layer() -> Box<CellLayer> {
         .with_health_parameters(LayerHealthParameters {
             healing_energy_delta: BioEnergyDelta::new(-1.0),
             entropic_damage_health_delta: -0.01,
-            overlap_damage_health_delta: 0.0,
+            overlap_damage_health_delta: OVERLAP_DAMAGE_HEALTH_DELTA,
         }),
     )
 }
@@ -116,7 +117,7 @@ fn create_budding_layer() -> Box<CellLayer> {
         .with_health_parameters(LayerHealthParameters {
             healing_energy_delta: BioEnergyDelta::new(-1.0),
             entropic_damage_health_delta: -0.01,
-            overlap_damage_health_delta: -0.5,
+            overlap_damage_health_delta: OVERLAP_DAMAGE_HEALTH_DELTA,
         }),
     )
 }

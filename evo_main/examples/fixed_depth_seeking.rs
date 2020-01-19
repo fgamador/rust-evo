@@ -15,13 +15,15 @@ fn main() {
     init_and_run(create_world());
 }
 
+const FLUID_DENSITY: f64 = 0.001;
+
 fn create_world() -> World {
     World::new(Position::new(0.0, -400.0), Position::new(400.0, 0.0))
         .with_perimeter_walls()
         .with_influences(vec![
             Box::new(SimpleForceInfluence::new(Box::new(WeightForce::new(-0.05)))),
             Box::new(SimpleForceInfluence::new(Box::new(BuoyancyForce::new(
-                -0.03, 0.001,
+                -0.03, FLUID_DENSITY,
             )))),
             Box::new(SimpleForceInfluence::new(Box::new(DragForce::new(0.005)))),
         ])

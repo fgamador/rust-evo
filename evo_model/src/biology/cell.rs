@@ -184,6 +184,8 @@ impl Cell {
         let mut result = Vec::with_capacity(self.layers.len());
         for layer in &self.layers {
             result.push(CellLayerStateSnapshot {
+                area: layer.area(),
+                mass: layer.mass(),
                 health: layer.health(),
             });
         }

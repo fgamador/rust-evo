@@ -30,6 +30,8 @@ impl CellStateSnapshot {
 
 #[derive(Debug)]
 pub struct CellLayerStateSnapshot {
+    pub area: Area,
+    pub mass: Mass,
     pub health: f64,
 }
 

@@ -42,7 +42,7 @@ fn create_world() -> World {
                     )),
                 ],
             )
-            .with_control(Box::new(FixedDepthSeekingControl::new(0, -150.0))),
+            .with_control(Box::new(FixedDepthSeekingControl::new(-150.0))),
             Cell::new(
                 Position::new(250.0, -100.0),
                 Velocity::new(0.0, 0.0),
@@ -59,7 +59,7 @@ fn create_world() -> World {
                     )),
                 ],
             )
-            .with_control(Box::new(FixedDepthSeekingControl::new(0, -250.0))),
+            .with_control(Box::new(FixedDepthSeekingControl::new(-250.0))),
         ])
 }
 
@@ -74,28 +74,27 @@ fn simple_cell_layer(area: Area, density: Density, color: Color) -> CellLayer {
 
 #[derive(Debug)]
 pub struct FixedDepthSeekingControl {
-    float_layer_index: usize,
     target_y: f64,
 }
 
 impl FixedDepthSeekingControl {
-    pub fn new(float_layer_index: usize, target_y: f64) -> Self {
+    pub fn new(target_y: f64) -> Self {
         FixedDepthSeekingControl {
-            float_layer_index,
             target_y,
         }
+    }
+
+    fn float_layer_resize_request(&self, cell_state: &CellStateSnapshot) -> ControlRequest {
+        let y_offset = cell_state.center.y() - self.target_y;
+        let target_velocity_y = -y_offset / 100.0;
+        let target_delta_vy = target_velocity_y - cell_state.velocity.y();
+        let desired_delta_area = target_delta_vy * 10.0;
+        CellLayer::resize_request(0, AreaDelta::new(desired_delta_area))
     }
 }
 
 impl CellControl for FixedDepthSeekingControl {
     fn get_control_requests(&mut self, cell_state: &CellStateSnapshot) -> Vec<ControlRequest> {
-        let y_offset = cell_state.center.y() - self.target_y;
-        let target_velocity_y = -y_offset / 100.0;
-        let target_delta_vy = target_velocity_y - cell_state.velocity.y();
-        let desired_delta_area = target_delta_vy * 10.0;
-        vec![CellLayer::resize_request(
-            self.float_layer_index,
-            AreaDelta::new(desired_delta_area),
-        )]
+        vec![self.float_layer_resize_request(cell_state)]
     }
 }

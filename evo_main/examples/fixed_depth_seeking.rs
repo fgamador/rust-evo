@@ -16,6 +16,8 @@ fn main() {
 }
 
 const FLUID_DENSITY: f64 = 0.001;
+const FLOAT_LAYER_DENSITY: f64 = 0.0004;
+const OTHER_LAYER_DENSITY: f64 = 0.00075;
 
 fn create_world() -> World {
     World::new(Position::new(0.0, -400.0), Position::new(400.0, 0.0))
@@ -23,7 +25,8 @@ fn create_world() -> World {
         .with_influences(vec![
             Box::new(SimpleForceInfluence::new(Box::new(WeightForce::new(-0.05)))),
             Box::new(SimpleForceInfluence::new(Box::new(BuoyancyForce::new(
-                -0.03, FLUID_DENSITY,
+                -0.03,
+                FLUID_DENSITY,
             )))),
             Box::new(SimpleForceInfluence::new(Box::new(DragForce::new(0.005)))),
         ])
@@ -34,12 +37,12 @@ fn create_world() -> World {
                 vec![
                     Box::new(simple_cell_layer(
                         Area::new(100.0 * PI),
-                        Density::new(0.0004),
+                        Density::new(FLOAT_LAYER_DENSITY),
                         Color::White,
                     )),
                     Box::new(simple_cell_layer(
                         Area::new(300.0 * PI),
-                        Density::new(0.00075),
+                        Density::new(OTHER_LAYER_DENSITY),
                         Color::Green,
                     )),
                 ],
@@ -51,12 +54,12 @@ fn create_world() -> World {
                 vec![
                     Box::new(simple_cell_layer(
                         Area::new(50.0 * PI),
-                        Density::new(0.0004),
+                        Density::new(FLOAT_LAYER_DENSITY),
                         Color::White,
                     )),
                     Box::new(simple_cell_layer(
                         Area::new(150.0 * PI),
-                        Density::new(0.00075),
+                        Density::new(OTHER_LAYER_DENSITY),
                         Color::Green,
                     )),
                 ],
@@ -81,9 +84,19 @@ pub struct FixedDepthSeekingControl {
 
 impl FixedDepthSeekingControl {
     pub fn new(target_y: f64) -> Self {
-        FixedDepthSeekingControl {
-            target_y,
-        }
+        FixedDepthSeekingControl { target_y }
+    }
+
+    fn _float_layer_resize_request(&self, cell_state: &CellStateSnapshot) -> ControlRequest {
+        let y_ratio = self.target_y / cell_state.center.y();
+        let target_density = y_ratio * FLUID_DENSITY;
+        let float_layer = &cell_state.layers[0];
+        let other_layer = &cell_state.layers[1];
+        let target_float_area = (other_layer.area.value() * (OTHER_LAYER_DENSITY - target_density)
+            / (target_density - FLOAT_LAYER_DENSITY))
+            .max(0.0);
+        let desired_delta_area = target_float_area - float_layer.area.value();
+        CellLayer::resize_request(0, AreaDelta::new(desired_delta_area))
     }
 
     fn float_layer_resize_request(&self, cell_state: &CellStateSnapshot) -> ControlRequest {

@@ -173,6 +173,7 @@ impl Cell {
         CellStateSnapshot {
             radius: self.radius(),
             area: self.area(),
+            mass: self.mass(),
             center: self.center(),
             velocity: self.velocity(),
             layers: self.get_layer_state_snapshots(),

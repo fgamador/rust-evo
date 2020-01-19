@@ -11,6 +11,7 @@ pub trait CellControl: Debug {
 pub struct CellStateSnapshot {
     pub radius: Length,
     pub area: Area,
+    pub mass: Mass,
     pub center: Position,
     pub velocity: Velocity,
     pub layers: Vec<CellLayerStateSnapshot>,
@@ -20,6 +21,7 @@ impl CellStateSnapshot {
     pub const ZEROS: CellStateSnapshot = CellStateSnapshot {
         radius: Length::ZERO,
         area: Area::ZERO,
+        mass: Mass::ZERO,
         center: Position::ORIGIN,
         velocity: Velocity::ZERO,
         layers: Vec::new(),

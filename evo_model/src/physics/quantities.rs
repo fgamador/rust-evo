@@ -519,6 +519,8 @@ pub struct Mass {
 }
 
 impl Mass {
+    pub const ZERO: Mass = Mass { value: 0.0 };
+
     pub fn new(value: f64) -> Self {
         Mass { value }
     }

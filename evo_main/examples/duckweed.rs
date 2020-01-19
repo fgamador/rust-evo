@@ -161,19 +161,21 @@ impl DuckweedControl {
     }
 
     fn float_layer_resize_request(&self, cell_state: &CellStateSnapshot) -> ControlRequest {
+        let float_layer = &cell_state.layers[0];
         let y_ratio = self.target_y / cell_state.center.y();
         let target_density = y_ratio * FLUID_DENSITY;
-        let float_layer = &cell_state.layers[0];
-        let photo_layer = &cell_state.layers[1];
-        let budding_layer = &cell_state.layers[2];
-
-        let target_float_area = ((photo_layer.area.value()
-            * (PHOTO_LAYER_DENSITY - target_density)
-            + (budding_layer.area.value() * (BUDDING_LAYER_DENSITY - target_density)))
-            / (target_density - FLOAT_LAYER_DENSITY))
-            .max(0.0);
+        let target_float_area = self.calc_target_float_area(cell_state, target_density);
         let desired_delta_area = target_float_area - float_layer.area.value();
         CellLayer::resize_request(0, AreaDelta::new(desired_delta_area))
+    }
+
+    fn calc_target_float_area(&self, cell_state: &CellStateSnapshot, target_density: f64) -> f64 {
+        let photo_layer = &cell_state.layers[1];
+        let budding_layer = &cell_state.layers[2];
+        ((photo_layer.area.value() * (PHOTO_LAYER_DENSITY - target_density)
+            + (budding_layer.area.value() * (BUDDING_LAYER_DENSITY - target_density)))
+            / (target_density - FLOAT_LAYER_DENSITY))
+            .max(0.0)
     }
 
     fn budding_requests(&mut self) -> Vec<ControlRequest> {

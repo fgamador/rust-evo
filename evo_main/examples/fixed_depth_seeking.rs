@@ -16,16 +16,17 @@ fn main() {
 }
 
 const FLUID_DENSITY: f64 = 0.001;
-const FLOAT_LAYER_DENSITY: f64 = 0.0004;
-const OTHER_LAYER_DENSITY: f64 = 0.00075;
+const FLOAT_LAYER_DENSITY: f64 = 0.0001;
+const OTHER_LAYER_DENSITY: f64 = 0.002;
+const GRAVITY: f64 = -0.05;
 
 fn create_world() -> World {
     World::new(Position::new(0.0, -400.0), Position::new(400.0, 0.0))
         .with_perimeter_walls()
         .with_influences(vec![
-            Box::new(SimpleForceInfluence::new(Box::new(WeightForce::new(-0.05)))),
+            Box::new(SimpleForceInfluence::new(Box::new(WeightForce::new(GRAVITY)))),
             Box::new(SimpleForceInfluence::new(Box::new(BuoyancyForce::new(
-                -0.03,
+                GRAVITY,
                 FLUID_DENSITY,
             )))),
             Box::new(SimpleForceInfluence::new(Box::new(DragForce::new(0.005)))),
@@ -87,7 +88,7 @@ impl FixedDepthSeekingControl {
         FixedDepthSeekingControl { target_y }
     }
 
-    fn _float_layer_resize_request(&self, cell_state: &CellStateSnapshot) -> ControlRequest {
+    fn float_layer_resize_request(&self, cell_state: &CellStateSnapshot) -> ControlRequest {
         let y_ratio = self.target_y / cell_state.center.y();
         let target_density = y_ratio * FLUID_DENSITY;
         let float_layer = &cell_state.layers[0];
@@ -96,14 +97,6 @@ impl FixedDepthSeekingControl {
             / (target_density - FLOAT_LAYER_DENSITY))
             .max(0.0);
         let desired_delta_area = target_float_area - float_layer.area.value();
-        CellLayer::resize_request(0, AreaDelta::new(desired_delta_area))
-    }
-
-    fn float_layer_resize_request(&self, cell_state: &CellStateSnapshot) -> ControlRequest {
-        let y_offset = cell_state.center.y() - self.target_y;
-        let target_velocity_y = -y_offset / 100.0;
-        let target_delta_vy = target_velocity_y - cell_state.velocity.y();
-        let desired_delta_area = target_delta_vy * 10.0;
         CellLayer::resize_request(0, AreaDelta::new(desired_delta_area))
     }
 }

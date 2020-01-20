@@ -29,14 +29,17 @@ pub struct GliumView {
 
 impl GliumView {
     pub fn new(world_min_corner: Point, world_max_corner: Point) -> Self {
+        let events_loop = glutin::EventsLoop::new();
         let window = glutin::WindowBuilder::new().with_dimensions(Self::calc_initial_window_size(
-            world_min_corner,
-            world_max_corner,
+            (
+                (world_max_corner[0] - world_min_corner[0]) as f64,
+                (world_max_corner[1] - world_min_corner[1]) as f64,
+            ),
+            Self::get_screen_size(events_loop.get_primary_monitor()),
         ));
         let context = glutin::ContextBuilder::new()
             .with_vsync(true)
             .with_multisampling(4);
-        let events_loop = glutin::EventsLoop::new();
         let display = glium::Display::new(window, context, &events_loop).unwrap();
         let background_drawing = BackgroundDrawing::new(&display);
         let bullseye_drawing = CellDrawing::new(&display);
@@ -63,13 +66,17 @@ impl GliumView {
         }
     }
 
+    fn get_screen_size(monitor: glutin::MonitorId) -> glutin::dpi::LogicalSize {
+        monitor
+            .get_dimensions()
+            .to_logical(monitor.get_hidpi_factor())
+    }
+
     fn calc_initial_window_size(
-        world_min_corner: Point,
-        world_max_corner: Point,
+        world_size: (f64, f64),
+        _screen_size: glutin::dpi::LogicalSize,
     ) -> glutin::dpi::LogicalSize {
-        //        let world_width = world_max_corner[0] - world_min_corner[0];
-        //        let world_height = world_max_corner[1] - world_min_corner[1];
-        glutin::dpi::LogicalSize::new(500.0, 500.0)
+        glutin::dpi::LogicalSize::new(world_size.0, world_size.1)
     }
 
     pub fn render(&mut self, world: &evo_model::world::World) {

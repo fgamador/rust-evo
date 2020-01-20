@@ -29,8 +29,10 @@ pub struct GliumView {
 
 impl GliumView {
     pub fn new(world_min_corner: Point, world_max_corner: Point) -> Self {
-        let window = glutin::WindowBuilder::new()
-            .with_dimensions(glutin::dpi::LogicalSize::new(500.0, 500.0));
+        let window = glutin::WindowBuilder::new().with_dimensions(Self::calc_initial_window_size(
+            world_min_corner,
+            world_max_corner,
+        ));
         let context = glutin::ContextBuilder::new()
             .with_vsync(true)
             .with_multisampling(4);
@@ -59,6 +61,15 @@ impl GliumView {
             cell_drawing: bullseye_drawing,
             world_vb,
         }
+    }
+
+    fn calc_initial_window_size(
+        world_min_corner: Point,
+        world_max_corner: Point,
+    ) -> glutin::dpi::LogicalSize {
+        //        let world_width = world_max_corner[0] - world_min_corner[0];
+        //        let world_height = world_max_corner[1] - world_min_corner[1];
+        glutin::dpi::LogicalSize::new(500.0, 500.0)
     }
 
     pub fn render(&mut self, world: &evo_model::world::World) {

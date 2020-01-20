@@ -36,6 +36,7 @@ impl GliumView {
                 (world_max_corner[1] - world_min_corner[1]) as f64,
             ),
             Self::get_screen_size(events_loop.get_primary_monitor()),
+            0.75,
         ));
         let context = glutin::ContextBuilder::new()
             .with_vsync(true)
@@ -74,9 +75,23 @@ impl GliumView {
 
     fn calc_initial_window_size(
         world_size: (f64, f64),
-        _screen_size: glutin::dpi::LogicalSize,
+        screen_size: glutin::dpi::LogicalSize,
+        desired_fraction_of_screen_dimension: f64,
     ) -> glutin::dpi::LogicalSize {
-        glutin::dpi::LogicalSize::new(world_size.0, world_size.1)
+        let desired_window_width = desired_fraction_of_screen_dimension * screen_size.width;
+        let desired_window_height = desired_fraction_of_screen_dimension * screen_size.height;
+        let window_aspect_ratio = world_size.0 / world_size.1;
+        if window_aspect_ratio > desired_window_width / desired_window_height {
+            glutin::dpi::LogicalSize::new(
+                desired_window_width,
+                desired_window_width / window_aspect_ratio,
+            )
+        } else {
+            glutin::dpi::LogicalSize::new(
+                desired_window_height * window_aspect_ratio,
+                desired_window_height,
+            )
+        }
     }
 
     pub fn render(&mut self, world: &evo_model::world::World) {
@@ -240,5 +255,30 @@ impl GliumView {
             glutin::VirtualKeyCode::S => Some(UserAction::SingleTick),
             _ => None,
         }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn initial_window_size_for_world_wider_than_screen() {
+        let initial_size = GliumView::calc_initial_window_size(
+            (200.0, 100.0),
+            glutin::dpi::LogicalSize::new(1000.0, 1000.0),
+            0.5,
+        );
+        assert_eq!(initial_size, glutin::dpi::LogicalSize::new(500.0, 250.0));
+    }
+
+    #[test]
+    fn initial_window_size_for_world_taller_than_screen() {
+        let initial_size = GliumView::calc_initial_window_size(
+            (100.0, 200.0),
+            glutin::dpi::LogicalSize::new(1000.0, 1000.0),
+            0.5,
+        );
+        assert_eq!(initial_size, glutin::dpi::LogicalSize::new(250.0, 500.0));
     }
 }

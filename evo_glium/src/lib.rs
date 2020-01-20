@@ -29,12 +29,12 @@ pub struct GliumView {
 
 impl GliumView {
     pub fn new(world_min_corner: Point, world_max_corner: Point) -> Self {
-        let events_loop = glutin::EventsLoop::new();
         let window = glutin::WindowBuilder::new()
             .with_dimensions(glutin::dpi::LogicalSize::new(500.0, 500.0));
         let context = glutin::ContextBuilder::new()
             .with_vsync(true)
             .with_multisampling(4);
+        let events_loop = glutin::EventsLoop::new();
         let display = glium::Display::new(window, context, &events_loop).unwrap();
         let background_drawing = BackgroundDrawing::new(&display);
         let bullseye_drawing = CellDrawing::new(&display);

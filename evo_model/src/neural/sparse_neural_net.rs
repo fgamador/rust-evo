@@ -7,8 +7,8 @@ use std::f32;
 pub struct Link {
     from_value_index: u16,
     to_value_index: u16,
-    weight: f32,
     op: fn(&Link, &mut Vec<f32>),
+    weight: f32,
 }
 
 pub struct SparseNeuralNet {
@@ -48,15 +48,15 @@ impl SparseNeuralNet {
                 self.links.push(Link {
                     from_value_index: input_value_index,
                     to_value_index: output_value_index,
-                    weight: initial_weight,
                     op: Self::add_weighted,
+                    weight: initial_weight,
                 });
             }
             self.links.push(Link {
                 from_value_index: 0,
                 to_value_index: output_value_index,
-                weight: 0.0,
                 op: transfer_fn,
+                weight: 0.0,
             });
         }
     }
@@ -95,7 +95,7 @@ impl SparseNeuralNet {
         self.node_values.resize(original_len, 0.0);
     }
 
-    fn add_weighted(link: &Link, node_values: &mut Vec<f32>) {
+    pub fn add_weighted(link: &Link, node_values: &mut Vec<f32>) {
         node_values[link.to_value_index as usize] +=
             link.weight * node_values[link.from_value_index as usize];
     }

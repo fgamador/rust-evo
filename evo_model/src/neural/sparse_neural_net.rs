@@ -28,18 +28,12 @@ impl SparseNeuralNet {
         let mut nnet = SparseNeuralNet {
             num_inputs,
             num_outputs,
-            node_values: vec![],
+            node_values: vec![0.0; (1 + num_inputs + num_outputs) as usize],
             ops: vec![],
         };
-        nnet.init_node_values();
+        nnet.node_values[0] = 1.0; // bias node
         nnet.init_ops(num_inputs, num_outputs, initial_weight, transfer_fn);
         nnet
-    }
-
-    fn init_node_values(&mut self) {
-        self.node_values.push(1.0);
-        self.node_values
-            .resize((1 + self.num_inputs + self.num_outputs) as usize, 0.0);
     }
 
     fn init_ops(

@@ -1,7 +1,7 @@
 use std::cmp::Ordering;
 use std::fmt;
+use std::fmt::{Error, Formatter};
 use std::usize;
-use std::fmt::{Formatter, Error};
 
 #[derive(Debug)]
 pub struct SortableGraph<N: GraphNode, E: GraphEdge, ME: GraphMetaEdge> {

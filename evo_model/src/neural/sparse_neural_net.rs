@@ -90,9 +90,9 @@ impl SparseNeuralNet {
     }
 
     pub fn clear_computed_values(&mut self) {
-        let len = self.node_values.len();
+        let original_len = self.node_values.len();
         self.node_values.truncate(1 + self.num_inputs as usize);
-        self.node_values.resize(len, 0.0);
+        self.node_values.resize(original_len, 0.0);
     }
 
     fn add_weighted(link: &Link, node_values: &mut Vec<f32>) {

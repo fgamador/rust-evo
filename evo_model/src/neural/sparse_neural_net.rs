@@ -32,11 +32,15 @@ impl SparseNeuralNet {
             ops: vec![],
         };
         nnet.node_values[0] = 1.0; // bias node
-        nnet.init_ops(initial_weight, transfer_fn);
+        nnet.fully_connect_inputs_and_outputs(initial_weight, transfer_fn);
         nnet
     }
 
-    fn init_ops(&mut self, initial_weight: f32, transfer_fn: fn(&Op, &mut Vec<f32>)) {
+    fn fully_connect_inputs_and_outputs(
+        &mut self,
+        initial_weight: f32,
+        transfer_fn: fn(&Op, &mut Vec<f32>),
+    ) {
         self.ops
             .reserve(((self.num_inputs + 1) * self.num_outputs) as usize);
         for output_index in (1 + self.num_inputs)..=(self.num_inputs + self.num_outputs) {

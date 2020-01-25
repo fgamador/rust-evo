@@ -5,8 +5,8 @@
 use std::f32;
 
 pub struct Link {
-    input_value_index: u16,
-    output_value_index: u16,
+    from_value_index: u16,
+    to_value_index: u16,
     weight: f32,
     op_fn: fn(&Link, &mut Vec<f32>),
 }
@@ -46,15 +46,15 @@ impl SparseNeuralNet {
         for output_value_index in (1 + self.num_inputs)..=(self.num_inputs + self.num_outputs) {
             for input_value_index in 0..=self.num_inputs {
                 self.links.push(Link {
-                    input_value_index,
-                    output_value_index,
+                    from_value_index: input_value_index,
+                    to_value_index: output_value_index,
                     weight: initial_weight,
                     op_fn: Self::add_weighted,
                 });
             }
             self.links.push(Link {
-                input_value_index: 0,
-                output_value_index,
+                from_value_index: 0,
+                to_value_index: output_value_index,
                 weight: 0.0,
                 op_fn: transfer_fn,
             });
@@ -64,8 +64,7 @@ impl SparseNeuralNet {
     pub fn set_weight(&mut self, from_index: usize, to_index: usize, weight: f32) {
         // TODO need more efficient way
         for op in &mut self.links {
-            if op.input_value_index as usize == from_index
-                && op.output_value_index as usize == to_index
+            if op.from_value_index as usize == from_index && op.to_value_index as usize == to_index
             {
                 op.weight = weight;
             }
@@ -96,15 +95,15 @@ impl SparseNeuralNet {
     }
 
     fn add_weighted(op: &Link, node_values: &mut Vec<f32>) {
-        node_values[op.output_value_index as usize] +=
-            op.weight * node_values[op.input_value_index as usize];
+        node_values[op.to_value_index as usize] +=
+            op.weight * node_values[op.from_value_index as usize];
     }
 
     pub fn identity(_op: &Link, _node_values: &mut Vec<f32>) {}
 
     pub fn sigmoidal(op: &Link, node_values: &mut Vec<f32>) {
-        node_values[op.output_value_index as usize] =
-            Self::sigmoidal_fn(node_values[op.output_value_index as usize]);
+        node_values[op.to_value_index as usize] =
+            Self::sigmoidal_fn(node_values[op.to_value_index as usize]);
     }
 
     fn sigmoidal_fn(val: f32) -> f32 {
@@ -151,6 +150,6 @@ mod tests {
     }
 
     fn plus_one(op: &Link, node_values: &mut Vec<f32>) {
-        node_values[op.output_value_index as usize] += 1.0;
+        node_values[op.to_value_index as usize] += 1.0;
     }
 }

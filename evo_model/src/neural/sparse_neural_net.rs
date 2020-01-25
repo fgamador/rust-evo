@@ -8,7 +8,7 @@ pub struct Link {
     from_value_index: u16,
     to_value_index: u16,
     weight: f32,
-    op_fn: fn(&Link, &mut Vec<f32>),
+    op: fn(&Link, &mut Vec<f32>),
 }
 
 pub struct SparseNeuralNet {
@@ -49,14 +49,14 @@ impl SparseNeuralNet {
                     from_value_index: input_value_index,
                     to_value_index: output_value_index,
                     weight: initial_weight,
-                    op_fn: Self::add_weighted,
+                    op: Self::add_weighted,
                 });
             }
             self.links.push(Link {
                 from_value_index: 0,
                 to_value_index: output_value_index,
                 weight: 0.0,
-                op_fn: transfer_fn,
+                op: transfer_fn,
             });
         }
     }
@@ -79,7 +79,7 @@ impl SparseNeuralNet {
     pub fn run(&mut self) {
         self.clear_computed_values();
         for op in &self.links {
-            (op.op_fn)(op, &mut self.node_values);
+            (op.op)(op, &mut self.node_values);
         }
     }
 

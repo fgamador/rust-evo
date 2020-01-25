@@ -42,7 +42,7 @@ impl SparseNeuralNet {
         transfer_fn: fn(&Op, &mut Vec<f32>),
     ) {
         self.ops
-            .reserve(((self.num_inputs + 1) * self.num_outputs) as usize);
+            .reserve(((1 + self.num_inputs) * self.num_outputs) as usize);
         for output_index in (1 + self.num_inputs)..=(self.num_inputs + self.num_outputs) {
             for input_index in 0..=self.num_inputs {
                 self.ops.push(Op {

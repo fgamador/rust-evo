@@ -63,10 +63,11 @@ impl SparseNeuralNet {
 
     pub fn set_weight(&mut self, from_index: usize, to_index: usize, weight: f32) {
         // TODO need more efficient way
-        for op in &mut self.links {
-            if op.from_value_index as usize == from_index && op.to_value_index as usize == to_index
+        for link in &mut self.links {
+            if link.from_value_index as usize == from_index
+                && link.to_value_index as usize == to_index
             {
-                op.weight = weight;
+                link.weight = weight;
             }
         }
     }
@@ -78,8 +79,8 @@ impl SparseNeuralNet {
 
     pub fn run(&mut self) {
         self.clear_computed_values();
-        for op in &self.links {
-            (op.op)(op, &mut self.node_values);
+        for link in &self.links {
+            (link.op)(link, &mut self.node_values);
         }
     }
 
@@ -94,16 +95,16 @@ impl SparseNeuralNet {
         self.node_values.resize(len, 0.0);
     }
 
-    fn add_weighted(op: &Link, node_values: &mut Vec<f32>) {
-        node_values[op.to_value_index as usize] +=
-            op.weight * node_values[op.from_value_index as usize];
+    fn add_weighted(link: &Link, node_values: &mut Vec<f32>) {
+        node_values[link.to_value_index as usize] +=
+            link.weight * node_values[link.from_value_index as usize];
     }
 
-    pub fn identity(_op: &Link, _node_values: &mut Vec<f32>) {}
+    pub fn identity(_link: &Link, _node_values: &mut Vec<f32>) {}
 
-    pub fn sigmoidal(op: &Link, node_values: &mut Vec<f32>) {
-        node_values[op.to_value_index as usize] =
-            Self::sigmoidal_fn(node_values[op.to_value_index as usize]);
+    pub fn sigmoidal(link: &Link, node_values: &mut Vec<f32>) {
+        node_values[link.to_value_index as usize] =
+            Self::sigmoidal_fn(node_values[link.to_value_index as usize]);
     }
 
     fn sigmoidal_fn(val: f32) -> f32 {
@@ -149,7 +150,7 @@ mod tests {
         assert_eq!(nnet.output(0), 4.0);
     }
 
-    fn plus_one(op: &Link, node_values: &mut Vec<f32>) {
-        node_values[op.to_value_index as usize] += 1.0;
+    fn plus_one(link: &Link, node_values: &mut Vec<f32>) {
+        node_values[link.to_value_index as usize] += 1.0;
     }
 }

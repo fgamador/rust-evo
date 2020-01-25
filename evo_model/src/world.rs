@@ -160,13 +160,13 @@ impl World {
             trace!(
                 "Subtick {} Cell {} {:?}",
                 subtick,
-                cell.node_handle().index(),
+                cell.node_handle(),
                 cell.velocity()
             );
             trace!(
                 "Subtick {} Cell {} {:?}",
                 subtick,
-                cell.node_handle().index(),
+                cell.node_handle(),
                 cell.position()
             );
         }
@@ -196,7 +196,7 @@ impl World {
             //            println!(
             //                "Subtick {} Cell {} Energy {} Health0 {} Health1 {} Health2 {}",
             //                subtick,
-            //                cell.node_handle().index(),
+            //                cell.node_handle(),
             //                cell.energy().value(),
             //                cell.layers()[0].health(),
             //                cell.layers()[1].health(),
@@ -205,7 +205,7 @@ impl World {
             trace!(
                 "Subtick {} Cell {} Net {:?}",
                 subtick,
-                cell.node_handle().index(),
+                cell.node_handle(),
                 cell.forces().net_force()
             );
         }

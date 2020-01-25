@@ -1,5 +1,7 @@
 use std::cmp::Ordering;
+use std::fmt;
 use std::usize;
+use std::fmt::{Formatter, Error};
 
 #[derive(Debug)]
 pub struct SortableGraph<N: GraphNode, E: GraphEdge, ME: GraphMetaEdge> {
@@ -169,10 +171,11 @@ impl NodeHandle {
     pub fn unset() -> Self {
         NodeHandle { index: usize::MAX }
     }
+}
 
-    #[allow(dead_code)]
-    pub fn index(self) -> usize {
-        self.index
+impl fmt::Display for NodeHandle {
+    fn fmt(&self, f: &mut Formatter<'_>) -> Result<(), Error> {
+        write!(f, "{}", self.index)
     }
 }
 

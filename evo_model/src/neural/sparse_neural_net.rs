@@ -31,15 +31,15 @@ impl SparseNeuralNet {
             node_values: vec![],
             ops: vec![],
         };
-        nnet.init_node_values(num_inputs, num_outputs);
+        nnet.init_node_values();
         nnet.init_ops(num_inputs, num_outputs, initial_weight, transfer_fn);
         nnet
     }
 
-    fn init_node_values(&mut self, num_inputs: u16, num_outputs: u16) {
+    fn init_node_values(&mut self) {
         self.node_values.push(1.0);
         self.node_values
-            .resize((1 + num_inputs + num_outputs) as usize, 0.0);
+            .resize((1 + self.num_inputs + self.num_outputs) as usize, 0.0);
     }
 
     fn init_ops(

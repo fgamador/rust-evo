@@ -4,10 +4,12 @@
 
 use std::f32;
 
+type LinkOp = fn(&Link, &mut Vec<f32>);
+
 pub struct Link {
     from_value_index: u16,
     to_value_index: u16,
-    op: fn(&Link, &mut Vec<f32>),
+    op: LinkOp,
     weight: f32,
 }
 
@@ -23,7 +25,7 @@ impl SparseNeuralNet {
         num_inputs: u16,
         num_outputs: u16,
         initial_weight: f32,
-        transfer_fn: fn(&Link, &mut Vec<f32>),
+        transfer_fn: LinkOp,
     ) -> Self {
         let mut nnet = SparseNeuralNet {
             num_inputs,
@@ -39,7 +41,7 @@ impl SparseNeuralNet {
     fn fully_connect_inputs_and_outputs(
         &mut self,
         initial_weight: f32,
-        transfer_fn: fn(&Link, &mut Vec<f32>),
+        transfer_fn: LinkOp,
     ) {
         self.links
             .reserve(((1 + self.num_inputs) * self.num_outputs) as usize);

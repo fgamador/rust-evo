@@ -3,14 +3,39 @@
 // http://nn.cs.utexas.edu/downloads/papers/stanley.ec02.pdf
 
 use std::f32;
+use std::fmt;
+use std::fmt::{Error, Formatter};
 
+// TODO
+//type NodeIndex = u16;
+//type NodeValue = f32;
+//type ConnectionWeight = f32;
 type OpFn = fn(f32, f32, &mut f32);
+
+//impl fmt::Debug for OpFn {
+//    fn fmt(&self, f: &mut Formatter<'_>) -> Result<(), Error> {
+//        write!(
+//            f,
+//            "OpFn"
+//        )
+//    }
+//}
 
 pub struct OpStruct {
     op_fn: OpFn,
     from_value_index: u16,
     to_value_index: u16,
     weight: f32,
+}
+
+impl fmt::Debug for OpStruct {
+    fn fmt(&self, f: &mut Formatter<'_>) -> Result<(), Error> {
+        write!(
+            f,
+            "OpStruct {{ op_fn: OpFn, from_value_index: {}, to_value_index: {}, weight: {} }}",
+            self.from_value_index, self.to_value_index, self.weight
+        )
+    }
 }
 
 impl OpStruct {
@@ -29,6 +54,16 @@ pub struct SparseNeuralNet {
     ops: Vec<OpStruct>,
 }
 
+impl fmt::Debug for SparseNeuralNet {
+    fn fmt(&self, f: &mut Formatter<'_>) -> Result<(), Error> {
+        write!(
+            f,
+            "SparseNeuralNet {{ num_inputs: {}, num_outputs: {}, transfer_fn: OpFn, node_values: {:?}, ops: {:?} }}",
+            self.num_inputs, self.num_outputs, self.node_values, self.ops
+        )
+    }
+}
+
 impl SparseNeuralNet {
     pub fn unconnected(num_inputs: u16, num_outputs: u16, transfer_fn: OpFn) -> Self {
         let mut nnet = SparseNeuralNet {
@@ -40,6 +75,35 @@ impl SparseNeuralNet {
         };
         nnet.node_values[0] = 1.0; // bias node
         nnet
+    }
+
+    pub fn connect_output_node(
+        &mut self,
+        output_value_index: u16,
+        bias: f32,
+        input_value_weights: Vec<(u16, f32)>,
+    ) {
+        let to_value_index = 1 + self.num_inputs + output_value_index;
+        self.ops.push(OpStruct {
+            op_fn: Self::add_weighted,
+            from_value_index: 0,
+            to_value_index,
+            weight: bias,
+        });
+        for (input_value_index, weight) in input_value_weights {
+            self.ops.push(OpStruct {
+                op_fn: Self::add_weighted,
+                from_value_index: 1 + input_value_index,
+                to_value_index,
+                weight,
+            });
+        }
+        self.ops.push(OpStruct {
+            op_fn: self.transfer_fn,
+            from_value_index: 0, // dummy
+            to_value_index,
+            weight: 0.0, // dummy
+        });
     }
 
     pub fn fully_connected(
@@ -138,6 +202,20 @@ mod tests {
         nnet.run();
         assert_eq!(nnet.output(0), 5.5);
         assert_eq!(nnet.output(1), 5.5);
+    }
+
+    #[test]
+    fn two_layer_sparsely_connected() {
+        let mut nnet = SparseNeuralNet::unconnected(2, 2, plus_one);
+        nnet.connect_output_node(0, 0.5, vec![(0, 0.5)]);
+        nnet.connect_output_node(1, 0.0, vec![(0, 0.75), (1, 0.25)]);
+
+        nnet.set_input(0, 2.0);
+        nnet.set_input(1, 4.0);
+        nnet.run();
+
+        assert_eq!(nnet.output(0), 2.5);
+        assert_eq!(nnet.output(1), 3.5);
     }
 
     #[test]

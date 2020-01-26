@@ -7,9 +7,9 @@ use std::f32;
 type OpFn = fn(f32, f32, &mut f32);
 
 pub struct Op {
+    op_fn: OpFn,
     from_value_index: u16,
     to_value_index: u16,
-    op_fn: OpFn,
     weight: f32,
 }
 
@@ -44,16 +44,16 @@ impl SparseNeuralNet {
         for output_value_index in (1 + self.num_inputs)..=(self.num_inputs + self.num_outputs) {
             for input_value_index in 0..=self.num_inputs {
                 self.ops.push(Op {
+                    op_fn: Self::add_weighted,
                     from_value_index: input_value_index,
                     to_value_index: output_value_index,
-                    op_fn: Self::add_weighted,
                     weight: initial_weight,
                 });
             }
             self.ops.push(Op {
+                op_fn: transfer_fn,
                 from_value_index: 0,
                 to_value_index: output_value_index,
-                op_fn: transfer_fn,
                 weight: 0.0,
             });
         }

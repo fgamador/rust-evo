@@ -4,12 +4,12 @@
 
 use std::f32;
 
-type LinkOp = fn(f32, f32, &mut f32);
+type OpFn = fn(f32, f32, &mut f32);
 
-pub struct Link {
+pub struct Op {
     from_value_index: u16,
     to_value_index: u16,
-    op: LinkOp,
+    op_fn: OpFn,
     weight: f32,
 }
 
@@ -17,7 +17,7 @@ pub struct SparseNeuralNet {
     num_inputs: u16,
     num_outputs: u16,
     node_values: Vec<f32>,
-    links: Vec<Link>,
+    ops: Vec<Op>,
 }
 
 impl SparseNeuralNet {
@@ -25,35 +25,35 @@ impl SparseNeuralNet {
         num_inputs: u16,
         num_outputs: u16,
         initial_weight: f32,
-        transfer_fn: LinkOp,
+        transfer_fn: OpFn,
     ) -> Self {
         let mut nnet = SparseNeuralNet {
             num_inputs,
             num_outputs,
             node_values: vec![0.0; (1 + num_inputs + num_outputs) as usize],
-            links: vec![],
+            ops: vec![],
         };
         nnet.node_values[0] = 1.0; // bias node
         nnet.fully_connect_inputs_and_outputs(initial_weight, transfer_fn);
         nnet
     }
 
-    fn fully_connect_inputs_and_outputs(&mut self, initial_weight: f32, transfer_fn: LinkOp) {
-        self.links
+    fn fully_connect_inputs_and_outputs(&mut self, initial_weight: f32, transfer_fn: OpFn) {
+        self.ops
             .reserve(((1 + self.num_inputs) * self.num_outputs) as usize);
         for output_value_index in (1 + self.num_inputs)..=(self.num_inputs + self.num_outputs) {
             for input_value_index in 0..=self.num_inputs {
-                self.links.push(Link {
+                self.ops.push(Op {
                     from_value_index: input_value_index,
                     to_value_index: output_value_index,
-                    op: Self::add_weighted,
+                    op_fn: Self::add_weighted,
                     weight: initial_weight,
                 });
             }
-            self.links.push(Link {
+            self.ops.push(Op {
                 from_value_index: 0,
                 to_value_index: output_value_index,
-                op: transfer_fn,
+                op_fn: transfer_fn,
                 weight: 0.0,
             });
         }
@@ -61,11 +61,10 @@ impl SparseNeuralNet {
 
     pub fn set_weight(&mut self, from_index: usize, to_index: usize, weight: f32) {
         // TODO need more efficient way
-        for link in &mut self.links {
-            if link.from_value_index as usize == from_index
-                && link.to_value_index as usize == to_index
+        for op in &mut self.ops {
+            if op.from_value_index as usize == from_index && op.to_value_index as usize == to_index
             {
-                link.weight = weight;
+                op.weight = weight;
             }
         }
     }
@@ -77,10 +76,10 @@ impl SparseNeuralNet {
 
     pub fn run(&mut self) {
         self.clear_computed_values();
-        for link in &self.links {
-            let from_value = self.node_values[link.from_value_index as usize];
-            let to_value = &mut self.node_values[link.to_value_index as usize];
-            (link.op)(from_value, link.weight, to_value);
+        for op in &self.ops {
+            let from_value = self.node_values[op.from_value_index as usize];
+            let to_value = &mut self.node_values[op.to_value_index as usize];
+            (op.op_fn)(from_value, op.weight, to_value);
         }
     }
 

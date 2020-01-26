@@ -49,11 +49,11 @@ impl SparseNeuralNet {
         transfer_fn: OpFn,
     ) -> Self {
         let mut nnet = Self::unconnected(num_inputs, num_outputs, transfer_fn);
-        nnet.fully_connect_inputs_and_outputs(initial_weight, transfer_fn);
+        nnet.fully_connect_inputs_and_outputs(initial_weight);
         nnet
     }
 
-    fn fully_connect_inputs_and_outputs(&mut self, initial_weight: f32, _transfer_fn: OpFn) {
+    fn fully_connect_inputs_and_outputs(&mut self, initial_weight: f32) {
         self.ops
             .reserve(((1 + self.num_inputs) * self.num_outputs) as usize);
         for output_value_index in (1 + self.num_inputs)..=(self.num_inputs + self.num_outputs) {

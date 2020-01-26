@@ -13,6 +13,14 @@ pub struct Op {
     weight: f32,
 }
 
+impl Op {
+    fn run(op: &Op, node_values: &mut Vec<f32>) {
+        let from_value = node_values[op.from_value_index as usize];
+        let to_value = &mut node_values[op.to_value_index as usize];
+        (op.op_fn)(from_value, op.weight, to_value);
+    }
+}
+
 pub struct SparseNeuralNet {
     num_inputs: u16,
     num_outputs: u16,
@@ -77,14 +85,8 @@ impl SparseNeuralNet {
     pub fn run(&mut self) {
         self.clear_computed_values();
         for op in &self.ops {
-            Self::run_op(op, &mut self.node_values);
+            Op::run(op, &mut self.node_values);
         }
-    }
-
-    fn run_op(op: &Op, node_values: &mut Vec<f32>) {
-        let from_value = node_values[op.from_value_index as usize];
-        let to_value = &mut node_values[op.to_value_index as usize];
-        (op.op_fn)(from_value, op.weight, to_value);
     }
 
     pub fn output(&self, index: usize) -> f32 {

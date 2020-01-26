@@ -6,14 +6,14 @@ use std::f32;
 
 type OpFn = fn(f32, f32, &mut f32);
 
-pub struct Op {
+pub struct OpStruct {
     op_fn: OpFn,
     from_value_index: u16,
     to_value_index: u16,
     weight: f32,
 }
 
-impl Op {
+impl OpStruct {
     fn run(&self, node_values: &mut Vec<f32>) {
         let from_value = node_values[self.from_value_index as usize];
         let to_value = &mut node_values[self.to_value_index as usize];
@@ -25,7 +25,7 @@ pub struct SparseNeuralNet {
     num_inputs: u16,
     num_outputs: u16,
     node_values: Vec<f32>,
-    ops: Vec<Op>,
+    ops: Vec<OpStruct>,
 }
 
 impl SparseNeuralNet {
@@ -51,14 +51,14 @@ impl SparseNeuralNet {
             .reserve(((1 + self.num_inputs) * self.num_outputs) as usize);
         for output_value_index in (1 + self.num_inputs)..=(self.num_inputs + self.num_outputs) {
             for input_value_index in 0..=self.num_inputs {
-                self.ops.push(Op {
+                self.ops.push(OpStruct {
                     op_fn: Self::add_weighted,
                     from_value_index: input_value_index,
                     to_value_index: output_value_index,
                     weight: initial_weight,
                 });
             }
-            self.ops.push(Op {
+            self.ops.push(OpStruct {
                 op_fn: transfer_fn,
                 from_value_index: 0,
                 to_value_index: output_value_index,

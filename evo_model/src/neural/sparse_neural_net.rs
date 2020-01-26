@@ -93,7 +93,7 @@ impl SparseNeuralNet {
         for (input_value_index, weight) in input_value_weights {
             self.ops.push(OpStruct {
                 op_fn: Self::add_weighted,
-                from_value_index: 1 + input_value_index,
+                from_value_index: self.input_index_to_node_value_index(input_value_index),
                 to_value_index,
                 weight,
             });

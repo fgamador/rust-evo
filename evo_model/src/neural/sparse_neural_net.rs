@@ -83,7 +83,7 @@ impl SparseNeuralNet {
         bias: f32,
         input_value_weights: Vec<(u16, f32)>,
     ) {
-        let to_value_index = 1 + self.num_inputs + output_value_index;
+        let to_value_index = self.output_index_to_node_value_index(output_value_index);
         self.ops.push(OpStruct {
             op_fn: Self::add_weighted,
             from_value_index: 0,

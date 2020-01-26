@@ -149,13 +149,13 @@ impl SparseNeuralNet {
     }
 
     pub fn set_input(&mut self, index: u16, val: f32) {
-        let node_value_index = self.input_index_to_node_value_index(index);
+        let node_value_index = self.input_index_to_node_value_index(index) as usize;
         self.node_values[node_value_index] = val;
     }
 
-    fn input_index_to_node_value_index(&self, index: u16) -> usize {
+    fn input_index_to_node_value_index(&self, index: u16) -> u16 {
         assert!(index < self.num_inputs);
-        (1 + index) as usize
+        1 + index
     }
 
     pub fn run(&mut self) {
@@ -166,13 +166,13 @@ impl SparseNeuralNet {
     }
 
     pub fn output(&self, index: u16) -> f32 {
-        let node_value_index = self.output_index_to_node_value_index(index);
+        let node_value_index = self.output_index_to_node_value_index(index) as usize;
         self.node_values[node_value_index]
     }
 
-    fn output_index_to_node_value_index(&self, index: u16) -> usize {
+    fn output_index_to_node_value_index(&self, index: u16) -> u16 {
         assert!(index < self.num_outputs);
-        (1 + self.num_inputs + index) as usize
+        1 + self.num_inputs + index
     }
 
     pub fn clear_computed_values(&mut self) {

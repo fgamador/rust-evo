@@ -200,6 +200,7 @@ mod tests {
         nnet.set_input(1, 3.0);
         nnet.set_input(2, 4.0);
         nnet.run();
+
         assert_eq!(nnet.output(0), 5.5);
         assert_eq!(nnet.output(1), 5.5);
     }
@@ -227,14 +228,17 @@ mod tests {
         nnet.run();
         nnet.set_input(0, 3.0);
         nnet.run();
+
         assert_eq!(nnet.output(0), 3.0);
     }
 
     #[test]
     fn bias_node() {
         let mut nnet = SparseNeuralNet::fully_connected(1, 1, 1.0, SparseNeuralNet::identity);
+
         nnet.set_input(0, 3.0);
         nnet.run();
+
         assert_eq!(nnet.output(0), 4.0);
     }
 

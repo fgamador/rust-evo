@@ -7,9 +7,9 @@ use std::fmt;
 use std::fmt::{Error, Formatter};
 
 type NodeIndex = u16;
-//type NodeValue = f32;
+type NodeValue = f32;
 //type ConnectionWeight = f32;
-type OpFn = fn(f32, f32, &mut f32);
+type OpFn = fn(NodeValue, f32, &mut NodeValue);
 
 //impl fmt::Debug for OpFn {
 //    fn fmt(&self, f: &mut Formatter<'_>) -> Result<(), Error> {
@@ -65,23 +65,23 @@ impl Op {
         }
     }
 
-    fn run(&self, node_values: &mut Vec<f32>) {
+    fn run(&self, node_values: &mut Vec<NodeValue>) {
         let from_value = node_values[self.from_value_index as usize];
         let to_value = &mut node_values[self.to_value_index as usize];
         (self.op_fn)(from_value, self.weight, to_value);
     }
 
-    pub fn add_weighted(from_value: f32, weight: f32, to_value: &mut f32) {
+    pub fn add_weighted(from_value: NodeValue, weight: f32, to_value: &mut NodeValue) {
         *to_value += weight * from_value;
     }
 
-    pub fn identity(_from_value: f32, _weight: f32, _to_value: &mut f32) {}
+    pub fn identity(_from_value: NodeValue, _weight: f32, _to_value: &mut NodeValue) {}
 
-    pub fn sigmoidal(_from_value: f32, _weight: f32, to_value: &mut f32) {
+    pub fn sigmoidal(_from_value: NodeValue, _weight: f32, to_value: &mut NodeValue) {
         *to_value = Self::sigmoidal_fn(*to_value);
     }
 
-    fn sigmoidal_fn(val: f32) -> f32 {
+    fn sigmoidal_fn(val: NodeValue) -> NodeValue {
         1.0_f32 / (1.0_f32 + (-4.9_f32 * val).exp())
     }
 }
@@ -90,7 +90,7 @@ pub struct SparseNeuralNet {
     num_inputs: u16,
     num_outputs: u16,
     transfer_fn: OpFn,
-    node_values: Vec<f32>,
+    node_values: Vec<NodeValue>,
     ops: Vec<Op>,
 }
 
@@ -134,7 +134,7 @@ impl SparseNeuralNet {
             .push(Op::transfer_function_op(self.transfer_fn, to_value_index));
     }
 
-    pub fn set_input(&mut self, index: NodeIndex, val: f32) {
+    pub fn set_input(&mut self, index: NodeIndex, val: NodeValue) {
         let node_value_index = self.input_index_to_node_value_index(index) as usize;
         self.node_values[node_value_index] = val;
     }
@@ -151,7 +151,7 @@ impl SparseNeuralNet {
         }
     }
 
-    pub fn output(&self, index: NodeIndex) -> f32 {
+    pub fn output(&self, index: NodeIndex) -> NodeValue {
         let node_value_index = self.output_index_to_node_value_index(index) as usize;
         self.node_values[node_value_index]
     }
@@ -225,7 +225,7 @@ mod tests {
         assert_eq!(nnet.output(0), 4.0);
     }
 
-    fn plus_one(_from_value: f32, _weight: f32, to_value: &mut f32) {
+    fn plus_one(_from_value: NodeValue, _weight: f32, to_value: &mut NodeValue) {
         *to_value += 1.0;
     }
 }

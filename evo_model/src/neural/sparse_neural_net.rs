@@ -21,14 +21,14 @@ type OpFn = fn(f32, f32, &mut f32);
 //    }
 //}
 
-pub struct OpStruct {
+pub struct Op {
     op_fn: OpFn,
     from_value_index: u16,
     to_value_index: u16,
     weight: f32,
 }
 
-impl fmt::Debug for OpStruct {
+impl fmt::Debug for Op {
     fn fmt(&self, f: &mut Formatter<'_>) -> Result<(), Error> {
         write!(
             f,
@@ -38,7 +38,7 @@ impl fmt::Debug for OpStruct {
     }
 }
 
-impl OpStruct {
+impl Op {
     fn run(&self, node_values: &mut Vec<f32>) {
         let from_value = node_values[self.from_value_index as usize];
         let to_value = &mut node_values[self.to_value_index as usize];
@@ -51,7 +51,7 @@ pub struct SparseNeuralNet {
     num_outputs: u16,
     transfer_fn: OpFn,
     node_values: Vec<f32>,
-    ops: Vec<OpStruct>,
+    ops: Vec<Op>,
 }
 
 impl fmt::Debug for SparseNeuralNet {
@@ -84,21 +84,21 @@ impl SparseNeuralNet {
         input_value_weights: Vec<(u16, f32)>,
     ) {
         let to_value_index = self.output_index_to_node_value_index(output_value_index);
-        self.ops.push(OpStruct {
+        self.ops.push(Op {
             op_fn: Self::add_weighted,
             from_value_index: 0,
             to_value_index,
             weight: bias,
         });
         for (input_value_index, weight) in input_value_weights {
-            self.ops.push(OpStruct {
+            self.ops.push(Op {
                 op_fn: Self::add_weighted,
                 from_value_index: self.input_index_to_node_value_index(input_value_index),
                 to_value_index,
                 weight,
             });
         }
-        self.ops.push(OpStruct {
+        self.ops.push(Op {
             op_fn: self.transfer_fn,
             from_value_index: 0, // dummy
             to_value_index,
@@ -122,14 +122,14 @@ impl SparseNeuralNet {
             .reserve(((1 + self.num_inputs) * self.num_outputs) as usize);
         for output_value_index in (1 + self.num_inputs)..=(self.num_inputs + self.num_outputs) {
             for input_value_index in 0..=self.num_inputs {
-                self.ops.push(OpStruct {
+                self.ops.push(Op {
                     op_fn: Self::add_weighted,
                     from_value_index: input_value_index,
                     to_value_index: output_value_index,
                     weight: initial_weight,
                 });
             }
-            self.ops.push(OpStruct {
+            self.ops.push(Op {
                 op_fn: self.transfer_fn,
                 from_value_index: 0,
                 to_value_index: output_value_index,

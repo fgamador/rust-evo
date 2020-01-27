@@ -136,7 +136,9 @@ impl SparseNeuralNet {
         self.ops
             .reserve(((1 + self.num_inputs) * self.num_outputs) as usize);
         for output_value_index in (1 + self.num_inputs)..=(self.num_inputs + self.num_outputs) {
-            for input_value_index in 0..=self.num_inputs {
+            self.ops
+                .push(Op::bias_op(output_value_index, initial_weight));
+            for input_value_index in 1..=self.num_inputs {
                 self.ops.push(Op::connection_op(
                     input_value_index,
                     output_value_index,

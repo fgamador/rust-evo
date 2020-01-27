@@ -41,7 +41,7 @@ impl fmt::Debug for Op {
 impl Op {
     fn bias_op(to_value_index: u16, bias: f32) -> Self {
         Op {
-            op_fn: SparseNeuralNet::add_weighted,
+            op_fn: Self::add_weighted,
             from_value_index: 0,
             to_value_index,
             weight: bias,
@@ -50,7 +50,7 @@ impl Op {
 
     fn connection_op(from_value_index: u16, to_value_index: u16, weight: f32) -> Self {
         Op {
-            op_fn: SparseNeuralNet::add_weighted,
+            op_fn: Self::add_weighted,
             from_value_index,
             to_value_index,
             weight,
@@ -70,6 +70,20 @@ impl Op {
         let from_value = node_values[self.from_value_index as usize];
         let to_value = &mut node_values[self.to_value_index as usize];
         (self.op_fn)(from_value, self.weight, to_value);
+    }
+
+    pub fn add_weighted(from_value: f32, weight: f32, to_value: &mut f32) {
+        *to_value += weight * from_value;
+    }
+
+    pub fn identity(_from_value: f32, _weight: f32, _to_value: &mut f32) {}
+
+    pub fn sigmoidal(_from_value: f32, _weight: f32, to_value: &mut f32) {
+        *to_value = Self::sigmoidal_fn(*to_value);
+    }
+
+    fn sigmoidal_fn(val: f32) -> f32 {
+        1.0_f32 / (1.0_f32 + (-4.9_f32 * val).exp())
     }
 }
 
@@ -194,20 +208,6 @@ impl SparseNeuralNet {
         self.node_values.truncate(1 + self.num_inputs as usize);
         self.node_values.resize(original_len, 0.0);
     }
-
-    pub fn add_weighted(from_value: f32, weight: f32, to_value: &mut f32) {
-        *to_value += weight * from_value;
-    }
-
-    pub fn identity(_from_value: f32, _weight: f32, _to_value: &mut f32) {}
-
-    pub fn sigmoidal(_from_value: f32, _weight: f32, to_value: &mut f32) {
-        *to_value = Self::sigmoidal_fn(*to_value);
-    }
-
-    fn sigmoidal_fn(val: f32) -> f32 {
-        1.0_f32 / (1.0_f32 + (-4.9_f32 * val).exp())
-    }
 }
 
 #[cfg(test)]
@@ -245,7 +245,7 @@ mod tests {
 
     #[test]
     fn run_clears_previous_values() {
-        let mut nnet = SparseNeuralNet::unconnected(1, 1, SparseNeuralNet::identity);
+        let mut nnet = SparseNeuralNet::unconnected(1, 1, Op::identity);
         nnet.connect_output_node(0, 0.0, vec![(0, 1.0)]);
 
         nnet.set_input(0, 1.0);
@@ -258,7 +258,7 @@ mod tests {
 
     #[test]
     fn bias_node() {
-        let mut nnet = SparseNeuralNet::unconnected(1, 1, SparseNeuralNet::identity);
+        let mut nnet = SparseNeuralNet::unconnected(1, 1, Op::identity);
         nnet.connect_output_node(0, 1.0, vec![(0, 1.0)]);
 
         nnet.set_input(0, 3.0);

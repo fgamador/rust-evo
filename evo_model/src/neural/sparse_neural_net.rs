@@ -6,9 +6,9 @@ use std::f32;
 use std::fmt;
 use std::fmt::{Error, Formatter};
 
+type ConnectionWeight = f32;
 type NodeIndex = u16;
 type NodeValue = f32;
-type ConnectionWeight = f32;
 type OpFn = fn(NodeValue, ConnectionWeight, &mut NodeValue);
 
 //impl fmt::Debug for OpFn {

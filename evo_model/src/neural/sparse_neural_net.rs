@@ -135,47 +135,6 @@ impl SparseNeuralNet {
             .push(Op::transfer_function_op(self.transfer_fn, to_value_index));
     }
 
-    pub fn fully_connected(
-        num_inputs: u16,
-        num_outputs: u16,
-        initial_weight: f32,
-        transfer_fn: OpFn,
-    ) -> Self {
-        let mut nnet = Self::unconnected(num_inputs, num_outputs, transfer_fn);
-        nnet.fully_connect_inputs_and_outputs(initial_weight);
-        nnet
-    }
-
-    fn fully_connect_inputs_and_outputs(&mut self, initial_weight: f32) {
-        self.ops
-            .reserve(((1 + self.num_inputs) * self.num_outputs) as usize);
-        for output_value_index in (1 + self.num_inputs)..=(self.num_inputs + self.num_outputs) {
-            self.ops
-                .push(Op::bias_op(output_value_index, initial_weight));
-            for input_value_index in 1..=self.num_inputs {
-                self.ops.push(Op::connection_op(
-                    input_value_index,
-                    output_value_index,
-                    initial_weight,
-                ));
-            }
-            self.ops.push(Op::transfer_function_op(
-                self.transfer_fn,
-                output_value_index,
-            ));
-        }
-    }
-
-    pub fn set_weight(&mut self, from_index: usize, to_index: usize, weight: f32) {
-        // TODO need more efficient way
-        for op in &mut self.ops {
-            if op.from_value_index as usize == from_index && op.to_value_index as usize == to_index
-            {
-                op.weight = weight;
-            }
-        }
-    }
-
     pub fn set_input(&mut self, index: u16, val: f32) {
         let node_value_index = self.input_index_to_node_value_index(index) as usize;
         self.node_values[node_value_index] = val;

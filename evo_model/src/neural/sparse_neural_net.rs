@@ -39,6 +39,33 @@ impl fmt::Debug for Op {
 }
 
 impl Op {
+    fn bias_op(to_value_index: u16, bias: f32) -> Self {
+        Op {
+            op_fn: SparseNeuralNet::add_weighted,
+            from_value_index: 0,
+            to_value_index,
+            weight: bias,
+        }
+    }
+
+    fn connection_op(from_value_index: u16, to_value_index: u16, weight: f32) -> Self {
+        Op {
+            op_fn: SparseNeuralNet::add_weighted,
+            from_value_index,
+            to_value_index,
+            weight,
+        }
+    }
+
+    fn transfer_function_op(transfer_fn: OpFn, to_value_index: u16) -> Self {
+        Op {
+            op_fn: transfer_fn,
+            from_value_index: 0, // dummy
+            to_value_index,
+            weight: 0.0, // dummy
+        }
+    }
+
     fn run(&self, node_values: &mut Vec<f32>) {
         let from_value = node_values[self.from_value_index as usize];
         let to_value = &mut node_values[self.to_value_index as usize];
@@ -84,26 +111,14 @@ impl SparseNeuralNet {
         input_value_weights: Vec<(u16, f32)>,
     ) {
         let to_value_index = self.output_index_to_node_value_index(output_value_index);
-        self.ops.push(Op {
-            op_fn: Self::add_weighted,
-            from_value_index: 0,
-            to_value_index,
-            weight: bias,
-        });
+        self.ops.push(Op::bias_op(to_value_index, bias));
         for (input_value_index, weight) in input_value_weights {
-            self.ops.push(Op {
-                op_fn: Self::add_weighted,
-                from_value_index: self.input_index_to_node_value_index(input_value_index),
-                to_value_index,
-                weight,
-            });
+            let from_value_index = self.input_index_to_node_value_index(input_value_index);
+            self.ops
+                .push(Op::connection_op(from_value_index, to_value_index, weight));
         }
-        self.ops.push(Op {
-            op_fn: self.transfer_fn,
-            from_value_index: 0, // dummy
-            to_value_index,
-            weight: 0.0, // dummy
-        });
+        self.ops
+            .push(transfer_function_op(self.transfer_fn, to_value_index));
     }
 
     pub fn fully_connected(

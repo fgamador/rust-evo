@@ -118,7 +118,7 @@ impl SparseNeuralNet {
                 .push(Op::connection_op(from_value_index, to_value_index, weight));
         }
         self.ops
-            .push(transfer_function_op(self.transfer_fn, to_value_index));
+            .push(Op::transfer_function_op(self.transfer_fn, to_value_index));
     }
 
     pub fn fully_connected(

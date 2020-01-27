@@ -216,9 +216,9 @@ mod tests {
 
     #[test]
     fn two_layer_fully_connected_no_bias() {
-        let mut nnet = SparseNeuralNet::fully_connected(3, 2, 0.5, plus_one);
-        nnet.set_weight(0, 4, 0.0);
-        nnet.set_weight(0, 5, 0.0);
+        let mut nnet = SparseNeuralNet::unconnected(3, 2, plus_one);
+        nnet.connect_output_node(0, 0.0, vec![(0, 0.5), (1, 0.5), (2, 0.5)]);
+        nnet.connect_output_node(1, 0.0, vec![(0, 0.5), (1, 0.5), (2, 0.5)]);
 
         nnet.set_input(0, 2.0);
         nnet.set_input(1, 3.0);

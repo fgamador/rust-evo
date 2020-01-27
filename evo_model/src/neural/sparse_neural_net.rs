@@ -137,19 +137,16 @@ impl SparseNeuralNet {
             .reserve(((1 + self.num_inputs) * self.num_outputs) as usize);
         for output_value_index in (1 + self.num_inputs)..=(self.num_inputs + self.num_outputs) {
             for input_value_index in 0..=self.num_inputs {
-                self.ops.push(Op {
-                    op_fn: Self::add_weighted,
-                    from_value_index: input_value_index,
-                    to_value_index: output_value_index,
-                    weight: initial_weight,
-                });
+                self.ops.push(Op::connection_op(
+                    input_value_index,
+                    output_value_index,
+                    initial_weight,
+                ));
             }
-            self.ops.push(Op {
-                op_fn: self.transfer_fn,
-                from_value_index: 0,
-                to_value_index: output_value_index,
-                weight: 0.0,
-            });
+            self.ops.push(Op::transfer_function_op(
+                self.transfer_fn,
+                output_value_index,
+            ));
         }
     }
 

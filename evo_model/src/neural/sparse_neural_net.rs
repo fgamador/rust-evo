@@ -8,8 +8,8 @@ use std::fmt::{Error, Formatter};
 
 type NodeIndex = u16;
 type NodeValue = f32;
-//type ConnectionWeight = f32;
-type OpFn = fn(NodeValue, f32, &mut NodeValue);
+type ConnectionWeight = f32;
+type OpFn = fn(NodeValue, ConnectionWeight, &mut NodeValue);
 
 //impl fmt::Debug for OpFn {
 //    fn fmt(&self, f: &mut Formatter<'_>) -> Result<(), Error> {
@@ -24,7 +24,7 @@ pub struct Op {
     op_fn: OpFn,
     from_value_index: NodeIndex,
     to_value_index: NodeIndex,
-    weight: f32,
+    weight: ConnectionWeight,
 }
 
 impl fmt::Debug for Op {
@@ -38,7 +38,7 @@ impl fmt::Debug for Op {
 }
 
 impl Op {
-    fn bias_op(to_value_index: NodeIndex, bias: f32) -> Self {
+    fn bias_op(to_value_index: NodeIndex, bias: ConnectionWeight) -> Self {
         Op {
             op_fn: Self::add_weighted,
             from_value_index: 0,
@@ -47,7 +47,11 @@ impl Op {
         }
     }
 
-    fn connection_op(from_value_index: NodeIndex, to_value_index: NodeIndex, weight: f32) -> Self {
+    fn connection_op(
+        from_value_index: NodeIndex,
+        to_value_index: NodeIndex,
+        weight: ConnectionWeight,
+    ) -> Self {
         Op {
             op_fn: Self::add_weighted,
             from_value_index,
@@ -71,13 +75,13 @@ impl Op {
         (self.op_fn)(from_value, self.weight, to_value);
     }
 
-    pub fn add_weighted(from_value: NodeValue, weight: f32, to_value: &mut NodeValue) {
+    pub fn add_weighted(from_value: NodeValue, weight: ConnectionWeight, to_value: &mut NodeValue) {
         *to_value += weight * from_value;
     }
 
-    pub fn identity(_from_value: NodeValue, _weight: f32, _to_value: &mut NodeValue) {}
+    pub fn identity(_from_value: NodeValue, _weight: ConnectionWeight, _to_value: &mut NodeValue) {}
 
-    pub fn sigmoidal(_from_value: NodeValue, _weight: f32, to_value: &mut NodeValue) {
+    pub fn sigmoidal(_from_value: NodeValue, _weight: ConnectionWeight, to_value: &mut NodeValue) {
         *to_value = Self::sigmoidal_fn(*to_value);
     }
 
@@ -120,8 +124,8 @@ impl SparseNeuralNet {
     pub fn connect_output_node(
         &mut self,
         output_value_index: NodeIndex,
-        bias: f32,
-        input_value_weights: Vec<(NodeIndex, f32)>,
+        bias: ConnectionWeight,
+        input_value_weights: Vec<(NodeIndex, ConnectionWeight)>,
     ) {
         let to_value_index = self.output_index_to_node_value_index(output_value_index);
         self.ops.push(Op::bias_op(to_value_index, bias));
@@ -225,7 +229,7 @@ mod tests {
         assert_eq!(nnet.output(0), 4.0);
     }
 
-    fn plus_one(_from_value: NodeValue, _weight: f32, to_value: &mut NodeValue) {
+    fn plus_one(_from_value: NodeValue, _weight: ConnectionWeight, to_value: &mut NodeValue) {
         *to_value += 1.0;
     }
 }

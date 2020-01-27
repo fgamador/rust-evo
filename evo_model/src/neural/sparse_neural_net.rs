@@ -258,7 +258,8 @@ mod tests {
 
     #[test]
     fn bias_node() {
-        let mut nnet = SparseNeuralNet::fully_connected(1, 1, 1.0, SparseNeuralNet::identity);
+        let mut nnet = SparseNeuralNet::unconnected(1, 1, SparseNeuralNet::identity);
+        nnet.connect_output_node(0, 1.0, vec![(0, 1.0)]);
 
         nnet.set_input(0, 3.0);
         nnet.run();

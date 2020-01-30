@@ -114,14 +114,13 @@ impl fmt::Debug for SparseNeuralNet {
 
 impl SparseNeuralNet {
     pub fn unconnected(num_inputs: u16, num_outputs: u16, transfer_fn: OpFn) -> Self {
-        let mut nnet = SparseNeuralNet {
+        SparseNeuralNet {
             num_inputs,
             num_outputs,
             transfer_fn,
-            node_values: vec![0.0; (1 + num_inputs + num_outputs) as usize],
+            node_values: vec![0.0; (num_inputs + num_outputs) as usize],
             ops: vec![],
-        };
-        nnet
+        }
     }
 
     pub fn connect_output_node(
@@ -148,7 +147,7 @@ impl SparseNeuralNet {
 
     fn input_index_to_node_value_index(&self, index: NodeIndex) -> NodeIndex {
         assert!(index < self.num_inputs);
-        1 + index
+        index
     }
 
     pub fn run(&mut self) {
@@ -165,12 +164,12 @@ impl SparseNeuralNet {
 
     fn output_index_to_node_value_index(&self, index: NodeIndex) -> NodeIndex {
         assert!(index < self.num_outputs);
-        1 + self.num_inputs + index
+        self.num_inputs + index
     }
 
     pub fn clear_computed_values(&mut self) {
         let original_len = self.node_values.len();
-        self.node_values.truncate(1 + self.num_inputs as usize);
+        self.node_values.truncate(self.num_inputs as usize);
         self.node_values.resize(original_len, 0.0);
     }
 }

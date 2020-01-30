@@ -166,21 +166,6 @@ mod tests {
     use super::*;
 
     #[test]
-    fn two_layer_fully_connected_no_bias() {
-        let mut nnet = SparseNeuralNet::new(plus_one);
-        nnet.connect_node(3, 0.0, vec![(0, 0.5), (1, 0.5), (2, 0.5)]);
-        nnet.connect_node(4, 0.0, vec![(0, 0.5), (1, 0.5), (2, 0.5)]);
-
-        nnet.set_node_value(0, 2.0);
-        nnet.set_node_value(1, 3.0);
-        nnet.set_node_value(2, 4.0);
-        nnet.run();
-
-        assert_eq!(nnet.node_value(3), 5.5);
-        assert_eq!(nnet.node_value(4), 5.5);
-    }
-
-    #[test]
     fn two_layer_sparsely_connected() {
         let mut nnet = SparseNeuralNet::new(plus_one);
         nnet.connect_node(2, 0.5, vec![(0, 0.5)]);
@@ -205,17 +190,6 @@ mod tests {
         nnet.run();
 
         assert_eq!(nnet.node_value(1), 3.0);
-    }
-
-    #[test]
-    fn bias_node() {
-        let mut nnet = SparseNeuralNet::new(Op::identity);
-        nnet.connect_node(1, 1.0, vec![(0, 1.0)]);
-
-        nnet.set_node_value(0, 3.0);
-        nnet.run();
-
-        assert_eq!(nnet.node_value(1), 4.0);
     }
 
     fn plus_one(_from_value: NodeValue, _weight: ConnectionWeight, to_value: &mut NodeValue) {

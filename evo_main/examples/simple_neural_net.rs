@@ -64,7 +64,7 @@ pub struct NeuralNetControl {
 impl NeuralNetControl {
     pub fn new(float_layer_index: usize) -> Self {
         let mut nnet = SparseNeuralNet::unconnected(1, 1, Op::identity);
-        nnet.connect_output_node(0, -100.0, vec![(0, -1.0)]);
+        nnet.connect_node(1, -100.0, vec![(0, -1.0)]);
         NeuralNetControl {
             nnet,
             float_layer_index,

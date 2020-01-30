@@ -123,16 +123,14 @@ impl SparseNeuralNet {
         }
     }
 
-    pub fn connect_output_node(
+    pub fn connect_node(
         &mut self,
-        output_value_index: NodeIndex,
+        to_value_index: NodeIndex,
         bias: ConnectionWeight,
-        input_value_weights: Vec<(NodeIndex, ConnectionWeight)>,
+        from_value_weights: Vec<(NodeIndex, ConnectionWeight)>,
     ) {
-        let to_value_index = self.output_index_to_node_value_index(output_value_index);
         self.ops.push(Op::bias_op(to_value_index, bias));
-        for (input_value_index, weight) in input_value_weights {
-            let from_value_index = self.input_index_to_node_value_index(input_value_index);
+        for (from_value_index, weight) in from_value_weights {
             self.ops
                 .push(Op::connection_op(from_value_index, to_value_index, weight));
         }
@@ -181,8 +179,8 @@ mod tests {
     #[test]
     fn two_layer_fully_connected_no_bias() {
         let mut nnet = SparseNeuralNet::unconnected(3, 2, plus_one);
-        nnet.connect_output_node(0, 0.0, vec![(0, 0.5), (1, 0.5), (2, 0.5)]);
-        nnet.connect_output_node(1, 0.0, vec![(0, 0.5), (1, 0.5), (2, 0.5)]);
+        nnet.connect_node(3, 0.0, vec![(0, 0.5), (1, 0.5), (2, 0.5)]);
+        nnet.connect_node(4, 0.0, vec![(0, 0.5), (1, 0.5), (2, 0.5)]);
 
         nnet.set_input(0, 2.0);
         nnet.set_input(1, 3.0);
@@ -196,8 +194,8 @@ mod tests {
     #[test]
     fn two_layer_sparsely_connected() {
         let mut nnet = SparseNeuralNet::unconnected(2, 2, plus_one);
-        nnet.connect_output_node(0, 0.5, vec![(0, 0.5)]);
-        nnet.connect_output_node(1, 0.0, vec![(0, 0.75), (1, 0.25)]);
+        nnet.connect_node(2, 0.5, vec![(0, 0.5)]);
+        nnet.connect_node(3, 0.0, vec![(0, 0.75), (1, 0.25)]);
 
         nnet.set_input(0, 2.0);
         nnet.set_input(1, 4.0);
@@ -210,7 +208,7 @@ mod tests {
     #[test]
     fn run_clears_previous_values() {
         let mut nnet = SparseNeuralNet::unconnected(1, 1, Op::identity);
-        nnet.connect_output_node(0, 0.0, vec![(0, 1.0)]);
+        nnet.connect_node(1, 0.0, vec![(0, 1.0)]);
 
         nnet.set_input(0, 1.0);
         nnet.run();
@@ -223,7 +221,7 @@ mod tests {
     #[test]
     fn bias_node() {
         let mut nnet = SparseNeuralNet::unconnected(1, 1, Op::identity);
-        nnet.connect_output_node(0, 1.0, vec![(0, 1.0)]);
+        nnet.connect_node(1, 1.0, vec![(0, 1.0)]);
 
         nnet.set_input(0, 3.0);
         nnet.run();

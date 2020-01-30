@@ -40,7 +40,7 @@ impl fmt::Debug for Op {
 impl Op {
     fn bias_op(to_value_index: NodeIndex, bias: ConnectionWeight) -> Self {
         Op {
-            op_fn: Self::add_weight,
+            op_fn: Self::set_to_weight,
             from_value_index: 0, // dummy
             to_value_index,
             weight: bias,
@@ -75,12 +75,12 @@ impl Op {
         (self.op_fn)(from_value, self.weight, to_value);
     }
 
-    pub fn add_weighted(from_value: NodeValue, weight: ConnectionWeight, to_value: &mut NodeValue) {
-        *to_value += weight * from_value;
+    pub fn set_to_weight(_from_value: NodeValue, weight: ConnectionWeight, to_value: &mut NodeValue) {
+        *to_value = weight;
     }
 
-    pub fn add_weight(_from_value: NodeValue, weight: ConnectionWeight, to_value: &mut NodeValue) {
-        *to_value += weight;
+    pub fn add_weighted(from_value: NodeValue, weight: ConnectionWeight, to_value: &mut NodeValue) {
+        *to_value += weight * from_value;
     }
 
     pub fn identity(_from_value: NodeValue, _weight: ConnectionWeight, _to_value: &mut NodeValue) {}
@@ -149,7 +149,6 @@ impl SparseNeuralNet {
     }
 
     pub fn run(&mut self) {
-        self.clear_computed_values();
         for op in &self.ops {
             op.run(&mut self.node_values);
         }
@@ -163,12 +162,6 @@ impl SparseNeuralNet {
     fn output_index_to_node_value_index(&self, index: NodeIndex) -> NodeIndex {
         assert!(index < self.num_outputs);
         self.num_inputs + index
-    }
-
-    pub fn clear_computed_values(&mut self) {
-        let original_len = self.node_values.len();
-        self.node_values.truncate(self.num_inputs as usize);
-        self.node_values.resize(original_len, 0.0);
     }
 }
 

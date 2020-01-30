@@ -74,9 +74,9 @@ impl NeuralNetControl {
 
 impl CellControl for NeuralNetControl {
     fn get_control_requests(&mut self, cell_state: &CellStateSnapshot) -> Vec<ControlRequest> {
-        self.nnet.set_input(0, cell_state.center.y() as f32);
+        self.nnet.set_node_value(0, cell_state.center.y() as f32);
         self.nnet.run();
-        let desired_delta_area = self.nnet.output(0) as f64;
+        let desired_delta_area = self.nnet.node_value(1) as f64;
         vec![CellLayer::resize_request(
             self.float_layer_index,
             AreaDelta::new(desired_delta_area),

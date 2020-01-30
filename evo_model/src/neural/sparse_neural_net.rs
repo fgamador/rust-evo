@@ -75,7 +75,11 @@ impl Op {
         (self.op_fn)(from_value, self.weight, to_value);
     }
 
-    pub fn set_to_weight(_from_value: NodeValue, weight: ConnectionWeight, to_value: &mut NodeValue) {
+    pub fn set_to_weight(
+        _from_value: NodeValue,
+        weight: ConnectionWeight,
+        to_value: &mut NodeValue,
+    ) {
         *to_value = weight;
     }
 
@@ -138,30 +142,18 @@ impl SparseNeuralNet {
             .push(Op::transfer_function_op(self.transfer_fn, to_value_index));
     }
 
-    pub fn set_input(&mut self, index: NodeIndex, val: NodeValue) {
-        let node_value_index = self.input_index_to_node_value_index(index) as usize;
-        self.node_values[node_value_index] = val;
+    pub fn set_node_value(&mut self, index: NodeIndex, value: NodeValue) {
+        self.node_values[index as usize] = value;
     }
 
-    fn input_index_to_node_value_index(&self, index: NodeIndex) -> NodeIndex {
-        assert!(index < self.num_inputs);
-        index
+    pub fn node_value(&self, index: NodeIndex) -> NodeValue {
+        self.node_values[index as usize]
     }
 
     pub fn run(&mut self) {
         for op in &self.ops {
             op.run(&mut self.node_values);
         }
-    }
-
-    pub fn output(&self, index: NodeIndex) -> NodeValue {
-        let node_value_index = self.output_index_to_node_value_index(index) as usize;
-        self.node_values[node_value_index]
-    }
-
-    fn output_index_to_node_value_index(&self, index: NodeIndex) -> NodeIndex {
-        assert!(index < self.num_outputs);
-        self.num_inputs + index
     }
 }
 
@@ -175,13 +167,13 @@ mod tests {
         nnet.connect_node(3, 0.0, vec![(0, 0.5), (1, 0.5), (2, 0.5)]);
         nnet.connect_node(4, 0.0, vec![(0, 0.5), (1, 0.5), (2, 0.5)]);
 
-        nnet.set_input(0, 2.0);
-        nnet.set_input(1, 3.0);
-        nnet.set_input(2, 4.0);
+        nnet.set_node_value(0, 2.0);
+        nnet.set_node_value(1, 3.0);
+        nnet.set_node_value(2, 4.0);
         nnet.run();
 
-        assert_eq!(nnet.output(0), 5.5);
-        assert_eq!(nnet.output(1), 5.5);
+        assert_eq!(nnet.node_value(3), 5.5);
+        assert_eq!(nnet.node_value(4), 5.5);
     }
 
     #[test]
@@ -190,12 +182,12 @@ mod tests {
         nnet.connect_node(2, 0.5, vec![(0, 0.5)]);
         nnet.connect_node(3, 0.0, vec![(0, 0.75), (1, 0.25)]);
 
-        nnet.set_input(0, 2.0);
-        nnet.set_input(1, 4.0);
+        nnet.set_node_value(0, 2.0);
+        nnet.set_node_value(1, 4.0);
         nnet.run();
 
-        assert_eq!(nnet.output(0), 2.5);
-        assert_eq!(nnet.output(1), 3.5);
+        assert_eq!(nnet.node_value(2), 2.5);
+        assert_eq!(nnet.node_value(3), 3.5);
     }
 
     #[test]
@@ -203,12 +195,12 @@ mod tests {
         let mut nnet = SparseNeuralNet::unconnected(1, 1, Op::identity);
         nnet.connect_node(1, 0.0, vec![(0, 1.0)]);
 
-        nnet.set_input(0, 1.0);
+        nnet.set_node_value(0, 1.0);
         nnet.run();
-        nnet.set_input(0, 3.0);
+        nnet.set_node_value(0, 3.0);
         nnet.run();
 
-        assert_eq!(nnet.output(0), 3.0);
+        assert_eq!(nnet.node_value(1), 3.0);
     }
 
     #[test]
@@ -216,10 +208,10 @@ mod tests {
         let mut nnet = SparseNeuralNet::unconnected(1, 1, Op::identity);
         nnet.connect_node(1, 1.0, vec![(0, 1.0)]);
 
-        nnet.set_input(0, 3.0);
+        nnet.set_node_value(0, 3.0);
         nnet.run();
 
-        assert_eq!(nnet.output(0), 4.0);
+        assert_eq!(nnet.node_value(1), 4.0);
     }
 
     fn plus_one(_from_value: NodeValue, _weight: ConnectionWeight, to_value: &mut NodeValue) {

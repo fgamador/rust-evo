@@ -115,7 +115,7 @@ impl fmt::Debug for SparseNeuralNet {
 }
 
 impl SparseNeuralNet {
-    pub fn unconnected(_num_inputs: u16, _num_outputs: u16, transfer_fn: OpFn) -> Self {
+    pub fn unconnected(transfer_fn: OpFn) -> Self {
         SparseNeuralNet {
             node_values: vec![],
             ops: vec![],
@@ -167,7 +167,7 @@ mod tests {
 
     #[test]
     fn two_layer_fully_connected_no_bias() {
-        let mut nnet = SparseNeuralNet::unconnected(3, 2, plus_one);
+        let mut nnet = SparseNeuralNet::unconnected(plus_one);
         nnet.connect_node(3, 0.0, vec![(0, 0.5), (1, 0.5), (2, 0.5)]);
         nnet.connect_node(4, 0.0, vec![(0, 0.5), (1, 0.5), (2, 0.5)]);
 
@@ -182,7 +182,7 @@ mod tests {
 
     #[test]
     fn two_layer_sparsely_connected() {
-        let mut nnet = SparseNeuralNet::unconnected(2, 2, plus_one);
+        let mut nnet = SparseNeuralNet::unconnected(plus_one);
         nnet.connect_node(2, 0.5, vec![(0, 0.5)]);
         nnet.connect_node(3, 0.0, vec![(0, 0.75), (1, 0.25)]);
 
@@ -196,7 +196,7 @@ mod tests {
 
     #[test]
     fn run_clears_previous_values() {
-        let mut nnet = SparseNeuralNet::unconnected(1, 1, Op::identity);
+        let mut nnet = SparseNeuralNet::unconnected(Op::identity);
         nnet.connect_node(1, 0.0, vec![(0, 1.0)]);
 
         nnet.set_node_value(0, 1.0);
@@ -209,7 +209,7 @@ mod tests {
 
     #[test]
     fn bias_node() {
-        let mut nnet = SparseNeuralNet::unconnected(1, 1, Op::identity);
+        let mut nnet = SparseNeuralNet::unconnected(Op::identity);
         nnet.connect_node(1, 1.0, vec![(0, 1.0)]);
 
         nnet.set_node_value(0, 3.0);

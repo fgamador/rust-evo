@@ -40,8 +40,8 @@ impl fmt::Debug for Op {
 impl Op {
     fn bias_op(to_value_index: NodeIndex, bias: ConnectionWeight) -> Self {
         Op {
-            op_fn: Self::add_weighted,
-            from_value_index: 0,
+            op_fn: Self::add_weight,
+            from_value_index: 0, // dummy
             to_value_index,
             weight: bias,
         }
@@ -77,6 +77,10 @@ impl Op {
 
     pub fn add_weighted(from_value: NodeValue, weight: ConnectionWeight, to_value: &mut NodeValue) {
         *to_value += weight * from_value;
+    }
+
+    pub fn add_weight(_from_value: NodeValue, weight: ConnectionWeight, to_value: &mut NodeValue) {
+        *to_value += weight;
     }
 
     pub fn identity(_from_value: NodeValue, _weight: ConnectionWeight, _to_value: &mut NodeValue) {}
@@ -117,7 +121,6 @@ impl SparseNeuralNet {
             node_values: vec![0.0; (1 + num_inputs + num_outputs) as usize],
             ops: vec![],
         };
-        nnet.node_values[0] = 1.0; // bias node
         nnet
     }
 

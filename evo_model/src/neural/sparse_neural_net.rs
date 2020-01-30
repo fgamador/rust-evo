@@ -99,31 +99,27 @@ impl Op {
 }
 
 pub struct SparseNeuralNet {
-    num_inputs: u16,
-    num_outputs: u16,
-    transfer_fn: OpFn,
     node_values: Vec<NodeValue>,
     ops: Vec<Op>,
+    transfer_fn: OpFn,
 }
 
 impl fmt::Debug for SparseNeuralNet {
     fn fmt(&self, f: &mut Formatter<'_>) -> Result<(), Error> {
         write!(
             f,
-            "SparseNeuralNet {{ num_inputs: {}, num_outputs: {}, transfer_fn: OpFn, node_values: {:?}, ops: {:?} }}",
-            self.num_inputs, self.num_outputs, self.node_values, self.ops
+            "SparseNeuralNet {{ node_values: {:?}, ops: {:?}, transfer_fn: OpFn }}",
+            self.node_values, self.ops
         )
     }
 }
 
 impl SparseNeuralNet {
-    pub fn unconnected(num_inputs: u16, num_outputs: u16, transfer_fn: OpFn) -> Self {
+    pub fn unconnected(_num_inputs: u16, _num_outputs: u16, transfer_fn: OpFn) -> Self {
         SparseNeuralNet {
-            num_inputs,
-            num_outputs,
-            transfer_fn,
             node_values: vec![],
             ops: vec![],
+            transfer_fn,
         }
     }
 

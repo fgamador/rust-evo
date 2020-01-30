@@ -6,91 +6,67 @@ use std::f32;
 use std::fmt;
 use std::fmt::{Error, Formatter};
 
+type Bias = f32;
 type ConnectionWeight = f32;
 type NodeIndex = u16;
 type NodeValue = f32;
-type OpFn = fn(NodeValue, ConnectionWeight, &mut NodeValue);
+type TransferFn = fn(&mut NodeValue);
 
-//impl fmt::Debug for OpFn {
-//    fn fmt(&self, f: &mut Formatter<'_>) -> Result<(), Error> {
-//        write!(
-//            f,
-//            "OpFn"
-//        )
-//    }
-//}
-
-pub struct Op {
-    op_fn: OpFn,
-    from_value_index: NodeIndex,
-    to_value_index: NodeIndex,
-    weight: ConnectionWeight,
+pub enum Op {
+    Bias {
+        value_index: NodeIndex,
+        bias: Bias,
+    },
+    Connection {
+        from_value_index: NodeIndex,
+        to_value_index: NodeIndex,
+        weight: ConnectionWeight,
+    },
+    Transfer {
+        value_index: NodeIndex,
+        transfer_fn: TransferFn,
+    },
 }
 
+// TODO
 impl fmt::Debug for Op {
     fn fmt(&self, f: &mut Formatter<'_>) -> Result<(), Error> {
-        write!(
-            f,
-            "OpStruct {{ op_fn: OpFn, from_value_index: {}, to_value_index: {}, weight: {} }}",
-            self.from_value_index, self.to_value_index, self.weight
-        )
+        write!(f, "Op")
     }
 }
 
 impl Op {
-    fn bias_op(to_value_index: NodeIndex, bias: ConnectionWeight) -> Self {
-        Op {
-            op_fn: Self::set_to_weight,
-            from_value_index: 0, // dummy
-            to_value_index,
-            weight: bias,
-        }
-    }
-
-    fn connection_op(
-        from_value_index: NodeIndex,
-        to_value_index: NodeIndex,
-        weight: ConnectionWeight,
-    ) -> Self {
-        Op {
-            op_fn: Self::add_weighted,
-            from_value_index,
-            to_value_index,
-            weight,
-        }
-    }
-
-    fn transfer_function_op(transfer_fn: OpFn, to_value_index: NodeIndex) -> Self {
-        Op {
-            op_fn: transfer_fn,
-            from_value_index: 0, // dummy
-            to_value_index,
-            weight: 0.0, // dummy
-        }
-    }
-
     fn run(&self, node_values: &mut Vec<NodeValue>) {
-        let from_value = node_values[self.from_value_index as usize];
-        let to_value = &mut node_values[self.to_value_index as usize];
-        (self.op_fn)(from_value, self.weight, to_value);
+        match self {
+            Self::Bias { value_index, bias } => {
+                let value = &mut node_values[*value_index as usize];
+                *value = *bias;
+            }
+
+            Self::Connection {
+                from_value_index,
+                to_value_index,
+                weight,
+            } => {
+                let from_value = node_values[*from_value_index as usize];
+                let to_value = &mut node_values[*to_value_index as usize];
+                *to_value += *weight * from_value;
+            }
+
+            Self::Transfer {
+                value_index,
+                transfer_fn,
+            } => {
+                let value = &mut node_values[*value_index as usize];
+                (transfer_fn)(value);
+            }
+        }
     }
 
-    pub fn set_to_weight(
-        _from_value: NodeValue,
-        weight: ConnectionWeight,
-        to_value: &mut NodeValue,
-    ) {
-        *to_value = weight;
-    }
+    pub fn identity(_value: &mut NodeValue) {}
 
-    pub fn add_weighted(from_value: NodeValue, weight: ConnectionWeight, to_value: &mut NodeValue) {
-        *to_value += weight * from_value;
-    }
-
-    pub fn identity(_from_value: NodeValue, _weight: ConnectionWeight, _to_value: &mut NodeValue) {}
-
-    pub fn sigmoidal(_from_value: NodeValue, _weight: ConnectionWeight, to_value: &mut NodeValue) {
-        *to_value = Self::sigmoidal_fn(*to_value);
+    pub fn sigmoidal(value: &mut NodeValue) {
+        *value = Self::sigmoidal_fn(*value);
     }
 
     fn sigmoidal_fn(val: NodeValue) -> NodeValue {
@@ -101,21 +77,21 @@ impl Op {
 pub struct SparseNeuralNet {
     node_values: Vec<NodeValue>,
     ops: Vec<Op>,
-    transfer_fn: OpFn,
+    transfer_fn: TransferFn,
 }
 
 impl fmt::Debug for SparseNeuralNet {
     fn fmt(&self, f: &mut Formatter<'_>) -> Result<(), Error> {
         write!(
             f,
-            "SparseNeuralNet {{ node_values: {:?}, ops: {:?}, transfer_fn: OpFn }}",
+            "SparseNeuralNet {{ node_values: {:?}, ops: {:?}, transfer_fn: TransferFn }}",
             self.node_values, self.ops
         )
     }
 }
 
 impl SparseNeuralNet {
-    pub fn new(transfer_fn: OpFn) -> Self {
+    pub fn new(transfer_fn: TransferFn) -> Self {
         SparseNeuralNet {
             node_values: vec![],
             ops: vec![],
@@ -130,14 +106,22 @@ impl SparseNeuralNet {
         from_value_weights: Vec<(NodeIndex, ConnectionWeight)>,
     ) {
         self.grow_node_values_if_needed(to_value_index);
-        self.ops.push(Op::bias_op(to_value_index, bias));
+        self.ops.push(Op::Bias {
+            value_index: to_value_index,
+            bias,
+        });
         for (from_value_index, weight) in from_value_weights {
             self.grow_node_values_if_needed(from_value_index);
-            self.ops
-                .push(Op::connection_op(from_value_index, to_value_index, weight));
+            self.ops.push(Op::Connection {
+                from_value_index,
+                to_value_index,
+                weight,
+            });
         }
-        self.ops
-            .push(Op::transfer_function_op(self.transfer_fn, to_value_index));
+        self.ops.push(Op::Transfer {
+            value_index: to_value_index,
+            transfer_fn: self.transfer_fn,
+        });
     }
 
     fn grow_node_values_if_needed(&mut self, new_index: NodeIndex) {
@@ -204,7 +188,7 @@ mod tests {
         assert_eq!(nnet.node_value(2), 0.75);
     }
 
-    fn plus_one(_from_value: NodeValue, _weight: ConnectionWeight, to_value: &mut NodeValue) {
+    fn plus_one(to_value: &mut NodeValue) {
         *to_value += 1.0;
     }
 }

@@ -122,7 +122,7 @@ impl SparseNeuralNet {
             num_inputs,
             num_outputs,
             transfer_fn,
-            node_values: vec![0.0; (num_inputs + num_outputs) as usize],
+            node_values: vec![],
             ops: vec![],
         }
     }
@@ -133,13 +133,21 @@ impl SparseNeuralNet {
         bias: ConnectionWeight,
         from_value_weights: Vec<(NodeIndex, ConnectionWeight)>,
     ) {
+        self.grow_node_values_if_needed(to_value_index);
         self.ops.push(Op::bias_op(to_value_index, bias));
         for (from_value_index, weight) in from_value_weights {
+            self.grow_node_values_if_needed(from_value_index);
             self.ops
                 .push(Op::connection_op(from_value_index, to_value_index, weight));
         }
         self.ops
             .push(Op::transfer_function_op(self.transfer_fn, to_value_index));
+    }
+
+    fn grow_node_values_if_needed(&mut self, new_index: NodeIndex) {
+        if new_index as usize >= self.node_values.len() {
+            self.node_values.resize((new_index + 1) as usize, 0.0);
+        }
     }
 
     pub fn set_node_value(&mut self, index: NodeIndex, value: NodeValue) {

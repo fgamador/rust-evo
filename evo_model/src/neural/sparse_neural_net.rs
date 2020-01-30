@@ -192,6 +192,18 @@ mod tests {
         assert_eq!(nnet.node_value(1), 3.0);
     }
 
+    #[test]
+    fn three_layer() {
+        let mut nnet = SparseNeuralNet::new(Op::identity);
+        nnet.connect_node(1, 0.5, vec![(0, 0.5)]);
+        nnet.connect_node(2, 0.0, vec![(1, 0.5)]);
+
+        nnet.set_node_value(0, 2.0);
+        nnet.run();
+
+        assert_eq!(nnet.node_value(2), 0.75);
+    }
+
     fn plus_one(_from_value: NodeValue, _weight: ConnectionWeight, to_value: &mut NodeValue) {
         *to_value += 1.0;
     }

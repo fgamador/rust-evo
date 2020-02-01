@@ -188,7 +188,28 @@ mod tests {
         assert_eq!(nnet.node_value(2), 0.75);
     }
 
-    fn plus_one(to_value: &mut NodeValue) {
-        *to_value += 1.0;
+    #[test]
+    fn recurrent_connection() {
+        let mut nnet = SparseNeuralNet::new(Op::identity);
+        nnet.connect_node(1, 0.0, vec![(0, 1.0), (2, 2.0)]);
+        nnet.connect_node(2, 0.0, vec![(1, 1.0)]);
+
+        nnet.set_node_value(0, 1.0);
+        nnet.run();
+
+        assert_eq!(nnet.node_value(0), 1.0);
+        assert_eq!(nnet.node_value(1), 1.0);
+        assert_eq!(nnet.node_value(2), 1.0);
+
+        nnet.set_node_value(0, 0.0);
+        nnet.run();
+
+        assert_eq!(nnet.node_value(0), 0.0);
+        assert_eq!(nnet.node_value(1), 2.0);
+        assert_eq!(nnet.node_value(2), 2.0);
+    }
+
+    fn plus_one(value: &mut NodeValue) {
+        *value += 1.0;
     }
 }

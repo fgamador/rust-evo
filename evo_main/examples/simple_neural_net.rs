@@ -7,7 +7,7 @@ use evo_model::biology::control::*;
 use evo_model::biology::control_requests::*;
 use evo_model::biology::layers::*;
 use evo_model::environment::influences::*;
-use evo_model::neural::sparse_neural_net::*;
+use evo_model::genome::sparse_neural_net::*;
 use evo_model::physics::quantities::*;
 use evo_model::world::World;
 use std::f64::consts::PI;

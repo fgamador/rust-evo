@@ -5,7 +5,7 @@ extern crate log;
 
 pub mod biology;
 pub mod environment;
-pub mod neural;
+pub mod genome;
 pub mod physics;
 pub mod world;
 

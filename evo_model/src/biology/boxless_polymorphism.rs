@@ -5,7 +5,7 @@ pub trait Shapeness {
     fn resize(&mut self, factor: f32);
 }
 
-pub struct Rectangle {
+struct Rectangle {
     width: f32,
     height: f32,
 }
@@ -21,7 +21,7 @@ impl Shapeness for Rectangle {
     }
 }
 
-pub struct Circle {
+struct Circle {
     radius: f32,
 }
 
@@ -35,7 +35,7 @@ impl Shapeness for Circle {
     }
 }
 
-pub enum ShapeEnum {
+enum ShapeEnum {
     RectangleItem(Rectangle),
     CircleItem(Circle),
 }

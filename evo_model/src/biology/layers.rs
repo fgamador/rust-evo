@@ -156,6 +156,18 @@ impl CellLayer {
         self.health() > 0.0
     }
 
+    pub fn outer_radius(&self) -> Length {
+        self.body.outer_radius
+    }
+
+    pub fn color(&self) -> Color {
+        self.body.color
+    }
+
+    pub fn health(&self) -> f64 {
+        self.body.health
+    }
+
     pub fn area(&self) -> Area {
         self.body.area
     }
@@ -212,20 +224,6 @@ impl CellLayer {
 
     pub fn resize_request(layer_index: usize, delta_area: AreaDelta) -> ControlRequest {
         ControlRequest::new(layer_index, 1, delta_area.value())
-    }
-}
-
-impl OnionLayer for CellLayer {
-    fn outer_radius(&self) -> Length {
-        self.body.outer_radius
-    }
-
-    fn color(&self) -> Color {
-        self.body.color
-    }
-
-    fn health(&self) -> f64 {
-        self.body.health
     }
 }
 

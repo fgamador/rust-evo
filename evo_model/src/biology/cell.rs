@@ -70,6 +70,10 @@ impl Cell {
         self
     }
 
+    pub fn layers(&self) -> &[Box<CellLayer>] {
+        &self.layers
+    }
+
     pub fn energy(&self) -> BioEnergy {
         self.energy
     }
@@ -239,14 +243,6 @@ impl Circle for Cell {
 
     fn center(&self) -> Position {
         self.newtonian_state.position
-    }
-}
-
-impl Onion for Cell {
-    type Layer = CellLayer;
-
-    fn layers(&self) -> &[Box<Self::Layer>] {
-        &self.layers
     }
 }
 

@@ -11,8 +11,6 @@ use background_drawing::*;
 use cell_drawing::*;
 use evo_model::biology::cell::Cell;
 use evo_model::biology::layers;
-use evo_model::biology::layers::Onion;
-use evo_model::biology::layers::OnionLayer;
 use evo_model::physics::shapes::Circle;
 use evo_model::UserAction;
 

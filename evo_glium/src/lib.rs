@@ -9,6 +9,7 @@ pub mod cell_drawing;
 
 use background_drawing::*;
 use cell_drawing::*;
+use evo_model::biology::cell::Cell;
 use evo_model::biology::layers;
 use evo_model::biology::layers::Onion;
 use evo_model::biology::layers::OnionLayer;
@@ -109,7 +110,7 @@ impl GliumView {
             .collect()
     }
 
-    fn model_cell_to_drawing_cell(cell: &evo_model::biology::cell::Cell) -> CellSprite {
+    fn model_cell_to_drawing_cell(cell: &Cell) -> CellSprite {
         let mut radii: [f32; 8] = [0.0; 8];
         let mut health: [f32; 8] = [0.0; 8];
         assert!(cell.layers().len() <= radii.len());

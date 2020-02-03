@@ -32,16 +32,8 @@ fn create_world() -> World {
             Position::new(200.0, -200.0),
             Velocity::new(0.0, 0.0),
             vec![
-                Box::new(simple_cell_layer(
-                    Area::new(100.0 * PI),
-                    Density::new(0.0004),
-                    Color::White,
-                )),
-                Box::new(simple_cell_layer(
-                    Area::new(300.0 * PI),
-                    Density::new(0.00075),
-                    Color::Green,
-                )),
+                simple_cell_layer(Area::new(100.0 * PI), Density::new(0.0004), Color::White),
+                simple_cell_layer(Area::new(300.0 * PI), Density::new(0.00075), Color::Green),
             ],
         )
         .with_control(Box::new(NeuralNetControl::new(0)))])

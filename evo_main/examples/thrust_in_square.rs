@@ -24,12 +24,12 @@ fn create_world() -> World {
         .with_cells(vec![Cell::new(
             Position::new(300.0, -300.0),
             Velocity::new(0.0, 0.0),
-            vec![Box::new(CellLayer::new(
+            vec![CellLayer::new(
                 Area::new(200.0 * PI),
                 Density::new(1.0),
                 Color::Green,
                 Box::new(ThrusterCellLayerSpecialty::new()),
-            ))],
+            )],
         )
         .with_control(Box::new(ThrustInSquareControl::new(
             0,

@@ -26,18 +26,18 @@ fn create_child() -> Cell {
         Position::ORIGIN,
         Velocity::ZERO,
         vec![
-            Box::new(CellLayer::new(
+            CellLayer::new(
                 Area::new(5.0 * PI),
                 Density::new(1.0),
                 Color::Green,
                 Box::new(EnergyGeneratingCellLayerSpecialty::new()),
-            )),
-            Box::new(CellLayer::new(
+            ),
+            CellLayer::new(
                 Area::new(5.0 * PI),
                 Density::new(1.0),
                 Color::Yellow,
                 Box::new(BuddingCellLayerSpecialty::new(create_child)),
-            )),
+            ),
         ],
     )
     .with_control(Box::new(BuddingControl::new(1)))

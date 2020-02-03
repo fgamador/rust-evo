@@ -546,10 +546,7 @@ mod tests {
         let cell_handle = cell_graph.add_node(Cell::new(
             Position::new(0.0, 0.0),
             Velocity::ZERO,
-            vec![Box::new(simple_cell_layer(
-                Area::new(PI),
-                Density::new(1.0),
-            ))],
+            vec![simple_cell_layer(Area::new(PI), Density::new(1.0))],
         ));
 
         sunlight.apply(&mut cell_graph, Duration::new(0.5));
@@ -565,10 +562,7 @@ mod tests {
         let cell_handle = cell_graph.add_node(Cell::new(
             Position::new(0.0, -11.0),
             Velocity::ZERO,
-            vec![Box::new(simple_cell_layer(
-                Area::new(1.0),
-                Density::new(1.0),
-            ))],
+            vec![simple_cell_layer(Area::new(1.0), Density::new(1.0))],
         ));
 
         sunlight.apply(&mut cell_graph, Duration::new(0.5));

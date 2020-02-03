@@ -18,17 +18,15 @@ fn create_world() -> World {
         .with_cell(Cell::new(
             Position::new(200.0, -50.0),
             Velocity::new(2.0, 0.0),
-            vec![Box::new(
-                CellLayer::new(
-                    Area::new(200.0 * PI),
-                    Density::new(0.001),
-                    Color::Green,
-                    Box::new(NullCellLayerSpecialty::new()),
-                )
-                .with_health_parameters(LayerHealthParameters {
-                    overlap_damage_health_delta: -0.05,
-                    ..LayerHealthParameters::DEFAULT
-                }),
-            )],
+            vec![CellLayer::new(
+                Area::new(200.0 * PI),
+                Density::new(0.001),
+                Color::Green,
+                Box::new(NullCellLayerSpecialty::new()),
+            )
+            .with_health_parameters(LayerHealthParameters {
+                overlap_damage_health_delta: -0.05,
+                ..LayerHealthParameters::DEFAULT
+            })],
         ))
 }

@@ -1215,8 +1215,8 @@ mod tests {
             Position::ORIGIN,
             Velocity::ZERO,
             vec![
-                Box::new(simple_cell_layer(Area::new(PI), Density::new(1.0))),
-                Box::new(simple_cell_layer(Area::new(PI), Density::new(1.0))),
+                simple_cell_layer(Area::new(PI), Density::new(1.0)),
+                simple_cell_layer(Area::new(PI), Density::new(1.0)),
             ],
         )
     }

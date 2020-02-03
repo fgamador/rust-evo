@@ -23,23 +23,21 @@ fn create_world() -> World {
             Cell::new(
                 Position::new(200.0, -50.0),
                 Velocity::ZERO,
-                vec![Box::new(
-                    CellLayer::new(
-                        Area::new(200.0 * PI),
-                        Density::new(1.0),
-                        Color::Green,
-                        Box::new(PhotoCellLayerSpecialty::new(1.0)),
-                    )
-                    .with_resize_parameters(LayerResizeParameters {
-                        growth_energy_delta: BioEnergyDelta::new(-1.0),
-                        ..LayerResizeParameters::UNLIMITED
-                    })
-                    .with_health_parameters(LayerHealthParameters {
-                        healing_energy_delta: BioEnergyDelta::ZERO,
-                        entropic_damage_health_delta: -0.006,
-                        ..LayerHealthParameters::DEFAULT
-                    }),
-                )],
+                vec![CellLayer::new(
+                    Area::new(200.0 * PI),
+                    Density::new(1.0),
+                    Color::Green,
+                    Box::new(PhotoCellLayerSpecialty::new(1.0)),
+                )
+                .with_resize_parameters(LayerResizeParameters {
+                    growth_energy_delta: BioEnergyDelta::new(-1.0),
+                    ..LayerResizeParameters::UNLIMITED
+                })
+                .with_health_parameters(LayerHealthParameters {
+                    healing_energy_delta: BioEnergyDelta::ZERO,
+                    entropic_damage_health_delta: -0.006,
+                    ..LayerHealthParameters::DEFAULT
+                })],
             )
             .with_control(Box::new(GrowThenHealControl::new(
                 0,

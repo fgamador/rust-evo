@@ -38,16 +38,16 @@ fn create_world() -> World {
                 Position::new(150.0, -300.0),
                 Velocity::new(0.0, 0.0),
                 vec![
-                    Box::new(simple_cell_layer(
+                    simple_cell_layer(
                         Area::new(100.0 * PI),
                         Density::new(FLOAT_LAYER_DENSITY),
                         Color::White,
-                    )),
-                    Box::new(simple_cell_layer(
+                    ),
+                    simple_cell_layer(
                         Area::new(300.0 * PI),
                         Density::new(OTHER_LAYER_DENSITY),
                         Color::Green,
-                    )),
+                    ),
                 ],
             )
             .with_control(Box::new(FixedDepthSeekingControl::new(-150.0))),
@@ -55,16 +55,16 @@ fn create_world() -> World {
                 Position::new(250.0, -100.0),
                 Velocity::new(0.0, 0.0),
                 vec![
-                    Box::new(simple_cell_layer(
+                    simple_cell_layer(
                         Area::new(50.0 * PI),
                         Density::new(FLOAT_LAYER_DENSITY),
                         Color::White,
-                    )),
-                    Box::new(simple_cell_layer(
+                    ),
+                    simple_cell_layer(
                         Area::new(150.0 * PI),
                         Density::new(OTHER_LAYER_DENSITY),
                         Color::Green,
-                    )),
+                    ),
                 ],
             )
             .with_control(Box::new(FixedDepthSeekingControl::new(-250.0))),

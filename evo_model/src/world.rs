@@ -345,12 +345,12 @@ mod tests {
             .with_cell(Cell::new(
                 Position::ORIGIN,
                 Velocity::ZERO,
-                vec![Box::new(CellLayer::new(
+                vec![CellLayer::new(
                     Area::new(10.0),
                     Density::new(1.0),
                     Color::Green,
                     Box::new(PhotoCellLayerSpecialty::new(1.0)),
-                ))],
+                )],
             ));
 
         world.tick();
@@ -365,12 +365,12 @@ mod tests {
             Cell::new(
                 Position::ORIGIN,
                 Velocity::ZERO,
-                vec![Box::new(CellLayer::new(
+                vec![CellLayer::new(
                     Area::new(1.0),
                     Density::new(1.0),
                     Color::Green,
                     Box::new(NullCellLayerSpecialty::new()),
-                ))],
+                )],
             )
             .with_control(Box::new(ContinuousResizeControl::new(
                 0,
@@ -391,12 +391,12 @@ mod tests {
                 Cell::new(
                     Position::ORIGIN,
                     Velocity::ZERO,
-                    vec![Box::new(CellLayer::new(
+                    vec![CellLayer::new(
                         Area::new(1.0),
                         Density::new(1.0),
                         Color::Green,
                         Box::new(ThrusterCellLayerSpecialty::new()),
-                    ))],
+                    )],
                 )
                 .with_control(Box::new(SimpleThrusterControl::new(
                     0,
@@ -420,18 +420,16 @@ mod tests {
                 Cell::new(
                     Position::ORIGIN,
                     Velocity::ZERO,
-                    vec![Box::new(
-                        CellLayer::new(
-                            Area::new(10.0),
-                            Density::new(1.0),
-                            Color::Green,
-                            Box::new(PhotoCellLayerSpecialty::new(1.0)),
-                        )
-                        .with_resize_parameters(LayerResizeParameters {
-                            growth_energy_delta: BioEnergyDelta::new(-10.0),
-                            ..LayerResizeParameters::UNLIMITED
-                        }),
-                    )],
+                    vec![CellLayer::new(
+                        Area::new(10.0),
+                        Density::new(1.0),
+                        Color::Green,
+                        Box::new(PhotoCellLayerSpecialty::new(1.0)),
+                    )
+                    .with_resize_parameters(LayerResizeParameters {
+                        growth_energy_delta: BioEnergyDelta::new(-10.0),
+                        ..LayerResizeParameters::UNLIMITED
+                    })],
                 )
                 .with_control(Box::new(ContinuousResizeControl::new(
                     0,
@@ -451,12 +449,12 @@ mod tests {
             Cell::new(
                 Position::ORIGIN,
                 Velocity::ZERO,
-                vec![Box::new(CellLayer::new(
+                vec![CellLayer::new(
                     Area::new(1.0),
                     Density::new(1.0),
                     Color::Green,
                     Box::new(BuddingCellLayerSpecialty::new(create_child)),
-                ))],
+                )],
             )
             .with_control(Box::new(ContinuousRequestsControl::new(vec![
                 BuddingCellLayerSpecialty::donation_energy_request(0, BioEnergy::new(1.0)),
@@ -473,9 +471,7 @@ mod tests {
         let mut world = World::new(Position::ORIGIN, Position::ORIGIN).with_cell(Cell::new(
             Position::ORIGIN,
             Velocity::ZERO,
-            vec![Box::new(
-                simple_cell_layer(Area::new(1.0), Density::new(1.0)).dead(),
-            )],
+            vec![simple_cell_layer(Area::new(1.0), Density::new(1.0)).dead()],
         ));
 
         world.tick();
@@ -487,10 +483,7 @@ mod tests {
         Cell::new(
             Position::ORIGIN,
             Velocity::ZERO,
-            vec![Box::new(simple_cell_layer(
-                Area::new(1.0),
-                Density::new(1.0),
-            ))],
+            vec![simple_cell_layer(Area::new(1.0), Density::new(1.0))],
         )
     }
 

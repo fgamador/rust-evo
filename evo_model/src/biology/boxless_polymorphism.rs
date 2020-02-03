@@ -40,6 +40,9 @@ enum ShapeEnum {
     CircleItem(Circle),
 }
 
+//type AreaFn = fn() -> f32;
+//type ResizeFn = fn(f32);
+
 pub struct Shape {
     shape_enum: ShapeEnum,
 }
@@ -57,6 +60,8 @@ impl Shape {
         }
     }
 }
+
+// TODO Is there a way to do this without the matches? Some sort of function pointers in Shape?
 
 impl Shapeness for Shape {
     fn area(&self) -> f32 {

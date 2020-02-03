@@ -9,57 +9,12 @@ use std::f64;
 use std::f64::consts::PI;
 use std::fmt::Debug;
 
+// TODO rename as TissueType?
 #[derive(Clone, Copy, Debug, Eq, Hash, PartialEq)]
 pub enum Color {
     Green,
     White,
     Yellow,
-}
-
-// TODO Do we still need Onion and OnionLayer? Can we merge them into Cell and Layer?
-pub trait Onion: Circle {
-    type Layer: OnionLayer + ?Sized;
-
-    fn layers(&self) -> &[Box<Self::Layer>];
-}
-
-pub trait OnionLayer: Debug {
-    fn outer_radius(&self) -> Length;
-
-    fn color(&self) -> Color;
-
-    fn health(&self) -> f64;
-}
-
-#[derive(Debug)]
-pub struct SimpleOnionLayer {
-    outer_radius: Length,
-    color: Color,
-    health: f64,
-}
-
-impl SimpleOnionLayer {
-    pub fn new(outer_radius: Length, color: Color) -> Self {
-        SimpleOnionLayer {
-            outer_radius,
-            color,
-            health: 1.0,
-        }
-    }
-}
-
-impl OnionLayer for SimpleOnionLayer {
-    fn outer_radius(&self) -> Length {
-        self.outer_radius
-    }
-
-    fn color(&self) -> Color {
-        self.color
-    }
-
-    fn health(&self) -> f64 {
-        self.health
-    }
 }
 
 #[derive(Debug, Clone, Copy)]

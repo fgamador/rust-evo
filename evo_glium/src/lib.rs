@@ -101,7 +101,7 @@ impl GliumView {
         );
     }
 
-    fn view_model_bullseyes_to_drawing_cells(world: &evo_model::world::World) -> Vec<Cell> {
+    fn view_model_bullseyes_to_drawing_cells(world: &evo_model::world::World) -> Vec<CellSprite> {
         world
             .cells()
             .iter()
@@ -109,7 +109,7 @@ impl GliumView {
             .collect()
     }
 
-    fn model_cell_to_drawing_cell(cell: &evo_model::biology::cell::Cell) -> Cell {
+    fn model_cell_to_drawing_cell(cell: &evo_model::biology::cell::Cell) -> CellSprite {
         let mut radii: [f32; 8] = [0.0; 8];
         let mut health: [f32; 8] = [0.0; 8];
         assert!(cell.layers().len() <= radii.len());
@@ -117,7 +117,7 @@ impl GliumView {
             radii[i] = layer.outer_radius().value() as f32;
             health[i] = layer.health() as f32;
         }
-        Cell {
+        CellSprite {
             center: [cell.center().x() as f32, cell.center().y() as f32],
             num_layers: cell.layers().len() as u32,
             radii_0_3: [radii[0], radii[1], radii[2], radii[3]],
@@ -147,7 +147,7 @@ impl GliumView {
         }
     }
 
-    fn draw_frame(&mut self, cells: &[Cell], layer_colors: [[f32; 4]; 8]) {
+    fn draw_frame(&mut self, cells: &[CellSprite], layer_colors: [[f32; 4]; 8]) {
         let cells_vb = glium::VertexBuffer::new(&self.display, &cells).unwrap();
         let screen_transform = self.current_screen_transform();
         let mut frame = self.display.draw();

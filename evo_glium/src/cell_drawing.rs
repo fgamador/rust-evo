@@ -1,7 +1,7 @@
 use glium::Surface;
 
 #[derive(Clone, Copy)]
-pub struct Cell {
+pub struct CellSprite {
     pub center: [f32; 2],
     pub num_layers: u32,
     pub radii_0_3: [f32; 4],
@@ -10,7 +10,7 @@ pub struct Cell {
     pub health_4_7: [f32; 4],
 }
 
-implement_vertex!(Cell, center, num_layers, radii_0_3, radii_4_7, health_0_3, health_4_7);
+implement_vertex!(CellSprite, center, num_layers, radii_0_3, radii_4_7, health_0_3, health_4_7);
 
 pub struct CellDrawing {
     pub shader_program: glium::Program,
@@ -66,7 +66,7 @@ impl CellDrawing {
         in vec4 health_0_3;
         in vec4 health_4_7;
 
-        out Cell {
+        out CellSprite {
             vec2 center;
             uint num_layers;
             float radii[8];
@@ -91,7 +91,7 @@ impl CellDrawing {
         layout (points) in;
         layout (triangle_strip, max_vertices = 4) out;
 
-        in Cell {
+        in CellSprite {
             vec2 center;
             uint num_layers;
             float radii[8];

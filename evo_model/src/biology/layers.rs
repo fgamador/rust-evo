@@ -372,8 +372,6 @@ impl CellLayerBrain for LivingCellLayerBrain {
 #[derive(Debug)]
 struct DeadCellLayerBrain {}
 
-impl DeadCellLayerBrain {}
-
 impl CellLayerBrain for DeadCellLayerBrain {
     fn damage(&self, _body: &mut CellLayerBody, _health_loss: f64) {}
 

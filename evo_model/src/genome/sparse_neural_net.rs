@@ -260,7 +260,7 @@ mod tests {
 
         assert_eq!(copied.node_values.len(), nnet.node_values.len());
         assert!(copied.node_values.iter().all(|&value| value == 0.0));
-        // TODO assert_eq!(copied.ops, nnet.ops);
+        assert_eq!(copied.ops, nnet.ops);
         assert_eq!(copied.transfer_fn, TransferFn::SIGMOIDAL);
     }
 

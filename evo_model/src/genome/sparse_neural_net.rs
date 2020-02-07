@@ -12,6 +12,7 @@ type NodeIndex = u16;
 type NodeValue = f32;
 type TransferFn = fn(&mut NodeValue);
 
+#[derive(Copy)]
 pub enum Op {
     Bias {
         value_index: NodeIndex,
@@ -26,13 +27,6 @@ pub enum Op {
         value_index: NodeIndex,
         transfer_fn: TransferFn,
     },
-}
-
-// TODO
-impl fmt::Debug for Op {
-    fn fmt(&self, f: &mut Formatter<'_>) -> Result<(), Error> {
-        write!(f, "Op")
-    }
 }
 
 impl Op {
@@ -73,6 +67,28 @@ impl Op {
         1.0_f32 / (1.0_f32 + (-4.9_f32 * val).exp())
     }
 }
+
+impl Clone for Op {
+    fn clone(&self) -> Self {
+        *self
+    }
+}
+
+// TODO
+impl fmt::Debug for Op {
+    fn fmt(&self, f: &mut Formatter<'_>) -> Result<(), Error> {
+        write!(f, "Op")
+    }
+}
+
+impl PartialEq for Op {
+    fn eq(&self, _other: &Self) -> bool {
+        // TODO
+        false
+    }
+}
+
+pub trait MutationRandomness {}
 
 pub struct SparseNeuralNet {
     node_values: Vec<NodeValue>,
@@ -141,6 +157,14 @@ impl SparseNeuralNet {
     pub fn run(&mut self) {
         for op in &self.ops {
             op.run(&mut self.node_values);
+        }
+    }
+
+    pub fn copy_with_mutation(&self, _randomness: &mut dyn MutationRandomness) -> Self {
+        SparseNeuralNet {
+            node_values: vec![0.0; self.node_values.len()],
+            ops: self.ops.clone(),
+            transfer_fn: self.transfer_fn,
         }
     }
 }
@@ -212,4 +236,30 @@ mod tests {
     fn plus_one(value: &mut NodeValue) {
         *value += 1.0;
     }
+
+    #[test]
+    fn copy_unmutated() {
+        let mut nnet = SparseNeuralNet::new(Op::sigmoidal);
+        nnet.connect_node(1, 0.0, vec![(0, 1.0), (2, 2.0)]);
+        nnet.connect_node(2, 0.0, vec![(1, 1.0)]);
+        nnet.set_node_value(0, 1.0);
+
+        let mut randomness = FakeMutationRandomness::new();
+        let copied = nnet.copy_with_mutation(&mut randomness);
+
+        assert_eq!(copied.node_values.len(), nnet.node_values.len());
+        assert!(copied.node_values.iter().all(|&value| value == 0.0));
+        // TODO assert_eq!(copied.ops, nnet.ops);
+        assert_eq!(copied.transfer_fn as usize, Op::sigmoidal as usize);
+    }
+
+    struct FakeMutationRandomness {}
+
+    impl FakeMutationRandomness {
+        fn new() -> Self {
+            FakeMutationRandomness {}
+        }
+    }
+
+    impl MutationRandomness for FakeMutationRandomness {}
 }

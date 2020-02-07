@@ -30,6 +30,9 @@ pub enum Op {
 }
 
 impl Op {
+    pub const IDENTITY: TransferFn = Self::identity;
+    pub const SIGMOIDAL: TransferFn = Self::sigmoidal;
+
     fn run(&self, node_values: &mut Vec<NodeValue>) {
         match self {
             Self::Bias { value_index, bias } => {
@@ -189,7 +192,7 @@ mod tests {
 
     #[test]
     fn run_clears_previous_values() {
-        let mut nnet = SparseNeuralNet::new(Op::identity);
+        let mut nnet = SparseNeuralNet::new(Op::IDENTITY);
         nnet.connect_node(1, 0.0, vec![(0, 1.0)]);
 
         nnet.set_node_value(0, 1.0);
@@ -202,7 +205,7 @@ mod tests {
 
     #[test]
     fn three_layer() {
-        let mut nnet = SparseNeuralNet::new(Op::identity);
+        let mut nnet = SparseNeuralNet::new(Op::IDENTITY);
         nnet.connect_node(1, 0.5, vec![(0, 0.5)]);
         nnet.connect_node(2, 0.0, vec![(1, 0.5)]);
 
@@ -214,7 +217,7 @@ mod tests {
 
     #[test]
     fn recurrent_connection() {
-        let mut nnet = SparseNeuralNet::new(Op::identity);
+        let mut nnet = SparseNeuralNet::new(Op::IDENTITY);
         nnet.connect_node(1, 0.0, vec![(0, 1.0), (2, 2.0)]);
         nnet.connect_node(2, 0.0, vec![(1, 1.0)]);
 
@@ -250,7 +253,7 @@ mod tests {
         assert_eq!(copied.node_values.len(), nnet.node_values.len());
         assert!(copied.node_values.iter().all(|&value| value == 0.0));
         // TODO assert_eq!(copied.ops, nnet.ops);
-        assert_eq!(copied.transfer_fn as usize, Op::sigmoidal as usize);
+        assert_eq!(copied.transfer_fn as usize, Op::SIGMOIDAL as usize);
     }
 
     struct FakeMutationRandomness {}

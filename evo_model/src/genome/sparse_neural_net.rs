@@ -10,9 +10,59 @@ type Bias = f32;
 type ConnectionWeight = f32;
 type NodeIndex = u16;
 type NodeValue = f32;
-type TransferFn = fn(&mut NodeValue);
 
 #[derive(Copy)]
+pub struct TransferFn {
+    the_fn: fn(&mut NodeValue),
+}
+
+impl TransferFn {
+    pub const IDENTITY: TransferFn = TransferFn {
+        the_fn: Self::identity,
+    };
+    pub const SIGMOIDAL: TransferFn = TransferFn {
+        the_fn: Self::sigmoidal,
+    };
+
+    pub fn new(the_fn: fn(&mut NodeValue)) -> Self {
+        TransferFn { the_fn }
+    }
+
+    pub fn call(&self, value: &mut NodeValue) {
+        (self.the_fn)(value)
+    }
+
+    fn identity(_value: &mut NodeValue) {}
+
+    fn sigmoidal(value: &mut NodeValue) {
+        *value = Self::sigmoidal_fn(*value);
+    }
+
+    fn sigmoidal_fn(val: NodeValue) -> NodeValue {
+        1.0_f32 / (1.0_f32 + (-4.9_f32 * val).exp())
+    }
+}
+
+impl Clone for TransferFn {
+    fn clone(&self) -> Self {
+        *self
+    }
+}
+
+impl fmt::Debug for TransferFn {
+    fn fmt(&self, f: &mut Formatter<'_>) -> Result<(), Error> {
+        // TODO match against constants and print name?
+        write!(f, "{}", self.the_fn as usize)
+    }
+}
+
+impl PartialEq for TransferFn {
+    fn eq(&self, other: &Self) -> bool {
+        self.the_fn as usize == other.the_fn as usize
+    }
+}
+
+#[derive(Clone, Copy, Debug, PartialEq)]
 pub enum Op {
     Bias {
         value_index: NodeIndex,
@@ -30,9 +80,6 @@ pub enum Op {
 }
 
 impl Op {
-    pub const IDENTITY: TransferFn = Self::identity;
-    pub const SIGMOIDAL: TransferFn = Self::sigmoidal;
-
     fn run(&self, node_values: &mut Vec<NodeValue>) {
         match self {
             Self::Bias { value_index, bias } => {
@@ -55,58 +102,19 @@ impl Op {
                 transfer_fn,
             } => {
                 let value = &mut node_values[*value_index as usize];
-                (transfer_fn)(value);
+                transfer_fn.call(value);
             }
         }
-    }
-
-    pub fn identity(_value: &mut NodeValue) {}
-
-    pub fn sigmoidal(value: &mut NodeValue) {
-        *value = Self::sigmoidal_fn(*value);
-    }
-
-    fn sigmoidal_fn(val: NodeValue) -> NodeValue {
-        1.0_f32 / (1.0_f32 + (-4.9_f32 * val).exp())
-    }
-}
-
-impl Clone for Op {
-    fn clone(&self) -> Self {
-        *self
-    }
-}
-
-// TODO
-impl fmt::Debug for Op {
-    fn fmt(&self, f: &mut Formatter<'_>) -> Result<(), Error> {
-        write!(f, "Op")
-    }
-}
-
-impl PartialEq for Op {
-    fn eq(&self, _other: &Self) -> bool {
-        // TODO
-        false
     }
 }
 
 pub trait MutationRandomness {}
 
+#[derive(Clone, Debug, PartialEq)]
 pub struct SparseNeuralNet {
     node_values: Vec<NodeValue>,
     ops: Vec<Op>,
     transfer_fn: TransferFn,
-}
-
-impl fmt::Debug for SparseNeuralNet {
-    fn fmt(&self, f: &mut Formatter<'_>) -> Result<(), Error> {
-        write!(
-            f,
-            "SparseNeuralNet {{ node_values: {:?}, ops: {:?}, transfer_fn: TransferFn }}",
-            self.node_values, self.ops
-        )
-    }
 }
 
 impl SparseNeuralNet {
@@ -178,7 +186,7 @@ mod tests {
 
     #[test]
     fn two_layer_sparsely_connected() {
-        let mut nnet = SparseNeuralNet::new(plus_one);
+        let mut nnet = SparseNeuralNet::new(TransferFn::new(plus_one));
         nnet.connect_node(2, 0.5, vec![(0, 0.5)]);
         nnet.connect_node(3, 0.0, vec![(0, 0.75), (1, 0.25)]);
 
@@ -192,7 +200,7 @@ mod tests {
 
     #[test]
     fn run_clears_previous_values() {
-        let mut nnet = SparseNeuralNet::new(Op::IDENTITY);
+        let mut nnet = SparseNeuralNet::new(TransferFn::IDENTITY);
         nnet.connect_node(1, 0.0, vec![(0, 1.0)]);
 
         nnet.set_node_value(0, 1.0);
@@ -205,7 +213,7 @@ mod tests {
 
     #[test]
     fn three_layer() {
-        let mut nnet = SparseNeuralNet::new(Op::IDENTITY);
+        let mut nnet = SparseNeuralNet::new(TransferFn::IDENTITY);
         nnet.connect_node(1, 0.5, vec![(0, 0.5)]);
         nnet.connect_node(2, 0.0, vec![(1, 0.5)]);
 
@@ -217,7 +225,7 @@ mod tests {
 
     #[test]
     fn recurrent_connection() {
-        let mut nnet = SparseNeuralNet::new(Op::IDENTITY);
+        let mut nnet = SparseNeuralNet::new(TransferFn::IDENTITY);
         nnet.connect_node(1, 0.0, vec![(0, 1.0), (2, 2.0)]);
         nnet.connect_node(2, 0.0, vec![(1, 1.0)]);
 
@@ -242,7 +250,7 @@ mod tests {
 
     #[test]
     fn copy_unmutated() {
-        let mut nnet = SparseNeuralNet::new(Op::sigmoidal);
+        let mut nnet = SparseNeuralNet::new(TransferFn::SIGMOIDAL);
         nnet.connect_node(1, 0.0, vec![(0, 1.0), (2, 2.0)]);
         nnet.connect_node(2, 0.0, vec![(1, 1.0)]);
         nnet.set_node_value(0, 1.0);
@@ -253,7 +261,7 @@ mod tests {
         assert_eq!(copied.node_values.len(), nnet.node_values.len());
         assert!(copied.node_values.iter().all(|&value| value == 0.0));
         // TODO assert_eq!(copied.ops, nnet.ops);
-        assert_eq!(copied.transfer_fn as usize, Op::SIGMOIDAL as usize);
+        assert_eq!(copied.transfer_fn, TransferFn::SIGMOIDAL);
     }
 
     struct FakeMutationRandomness {}

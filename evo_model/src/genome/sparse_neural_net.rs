@@ -2,7 +2,6 @@
 // by Kenneth O. Stanley and Risto Miikkulainen
 // http://nn.cs.utexas.edu/downloads/papers/stanley.ec02.pdf
 
-use std::collections::HashMap;
 use std::f32;
 use std::fmt;
 use std::fmt::{Error, Formatter};
@@ -230,7 +229,8 @@ impl SparseNeuralNet {
 #[cfg(test)]
 mod tests {
     use super::*;
-
+    use std::collections::HashMap;
+ 
     #[test]
     fn two_layer_sparsely_connected() {
         let mut nnet = SparseNeuralNet::new(TransferFn::new(plus_one));

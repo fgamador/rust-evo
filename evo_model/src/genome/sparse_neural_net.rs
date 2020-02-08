@@ -255,7 +255,7 @@ mod tests {
         nnet.connect_node(2, 0.0, vec![(1, 1.0)]);
         nnet.set_node_value(0, 1.0);
 
-        let mut randomness = FakeMutationRandomness::new();
+        let mut randomness = StubMutationRandomness::new();
         let copied = nnet.copy_with_mutation(&mut randomness);
 
         assert_eq!(copied.node_values.len(), nnet.node_values.len());
@@ -264,13 +264,13 @@ mod tests {
         assert_eq!(copied.transfer_fn, TransferFn::SIGMOIDAL);
     }
 
-    struct FakeMutationRandomness {}
+    struct StubMutationRandomness {}
 
-    impl FakeMutationRandomness {
+    impl StubMutationRandomness {
         fn new() -> Self {
-            FakeMutationRandomness {}
+            StubMutationRandomness {}
         }
     }
 
-    impl MutationRandomness for FakeMutationRandomness {}
+    impl MutationRandomness for StubMutationRandomness {}
 }

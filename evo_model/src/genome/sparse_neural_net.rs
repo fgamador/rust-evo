@@ -10,137 +10,6 @@ type Coefficient = f32;
 type VecIndex = u16;
 type NodeValue = f32;
 
-#[derive(Copy)]
-pub struct TransferFn {
-    the_fn: fn(&mut NodeValue),
-}
-
-impl TransferFn {
-    pub const IDENTITY: TransferFn = TransferFn {
-        the_fn: Self::identity,
-    };
-    pub const SIGMOIDAL: TransferFn = TransferFn {
-        the_fn: Self::sigmoidal,
-    };
-
-    pub fn new(the_fn: fn(&mut NodeValue)) -> Self {
-        TransferFn { the_fn }
-    }
-
-    pub fn call(self, value: &mut NodeValue) {
-        (self.the_fn)(value)
-    }
-
-    fn identity(_value: &mut NodeValue) {}
-
-    fn sigmoidal(value: &mut NodeValue) {
-        *value = Self::sigmoidal_fn(*value);
-    }
-
-    fn sigmoidal_fn(val: NodeValue) -> NodeValue {
-        1.0_f32 / (1.0_f32 + (-4.9_f32 * val).exp())
-    }
-}
-
-impl Clone for TransferFn {
-    fn clone(&self) -> Self {
-        *self
-    }
-}
-
-impl fmt::Debug for TransferFn {
-    fn fmt(&self, f: &mut Formatter<'_>) -> Result<(), Error> {
-        // TODO match against constants and print name?
-        write!(f, "{}", self.the_fn as usize)
-    }
-}
-
-impl PartialEq for TransferFn {
-    fn eq(&self, other: &Self) -> bool {
-        self.the_fn as usize == other.the_fn as usize
-    }
-}
-
-#[derive(Clone, Copy, Debug, PartialEq)]
-enum Op {
-    Bias {
-        value_index: VecIndex,
-        bias: Coefficient,
-    },
-    Connection {
-        from_value_index: VecIndex,
-        to_value_index: VecIndex,
-        weight: Coefficient,
-    },
-    Transfer {
-        value_index: VecIndex,
-        transfer_fn: TransferFn,
-    },
-}
-
-impl Op {
-    fn run(&self, node_values: &mut Vec<NodeValue>) {
-        match self {
-            Self::Bias { value_index, bias } => {
-                let value = &mut node_values[*value_index as usize];
-                *value = *bias;
-            }
-
-            Self::Connection {
-                from_value_index,
-                to_value_index,
-                weight,
-            } => {
-                let from_value = node_values[*from_value_index as usize];
-                let to_value = &mut node_values[*to_value_index as usize];
-                *to_value += *weight * from_value;
-            }
-
-            Self::Transfer {
-                value_index,
-                transfer_fn,
-            } => {
-                let value = &mut node_values[*value_index as usize];
-                transfer_fn.call(value);
-            }
-        }
-    }
-
-    fn copy_with_mutated_weight<F>(&self, mut mutate_weight: F) -> Self
-    where
-        F: FnMut(Coefficient) -> Coefficient,
-    {
-        match self {
-            Self::Bias { value_index, bias } => Self::Bias {
-                value_index: *value_index,
-                bias: mutate_weight(*bias),
-            },
-
-            Self::Connection {
-                from_value_index,
-                to_value_index,
-                weight,
-            } => Self::Connection {
-                from_value_index: *from_value_index,
-                to_value_index: *to_value_index,
-                weight: mutate_weight(*weight),
-            },
-
-            Self::Transfer {
-                value_index,
-                transfer_fn,
-            } => Self::Transfer {
-                value_index: *value_index,
-                transfer_fn: *transfer_fn,
-            },
-        }
-    }
-}
-
-pub trait MutationRandomness {
-    fn mutate_weight(&mut self, index: VecIndex, weight: Coefficient) -> Coefficient;
-}
-
 #[derive(Clone, Debug, PartialEq)]
 pub struct SparseNeuralNet {
     node_values: Vec<NodeValue>,
@@ -224,6 +93,137 @@ impl SparseNeuralNet {
     ) -> Op {
         op.copy_with_mutated_weight(|weight| randomness.mutate_weight(index, weight))
     }
+}
+
+#[derive(Clone, Copy, Debug, PartialEq)]
+enum Op {
+    Bias {
+        value_index: VecIndex,
+        bias: Coefficient,
+    },
+    Connection {
+        from_value_index: VecIndex,
+        to_value_index: VecIndex,
+        weight: Coefficient,
+    },
+    Transfer {
+        value_index: VecIndex,
+        transfer_fn: TransferFn,
+    },
+}
+
+impl Op {
+    fn run(&self, node_values: &mut Vec<NodeValue>) {
+        match self {
+            Self::Bias { value_index, bias } => {
+                let value = &mut node_values[*value_index as usize];
+                *value = *bias;
+            }
+
+            Self::Connection {
+                from_value_index,
+                to_value_index,
+                weight,
+            } => {
+                let from_value = node_values[*from_value_index as usize];
+                let to_value = &mut node_values[*to_value_index as usize];
+                *to_value += *weight * from_value;
+            }
+
+            Self::Transfer {
+                value_index,
+                transfer_fn,
+            } => {
+                let value = &mut node_values[*value_index as usize];
+                transfer_fn.call(value);
+            }
+        }
+    }
+
+    fn copy_with_mutated_weight<F>(&self, mut mutate_weight: F) -> Self
+    where
+        F: FnMut(Coefficient) -> Coefficient,
+    {
+        match self {
+            Self::Bias { value_index, bias } => Self::Bias {
+                value_index: *value_index,
+                bias: mutate_weight(*bias),
+            },
+
+            Self::Connection {
+                from_value_index,
+                to_value_index,
+                weight,
+            } => Self::Connection {
+                from_value_index: *from_value_index,
+                to_value_index: *to_value_index,
+                weight: mutate_weight(*weight),
+            },
+
+            Self::Transfer {
+                value_index,
+                transfer_fn,
+            } => Self::Transfer {
+                value_index: *value_index,
+                transfer_fn: *transfer_fn,
+            },
+        }
+    }
+}
+
+#[derive(Copy)]
+pub struct TransferFn {
+    the_fn: fn(&mut NodeValue),
+}
+
+impl TransferFn {
+    pub const IDENTITY: TransferFn = TransferFn {
+        the_fn: Self::identity,
+    };
+    pub const SIGMOIDAL: TransferFn = TransferFn {
+        the_fn: Self::sigmoidal,
+    };
+
+    pub fn new(the_fn: fn(&mut NodeValue)) -> Self {
+        TransferFn { the_fn }
+    }
+
+    pub fn call(self, value: &mut NodeValue) {
+        (self.the_fn)(value)
+    }
+
+    fn identity(_value: &mut NodeValue) {}
+
+    fn sigmoidal(value: &mut NodeValue) {
+        *value = Self::sigmoidal_fn(*value);
+    }
+
+    fn sigmoidal_fn(val: NodeValue) -> NodeValue {
+        1.0_f32 / (1.0_f32 + (-4.9_f32 * val).exp())
+    }
+}
+
+impl Clone for TransferFn {
+    fn clone(&self) -> Self {
+        *self
+    }
+}
+
+impl fmt::Debug for TransferFn {
+    fn fmt(&self, f: &mut Formatter<'_>) -> Result<(), Error> {
+        // TODO match against constants and print name?
+        write!(f, "{}", self.the_fn as usize)
+    }
+}
+
+impl PartialEq for TransferFn {
+    fn eq(&self, other: &Self) -> bool {
+        self.the_fn as usize == other.the_fn as usize
+    }
+}
+
+pub trait MutationRandomness {
+    fn mutate_weight(&mut self, index: VecIndex, weight: Coefficient) -> Coefficient;
 }
 
 #[cfg(test)]

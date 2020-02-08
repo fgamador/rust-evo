@@ -27,7 +27,7 @@ impl TransferFn {
         TransferFn { the_fn }
     }
 
-    pub fn call(&self, value: &mut NodeValue) {
+    pub fn call(self, value: &mut NodeValue) {
         (self.the_fn)(value)
     }
 
@@ -62,7 +62,7 @@ impl PartialEq for TransferFn {
 }
 
 #[derive(Clone, Copy, Debug, PartialEq)]
-pub enum Op {
+enum Op {
     Bias {
         value_index: VecIndex,
         bias: Coefficient,
@@ -105,9 +105,41 @@ impl Op {
             }
         }
     }
+
+    fn copy_with_mutated_weight<F>(&self, mut mutate_weight: F) -> Self
+    where
+        F: FnMut(Coefficient) -> Coefficient,
+    {
+        match self {
+            Self::Bias { value_index, bias } => Self::Bias {
+                value_index: *value_index,
+                bias: mutate_weight(*bias),
+            },
+
+            Self::Connection {
+                from_value_index,
+                to_value_index,
+                weight,
+            } => Self::Connection {
+                from_value_index: *from_value_index,
+                to_value_index: *to_value_index,
+                weight: mutate_weight(*weight),
+            },
+
+            Self::Transfer {
+                value_index,
+                transfer_fn,
+            } => Self::Transfer {
+                value_index: *value_index,
+                transfer_fn: *transfer_fn,
+            },
+        }
+    }
 }
 
-pub trait MutationRandomness {}
+pub trait MutationRandomness {
+    fn mutate_weight(&mut self, weight: Coefficient) -> Coefficient;
+}
 
 #[derive(Clone, Debug, PartialEq)]
 pub struct SparseNeuralNet {
@@ -179,7 +211,7 @@ impl SparseNeuralNet {
     }
 
     fn copy_with_mutated_weights(
-        ops: &Vec<Op>,
+        ops: &[Op],
         randomness: &mut dyn MutationRandomness,
     ) -> Vec<Op> {
         ops.iter()
@@ -187,8 +219,8 @@ impl SparseNeuralNet {
             .collect()
     }
 
-    fn copy_with_mutated_weight(op: &Op, _randomness: &mut dyn MutationRandomness) -> Op {
-        op.clone()
+    fn copy_with_mutated_weight(op: &Op, randomness: &mut dyn MutationRandomness) -> Op {
+        op.copy_with_mutated_weight(|weight| randomness.mutate_weight(weight))
     }
 }
 
@@ -318,5 +350,10 @@ mod tests {
         mutated_weights: Vec<(VecIndex, Coefficient)>,
     }
 
-    impl MutationRandomness for StubMutationRandomness {}
+    impl MutationRandomness for StubMutationRandomness {
+        fn mutate_weight(&mut self, weight: Coefficient) -> Coefficient {
+            // TODO
+            weight
+        }
+    }
 }

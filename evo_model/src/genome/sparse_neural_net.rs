@@ -170,12 +170,25 @@ impl SparseNeuralNet {
         }
     }
 
-    pub fn copy_with_mutation(&self, _randomness: &mut dyn MutationRandomness) -> Self {
+    pub fn copy_with_mutation(&self, randomness: &mut dyn MutationRandomness) -> Self {
         SparseNeuralNet {
             node_values: vec![0.0; self.node_values.len()],
-            ops: self.ops.clone(),
+            ops: Self::copy_with_mutated_weights(&self.ops, randomness),
             transfer_fn: self.transfer_fn,
         }
+    }
+
+    fn copy_with_mutated_weights(
+        ops: &Vec<Op>,
+        randomness: &mut dyn MutationRandomness,
+    ) -> Vec<Op> {
+        ops.iter()
+            .map(|op| Self::copy_with_mutated_weight(op, randomness))
+            .collect()
+    }
+
+    fn copy_with_mutated_weight(op: &Op, _randomness: &mut dyn MutationRandomness) -> Op {
+        op.clone()
     }
 }
 

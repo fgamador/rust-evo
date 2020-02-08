@@ -230,7 +230,7 @@ impl SparseNeuralNet {
 mod tests {
     use super::*;
     use std::collections::HashMap;
- 
+
     #[test]
     fn two_layer_sparsely_connected() {
         let mut nnet = SparseNeuralNet::new(TransferFn::new(plus_one));
@@ -291,10 +291,6 @@ mod tests {
         assert_eq!(nnet.node_value(2), 2.0);
     }
 
-    fn plus_one(value: &mut NodeValue) {
-        *value += 1.0;
-    }
-
     #[test]
     fn copy_unmutated() {
         let mut nnet = SparseNeuralNet::new(TransferFn::SIGMOIDAL);
@@ -346,6 +342,10 @@ mod tests {
                 }
             ]
         );
+    }
+
+    fn plus_one(value: &mut NodeValue) {
+        *value += 1.0;
     }
 
     struct StubMutationRandomness {

@@ -2,6 +2,11 @@
 // by Kenneth O. Stanley and Risto Miikkulainen
 // http://nn.cs.utexas.edu/downloads/papers/stanley.ec02.pdf
 
+extern crate rand;
+extern crate rand_chacha;
+
+use rand::{Rng, SeedableRng};
+use rand_chacha::ChaCha8Rng;
 use std::f32;
 use std::fmt;
 use std::fmt::{Error, Formatter};
@@ -224,6 +229,25 @@ impl PartialEq for TransferFn {
 
 pub trait MutationRandomness {
     fn mutate_weight(&mut self, index: VecIndex, weight: Coefficient) -> Coefficient;
+}
+
+pub struct SeededMutationRandomness {
+    rng: ChaCha8Rng,
+}
+
+impl SeededMutationRandomness {
+    pub fn new(seed: u64) -> Self {
+        SeededMutationRandomness {
+            rng: rand_chacha::ChaCha8Rng::seed_from_u64(seed),
+        }
+    }
+}
+
+impl MutationRandomness for SeededMutationRandomness {
+    fn mutate_weight(&mut self, index: VecIndex, weight: Coefficient) -> Coefficient {
+        // TODO
+        weight
+    }
 }
 
 #[cfg(test)]

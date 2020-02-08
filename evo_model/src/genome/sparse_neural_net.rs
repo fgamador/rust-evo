@@ -2,6 +2,7 @@
 // by Kenneth O. Stanley and Risto Miikkulainen
 // http://nn.cs.utexas.edu/downloads/papers/stanley.ec02.pdf
 
+use std::collections::HashMap;
 use std::f32;
 use std::fmt;
 use std::fmt::{Error, Formatter};
@@ -138,7 +139,7 @@ impl Op {
 }
 
 pub trait MutationRandomness {
-    fn mutate_weight(&mut self, weight: Coefficient) -> Coefficient;
+    fn mutate_weight(&mut self, index: VecIndex, weight: Coefficient) -> Coefficient;
 }
 
 #[derive(Clone, Debug, PartialEq)]
@@ -210,17 +211,19 @@ impl SparseNeuralNet {
         }
     }
 
-    fn copy_with_mutated_weights(
-        ops: &[Op],
-        randomness: &mut dyn MutationRandomness,
-    ) -> Vec<Op> {
-        ops.iter()
-            .map(|op| Self::copy_with_mutated_weight(op, randomness))
+    fn copy_with_mutated_weights(ops: &[Op], randomness: &mut dyn MutationRandomness) -> Vec<Op> {
+        (0 as VecIndex..)
+            .zip(ops)
+            .map(|(index, op)| Self::copy_with_mutated_weight(index, op, randomness))
             .collect()
     }
 
-    fn copy_with_mutated_weight(op: &Op, randomness: &mut dyn MutationRandomness) -> Op {
-        op.copy_with_mutated_weight(|weight| randomness.mutate_weight(weight))
+    fn copy_with_mutated_weight(
+        index: VecIndex,
+        op: &Op,
+        randomness: &mut dyn MutationRandomness,
+    ) -> Op {
+        op.copy_with_mutated_weight(|weight| randomness.mutate_weight(index, weight))
     }
 }
 
@@ -300,7 +303,7 @@ mod tests {
         nnet.set_node_value(0, 1.0);
 
         let mut randomness = StubMutationRandomness {
-            mutated_weights: vec![],
+            mutated_weights: HashMap::new(),
         };
         let copied = nnet.copy_with_mutation(&mut randomness);
 
@@ -311,13 +314,12 @@ mod tests {
     }
 
     #[test]
-    #[ignore]
     fn copy_with_mutated_weights() {
         let mut nnet = SparseNeuralNet::new(TransferFn::SIGMOIDAL);
         nnet.connect_node(2, 1.5, vec![(0, 1.0), (1, 2.0)]);
 
         let mut randomness = StubMutationRandomness {
-            mutated_weights: vec![(0, -0.5), (2, 2.25)],
+            mutated_weights: [(0, -0.5), (2, 2.25)].iter().cloned().collect(),
         };
         let copied = nnet.copy_with_mutation(&mut randomness);
 
@@ -347,13 +349,12 @@ mod tests {
     }
 
     struct StubMutationRandomness {
-        mutated_weights: Vec<(VecIndex, Coefficient)>,
+        mutated_weights: HashMap<VecIndex, Coefficient>,
     }
 
     impl MutationRandomness for StubMutationRandomness {
-        fn mutate_weight(&mut self, weight: Coefficient) -> Coefficient {
-            // TODO
-            weight
+        fn mutate_weight(&mut self, index: VecIndex, weight: Coefficient) -> Coefficient {
+            *self.mutated_weights.get(&index).unwrap_or(&weight)
         }
     }
 }

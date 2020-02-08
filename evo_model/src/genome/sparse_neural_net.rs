@@ -6,9 +6,8 @@ use std::f32;
 use std::fmt;
 use std::fmt::{Error, Formatter};
 
-type Bias = f32;
-type ConnectionWeight = f32;
-type NodeIndex = u16;
+type Coefficient = f32;
+type VecIndex = u16;
 type NodeValue = f32;
 
 #[derive(Copy)]
@@ -65,16 +64,16 @@ impl PartialEq for TransferFn {
 #[derive(Clone, Copy, Debug, PartialEq)]
 pub enum Op {
     Bias {
-        value_index: NodeIndex,
-        bias: Bias,
+        value_index: VecIndex,
+        bias: Coefficient,
     },
     Connection {
-        from_value_index: NodeIndex,
-        to_value_index: NodeIndex,
-        weight: ConnectionWeight,
+        from_value_index: VecIndex,
+        to_value_index: VecIndex,
+        weight: Coefficient,
     },
     Transfer {
-        value_index: NodeIndex,
+        value_index: VecIndex,
         transfer_fn: TransferFn,
     },
 }
@@ -128,9 +127,9 @@ impl SparseNeuralNet {
 
     pub fn connect_node(
         &mut self,
-        to_value_index: NodeIndex,
-        bias: ConnectionWeight,
-        from_value_weights: Vec<(NodeIndex, ConnectionWeight)>,
+        to_value_index: VecIndex,
+        bias: Coefficient,
+        from_value_weights: Vec<(VecIndex, Coefficient)>,
     ) {
         self.grow_node_values_if_needed(to_value_index);
         self.ops.push(Op::Bias {
@@ -151,17 +150,17 @@ impl SparseNeuralNet {
         });
     }
 
-    fn grow_node_values_if_needed(&mut self, new_index: NodeIndex) {
+    fn grow_node_values_if_needed(&mut self, new_index: VecIndex) {
         if new_index as usize >= self.node_values.len() {
             self.node_values.resize((new_index + 1) as usize, 0.0);
         }
     }
 
-    pub fn set_node_value(&mut self, index: NodeIndex, value: NodeValue) {
+    pub fn set_node_value(&mut self, index: VecIndex, value: NodeValue) {
         self.node_values[index as usize] = value;
     }
 
-    pub fn node_value(&self, index: NodeIndex) -> NodeValue {
+    pub fn node_value(&self, index: VecIndex) -> NodeValue {
         self.node_values[index as usize]
     }
 
@@ -255,7 +254,9 @@ mod tests {
         nnet.connect_node(2, 0.0, vec![(1, 1.0)]);
         nnet.set_node_value(0, 1.0);
 
-        let mut randomness = StubMutationRandomness::new();
+        let mut randomness = StubMutationRandomness {
+            mutated_weights: vec![],
+        };
         let copied = nnet.copy_with_mutation(&mut randomness);
 
         assert_eq!(copied.node_values.len(), nnet.node_values.len());
@@ -264,12 +265,44 @@ mod tests {
         assert_eq!(copied.transfer_fn, TransferFn::SIGMOIDAL);
     }
 
-    struct StubMutationRandomness {}
+    #[test]
+    #[ignore]
+    fn copy_with_mutated_weights() {
+        let mut nnet = SparseNeuralNet::new(TransferFn::SIGMOIDAL);
+        nnet.connect_node(2, 1.5, vec![(0, 1.0), (1, 2.0)]);
 
-    impl StubMutationRandomness {
-        fn new() -> Self {
-            StubMutationRandomness {}
-        }
+        let mut randomness = StubMutationRandomness {
+            mutated_weights: vec![(0, -0.5), (2, 2.25)],
+        };
+        let copied = nnet.copy_with_mutation(&mut randomness);
+
+        assert_eq!(
+            copied.ops,
+            vec![
+                Op::Bias {
+                    value_index: 2,
+                    bias: -0.5,
+                },
+                Op::Connection {
+                    from_value_index: 0,
+                    to_value_index: 2,
+                    weight: 1.0,
+                },
+                Op::Connection {
+                    from_value_index: 1,
+                    to_value_index: 2,
+                    weight: 2.25,
+                },
+                Op::Transfer {
+                    value_index: 2,
+                    transfer_fn: TransferFn::SIGMOIDAL
+                }
+            ]
+        );
+    }
+
+    struct StubMutationRandomness {
+        mutated_weights: Vec<(VecIndex, Coefficient)>,
     }
 
     impl MutationRandomness for StubMutationRandomness {}

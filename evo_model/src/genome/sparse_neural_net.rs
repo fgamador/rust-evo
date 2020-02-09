@@ -228,6 +228,7 @@ pub trait MutationRandomness {
     fn mutate_weight(&mut self, index: VecIndex, weight: Coefficient) -> Coefficient;
 }
 
+#[derive(Debug)]
 pub struct SeededMutationRandomness {
     rng: ChaCha8Rng,
 }

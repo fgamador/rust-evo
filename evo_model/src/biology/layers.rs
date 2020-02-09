@@ -2,6 +2,7 @@ use crate::biology::cell::Cell;
 use crate::biology::control::CellStateSnapshot;
 use crate::biology::control_requests::*;
 use crate::environment::local_environment::LocalEnvironment;
+use crate::genome::sparse_neural_net::SeededMutationRandomness;
 use crate::physics::overlap::Overlap;
 use crate::physics::quantities::*;
 use crate::physics::shapes::Circle;
@@ -587,7 +588,7 @@ impl CellLayerSpecialty for EnergyGeneratingCellLayerSpecialty {
 
 #[derive(Debug)]
 pub struct BuddingCellLayerSpecialty {
-    seed: u64,
+    randomness: SeededMutationRandomness,
     create_child: fn(u64) -> Cell,
     budding_angle: Angle,
     donation_energy: BioEnergy,
@@ -596,7 +597,7 @@ pub struct BuddingCellLayerSpecialty {
 impl BuddingCellLayerSpecialty {
     pub fn new(seed: u64, create_child: fn(u64) -> Cell) -> Self {
         BuddingCellLayerSpecialty {
-            seed,
+            randomness: SeededMutationRandomness::new(seed),
             create_child,
             budding_angle: Angle::ZERO,
             donation_energy: BioEnergy::ZERO,

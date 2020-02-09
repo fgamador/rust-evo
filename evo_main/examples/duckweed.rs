@@ -7,6 +7,7 @@ use evo_model::biology::control::*;
 use evo_model::biology::control_requests::*;
 use evo_model::biology::layers::*;
 use evo_model::environment::influences::*;
+use evo_model::genome::sparse_neural_net::*;
 use evo_model::physics::quantities::*;
 use evo_model::world::World;
 use std::f64;
@@ -101,7 +102,11 @@ fn create_budding_layer(seed: u64) -> CellLayer {
         Area::new(5.0 * PI),
         Density::new(BUDDING_LAYER_DENSITY),
         Color::Yellow,
-        Box::new(BuddingCellLayerSpecialty::new(seed, create_cell)),
+        Box::new(BuddingCellLayerSpecialty::new(
+            seed,
+            MutationParameters::NO_MUTATION,
+            create_cell,
+        )),
     )
     .with_resize_parameters(LayerResizeParameters {
         growth_energy_delta: BioEnergyDelta::new(0.0),

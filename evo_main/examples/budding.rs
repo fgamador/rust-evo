@@ -6,6 +6,7 @@ use evo_model::biology::cell::Cell;
 use evo_model::biology::control::*;
 use evo_model::biology::control_requests::*;
 use evo_model::biology::layers::*;
+use evo_model::genome::sparse_neural_net::*;
 use evo_model::physics::quantities::*;
 use evo_model::world::World;
 use std::f64::consts::PI;
@@ -36,7 +37,11 @@ fn create_child(seed: u64) -> Cell {
                 Area::new(5.0 * PI),
                 Density::new(1.0),
                 Color::Yellow,
-                Box::new(BuddingCellLayerSpecialty::new(seed, create_child)),
+                Box::new(BuddingCellLayerSpecialty::new(
+                    seed,
+                    MutationParameters::NO_MUTATION,
+                    create_child,
+                )),
             ),
         ],
     )

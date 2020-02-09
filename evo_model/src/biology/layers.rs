@@ -595,9 +595,13 @@ pub struct BuddingCellLayerSpecialty {
 }
 
 impl BuddingCellLayerSpecialty {
-    pub fn new(seed: u64, create_child: fn(u64) -> Cell) -> Self {
+    pub fn new(
+        seed: u64,
+        mutation_parameters: MutationParameters,
+        create_child: fn(u64) -> Cell,
+    ) -> Self {
         BuddingCellLayerSpecialty {
-            randomness: SeededMutationRandomness::new(seed),
+            randomness: SeededMutationRandomness::new(seed, mutation_parameters),
             create_child,
             budding_angle: Angle::ZERO,
             donation_energy: BioEnergy::ZERO,
@@ -1106,7 +1110,11 @@ mod tests {
             Area::new(1.0),
             Density::new(1.0),
             Color::Green,
-            Box::new(BuddingCellLayerSpecialty::new(0, create_child)),
+            Box::new(BuddingCellLayerSpecialty::new(
+                0,
+                MutationParameters::NO_MUTATION,
+                create_child,
+            )),
         );
         layer.execute_control_request(fully_budgeted(
             BuddingCellLayerSpecialty::budding_angle_request(0, Angle::from_radians(0.0)),
@@ -1145,7 +1153,11 @@ mod tests {
             Area::new(1.0),
             Density::new(1.0),
             Color::Green,
-            Box::new(BuddingCellLayerSpecialty::new(0, create_child)),
+            Box::new(BuddingCellLayerSpecialty::new(
+                0,
+                MutationParameters::NO_MUTATION,
+                create_child,
+            )),
         );
         layer.execute_control_request(fully_budgeted(
             BuddingCellLayerSpecialty::donation_energy_request(0, BioEnergy::new(0.0)),
@@ -1162,7 +1174,11 @@ mod tests {
             Area::new(1.0),
             Density::new(1.0),
             Color::Green,
-            Box::new(BuddingCellLayerSpecialty::new(0, create_child)),
+            Box::new(BuddingCellLayerSpecialty::new(
+                0,
+                MutationParameters::NO_MUTATION,
+                create_child,
+            )),
         );
         layer.execute_control_request(fully_budgeted(
             BuddingCellLayerSpecialty::donation_energy_request(0, BioEnergy::new(1.0)),
@@ -1180,7 +1196,11 @@ mod tests {
             Area::new(1.0),
             Density::new(1.0),
             Color::Green,
-            Box::new(BuddingCellLayerSpecialty::new(0, create_child)),
+            Box::new(BuddingCellLayerSpecialty::new(
+                0,
+                MutationParameters::NO_MUTATION,
+                create_child,
+            )),
         );
         layer.execute_control_request(budgeted(
             BuddingCellLayerSpecialty::donation_energy_request(0, BioEnergy::new(1.0)),
@@ -1199,7 +1219,11 @@ mod tests {
             Area::new(1.0),
             Density::new(1.0),
             Color::Green,
-            Box::new(BuddingCellLayerSpecialty::new(0, create_child)),
+            Box::new(BuddingCellLayerSpecialty::new(
+                0,
+                MutationParameters::NO_MUTATION,
+                create_child,
+            )),
         )
         .with_health(0.5);
         layer.execute_control_request(fully_budgeted(

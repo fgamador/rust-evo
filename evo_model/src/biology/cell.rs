@@ -249,6 +249,7 @@ impl Circle for Cell {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::genome::sparse_neural_net::*;
     use crate::physics::overlap::Overlap;
 
     #[test]
@@ -585,7 +586,11 @@ mod tests {
                     Area::new(5.0),
                     Density::new(1.0),
                     Color::White,
-                    Box::new(BuddingCellLayerSpecialty::new(0, create_child)),
+                    Box::new(BuddingCellLayerSpecialty::new(
+                        0,
+                        MutationParameters::NO_MUTATION,
+                        create_child,
+                    )),
                 ),
             ],
         )

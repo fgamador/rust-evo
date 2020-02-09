@@ -240,6 +240,7 @@ mod tests {
     use super::*;
     use crate::biology::control::*;
     use crate::biology::layers::*;
+    use crate::genome::sparse_neural_net::*;
     use crate::physics::overlap::Overlap;
     use crate::physics::shapes::*;
 
@@ -453,7 +454,11 @@ mod tests {
                     Area::new(1.0),
                     Density::new(1.0),
                     Color::Green,
-                    Box::new(BuddingCellLayerSpecialty::new(0, create_child)),
+                    Box::new(BuddingCellLayerSpecialty::new(
+                        0,
+                        MutationParameters::NO_MUTATION,
+                        create_child,
+                    )),
                 )],
             )
             .with_control(Box::new(ContinuousRequestsControl::new(vec![

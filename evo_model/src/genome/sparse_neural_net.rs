@@ -250,12 +250,14 @@ pub trait MutationRandomness {
 #[derive(Debug)]
 pub struct SeededMutationRandomness {
     rng: Pcg64Mcg,
+    mutation_parameters: MutationParameters,
 }
 
 impl SeededMutationRandomness {
-    pub fn new(seed: u64) -> Self {
+    pub fn new(seed: u64, mutation_parameters: MutationParameters) -> Self {
         SeededMutationRandomness {
             rng: rand_pcg::Pcg64Mcg::seed_from_u64(seed),
+            mutation_parameters,
         }
     }
 

@@ -234,14 +234,14 @@ pub struct SeededMutationRandomness {
 }
 
 impl SeededMutationRandomness {
-    pub fn child_seed(&mut self) -> u64 {
-        self.rng.gen()
-    }
-
     pub fn new(seed: u64) -> Self {
         SeededMutationRandomness {
             rng: rand_pcg::Pcg64Mcg::seed_from_u64(seed),
         }
+    }
+
+    pub fn child_seed(&mut self) -> u64 {
+        self.rng.gen()
     }
 }
 

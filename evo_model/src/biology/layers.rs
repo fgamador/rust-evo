@@ -595,13 +595,9 @@ pub struct BuddingCellLayerSpecialty {
 }
 
 impl BuddingCellLayerSpecialty {
-    pub fn new(
-        seed: u64,
-        mutation_parameters: &'static MutationParameters,
-        create_child: fn(u64) -> Cell,
-    ) -> Self {
+    pub fn new(randomness: SeededMutationRandomness, create_child: fn(u64) -> Cell) -> Self {
         BuddingCellLayerSpecialty {
-            randomness: SeededMutationRandomness::new(seed, mutation_parameters),
+            randomness,
             create_child,
             budding_angle: Angle::ZERO,
             donation_energy: BioEnergy::ZERO,
@@ -1106,15 +1102,12 @@ mod tests {
 
     #[test]
     fn budding_layer_creates_child_with_right_state() {
+        let randomness = SeededMutationRandomness::new(0, &MutationParameters::NO_MUTATION);
         let mut layer = CellLayer::new(
             Area::new(1.0),
             Density::new(1.0),
             Color::Green,
-            Box::new(BuddingCellLayerSpecialty::new(
-                0,
-                &MutationParameters::NO_MUTATION,
-                create_child,
-            )),
+            Box::new(BuddingCellLayerSpecialty::new(randomness, create_child)),
         );
         layer.execute_control_request(fully_budgeted(
             BuddingCellLayerSpecialty::budding_angle_request(0, Angle::from_radians(0.0)),
@@ -1149,15 +1142,12 @@ mod tests {
 
     #[test]
     fn budding_layer_does_not_create_child_if_given_zero_energy() {
+        let randomness = SeededMutationRandomness::new(0, &MutationParameters::NO_MUTATION);
         let mut layer = CellLayer::new(
             Area::new(1.0),
             Density::new(1.0),
             Color::Green,
-            Box::new(BuddingCellLayerSpecialty::new(
-                0,
-                &MutationParameters::NO_MUTATION,
-                create_child,
-            )),
+            Box::new(BuddingCellLayerSpecialty::new(randomness, create_child)),
         );
         layer.execute_control_request(fully_budgeted(
             BuddingCellLayerSpecialty::donation_energy_request(0, BioEnergy::new(0.0)),
@@ -1170,15 +1160,12 @@ mod tests {
 
     #[test]
     fn budding_layer_does_not_remember_previous_donation_energy() {
+        let randomness = SeededMutationRandomness::new(0, &MutationParameters::NO_MUTATION);
         let mut layer = CellLayer::new(
             Area::new(1.0),
             Density::new(1.0),
             Color::Green,
-            Box::new(BuddingCellLayerSpecialty::new(
-                0,
-                &MutationParameters::NO_MUTATION,
-                create_child,
-            )),
+            Box::new(BuddingCellLayerSpecialty::new(randomness, create_child)),
         );
         layer.execute_control_request(fully_budgeted(
             BuddingCellLayerSpecialty::donation_energy_request(0, BioEnergy::new(1.0)),
@@ -1192,15 +1179,12 @@ mod tests {
 
     #[test]
     fn budding_energy_is_limited_by_budget() {
+        let randomness = SeededMutationRandomness::new(0, &MutationParameters::NO_MUTATION);
         let mut layer = CellLayer::new(
             Area::new(1.0),
             Density::new(1.0),
             Color::Green,
-            Box::new(BuddingCellLayerSpecialty::new(
-                0,
-                &MutationParameters::NO_MUTATION,
-                create_child,
-            )),
+            Box::new(BuddingCellLayerSpecialty::new(randomness, create_child)),
         );
         layer.execute_control_request(budgeted(
             BuddingCellLayerSpecialty::donation_energy_request(0, BioEnergy::new(1.0)),
@@ -1215,15 +1199,12 @@ mod tests {
 
     #[test]
     fn budding_energy_is_limited_by_health() {
+        let randomness = SeededMutationRandomness::new(0, &MutationParameters::NO_MUTATION);
         let mut layer = CellLayer::new(
             Area::new(1.0),
             Density::new(1.0),
             Color::Green,
-            Box::new(BuddingCellLayerSpecialty::new(
-                0,
-                &MutationParameters::NO_MUTATION,
-                create_child,
-            )),
+            Box::new(BuddingCellLayerSpecialty::new(randomness, create_child)),
         )
         .with_health(0.5);
         layer.execute_control_request(fully_budgeted(

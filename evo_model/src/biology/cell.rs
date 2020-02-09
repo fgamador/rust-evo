@@ -577,6 +577,7 @@ mod tests {
 
     #[test]
     fn budding_creates_child_with_right_state() {
+        let randomness = SeededMutationRandomness::new(0, &MutationParameters::NO_MUTATION);
         let mut cell = Cell::new(
             Position::new(2.0, -2.0),
             Velocity::new(3.0, -3.0),
@@ -586,11 +587,7 @@ mod tests {
                     Area::new(5.0),
                     Density::new(1.0),
                     Color::White,
-                    Box::new(BuddingCellLayerSpecialty::new(
-                        0,
-                        &MutationParameters::NO_MUTATION,
-                        create_child,
-                    )),
+                    Box::new(BuddingCellLayerSpecialty::new(randomness, create_child)),
                 ),
             ],
         )

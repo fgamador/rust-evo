@@ -98,12 +98,15 @@ fn create_photo_layer() -> CellLayer {
 }
 
 fn create_budding_layer(seed: u64) -> CellLayer {
-    let randomness = SeededMutationRandomness::new(seed, &MutationParameters::NO_MUTATION);
     CellLayer::new(
         Area::new(5.0 * PI),
         Density::new(BUDDING_LAYER_DENSITY),
         Color::Yellow,
-        Box::new(BuddingCellLayerSpecialty::new(randomness, create_cell)),
+        Box::new(BuddingCellLayerSpecialty::new(
+            seed,
+            &MutationParameters::NO_MUTATION,
+            create_cell,
+        )),
     )
     .with_resize_parameters(LayerResizeParameters {
         growth_energy_delta: BioEnergyDelta::new(0.0),

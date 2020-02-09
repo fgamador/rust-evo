@@ -446,7 +446,6 @@ mod tests {
 
     #[test]
     fn new_cells_get_added_to_world() {
-        let randomness = SeededMutationRandomness::new(0, &MutationParameters::NO_MUTATION);
         let mut world = World::new(Position::ORIGIN, Position::ORIGIN).with_cell(
             Cell::new(
                 Position::ORIGIN,
@@ -455,7 +454,11 @@ mod tests {
                     Area::new(1.0),
                     Density::new(1.0),
                     Color::Green,
-                    Box::new(BuddingCellLayerSpecialty::new(randomness, create_child)),
+                    Box::new(BuddingCellLayerSpecialty::new(
+                        0,
+                        &MutationParameters::NO_MUTATION,
+                        create_child,
+                    )),
                 )],
             )
             .with_control(Box::new(ContinuousRequestsControl::new(vec![

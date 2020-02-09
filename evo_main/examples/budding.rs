@@ -23,7 +23,6 @@ fn create_world() -> World {
 }
 
 fn create_child(seed: u64) -> Cell {
-    let randomness = SeededMutationRandomness::new(seed, &MutationParameters::NO_MUTATION);
     Cell::new(
         Position::ORIGIN,
         Velocity::ZERO,
@@ -38,7 +37,11 @@ fn create_child(seed: u64) -> Cell {
                 Area::new(5.0 * PI),
                 Density::new(1.0),
                 Color::Yellow,
-                Box::new(BuddingCellLayerSpecialty::new(randomness, create_child)),
+                Box::new(BuddingCellLayerSpecialty::new(
+                    seed,
+                    &MutationParameters::NO_MUTATION,
+                    create_child,
+                )),
             ),
         ],
     )

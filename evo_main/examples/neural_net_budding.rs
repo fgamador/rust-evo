@@ -55,7 +55,6 @@ fn create_child(seed: u64, mutation_parameters: &'static MutationParameters) -> 
 pub struct NeuralNetBuddingControl {
     nnet: SparseNeuralNet,
     budding_ticks: u32,
-    budding_angle: Angle,
     tick: u32,
 }
 
@@ -66,7 +65,6 @@ impl NeuralNetBuddingControl {
         NeuralNetBuddingControl {
             nnet,
             budding_ticks: 100,
-            budding_angle: Angle::from_radians(0.0),
             tick: 0,
         }
     }
@@ -91,9 +89,7 @@ impl NeuralNetBuddingControl {
         }
 
         self.tick = 0;
-        self.budding_angle += Deflection::from_radians(PI / 4.0);
         vec![
-            BuddingCellLayerSpecialty::budding_angle_request(1, self.budding_angle),
             BuddingCellLayerSpecialty::donation_energy_request(1, BioEnergy::new(1.0)),
         ]
     }

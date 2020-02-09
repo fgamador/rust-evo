@@ -5,7 +5,7 @@ pub trait Shapeness {
     fn resize(&mut self, factor: f32);
 }
 
-struct Rectangle {
+pub struct Rectangle {
     width: f32,
     height: f32,
 }
@@ -21,7 +21,7 @@ impl Shapeness for Rectangle {
     }
 }
 
-struct Circle {
+pub struct Circle {
     radius: f32,
 }
 
@@ -35,42 +35,31 @@ impl Shapeness for Circle {
     }
 }
 
-enum ShapeEnum {
+pub enum Shape {
     RectangleItem(Rectangle),
     CircleItem(Circle),
 }
 
-//type AreaFn = fn() -> f32;
-//type ResizeFn = fn(f32);
-
-pub struct Shape {
-    shape_enum: ShapeEnum,
-}
-
 impl Shape {
     pub fn rectangle(width: f32, height: f32) -> Self {
-        Shape {
-            shape_enum: ShapeEnum::RectangleItem(Rectangle { width, height }),
-        }
+        Self::RectangleItem(Rectangle { width, height })
     }
 
     pub fn circle(radius: f32) -> Self {
-        Shape {
-            shape_enum: ShapeEnum::CircleItem(Circle { radius }),
+        Self::CircleItem(Circle { radius })
+    }
+
+    pub fn shapeness(&self) -> &dyn Shapeness {
+        match self {
+            Self::RectangleItem(shape) => shape,
+            Self::CircleItem(shape) => shape,
         }
     }
 
-    pub fn as_trait(&self) -> &dyn Shapeness {
-        match &self.shape_enum {
-            ShapeEnum::RectangleItem(shape) => shape,
-            ShapeEnum::CircleItem(shape) => shape,
-        }
-    }
-
-    pub fn as_mut_trait(&mut self) -> &mut dyn Shapeness {
-        match &mut self.shape_enum {
-            ShapeEnum::RectangleItem(shape) => shape,
-            ShapeEnum::CircleItem(shape) => shape,
+    pub fn mut_shapeness(&mut self) -> &mut dyn Shapeness {
+        match self {
+            Self::RectangleItem(shape) => shape,
+            Self::CircleItem(shape) => shape,
         }
     }
 }
@@ -82,13 +71,13 @@ mod tests {
     #[test]
     fn rectangle_has_correct_area() {
         let subject = Shape::rectangle(2.0, 3.0);
-        assert_eq!(subject.as_trait().area(), 6.0);
+        assert_eq!(subject.shapeness().area(), 6.0);
     }
 
     #[test]
     fn resized_circle_has_correct_area() {
         let mut subject = Shape::circle(1.0);
-        subject.as_mut_trait().resize(2.0);
-        assert_eq!(subject.as_trait().area(), 4.0 * PI);
+        subject.mut_shapeness().resize(2.0);
+        assert_eq!(subject.shapeness().area(), 4.0 * PI);
     }
 }

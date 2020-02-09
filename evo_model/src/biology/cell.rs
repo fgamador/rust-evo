@@ -588,7 +588,7 @@ mod tests {
                     Color::White,
                     Box::new(BuddingCellLayerSpecialty::new(
                         0,
-                        MutationParameters::NO_MUTATION,
+                        &MutationParameters::NO_MUTATION,
                         create_child,
                     )),
                 ),

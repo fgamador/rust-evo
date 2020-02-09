@@ -104,7 +104,7 @@ fn create_budding_layer(seed: u64) -> CellLayer {
         Color::Yellow,
         Box::new(BuddingCellLayerSpecialty::new(
             seed,
-            MutationParameters::NO_MUTATION,
+            &MutationParameters::NO_MUTATION,
             create_cell,
         )),
     )

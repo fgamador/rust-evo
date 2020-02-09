@@ -39,7 +39,7 @@ fn create_child(seed: u64) -> Cell {
                 Color::Yellow,
                 Box::new(BuddingCellLayerSpecialty::new(
                     seed,
-                    MutationParameters::NO_MUTATION,
+                    &MutationParameters::NO_MUTATION,
                     create_child,
                 )),
             ),

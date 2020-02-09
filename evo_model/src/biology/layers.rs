@@ -597,7 +597,7 @@ pub struct BuddingCellLayerSpecialty {
 impl BuddingCellLayerSpecialty {
     pub fn new(
         seed: u64,
-        mutation_parameters: MutationParameters,
+        mutation_parameters: &'static MutationParameters,
         create_child: fn(u64) -> Cell,
     ) -> Self {
         BuddingCellLayerSpecialty {
@@ -1112,7 +1112,7 @@ mod tests {
             Color::Green,
             Box::new(BuddingCellLayerSpecialty::new(
                 0,
-                MutationParameters::NO_MUTATION,
+                &MutationParameters::NO_MUTATION,
                 create_child,
             )),
         );
@@ -1155,7 +1155,7 @@ mod tests {
             Color::Green,
             Box::new(BuddingCellLayerSpecialty::new(
                 0,
-                MutationParameters::NO_MUTATION,
+                &MutationParameters::NO_MUTATION,
                 create_child,
             )),
         );
@@ -1176,7 +1176,7 @@ mod tests {
             Color::Green,
             Box::new(BuddingCellLayerSpecialty::new(
                 0,
-                MutationParameters::NO_MUTATION,
+                &MutationParameters::NO_MUTATION,
                 create_child,
             )),
         );
@@ -1198,7 +1198,7 @@ mod tests {
             Color::Green,
             Box::new(BuddingCellLayerSpecialty::new(
                 0,
-                MutationParameters::NO_MUTATION,
+                &MutationParameters::NO_MUTATION,
                 create_child,
             )),
         );
@@ -1221,7 +1221,7 @@ mod tests {
             Color::Green,
             Box::new(BuddingCellLayerSpecialty::new(
                 0,
-                MutationParameters::NO_MUTATION,
+                &MutationParameters::NO_MUTATION,
                 create_child,
             )),
         )

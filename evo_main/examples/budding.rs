@@ -19,10 +19,13 @@ fn create_world() -> World {
     World::new(Position::new(0.0, -400.0), Position::new(400.0, 0.0))
         .with_perimeter_walls()
         .with_pair_collisions()
-        .with_cell(create_child(0).with_initial_position(Position::new(200.0, -100.0)))
+        .with_cell(
+            create_child(0, &MutationParameters::NO_MUTATION)
+                .with_initial_position(Position::new(200.0, -100.0)),
+        )
 }
 
-fn create_child(seed: u64) -> Cell {
+fn create_child(seed: u64, mutation_parameters: &'static MutationParameters) -> Cell {
     Cell::new(
         Position::ORIGIN,
         Velocity::ZERO,
@@ -39,7 +42,7 @@ fn create_child(seed: u64) -> Cell {
                 Color::Yellow,
                 Box::new(BuddingCellLayerSpecialty::new(
                     seed,
-                    &MutationParameters::NO_MUTATION,
+                    mutation_parameters,
                     create_child,
                 )),
             ),

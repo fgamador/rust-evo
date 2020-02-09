@@ -590,7 +590,7 @@ impl CellLayerSpecialty for EnergyGeneratingCellLayerSpecialty {
 pub struct BuddingCellLayerSpecialty {
     mutation_parameters: &'static MutationParameters,
     randomness: SeededMutationRandomness,
-    create_child: fn(u64) -> Cell,
+    create_child: fn(u64, &'static MutationParameters) -> Cell,
     budding_angle: Angle,
     donation_energy: BioEnergy,
 }
@@ -599,7 +599,7 @@ impl BuddingCellLayerSpecialty {
     pub fn new(
         seed: u64,
         mutation_parameters: &'static MutationParameters,
-        create_child: fn(u64) -> Cell,
+        create_child: fn(u64, &'static MutationParameters) -> Cell,
     ) -> Self {
         BuddingCellLayerSpecialty {
             mutation_parameters,
@@ -611,7 +611,7 @@ impl BuddingCellLayerSpecialty {
     }
 
     fn create_and_init_child(&mut self, cell_state: &CellStateSnapshot) -> Cell {
-        let mut child = (self.create_child)(self.randomness.child_seed());
+        let mut child = (self.create_child)(self.randomness.child_seed(), self.mutation_parameters);
         let offset =
             Displacement::from_polar(cell_state.radius + child.radius(), self.budding_angle);
         child.set_initial_position(cell_state.center + offset);
@@ -1237,7 +1237,7 @@ mod tests {
         }
     }
 
-    fn create_child(_seed: u64) -> Cell {
+    fn create_child(_seed: u64, _mutation_parameters: &'static MutationParameters) -> Cell {
         Cell::new(
             Position::ORIGIN,
             Velocity::ZERO,

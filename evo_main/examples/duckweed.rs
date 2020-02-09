@@ -39,19 +39,19 @@ fn create_world() -> World {
             )))),
             Box::new(SimpleForceInfluence::new(Box::new(DragForce::new(0.005)))),
         ])
-        .with_cells(vec![create_cell(0)
+        .with_cells(vec![create_cell(0, &MutationParameters::NO_MUTATION)
             .with_initial_position(Position::new(200.0, -50.0))
             .with_initial_energy(BioEnergy::new(100.0))])
 }
 
-fn create_cell(seed: u64) -> Cell {
+fn create_cell(seed: u64, mutation_parameters: &'static MutationParameters) -> Cell {
     Cell::new(
         Position::ORIGIN,
         Velocity::ZERO,
         vec![
             create_float_layer(),
             create_photo_layer(),
-            create_budding_layer(seed),
+            create_budding_layer(seed, mutation_parameters),
         ],
     )
     .with_control(Box::new(DuckweedControl::new(-50.0)))
@@ -97,14 +97,14 @@ fn create_photo_layer() -> CellLayer {
     })
 }
 
-fn create_budding_layer(seed: u64) -> CellLayer {
+fn create_budding_layer(seed: u64, mutation_parameters: &'static MutationParameters) -> CellLayer {
     CellLayer::new(
         Area::new(5.0 * PI),
         Density::new(BUDDING_LAYER_DENSITY),
         Color::Yellow,
         Box::new(BuddingCellLayerSpecialty::new(
             seed,
-            &MutationParameters::NO_MUTATION,
+            mutation_parameters,
             create_cell,
         )),
     )

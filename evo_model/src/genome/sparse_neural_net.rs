@@ -224,6 +224,25 @@ impl PartialEq for TransferFn {
     }
 }
 
+#[derive(Debug, Clone, Copy)]
+pub struct MutationParameters {
+    pub weight_mutation_probability: f64,
+}
+
+impl MutationParameters {
+    pub const NO_MUTATION: MutationParameters = MutationParameters {
+        weight_mutation_probability: 0.0,
+    };
+
+    fn validate(&self) {
+        assert!(Self::is_probability(self.weight_mutation_probability));
+    }
+
+    fn is_probability(num: f64) -> bool {
+        0.0 <= num && num <= 1.0
+    }
+}
+
 pub trait MutationRandomness {
     fn mutate_weight(&mut self, index: VecIndex, weight: Coefficient) -> Coefficient;
 }

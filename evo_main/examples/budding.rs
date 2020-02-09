@@ -18,10 +18,10 @@ fn create_world() -> World {
     World::new(Position::new(0.0, -400.0), Position::new(400.0, 0.0))
         .with_perimeter_walls()
         .with_pair_collisions()
-        .with_cell(create_child().with_initial_position(Position::new(200.0, -100.0)))
+        .with_cell(create_child(0).with_initial_position(Position::new(200.0, -100.0)))
 }
 
-fn create_child() -> Cell {
+fn create_child(_seed: u64) -> Cell {
     Cell::new(
         Position::ORIGIN,
         Velocity::ZERO,

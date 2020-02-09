@@ -38,12 +38,12 @@ fn create_world() -> World {
             )))),
             Box::new(SimpleForceInfluence::new(Box::new(DragForce::new(0.005)))),
         ])
-        .with_cells(vec![create_cell()
+        .with_cells(vec![create_cell(0)
             .with_initial_position(Position::new(200.0, -50.0))
             .with_initial_energy(BioEnergy::new(100.0))])
 }
 
-fn create_cell() -> Cell {
+fn create_cell(_seed: u64) -> Cell {
     Cell::new(
         Position::ORIGIN,
         Velocity::ZERO,

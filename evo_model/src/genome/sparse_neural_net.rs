@@ -2,9 +2,6 @@
 // by Kenneth O. Stanley and Risto Miikkulainen
 // http://nn.cs.utexas.edu/downloads/papers/stanley.ec02.pdf
 
-extern crate rand;
-extern crate rand_chacha;
-
 use rand::{Rng, SeedableRng};
 use rand_chacha::ChaCha8Rng;
 use std::f32;

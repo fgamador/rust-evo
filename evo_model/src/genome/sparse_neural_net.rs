@@ -3,6 +3,7 @@
 // http://nn.cs.utexas.edu/downloads/papers/stanley.ec02.pdf
 
 use rand::{Rng, SeedableRng};
+use rand_distr::{Distribution, StandardNormal};
 use rand_pcg::Pcg64Mcg;
 use std::f32;
 use std::fmt;
@@ -264,12 +265,21 @@ impl SeededMutationRandomness {
     pub fn child_seed(&mut self) -> u64 {
         self.rng.gen()
     }
+
+    fn should_mutate_this_weight(&mut self) -> bool {
+        self.rng
+            .gen_bool(self.mutation_parameters.weight_mutation_probability)
+    }
 }
 
 impl MutationRandomness for SeededMutationRandomness {
     fn mutate_weight(&mut self, _index: VecIndex, weight: Coefficient) -> Coefficient {
-        // TODO
-        weight
+        if !self.should_mutate_this_weight() {
+            return weight;
+        }
+
+        let gaussian = self.rng.sample::<f32, _>(StandardNormal);
+        weight + gaussian * weight
     }
 }
 
@@ -389,6 +399,22 @@ mod tests {
                 }
             ]
         );
+    }
+
+    #[test]
+    fn seeded_mutation_randomness_leaves_weight_unmutated() {
+        let mut randomness = SeededMutationRandomness::new(0, &MutationParameters::NO_MUTATION);
+        assert_eq!(randomness.mutate_weight(0, 1.0), 1.0);
+    }
+
+    #[test]
+    fn seeded_mutation_randomness_mutates_weight() {
+        const ALWAYS_MUTATE: MutationParameters = MutationParameters {
+            weight_mutation_probability: 1.0,
+        };
+
+        let mut randomness = SeededMutationRandomness::new(0, &ALWAYS_MUTATE);
+        assert_ne!(randomness.mutate_weight(0, 1.0), 1.0);
     }
 
     fn plus_one(value: &mut NodeValue) {

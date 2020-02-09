@@ -3,7 +3,7 @@
 // http://nn.cs.utexas.edu/downloads/papers/stanley.ec02.pdf
 
 use rand::{Rng, SeedableRng};
-use rand_distr::{Distribution, StandardNormal};
+use rand_distr::StandardNormal;
 use rand_pcg::Pcg64Mcg;
 use std::f32;
 use std::fmt;

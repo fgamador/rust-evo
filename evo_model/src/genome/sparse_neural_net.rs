@@ -235,11 +235,11 @@ impl MutationParameters {
         weight_mutation_probability: 0.0,
     };
 
-    fn validate(&self) {
-        assert!(Self::is_probability(self.weight_mutation_probability));
+    fn _validate(&self) {
+        assert!(Self::_is_probability(self.weight_mutation_probability));
     }
 
-    fn is_probability(num: f64) -> bool {
+    fn _is_probability(num: f64) -> bool {
         0.0 <= num && num <= 1.0
     }
 }

@@ -36,30 +36,30 @@ impl Shapeness for Circle {
 }
 
 pub enum Shape {
-    RectangleItem(Rectangle),
-    CircleItem(Circle),
+    Rectangle(Rectangle),
+    Circle(Circle),
 }
 
 impl Shape {
     pub fn rectangle(width: f32, height: f32) -> Self {
-        Self::RectangleItem(Rectangle { width, height })
+        Self::Rectangle(Rectangle { width, height })
     }
 
     pub fn circle(radius: f32) -> Self {
-        Self::CircleItem(Circle { radius })
+        Self::Circle(Circle { radius })
     }
 
     pub fn shapeness(&self) -> &dyn Shapeness {
         match self {
-            Self::RectangleItem(shape) => shape,
-            Self::CircleItem(shape) => shape,
+            Self::Rectangle(shape) => shape,
+            Self::Circle(shape) => shape,
         }
     }
 
     pub fn mut_shapeness(&mut self) -> &mut dyn Shapeness {
         match self {
-            Self::RectangleItem(shape) => shape,
-            Self::CircleItem(shape) => shape,
+            Self::Rectangle(shape) => shape,
+            Self::Circle(shape) => shape,
         }
     }
 }

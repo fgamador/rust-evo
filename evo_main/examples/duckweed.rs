@@ -43,14 +43,14 @@ fn create_world() -> World {
             .with_initial_energy(BioEnergy::new(100.0))])
 }
 
-fn create_cell(_seed: u64) -> Cell {
+fn create_cell(seed: u64) -> Cell {
     Cell::new(
         Position::ORIGIN,
         Velocity::ZERO,
         vec![
             create_float_layer(),
             create_photo_layer(),
-            create_budding_layer(),
+            create_budding_layer(seed),
         ],
     )
     .with_control(Box::new(DuckweedControl::new(-50.0)))
@@ -96,12 +96,12 @@ fn create_photo_layer() -> CellLayer {
     })
 }
 
-fn create_budding_layer() -> CellLayer {
+fn create_budding_layer(seed: u64) -> CellLayer {
     CellLayer::new(
         Area::new(5.0 * PI),
         Density::new(BUDDING_LAYER_DENSITY),
         Color::Yellow,
-        Box::new(BuddingCellLayerSpecialty::new(0, create_cell)),
+        Box::new(BuddingCellLayerSpecialty::new(seed, create_cell)),
     )
     .with_resize_parameters(LayerResizeParameters {
         growth_energy_delta: BioEnergyDelta::new(0.0),

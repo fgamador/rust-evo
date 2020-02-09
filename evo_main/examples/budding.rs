@@ -21,7 +21,7 @@ fn create_world() -> World {
         .with_cell(create_child(0).with_initial_position(Position::new(200.0, -100.0)))
 }
 
-fn create_child(_seed: u64) -> Cell {
+fn create_child(seed: u64) -> Cell {
     Cell::new(
         Position::ORIGIN,
         Velocity::ZERO,
@@ -36,7 +36,7 @@ fn create_child(_seed: u64) -> Cell {
                 Area::new(5.0 * PI),
                 Density::new(1.0),
                 Color::Yellow,
-                Box::new(BuddingCellLayerSpecialty::new(0, create_child)),
+                Box::new(BuddingCellLayerSpecialty::new(seed, create_child)),
             ),
         ],
     )

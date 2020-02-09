@@ -48,48 +48,23 @@ fn create_child(seed: u64, mutation_parameters: &'static MutationParameters) -> 
             ),
         ],
     )
-    .with_control(Box::new(BuddingControl::new()))
+    .with_control(Box::new(NeuralNetBuddingControl::new()))
 }
 
-//#[derive(Debug)]
-//pub struct NeuralNetControl {
-//    nnet: SparseNeuralNet,
-//    float_layer_index: usize,
-//}
-//
-//impl NeuralNetControl {
-//    pub fn new(float_layer_index: usize) -> Self {
-//        let mut nnet = SparseNeuralNet::new(TransferFn::IDENTITY);
-//        nnet.connect_node(1, -100.0, vec![(0, -1.0)]);
-//        NeuralNetControl {
-//            nnet,
-//            float_layer_index,
-//        }
-//    }
-//}
-//
-//impl CellControl for NeuralNetControl {
-//    fn get_control_requests(&mut self, cell_state: &CellStateSnapshot) -> Vec<ControlRequest> {
-//        self.nnet.set_node_value(0, cell_state.center.y() as f32);
-//        self.nnet.run();
-//        let desired_delta_area = self.nnet.node_value(1) as f64;
-//        vec![CellLayer::resize_request(
-//            self.float_layer_index,
-//            AreaDelta::new(desired_delta_area),
-//        )]
-//    }
-//}
-
 #[derive(Debug)]
-pub struct BuddingControl {
+pub struct NeuralNetBuddingControl {
+    nnet: SparseNeuralNet,
     budding_ticks: u32,
     budding_angle: Angle,
     tick: u32,
 }
 
-impl BuddingControl {
+impl NeuralNetBuddingControl {
     fn new() -> Self {
-        BuddingControl {
+        let mut nnet = SparseNeuralNet::new(TransferFn::IDENTITY);
+        nnet.connect_node(1, -100.0, vec![(0, -1.0)]);
+        NeuralNetBuddingControl {
+            nnet,
             budding_ticks: 100,
             budding_angle: Angle::from_radians(0.0),
             tick: 0,
@@ -131,7 +106,16 @@ impl BuddingControl {
     }
 }
 
-impl CellControl for BuddingControl {
+impl CellControl for NeuralNetBuddingControl {
+    //    fn get_control_requests(&mut self, cell_state: &CellStateSnapshot) -> Vec<ControlRequest> {
+    //        self.nnet.set_node_value(0, cell_state.center.y() as f32);
+    //        self.nnet.run();
+    //        vec![CellLayer::resize_request(
+    //            0,
+    //            AreaDelta::new(self.nnet.node_value(1) as f64),
+    //        )]
+    //    }
+
     fn get_control_requests(&mut self, cell_state: &CellStateSnapshot) -> Vec<ControlRequest> {
         if Self::is_adult(cell_state) {
             self.adult_requests()

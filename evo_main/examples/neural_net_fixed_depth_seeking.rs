@@ -34,7 +34,7 @@ fn create_world() -> World {
                 simple_cell_layer(Area::new(300.0 * PI), Density::new(0.00075), Color::Green),
             ],
         )
-        .with_control(Box::new(NeuralNetControl::new(0)))])
+        .with_control(Box::new(NeuralNetControl::new()))])
 }
 
 fn simple_cell_layer(area: Area, density: Density, color: Color) -> CellLayer {
@@ -49,17 +49,13 @@ fn simple_cell_layer(area: Area, density: Density, color: Color) -> CellLayer {
 #[derive(Debug)]
 pub struct NeuralNetControl {
     nnet: SparseNeuralNet,
-    float_layer_index: usize,
 }
 
 impl NeuralNetControl {
-    pub fn new(float_layer_index: usize) -> Self {
+    pub fn new() -> Self {
         let mut nnet = SparseNeuralNet::new(TransferFn::IDENTITY);
         nnet.connect_node(1, -100.0, vec![(0, -1.0)]);
-        NeuralNetControl {
-            nnet,
-            float_layer_index,
-        }
+        NeuralNetControl { nnet }
     }
 }
 
@@ -67,10 +63,9 @@ impl CellControl for NeuralNetControl {
     fn get_control_requests(&mut self, cell_state: &CellStateSnapshot) -> Vec<ControlRequest> {
         self.nnet.set_node_value(0, cell_state.center.y() as f32);
         self.nnet.run();
-        let desired_delta_area = self.nnet.node_value(1) as f64;
         vec![CellLayer::resize_request(
-            self.float_layer_index,
-            AreaDelta::new(desired_delta_area),
+            0,
+            AreaDelta::new(self.nnet.node_value(1) as f64),
         )]
     }
 }

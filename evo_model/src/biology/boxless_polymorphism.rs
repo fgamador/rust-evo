@@ -59,22 +59,18 @@ impl Shape {
             shape_enum: ShapeEnum::CircleItem(Circle { radius }),
         }
     }
-}
 
-// TODO Is there a way to do this without the matches? Some sort of function pointers in Shape?
-
-impl Shapeness for Shape {
-    fn area(&self) -> f32 {
+    pub fn as_trait(&self) -> &dyn Shapeness {
         match &self.shape_enum {
-            ShapeEnum::RectangleItem(shape) => shape.area(),
-            ShapeEnum::CircleItem(shape) => shape.area(),
+            ShapeEnum::RectangleItem(shape) => shape,
+            ShapeEnum::CircleItem(shape) => shape,
         }
     }
 
-    fn resize(&mut self, factor: f32) {
+    pub fn as_mut_trait(&mut self) -> &mut dyn Shapeness {
         match &mut self.shape_enum {
-            ShapeEnum::RectangleItem(shape) => shape.resize(factor),
-            ShapeEnum::CircleItem(shape) => shape.resize(factor),
+            ShapeEnum::RectangleItem(shape) => shape,
+            ShapeEnum::CircleItem(shape) => shape,
         }
     }
 }
@@ -86,13 +82,13 @@ mod tests {
     #[test]
     fn rectangle_has_correct_area() {
         let subject = Shape::rectangle(2.0, 3.0);
-        assert_eq!(subject.area(), 6.0);
+        assert_eq!(subject.as_trait().area(), 6.0);
     }
 
     #[test]
     fn resized_circle_has_correct_area() {
         let mut subject = Shape::circle(1.0);
-        subject.resize(2.0);
-        assert_eq!(subject.area(), 4.0 * PI);
+        subject.as_mut_trait().resize(2.0);
+        assert_eq!(subject.as_trait().area(), 4.0 * PI);
     }
 }

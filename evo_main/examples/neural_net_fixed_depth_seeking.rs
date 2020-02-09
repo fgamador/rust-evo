@@ -11,8 +11,6 @@ use evo_model::genome::sparse_neural_net::*;
 use evo_model::physics::quantities::*;
 use evo_model::world::World;
 use std::f64::consts::PI;
-use std::fmt::Error;
-use std::fmt::Formatter;
 
 fn main() {
     init_and_run(create_world());
@@ -48,6 +46,7 @@ fn simple_cell_layer(area: Area, density: Density, color: Color) -> CellLayer {
     )
 }
 
+#[derive(Debug)]
 pub struct NeuralNetControl {
     nnet: SparseNeuralNet,
     float_layer_index: usize,
@@ -73,11 +72,5 @@ impl CellControl for NeuralNetControl {
             self.float_layer_index,
             AreaDelta::new(desired_delta_area),
         )]
-    }
-}
-
-impl std::fmt::Debug for NeuralNetControl {
-    fn fmt(&self, _f: &mut Formatter) -> Result<(), Error> {
-        unimplemented!()
     }
 }

@@ -2,7 +2,7 @@ use crate::biology::cell::Cell;
 use crate::biology::control::CellStateSnapshot;
 use crate::biology::control_requests::*;
 use crate::environment::local_environment::LocalEnvironment;
-use crate::genome::sparse_neural_net::SeededMutationRandomness;
+use crate::genome::sparse_neural_net::*;
 use crate::physics::overlap::Overlap;
 use crate::physics::quantities::*;
 use crate::physics::shapes::Circle;
@@ -605,7 +605,7 @@ impl BuddingCellLayerSpecialty {
     }
 
     fn create_and_init_child(&mut self, cell_state: &CellStateSnapshot) -> Cell {
-        let mut child = (self.create_child)(0); // TODO child seed
+        let mut child = (self.create_child)(self.randomness.child_seed());
         let offset =
             Displacement::from_polar(cell_state.radius + child.radius(), self.budding_angle);
         child.set_initial_position(cell_state.center + offset);

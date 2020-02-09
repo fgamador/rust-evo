@@ -234,6 +234,10 @@ pub struct SeededMutationRandomness {
 }
 
 impl SeededMutationRandomness {
+    pub fn child_seed(&mut self) -> u64 {
+        self.rng.gen()
+    }
+
     pub fn new(seed: u64) -> Self {
         SeededMutationRandomness {
             rng: rand_chacha::ChaCha8Rng::seed_from_u64(seed),
@@ -360,7 +364,7 @@ mod tests {
                 },
                 Op::Transfer {
                     value_index: 2,
-                    transfer_fn: TransferFn::SIGMOIDAL
+                    transfer_fn: TransferFn::SIGMOIDAL,
                 }
             ]
         );

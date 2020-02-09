@@ -588,6 +588,7 @@ impl CellLayerSpecialty for EnergyGeneratingCellLayerSpecialty {
 
 #[derive(Debug)]
 pub struct BuddingCellLayerSpecialty {
+    mutation_parameters: &'static MutationParameters,
     randomness: SeededMutationRandomness,
     create_child: fn(u64) -> Cell,
     budding_angle: Angle,
@@ -601,6 +602,7 @@ impl BuddingCellLayerSpecialty {
         create_child: fn(u64) -> Cell,
     ) -> Self {
         BuddingCellLayerSpecialty {
+            mutation_parameters,
             randomness: SeededMutationRandomness::new(seed, mutation_parameters),
             create_child,
             budding_angle: Angle::ZERO,

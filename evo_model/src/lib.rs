@@ -4,7 +4,7 @@ extern crate evo_model_derive;
 extern crate log;
 
 extern crate rand;
-extern crate rand_chacha;
+extern crate rand_pcg;
 
 pub mod biology;
 pub mod environment;

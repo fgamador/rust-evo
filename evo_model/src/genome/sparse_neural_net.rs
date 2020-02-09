@@ -3,7 +3,7 @@
 // http://nn.cs.utexas.edu/downloads/papers/stanley.ec02.pdf
 
 use rand::{Rng, SeedableRng};
-use rand_chacha::ChaCha8Rng;
+use rand_pcg::Pcg64Mcg;
 use std::f32;
 use std::fmt;
 use std::fmt::{Error, Formatter};
@@ -230,7 +230,7 @@ pub trait MutationRandomness {
 
 #[derive(Debug)]
 pub struct SeededMutationRandomness {
-    rng: ChaCha8Rng,
+    rng: Pcg64Mcg,
 }
 
 impl SeededMutationRandomness {
@@ -240,7 +240,7 @@ impl SeededMutationRandomness {
 
     pub fn new(seed: u64) -> Self {
         SeededMutationRandomness {
-            rng: rand_chacha::ChaCha8Rng::seed_from_u64(seed),
+            rng: rand_pcg::Pcg64Mcg::seed_from_u64(seed),
         }
     }
 }

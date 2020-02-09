@@ -179,6 +179,7 @@ impl Cell {
             mass: self.mass(),
             center: self.center(),
             velocity: self.velocity(),
+            energy: self.energy(),
             layers: self.get_layer_state_snapshots(),
         }
     }

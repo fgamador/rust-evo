@@ -14,6 +14,7 @@ pub struct CellStateSnapshot {
     pub mass: Mass,
     pub center: Position,
     pub velocity: Velocity,
+    pub energy: BioEnergy,
     pub layers: Vec<CellLayerStateSnapshot>,
 }
 
@@ -24,6 +25,7 @@ impl CellStateSnapshot {
         mass: Mass::ZERO,
         center: Position::ORIGIN,
         velocity: Velocity::ZERO,
+        energy: BioEnergy::ZERO,
         layers: Vec::new(),
     };
 }

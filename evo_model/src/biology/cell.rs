@@ -585,7 +585,7 @@ mod tests {
                     Area::new(5.0),
                     Density::new(1.0),
                     Color::White,
-                    Box::new(BuddingCellLayerSpecialty::new(create_child)),
+                    Box::new(BuddingCellLayerSpecialty::new(0, create_child)),
                 ),
             ],
         )

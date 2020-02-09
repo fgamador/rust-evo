@@ -587,14 +587,16 @@ impl CellLayerSpecialty for EnergyGeneratingCellLayerSpecialty {
 
 #[derive(Debug)]
 pub struct BuddingCellLayerSpecialty {
+    seed: u64,
     create_child: fn(u64) -> Cell,
     budding_angle: Angle,
     donation_energy: BioEnergy,
 }
 
 impl BuddingCellLayerSpecialty {
-    pub fn new(create_child: fn(u64) -> Cell) -> Self {
+    pub fn new(seed: u64, create_child: fn(u64) -> Cell) -> Self {
         BuddingCellLayerSpecialty {
+            seed,
             create_child,
             budding_angle: Angle::ZERO,
             donation_energy: BioEnergy::ZERO,
@@ -602,7 +604,7 @@ impl BuddingCellLayerSpecialty {
     }
 
     fn create_and_init_child(&mut self, cell_state: &CellStateSnapshot) -> Cell {
-        let mut child = (self.create_child)(0); // TODO seed
+        let mut child = (self.create_child)(0); // TODO child seed
         let offset =
             Displacement::from_polar(cell_state.radius + child.radius(), self.budding_angle);
         child.set_initial_position(cell_state.center + offset);
@@ -1103,7 +1105,7 @@ mod tests {
             Area::new(1.0),
             Density::new(1.0),
             Color::Green,
-            Box::new(BuddingCellLayerSpecialty::new(create_child)),
+            Box::new(BuddingCellLayerSpecialty::new(0, create_child)),
         );
         layer.execute_control_request(fully_budgeted(
             BuddingCellLayerSpecialty::budding_angle_request(0, Angle::from_radians(0.0)),
@@ -1142,7 +1144,7 @@ mod tests {
             Area::new(1.0),
             Density::new(1.0),
             Color::Green,
-            Box::new(BuddingCellLayerSpecialty::new(create_child)),
+            Box::new(BuddingCellLayerSpecialty::new(0, create_child)),
         );
         layer.execute_control_request(fully_budgeted(
             BuddingCellLayerSpecialty::donation_energy_request(0, BioEnergy::new(0.0)),
@@ -1159,7 +1161,7 @@ mod tests {
             Area::new(1.0),
             Density::new(1.0),
             Color::Green,
-            Box::new(BuddingCellLayerSpecialty::new(create_child)),
+            Box::new(BuddingCellLayerSpecialty::new(0, create_child)),
         );
         layer.execute_control_request(fully_budgeted(
             BuddingCellLayerSpecialty::donation_energy_request(0, BioEnergy::new(1.0)),
@@ -1177,7 +1179,7 @@ mod tests {
             Area::new(1.0),
             Density::new(1.0),
             Color::Green,
-            Box::new(BuddingCellLayerSpecialty::new(create_child)),
+            Box::new(BuddingCellLayerSpecialty::new(0, create_child)),
         );
         layer.execute_control_request(budgeted(
             BuddingCellLayerSpecialty::donation_energy_request(0, BioEnergy::new(1.0)),
@@ -1196,7 +1198,7 @@ mod tests {
             Area::new(1.0),
             Density::new(1.0),
             Color::Green,
-            Box::new(BuddingCellLayerSpecialty::new(create_child)),
+            Box::new(BuddingCellLayerSpecialty::new(0, create_child)),
         )
         .with_health(0.5);
         layer.execute_control_request(fully_budgeted(

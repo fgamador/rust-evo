@@ -36,7 +36,7 @@ fn create_child(_seed: u64) -> Cell {
                 Area::new(5.0 * PI),
                 Density::new(1.0),
                 Color::Yellow,
-                Box::new(BuddingCellLayerSpecialty::new(create_child)),
+                Box::new(BuddingCellLayerSpecialty::new(0, create_child)),
             ),
         ],
     )

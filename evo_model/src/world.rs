@@ -453,7 +453,7 @@ mod tests {
                     Area::new(1.0),
                     Density::new(1.0),
                     Color::Green,
-                    Box::new(BuddingCellLayerSpecialty::new(create_child)),
+                    Box::new(BuddingCellLayerSpecialty::new(0, create_child)),
                 )],
             )
             .with_control(Box::new(ContinuousRequestsControl::new(vec![

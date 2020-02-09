@@ -62,6 +62,7 @@ impl NeuralNetBuddingControl {
     fn new() -> Self {
         let mut nnet = SparseNeuralNet::new(TransferFn::IDENTITY);
         nnet.connect_node(1, -100.0, vec![(0, -1.0)]);
+        nnet.connect_node(3, -100.0, vec![(0, -1.0)]);
         NeuralNetBuddingControl {
             nnet,
             budding_ticks: 100,
@@ -89,30 +90,40 @@ impl NeuralNetBuddingControl {
         }
 
         self.tick = 0;
-        vec![
-            BuddingCellLayerSpecialty::donation_energy_request(1, BioEnergy::new(1.0)),
-        ]
+        vec![BuddingCellLayerSpecialty::donation_energy_request(
+            1,
+            BioEnergy::new(1.0),
+        )]
     }
 
     fn youth_requests(&self) -> Vec<ControlRequest> {
         vec![
             CellLayer::resize_request(0, AreaDelta::new(5.0)),
-            CellLayer::resize_request(1, AreaDelta::new(5.0)),
+            CellLayer::resize_request(1, AreaDelta::new(2.0)),
         ]
     }
 }
 
 impl CellControl for NeuralNetBuddingControl {
-    //    fn get_control_requests(&mut self, cell_state: &CellStateSnapshot) -> Vec<ControlRequest> {
-    //        self.nnet.set_node_value(0, cell_state.center.y() as f32);
-    //        self.nnet.run();
-    //        vec![CellLayer::resize_request(
-    //            0,
-    //            AreaDelta::new(self.nnet.node_value(1) as f64),
-    //        )]
-    //    }
-
     fn get_control_requests(&mut self, cell_state: &CellStateSnapshot) -> Vec<ControlRequest> {
+        let radius_input = cell_state.radius.value() as f32;
+        let energy_input = cell_state.energy.value() as f32;
+        self.nnet.set_node_value(0, radius_input);
+        self.nnet.set_node_value(1, energy_input);
+
+        //        self.nnet.run();
+
+        let layers_resize_output = self.nnet.node_value(2) as f64;
+        let donation_energy_resize_output = self.nnet.node_value(3) as f64;
+        let _nnet_requests = vec![
+            CellLayer::resize_request(0, AreaDelta::new(layers_resize_output)),
+            CellLayer::resize_request(1, AreaDelta::new(layers_resize_output)),
+            BuddingCellLayerSpecialty::donation_energy_request(
+                1,
+                BioEnergy::new(donation_energy_resize_output),
+            ),
+        ];
+
         if Self::is_adult(cell_state) {
             self.adult_requests()
         } else {

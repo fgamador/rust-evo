@@ -246,7 +246,7 @@ impl SeededMutationRandomness {
 }
 
 impl MutationRandomness for SeededMutationRandomness {
-    fn mutate_weight(&mut self, index: VecIndex, weight: Coefficient) -> Coefficient {
+    fn mutate_weight(&mut self, _index: VecIndex, weight: Coefficient) -> Coefficient {
         // TODO
         weight
     }

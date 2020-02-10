@@ -23,9 +23,9 @@ fn create_world() -> World {
         .with_perimeter_walls()
         .with_pair_collisions()
         .with_sunlight(0.0, 1.0)
-        .with_influences(vec![
-            Box::new(SimpleForceInfluence::new(Box::new(DragForce::new(0.005)))),
-        ])
+        .with_influences(vec![Box::new(SimpleForceInfluence::new(Box::new(
+            DragForce::new(0.005),
+        )))])
         .with_cell(
             create_child(0, &MutationParameters::NO_MUTATION)
                 .with_initial_position(Position::new(200.0, -100.0)),
@@ -73,8 +73,6 @@ fn create_child(seed: u64, mutation_parameters: &'static MutationParameters) -> 
 #[derive(Debug)]
 pub struct NeuralNetBuddingControl {
     nnet: SparseNeuralNet,
-    budding_ticks: u32,
-    tick: u32,
 }
 
 impl NeuralNetBuddingControl {
@@ -93,46 +91,11 @@ impl NeuralNetBuddingControl {
         nnet.connect_node(
             Self::DONATION_ENERGY_OUTPUT_INDEX,
             -100.0,
-            vec![(Self::CELL_ENERGY_INPUT_INDEX, -1.0)],
+            vec![(Self::CELL_ENERGY_INPUT_INDEX, 1.0)],
         );
         NeuralNetBuddingControl {
             nnet,
-            budding_ticks: 100,
-            tick: 0,
         }
-    }
-
-    fn is_adult(cell_state: &CellStateSnapshot) -> bool {
-        cell_state.area >= Area::new(1000.0)
-    }
-
-    fn adult_requests(&mut self) -> Vec<ControlRequest> {
-        let mut requests = vec![EnergyGeneratingCellLayerSpecialty::energy_request(
-            0,
-            BioEnergy::new(1.0),
-        )];
-        requests.append(&mut self.budding_requests());
-        requests
-    }
-
-    fn budding_requests(&mut self) -> Vec<ControlRequest> {
-        self.tick += 1;
-        if self.tick < self.budding_ticks {
-            return vec![];
-        }
-
-        self.tick = 0;
-        vec![BuddingCellLayerSpecialty::donation_energy_request(
-            1,
-            BioEnergy::new(1.0),
-        )]
-    }
-
-    fn youth_requests(&self) -> Vec<ControlRequest> {
-        vec![
-            CellLayer::resize_request(0, AreaDelta::new(5.0)),
-            CellLayer::resize_request(1, AreaDelta::new(2.0)),
-        ]
     }
 }
 
@@ -151,20 +114,13 @@ impl CellControl for NeuralNetBuddingControl {
             self.nnet.node_value(Self::PHOTO_LAYER_RESIZE_OUTPUT_INDEX) as f64;
         let donation_energy_output =
             self.nnet.node_value(Self::DONATION_ENERGY_OUTPUT_INDEX) as f64;
-        let _nnet_requests = vec![
+        vec![
             CellLayer::resize_request(0, AreaDelta::new(energy_layer_resize_output)),
             CellLayer::resize_request(1, AreaDelta::new(energy_layer_resize_output / 2.0)),
-            //            BuddingCellLayerSpecialty::donation_energy_request(
-            //                1,
-            //                BioEnergy::new(donation_energy_output),
-            //            ),
-        ];
-        return _nnet_requests;
-
-        //        if Self::is_adult(cell_state) {
-        //            self.adult_requests()
-        //        } else {
-        //            self.youth_requests()
-        //        }
+            BuddingCellLayerSpecialty::donation_energy_request(
+                1,
+                BioEnergy::new(donation_energy_output.max(0.0)),
+            ),
+        ]
     }
 }

@@ -119,19 +119,18 @@ impl CellControl for NeuralNetBuddingControl {
 
         self.nnet.run();
 
-        let photo_layer_resize_output =
+        let photo_layer_area_delta =
             self.nnet.node_value(Self::PHOTO_LAYER_RESIZE_OUTPUT_INDEX) as f64;
-        let budding_layer_resize_output =
+        let budding_layer_area_delta =
             self.nnet
                 .node_value(Self::BUDDING_LAYER_RESIZE_OUTPUT_INDEX) as f64;
-        let donation_energy_output =
-            self.nnet.node_value(Self::DONATION_ENERGY_OUTPUT_INDEX) as f64;
+        let donation_energy = self.nnet.node_value(Self::DONATION_ENERGY_OUTPUT_INDEX) as f64;
         vec![
-            CellLayer::resize_request(0, AreaDelta::new(photo_layer_resize_output)),
-            CellLayer::resize_request(1, AreaDelta::new(budding_layer_resize_output)),
+            CellLayer::resize_request(0, AreaDelta::new(photo_layer_area_delta)),
+            CellLayer::resize_request(1, AreaDelta::new(budding_layer_area_delta)),
             BuddingCellLayerSpecialty::donation_energy_request(
                 1,
-                BioEnergy::new(donation_energy_output.max(0.0)),
+                BioEnergy::new(donation_energy.max(0.0)),
             ),
         ]
     }

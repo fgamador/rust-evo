@@ -18,6 +18,17 @@ fn main() {
     init_and_run(create_world());
 }
 
+//const FLUID_DENSITY: f64 = 0.001;
+const FLOAT_LAYER_DENSITY: f64 = 0.0001;
+const PHOTO_LAYER_DENSITY: f64 = 0.002;
+const BUDDING_LAYER_DENSITY: f64 = 0.002;
+//const GRAVITY: f64 = -0.05;
+const OVERLAP_DAMAGE_HEALTH_DELTA: f64 = 0.0; // -0.1;
+
+//const FLOAT_LAYER_INDEX: usize = 0;
+const PHOTO_LAYER_INDEX: usize = 1;
+const BUDDING_LAYER_INDEX: usize = 2;
+
 fn create_world() -> World {
     World::new(Position::new(0.0, -400.0), Position::new(400.0, 0.0))
         .with_perimeter_walls()
@@ -27,48 +38,87 @@ fn create_world() -> World {
             DragForce::new(0.005),
         )))])
         .with_cell(
-            create_child(0, &MutationParameters::NO_MUTATION)
+            create_cell(0, &MutationParameters::NO_MUTATION)
                 .with_initial_energy(BioEnergy::new(50.0))
-                .with_initial_position(Position::new(200.0, -100.0)),
+                .with_initial_position(Position::new(200.0, -50.0)),
         )
 }
 
-fn create_child(seed: u64, mutation_parameters: &'static MutationParameters) -> Cell {
+fn create_cell(seed: u64, mutation_parameters: &'static MutationParameters) -> Cell {
     Cell::new(
         Position::ORIGIN,
         Velocity::ZERO,
         vec![
-            CellLayer::new(
-                Area::new(5.0 * PI),
-                Density::new(1.0),
-                Color::Green,
-                Box::new(PhotoCellLayerSpecialty::new(0.02)),
-            )
-            .with_resize_parameters(LayerResizeParameters {
-                growth_energy_delta: BioEnergyDelta::new(-1.0),
-                max_growth_rate: 10.0,
-                shrinkage_energy_delta: BioEnergyDelta::new(0.0),
-                max_shrinkage_rate: 0.1,
-            }),
-            CellLayer::new(
-                Area::new(5.0 * PI),
-                Density::new(1.0),
-                Color::Yellow,
-                Box::new(BuddingCellLayerSpecialty::new(
-                    seed,
-                    mutation_parameters,
-                    create_child,
-                )),
-            )
-            .with_resize_parameters(LayerResizeParameters {
-                growth_energy_delta: BioEnergyDelta::new(-1.0),
-                max_growth_rate: 10.0,
-                shrinkage_energy_delta: BioEnergyDelta::new(0.0),
-                max_shrinkage_rate: 0.1,
-            }),
+            create_float_layer(),
+            create_photo_layer(),
+            create_budding_layer(seed, mutation_parameters),
         ],
     )
     .with_control(Box::new(NeuralNetBuddingControl::new()))
+}
+
+fn create_float_layer() -> CellLayer {
+    CellLayer::new(
+        Area::new(5.0 * PI),
+        Density::new(FLOAT_LAYER_DENSITY),
+        Color::White,
+        Box::new(NullCellLayerSpecialty::new()),
+    )
+    .with_resize_parameters(LayerResizeParameters {
+        growth_energy_delta: BioEnergyDelta::new(-0.1),
+        max_growth_rate: 10.0,
+        shrinkage_energy_delta: BioEnergyDelta::new(-0.01),
+        max_shrinkage_rate: 0.5,
+    })
+    .with_health_parameters(LayerHealthParameters {
+        healing_energy_delta: BioEnergyDelta::new(-1.0),
+        entropic_damage_health_delta: -0.01,
+        overlap_damage_health_delta: OVERLAP_DAMAGE_HEALTH_DELTA,
+    })
+}
+
+fn create_photo_layer() -> CellLayer {
+    CellLayer::new(
+        Area::new(5.0 * PI),
+        Density::new(PHOTO_LAYER_DENSITY),
+        Color::Green,
+        Box::new(PhotoCellLayerSpecialty::new(0.1)), // 0.02
+    )
+    .with_resize_parameters(LayerResizeParameters {
+        growth_energy_delta: BioEnergyDelta::new(-1.0),
+        max_growth_rate: 10.0,
+        shrinkage_energy_delta: BioEnergyDelta::new(0.0),
+        max_shrinkage_rate: 0.1,
+    })
+    .with_health_parameters(LayerHealthParameters {
+        healing_energy_delta: BioEnergyDelta::new(-1.0),
+        entropic_damage_health_delta: -0.01,
+        overlap_damage_health_delta: OVERLAP_DAMAGE_HEALTH_DELTA,
+    })
+}
+
+fn create_budding_layer(seed: u64, mutation_parameters: &'static MutationParameters) -> CellLayer {
+    CellLayer::new(
+        Area::new(5.0 * PI),
+        Density::new(BUDDING_LAYER_DENSITY),
+        Color::Yellow,
+        Box::new(BuddingCellLayerSpecialty::new(
+            seed,
+            mutation_parameters,
+            create_cell,
+        )),
+    )
+    .with_resize_parameters(LayerResizeParameters {
+        growth_energy_delta: BioEnergyDelta::new(-1.0),
+        max_growth_rate: 10.0,
+        shrinkage_energy_delta: BioEnergyDelta::new(0.0),
+        max_shrinkage_rate: 0.1,
+    })
+    .with_health_parameters(LayerHealthParameters {
+        healing_energy_delta: BioEnergyDelta::new(-1.0),
+        entropic_damage_health_delta: -0.01,
+        overlap_damage_health_delta: OVERLAP_DAMAGE_HEALTH_DELTA,
+    })
 }
 
 #[derive(Debug)]
@@ -108,8 +158,8 @@ impl NeuralNetBuddingControl {
 impl CellControl for NeuralNetBuddingControl {
     fn get_control_requests(&mut self, cell_state: &CellStateSnapshot) -> Vec<ControlRequest> {
         let cell_energy = cell_state.energy.value() as f32;
-        let photo_layer_area = cell_state.layers[0].area.value() as f32;
-        let budding_layer_area = cell_state.layers[1].area.value() as f32;
+        let photo_layer_area = cell_state.layers[PHOTO_LAYER_INDEX].area.value() as f32;
+        let budding_layer_area = cell_state.layers[BUDDING_LAYER_INDEX].area.value() as f32;
         self.nnet
             .set_node_value(Self::CELL_ENERGY_INPUT_INDEX, cell_energy);
         self.nnet
@@ -126,10 +176,13 @@ impl CellControl for NeuralNetBuddingControl {
                 .node_value(Self::BUDDING_LAYER_RESIZE_OUTPUT_INDEX) as f64;
         let donation_energy = self.nnet.node_value(Self::DONATION_ENERGY_OUTPUT_INDEX) as f64;
         vec![
-            CellLayer::resize_request(0, AreaDelta::new(photo_layer_area_delta)),
-            CellLayer::resize_request(1, AreaDelta::new(budding_layer_area_delta)),
+            CellLayer::resize_request(PHOTO_LAYER_INDEX, AreaDelta::new(photo_layer_area_delta)),
+            CellLayer::resize_request(
+                BUDDING_LAYER_INDEX,
+                AreaDelta::new(budding_layer_area_delta),
+            ),
             BuddingCellLayerSpecialty::donation_energy_request(
-                1,
+                BUDDING_LAYER_INDEX,
                 BioEnergy::new(donation_energy.max(0.0)),
             ),
         ]

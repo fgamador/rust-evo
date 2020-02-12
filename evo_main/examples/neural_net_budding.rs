@@ -28,6 +28,7 @@ fn create_world() -> World {
         )))])
         .with_cell(
             create_child(0, &MutationParameters::NO_MUTATION)
+                .with_initial_energy(BioEnergy::new(50.0))
                 .with_initial_position(Position::new(200.0, -100.0)),
         )
 }
@@ -41,7 +42,7 @@ fn create_child(seed: u64, mutation_parameters: &'static MutationParameters) -> 
                 Area::new(5.0 * PI),
                 Density::new(1.0),
                 Color::Green,
-                Box::new(PhotoCellLayerSpecialty::new(0.1)),
+                Box::new(PhotoCellLayerSpecialty::new(0.02)),
             )
             .with_resize_parameters(LayerResizeParameters {
                 growth_energy_delta: BioEnergyDelta::new(-1.0),
@@ -76,47 +77,58 @@ pub struct NeuralNetBuddingControl {
 }
 
 impl NeuralNetBuddingControl {
-    const PHOTO_LAYER_AREA_INPUT_INDEX: VecIndex = 0;
-    const CELL_ENERGY_INPUT_INDEX: VecIndex = 1;
-    const PHOTO_LAYER_RESIZE_OUTPUT_INDEX: VecIndex = 2;
-    const DONATION_ENERGY_OUTPUT_INDEX: VecIndex = 3;
+    const CELL_ENERGY_INPUT_INDEX: VecIndex = 0;
+    const PHOTO_LAYER_AREA_INPUT_INDEX: VecIndex = 1;
+    const BUDDING_LAYER_AREA_INPUT_INDEX: VecIndex = 2;
+    const PHOTO_LAYER_RESIZE_OUTPUT_INDEX: VecIndex = 3;
+    const BUDDING_LAYER_RESIZE_OUTPUT_INDEX: VecIndex = 4;
+    const DONATION_ENERGY_OUTPUT_INDEX: VecIndex = 5;
 
     fn new() -> Self {
         let mut nnet = SparseNeuralNet::new(TransferFn::IDENTITY);
         nnet.connect_node(
             Self::PHOTO_LAYER_RESIZE_OUTPUT_INDEX,
             800.0,
-            vec![(Self::PHOTO_LAYER_AREA_INPUT_INDEX, -1.0)],
+            &[(Self::PHOTO_LAYER_AREA_INPUT_INDEX, -1.0)],
+        );
+        nnet.connect_node(
+            Self::BUDDING_LAYER_RESIZE_OUTPUT_INDEX,
+            200.0,
+            &[(Self::BUDDING_LAYER_AREA_INPUT_INDEX, -1.0)],
         );
         nnet.connect_node(
             Self::DONATION_ENERGY_OUTPUT_INDEX,
             -100.0,
-            vec![(Self::CELL_ENERGY_INPUT_INDEX, 1.0)],
+            &[(Self::CELL_ENERGY_INPUT_INDEX, 0.1)],
         );
-        NeuralNetBuddingControl {
-            nnet,
-        }
+        NeuralNetBuddingControl { nnet }
     }
 }
 
 impl CellControl for NeuralNetBuddingControl {
     fn get_control_requests(&mut self, cell_state: &CellStateSnapshot) -> Vec<ControlRequest> {
-        let energy_layer_area_input = cell_state.layers[0].area.value() as f32;
-        let energy_input = cell_state.energy.value() as f32;
+        let cell_energy = cell_state.energy.value() as f32;
+        let photo_layer_area = cell_state.layers[0].area.value() as f32;
+        let budding_layer_area = cell_state.layers[1].area.value() as f32;
         self.nnet
-            .set_node_value(Self::PHOTO_LAYER_AREA_INPUT_INDEX, energy_layer_area_input);
+            .set_node_value(Self::CELL_ENERGY_INPUT_INDEX, cell_energy);
         self.nnet
-            .set_node_value(Self::CELL_ENERGY_INPUT_INDEX, energy_input);
+            .set_node_value(Self::PHOTO_LAYER_AREA_INPUT_INDEX, photo_layer_area);
+        self.nnet
+            .set_node_value(Self::BUDDING_LAYER_AREA_INPUT_INDEX, budding_layer_area);
 
         self.nnet.run();
 
-        let energy_layer_resize_output =
+        let photo_layer_resize_output =
             self.nnet.node_value(Self::PHOTO_LAYER_RESIZE_OUTPUT_INDEX) as f64;
+        let budding_layer_resize_output =
+            self.nnet
+                .node_value(Self::BUDDING_LAYER_RESIZE_OUTPUT_INDEX) as f64;
         let donation_energy_output =
             self.nnet.node_value(Self::DONATION_ENERGY_OUTPUT_INDEX) as f64;
         vec![
-            CellLayer::resize_request(0, AreaDelta::new(energy_layer_resize_output)),
-            CellLayer::resize_request(1, AreaDelta::new(energy_layer_resize_output / 2.0)),
+            CellLayer::resize_request(0, AreaDelta::new(photo_layer_resize_output)),
+            CellLayer::resize_request(1, AreaDelta::new(budding_layer_resize_output)),
             BuddingCellLayerSpecialty::donation_energy_request(
                 1,
                 BioEnergy::new(donation_energy_output.max(0.0)),

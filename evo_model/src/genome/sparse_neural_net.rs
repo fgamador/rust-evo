@@ -33,7 +33,7 @@ impl SparseNeuralNet {
         &mut self,
         to_value_index: VecIndex,
         bias: Coefficient,
-        from_value_weights: Vec<(VecIndex, Coefficient)>,
+        from_value_weights: &[(VecIndex, Coefficient)],
     ) {
         self.grow_node_values_if_needed(to_value_index);
         self.ops.push(Op::Bias {
@@ -41,11 +41,11 @@ impl SparseNeuralNet {
             bias,
         });
         for (from_value_index, weight) in from_value_weights {
-            self.grow_node_values_if_needed(from_value_index);
+            self.grow_node_values_if_needed(*from_value_index);
             self.ops.push(Op::Connection {
-                from_value_index,
+                from_value_index: *from_value_index,
                 to_value_index,
-                weight,
+                weight: *weight,
             });
         }
         self.ops.push(Op::Transfer {
@@ -291,8 +291,8 @@ mod tests {
     #[test]
     fn two_layer_sparsely_connected() {
         let mut nnet = SparseNeuralNet::new(TransferFn::new(plus_one));
-        nnet.connect_node(2, 0.5, vec![(0, 0.5)]);
-        nnet.connect_node(3, 0.0, vec![(0, 0.75), (1, 0.25)]);
+        nnet.connect_node(2, 0.5, &[(0, 0.5)]);
+        nnet.connect_node(3, 0.0, &[(0, 0.75), (1, 0.25)]);
 
         nnet.set_node_value(0, 2.0);
         nnet.set_node_value(1, 4.0);
@@ -305,7 +305,7 @@ mod tests {
     #[test]
     fn run_clears_previous_values() {
         let mut nnet = SparseNeuralNet::new(TransferFn::IDENTITY);
-        nnet.connect_node(1, 0.0, vec![(0, 1.0)]);
+        nnet.connect_node(1, 0.0, &[(0, 1.0)]);
 
         nnet.set_node_value(0, 1.0);
         nnet.run();
@@ -318,8 +318,8 @@ mod tests {
     #[test]
     fn three_layer() {
         let mut nnet = SparseNeuralNet::new(TransferFn::IDENTITY);
-        nnet.connect_node(1, 0.5, vec![(0, 0.5)]);
-        nnet.connect_node(2, 0.0, vec![(1, 0.5)]);
+        nnet.connect_node(1, 0.5, &[(0, 0.5)]);
+        nnet.connect_node(2, 0.0, &[(1, 0.5)]);
 
         nnet.set_node_value(0, 2.0);
         nnet.run();
@@ -330,8 +330,8 @@ mod tests {
     #[test]
     fn recurrent_connection() {
         let mut nnet = SparseNeuralNet::new(TransferFn::IDENTITY);
-        nnet.connect_node(1, 0.0, vec![(0, 1.0), (2, 2.0)]);
-        nnet.connect_node(2, 0.0, vec![(1, 1.0)]);
+        nnet.connect_node(1, 0.0, &[(0, 1.0), (2, 2.0)]);
+        nnet.connect_node(2, 0.0, &[(1, 1.0)]);
 
         nnet.set_node_value(0, 1.0);
         nnet.run();
@@ -351,8 +351,8 @@ mod tests {
     #[test]
     fn copy_unmutated() {
         let mut nnet = SparseNeuralNet::new(TransferFn::SIGMOIDAL);
-        nnet.connect_node(1, 0.0, vec![(0, 1.0), (2, 2.0)]);
-        nnet.connect_node(2, 0.0, vec![(1, 1.0)]);
+        nnet.connect_node(1, 0.0, &[(0, 1.0), (2, 2.0)]);
+        nnet.connect_node(2, 0.0, &[(1, 1.0)]);
         nnet.set_node_value(0, 1.0);
 
         let mut randomness = StubMutationRandomness {
@@ -369,7 +369,7 @@ mod tests {
     #[test]
     fn copy_with_mutated_weights() {
         let mut nnet = SparseNeuralNet::new(TransferFn::SIGMOIDAL);
-        nnet.connect_node(2, 1.5, vec![(0, 1.0), (1, 2.0)]);
+        nnet.connect_node(2, 1.5, &[(0, 1.0), (1, 2.0)]);
 
         let mut randomness = StubMutationRandomness {
             mutated_weights: [(0, -0.5), (2, 2.25)].iter().cloned().collect(),

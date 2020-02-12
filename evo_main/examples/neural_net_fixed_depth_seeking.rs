@@ -54,7 +54,7 @@ pub struct NeuralNetControl {
 impl NeuralNetControl {
     pub fn new() -> Self {
         let mut nnet = SparseNeuralNet::new(TransferFn::IDENTITY);
-        nnet.connect_node(1, -100.0, vec![(0, -1.0)]);
+        nnet.connect_node(1, -100.0, &[(0, -1.0)]);
         NeuralNetControl { nnet }
     }
 }

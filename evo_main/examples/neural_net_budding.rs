@@ -25,7 +25,7 @@ const BUDDING_LAYER_DENSITY: f64 = 0.002;
 //const GRAVITY: f64 = -0.05;
 const OVERLAP_DAMAGE_HEALTH_DELTA: f64 = 0.0; // -0.1;
 
-//const FLOAT_LAYER_INDEX: usize = 0;
+const FLOAT_LAYER_INDEX: usize = 0;
 const PHOTO_LAYER_INDEX: usize = 1;
 const BUDDING_LAYER_INDEX: usize = 2;
 
@@ -128,23 +128,47 @@ pub struct NeuralNetBuddingControl {
 
 impl NeuralNetBuddingControl {
     const CELL_ENERGY_INPUT_INDEX: VecIndex = 0;
-    const PHOTO_LAYER_AREA_INPUT_INDEX: VecIndex = 1;
-    const BUDDING_LAYER_AREA_INPUT_INDEX: VecIndex = 2;
-    const PHOTO_LAYER_RESIZE_OUTPUT_INDEX: VecIndex = 3;
-    const BUDDING_LAYER_RESIZE_OUTPUT_INDEX: VecIndex = 4;
-    const DONATION_ENERGY_OUTPUT_INDEX: VecIndex = 5;
+    const FLOAT_LAYER_AREA_INPUT_INDEX: VecIndex = 1;
+    const FLOAT_LAYER_HEALTH_INPUT_INDEX: VecIndex = 2;
+    const PHOTO_LAYER_AREA_INPUT_INDEX: VecIndex = 3;
+    const PHOTO_LAYER_HEALTH_INPUT_INDEX: VecIndex = 4;
+    const BUDDING_LAYER_AREA_INPUT_INDEX: VecIndex = 5;
+    const BUDDING_LAYER_HEALTH_INPUT_INDEX: VecIndex = 6;
+
+    const FLOAT_LAYER_RESIZE_OUTPUT_INDEX: VecIndex = 7;
+    const FLOAT_LAYER_HEALING_OUTPUT_INDEX: VecIndex = 8;
+    const PHOTO_LAYER_RESIZE_OUTPUT_INDEX: VecIndex = 9;
+    const PHOTO_LAYER_HEALING_OUTPUT_INDEX: VecIndex = 10;
+    const BUDDING_LAYER_RESIZE_OUTPUT_INDEX: VecIndex = 11;
+    const BUDDING_LAYER_HEALING_OUTPUT_INDEX: VecIndex = 12;
+    const DONATION_ENERGY_OUTPUT_INDEX: VecIndex = 13;
 
     fn new() -> Self {
         let mut nnet = SparseNeuralNet::new(TransferFn::IDENTITY);
+        nnet.connect_node(
+            Self::FLOAT_LAYER_HEALING_OUTPUT_INDEX,
+            1.0,
+            &[(Self::FLOAT_LAYER_HEALTH_INPUT_INDEX, -1.0)],
+        );
         nnet.connect_node(
             Self::PHOTO_LAYER_RESIZE_OUTPUT_INDEX,
             800.0,
             &[(Self::PHOTO_LAYER_AREA_INPUT_INDEX, -1.0)],
         );
         nnet.connect_node(
+            Self::PHOTO_LAYER_HEALING_OUTPUT_INDEX,
+            1.0,
+            &[(Self::PHOTO_LAYER_HEALTH_INPUT_INDEX, -1.0)],
+        );
+        nnet.connect_node(
             Self::BUDDING_LAYER_RESIZE_OUTPUT_INDEX,
             200.0,
             &[(Self::BUDDING_LAYER_AREA_INPUT_INDEX, -1.0)],
+        );
+        nnet.connect_node(
+            Self::BUDDING_LAYER_HEALING_OUTPUT_INDEX,
+            1.0,
+            &[(Self::BUDDING_LAYER_HEALTH_INPUT_INDEX, -1.0)],
         );
         nnet.connect_node(
             Self::DONATION_ENERGY_OUTPUT_INDEX,
@@ -158,29 +182,56 @@ impl NeuralNetBuddingControl {
 impl CellControl for NeuralNetBuddingControl {
     fn get_control_requests(&mut self, cell_state: &CellStateSnapshot) -> Vec<ControlRequest> {
         let cell_energy = cell_state.energy.value() as f32;
+        let float_layer_area = cell_state.layers[FLOAT_LAYER_INDEX].area.value() as f32;
+        let float_layer_health = cell_state.layers[FLOAT_LAYER_INDEX].health as f32;
         let photo_layer_area = cell_state.layers[PHOTO_LAYER_INDEX].area.value() as f32;
+        let photo_layer_health = cell_state.layers[PHOTO_LAYER_INDEX].health as f32;
         let budding_layer_area = cell_state.layers[BUDDING_LAYER_INDEX].area.value() as f32;
+        let budding_layer_health = cell_state.layers[BUDDING_LAYER_INDEX].health as f32;
+
         self.nnet
             .set_node_value(Self::CELL_ENERGY_INPUT_INDEX, cell_energy);
         self.nnet
+            .set_node_value(Self::FLOAT_LAYER_AREA_INPUT_INDEX, float_layer_area);
+        self.nnet
+            .set_node_value(Self::FLOAT_LAYER_HEALTH_INPUT_INDEX, float_layer_health);
+        self.nnet
             .set_node_value(Self::PHOTO_LAYER_AREA_INPUT_INDEX, photo_layer_area);
         self.nnet
+            .set_node_value(Self::PHOTO_LAYER_HEALTH_INPUT_INDEX, photo_layer_health);
+        self.nnet
             .set_node_value(Self::BUDDING_LAYER_AREA_INPUT_INDEX, budding_layer_area);
+        self.nnet
+            .set_node_value(Self::BUDDING_LAYER_HEALTH_INPUT_INDEX, budding_layer_health);
 
         self.nnet.run();
 
+        let float_layer_area_delta =
+            self.nnet.node_value(Self::FLOAT_LAYER_RESIZE_OUTPUT_INDEX) as f64;
+        let float_layer_healing =
+            self.nnet.node_value(Self::FLOAT_LAYER_HEALING_OUTPUT_INDEX) as f64;
         let photo_layer_area_delta =
             self.nnet.node_value(Self::PHOTO_LAYER_RESIZE_OUTPUT_INDEX) as f64;
+        let photo_layer_healing =
+            self.nnet.node_value(Self::PHOTO_LAYER_HEALING_OUTPUT_INDEX) as f64;
         let budding_layer_area_delta =
             self.nnet
                 .node_value(Self::BUDDING_LAYER_RESIZE_OUTPUT_INDEX) as f64;
+        let budding_layer_healing =
+            self.nnet
+                .node_value(Self::BUDDING_LAYER_HEALING_OUTPUT_INDEX) as f64;
         let donation_energy = self.nnet.node_value(Self::DONATION_ENERGY_OUTPUT_INDEX) as f64;
+
         vec![
+            CellLayer::resize_request(FLOAT_LAYER_INDEX, AreaDelta::new(float_layer_area_delta)),
+            CellLayer::healing_request(FLOAT_LAYER_INDEX, float_layer_healing),
             CellLayer::resize_request(PHOTO_LAYER_INDEX, AreaDelta::new(photo_layer_area_delta)),
+            CellLayer::healing_request(PHOTO_LAYER_INDEX, photo_layer_healing),
             CellLayer::resize_request(
                 BUDDING_LAYER_INDEX,
                 AreaDelta::new(budding_layer_area_delta),
             ),
+            CellLayer::healing_request(BUDDING_LAYER_INDEX, budding_layer_healing),
             BuddingCellLayerSpecialty::donation_energy_request(
                 BUDDING_LAYER_INDEX,
                 BioEnergy::new(donation_energy.max(0.0)),

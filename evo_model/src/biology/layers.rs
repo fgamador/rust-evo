@@ -1130,6 +1130,7 @@ mod tests {
             mass: Mass::new(1.0),
             center: Position::new(1.0, -1.0),
             velocity: Velocity::new(2.0, -2.0),
+            energy: BioEnergy::new(1.0),
             layers: Vec::new(),
         };
         match layer.after_control_requests(&cell_state) {

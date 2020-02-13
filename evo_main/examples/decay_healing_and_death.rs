@@ -39,8 +39,8 @@ fn create_world() -> World {
                     Color::Green,
                     Box::new(PhotoCellLayerSpecialty::new(1.0)),
                 )
-                .with_resize_parameters(LAYER_RESIZE_PARAMS.clone())
-                .with_health_parameters(LAYER_HEALTH_PARAMS.clone())],
+                .with_resize_parameters(&LAYER_RESIZE_PARAMS)
+                .with_health_parameters(&LAYER_HEALTH_PARAMS)],
             )
             .with_control(Box::new(GrowThenHealControl::new(
                 0,

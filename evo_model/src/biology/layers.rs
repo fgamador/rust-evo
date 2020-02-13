@@ -85,13 +85,19 @@ impl CellLayer {
         }
     }
 
-    pub fn with_health_parameters(mut self, health_parameters: LayerHealthParameters) -> Self {
+    pub fn with_health_parameters(
+        mut self,
+        health_parameters: &'static LayerHealthParameters,
+    ) -> Self {
         health_parameters.validate();
         self.body.health_parameters = health_parameters;
         self
     }
 
-    pub fn with_resize_parameters(mut self, resize_parameters: LayerResizeParameters) -> Self {
+    pub fn with_resize_parameters(
+        mut self,
+        resize_parameters: &'static LayerResizeParameters,
+    ) -> Self {
         resize_parameters.validate();
         self.body.resize_parameters = resize_parameters;
         self
@@ -195,8 +201,8 @@ pub struct CellLayerBody {
     color: Color,
     brain: &'static dyn CellLayerBrain,
     // TODO move to CellLayerParameters struct?
-    health_parameters: LayerHealthParameters,
-    resize_parameters: LayerResizeParameters,
+    health_parameters: &'static LayerHealthParameters,
+    resize_parameters: &'static LayerResizeParameters,
 }
 
 impl CellLayerBody {
@@ -210,8 +216,8 @@ impl CellLayerBody {
             color,
             brain: &CellLayer::LIVING_BRAIN,
             // TODO pull these out and share them
-            health_parameters: LayerHealthParameters::DEFAULT,
-            resize_parameters: LayerResizeParameters::UNLIMITED,
+            health_parameters: &LayerHealthParameters::DEFAULT,
+            resize_parameters: &LayerResizeParameters::UNLIMITED,
         }
     }
 
@@ -733,7 +739,7 @@ mod tests {
         };
 
         let mut layer = simple_cell_layer(Area::new(1.0), Density::new(1.0))
-            .with_resize_parameters(LAYER_RESIZE_PARAMS.clone());
+            .with_resize_parameters(&LAYER_RESIZE_PARAMS);
         let costed_request =
             layer.cost_control_request(CellLayer::resize_request(0, AreaDelta::new(3.0)));
         assert_eq!(
@@ -764,7 +770,7 @@ mod tests {
         };
 
         let mut layer = simple_cell_layer(Area::new(2.0), Density::new(1.0))
-            .with_resize_parameters(LAYER_RESIZE_PARAMS.clone());
+            .with_resize_parameters(&LAYER_RESIZE_PARAMS);
         layer.execute_control_request(fully_budgeted_resize_request(0, 10.0));
         assert_eq!(layer.area(), Area::new(3.0));
     }
@@ -778,7 +784,7 @@ mod tests {
         };
 
         let mut layer = simple_cell_layer(Area::new(1.0), Density::new(1.0))
-            .with_resize_parameters(LAYER_RESIZE_PARAMS.clone());
+            .with_resize_parameters(&LAYER_RESIZE_PARAMS);
         let control_request = CellLayer::resize_request(0, AreaDelta::new(2.0));
         let costed_request = layer.cost_control_request(control_request);
         assert_eq!(
@@ -795,7 +801,7 @@ mod tests {
         };
 
         let mut layer = simple_cell_layer(Area::new(2.0), Density::new(1.0))
-            .with_resize_parameters(LAYER_RESIZE_PARAMS.clone());
+            .with_resize_parameters(&LAYER_RESIZE_PARAMS);
         layer.execute_control_request(fully_budgeted_resize_request(0, -10.0));
         assert_eq!(layer.area(), Area::new(1.5));
     }
@@ -809,7 +815,7 @@ mod tests {
         };
 
         let mut layer = simple_cell_layer(Area::new(4.0), Density::new(1.0))
-            .with_resize_parameters(LAYER_RESIZE_PARAMS.clone());
+            .with_resize_parameters(&LAYER_RESIZE_PARAMS);
         let control_request = CellLayer::resize_request(0, AreaDelta::new(-10.0));
         let costed_request = layer.cost_control_request(control_request);
         assert_eq!(
@@ -833,7 +839,7 @@ mod tests {
         };
 
         let mut layer = simple_cell_layer(Area::new(1.0), Density::new(1.0))
-            .with_resize_parameters(LAYER_RESIZE_PARAMS.clone())
+            .with_resize_parameters(&LAYER_RESIZE_PARAMS)
             .with_health(0.5);
         let control_request = CellLayer::resize_request(0, AreaDelta::new(1.0));
         let costed_request = layer.cost_control_request(control_request);
@@ -876,7 +882,7 @@ mod tests {
         };
 
         let mut layer = simple_cell_layer(Area::new(2.0), Density::new(1.0))
-            .with_health_parameters(LAYER_HEALTH_PARAMS.clone())
+            .with_health_parameters(&LAYER_HEALTH_PARAMS)
             .with_health(0.5);
         let control_request = CellLayer::healing_request(0, 0.25);
         let costed_request = layer.cost_control_request(control_request);
@@ -894,7 +900,7 @@ mod tests {
         };
 
         let mut layer = simple_cell_layer(Area::new(1.0), Density::new(1.0))
-            .with_health_parameters(LAYER_HEALTH_PARAMS.clone());
+            .with_health_parameters(&LAYER_HEALTH_PARAMS);
 
         let env = LocalEnvironment::new();
         layer.after_influences(&env, Duration::new(0.5));
@@ -910,7 +916,7 @@ mod tests {
         };
 
         let mut layer = simple_cell_layer(Area::new(1.0), Density::new(1.0))
-            .with_health_parameters(LAYER_HEALTH_PARAMS.clone());
+            .with_health_parameters(&LAYER_HEALTH_PARAMS);
 
         let mut env = LocalEnvironment::new();
         env.add_overlap(Overlap::new(Displacement::new(0.5, 0.0), 1.0));
@@ -927,7 +933,7 @@ mod tests {
         };
 
         let mut layer = simple_cell_layer(Area::new(1.0), Density::new(1.0))
-            .with_health_parameters(LAYER_HEALTH_PARAMS.clone())
+            .with_health_parameters(&LAYER_HEALTH_PARAMS)
             .dead();
         let control_request = CellLayer::healing_request(0, 1.0);
         let costed_request = layer.cost_control_request(control_request);

@@ -367,7 +367,7 @@ mod tests {
             Position::ORIGIN,
             Velocity::ZERO,
             vec![simple_cell_layer(Area::new(1.0), Density::new(1.0))
-                .with_resize_parameters(LAYER_RESIZE_PARAMS.clone())],
+                .with_resize_parameters(&LAYER_RESIZE_PARAMS)],
         )
         .with_control(Box::new(ContinuousResizeControl::new(
             0,
@@ -528,9 +528,9 @@ mod tests {
             Velocity::ZERO,
             vec![
                 simple_cell_layer(Area::new(1.0), Density::new(1.0))
-                    .with_health_parameters(LAYER0_HEALTH_PARAMS.clone()),
+                    .with_health_parameters(&LAYER0_HEALTH_PARAMS),
                 simple_cell_layer(Area::new(1.0), Density::new(1.0))
-                    .with_health_parameters(LAYER1_HEALTH_PARAMS.clone()),
+                    .with_health_parameters(&LAYER1_HEALTH_PARAMS),
             ],
         );
 
@@ -560,9 +560,9 @@ mod tests {
             Velocity::ZERO,
             vec![
                 simple_cell_layer(Area::new(10.0), Density::new(1.0))
-                    .with_resize_parameters(LAYER0_RESIZE_PARAMS.clone()),
+                    .with_resize_parameters(&LAYER0_RESIZE_PARAMS),
                 simple_cell_layer(Area::new(5.0), Density::new(1.0))
-                    .with_resize_parameters(LAYER1_RESIZE_PARAMS.clone()),
+                    .with_resize_parameters(&LAYER1_RESIZE_PARAMS),
             ],
         )
         .with_control(Box::new(ContinuousRequestsControl::new(vec![

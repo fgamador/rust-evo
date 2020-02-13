@@ -29,6 +29,6 @@ fn create_world() -> World {
                 Color::Green,
                 Box::new(NullCellLayerSpecialty::new()),
             )
-            .with_health_parameters(LAYER_HEALTH_PARAMS.clone())],
+            .with_health_parameters(&LAYER_HEALTH_PARAMS)],
         ))
 }

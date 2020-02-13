@@ -76,8 +76,8 @@ fn create_float_layer() -> CellLayer {
         Color::White,
         Box::new(NullCellLayerSpecialty::new()),
     )
-    .with_resize_parameters(LAYER_RESIZE_PARAMS.clone())
-    .with_health_parameters(LAYER_HEALTH_PARAMS.clone())
+    .with_resize_parameters(&LAYER_RESIZE_PARAMS)
+    .with_health_parameters(&LAYER_HEALTH_PARAMS)
 }
 
 fn create_photo_layer() -> CellLayer {
@@ -99,8 +99,8 @@ fn create_photo_layer() -> CellLayer {
         Color::Green,
         Box::new(PhotoCellLayerSpecialty::new(0.1)), // 0.02
     )
-    .with_resize_parameters(LAYER_RESIZE_PARAMS.clone())
-    .with_health_parameters(LAYER_HEALTH_PARAMS.clone())
+    .with_resize_parameters(&LAYER_RESIZE_PARAMS)
+    .with_health_parameters(&LAYER_HEALTH_PARAMS)
 }
 
 fn create_budding_layer(seed: u64, mutation_parameters: &'static MutationParameters) -> CellLayer {
@@ -126,8 +126,8 @@ fn create_budding_layer(seed: u64, mutation_parameters: &'static MutationParamet
             create_cell,
         )),
     )
-    .with_resize_parameters(LAYER_RESIZE_PARAMS.clone())
-    .with_health_parameters(LAYER_HEALTH_PARAMS.clone())
+    .with_resize_parameters(&LAYER_RESIZE_PARAMS)
+    .with_health_parameters(&LAYER_HEALTH_PARAMS)
 }
 
 #[derive(Debug)]

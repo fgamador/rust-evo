@@ -58,46 +58,64 @@ fn create_cell(seed: u64, mutation_parameters: &'static MutationParameters) -> C
 }
 
 fn create_float_layer() -> CellLayer {
+    const LAYER_RESIZE_PARAMS: LayerResizeParameters = LayerResizeParameters {
+        growth_energy_delta: BioEnergyDelta::new(-0.1),
+        max_growth_rate: 10.0,
+        shrinkage_energy_delta: BioEnergyDelta::new(-0.01),
+        max_shrinkage_rate: 0.5,
+    };
+    const LAYER_HEALTH_PARAMS: LayerHealthParameters = LayerHealthParameters {
+        healing_energy_delta: BioEnergyDelta::new(-1.0),
+        entropic_damage_health_delta: -0.01,
+        overlap_damage_health_delta: OVERLAP_DAMAGE_HEALTH_DELTA,
+    };
+
     CellLayer::new(
         Area::new(5.0 * PI),
         Density::new(FLOAT_LAYER_DENSITY),
         Color::White,
         Box::new(NullCellLayerSpecialty::new()),
     )
-    .with_resize_parameters(LayerResizeParameters {
-        growth_energy_delta: BioEnergyDelta::new(-0.1),
-        max_growth_rate: 10.0,
-        shrinkage_energy_delta: BioEnergyDelta::new(-0.01),
-        max_shrinkage_rate: 0.5,
-    })
-    .with_health_parameters(LayerHealthParameters {
-        healing_energy_delta: BioEnergyDelta::new(-1.0),
-        entropic_damage_health_delta: -0.01,
-        overlap_damage_health_delta: OVERLAP_DAMAGE_HEALTH_DELTA,
-    })
+    .with_resize_parameters(LAYER_RESIZE_PARAMS.clone())
+    .with_health_parameters(LAYER_HEALTH_PARAMS.clone())
 }
 
 fn create_photo_layer() -> CellLayer {
+    const LAYER_RESIZE_PARAMS: LayerResizeParameters = LayerResizeParameters {
+        growth_energy_delta: BioEnergyDelta::new(-1.0),
+        max_growth_rate: 10.0,
+        shrinkage_energy_delta: BioEnergyDelta::new(0.0),
+        max_shrinkage_rate: 0.1,
+    };
+    const LAYER_HEALTH_PARAMS: LayerHealthParameters = LayerHealthParameters {
+        healing_energy_delta: BioEnergyDelta::new(-1.0),
+        entropic_damage_health_delta: -0.01,
+        overlap_damage_health_delta: OVERLAP_DAMAGE_HEALTH_DELTA,
+    };
+
     CellLayer::new(
         Area::new(5.0 * PI),
         Density::new(PHOTO_LAYER_DENSITY),
         Color::Green,
         Box::new(PhotoCellLayerSpecialty::new(0.1)), // 0.02
     )
-    .with_resize_parameters(LayerResizeParameters {
+    .with_resize_parameters(LAYER_RESIZE_PARAMS.clone())
+    .with_health_parameters(LAYER_HEALTH_PARAMS.clone())
+}
+
+fn create_budding_layer(seed: u64, mutation_parameters: &'static MutationParameters) -> CellLayer {
+    const LAYER_RESIZE_PARAMS: LayerResizeParameters = LayerResizeParameters {
         growth_energy_delta: BioEnergyDelta::new(-1.0),
         max_growth_rate: 10.0,
         shrinkage_energy_delta: BioEnergyDelta::new(0.0),
         max_shrinkage_rate: 0.1,
-    })
-    .with_health_parameters(LayerHealthParameters {
+    };
+    const LAYER_HEALTH_PARAMS: LayerHealthParameters = LayerHealthParameters {
         healing_energy_delta: BioEnergyDelta::new(-1.0),
         entropic_damage_health_delta: -0.01,
         overlap_damage_health_delta: OVERLAP_DAMAGE_HEALTH_DELTA,
-    })
-}
+    };
 
-fn create_budding_layer(seed: u64, mutation_parameters: &'static MutationParameters) -> CellLayer {
     CellLayer::new(
         Area::new(5.0 * PI),
         Density::new(BUDDING_LAYER_DENSITY),
@@ -108,17 +126,8 @@ fn create_budding_layer(seed: u64, mutation_parameters: &'static MutationParamet
             create_cell,
         )),
     )
-    .with_resize_parameters(LayerResizeParameters {
-        growth_energy_delta: BioEnergyDelta::new(-1.0),
-        max_growth_rate: 10.0,
-        shrinkage_energy_delta: BioEnergyDelta::new(0.0),
-        max_shrinkage_rate: 0.1,
-    })
-    .with_health_parameters(LayerHealthParameters {
-        healing_energy_delta: BioEnergyDelta::new(-1.0),
-        entropic_damage_health_delta: -0.01,
-        overlap_damage_health_delta: OVERLAP_DAMAGE_HEALTH_DELTA,
-    })
+    .with_resize_parameters(LAYER_RESIZE_PARAMS.clone())
+    .with_health_parameters(LAYER_HEALTH_PARAMS.clone())
 }
 
 #[derive(Debug)]

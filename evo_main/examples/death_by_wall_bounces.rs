@@ -13,6 +13,11 @@ fn main() {
 }
 
 fn create_world() -> World {
+    const LAYER_HEALTH_PARAMS: LayerHealthParameters = LayerHealthParameters {
+        overlap_damage_health_delta: -0.05,
+        ..LayerHealthParameters::DEFAULT
+    };
+
     World::new(Position::new(0.0, -400.0), Position::new(400.0, 0.0))
         .with_perimeter_walls()
         .with_cell(Cell::new(
@@ -24,9 +29,6 @@ fn create_world() -> World {
                 Color::Green,
                 Box::new(NullCellLayerSpecialty::new()),
             )
-            .with_health_parameters(LayerHealthParameters {
-                overlap_damage_health_delta: -0.05,
-                ..LayerHealthParameters::DEFAULT
-            })],
+            .with_health_parameters(LAYER_HEALTH_PARAMS.clone())],
         ))
 }

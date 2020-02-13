@@ -415,6 +415,11 @@ mod tests {
 
     #[test]
     fn growth_is_limited_by_energy() {
+        const LAYER_RESIZE_PARAMS: LayerResizeParameters = LayerResizeParameters {
+            growth_energy_delta: BioEnergyDelta::new(-10.0),
+            ..LayerResizeParameters::UNLIMITED
+        };
+
         let mut world = World::new(Position::new(-10.0, -10.0), Position::new(10.0, 10.0))
             .with_influence(Box::new(Sunlight::new(-10.0, 10.0, 0.0, 10.0)))
             .with_cell(
@@ -427,10 +432,7 @@ mod tests {
                         Color::Green,
                         Box::new(PhotoCellLayerSpecialty::new(1.0)),
                     )
-                    .with_resize_parameters(LayerResizeParameters {
-                        growth_energy_delta: BioEnergyDelta::new(-10.0),
-                        ..LayerResizeParameters::UNLIMITED
-                    })],
+                    .with_resize_parameters(LAYER_RESIZE_PARAMS.clone())],
                 )
                 .with_control(Box::new(ContinuousResizeControl::new(
                     0,

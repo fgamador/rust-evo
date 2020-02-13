@@ -16,6 +16,16 @@ fn main() {
 }
 
 fn create_world() -> World {
+    const LAYER_RESIZE_PARAMS: LayerResizeParameters = LayerResizeParameters {
+        growth_energy_delta: BioEnergyDelta::new(-1.0),
+        ..LayerResizeParameters::UNLIMITED
+    };
+    const LAYER_HEALTH_PARAMS: LayerHealthParameters = LayerHealthParameters {
+        healing_energy_delta: BioEnergyDelta::ZERO,
+        entropic_damage_health_delta: -0.006,
+        ..LayerHealthParameters::DEFAULT
+    };
+
     World::new(Position::new(0.0, -400.0), Position::new(400.0, 0.0))
         .with_perimeter_walls()
         .with_sunlight(0.0, 10.0)
@@ -29,15 +39,8 @@ fn create_world() -> World {
                     Color::Green,
                     Box::new(PhotoCellLayerSpecialty::new(1.0)),
                 )
-                .with_resize_parameters(LayerResizeParameters {
-                    growth_energy_delta: BioEnergyDelta::new(-1.0),
-                    ..LayerResizeParameters::UNLIMITED
-                })
-                .with_health_parameters(LayerHealthParameters {
-                    healing_energy_delta: BioEnergyDelta::ZERO,
-                    entropic_damage_health_delta: -0.006,
-                    ..LayerHealthParameters::DEFAULT
-                })],
+                .with_resize_parameters(LAYER_RESIZE_PARAMS.clone())
+                .with_health_parameters(LAYER_HEALTH_PARAMS.clone())],
             )
             .with_control(Box::new(GrowThenHealControl::new(
                 0,

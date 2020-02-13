@@ -358,17 +358,16 @@ mod tests {
 
     #[test]
     fn layer_growth_cost_reduces_cell_energy() {
+        const LAYER_RESIZE_PARAMS: LayerResizeParameters = LayerResizeParameters {
+            growth_energy_delta: BioEnergyDelta::new(-1.0),
+            ..LayerResizeParameters::UNLIMITED
+        };
+
         let mut cell = Cell::new(
             Position::ORIGIN,
             Velocity::ZERO,
-            vec![
-                simple_cell_layer(Area::new(1.0), Density::new(1.0)).with_resize_parameters(
-                    LayerResizeParameters {
-                        growth_energy_delta: BioEnergyDelta::new(-1.0),
-                        ..LayerResizeParameters::UNLIMITED
-                    },
-                ),
-            ],
+            vec![simple_cell_layer(Area::new(1.0), Density::new(1.0))
+                .with_resize_parameters(LAYER_RESIZE_PARAMS.clone())],
         )
         .with_control(Box::new(ContinuousResizeControl::new(
             0,
@@ -515,22 +514,23 @@ mod tests {
 
     #[test]
     fn overlap_damages_all_layers() {
+        const LAYER0_HEALTH_PARAMS: LayerHealthParameters = LayerHealthParameters {
+            overlap_damage_health_delta: -1.0,
+            ..LayerHealthParameters::DEFAULT
+        };
+        const LAYER1_HEALTH_PARAMS: LayerHealthParameters = LayerHealthParameters {
+            overlap_damage_health_delta: -1.0,
+            ..LayerHealthParameters::DEFAULT
+        };
+
         let mut cell = Cell::new(
             Position::ORIGIN,
             Velocity::ZERO,
             vec![
-                simple_cell_layer(Area::new(1.0), Density::new(1.0)).with_health_parameters(
-                    LayerHealthParameters {
-                        overlap_damage_health_delta: -1.0,
-                        ..LayerHealthParameters::DEFAULT
-                    },
-                ),
-                simple_cell_layer(Area::new(1.0), Density::new(1.0)).with_health_parameters(
-                    LayerHealthParameters {
-                        overlap_damage_health_delta: -1.0,
-                        ..LayerHealthParameters::DEFAULT
-                    },
-                ),
+                simple_cell_layer(Area::new(1.0), Density::new(1.0))
+                    .with_health_parameters(LAYER0_HEALTH_PARAMS.clone()),
+                simple_cell_layer(Area::new(1.0), Density::new(1.0))
+                    .with_health_parameters(LAYER1_HEALTH_PARAMS.clone()),
             ],
         );
 
@@ -544,24 +544,25 @@ mod tests {
 
     #[test]
     fn layer_shrinkage_allows_layer_growth_within_limits() {
+        const LAYER0_RESIZE_PARAMS: LayerResizeParameters = LayerResizeParameters {
+            shrinkage_energy_delta: BioEnergyDelta::new(2.0),
+            max_shrinkage_rate: 0.5,
+            ..LayerResizeParameters::UNLIMITED
+        };
+        const LAYER1_RESIZE_PARAMS: LayerResizeParameters = LayerResizeParameters {
+            growth_energy_delta: BioEnergyDelta::new(-1.0),
+            max_growth_rate: 1.0,
+            ..LayerResizeParameters::UNLIMITED
+        };
+
         let mut cell = Cell::new(
             Position::ORIGIN,
             Velocity::ZERO,
             vec![
-                simple_cell_layer(Area::new(10.0), Density::new(1.0)).with_resize_parameters(
-                    LayerResizeParameters {
-                        shrinkage_energy_delta: BioEnergyDelta::new(2.0),
-                        max_shrinkage_rate: 0.5,
-                        ..LayerResizeParameters::UNLIMITED
-                    },
-                ),
-                simple_cell_layer(Area::new(5.0), Density::new(1.0)).with_resize_parameters(
-                    LayerResizeParameters {
-                        growth_energy_delta: BioEnergyDelta::new(-1.0),
-                        max_growth_rate: 1.0,
-                        ..LayerResizeParameters::UNLIMITED
-                    },
-                ),
+                simple_cell_layer(Area::new(10.0), Density::new(1.0))
+                    .with_resize_parameters(LAYER0_RESIZE_PARAMS.clone()),
+                simple_cell_layer(Area::new(5.0), Density::new(1.0))
+                    .with_resize_parameters(LAYER1_RESIZE_PARAMS.clone()),
             ],
         )
         .with_control(Box::new(ContinuousRequestsControl::new(vec![

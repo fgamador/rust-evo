@@ -592,12 +592,14 @@ impl CellLayerSpecialty for EnergyGeneratingCellLayerSpecialty {
     }
 }
 
+type CreateChildFn = fn(nnet: SparseNeuralNet, u64, &'static MutationParameters) -> Cell;
+
 #[derive(Debug)]
 pub struct BuddingCellLayerSpecialty {
     nnet: SparseNeuralNet,
     mutation_parameters: &'static MutationParameters,
     randomness: SeededMutationRandomness,
-    create_child: fn(u64, &'static MutationParameters) -> Cell,
+    create_child: CreateChildFn,
     budding_angle: Angle,
     donation_energy: BioEnergy,
 }
@@ -607,7 +609,7 @@ impl BuddingCellLayerSpecialty {
         nnet: SparseNeuralNet,
         seed: u64,
         mutation_parameters: &'static MutationParameters,
-        create_child: fn(u64, &'static MutationParameters) -> Cell,
+        create_child: CreateChildFn,
     ) -> Self {
         BuddingCellLayerSpecialty {
             nnet,
@@ -620,7 +622,11 @@ impl BuddingCellLayerSpecialty {
     }
 
     fn create_and_init_child(&mut self, cell_state: &CellStateSnapshot) -> Cell {
-        let mut child = (self.create_child)(self.randomness.child_seed(), self.mutation_parameters);
+        let mut child = (self.create_child)(
+            self.nnet.clone(),
+            self.randomness.child_seed(),
+            self.mutation_parameters,
+        );
         let offset =
             Displacement::from_polar(cell_state.radius + child.radius(), self.budding_angle);
         child.set_initial_position(cell_state.center + offset);
@@ -1272,7 +1278,11 @@ mod tests {
         }
     }
 
-    fn create_child(_seed: u64, _mutation_parameters: &'static MutationParameters) -> Cell {
+    fn create_child(
+        _nnet: SparseNeuralNet,
+        _seed: u64,
+        _mutation_parameters: &'static MutationParameters,
+    ) -> Cell {
         Cell::new(
             Position::ORIGIN,
             Velocity::ZERO,

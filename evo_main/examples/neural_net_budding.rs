@@ -38,14 +38,21 @@ fn create_world() -> World {
             DragForce::new(0.005),
         )))])
         .with_cell(
-            create_cell(0, &MutationParameters::NO_MUTATION)
-                .with_initial_energy(BioEnergy::new(50.0))
-                .with_initial_position(Position::new(200.0, -50.0)),
+            create_cell(
+                NeuralNetBuddingControl::new_neural_net(),
+                0,
+                &MutationParameters::NO_MUTATION,
+            )
+            .with_initial_energy(BioEnergy::new(50.0))
+            .with_initial_position(Position::new(200.0, -50.0)),
         )
 }
 
-fn create_cell(seed: u64, mutation_parameters: &'static MutationParameters) -> Cell {
-    let nnet = NeuralNetBuddingControl::new_neural_net();
+fn create_cell(
+    nnet: SparseNeuralNet,
+    seed: u64,
+    mutation_parameters: &'static MutationParameters,
+) -> Cell {
     Cell::new(
         Position::ORIGIN,
         Velocity::ZERO,

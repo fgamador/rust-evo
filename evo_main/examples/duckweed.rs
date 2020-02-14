@@ -39,12 +39,20 @@ fn create_world() -> World {
             )))),
             Box::new(SimpleForceInfluence::new(Box::new(DragForce::new(0.005)))),
         ])
-        .with_cells(vec![create_cell(0, &MutationParameters::NO_MUTATION)
-            .with_initial_position(Position::new(200.0, -50.0))
-            .with_initial_energy(BioEnergy::new(100.0))])
+        .with_cells(vec![create_cell(
+            SparseNeuralNet::new(TransferFn::IDENTITY),
+            0,
+            &MutationParameters::NO_MUTATION,
+        )
+        .with_initial_position(Position::new(200.0, -50.0))
+        .with_initial_energy(BioEnergy::new(100.0))])
 }
 
-fn create_cell(seed: u64, mutation_parameters: &'static MutationParameters) -> Cell {
+fn create_cell(
+    _nnet: SparseNeuralNet,
+    seed: u64,
+    mutation_parameters: &'static MutationParameters,
+) -> Cell {
     Cell::new(
         Position::ORIGIN,
         Velocity::ZERO,

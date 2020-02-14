@@ -20,12 +20,20 @@ fn create_world() -> World {
         .with_perimeter_walls()
         .with_pair_collisions()
         .with_cell(
-            create_child(0, &MutationParameters::NO_MUTATION)
-                .with_initial_position(Position::new(200.0, -100.0)),
+            create_child(
+                SparseNeuralNet::new(TransferFn::IDENTITY),
+                0,
+                &MutationParameters::NO_MUTATION,
+            )
+            .with_initial_position(Position::new(200.0, -100.0)),
         )
 }
 
-fn create_child(seed: u64, mutation_parameters: &'static MutationParameters) -> Cell {
+fn create_child(
+    nnet: SparseNeuralNet,
+    seed: u64,
+    mutation_parameters: &'static MutationParameters,
+) -> Cell {
     Cell::new(
         Position::ORIGIN,
         Velocity::ZERO,
@@ -41,7 +49,7 @@ fn create_child(seed: u64, mutation_parameters: &'static MutationParameters) -> 
                 Density::new(1.0),
                 Color::Yellow,
                 Box::new(BuddingCellLayerSpecialty::new(
-                    SparseNeuralNet::new(TransferFn::IDENTITY),
+                    nnet,
                     seed,
                     mutation_parameters,
                     create_child,

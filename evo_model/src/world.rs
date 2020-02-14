@@ -487,7 +487,11 @@ mod tests {
         assert_eq!(world.cells().len(), 0);
     }
 
-    fn create_child(_seed: u64, _mutation_parameters: &'static MutationParameters) -> Cell {
+    fn create_child(
+        _nnet: SparseNeuralNet,
+        _seed: u64,
+        _mutation_parameters: &'static MutationParameters,
+    ) -> Cell {
         Cell::new(
             Position::ORIGIN,
             Velocity::ZERO,

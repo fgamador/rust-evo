@@ -45,6 +45,7 @@ fn create_world() -> World {
 }
 
 fn create_cell(seed: u64, mutation_parameters: &'static MutationParameters) -> Cell {
+    let nnet = NeuralNetBuddingControl::new_neural_net();
     Cell::new(
         Position::ORIGIN,
         Velocity::ZERO,
@@ -54,7 +55,7 @@ fn create_cell(seed: u64, mutation_parameters: &'static MutationParameters) -> C
             create_budding_layer(seed, mutation_parameters),
         ],
     )
-    .with_control(Box::new(NeuralNetBuddingControl::new()))
+    .with_control(Box::new(NeuralNetBuddingControl::new(nnet)))
 }
 
 fn create_float_layer() -> CellLayer {
@@ -152,7 +153,11 @@ impl NeuralNetBuddingControl {
     const BUDDING_LAYER_HEALING_OUTPUT_INDEX: VecIndex = 12;
     const DONATION_ENERGY_OUTPUT_INDEX: VecIndex = 13;
 
-    fn new() -> Self {
+    fn new(nnet: SparseNeuralNet) -> Self {
+        NeuralNetBuddingControl { nnet }
+    }
+
+    fn new_neural_net() -> SparseNeuralNet {
         let mut nnet = SparseNeuralNet::new(TransferFn::IDENTITY);
         nnet.connect_node(
             Self::FLOAT_LAYER_HEALING_OUTPUT_INDEX,
@@ -184,7 +189,7 @@ impl NeuralNetBuddingControl {
             -100.0,
             &[(Self::CELL_ENERGY_INPUT_INDEX, 0.1)],
         );
-        NeuralNetBuddingControl { nnet }
+        nnet
     }
 }
 

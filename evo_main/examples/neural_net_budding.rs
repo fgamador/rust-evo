@@ -52,7 +52,7 @@ fn create_cell(seed: u64, mutation_parameters: &'static MutationParameters) -> C
         vec![
             create_float_layer(),
             create_photo_layer(),
-            create_budding_layer(seed, mutation_parameters),
+            create_budding_layer(nnet.clone(), seed, mutation_parameters),
         ],
     )
     .with_control(Box::new(NeuralNetBuddingControl::new(nnet)))
@@ -104,7 +104,11 @@ fn create_photo_layer() -> CellLayer {
     .with_health_parameters(&LAYER_HEALTH_PARAMS)
 }
 
-fn create_budding_layer(seed: u64, mutation_parameters: &'static MutationParameters) -> CellLayer {
+fn create_budding_layer(
+    nnet: SparseNeuralNet,
+    seed: u64,
+    mutation_parameters: &'static MutationParameters,
+) -> CellLayer {
     const LAYER_RESIZE_PARAMS: LayerResizeParameters = LayerResizeParameters {
         growth_energy_delta: BioEnergyDelta::new(-1.0),
         max_growth_rate: 10.0,
@@ -122,7 +126,7 @@ fn create_budding_layer(seed: u64, mutation_parameters: &'static MutationParamet
         Density::new(BUDDING_LAYER_DENSITY),
         Color::Yellow,
         Box::new(BuddingCellLayerSpecialty::new(
-            SparseNeuralNet::new(TransferFn::IDENTITY),
+            nnet,
             seed,
             mutation_parameters,
             create_cell,

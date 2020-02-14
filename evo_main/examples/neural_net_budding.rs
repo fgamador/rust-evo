@@ -122,6 +122,7 @@ fn create_budding_layer(seed: u64, mutation_parameters: &'static MutationParamet
         Density::new(BUDDING_LAYER_DENSITY),
         Color::Yellow,
         Box::new(BuddingCellLayerSpecialty::new(
+            SparseNeuralNet::new(TransferFn::IDENTITY),
             seed,
             mutation_parameters,
             create_cell,

@@ -457,6 +457,7 @@ mod tests {
                     Density::new(1.0),
                     Color::Green,
                     Box::new(BuddingCellLayerSpecialty::new(
+                        SparseNeuralNet::new(TransferFn::IDENTITY),
                         0,
                         &MutationParameters::NO_MUTATION,
                         create_child,

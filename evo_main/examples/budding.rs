@@ -41,6 +41,7 @@ fn create_child(seed: u64, mutation_parameters: &'static MutationParameters) -> 
                 Density::new(1.0),
                 Color::Yellow,
                 Box::new(BuddingCellLayerSpecialty::new(
+                    SparseNeuralNet::new(TransferFn::IDENTITY),
                     seed,
                     mutation_parameters,
                     create_child,

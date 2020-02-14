@@ -594,6 +594,7 @@ impl CellLayerSpecialty for EnergyGeneratingCellLayerSpecialty {
 
 #[derive(Debug)]
 pub struct BuddingCellLayerSpecialty {
+    nnet: SparseNeuralNet,
     mutation_parameters: &'static MutationParameters,
     randomness: SeededMutationRandomness,
     create_child: fn(u64, &'static MutationParameters) -> Cell,
@@ -603,11 +604,13 @@ pub struct BuddingCellLayerSpecialty {
 
 impl BuddingCellLayerSpecialty {
     pub fn new(
+        nnet: SparseNeuralNet,
         seed: u64,
         mutation_parameters: &'static MutationParameters,
         create_child: fn(u64, &'static MutationParameters) -> Cell,
     ) -> Self {
         BuddingCellLayerSpecialty {
+            nnet,
             mutation_parameters,
             randomness: SeededMutationRandomness::new(seed, mutation_parameters),
             create_child,
@@ -1139,6 +1142,7 @@ mod tests {
             Density::new(1.0),
             Color::Green,
             Box::new(BuddingCellLayerSpecialty::new(
+                SparseNeuralNet::new(TransferFn::IDENTITY),
                 0,
                 &MutationParameters::NO_MUTATION,
                 create_child,
@@ -1183,6 +1187,7 @@ mod tests {
             Density::new(1.0),
             Color::Green,
             Box::new(BuddingCellLayerSpecialty::new(
+                SparseNeuralNet::new(TransferFn::IDENTITY),
                 0,
                 &MutationParameters::NO_MUTATION,
                 create_child,
@@ -1204,6 +1209,7 @@ mod tests {
             Density::new(1.0),
             Color::Green,
             Box::new(BuddingCellLayerSpecialty::new(
+                SparseNeuralNet::new(TransferFn::IDENTITY),
                 0,
                 &MutationParameters::NO_MUTATION,
                 create_child,
@@ -1226,6 +1232,7 @@ mod tests {
             Density::new(1.0),
             Color::Green,
             Box::new(BuddingCellLayerSpecialty::new(
+                SparseNeuralNet::new(TransferFn::IDENTITY),
                 0,
                 &MutationParameters::NO_MUTATION,
                 create_child,
@@ -1249,6 +1256,7 @@ mod tests {
             Density::new(1.0),
             Color::Green,
             Box::new(BuddingCellLayerSpecialty::new(
+                SparseNeuralNet::new(TransferFn::IDENTITY),
                 0,
                 &MutationParameters::NO_MUTATION,
                 create_child,

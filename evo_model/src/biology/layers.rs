@@ -623,6 +623,7 @@ impl BuddingCellLayerSpecialty {
 
     fn create_and_init_child(&mut self, cell_state: &CellStateSnapshot) -> Cell {
         let mut child = (self.create_child)(
+            // TODO test: self.nnet.copy_with_mutation(&mut self.randomness),
             self.nnet.clone(),
             self.randomness.child_seed(),
             self.mutation_parameters,

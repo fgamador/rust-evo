@@ -459,7 +459,7 @@ mod tests {
                     Density::new(1.0),
                     Color::Green,
                     Box::new(BuddingCellLayerSpecialty::new(
-                        SparseNeuralNet::new(Rc::new(genome)),
+                        Rc::new(genome),
                         0,
                         &MutationParameters::NO_MUTATION,
                         create_child,
@@ -490,7 +490,7 @@ mod tests {
     }
 
     fn create_child(
-        _nnet: SparseNeuralNet,
+        _genome: SparseNeuralNetGenome,
         _seed: u64,
         _mutation_parameters: &'static MutationParameters,
     ) -> Cell {

@@ -42,7 +42,7 @@ fn create_world() -> World {
             Box::new(SimpleForceInfluence::new(Box::new(DragForce::new(0.005)))),
         ])
         .with_cells(vec![create_cell(
-            SparseNeuralNet::new(Rc::new(genome)),
+            genome,
             0,
             &MutationParameters::NO_MUTATION,
         )
@@ -51,7 +51,7 @@ fn create_world() -> World {
 }
 
 fn create_cell(
-    _nnet: SparseNeuralNet,
+    _genome: SparseNeuralNetGenome,
     seed: u64,
     mutation_parameters: &'static MutationParameters,
 ) -> Cell {
@@ -132,7 +132,7 @@ fn create_budding_layer(seed: u64, mutation_parameters: &'static MutationParamet
         Density::new(BUDDING_LAYER_DENSITY),
         Color::Yellow,
         Box::new(BuddingCellLayerSpecialty::new(
-            SparseNeuralNet::new(Rc::new(genome)),
+            Rc::new(genome),
             seed,
             mutation_parameters,
             create_cell,

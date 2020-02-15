@@ -580,7 +580,7 @@ mod tests {
 
     #[test]
     fn budding_creates_child_with_right_state() {
-        let genome = Rc::new(SparseNeuralNetGenome::new(TransferFn::IDENTITY));
+        let genome = SparseNeuralNetGenome::new(TransferFn::IDENTITY);
         let mut cell = Cell::new(
             Position::new(2.0, -2.0),
             Velocity::new(3.0, -3.0),
@@ -591,7 +591,7 @@ mod tests {
                     Density::new(1.0),
                     Color::White,
                     Box::new(BuddingCellLayerSpecialty::new(
-                        SparseNeuralNet::new(genome),
+                        Rc::new(genome),
                         0,
                         &MutationParameters::NO_MUTATION,
                         create_child,
@@ -621,7 +621,7 @@ mod tests {
     }
 
     fn create_child(
-        _nnet: SparseNeuralNet,
+        _genome: SparseNeuralNetGenome,
         _seed: u64,
         _mutation_parameters: &'static MutationParameters,
     ) -> Cell {

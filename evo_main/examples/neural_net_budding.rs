@@ -40,7 +40,7 @@ fn create_world() -> World {
         )))])
         .with_cell(
             create_cell(
-                NeuralNetBuddingControl::new_neural_net(),
+                NeuralNetBuddingControl::new_genome(),
                 0,
                 &MutationParameters::NO_MUTATION,
             )
@@ -50,20 +50,21 @@ fn create_world() -> World {
 }
 
 fn create_cell(
-    nnet: SparseNeuralNet,
+    genome: SparseNeuralNetGenome,
     seed: u64,
     mutation_parameters: &'static MutationParameters,
 ) -> Cell {
+    let genome = Rc::new(genome);
     Cell::new(
         Position::ORIGIN,
         Velocity::ZERO,
         vec![
             create_float_layer(),
             create_photo_layer(),
-            create_budding_layer(nnet.clone(), seed, mutation_parameters),
+            create_budding_layer(Rc::clone(&genome), seed, mutation_parameters),
         ],
     )
-    .with_control(Box::new(NeuralNetBuddingControl::new(nnet)))
+    .with_control(Box::new(NeuralNetBuddingControl::new(genome)))
 }
 
 fn create_float_layer() -> CellLayer {
@@ -113,7 +114,7 @@ fn create_photo_layer() -> CellLayer {
 }
 
 fn create_budding_layer(
-    nnet: SparseNeuralNet,
+    genome: Rc<SparseNeuralNetGenome>,
     seed: u64,
     mutation_parameters: &'static MutationParameters,
 ) -> CellLayer {
@@ -134,7 +135,7 @@ fn create_budding_layer(
         Density::new(BUDDING_LAYER_DENSITY),
         Color::Yellow,
         Box::new(BuddingCellLayerSpecialty::new(
-            nnet,
+            genome,
             seed,
             mutation_parameters,
             create_cell,
@@ -166,11 +167,13 @@ impl NeuralNetBuddingControl {
     const BUDDING_LAYER_HEALING_OUTPUT_INDEX: VecIndex = 12;
     const DONATION_ENERGY_OUTPUT_INDEX: VecIndex = 13;
 
-    fn new(nnet: SparseNeuralNet) -> Self {
-        NeuralNetBuddingControl { nnet }
+    fn new(genome: Rc<SparseNeuralNetGenome>) -> Self {
+        NeuralNetBuddingControl {
+            nnet: SparseNeuralNet::new(genome),
+        }
     }
 
-    fn new_neural_net() -> SparseNeuralNet {
+    fn new_genome() -> SparseNeuralNetGenome {
         let mut genome = SparseNeuralNetGenome::new(TransferFn::IDENTITY);
         genome.connect_node(
             Self::FLOAT_LAYER_HEALING_OUTPUT_INDEX,
@@ -202,7 +205,7 @@ impl NeuralNetBuddingControl {
             -100.0,
             &[(Self::CELL_ENERGY_INPUT_INDEX, 0.1)],
         );
-        SparseNeuralNet::new(Rc::new(genome))
+        genome
     }
 }
 

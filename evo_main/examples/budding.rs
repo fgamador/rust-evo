@@ -17,13 +17,12 @@ fn main() {
 }
 
 fn create_world() -> World {
-    let genome = SparseNeuralNetGenome::new(TransferFn::IDENTITY);
     World::new(Position::new(0.0, -400.0), Position::new(400.0, 0.0))
         .with_perimeter_walls()
         .with_pair_collisions()
         .with_cell(
             create_child(
-                SparseNeuralNet::new(Rc::new(genome)),
+                SparseNeuralNetGenome::new(TransferFn::IDENTITY),
                 0,
                 &MutationParameters::NO_MUTATION,
             )
@@ -32,7 +31,7 @@ fn create_world() -> World {
 }
 
 fn create_child(
-    nnet: SparseNeuralNet,
+    genome: SparseNeuralNetGenome,
     seed: u64,
     mutation_parameters: &'static MutationParameters,
 ) -> Cell {
@@ -51,7 +50,7 @@ fn create_child(
                 Density::new(1.0),
                 Color::Yellow,
                 Box::new(BuddingCellLayerSpecialty::new(
-                    nnet,
+                    Rc::new(genome),
                     seed,
                     mutation_parameters,
                     create_child,

@@ -12,6 +12,7 @@ use evo_model::physics::quantities::*;
 use evo_model::world::World;
 use std::f64;
 use std::f64::consts::PI;
+use std::rc::Rc;
 
 fn main() {
     init_and_run(create_world());
@@ -25,6 +26,7 @@ const GRAVITY: f64 = -0.05;
 const OVERLAP_DAMAGE_HEALTH_DELTA: f64 = -0.1;
 
 fn create_world() -> World {
+    let genome = SparseNeuralNetGenome::new(TransferFn::IDENTITY);
     World::new(Position::new(0.0, -400.0), Position::new(1000.0, 0.0))
         .with_perimeter_walls()
         .with_pair_collisions()
@@ -40,7 +42,7 @@ fn create_world() -> World {
             Box::new(SimpleForceInfluence::new(Box::new(DragForce::new(0.005)))),
         ])
         .with_cells(vec![create_cell(
-            SparseNeuralNet::new(TransferFn::IDENTITY),
+            SparseNeuralNet::new(Rc::new(genome)),
             0,
             &MutationParameters::NO_MUTATION,
         )
@@ -124,12 +126,13 @@ fn create_budding_layer(seed: u64, mutation_parameters: &'static MutationParamet
         overlap_damage_health_delta: OVERLAP_DAMAGE_HEALTH_DELTA,
     };
 
+    let genome = SparseNeuralNetGenome::new(TransferFn::IDENTITY);
     CellLayer::new(
         Area::new(5.0 * PI),
         Density::new(BUDDING_LAYER_DENSITY),
         Color::Yellow,
         Box::new(BuddingCellLayerSpecialty::new(
-            SparseNeuralNet::new(TransferFn::IDENTITY),
+            SparseNeuralNet::new(Rc::new(genome)),
             seed,
             mutation_parameters,
             create_cell,

@@ -243,6 +243,7 @@ mod tests {
     use crate::genome::sparse_neural_net::*;
     use crate::physics::overlap::Overlap;
     use crate::physics::shapes::*;
+    use std::rc::Rc;
 
     #[test]
     fn tick_moves_ball() {
@@ -448,6 +449,7 @@ mod tests {
 
     #[test]
     fn new_cells_get_added_to_world() {
+        let genome = SparseNeuralNetGenome::new(TransferFn::IDENTITY);
         let mut world = World::new(Position::ORIGIN, Position::ORIGIN).with_cell(
             Cell::new(
                 Position::ORIGIN,
@@ -457,7 +459,7 @@ mod tests {
                     Density::new(1.0),
                     Color::Green,
                     Box::new(BuddingCellLayerSpecialty::new(
-                        SparseNeuralNet::new(TransferFn::IDENTITY),
+                        SparseNeuralNet::new(Rc::new(genome)),
                         0,
                         &MutationParameters::NO_MUTATION,
                         create_child,

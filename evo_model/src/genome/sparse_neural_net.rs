@@ -8,6 +8,7 @@ use rand_pcg::Pcg64Mcg;
 use std::f32;
 use std::fmt;
 use std::fmt::{Error, Formatter};
+use std::rc::Rc;
 
 type Coefficient = f32;
 type VecIndex = u16;
@@ -15,32 +16,16 @@ type NodeValue = f32;
 
 #[derive(Clone, Debug, PartialEq)]
 pub struct SparseNeuralNet {
-    genome: SparseNeuralNetGenome,
+    genome: Rc<SparseNeuralNetGenome>,
     node_values: Vec<NodeValue>,
 }
 
 impl SparseNeuralNet {
-    pub fn new(transfer_fn: TransferFn) -> Self {
+    pub fn new(genome: Rc<SparseNeuralNetGenome>) -> Self {
+        let num_nodes = genome.num_nodes;
         SparseNeuralNet {
-            genome: SparseNeuralNetGenome::new(transfer_fn),
-            node_values: vec![],
-        }
-    }
-
-    pub fn connect_node(
-        &mut self,
-        to_value_index: VecIndex,
-        bias: Coefficient,
-        from_value_weights: &[(VecIndex, Coefficient)],
-    ) {
-        self.genome
-            .connect_node(to_value_index, bias, from_value_weights);
-        self.grow_node_values_if_needed(self.genome.num_nodes - 1);
-    }
-
-    fn grow_node_values_if_needed(&mut self, new_index: VecIndex) {
-        if new_index as usize >= self.node_values.len() {
-            self.node_values.resize((new_index + 1) as usize, 0.0);
+            genome,
+            node_values: vec![0.0; num_nodes as usize],
         }
     }
 
@@ -54,13 +39,6 @@ impl SparseNeuralNet {
 
     pub fn run(&mut self) {
         self.genome.run(&mut self.node_values);
-    }
-
-    pub fn copy_with_mutation(&self, randomness: &mut dyn MutationRandomness) -> Self {
-        SparseNeuralNet {
-            genome: self.genome.copy_with_mutation(randomness),
-            node_values: vec![0.0; self.node_values.len()],
-        }
     }
 }
 
@@ -109,7 +87,7 @@ impl SparseNeuralNetGenome {
         self.num_nodes = self.num_nodes.max(new_index + 1);
     }
 
-    pub fn run(&self, node_values: &mut [NodeValue]) {
+    fn run(&self, node_values: &mut [NodeValue]) {
         for op in &self.ops {
             op.run(node_values);
         }
@@ -331,10 +309,11 @@ mod tests {
 
     #[test]
     fn two_layer_sparsely_connected() {
-        let mut nnet = SparseNeuralNet::new(TransferFn::new(plus_one));
-        nnet.connect_node(2, 0.5, &[(0, 0.5)]);
-        nnet.connect_node(3, 0.0, &[(0, 0.75), (1, 0.25)]);
+        let mut genome = SparseNeuralNetGenome::new(TransferFn::new(plus_one));
+        genome.connect_node(2, 0.5, &[(0, 0.5)]);
+        genome.connect_node(3, 0.0, &[(0, 0.75), (1, 0.25)]);
 
+        let mut nnet = SparseNeuralNet::new(Rc::new(genome));
         nnet.set_node_value(0, 2.0);
         nnet.set_node_value(1, 4.0);
         nnet.run();
@@ -345,9 +324,10 @@ mod tests {
 
     #[test]
     fn run_clears_previous_values() {
-        let mut nnet = SparseNeuralNet::new(TransferFn::IDENTITY);
-        nnet.connect_node(1, 0.0, &[(0, 1.0)]);
+        let mut genome = SparseNeuralNetGenome::new(TransferFn::IDENTITY);
+        genome.connect_node(1, 0.0, &[(0, 1.0)]);
 
+        let mut nnet = SparseNeuralNet::new(Rc::new(genome));
         nnet.set_node_value(0, 1.0);
         nnet.run();
         nnet.set_node_value(0, 3.0);
@@ -358,10 +338,11 @@ mod tests {
 
     #[test]
     fn three_layer() {
-        let mut nnet = SparseNeuralNet::new(TransferFn::IDENTITY);
-        nnet.connect_node(1, 0.5, &[(0, 0.5)]);
-        nnet.connect_node(2, 0.0, &[(1, 0.5)]);
+        let mut genome = SparseNeuralNetGenome::new(TransferFn::IDENTITY);
+        genome.connect_node(1, 0.5, &[(0, 0.5)]);
+        genome.connect_node(2, 0.0, &[(1, 0.5)]);
 
+        let mut nnet = SparseNeuralNet::new(Rc::new(genome));
         nnet.set_node_value(0, 2.0);
         nnet.run();
 
@@ -370,10 +351,11 @@ mod tests {
 
     #[test]
     fn recurrent_connection() {
-        let mut nnet = SparseNeuralNet::new(TransferFn::IDENTITY);
-        nnet.connect_node(1, 0.0, &[(0, 1.0), (2, 2.0)]);
-        nnet.connect_node(2, 0.0, &[(1, 1.0)]);
+        let mut genome = SparseNeuralNetGenome::new(TransferFn::IDENTITY);
+        genome.connect_node(1, 0.0, &[(0, 1.0), (2, 2.0)]);
+        genome.connect_node(2, 0.0, &[(1, 1.0)]);
 
+        let mut nnet = SparseNeuralNet::new(Rc::new(genome));
         nnet.set_node_value(0, 1.0);
         nnet.run();
 
@@ -391,34 +373,31 @@ mod tests {
 
     #[test]
     fn copy_unmutated() {
-        let mut nnet = SparseNeuralNet::new(TransferFn::SIGMOIDAL);
-        nnet.connect_node(1, 0.0, &[(0, 1.0), (2, 2.0)]);
-        nnet.connect_node(2, 0.0, &[(1, 1.0)]);
-        nnet.set_node_value(0, 1.0);
+        let mut genome = SparseNeuralNetGenome::new(TransferFn::SIGMOIDAL);
+        genome.connect_node(1, 0.0, &[(0, 1.0), (2, 2.0)]);
+        genome.connect_node(2, 0.0, &[(1, 1.0)]);
 
         let mut randomness = StubMutationRandomness {
             mutated_weights: HashMap::new(),
         };
-        let copied = nnet.copy_with_mutation(&mut randomness);
+        let copied = genome.copy_with_mutation(&mut randomness);
 
-        assert_eq!(copied.node_values.len(), nnet.node_values.len());
-        assert!(copied.node_values.iter().all(|&value| value == 0.0));
-        assert_eq!(copied.genome.ops, nnet.genome.ops);
-        assert_eq!(copied.genome.transfer_fn, TransferFn::SIGMOIDAL);
+        assert_eq!(copied.ops, genome.ops);
+        assert_eq!(copied.transfer_fn, TransferFn::SIGMOIDAL);
     }
 
     #[test]
     fn copy_with_mutated_weights() {
-        let mut nnet = SparseNeuralNet::new(TransferFn::SIGMOIDAL);
-        nnet.connect_node(2, 1.5, &[(0, 1.0), (1, 2.0)]);
+        let mut genome = SparseNeuralNetGenome::new(TransferFn::SIGMOIDAL);
+        genome.connect_node(2, 1.5, &[(0, 1.0), (1, 2.0)]);
 
         let mut randomness = StubMutationRandomness {
             mutated_weights: [(0, -0.5), (2, 2.25)].iter().cloned().collect(),
         };
-        let copied = nnet.copy_with_mutation(&mut randomness);
+        let copied = genome.copy_with_mutation(&mut randomness);
 
         assert_eq!(
-            copied.genome.ops,
+            copied.ops,
             vec![
                 Op::Bias {
                     value_index: 2,

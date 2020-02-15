@@ -685,6 +685,7 @@ mod tests {
     use crate::environment::local_environment::LocalEnvironment;
     use crate::physics::newtonian::NewtonianBody;
     use crate::physics::overlap::Overlap;
+    use std::rc::Rc;
 
     #[test]
     fn layer_calculates_mass() {
@@ -1144,12 +1145,13 @@ mod tests {
 
     #[test]
     fn budding_layer_creates_child_with_right_state() {
+        let genome = Rc::new(SparseNeuralNetGenome::new(TransferFn::IDENTITY));
         let mut layer = CellLayer::new(
             Area::new(1.0),
             Density::new(1.0),
             Color::Green,
             Box::new(BuddingCellLayerSpecialty::new(
-                SparseNeuralNet::new(TransferFn::IDENTITY),
+                SparseNeuralNet::new(genome),
                 0,
                 &MutationParameters::NO_MUTATION,
                 create_child,
@@ -1189,12 +1191,13 @@ mod tests {
 
     #[test]
     fn budding_layer_does_not_create_child_if_given_zero_energy() {
+        let genome = Rc::new(SparseNeuralNetGenome::new(TransferFn::IDENTITY));
         let mut layer = CellLayer::new(
             Area::new(1.0),
             Density::new(1.0),
             Color::Green,
             Box::new(BuddingCellLayerSpecialty::new(
-                SparseNeuralNet::new(TransferFn::IDENTITY),
+                SparseNeuralNet::new(genome),
                 0,
                 &MutationParameters::NO_MUTATION,
                 create_child,
@@ -1211,12 +1214,13 @@ mod tests {
 
     #[test]
     fn budding_layer_does_not_remember_previous_donation_energy() {
+        let genome = Rc::new(SparseNeuralNetGenome::new(TransferFn::IDENTITY));
         let mut layer = CellLayer::new(
             Area::new(1.0),
             Density::new(1.0),
             Color::Green,
             Box::new(BuddingCellLayerSpecialty::new(
-                SparseNeuralNet::new(TransferFn::IDENTITY),
+                SparseNeuralNet::new(genome),
                 0,
                 &MutationParameters::NO_MUTATION,
                 create_child,
@@ -1234,12 +1238,13 @@ mod tests {
 
     #[test]
     fn budding_energy_is_limited_by_budget() {
+        let genome = Rc::new(SparseNeuralNetGenome::new(TransferFn::IDENTITY));
         let mut layer = CellLayer::new(
             Area::new(1.0),
             Density::new(1.0),
             Color::Green,
             Box::new(BuddingCellLayerSpecialty::new(
-                SparseNeuralNet::new(TransferFn::IDENTITY),
+                SparseNeuralNet::new(genome),
                 0,
                 &MutationParameters::NO_MUTATION,
                 create_child,
@@ -1258,12 +1263,13 @@ mod tests {
 
     #[test]
     fn budding_energy_is_limited_by_health() {
+        let genome = Rc::new(SparseNeuralNetGenome::new(TransferFn::IDENTITY));
         let mut layer = CellLayer::new(
             Area::new(1.0),
             Density::new(1.0),
             Color::Green,
             Box::new(BuddingCellLayerSpecialty::new(
-                SparseNeuralNet::new(TransferFn::IDENTITY),
+                SparseNeuralNet::new(genome),
                 0,
                 &MutationParameters::NO_MUTATION,
                 create_child,

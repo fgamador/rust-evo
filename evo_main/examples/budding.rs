@@ -10,18 +10,20 @@ use evo_model::genome::sparse_neural_net::*;
 use evo_model::physics::quantities::*;
 use evo_model::world::World;
 use std::f64::consts::PI;
+use std::rc::Rc;
 
 fn main() {
     init_and_run(create_world());
 }
 
 fn create_world() -> World {
+    let genome = SparseNeuralNetGenome::new(TransferFn::IDENTITY);
     World::new(Position::new(0.0, -400.0), Position::new(400.0, 0.0))
         .with_perimeter_walls()
         .with_pair_collisions()
         .with_cell(
             create_child(
-                SparseNeuralNet::new(TransferFn::IDENTITY),
+                SparseNeuralNet::new(Rc::new(genome)),
                 0,
                 &MutationParameters::NO_MUTATION,
             )

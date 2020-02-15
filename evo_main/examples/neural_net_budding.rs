@@ -11,6 +11,7 @@ use evo_model::genome::sparse_neural_net::*;
 use evo_model::physics::quantities::*;
 use evo_model::world::World;
 use std::f64::consts::PI;
+use std::rc::Rc;
 
 type VecIndex = u16;
 
@@ -170,38 +171,38 @@ impl NeuralNetBuddingControl {
     }
 
     fn new_neural_net() -> SparseNeuralNet {
-        let mut nnet = SparseNeuralNet::new(TransferFn::IDENTITY);
-        nnet.connect_node(
+        let mut genome = SparseNeuralNetGenome::new(TransferFn::IDENTITY);
+        genome.connect_node(
             Self::FLOAT_LAYER_HEALING_OUTPUT_INDEX,
             1.0,
             &[(Self::FLOAT_LAYER_HEALTH_INPUT_INDEX, -1.0)],
         );
-        nnet.connect_node(
+        genome.connect_node(
             Self::PHOTO_LAYER_RESIZE_OUTPUT_INDEX,
             800.0,
             &[(Self::PHOTO_LAYER_AREA_INPUT_INDEX, -1.0)],
         );
-        nnet.connect_node(
+        genome.connect_node(
             Self::PHOTO_LAYER_HEALING_OUTPUT_INDEX,
             1.0,
             &[(Self::PHOTO_LAYER_HEALTH_INPUT_INDEX, -1.0)],
         );
-        nnet.connect_node(
+        genome.connect_node(
             Self::BUDDING_LAYER_RESIZE_OUTPUT_INDEX,
             200.0,
             &[(Self::BUDDING_LAYER_AREA_INPUT_INDEX, -1.0)],
         );
-        nnet.connect_node(
+        genome.connect_node(
             Self::BUDDING_LAYER_HEALING_OUTPUT_INDEX,
             1.0,
             &[(Self::BUDDING_LAYER_HEALTH_INPUT_INDEX, -1.0)],
         );
-        nnet.connect_node(
+        genome.connect_node(
             Self::DONATION_ENERGY_OUTPUT_INDEX,
             -100.0,
             &[(Self::CELL_ENERGY_INPUT_INDEX, 0.1)],
         );
-        nnet
+        SparseNeuralNet::new(Rc::new(genome))
     }
 }
 

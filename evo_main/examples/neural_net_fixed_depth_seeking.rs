@@ -11,6 +11,7 @@ use evo_model::genome::sparse_neural_net::*;
 use evo_model::physics::quantities::*;
 use evo_model::world::World;
 use std::f64::consts::PI;
+use std::rc::Rc;
 
 fn main() {
     init_and_run(create_world());
@@ -53,9 +54,11 @@ pub struct NeuralNetControl {
 
 impl NeuralNetControl {
     pub fn new() -> Self {
-        let mut nnet = SparseNeuralNet::new(TransferFn::IDENTITY);
-        nnet.connect_node(1, -100.0, &[(0, -1.0)]);
-        NeuralNetControl { nnet }
+        let mut genome = SparseNeuralNetGenome::new(TransferFn::IDENTITY);
+        genome.connect_node(1, -100.0, &[(0, -1.0)]);
+        NeuralNetControl {
+            nnet: SparseNeuralNet::new(Rc::new(genome)),
+        }
     }
 }
 

@@ -252,6 +252,7 @@ mod tests {
     use super::*;
     use crate::genome::sparse_neural_net::*;
     use crate::physics::overlap::Overlap;
+    use std::rc::Rc;
 
     #[test]
     fn cells_use_pointer_equality() {
@@ -579,6 +580,7 @@ mod tests {
 
     #[test]
     fn budding_creates_child_with_right_state() {
+        let genome = Rc::new(SparseNeuralNetGenome::new(TransferFn::IDENTITY));
         let mut cell = Cell::new(
             Position::new(2.0, -2.0),
             Velocity::new(3.0, -3.0),
@@ -589,7 +591,7 @@ mod tests {
                     Density::new(1.0),
                     Color::White,
                     Box::new(BuddingCellLayerSpecialty::new(
-                        SparseNeuralNet::new(TransferFn::IDENTITY),
+                        SparseNeuralNet::new(genome),
                         0,
                         &MutationParameters::NO_MUTATION,
                         create_child,

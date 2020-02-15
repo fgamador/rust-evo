@@ -15,17 +15,15 @@ type NodeValue = f32;
 
 #[derive(Clone, Debug, PartialEq)]
 pub struct SparseNeuralNet {
+    genome: SparseNeuralNetGenome,
     node_values: Vec<NodeValue>,
-    ops: Vec<Op>,
-    transfer_fn: TransferFn,
 }
 
 impl SparseNeuralNet {
     pub fn new(transfer_fn: TransferFn) -> Self {
         SparseNeuralNet {
+            genome: SparseNeuralNetGenome::new(transfer_fn),
             node_values: vec![],
-            ops: vec![],
-            transfer_fn,
         }
     }
 
@@ -35,23 +33,9 @@ impl SparseNeuralNet {
         bias: Coefficient,
         from_value_weights: &[(VecIndex, Coefficient)],
     ) {
-        self.grow_node_values_if_needed(to_value_index);
-        self.ops.push(Op::Bias {
-            value_index: to_value_index,
-            bias,
-        });
-        for (from_value_index, weight) in from_value_weights {
-            self.grow_node_values_if_needed(*from_value_index);
-            self.ops.push(Op::Connection {
-                from_value_index: *from_value_index,
-                to_value_index,
-                weight: *weight,
-            });
-        }
-        self.ops.push(Op::Transfer {
-            value_index: to_value_index,
-            transfer_fn: self.transfer_fn,
-        });
+        self.genome
+            .connect_node(to_value_index, bias, from_value_weights);
+        self.grow_node_values_if_needed(self.genome.num_nodes - 1);
     }
 
     fn grow_node_values_if_needed(&mut self, new_index: VecIndex) {
@@ -69,16 +53,73 @@ impl SparseNeuralNet {
     }
 
     pub fn run(&mut self) {
-        for op in &self.ops {
-            op.run(&mut self.node_values);
-        }
+        self.genome.run(&mut self.node_values);
     }
 
     pub fn copy_with_mutation(&self, randomness: &mut dyn MutationRandomness) -> Self {
         SparseNeuralNet {
+            genome: self.genome.copy_with_mutation(randomness),
             node_values: vec![0.0; self.node_values.len()],
+        }
+    }
+}
+
+#[derive(Clone, Debug, PartialEq)]
+pub struct SparseNeuralNetGenome {
+    ops: Vec<Op>,
+    transfer_fn: TransferFn,
+    num_nodes: VecIndex,
+}
+
+impl SparseNeuralNetGenome {
+    pub fn new(transfer_fn: TransferFn) -> Self {
+        Self {
+            ops: vec![],
+            transfer_fn,
+            num_nodes: 0,
+        }
+    }
+
+    pub fn connect_node(
+        &mut self,
+        to_value_index: VecIndex,
+        bias: Coefficient,
+        from_value_weights: &[(VecIndex, Coefficient)],
+    ) {
+        self.grow_num_nodes_if_needed(to_value_index);
+        self.ops.push(Op::Bias {
+            value_index: to_value_index,
+            bias,
+        });
+        for (from_value_index, weight) in from_value_weights {
+            self.grow_num_nodes_if_needed(*from_value_index);
+            self.ops.push(Op::Connection {
+                from_value_index: *from_value_index,
+                to_value_index,
+                weight: *weight,
+            });
+        }
+        self.ops.push(Op::Transfer {
+            value_index: to_value_index,
+            transfer_fn: self.transfer_fn,
+        });
+    }
+
+    fn grow_num_nodes_if_needed(&mut self, new_index: VecIndex) {
+        self.num_nodes = self.num_nodes.max(new_index + 1);
+    }
+
+    pub fn run(&self, node_values: &mut [NodeValue]) {
+        for op in &self.ops {
+            op.run(node_values);
+        }
+    }
+
+    pub fn copy_with_mutation(&self, randomness: &mut dyn MutationRandomness) -> Self {
+        Self {
             ops: Self::copy_with_mutated_weights(&self.ops, randomness),
             transfer_fn: self.transfer_fn,
+            num_nodes: self.num_nodes,
         }
     }
 
@@ -116,7 +157,7 @@ enum Op {
 }
 
 impl Op {
-    fn run(&self, node_values: &mut Vec<NodeValue>) {
+    fn run(&self, node_values: &mut [NodeValue]) {
         match self {
             Self::Bias { value_index, bias } => {
                 let value = &mut node_values[*value_index as usize];
@@ -362,8 +403,8 @@ mod tests {
 
         assert_eq!(copied.node_values.len(), nnet.node_values.len());
         assert!(copied.node_values.iter().all(|&value| value == 0.0));
-        assert_eq!(copied.ops, nnet.ops);
-        assert_eq!(copied.transfer_fn, TransferFn::SIGMOIDAL);
+        assert_eq!(copied.genome.ops, nnet.genome.ops);
+        assert_eq!(copied.genome.transfer_fn, TransferFn::SIGMOIDAL);
     }
 
     #[test]
@@ -377,7 +418,7 @@ mod tests {
         let copied = nnet.copy_with_mutation(&mut randomness);
 
         assert_eq!(
-            copied.ops,
+            copied.genome.ops,
             vec![
                 Op::Bias {
                     value_index: 2,

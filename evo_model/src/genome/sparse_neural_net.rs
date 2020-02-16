@@ -102,18 +102,13 @@ impl SparseNeuralNetGenome {
     }
 
     fn copy_with_mutated_weights(ops: &[Op], randomness: &mut dyn MutationRandomness) -> Vec<Op> {
-        (0 as VecIndex..)
-            .zip(ops)
-            .map(|(index, op)| Self::copy_with_mutated_weight(index, op, randomness))
+        ops.iter()
+            .map(|op| Self::copy_with_mutated_weight(op, randomness))
             .collect()
     }
 
-    fn copy_with_mutated_weight(
-        index: VecIndex,
-        op: &Op,
-        randomness: &mut dyn MutationRandomness,
-    ) -> Op {
-        op.copy_with_mutated_weight(|weight| randomness.mutate_weight(index, weight))
+    fn copy_with_mutated_weight(op: &Op, randomness: &mut dyn MutationRandomness) -> Op {
+        op.copy_with_mutated_weight(|weight| randomness.mutate_weight(weight))
     }
 }
 
@@ -266,7 +261,7 @@ impl MutationParameters {
 }
 
 pub trait MutationRandomness {
-    fn mutate_weight(&mut self, index: VecIndex, weight: Coefficient) -> Coefficient;
+    fn mutate_weight(&mut self, weight: Coefficient) -> Coefficient;
 }
 
 #[derive(Debug)]
@@ -294,7 +289,7 @@ impl SeededMutationRandomness {
 }
 
 impl MutationRandomness for SeededMutationRandomness {
-    fn mutate_weight(&mut self, _index: VecIndex, weight: Coefficient) -> Coefficient {
+    fn mutate_weight(&mut self, weight: Coefficient) -> Coefficient {
         if !self.should_mutate_this_weight() {
             return weight;
         }
@@ -307,7 +302,6 @@ impl MutationRandomness for SeededMutationRandomness {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use std::collections::HashMap;
 
     #[test]
     fn two_layer_sparsely_connected() {
@@ -380,7 +374,7 @@ mod tests {
         genome.connect_node(2, 0.0, &[(1, 1.0)]);
 
         let mut randomness = StubMutationRandomness {
-            mutated_weights: HashMap::new(),
+            mutated_weights: vec![],
         };
         let copied = genome.copy_with_mutation(&mut randomness);
 
@@ -394,7 +388,7 @@ mod tests {
         genome.connect_node(2, 1.5, &[(0, 1.0), (1, 2.0)]);
 
         let mut randomness = StubMutationRandomness {
-            mutated_weights: [(0, -0.5), (2, 2.25)].iter().cloned().collect(),
+            mutated_weights: vec![(1.5, -0.5), (2.0, 2.25)],
         };
         let copied = genome.copy_with_mutation(&mut randomness);
 
@@ -426,7 +420,7 @@ mod tests {
     #[test]
     fn seeded_mutation_randomness_leaves_weight_unmutated() {
         let mut randomness = SeededMutationRandomness::new(0, &MutationParameters::NO_MUTATION);
-        assert_eq!(randomness.mutate_weight(0, 1.0), 1.0);
+        assert_eq!(randomness.mutate_weight(1.0), 1.0);
     }
 
     #[test]
@@ -437,7 +431,7 @@ mod tests {
         };
 
         let mut randomness = SeededMutationRandomness::new(0, &ALWAYS_MUTATE);
-        assert_ne!(randomness.mutate_weight(0, 1.0), 1.0);
+        assert_ne!(randomness.mutate_weight(1.0), 1.0);
     }
 
     fn plus_one(value: &mut NodeValue) {
@@ -445,12 +439,17 @@ mod tests {
     }
 
     struct StubMutationRandomness {
-        mutated_weights: HashMap<VecIndex, Coefficient>,
+        mutated_weights: Vec<(Coefficient, Coefficient)>,
     }
 
     impl MutationRandomness for StubMutationRandomness {
-        fn mutate_weight(&mut self, index: VecIndex, weight: Coefficient) -> Coefficient {
-            *self.mutated_weights.get(&index).unwrap_or(&weight)
+        fn mutate_weight(&mut self, weight: Coefficient) -> Coefficient {
+            for (from_weight, to_weight) in &self.mutated_weights {
+                if *from_weight == weight {
+                    return *to_weight;
+                }
+            }
+            weight
         }
     }
 }

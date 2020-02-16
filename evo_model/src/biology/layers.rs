@@ -593,14 +593,14 @@ impl CellLayerSpecialty for EnergyGeneratingCellLayerSpecialty {
     }
 }
 
-type CreateChildFn = fn(genome: SparseNeuralNetGenome, u64, &'static MutationParameters) -> Cell;
+type CreateCellFn = fn(genome: SparseNeuralNetGenome, u64, &'static MutationParameters) -> Cell;
 
 #[derive(Debug)]
 pub struct BuddingCellLayerSpecialty {
     genome: Rc<SparseNeuralNetGenome>,
     mutation_parameters: &'static MutationParameters,
     randomness: SeededMutationRandomness,
-    create_child: CreateChildFn,
+    create_child: CreateCellFn,
     budding_angle: Angle,
     donation_energy: BioEnergy,
 }
@@ -610,7 +610,7 @@ impl BuddingCellLayerSpecialty {
         genome: Rc<SparseNeuralNetGenome>,
         seed: u64,
         mutation_parameters: &'static MutationParameters,
-        create_child: CreateChildFn,
+        create_child: CreateCellFn,
     ) -> Self {
         BuddingCellLayerSpecialty {
             genome,

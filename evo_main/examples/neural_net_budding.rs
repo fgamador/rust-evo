@@ -31,6 +31,11 @@ const PHOTO_LAYER_INDEX: usize = 1;
 const BUDDING_LAYER_INDEX: usize = 2;
 
 fn create_world() -> World {
+    const SOME_MUTATION: MutationParameters = MutationParameters {
+        weight_mutation_probability: 0.5,
+        weight_mutation_stdev: 1.0,
+    };
+
     World::new(Position::new(0.0, -400.0), Position::new(400.0, 0.0))
         .with_perimeter_walls()
         .with_pair_collisions()
@@ -39,13 +44,9 @@ fn create_world() -> World {
             DragForce::new(0.005),
         )))])
         .with_cell(
-            create_cell(
-                NeuralNetBuddingControl::new_genome(),
-                0,
-                &MutationParameters::NO_MUTATION,
-            )
-            .with_initial_energy(BioEnergy::new(50.0))
-            .with_initial_position(Position::new(200.0, -50.0)),
+            create_cell(NeuralNetBuddingControl::new_genome(), 0, &SOME_MUTATION)
+                .with_initial_energy(BioEnergy::new(50.0))
+                .with_initial_position(Position::new(200.0, -50.0)),
         )
 }
 
@@ -254,14 +255,17 @@ impl CellControl for NeuralNetBuddingControl {
 
         vec![
             CellLayer::resize_request(FLOAT_LAYER_INDEX, AreaDelta::new(float_layer_area_delta)),
-            CellLayer::healing_request(FLOAT_LAYER_INDEX, float_layer_healing),
+            CellLayer::healing_request(FLOAT_LAYER_INDEX, float_layer_healing.max(0.0).min(1.0)),
             CellLayer::resize_request(PHOTO_LAYER_INDEX, AreaDelta::new(photo_layer_area_delta)),
-            CellLayer::healing_request(PHOTO_LAYER_INDEX, photo_layer_healing),
+            CellLayer::healing_request(PHOTO_LAYER_INDEX, photo_layer_healing.max(0.0).min(1.0)),
             CellLayer::resize_request(
                 BUDDING_LAYER_INDEX,
                 AreaDelta::new(budding_layer_area_delta),
             ),
-            CellLayer::healing_request(BUDDING_LAYER_INDEX, budding_layer_healing),
+            CellLayer::healing_request(
+                BUDDING_LAYER_INDEX,
+                budding_layer_healing.max(0.0).min(1.0),
+            ),
             BuddingCellLayerSpecialty::donation_energy_request(
                 BUDDING_LAYER_INDEX,
                 BioEnergy::new(donation_energy.max(0.0)),

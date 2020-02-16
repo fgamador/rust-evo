@@ -645,8 +645,9 @@ impl BuddingCellLayerSpecialty {
 
     fn create_and_init_child(&mut self, cell_state: &CellStateSnapshot) -> Cell {
         let mut child = (self.create_child)(
-            // TODO test: self.genome.copy_with_mutation(&mut self.randomness),
-            (*self.genome).clone(),
+            // TODO test that this is called?
+            self.genome.copy_with_mutation(&mut self.randomness),
+            // TODO test that this is called?
             self.randomness.child_seed(),
             self.mutation_parameters,
         );

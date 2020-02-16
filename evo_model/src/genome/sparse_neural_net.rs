@@ -246,19 +246,21 @@ impl PartialEq for TransferFn {
 
 #[derive(Debug, Clone, Copy)]
 pub struct MutationParameters {
-    pub weight_mutation_probability: f64,
+    pub weight_mutation_probability: f32,
+    pub weight_mutation_stdev: f32,
 }
 
 impl MutationParameters {
     pub const NO_MUTATION: MutationParameters = MutationParameters {
         weight_mutation_probability: 0.0,
+        weight_mutation_stdev: 0.0,
     };
 
     fn _validate(&self) {
         assert!(Self::_is_probability(self.weight_mutation_probability));
     }
 
-    fn _is_probability(num: f64) -> bool {
+    fn _is_probability(num: f32) -> bool {
         0.0 <= num && num <= 1.0
     }
 }
@@ -287,7 +289,7 @@ impl SeededMutationRandomness {
 
     fn should_mutate_this_weight(&mut self) -> bool {
         self.rng
-            .gen_bool(self.mutation_parameters.weight_mutation_probability)
+            .gen_bool(self.mutation_parameters.weight_mutation_probability as f64)
     }
 }
 
@@ -298,7 +300,7 @@ impl MutationRandomness for SeededMutationRandomness {
         }
 
         let gaussian = self.rng.sample::<f32, _>(StandardNormal);
-        weight + gaussian * weight
+        weight + gaussian * self.mutation_parameters.weight_mutation_stdev * weight
     }
 }
 
@@ -431,6 +433,7 @@ mod tests {
     fn seeded_mutation_randomness_mutates_weight() {
         const ALWAYS_MUTATE: MutationParameters = MutationParameters {
             weight_mutation_probability: 1.0,
+            weight_mutation_stdev: 1.0,
         };
 
         let mut randomness = SeededMutationRandomness::new(0, &ALWAYS_MUTATE);

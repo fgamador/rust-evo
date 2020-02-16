@@ -71,6 +71,8 @@ pub struct CellLayer {
 }
 
 impl CellLayer {
+    const HEALING_CHANNEL_INDEX: usize = 0;
+    const RESIZE_CHANNEL_INDEX: usize = 1;
     const LIVING_BRAIN: LivingCellLayerBrain = LivingCellLayerBrain {};
     const DEAD_BRAIN: DeadCellLayerBrain = DeadCellLayerBrain {};
 
@@ -182,11 +184,11 @@ impl CellLayer {
     }
 
     pub fn healing_request(layer_index: usize, delta_health: f64) -> ControlRequest {
-        ControlRequest::new(layer_index, 0, delta_health)
+        ControlRequest::new(layer_index, Self::HEALING_CHANNEL_INDEX, delta_health)
     }
 
     pub fn resize_request(layer_index: usize, delta_area: AreaDelta) -> ControlRequest {
-        ControlRequest::new(layer_index, 1, delta_area.value())
+        ControlRequest::new(layer_index, Self::RESIZE_CHANNEL_INDEX, delta_area.value())
     }
 }
 
@@ -216,7 +218,6 @@ impl CellLayerBody {
             health: 1.0,
             color,
             brain: &CellLayer::LIVING_BRAIN,
-            // TODO pull these out and share them
             health_parameters: &LayerHealthParameters::DEFAULT,
             resize_parameters: &LayerResizeParameters::UNLIMITED,
         }
@@ -349,8 +350,8 @@ impl CellLayerBrain for LivingCellLayerBrain {
         request: ControlRequest,
     ) -> CostedControlRequest {
         match request.channel_index {
-            0 => body.cost_restore_health(request),
-            1 => body.cost_resize(request),
+            CellLayer::HEALING_CHANNEL_INDEX => body.cost_restore_health(request),
+            CellLayer::RESIZE_CHANNEL_INDEX => body.cost_resize(request),
             _ => specialty.cost_control_request(request),
         }
     }
@@ -362,8 +363,12 @@ impl CellLayerBrain for LivingCellLayerBrain {
         request: BudgetedControlRequest,
     ) {
         match request.channel_index {
-            0 => body.restore_health(request.value, request.budgeted_fraction),
-            1 => body.resize(request.value, request.budgeted_fraction),
+            CellLayer::HEALING_CHANNEL_INDEX => {
+                body.restore_health(request.value, request.budgeted_fraction)
+            }
+            CellLayer::RESIZE_CHANNEL_INDEX => {
+                body.resize(request.value, request.budgeted_fraction)
+            }
             _ => specialty.execute_control_request(body, request),
         }
     }
@@ -431,7 +436,7 @@ pub trait CellLayerSpecialty: Debug {
 
     // TODO spread and use this, e.g. for the invalid-index panic
     fn max_control_channel_index(&self) -> usize {
-        1
+        CellLayer::RESIZE_CHANNEL_INDEX
     }
 
     fn cost_control_request(&self, request: ControlRequest) -> CostedControlRequest {

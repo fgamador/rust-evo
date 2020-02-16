@@ -1207,21 +1207,19 @@ mod tests {
             energy: BioEnergy::new(1.0),
             layers: Vec::new(),
         };
-        match layer.after_control_requests(&cell_state) {
-            None => panic!(),
-            Some(child) => {
-                assert_eq!(2, child.layers().len());
-                assert_eq!(
-                    Position::new(
-                        cell_state.center.x() + cell_state.radius.value() + child.radius().value(),
-                        cell_state.center.y(),
-                    ),
-                    child.center()
-                );
-                assert_eq!(child.velocity(), cell_state.velocity);
-                assert_eq!(child.energy(), BioEnergy::new(1.0));
-            }
-        }
+
+        let child = layer.after_control_requests(&cell_state).unwrap();
+
+        assert_eq!(child.layers().len(), 2);
+        assert_eq!(
+            child.center(),
+            Position::new(
+                cell_state.center.x() + cell_state.radius.value() + child.radius().value(),
+                cell_state.center.y(),
+            )
+        );
+        assert_eq!(child.velocity(), cell_state.velocity);
+        assert_eq!(child.energy(), BioEnergy::new(1.0));
     }
 
     #[test]

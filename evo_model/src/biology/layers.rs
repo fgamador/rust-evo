@@ -1285,10 +1285,12 @@ mod tests {
             BioEnergyDelta::new(1.0),
             0.5,
         ));
-        match layer.after_control_requests(&CellStateSnapshot::ZEROS) {
-            None => panic!(),
-            Some(child) => assert_eq!(BioEnergy::new(0.5), child.energy()),
-        }
+
+        let child = layer
+            .after_control_requests(&CellStateSnapshot::ZEROS)
+            .unwrap();
+
+        assert_eq!(child.energy(), BioEnergy::new(0.5));
     }
 
     #[test]
@@ -1309,10 +1311,12 @@ mod tests {
         layer.execute_control_request(fully_budgeted(
             BuddingCellLayerSpecialty::donation_energy_request(0, BioEnergy::new(1.0)),
         ));
-        match layer.after_control_requests(&CellStateSnapshot::ZEROS) {
-            None => panic!(),
-            Some(child) => assert_eq!(BioEnergy::new(0.5), child.energy()),
-        }
+
+        let child = layer
+            .after_control_requests(&CellStateSnapshot::ZEROS)
+            .unwrap();
+
+        assert_eq!(child.energy(), BioEnergy::new(0.5));
     }
 
     fn create_child(

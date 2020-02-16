@@ -103,12 +103,8 @@ impl SparseNeuralNetGenome {
 
     fn copy_with_mutated_weights(ops: &[Op], randomness: &mut dyn MutationRandomness) -> Vec<Op> {
         ops.iter()
-            .map(|op| Self::copy_with_mutated_weight(op, randomness))
+            .map(|op| op.copy_with_mutated_weight(|weight| randomness.mutate_weight(weight)))
             .collect()
-    }
-
-    fn copy_with_mutated_weight(op: &Op, randomness: &mut dyn MutationRandomness) -> Op {
-        op.copy_with_mutated_weight(|weight| randomness.mutate_weight(weight))
     }
 }
 

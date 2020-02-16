@@ -593,7 +593,7 @@ impl CellLayerSpecialty for EnergyGeneratingCellLayerSpecialty {
     }
 }
 
-type CreateCellFn = fn(genome: SparseNeuralNetGenome, u64, &'static MutationParameters) -> Cell;
+type CreateCellFn = fn(SparseNeuralNetGenome, u64, &'static MutationParameters) -> Cell;
 
 #[derive(Debug)]
 pub struct BuddingCellLayerSpecialty {

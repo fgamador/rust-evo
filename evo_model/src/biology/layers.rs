@@ -434,10 +434,10 @@ pub trait CellLayerSpecialty: Debug {
         (BioEnergy::ZERO, Force::ZERO)
     }
 
-    // TODO spread and use this, e.g. for the invalid-index panic
-    fn max_control_channel_index(&self) -> usize {
-        CellLayer::RESIZE_CHANNEL_INDEX
-    }
+    // TODO implement and use this, e.g. for the invalid-index panic
+    //    fn max_control_channel_index(&self) -> usize {
+    //        CellLayer::RESIZE_CHANNEL_INDEX
+    //    }
 
     fn cost_control_request(&self, request: ControlRequest) -> CostedControlRequest {
         panic!("Invalid control channel index: {}", request.channel_index);

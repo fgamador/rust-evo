@@ -1198,27 +1198,24 @@ mod tests {
         layer.execute_control_request(fully_budgeted(
             BuddingCellLayerSpecialty::donation_energy_request(0, BioEnergy::new(1.0)),
         ));
-        let cell_state = CellStateSnapshot {
+        let parent_state = CellStateSnapshot {
             radius: Length::new(2.0),
-            area: Area::new(3.0),
-            mass: Mass::new(1.0),
             center: Position::new(1.0, -1.0),
             velocity: Velocity::new(2.0, -2.0),
-            energy: BioEnergy::new(1.0),
-            layers: Vec::new(),
+            ..CellStateSnapshot::ZEROS
         };
 
-        let child = layer.after_control_requests(&cell_state).unwrap();
+        let child = layer.after_control_requests(&parent_state).unwrap();
 
         assert_eq!(child.layers().len(), 2);
         assert_eq!(
             child.center(),
             Position::new(
-                cell_state.center.x() + cell_state.radius.value() + child.radius().value(),
-                cell_state.center.y(),
+                parent_state.center.x() + parent_state.radius.value() + child.radius().value(),
+                parent_state.center.y(),
             )
         );
-        assert_eq!(child.velocity(), cell_state.velocity);
+        assert_eq!(child.velocity(), parent_state.velocity);
         assert_eq!(child.energy(), BioEnergy::new(1.0));
     }
 

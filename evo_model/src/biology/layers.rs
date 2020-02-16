@@ -473,6 +473,9 @@ pub struct ThrusterCellLayerSpecialty {
 }
 
 impl ThrusterCellLayerSpecialty {
+    const FORCE_X_CHANNEL_INDEX: usize = 2;
+    const FORCE_Y_CHANNEL_INDEX: usize = 3;
+
     #[allow(clippy::new_without_default)]
     pub fn new() -> Self {
         ThrusterCellLayerSpecialty {
@@ -482,11 +485,11 @@ impl ThrusterCellLayerSpecialty {
     }
 
     pub fn force_x_request(layer_index: usize, value: f64) -> ControlRequest {
-        ControlRequest::new(layer_index, 2, value)
+        ControlRequest::new(layer_index, Self::FORCE_X_CHANNEL_INDEX, value)
     }
 
     pub fn force_y_request(layer_index: usize, value: f64) -> ControlRequest {
-        ControlRequest::new(layer_index, 3, value)
+        ControlRequest::new(layer_index, Self::FORCE_Y_CHANNEL_INDEX, value)
     }
 }
 
@@ -503,15 +506,21 @@ impl CellLayerSpecialty for ThrusterCellLayerSpecialty {
     fn cost_control_request(&self, request: ControlRequest) -> CostedControlRequest {
         match request.channel_index {
             // TODO cost forces based on a parameter struct(?)
-            2 | 3 => CostedControlRequest::new(request, BioEnergyDelta::ZERO),
+            Self::FORCE_X_CHANNEL_INDEX | Self::FORCE_Y_CHANNEL_INDEX => {
+                CostedControlRequest::new(request, BioEnergyDelta::ZERO)
+            }
             _ => panic!("Invalid control channel index: {}", request.channel_index),
         }
     }
 
     fn execute_control_request(&mut self, body: &CellLayerBody, request: BudgetedControlRequest) {
         match request.channel_index {
-            2 => self.force_x = body.health * request.budgeted_fraction * request.value,
-            3 => self.force_y = body.health * request.budgeted_fraction * request.value,
+            Self::FORCE_X_CHANNEL_INDEX => {
+                self.force_x = body.health * request.budgeted_fraction * request.value
+            }
+            Self::FORCE_Y_CHANNEL_INDEX => {
+                self.force_y = body.health * request.budgeted_fraction * request.value
+            }
             _ => panic!("Invalid control channel index: {}", request.channel_index),
         }
     }
@@ -554,6 +563,8 @@ pub struct EnergyGeneratingCellLayerSpecialty {
 }
 
 impl EnergyGeneratingCellLayerSpecialty {
+    const ENERGY_CHANNEL_INDEX: usize = 2;
+
     #[allow(clippy::new_without_default)]
     pub fn new() -> Self {
         EnergyGeneratingCellLayerSpecialty {
@@ -562,7 +573,7 @@ impl EnergyGeneratingCellLayerSpecialty {
     }
 
     pub fn energy_request(layer_index: usize, energy: BioEnergy) -> ControlRequest {
-        ControlRequest::new(layer_index, 2, energy.value())
+        ControlRequest::new(layer_index, Self::ENERGY_CHANNEL_INDEX, energy.value())
     }
 }
 
@@ -581,14 +592,16 @@ impl CellLayerSpecialty for EnergyGeneratingCellLayerSpecialty {
 
     fn cost_control_request(&self, request: ControlRequest) -> CostedControlRequest {
         match request.channel_index {
-            2 => CostedControlRequest::new(request, BioEnergyDelta::ZERO),
+            Self::ENERGY_CHANNEL_INDEX => CostedControlRequest::new(request, BioEnergyDelta::ZERO),
             _ => panic!("Invalid control channel index: {}", request.channel_index),
         }
     }
 
     fn execute_control_request(&mut self, _body: &CellLayerBody, request: BudgetedControlRequest) {
         match request.channel_index {
-            2 => self.energy = request.budgeted_fraction * BioEnergy::new(request.value.max(0.0)),
+            Self::ENERGY_CHANNEL_INDEX => {
+                self.energy = request.budgeted_fraction * BioEnergy::new(request.value.max(0.0))
+            }
             _ => panic!("Invalid control channel index: {}", request.channel_index),
         }
     }
@@ -611,6 +624,9 @@ pub struct BuddingCellLayerSpecialty {
 }
 
 impl BuddingCellLayerSpecialty {
+    const BUDDING_ANGLE_CHANNEL_INDEX: usize = 2;
+    const DONATION_ENERGY_CHANNEL_INDEX: usize = 3;
+
     pub fn new(
         genome: Rc<SparseNeuralNetGenome>,
         seed: u64,
@@ -643,27 +659,41 @@ impl BuddingCellLayerSpecialty {
     }
 
     pub fn budding_angle_request(layer_index: usize, angle: Angle) -> ControlRequest {
-        ControlRequest::new(layer_index, 2, angle.radians())
+        ControlRequest::new(
+            layer_index,
+            Self::BUDDING_ANGLE_CHANNEL_INDEX,
+            angle.radians(),
+        )
     }
 
     pub fn donation_energy_request(layer_index: usize, energy: BioEnergy) -> ControlRequest {
-        ControlRequest::new(layer_index, 3, energy.value())
+        ControlRequest::new(
+            layer_index,
+            Self::DONATION_ENERGY_CHANNEL_INDEX,
+            energy.value(),
+        )
     }
 }
 
 impl CellLayerSpecialty for BuddingCellLayerSpecialty {
     fn cost_control_request(&self, request: ControlRequest) -> CostedControlRequest {
         match request.channel_index {
-            2 => CostedControlRequest::new(request, BioEnergyDelta::ZERO),
-            3 => CostedControlRequest::new(request, BioEnergyDelta::new(request.value)),
+            Self::BUDDING_ANGLE_CHANNEL_INDEX => {
+                CostedControlRequest::new(request, BioEnergyDelta::ZERO)
+            }
+            Self::DONATION_ENERGY_CHANNEL_INDEX => {
+                CostedControlRequest::new(request, BioEnergyDelta::new(request.value))
+            }
             _ => panic!("Invalid control channel index: {}", request.channel_index),
         }
     }
 
     fn execute_control_request(&mut self, body: &CellLayerBody, request: BudgetedControlRequest) {
         match request.channel_index {
-            2 => self.budding_angle = Angle::from_radians(request.value),
-            3 => {
+            Self::BUDDING_ANGLE_CHANNEL_INDEX => {
+                self.budding_angle = Angle::from_radians(request.value)
+            }
+            Self::DONATION_ENERGY_CHANNEL_INDEX => {
                 self.donation_energy =
                     body.health * request.budgeted_fraction * BioEnergy::new(request.value)
             }

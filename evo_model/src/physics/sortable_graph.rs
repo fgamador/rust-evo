@@ -83,9 +83,9 @@ impl<N: GraphNode, E: GraphEdge, ME: GraphMetaEdge> SortableGraph<N, E, ME> {
     fn remove_node(&mut self, handle: NodeHandle) {
         self.remove_edges(&self.node(handle).graph_node_data().edge_handles.clone());
         self.nodes.swap_remove(handle.index);
-        let last_handle = NodeHandle::new(self.nodes.len());
-        if handle != last_handle {
-            self.fix_swapped_node_and_its_edges(last_handle, handle);
+        let old_last_handle = self.next_node_handle();
+        if handle != old_last_handle {
+            self.fix_swapped_node_and_its_edges(old_last_handle, handle);
         }
     }
 
@@ -108,9 +108,9 @@ impl<N: GraphNode, E: GraphEdge, ME: GraphMetaEdge> SortableGraph<N, E, ME> {
     }
 
     /// Same gotchas as in remove_nodes.
-    pub fn remove_edges(&mut self, edge_handles: &[EdgeHandle]) {
-        for edge_handle in edge_handles.iter().rev() {
-            self.remove_edge(*edge_handle);
+    pub fn remove_edges(&mut self, handles: &[EdgeHandle]) {
+        for handle in handles.iter().rev() {
+            self.remove_edge(*handle);
         }
     }
 

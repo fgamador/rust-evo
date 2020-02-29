@@ -6,7 +6,7 @@ use std::usize;
 #[derive(Debug)]
 pub struct SortableGraph<N: GraphNode, E: GraphEdge, ME: GraphMetaEdge> {
     nodes: Vec<N>,
-    sortable_node_handles: Vec<NodeHandle>,
+    node_handles: Vec<NodeHandle>,
     edges: Vec<E>,
     meta_edges: Vec<ME>,
 }
@@ -16,7 +16,7 @@ impl<N: GraphNode, E: GraphEdge, ME: GraphMetaEdge> SortableGraph<N, E, ME> {
     pub fn new() -> Self {
         SortableGraph {
             nodes: vec![],
-            sortable_node_handles: vec![],
+            node_handles: vec![],
             edges: vec![],
             meta_edges: vec![],
         }
@@ -25,7 +25,7 @@ impl<N: GraphNode, E: GraphEdge, ME: GraphMetaEdge> SortableGraph<N, E, ME> {
     pub fn add_node(&mut self, mut node: N) -> NodeHandle {
         node.graph_node_data_mut().node_handle = self.next_node_handle();
         let node_handle = node.node_handle();
-        self.sortable_node_handles.push(node_handle);
+        self.node_handles.push(node_handle);
         self.nodes.push(node);
         node_handle
     }
@@ -100,8 +100,7 @@ impl<N: GraphNode, E: GraphEdge, ME: GraphMetaEdge> SortableGraph<N, E, ME> {
 
     fn remove_obsolete_node_handles(&mut self) {
         let first_invalid_index = self.nodes.len();
-        self.sortable_node_handles
-            .retain(|h| h.index < first_invalid_index);
+        self.node_handles.retain(|h| h.index < first_invalid_index);
     }
 
     /// Same gotchas as in remove_nodes.
@@ -158,12 +157,12 @@ impl<N: GraphNode, E: GraphEdge, ME: GraphMetaEdge> SortableGraph<N, E, ME> {
     pub fn sort_node_handles(&mut self, cmp: fn(&N, &N) -> Ordering) {
         let nodes = &self.nodes;
         // TODO convert this to insertion sort (and rename fn to insertion_sort)
-        self.sortable_node_handles
+        self.node_handles
             .sort_unstable_by(|h1, h2| cmp(&nodes[h1.index], &nodes[h2.index]));
     }
 
     pub fn node_handles(&self) -> &[NodeHandle] {
-        &self.sortable_node_handles
+        &self.node_handles
     }
 
     pub fn nodes(&self) -> &[N] {
@@ -407,8 +406,8 @@ mod tests {
         let node = &graph.nodes()[0];
         assert_eq!(node.id, 1);
         assert_eq!(node.node_handle().index, 0);
-        assert_eq!(graph.sortable_node_handles.len(), 1);
-        assert_eq!(graph.sortable_node_handles[0].index, 0);
+        assert_eq!(graph.node_handles.len(), 1);
+        assert_eq!(graph.node_handles[0].index, 0);
     }
 
     #[test]

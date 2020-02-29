@@ -23,7 +23,7 @@ impl<N: GraphNode, E: GraphEdge, ME: GraphMetaEdge> SortableGraph<N, E, ME> {
     }
 
     pub fn add_node(&mut self, mut node: N) -> NodeHandle {
-        node.graph_node_data_mut().node_handle = self.next_node_handle();
+        node.graph_node_data_mut().handle = self.next_node_handle();
         let node_handle = node.node_handle();
         self.node_handles.push(node_handle);
         self.nodes.push(node);
@@ -86,7 +86,7 @@ impl<N: GraphNode, E: GraphEdge, ME: GraphMetaEdge> SortableGraph<N, E, ME> {
     }
 
     fn fix_swapped_node_and_its_edges(&mut self, old_handle: NodeHandle, new_handle: NodeHandle) {
-        self.node_mut(new_handle).graph_node_data_mut().node_handle = new_handle;
+        self.node_mut(new_handle).graph_node_data_mut().handle = new_handle;
         for edge_handle in self.node(new_handle).graph_node_data().edge_handles.clone() {
             let edge_data = self.edge_mut(edge_handle).graph_edge_data_mut();
             if edge_data.node1_handle == old_handle {
@@ -244,8 +244,7 @@ impl fmt::Display for NodeHandle {
 
 #[derive(Clone, Debug, PartialEq)]
 pub struct GraphNodeData {
-    // TODO self_handle?
-    node_handle: NodeHandle,
+    handle: NodeHandle,
     // TODO SmallVec?
     edge_handles: Vec<EdgeHandle>,
 }
@@ -254,13 +253,13 @@ impl GraphNodeData {
     #[allow(clippy::new_without_default)]
     pub fn new() -> Self {
         GraphNodeData {
-            node_handle: NodeHandle::unset(),
+            handle: NodeHandle::unset(),
             edge_handles: vec![],
         }
     }
 
     pub fn handle(&self) -> NodeHandle {
-        self.node_handle
+        self.handle
     }
 }
 
@@ -460,21 +459,21 @@ mod tests {
         assert_eq!(
             *graph.node(node0_handle).graph_node_data(),
             GraphNodeData {
-                node_handle: NodeHandle { index: 0 },
+                handle: NodeHandle { index: 0 },
                 edge_handles: vec![]
             }
         );
         assert_eq!(
             *graph.node(node1_handle).graph_node_data(),
             GraphNodeData {
-                node_handle: NodeHandle { index: 1 },
+                handle: NodeHandle { index: 1 },
                 edge_handles: vec![EdgeHandle { index: 0 }]
             }
         );
         assert_eq!(
             *graph.node(node2_handle).graph_node_data(),
             GraphNodeData {
-                node_handle: NodeHandle { index: 2 },
+                handle: NodeHandle { index: 2 },
                 edge_handles: vec![EdgeHandle { index: 0 }]
             }
         );

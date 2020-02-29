@@ -34,6 +34,7 @@ fn create_world() -> World {
     const SOME_MUTATION: MutationParameters = MutationParameters {
         weight_mutation_probability: 0.5,
         weight_mutation_stdev: 1.0,
+        ..MutationParameters::NO_MUTATION
     };
 
     World::new(Position::new(0.0, -400.0), Position::new(400.0, 0.0))

@@ -239,12 +239,14 @@ impl PartialEq for TransferFn {
 pub struct MutationParameters {
     pub weight_mutation_probability: f32,
     pub weight_mutation_stdev: f32,
+    pub add_node_probability: f32,
 }
 
 impl MutationParameters {
     pub const NO_MUTATION: MutationParameters = MutationParameters {
         weight_mutation_probability: 0.0,
         weight_mutation_stdev: 0.0,
+        add_node_probability: 0.0,
     };
 
     fn _validate(&self) {
@@ -424,6 +426,7 @@ mod tests {
         const ALWAYS_MUTATE: MutationParameters = MutationParameters {
             weight_mutation_probability: 1.0,
             weight_mutation_stdev: 1.0,
+            ..MutationParameters::NO_MUTATION
         };
 
         let mut randomness = SeededMutationRandomness::new(0, &ALWAYS_MUTATE);

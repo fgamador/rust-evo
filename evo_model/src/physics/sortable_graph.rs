@@ -1,7 +1,8 @@
 use std::cmp::Ordering;
+use std::convert::TryInto;
 use std::fmt;
 use std::fmt::{Error, Formatter};
-use std::usize;
+use std::u32;
 
 #[derive(Debug)]
 pub struct SortableGraph<N: GraphNode, E: GraphEdge, ME: GraphMetaEdge> {
@@ -31,7 +32,7 @@ impl<N: GraphNode, E: GraphEdge, ME: GraphMetaEdge> SortableGraph<N, E, ME> {
     }
 
     fn next_node_handle(&self) -> NodeHandle {
-        NodeHandle::new(self.nodes.len())
+        NodeHandle::new(self.nodes.len().try_into().unwrap())
     }
 
     pub fn add_edge(&mut self, mut edge: E) -> EdgeHandle {
@@ -44,7 +45,7 @@ impl<N: GraphNode, E: GraphEdge, ME: GraphMetaEdge> SortableGraph<N, E, ME> {
     }
 
     fn next_edge_handle(&self) -> EdgeHandle {
-        EdgeHandle::new(self.edges.len())
+        EdgeHandle::new(self.edges.len().try_into().unwrap())
     }
 
     fn add_edge_to_node(&mut self, node_handle: NodeHandle, edge_handle: EdgeHandle) {
@@ -82,7 +83,7 @@ impl<N: GraphNode, E: GraphEdge, ME: GraphMetaEdge> SortableGraph<N, E, ME> {
     /// Warning: invalidates handles to the last node in self.nodes.
     fn remove_node(&mut self, handle: NodeHandle) {
         self.remove_edges(&self.node(handle).graph_node_data().edge_handles.clone());
-        self.nodes.swap_remove(handle.index);
+        self.nodes.swap_remove(handle.index());
         self.fix_swapped_node_if_needed(handle);
     }
 
@@ -107,7 +108,7 @@ impl<N: GraphNode, E: GraphEdge, ME: GraphMetaEdge> SortableGraph<N, E, ME> {
     }
 
     fn remove_obsolete_node_handles(&mut self) {
-        let first_invalid_index = self.nodes.len();
+        let first_invalid_index = self.next_node_handle().index;
         self.node_handles.retain(|h| h.index < first_invalid_index);
     }
 
@@ -123,7 +124,7 @@ impl<N: GraphNode, E: GraphEdge, ME: GraphMetaEdge> SortableGraph<N, E, ME> {
         self.remove_edge_from_node(self.edge(handle).node1_handle(), handle);
         self.remove_edge_from_node(self.edge(handle).node2_handle(), handle);
         // TODO remove obsolete meta-edges
-        self.edges.swap_remove(handle.index);
+        self.edges.swap_remove(handle.index());
         self.fix_swapped_edge_if_needed(handle);
     }
 
@@ -170,7 +171,7 @@ impl<N: GraphNode, E: GraphEdge, ME: GraphMetaEdge> SortableGraph<N, E, ME> {
         let nodes = &self.nodes;
         // TODO convert this to insertion sort (and rename fn to insertion_sort)
         self.node_handles
-            .sort_unstable_by(|h1, h2| cmp(&nodes[h1.index], &nodes[h2.index]));
+            .sort_unstable_by(|h1, h2| cmp(&nodes[h1.index()], &nodes[h2.index()]));
     }
 
     pub fn have_edge(&self, node1: &N, node2: &N) -> bool {
@@ -182,7 +183,7 @@ impl<N: GraphNode, E: GraphEdge, ME: GraphMetaEdge> SortableGraph<N, E, ME> {
             .graph_node_data()
             .edge_handles
             .iter()
-            .map(|edge_handle| self.edges[edge_handle.index].node2_handle())
+            .map(|edge_handle| self.edges[edge_handle.index()].node2_handle())
             .any(|node2_handle| node2_handle == node2.node_handle())
     }
 
@@ -199,11 +200,11 @@ impl<N: GraphNode, E: GraphEdge, ME: GraphMetaEdge> SortableGraph<N, E, ME> {
     }
 
     pub fn node(&self, handle: NodeHandle) -> &N {
-        &self.nodes[handle.index]
+        &self.nodes[handle.index()]
     }
 
     pub fn node_mut(&mut self, handle: NodeHandle) -> &mut N {
-        &mut self.nodes[handle.index]
+        &mut self.nodes[handle.index()]
     }
 
     pub fn edges(&self) -> &[E] {
@@ -211,11 +212,11 @@ impl<N: GraphNode, E: GraphEdge, ME: GraphMetaEdge> SortableGraph<N, E, ME> {
     }
 
     pub fn edge(&self, handle: EdgeHandle) -> &E {
-        &self.edges[handle.index]
+        &self.edges[handle.index()]
     }
 
     pub fn edge_mut(&mut self, handle: EdgeHandle) -> &mut E {
-        &mut self.edges[handle.index]
+        &mut self.edges[handle.index()]
     }
 
     pub fn meta_edges(&self) -> &[ME] {
@@ -234,17 +235,20 @@ pub trait GraphNode {
 
 #[derive(Clone, Copy, Debug, PartialEq)]
 pub struct NodeHandle {
-    // TODO u32?
-    index: usize,
+    index: u32,
 }
 
 impl NodeHandle {
-    fn new(index: usize) -> Self {
+    fn new(index: u32) -> Self {
         NodeHandle { index }
     }
 
     pub fn unset() -> Self {
-        NodeHandle { index: usize::MAX }
+        NodeHandle { index: u32::MAX }
+    }
+
+    fn index(self) -> usize {
+        self.index.try_into().unwrap()
     }
 }
 
@@ -290,17 +294,20 @@ pub trait GraphEdge {
 
 #[derive(Clone, Copy, Debug, PartialEq)]
 pub struct EdgeHandle {
-    // TODO u32?
-    index: usize,
+    index: u32,
 }
 
 impl EdgeHandle {
-    fn new(index: usize) -> Self {
+    fn new(index: u32) -> Self {
         EdgeHandle { index }
     }
 
     pub fn unset() -> Self {
-        EdgeHandle { index: usize::MAX }
+        EdgeHandle { index: u32::MAX }
+    }
+
+    fn index(self) -> usize {
+        self.index.try_into().unwrap()
     }
 }
 

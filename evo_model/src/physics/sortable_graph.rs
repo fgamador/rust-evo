@@ -411,6 +411,41 @@ mod tests {
     }
 
     #[test]
+    #[ignore]
+    fn removing_node_updates_edges() {
+        let mut graph: SortableGraph<SimpleGraphNode, SimpleGraphEdge, SimpleGraphMetaEdge> =
+            SortableGraph::new();
+
+        let node0_handle = graph.add_node(SimpleGraphNode::new(0));
+        let node1_handle = graph.add_node(SimpleGraphNode::new(1));
+        let node2_handle = graph.add_node(SimpleGraphNode::new(2));
+        graph.add_edge(SimpleGraphEdge::new(
+            graph.node(node0_handle),
+            graph.node(node1_handle),
+        ));
+        graph.add_edge(SimpleGraphEdge::new(
+            graph.node(node1_handle),
+            graph.node(node2_handle),
+        ));
+        graph.add_edge(SimpleGraphEdge::new(
+            graph.node(node2_handle),
+            graph.node(node0_handle),
+        ));
+
+        graph.remove_nodes(vec![node0_handle]);
+
+        assert_eq!(graph.edges().len(), 1);
+        assert_eq!(
+            *graph.edge(EdgeHandle { index: 0 }).graph_edge_data(),
+            GraphEdgeData {
+                edge_handle: EdgeHandle { index: 0 },
+                node1_handle: NodeHandle { index: 1 },
+                node2_handle: NodeHandle { index: 0 }
+            }
+        );
+    }
+
+    #[test]
     fn have_edge() {
         let mut graph: SortableGraph<SimpleGraphNode, SimpleGraphEdge, SimpleGraphMetaEdge> =
             SortableGraph::new();

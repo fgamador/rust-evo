@@ -47,6 +47,7 @@ impl<N: GraphNode, E: GraphEdge, ME: GraphMetaEdge> SortableGraph<N, E, ME> {
     }
 
     pub fn add_meta_edge(&mut self, meta_edge: ME) {
+        // TODO unfinished
         //        edge.graph_edge_data_mut().edge_handle.index = self.meta_edges.len();
         //        let edge_handle = edge.edge_handle();
         //        self.add_edge_to_node(edge.node1_handle(), edge_handle);
@@ -102,13 +103,18 @@ impl<N: GraphNode, E: GraphEdge, ME: GraphMetaEdge> SortableGraph<N, E, ME> {
     /// Same gotchas as in remove_nodes.
     pub fn remove_edges(&mut self, edge_handles: &[EdgeHandle]) {
         for edge_handle in edge_handles.iter().rev() {
-            self.remove_edge_from_node(self.edge(*edge_handle).node1_handle(), *edge_handle);
-            self.remove_edge_from_node(self.edge(*edge_handle).node2_handle(), *edge_handle);
-            // TODO obsolete meta-edges
-            self.edges.swap_remove(edge_handle.index);
-            if edge_handle.index < self.edges.len() {
-                self.fix_swapped_edge(EdgeHandle::new(self.edges.len()), *edge_handle);
-            }
+            self.remove_edge(*edge_handle);
+        }
+    }
+
+    /// Warning: invalidates handles to the last edge in self.edges.
+    fn remove_edge(&mut self, edge_handle: EdgeHandle) {
+        self.remove_edge_from_node(self.edge(edge_handle).node1_handle(), edge_handle);
+        self.remove_edge_from_node(self.edge(edge_handle).node2_handle(), edge_handle);
+        // TODO obsolete meta-edges
+        self.edges.swap_remove(edge_handle.index);
+        if edge_handle.index < self.edges.len() {
+            self.fix_swapped_edge(EdgeHandle::new(self.edges.len()), edge_handle);
         }
     }
 

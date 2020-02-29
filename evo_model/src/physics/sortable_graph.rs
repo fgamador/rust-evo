@@ -83,6 +83,10 @@ impl<N: GraphNode, E: GraphEdge, ME: GraphMetaEdge> SortableGraph<N, E, ME> {
     fn remove_node(&mut self, handle: NodeHandle) {
         self.remove_edges(&self.node(handle).graph_node_data().edge_handles.clone());
         self.nodes.swap_remove(handle.index);
+        self.fix_swapped_node_if_needed(handle);
+    }
+
+    fn fix_swapped_node_if_needed(&mut self, handle: NodeHandle) {
         let old_last_handle = self.next_node_handle();
         if handle != old_last_handle {
             self.fix_swapped_node_and_its_edges(old_last_handle, handle);
@@ -120,10 +124,7 @@ impl<N: GraphNode, E: GraphEdge, ME: GraphMetaEdge> SortableGraph<N, E, ME> {
         self.remove_edge_from_node(self.edge(handle).node2_handle(), handle);
         // TODO remove obsolete meta-edges
         self.edges.swap_remove(handle.index);
-        let old_last_handle = self.next_edge_handle();
-        if handle != old_last_handle {
-            self.fix_swapped_edge(old_last_handle, handle);
-        }
+        self.fix_swapped_edge_if_needed(handle);
     }
 
     fn remove_edge_from_node(&mut self, node_handle: NodeHandle, edge_handle: EdgeHandle) {
@@ -134,6 +135,13 @@ impl<N: GraphNode, E: GraphEdge, ME: GraphMetaEdge> SortableGraph<N, E, ME> {
         let index = edge_handles.iter().position(|&h| h == edge_handle).unwrap();
         // TODO can this swap-reordering mess up the ordering needed by remove_edges?
         edge_handles.swap_remove(index);
+    }
+
+    fn fix_swapped_edge_if_needed(&mut self, handle: EdgeHandle) {
+        let old_last_handle = self.next_edge_handle();
+        if handle != old_last_handle {
+            self.fix_swapped_edge(old_last_handle, handle);
+        }
     }
 
     fn fix_swapped_edge(&mut self, old_handle: EdgeHandle, new_handle: EdgeHandle) {

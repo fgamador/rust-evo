@@ -1,3 +1,4 @@
+use smallvec::{smallvec, SmallVec};
 use std::cmp::Ordering;
 use std::convert::TryInto;
 use std::fmt;
@@ -260,8 +261,7 @@ impl fmt::Display for NodeHandle {
 #[derive(Clone, Debug, PartialEq)]
 pub struct GraphNodeData {
     handle: NodeHandle,
-    // TODO SmallVec?
-    edge_handles: Vec<EdgeHandle>,
+    edge_handles: SmallVec<[EdgeHandle; 8]>,
 }
 
 impl GraphNodeData {
@@ -269,7 +269,7 @@ impl GraphNodeData {
     pub fn new() -> Self {
         GraphNodeData {
             handle: NodeHandle::unset(),
-            edge_handles: vec![],
+            edge_handles: smallvec![],
         }
     }
 
@@ -475,21 +475,21 @@ mod tests {
             *graph.node(node0_handle).graph_node_data(),
             GraphNodeData {
                 handle: NodeHandle { index: 0 },
-                edge_handles: vec![]
+                edge_handles: smallvec![]
             }
         );
         assert_eq!(
             *graph.node(node1_handle).graph_node_data(),
             GraphNodeData {
                 handle: NodeHandle { index: 1 },
-                edge_handles: vec![EdgeHandle { index: 0 }]
+                edge_handles: smallvec![EdgeHandle { index: 0 }]
             }
         );
         assert_eq!(
             *graph.node(node2_handle).graph_node_data(),
             GraphNodeData {
                 handle: NodeHandle { index: 2 },
-                edge_handles: vec![EdgeHandle { index: 0 }]
+                edge_handles: smallvec![EdgeHandle { index: 0 }]
             }
         );
     }

@@ -5,6 +5,7 @@ extern crate log;
 
 extern crate rand;
 extern crate rand_pcg;
+extern crate smallvec;
 
 pub mod biology;
 pub mod environment;

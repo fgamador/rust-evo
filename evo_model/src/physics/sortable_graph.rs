@@ -42,15 +42,21 @@ impl<N: GraphNode, E: GraphEdge, ME: GraphMetaEdge> SortableGraph<N, E, ME> {
     pub fn remove_nodes(&mut self, handles: &[NodeHandle]) {
         for handle in handles.iter().rev() {
             self.remove_edges(&self.node(*handle).graph_node_data().edge_handles.clone());
-
             self.unsorted_nodes.swap_remove(handle.index);
             if handle.index < self.unsorted_nodes.len() {
-                self.node_mut(*handle).graph_node_data_mut().node_handle = *handle;
+                self.fix_swapped_node_and_its_edges(*handle);
             }
-
-            // TODO handles to swapped nodes in remaining edges
         }
         self.remove_obsolete_node_handles();
+    }
+
+    fn fix_swapped_node_and_its_edges(&mut self, handle: NodeHandle) {
+        self.node_mut(handle).graph_node_data_mut().node_handle = handle;
+        // for edge_handle in self.node(handle).graph_node_data().edge_handles.clone() {
+        //     let edge = self.edge_mut(edge_handle);
+        //     // TODO find the right handle to update
+        //     edge.graph_edge_data_mut().node1_handle = handle;
+        // }
     }
 
     fn remove_obsolete_node_handles(&mut self) {
@@ -136,6 +142,10 @@ impl<N: GraphNode, E: GraphEdge, ME: GraphMetaEdge> SortableGraph<N, E, ME> {
 
     pub fn edge(&self, handle: EdgeHandle) -> &E {
         &self.edges[handle.index]
+    }
+
+    pub fn edge_mut(&mut self, handle: EdgeHandle) -> &mut E {
+        &mut self.edges[handle.index]
     }
 
     pub fn have_edge(&self, node1: &N, node2: &N) -> bool {

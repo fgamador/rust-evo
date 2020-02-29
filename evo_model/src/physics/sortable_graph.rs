@@ -86,8 +86,11 @@ impl<N: GraphNode, E: GraphEdge, ME: GraphMetaEdge> SortableGraph<N, E, ME> {
         for edge_handle in edge_handles.iter().rev() {
             self.remove_edge_from_node(self.edge(*edge_handle).node1_handle(), *edge_handle);
             self.remove_edge_from_node(self.edge(*edge_handle).node2_handle(), *edge_handle);
+            // TODO obsolete meta-edges
             self.edges.swap_remove(edge_handle.index);
-            // TODO obsolete meta-edges, handles to swapped edges in remaining meta-edges
+            if edge_handle.index < self.edges.len() {
+                self.fix_swapped_edge(EdgeHandle::new(self.edges.len()), *edge_handle);
+            }
         }
     }
 
@@ -99,6 +102,28 @@ impl<N: GraphNode, E: GraphEdge, ME: GraphMetaEdge> SortableGraph<N, E, ME> {
         let index = edge_handles.iter().position(|&h| h == edge_handle).unwrap();
         // TODO can this swap-reordering mess up the ordering needed by remove_edges?
         edge_handles.swap_remove(index);
+    }
+
+    fn fix_swapped_edge(&mut self, old_handle: EdgeHandle, new_handle: EdgeHandle) {
+        self.edge_mut(new_handle).graph_edge_data_mut().edge_handle = new_handle;
+        let edge_data = self.edge(new_handle).graph_edge_data().clone();
+        self.replace_edge_handle(edge_data.node1_handle, old_handle, new_handle);
+        self.replace_edge_handle(edge_data.node2_handle, old_handle, new_handle);
+        // TODO handles to swapped edges in remaining meta-edges
+    }
+
+    fn replace_edge_handle(
+        &mut self,
+        node_handle: NodeHandle,
+        old_handle: EdgeHandle,
+        new_handle: EdgeHandle,
+    ) {
+        let node_data = self.node_mut(node_handle).graph_node_data_mut();
+        for edge_handle in &mut node_data.edge_handles {
+            if *edge_handle == old_handle {
+                edge_handle.index = new_handle.index;
+            }
+        }
     }
 
     pub fn add_meta_edge(&mut self, meta_edge: ME) {
@@ -235,6 +260,10 @@ pub struct EdgeHandle {
 }
 
 impl EdgeHandle {
+    fn new(index: usize) -> Self {
+        EdgeHandle { index }
+    }
+
     pub fn unset() -> Self {
         EdgeHandle { index: usize::MAX }
     }
@@ -377,7 +406,7 @@ mod tests {
     }
 
     #[test]
-    fn can_remove_edge() {
+    fn removing_edge_updates_graph() {
         let mut graph: SortableGraph<SimpleGraphNode, SimpleGraphEdge, SimpleGraphMetaEdge> =
             SortableGraph::new();
 
@@ -397,28 +426,33 @@ mod tests {
 
         assert_eq!(graph.edges().len(), 1);
         assert_eq!(
-            graph
-                .node(node0_handle)
-                .graph_node_data()
-                .edge_handles
-                .len(),
-            0
+            *graph.edge(EdgeHandle { index: 0 }).graph_edge_data(),
+            GraphEdgeData {
+                edge_handle: EdgeHandle { index: 0 },
+                node1_handle: NodeHandle { index: 1 },
+                node2_handle: NodeHandle { index: 2 }
+            }
         );
         assert_eq!(
-            graph
-                .node(node1_handle)
-                .graph_node_data()
-                .edge_handles
-                .len(),
-            1
+            *graph.node(node0_handle).graph_node_data(),
+            GraphNodeData {
+                node_handle: NodeHandle { index: 0 },
+                edge_handles: vec![]
+            }
         );
         assert_eq!(
-            graph
-                .node(node2_handle)
-                .graph_node_data()
-                .edge_handles
-                .len(),
-            1
+            *graph.node(node1_handle).graph_node_data(),
+            GraphNodeData {
+                node_handle: NodeHandle { index: 1 },
+                edge_handles: vec![EdgeHandle { index: 0 }]
+            }
+        );
+        assert_eq!(
+            *graph.node(node2_handle).graph_node_data(),
+            GraphNodeData {
+                node_handle: NodeHandle { index: 2 },
+                edge_handles: vec![EdgeHandle { index: 0 }]
+            }
         );
     }
 

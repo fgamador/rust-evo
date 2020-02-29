@@ -44,19 +44,26 @@ impl<N: GraphNode, E: GraphEdge, ME: GraphMetaEdge> SortableGraph<N, E, ME> {
             self.remove_edges(&self.node(*handle).graph_node_data().edge_handles.clone());
             self.unsorted_nodes.swap_remove(handle.index);
             if handle.index < self.unsorted_nodes.len() {
-                self.fix_swapped_node_and_its_edges(*handle);
+                self.fix_swapped_node_and_its_edges(
+                    NodeHandle::new(self.unsorted_nodes.len()),
+                    *handle,
+                );
             }
         }
         self.remove_obsolete_node_handles();
     }
 
-    fn fix_swapped_node_and_its_edges(&mut self, handle: NodeHandle) {
-        self.node_mut(handle).graph_node_data_mut().node_handle = handle;
-        // for edge_handle in self.node(handle).graph_node_data().edge_handles.clone() {
-        //     let edge = self.edge_mut(edge_handle);
-        //     // TODO find the right handle to update
-        //     edge.graph_edge_data_mut().node1_handle = handle;
-        // }
+    fn fix_swapped_node_and_its_edges(&mut self, old_handle: NodeHandle, new_handle: NodeHandle) {
+        self.node_mut(new_handle).graph_node_data_mut().node_handle = new_handle;
+        for edge_handle in self.node(new_handle).graph_node_data().edge_handles.clone() {
+            let edge_data = self.edge_mut(edge_handle).graph_edge_data_mut();
+            if edge_data.node1_handle == old_handle {
+                edge_data.node1_handle.index = new_handle.index;
+            }
+            if edge_data.node2_handle == old_handle {
+                edge_data.node2_handle.index = new_handle.index;
+            }
+        }
     }
 
     fn remove_obsolete_node_handles(&mut self) {
@@ -207,6 +214,10 @@ pub struct NodeHandle {
 }
 
 impl NodeHandle {
+    fn new(index: usize) -> Self {
+        NodeHandle { index }
+    }
+
     pub fn unset() -> Self {
         NodeHandle { index: usize::MAX }
     }
@@ -480,14 +491,14 @@ mod tests {
         graph.remove_nodes(&vec![node0_handle]);
 
         assert_eq!(graph.edges().len(), 1);
-        // assert_eq!(
-        //     *graph.edge(EdgeHandle { index: 0 }).graph_edge_data(),
-        //     GraphEdgeData {
-        //         edge_handle: EdgeHandle { index: 0 },
-        //         node1_handle: NodeHandle { index: 1 },
-        //         node2_handle: NodeHandle { index: 0 }
-        //     }
-        // );
+        assert_eq!(
+            *graph.edge(EdgeHandle { index: 0 }).graph_edge_data(),
+            GraphEdgeData {
+                edge_handle: EdgeHandle { index: 0 },
+                node1_handle: NodeHandle { index: 1 },
+                node2_handle: NodeHandle { index: 0 }
+            }
+        );
     }
 
     #[test]

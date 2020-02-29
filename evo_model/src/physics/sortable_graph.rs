@@ -115,14 +115,14 @@ impl<N: GraphNode, E: GraphEdge, ME: GraphMetaEdge> SortableGraph<N, E, ME> {
     }
 
     /// Warning: invalidates handles to the last edge in self.edges.
-    fn remove_edge(&mut self, edge_handle: EdgeHandle) {
-        self.remove_edge_from_node(self.edge(edge_handle).node1_handle(), edge_handle);
-        self.remove_edge_from_node(self.edge(edge_handle).node2_handle(), edge_handle);
+    fn remove_edge(&mut self, handle: EdgeHandle) {
+        self.remove_edge_from_node(self.edge(handle).node1_handle(), handle);
+        self.remove_edge_from_node(self.edge(handle).node2_handle(), handle);
         // TODO obsolete meta-edges
-        self.edges.swap_remove(edge_handle.index);
-        let last_handle = EdgeHandle::new(self.edges.len());
-        if edge_handle != last_handle {
-            self.fix_swapped_edge(last_handle, edge_handle);
+        self.edges.swap_remove(handle.index);
+        let old_last_handle = EdgeHandle::new(self.edges.len());
+        if handle != old_last_handle {
+            self.fix_swapped_edge(old_last_handle, handle);
         }
     }
 

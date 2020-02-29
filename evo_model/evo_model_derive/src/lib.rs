@@ -13,7 +13,7 @@ pub fn graph_edge_derive(input: TokenStream) -> TokenStream {
         quote! {
             impl GraphEdge for #name {
                 fn edge_handle(&self) -> EdgeHandle {
-                    self.#field_name.edge_handle()
+                    self.#field_name.handle()
                 }
 
                 fn node1_handle(&self) -> NodeHandle {

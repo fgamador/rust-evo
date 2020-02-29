@@ -312,8 +312,7 @@ impl GraphEdgeData {
         }
     }
 
-    // TODO handle? self_handle?
-    pub fn edge_handle(&self) -> EdgeHandle {
+    pub fn handle(&self) -> EdgeHandle {
         self.handle
     }
 

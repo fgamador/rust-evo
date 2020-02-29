@@ -46,12 +46,13 @@ impl<N: GraphNode, E: GraphEdge, ME: GraphMetaEdge> SortableGraph<N, E, ME> {
         self.remove_obsolete_node_handles();
     }
 
-    /// Warning: invalidates handles to the last node in unsorted_nodes.
+    /// Warning: invalidates handles to the last node in self.unsorted_nodes.
     fn remove_node(&mut self, handle: NodeHandle) {
         self.remove_edges(&self.node(handle).graph_node_data().edge_handles.clone());
         self.unsorted_nodes.swap_remove(handle.index);
-        if handle.index < self.unsorted_nodes.len() {
-            self.fix_swapped_node_and_its_edges(NodeHandle::new(self.unsorted_nodes.len()), handle);
+        let last_handle = NodeHandle::new(self.unsorted_nodes.len());
+        if handle != last_handle {
+            self.fix_swapped_node_and_its_edges(last_handle, handle);
         }
     }
 

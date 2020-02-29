@@ -35,7 +35,7 @@ impl<N: GraphNode, E: GraphEdge, ME: GraphMetaEdge> SortableGraph<N, E, ME> {
     }
 
     pub fn add_edge(&mut self, mut edge: E) -> EdgeHandle {
-        edge.graph_edge_data_mut().edge_handle = self.next_edge_handle();
+        edge.graph_edge_data_mut().handle = self.next_edge_handle();
         let edge_handle = edge.edge_handle();
         self.add_edge_to_node(edge.node1_handle(), edge_handle);
         self.add_edge_to_node(edge.node2_handle(), edge_handle);
@@ -137,7 +137,7 @@ impl<N: GraphNode, E: GraphEdge, ME: GraphMetaEdge> SortableGraph<N, E, ME> {
     }
 
     fn fix_swapped_edge(&mut self, old_handle: EdgeHandle, new_handle: EdgeHandle) {
-        self.edge_mut(new_handle).graph_edge_data_mut().edge_handle = new_handle;
+        self.edge_mut(new_handle).graph_edge_data_mut().handle = new_handle;
         let edge_data = self.edge(new_handle).graph_edge_data().clone();
         self.replace_edge_handle(edge_data.node1_handle, old_handle, new_handle);
         self.replace_edge_handle(edge_data.node2_handle, old_handle, new_handle);
@@ -298,8 +298,7 @@ impl EdgeHandle {
 
 #[derive(Clone, Debug, PartialEq)]
 pub struct GraphEdgeData {
-    // TODO self_handle?
-    edge_handle: EdgeHandle,
+    handle: EdgeHandle,
     node1_handle: NodeHandle,
     node2_handle: NodeHandle,
 }
@@ -307,7 +306,7 @@ pub struct GraphEdgeData {
 impl GraphEdgeData {
     pub fn new(node1_handle: NodeHandle, node2_handle: NodeHandle) -> Self {
         GraphEdgeData {
-            edge_handle: EdgeHandle::unset(),
+            handle: EdgeHandle::unset(),
             node1_handle,
             node2_handle,
         }
@@ -315,7 +314,7 @@ impl GraphEdgeData {
 
     // TODO handle? self_handle?
     pub fn edge_handle(&self) -> EdgeHandle {
-        self.edge_handle
+        self.handle
     }
 
     pub fn node1_handle(&self) -> NodeHandle {
@@ -455,7 +454,7 @@ mod tests {
         assert_eq!(
             *graph.edge(EdgeHandle { index: 0 }).graph_edge_data(),
             GraphEdgeData {
-                edge_handle: EdgeHandle { index: 0 },
+                handle: EdgeHandle { index: 0 },
                 node1_handle: NodeHandle { index: 1 },
                 node2_handle: NodeHandle { index: 2 }
             }
@@ -510,7 +509,7 @@ mod tests {
         assert_eq!(
             *graph.edge(EdgeHandle { index: 0 }).graph_edge_data(),
             GraphEdgeData {
-                edge_handle: EdgeHandle { index: 0 },
+                handle: EdgeHandle { index: 0 },
                 node1_handle: NodeHandle { index: 1 },
                 node2_handle: NodeHandle { index: 0 }
             }

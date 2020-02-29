@@ -46,6 +46,14 @@ impl<N: GraphNode, E: GraphEdge, ME: GraphMetaEdge> SortableGraph<N, E, ME> {
             .push(edge_handle);
     }
 
+    pub fn add_meta_edge(&mut self, meta_edge: ME) {
+        //        edge.graph_edge_data_mut().edge_handle.index = self.meta_edges.len();
+        //        let edge_handle = edge.edge_handle();
+        //        self.add_edge_to_node(edge.node1_handle(), edge_handle);
+        //        self.add_edge_to_node(edge.node2_handle(), edge_handle);
+        self.meta_edges.push(meta_edge);
+    }
+
     /// Removes the nodes referenced by `handles`.
     ///
     /// Warning: this function has two big gotchas:
@@ -134,14 +142,6 @@ impl<N: GraphNode, E: GraphEdge, ME: GraphMetaEdge> SortableGraph<N, E, ME> {
                 edge_handle.index = new_handle.index;
             }
         }
-    }
-
-    pub fn add_meta_edge(&mut self, meta_edge: ME) {
-        //        edge.graph_edge_data_mut().edge_handle.index = self.meta_edges.len();
-        //        let edge_handle = edge.edge_handle();
-        //        self.add_edge_to_node(edge.node1_handle(), edge_handle);
-        //        self.add_edge_to_node(edge.node2_handle(), edge_handle);
-        self.meta_edges.push(meta_edge);
     }
 
     pub fn sort_node_handles(&mut self, cmp: fn(&N, &N) -> Ordering) {

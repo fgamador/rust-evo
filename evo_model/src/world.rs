@@ -146,10 +146,7 @@ impl World {
         for subtick in 0..subticks_per_tick {
             self.pre_subtick_logging(subtick);
             self.apply_influences(subtick_duration);
-            self.after_influences(subtick_duration);
-            self.exert_forces(subtick_duration);
-            self.post_subtick_logging(subtick);
-            self.clear_influences();
+            self.subtick_cells(subtick_duration, subtick);
         }
 
         self.after_movement();
@@ -157,19 +154,23 @@ impl World {
 
     fn pre_subtick_logging(&self, subtick: u32) {
         for cell in self.cell_graph.unsorted_nodes() {
-            trace!(
-                "Subtick {} Cell {} {:?}",
-                subtick,
-                cell.node_handle(),
-                cell.velocity()
-            );
-            trace!(
-                "Subtick {} Cell {} {:?}",
-                subtick,
-                cell.node_handle(),
-                cell.position()
-            );
+            Self::pre_subtick_cell_logging(cell, subtick);
         }
+    }
+
+    fn pre_subtick_cell_logging(cell: &Cell, subtick: u32) {
+        trace!(
+            "Subtick {} Cell {} {:?}",
+            subtick,
+            cell.node_handle(),
+            cell.velocity()
+        );
+        trace!(
+            "Subtick {} Cell {} {:?}",
+            subtick,
+            cell.node_handle(),
+            cell.position()
+        );
     }
 
     fn apply_influences(&mut self, subtick_duration: Duration) {
@@ -178,44 +179,37 @@ impl World {
         }
     }
 
-    fn after_influences(&mut self, subtick_duration: Duration) {
+    fn subtick_cells(&mut self, subtick_duration: Duration, subtick: u32) {
         for cell in self.cell_graph.unsorted_nodes_mut() {
-            cell.after_influences(subtick_duration);
+            Self::subtick_cell(cell, subtick_duration, subtick);
         }
     }
 
-    fn exert_forces(&mut self, subtick_duration: Duration) {
-        for cell in self.cell_graph.unsorted_nodes_mut() {
-            cell.exert_forces(subtick_duration);
-            cell.move_for(subtick_duration);
-        }
+    fn subtick_cell(cell: &mut Cell, subtick_duration: Duration, subtick: u32) {
+        cell.after_influences(subtick_duration);
+        cell.exert_forces(subtick_duration);
+        cell.move_for(subtick_duration);
+        Self::post_subtick_cell_logging(cell, subtick);
+        cell.environment_mut().clear();
+        cell.forces_mut().clear();
     }
 
-    fn post_subtick_logging(&self, subtick: u32) {
-        for cell in self.cell_graph.unsorted_nodes() {
-            //            println!(
-            //                "Subtick {} Cell {} Energy {} Health0 {} Health1 {} Health2 {}",
-            //                subtick,
-            //                cell.node_handle(),
-            //                cell.energy().value(),
-            //                cell.layers()[0].health(),
-            //                cell.layers()[1].health(),
-            //                cell.layers()[2].health()
-            //            );
-            trace!(
-                "Subtick {} Cell {} Net {:?}",
-                subtick,
-                cell.node_handle(),
-                cell.forces().net_force()
-            );
-        }
-    }
-
-    fn clear_influences(&mut self) {
-        for cell in self.cell_graph.unsorted_nodes_mut() {
-            cell.environment_mut().clear();
-            cell.forces_mut().clear();
-        }
+    fn post_subtick_cell_logging(cell: &Cell, subtick: u32) {
+        //            println!(
+        //                "Subtick {} Cell {} Energy {} Health0 {} Health1 {} Health2 {}",
+        //                subtick,
+        //                cell.node_handle(),
+        //                cell.energy().value(),
+        //                cell.layers()[0].health(),
+        //                cell.layers()[1].health(),
+        //                cell.layers()[2].health()
+        //            );
+        trace!(
+            "Subtick {} Cell {} Net {:?}",
+            subtick,
+            cell.node_handle(),
+            cell.forces().net_force()
+        );
     }
 
     fn after_movement(&mut self) {

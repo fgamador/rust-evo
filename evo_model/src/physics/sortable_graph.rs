@@ -155,6 +155,7 @@ impl<N: GraphNode, E: GraphEdge, ME: GraphMetaEdge> SortableGraph<N, E, ME> {
 }
 
 pub trait GraphNode {
+    // TODO handle? self_handle?
     fn node_handle(&self) -> NodeHandle;
 
     fn graph_node_data(&self) -> &GraphNodeData;
@@ -164,6 +165,7 @@ pub trait GraphNode {
 
 #[derive(Clone, Copy, Debug, PartialEq)]
 pub struct NodeHandle {
+    // TODO u32?
     index: usize,
 }
 
@@ -181,7 +183,9 @@ impl fmt::Display for NodeHandle {
 
 #[derive(Clone, Debug, PartialEq)]
 pub struct GraphNodeData {
+    // TODO self_handle?
     node_handle: NodeHandle,
+    // TODO SmallVec?
     edge_handles: Vec<EdgeHandle>,
 }
 
@@ -200,6 +204,7 @@ impl GraphNodeData {
 }
 
 pub trait GraphEdge {
+    // TODO handle? self_handle?
     fn edge_handle(&self) -> EdgeHandle;
 
     fn node1_handle(&self) -> NodeHandle;
@@ -213,6 +218,7 @@ pub trait GraphEdge {
 
 #[derive(Clone, Copy, Debug, PartialEq)]
 pub struct EdgeHandle {
+    // TODO u32?
     index: usize,
 }
 
@@ -224,6 +230,7 @@ impl EdgeHandle {
 
 #[derive(Clone, Debug, PartialEq)]
 pub struct GraphEdgeData {
+    // TODO self_handle?
     edge_handle: EdgeHandle,
     node1_handle: NodeHandle,
     node2_handle: NodeHandle,
@@ -238,6 +245,7 @@ impl GraphEdgeData {
         }
     }
 
+    // TODO handle? self_handle?
     pub fn edge_handle(&self) -> EdgeHandle {
         self.edge_handle
     }

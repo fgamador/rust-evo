@@ -173,6 +173,19 @@ impl<N: GraphNode, E: GraphEdge, ME: GraphMetaEdge> SortableGraph<N, E, ME> {
             .sort_unstable_by(|h1, h2| cmp(&nodes[h1.index], &nodes[h2.index]));
     }
 
+    pub fn have_edge(&self, node1: &N, node2: &N) -> bool {
+        self.has_edge_to(node1, node2) || self.has_edge_to(node2, node1)
+    }
+
+    fn has_edge_to(&self, node1: &N, node2: &N) -> bool {
+        node1
+            .graph_node_data()
+            .edge_handles
+            .iter()
+            .map(|edge_handle| self.edges[edge_handle.index].node2_handle())
+            .any(|node2_handle| node2_handle == node2.node_handle())
+    }
+
     pub fn node_handles(&self) -> &[NodeHandle] {
         &self.node_handles
     }
@@ -203,19 +216,6 @@ impl<N: GraphNode, E: GraphEdge, ME: GraphMetaEdge> SortableGraph<N, E, ME> {
 
     pub fn edge_mut(&mut self, handle: EdgeHandle) -> &mut E {
         &mut self.edges[handle.index]
-    }
-
-    pub fn have_edge(&self, node1: &N, node2: &N) -> bool {
-        self.has_edge_to(node1, node2) || self.has_edge_to(node2, node1)
-    }
-
-    fn has_edge_to(&self, node1: &N, node2: &N) -> bool {
-        node1
-            .graph_node_data()
-            .edge_handles
-            .iter()
-            .map(|edge_handle| self.edges[edge_handle.index].node2_handle())
-            .any(|node2_handle| node2_handle == node2.node_handle())
     }
 
     pub fn meta_edges(&self) -> &[ME] {

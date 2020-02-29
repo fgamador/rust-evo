@@ -30,6 +30,22 @@ impl<N: GraphNode, E: GraphEdge, ME: GraphMetaEdge> SortableGraph<N, E, ME> {
         node_handle
     }
 
+    pub fn add_edge(&mut self, mut edge: E) -> EdgeHandle {
+        edge.graph_edge_data_mut().edge_handle.index = self.edges.len();
+        let edge_handle = edge.edge_handle();
+        self.add_edge_to_node(edge.node1_handle(), edge_handle);
+        self.add_edge_to_node(edge.node2_handle(), edge_handle);
+        self.edges.push(edge);
+        edge_handle
+    }
+
+    fn add_edge_to_node(&mut self, node_handle: NodeHandle, edge_handle: EdgeHandle) {
+        self.node_mut(node_handle)
+            .graph_node_data_mut()
+            .edge_handles
+            .push(edge_handle);
+    }
+
     /// Removes the nodes referenced by `handles`.
     ///
     /// Warning: this function has two big gotchas:
@@ -73,22 +89,6 @@ impl<N: GraphNode, E: GraphEdge, ME: GraphMetaEdge> SortableGraph<N, E, ME> {
         let first_invalid_index = self.unsorted_nodes.len();
         self.sortable_node_handles
             .retain(|h| h.index < first_invalid_index);
-    }
-
-    pub fn add_edge(&mut self, mut edge: E) -> EdgeHandle {
-        edge.graph_edge_data_mut().edge_handle.index = self.edges.len();
-        let edge_handle = edge.edge_handle();
-        self.add_edge_to_node(edge.node1_handle(), edge_handle);
-        self.add_edge_to_node(edge.node2_handle(), edge_handle);
-        self.edges.push(edge);
-        edge_handle
-    }
-
-    fn add_edge_to_node(&mut self, node_handle: NodeHandle, edge_handle: EdgeHandle) {
-        self.node_mut(node_handle)
-            .graph_node_data_mut()
-            .edge_handles
-            .push(edge_handle);
     }
 
     /// Same gotchas as in remove_nodes.

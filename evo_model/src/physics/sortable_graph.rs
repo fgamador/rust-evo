@@ -118,7 +118,7 @@ impl<N: GraphNode, E: GraphEdge, ME: GraphMetaEdge> SortableGraph<N, E, ME> {
     fn remove_edge(&mut self, handle: EdgeHandle) {
         self.remove_edge_from_node(self.edge(handle).node1_handle(), handle);
         self.remove_edge_from_node(self.edge(handle).node2_handle(), handle);
-        // TODO obsolete meta-edges
+        // TODO remove obsolete meta-edges
         self.edges.swap_remove(handle.index);
         let old_last_handle = self.next_edge_handle();
         if handle != old_last_handle {
@@ -141,7 +141,7 @@ impl<N: GraphNode, E: GraphEdge, ME: GraphMetaEdge> SortableGraph<N, E, ME> {
         let edge_data = self.edge(new_handle).graph_edge_data().clone();
         self.replace_edge_handle(edge_data.node1_handle, old_handle, new_handle);
         self.replace_edge_handle(edge_data.node2_handle, old_handle, new_handle);
-        // TODO handles to swapped edges in remaining meta-edges
+        // TODO update handles to swapped edges in remaining meta-edges
     }
 
     fn replace_edge_handle(

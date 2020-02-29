@@ -42,11 +42,14 @@ impl<N: GraphNode, E: GraphEdge, ME: GraphMetaEdge> SortableGraph<N, E, ME> {
     /// of `handles`: to send a (weak) signal that `handles` is no longer valid.)
     pub fn remove_nodes(&mut self, handles: Vec<NodeHandle>) {
         for handle in handles.iter().rev() {
+            self.remove_edges(self.node(*handle).graph_node_data().edge_handles.clone());
+
             self.unsorted_nodes.swap_remove(handle.index);
             if handle.index < self.unsorted_nodes.len() {
                 self.node_mut(*handle).graph_node_data_mut().node_handle = *handle;
             }
-            // TODO obsolete edges, handles to swapped nodes in remaining edges
+
+            // TODO handles to swapped nodes in remaining edges
         }
         self.remove_obsolete_node_handles();
     }

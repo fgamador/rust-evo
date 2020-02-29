@@ -23,11 +23,11 @@ impl<N: GraphNode, E: GraphEdge, ME: GraphMetaEdge> SortableGraph<N, E, ME> {
     }
 
     pub fn add_node(&mut self, mut node: N) -> NodeHandle {
-        node.graph_node_data_mut().handle = self.next_node_handle();
-        let node_handle = node.node_handle();
-        self.node_handles.push(node_handle);
+        let handle = self.next_node_handle();
+        node.graph_node_data_mut().handle = handle;
         self.nodes.push(node);
-        node_handle
+        self.node_handles.push(handle);
+        handle
     }
 
     fn next_node_handle(&self) -> NodeHandle {

@@ -35,12 +35,12 @@ impl<N: GraphNode, E: GraphEdge, ME: GraphMetaEdge> SortableGraph<N, E, ME> {
     }
 
     pub fn add_edge(&mut self, mut edge: E) -> EdgeHandle {
-        edge.graph_edge_data_mut().handle = self.next_edge_handle();
-        let edge_handle = edge.edge_handle();
-        self.add_edge_to_node(edge.node1_handle(), edge_handle);
-        self.add_edge_to_node(edge.node2_handle(), edge_handle);
+        let handle = self.next_edge_handle();
+        edge.graph_edge_data_mut().handle = handle;
+        self.add_edge_to_node(edge.node1_handle(), handle);
+        self.add_edge_to_node(edge.node2_handle(), handle);
         self.edges.push(edge);
-        edge_handle
+        handle
     }
 
     fn next_edge_handle(&self) -> EdgeHandle {

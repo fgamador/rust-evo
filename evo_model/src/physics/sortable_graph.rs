@@ -134,9 +134,7 @@ impl<N: GraphNode, E: GraphEdge, ME: GraphMetaEdge> SortableGraph<N, E, ME> {
             .node_mut(node_handle)
             .graph_node_data_mut()
             .edge_handles;
-        let index = edge_handles.iter().position(|&h| h == edge_handle).unwrap();
-        // TODO can this swap-reordering mess up the ordering needed by remove_edges?
-        edge_handles.swap_remove(index);
+        edge_handles.retain(|h| *h != edge_handle);
     }
 
     fn fix_swapped_edge_if_needed(&mut self, handle: EdgeHandle) {

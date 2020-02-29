@@ -5,7 +5,7 @@ use std::usize;
 
 #[derive(Debug)]
 pub struct SortableGraph<N: GraphNode, E: GraphEdge, ME: GraphMetaEdge> {
-    unsorted_nodes: Vec<N>,
+    nodes: Vec<N>,
     sortable_node_handles: Vec<NodeHandle>,
     edges: Vec<E>,
     meta_edges: Vec<ME>,
@@ -15,7 +15,7 @@ impl<N: GraphNode, E: GraphEdge, ME: GraphMetaEdge> SortableGraph<N, E, ME> {
     #[allow(clippy::new_without_default)]
     pub fn new() -> Self {
         SortableGraph {
-            unsorted_nodes: vec![],
+            nodes: vec![],
             sortable_node_handles: vec![],
             edges: vec![],
             meta_edges: vec![],
@@ -26,12 +26,12 @@ impl<N: GraphNode, E: GraphEdge, ME: GraphMetaEdge> SortableGraph<N, E, ME> {
         node.graph_node_data_mut().node_handle = self.next_node_handle();
         let node_handle = node.node_handle();
         self.sortable_node_handles.push(node_handle);
-        self.unsorted_nodes.push(node);
+        self.nodes.push(node);
         node_handle
     }
 
     fn next_node_handle(&self) -> NodeHandle {
-        NodeHandle::new(self.unsorted_nodes.len())
+        NodeHandle::new(self.nodes.len())
     }
 
     pub fn add_edge(&mut self, mut edge: E) -> EdgeHandle {
@@ -64,7 +64,7 @@ impl<N: GraphNode, E: GraphEdge, ME: GraphMetaEdge> SortableGraph<N, E, ME> {
     /// Warning: this function has two big gotchas:
     ///
     /// 1) `handles` should be in ascending order of `index`. If not, the function will
-    /// panic on index out-of-bounds if we're removing nodes at the end of `unsorted_nodes`.
+    /// panic on index out-of-bounds if we're removing nodes at the end of self.nodes.
     ///
     /// 2) Worse, this function changes the nodes referenced by some of the remaining handles.
     /// Never retain handles across a call to this function.
@@ -75,11 +75,11 @@ impl<N: GraphNode, E: GraphEdge, ME: GraphMetaEdge> SortableGraph<N, E, ME> {
         self.remove_obsolete_node_handles();
     }
 
-    /// Warning: invalidates handles to the last node in self.unsorted_nodes.
+    /// Warning: invalidates handles to the last node in self.nodes.
     fn remove_node(&mut self, handle: NodeHandle) {
         self.remove_edges(&self.node(handle).graph_node_data().edge_handles.clone());
-        self.unsorted_nodes.swap_remove(handle.index);
-        let last_handle = NodeHandle::new(self.unsorted_nodes.len());
+        self.nodes.swap_remove(handle.index);
+        let last_handle = NodeHandle::new(self.nodes.len());
         if handle != last_handle {
             self.fix_swapped_node_and_its_edges(last_handle, handle);
         }
@@ -99,7 +99,7 @@ impl<N: GraphNode, E: GraphEdge, ME: GraphMetaEdge> SortableGraph<N, E, ME> {
     }
 
     fn remove_obsolete_node_handles(&mut self) {
-        let first_invalid_index = self.unsorted_nodes.len();
+        let first_invalid_index = self.nodes.len();
         self.sortable_node_handles
             .retain(|h| h.index < first_invalid_index);
     }
@@ -156,7 +156,7 @@ impl<N: GraphNode, E: GraphEdge, ME: GraphMetaEdge> SortableGraph<N, E, ME> {
     }
 
     pub fn sort_node_handles(&mut self, cmp: fn(&N, &N) -> Ordering) {
-        let nodes = &self.unsorted_nodes;
+        let nodes = &self.nodes;
         // TODO convert this to insertion sort (and rename fn to insertion_sort)
         self.sortable_node_handles
             .sort_unstable_by(|h1, h2| cmp(&nodes[h1.index], &nodes[h2.index]));
@@ -166,20 +166,20 @@ impl<N: GraphNode, E: GraphEdge, ME: GraphMetaEdge> SortableGraph<N, E, ME> {
         &self.sortable_node_handles
     }
 
-    pub fn unsorted_nodes(&self) -> &[N] {
-        &self.unsorted_nodes
+    pub fn nodes(&self) -> &[N] {
+        &self.nodes
     }
 
-    pub fn unsorted_nodes_mut(&mut self) -> &mut [N] {
-        &mut self.unsorted_nodes
+    pub fn nodes_mut(&mut self) -> &mut [N] {
+        &mut self.nodes
     }
 
     pub fn node(&self, handle: NodeHandle) -> &N {
-        &self.unsorted_nodes[handle.index]
+        &self.nodes[handle.index]
     }
 
     pub fn node_mut(&mut self, handle: NodeHandle) -> &mut N {
-        &mut self.unsorted_nodes[handle.index]
+        &mut self.nodes[handle.index]
     }
 
     pub fn edges(&self) -> &[E] {
@@ -378,7 +378,7 @@ mod tests {
 
         let node_handle = graph.add_node(SimpleGraphNode::new(0));
 
-        let node = &graph.unsorted_nodes()[0];
+        let node = &graph.nodes()[0];
         assert_eq!(node.node_handle(), node_handle);
     }
 
@@ -389,7 +389,7 @@ mod tests {
 
         let node_handle = graph.add_node(SimpleGraphNode::new(0));
 
-        let node = &graph.unsorted_nodes()[0];
+        let node = &graph.nodes()[0];
         assert_eq!(*graph.node(node_handle), *node);
     }
 
@@ -403,8 +403,8 @@ mod tests {
 
         graph.remove_nodes(&vec![node0_handle, node2_handle]);
 
-        assert_eq!(graph.unsorted_nodes.len(), 1);
-        let node = &graph.unsorted_nodes()[0];
+        assert_eq!(graph.nodes.len(), 1);
+        let node = &graph.nodes()[0];
         assert_eq!(node.id, 1);
         assert_eq!(node.node_handle().index, 0);
         assert_eq!(graph.sortable_node_handles.len(), 1);

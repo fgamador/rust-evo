@@ -97,7 +97,7 @@ impl World {
     }
 
     pub fn cells(&self) -> &[Cell] {
-        &self.cell_graph.unsorted_nodes()
+        &self.cell_graph.nodes()
     }
 
     pub fn with_bonds(mut self, index_pairs: Vec<(usize, usize)>) -> Self {
@@ -153,7 +153,7 @@ impl World {
     }
 
     fn pre_subtick_logging(&self, subtick: u32) {
-        for cell in self.cell_graph.unsorted_nodes() {
+        for cell in self.cell_graph.nodes() {
             Self::pre_subtick_cell_logging(cell, subtick);
         }
     }
@@ -180,7 +180,7 @@ impl World {
     }
 
     fn subtick_cells(&mut self, subtick_duration: Duration, subtick: u32) {
-        for cell in self.cell_graph.unsorted_nodes_mut() {
+        for cell in self.cell_graph.nodes_mut() {
             Self::subtick_cell(cell, subtick_duration, subtick);
         }
     }
@@ -215,7 +215,7 @@ impl World {
     fn after_movement(&mut self) {
         let mut new_cells: Vec<Cell> = vec![];
         let mut dead_cell_handles: Vec<NodeHandle> = vec![];
-        for cell in self.cell_graph.unsorted_nodes_mut() {
+        for cell in self.cell_graph.nodes_mut() {
             let (alive, mut cell_children) = cell.after_movement();
             new_cells.append(&mut cell_children);
             if !alive {

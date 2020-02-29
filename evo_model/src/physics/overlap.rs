@@ -50,10 +50,9 @@ impl Walls {
         E: GraphEdge,
         ME: GraphMetaEdge,
     {
-        let mut overlaps: Vec<(NodeHandle, Overlap)> =
-            Vec::with_capacity(graph.unsorted_nodes().len() / 2);
+        let mut overlaps: Vec<(NodeHandle, Overlap)> = Vec::with_capacity(graph.nodes().len() / 2);
 
-        for circle in graph.unsorted_nodes() {
+        for circle in graph.nodes() {
             if let Some(incursion) = self.calc_incursion(circle) {
                 overlaps.push((
                     circle.node_handle(),
@@ -93,8 +92,7 @@ where
 {
     graph.sort_node_handles(cmp_by_min_x);
 
-    let mut overlaps: Vec<(NodeHandle, Overlap)> =
-        Vec::with_capacity(graph.unsorted_nodes().len() * 2);
+    let mut overlaps: Vec<(NodeHandle, Overlap)> = Vec::with_capacity(graph.nodes().len() * 2);
 
     for (i, handle1) in graph.node_handles().iter().enumerate() {
         for handle2 in &graph.node_handles()[(i + 1)..] {
@@ -314,7 +312,7 @@ mod tests {
             Length::new(1.0),
         ));
 
-        let edge = SimpleGraphEdge::new(&graph.unsorted_nodes()[0], &graph.unsorted_nodes()[1]);
+        let edge = SimpleGraphEdge::new(&graph.nodes()[0], &graph.nodes()[1]);
         graph.add_edge(edge);
 
         let overlaps = find_pair_overlaps(&mut graph);
@@ -339,7 +337,7 @@ mod tests {
             Length::new(1.0),
         ));
 
-        graph.unsorted_nodes_mut()[2].set_center(Position::new(1.5, 0.0));
+        graph.nodes_mut()[2].set_center(Position::new(1.5, 0.0));
 
         let overlaps = find_pair_overlaps(&mut graph);
 

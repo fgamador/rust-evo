@@ -145,7 +145,7 @@ impl Influence for SimpleForceInfluence {
         cell_graph: &mut SortableGraph<Cell, Bond, AngleGusset>,
         subtick_duration: Duration,
     ) {
-        for cell in cell_graph.unsorted_nodes_mut() {
+        for cell in cell_graph.nodes_mut() {
             let force = self.influence_force.calc_force(cell, subtick_duration);
             cell.forces_mut().add_force(force);
         }
@@ -292,7 +292,7 @@ impl Influence for UniversalOverlap {
         cell_graph: &mut SortableGraph<Cell, Bond, AngleGusset>,
         _subtick_duration: Duration,
     ) {
-        for cell in cell_graph.unsorted_nodes_mut() {
+        for cell in cell_graph.nodes_mut() {
             cell.environment_mut().add_overlap(self.overlap);
         }
     }
@@ -324,7 +324,7 @@ impl Influence for Sunlight {
         cell_graph: &mut SortableGraph<Cell, Bond, AngleGusset>,
         _subtick_duration: Duration,
     ) {
-        for cell in cell_graph.unsorted_nodes_mut() {
+        for cell in cell_graph.nodes_mut() {
             let y = cell.center().y();
             cell.environment_mut()
                 .add_light_intensity(self.calc_light_intensity(y));

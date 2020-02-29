@@ -90,7 +90,7 @@ where
     E: GraphEdge,
     ME: GraphMetaEdge,
 {
-    graph.sort_node_handles(cmp_by_min_x);
+    graph.sort_already_mostly_sorted_node_handles(cmp_by_min_x);
 
     let mut overlaps: Vec<(NodeHandle, Overlap)> = Vec::with_capacity(graph.nodes().len() * 2);
 

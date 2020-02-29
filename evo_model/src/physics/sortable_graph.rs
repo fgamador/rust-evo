@@ -225,7 +225,6 @@ impl<N: GraphNode, E: GraphEdge, ME: GraphMetaEdge> SortableGraph<N, E, ME> {
 }
 
 pub trait GraphNode {
-    // TODO handle? self_handle?
     fn node_handle(&self) -> NodeHandle;
 
     fn graph_node_data(&self) -> &GraphNodeData;
@@ -280,7 +279,6 @@ impl GraphNodeData {
 }
 
 pub trait GraphEdge {
-    // TODO handle? self_handle?
     fn edge_handle(&self) -> EdgeHandle;
 
     fn node1_handle(&self) -> NodeHandle;

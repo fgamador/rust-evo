@@ -225,7 +225,7 @@ impl World {
         for new_cell in new_cells {
             self.add_cell(new_cell);
         }
-        self.cell_graph.remove_nodes(dead_cell_handles);
+        self.cell_graph.remove_nodes(&dead_cell_handles);
     }
 }
 

@@ -120,7 +120,7 @@ impl<N: GraphNode, E: GraphEdge, ME: GraphMetaEdge> SortableGraph<N, E, ME> {
         self.remove_edge_from_node(self.edge(handle).node2_handle(), handle);
         // TODO obsolete meta-edges
         self.edges.swap_remove(handle.index);
-        let old_last_handle = EdgeHandle::new(self.edges.len());
+        let old_last_handle = self.next_edge_handle();
         if handle != old_last_handle {
             self.fix_swapped_edge(old_last_handle, handle);
         }

@@ -148,7 +148,7 @@ impl World {
             self.subtick_cells(subtick_duration, subtick);
         }
 
-        self.after_movement();
+        self.run_cell_controls();
     }
 
     fn pre_subtick_logging(&self, subtick: u32) {
@@ -211,11 +211,11 @@ impl World {
         );
     }
 
-    fn after_movement(&mut self) {
+    fn run_cell_controls(&mut self) {
         let mut new_cells: Vec<Cell> = vec![];
         let mut dead_cell_handles: Vec<NodeHandle> = vec![];
         for cell in self.cell_graph.nodes_mut() {
-            let (alive, mut cell_children) = cell.after_movement();
+            let (alive, mut cell_children) = cell.run_control();
             new_cells.append(&mut cell_children);
             if !alive {
                 dead_cell_handles.push(cell.node_handle());

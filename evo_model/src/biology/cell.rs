@@ -220,7 +220,7 @@ impl Cell {
         }
     }
 
-    pub fn after_movement(&mut self) -> (bool, Vec<Cell>) {
+    pub fn run_control(&mut self) -> (bool, Vec<Cell>) {
         let (end_energy, budgeted_control_requests) = self.get_budgeted_control_requests();
         self.energy = end_energy;
         self.execute_control_requests(&budgeted_control_requests);
@@ -350,7 +350,7 @@ mod tests {
             0,
             AreaDelta::new(0.5),
         )));
-        cell.after_movement();
+        cell.run_control();
         assert_eq!(Mass::new(10.5), cell.mass());
     }
 
@@ -373,7 +373,7 @@ mod tests {
         )))
         .with_initial_energy(BioEnergy::new(10.0));
 
-        cell.after_movement();
+        cell.run_control();
 
         assert_eq!(BioEnergy::new(8.0), cell.energy());
     }
@@ -394,7 +394,7 @@ mod tests {
             0,
             Force::new(1.0, -1.0),
         )));
-        cell.after_movement();
+        cell.run_control();
         cell.after_influences(Duration::new(1.0));
         assert_eq!(Force::new(1.0, -1.0), cell.forces().net_force());
     }
@@ -568,7 +568,7 @@ mod tests {
             CellLayer::resize_request(1, AreaDelta::new(100.0)),
         ])));
 
-        cell.after_movement();
+        cell.run_control();
 
         assert_eq!(5.0, cell.layers()[0].area().value());
         assert_eq!(10.0, cell.layers()[1].area().value());
@@ -602,7 +602,7 @@ mod tests {
             BuddingCellLayerSpecialty::donation_energy_request(1, BioEnergy::new(1.0)),
         ])));
 
-        let (_, children) = cell.after_movement();
+        let (_, children) = cell.run_control();
 
         assert_eq!(children.len(), 1);
         let child = &children[0];

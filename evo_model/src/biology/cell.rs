@@ -93,6 +93,22 @@ impl Cell {
         self.energy = energy;
     }
 
+    pub fn after_influences(&mut self, subtick_duration: Duration) {
+        let forces = self.newtonian_state.forces_mut();
+        for layer in &mut self.layers {
+            let (energy, force) = layer.after_influences(&self.environment, subtick_duration);
+            self.energy += energy;
+            forces.add_force(force);
+        }
+    }
+
+    pub fn run_control(&mut self) -> (bool, Vec<Cell>) {
+        let (end_energy, budgeted_control_requests) = self.get_budgeted_control_requests();
+        self.energy = end_energy;
+        self.execute_control_requests(&budgeted_control_requests);
+        self.after_control_requests()
+    }
+
     fn get_budgeted_control_requests(&mut self) -> (BioEnergy, Vec<BudgetedControlRequest>) {
         let cell_state = self.get_state_snapshot();
         let control_requests = self.control.get_control_requests(&cell_state);
@@ -209,22 +225,6 @@ impl Cell {
         layers
             .iter()
             .fold(Mass::new(0.0), |mass, layer| mass + layer.mass())
-    }
-
-    pub fn after_influences(&mut self, subtick_duration: Duration) {
-        let forces = self.newtonian_state.forces_mut();
-        for layer in &mut self.layers {
-            let (energy, force) = layer.after_influences(&self.environment, subtick_duration);
-            self.energy += energy;
-            forces.add_force(force);
-        }
-    }
-
-    pub fn run_control(&mut self) -> (bool, Vec<Cell>) {
-        let (end_energy, budgeted_control_requests) = self.get_budgeted_control_requests();
-        self.energy = end_energy;
-        self.execute_control_requests(&budgeted_control_requests);
-        self.after_control_requests()
     }
 }
 

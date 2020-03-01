@@ -185,7 +185,7 @@ impl<N: GraphNode, E: GraphEdge, ME: GraphMetaEdge> SortableGraph<N, E, ME> {
         F: FnMut(T, T) -> bool,
     {
         for i in 1..seq.len() {
-            for j in (1..i + 1).rev() {
+            for j in (1..=i).rev() {
                 if is_less(seq[j - 1], seq[j]) {
                     break;
                 }

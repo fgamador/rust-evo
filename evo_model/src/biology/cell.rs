@@ -6,7 +6,6 @@ use crate::physics::newtonian::*;
 use crate::physics::quantities::*;
 use crate::physics::shapes::*;
 use crate::physics::sortable_graph::*;
-use crate::TickCallbacks;
 use std::f64::consts::PI;
 use std::ptr;
 
@@ -211,10 +210,8 @@ impl Cell {
             .iter()
             .fold(Mass::new(0.0), |mass, layer| mass + layer.mass())
     }
-}
 
-impl TickCallbacks for Cell {
-    fn after_influences(&mut self, subtick_duration: Duration) {
+    pub fn after_influences(&mut self, subtick_duration: Duration) {
         let forces = self.newtonian_state.forces_mut();
         for layer in &mut self.layers {
             let (energy, force) = layer.after_influences(&self.environment, subtick_duration);
@@ -223,7 +220,7 @@ impl TickCallbacks for Cell {
         }
     }
 
-    fn after_movement(&mut self) -> (bool, Vec<Cell>) {
+    pub fn after_movement(&mut self) -> (bool, Vec<Cell>) {
         let (end_energy, budgeted_control_requests) = self.get_budgeted_control_requests();
         self.energy = end_energy;
         self.execute_control_requests(&budgeted_control_requests);

@@ -7,7 +7,6 @@ use crate::physics::newtonian::NewtonianBody;
 use crate::physics::quantities::*;
 use crate::physics::sortable_graph::*;
 use crate::physics::spring::*;
-use crate::TickCallbacks;
 
 pub struct World {
     min_corner: Position,

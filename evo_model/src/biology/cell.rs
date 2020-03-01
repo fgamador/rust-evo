@@ -111,7 +111,7 @@ impl Cell {
 
     fn get_budgeted_control_requests(&mut self) -> (BioEnergy, Vec<BudgetedControlRequest>) {
         let cell_state = self.get_state_snapshot();
-        let control_requests = self.control.get_control_requests(&cell_state);
+        let control_requests = self.control.run(&cell_state);
         let costed_requests = self.cost_control_requests(&control_requests);
         Self::budget_control_requests(self.energy, &costed_requests)
     }

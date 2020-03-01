@@ -96,7 +96,7 @@ impl ThrustInSquareControl {
 }
 
 impl CellControl for ThrustInSquareControl {
-    fn get_control_requests(&mut self, _cell_state: &CellStateSnapshot) -> Vec<ControlRequest> {
+    fn run(&mut self, _cell_state: &CellStateSnapshot) -> Vec<ControlRequest> {
         let force = if self.ticks < self.accel_ticks {
             Self::calc_force(self.force, self.direction)
         } else {

@@ -121,7 +121,7 @@ impl BuddingControl {
 }
 
 impl CellControl for BuddingControl {
-    fn get_control_requests(&mut self, cell_state: &CellStateSnapshot) -> Vec<ControlRequest> {
+    fn run(&mut self, cell_state: &CellStateSnapshot) -> Vec<ControlRequest> {
         if Self::is_adult(cell_state) {
             self.adult_requests()
         } else {

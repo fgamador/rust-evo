@@ -63,7 +63,7 @@ impl NeuralNetControl {
 }
 
 impl CellControl for NeuralNetControl {
-    fn get_control_requests(&mut self, cell_state: &CellStateSnapshot) -> Vec<ControlRequest> {
+    fn run(&mut self, cell_state: &CellStateSnapshot) -> Vec<ControlRequest> {
         self.nnet.set_node_value(0, cell_state.center.y() as f32);
         self.nnet.run();
         vec![CellLayer::resize_request(

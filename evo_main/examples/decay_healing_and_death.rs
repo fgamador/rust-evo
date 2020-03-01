@@ -82,7 +82,7 @@ impl GrowThenHealControl {
 }
 
 impl CellControl for GrowThenHealControl {
-    fn get_control_requests(&mut self, _cell_state: &CellStateSnapshot) -> Vec<ControlRequest> {
+    fn run(&mut self, _cell_state: &CellStateSnapshot) -> Vec<ControlRequest> {
         let request = if self.ticks <= self.growth_ticks {
             CellLayer::resize_request(self.layer_index, self.growth_delta_area)
         } else {

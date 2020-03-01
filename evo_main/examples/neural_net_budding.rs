@@ -212,7 +212,7 @@ impl NeuralNetBuddingControl {
 }
 
 impl CellControl for NeuralNetBuddingControl {
-    fn get_control_requests(&mut self, cell_state: &CellStateSnapshot) -> Vec<ControlRequest> {
+    fn run(&mut self, cell_state: &CellStateSnapshot) -> Vec<ControlRequest> {
         let cell_energy = cell_state.energy.value() as f32;
         let float_layer_area = cell_state.layers[FLOAT_LAYER_INDEX].area.value() as f32;
         let float_layer_health = cell_state.layers[FLOAT_LAYER_INDEX].health as f32;

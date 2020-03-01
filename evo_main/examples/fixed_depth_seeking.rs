@@ -104,7 +104,7 @@ impl FixedDepthSeekingControl {
 }
 
 impl CellControl for FixedDepthSeekingControl {
-    fn get_control_requests(&mut self, cell_state: &CellStateSnapshot) -> Vec<ControlRequest> {
+    fn run(&mut self, cell_state: &CellStateSnapshot) -> Vec<ControlRequest> {
         vec![self.float_layer_resize_request(cell_state)]
     }
 }

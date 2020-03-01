@@ -4,7 +4,7 @@ use crate::physics::quantities::*;
 use std::fmt::Debug;
 
 pub trait CellControl: Debug {
-    fn get_control_requests(&mut self, cell_state: &CellStateSnapshot) -> Vec<ControlRequest>;
+    fn run(&mut self, cell_state: &CellStateSnapshot) -> Vec<ControlRequest>;
 }
 
 #[derive(Debug)]
@@ -48,7 +48,7 @@ impl NullControl {
 }
 
 impl CellControl for NullControl {
-    fn get_control_requests(&mut self, _cell_state: &CellStateSnapshot) -> Vec<ControlRequest> {
+    fn run(&mut self, _cell_state: &CellStateSnapshot) -> Vec<ControlRequest> {
         vec![]
     }
 }
@@ -65,10 +65,10 @@ impl CompositeControl {
 }
 
 impl CellControl for CompositeControl {
-    fn get_control_requests(&mut self, cell_state: &CellStateSnapshot) -> Vec<ControlRequest> {
+    fn run(&mut self, cell_state: &CellStateSnapshot) -> Vec<ControlRequest> {
         self.controls
             .iter_mut()
-            .flat_map(|control| control.get_control_requests(cell_state))
+            .flat_map(|control| control.run(cell_state))
             .collect()
     }
 }
@@ -85,7 +85,7 @@ impl ContinuousRequestsControl {
 }
 
 impl CellControl for ContinuousRequestsControl {
-    fn get_control_requests(&mut self, _cell_state: &CellStateSnapshot) -> Vec<ControlRequest> {
+    fn run(&mut self, _cell_state: &CellStateSnapshot) -> Vec<ControlRequest> {
         self.requests.clone()
     }
 }
@@ -106,7 +106,7 @@ impl ContinuousResizeControl {
 }
 
 impl CellControl for ContinuousResizeControl {
-    fn get_control_requests(&mut self, _cell_state: &CellStateSnapshot) -> Vec<ControlRequest> {
+    fn run(&mut self, _cell_state: &CellStateSnapshot) -> Vec<ControlRequest> {
         vec![CellLayer::resize_request(
             self.layer_index,
             self.resize_amount,
@@ -130,7 +130,7 @@ impl SimpleThrusterControl {
 }
 
 impl CellControl for SimpleThrusterControl {
-    fn get_control_requests(&mut self, _cell_state: &CellStateSnapshot) -> Vec<ControlRequest> {
+    fn run(&mut self, _cell_state: &CellStateSnapshot) -> Vec<ControlRequest> {
         vec![
             ControlRequest::new(self.thruster_layer_index, 2, self.force.x()),
             ControlRequest::new(self.thruster_layer_index, 3, self.force.y()),
@@ -145,7 +145,7 @@ mod tests {
     #[test]
     fn continuous_resize_control_returns_request_to_grow_specified_layer() {
         let mut control = ContinuousResizeControl::new(1, AreaDelta::new(0.5));
-        let requests = control.get_control_requests(&CellStateSnapshot::ZEROS);
+        let requests = control.run(&CellStateSnapshot::ZEROS);
         assert_eq!(
             requests,
             vec![CellLayer::resize_request(1, AreaDelta::new(0.5))]
@@ -155,7 +155,7 @@ mod tests {
     #[test]
     fn simple_thruster_control_returns_requests_for_force() {
         let mut control = SimpleThrusterControl::new(2, Force::new(1.0, -1.0));
-        let requests = control.get_control_requests(&CellStateSnapshot::ZEROS);
+        let requests = control.run(&CellStateSnapshot::ZEROS);
         assert_eq!(
             requests,
             vec![

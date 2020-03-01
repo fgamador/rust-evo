@@ -224,7 +224,7 @@ impl DuckweedControl {
 }
 
 impl CellControl for DuckweedControl {
-    fn get_control_requests(&mut self, cell_state: &CellStateSnapshot) -> Vec<ControlRequest> {
+    fn run(&mut self, cell_state: &CellStateSnapshot) -> Vec<ControlRequest> {
         if Self::is_adult(cell_state) {
             self.adult_requests(cell_state)
         } else {

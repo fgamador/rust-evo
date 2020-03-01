@@ -174,7 +174,7 @@ impl<N: GraphNode, E: GraphEdge, ME: GraphMetaEdge> SortableGraph<N, E, ME> {
 
     pub fn sort_already_mostly_sorted_node_handles(&mut self, cmp: fn(&N, &N) -> Ordering) {
         let nodes = &self.nodes;
-        Self::insertion_sort_by(&mut self.node_handles, |h1: NodeHandle, h2: NodeHandle| {
+        Self::insertion_sort_by(&mut self.node_handles, |h1, h2| {
             cmp(&nodes[h1.index()], &nodes[h2.index()]) == Ordering::Less
         });
     }

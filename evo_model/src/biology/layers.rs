@@ -210,17 +210,24 @@ pub struct CellLayerBody {
 
 impl CellLayerBody {
     fn new(area: Area, density: Density, color: Color) -> Self {
-        CellLayerBody {
+        let mut body = CellLayerBody {
             area,
             density,
-            mass: area * density,
-            outer_radius: (area / PI).sqrt(),
+            mass: Mass::ZERO,
+            outer_radius: Length::ZERO,
             health: 1.0,
             color,
             brain: &CellLayer::LIVING_BRAIN,
             health_parameters: &LayerHealthParameters::DEFAULT,
             resize_parameters: &LayerResizeParameters::UNLIMITED,
-        }
+        };
+        body.init_from_area();
+        body
+    }
+
+    fn init_from_area(&mut self) {
+        self.mass = self.area * self.density;
+        self.outer_radius = (self.area / PI).sqrt();
     }
 
     fn damage(&mut self, health_loss: f64) {

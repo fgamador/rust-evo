@@ -215,9 +215,9 @@ impl World {
         let mut new_cells: Vec<Cell> = vec![];
         let mut dead_cell_handles: Vec<NodeHandle> = vec![];
         for cell in self.cell_graph.nodes_mut() {
-            let (alive, mut cell_children) = cell.run_control();
+            let mut cell_children = cell.run_control();
             new_cells.append(&mut cell_children);
-            if !alive {
+            if !cell.is_alive() {
                 dead_cell_handles.push(cell.node_handle());
             }
         }

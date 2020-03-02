@@ -102,7 +102,7 @@ impl Cell {
         }
     }
 
-    pub fn run_control(&mut self) -> (bool, Vec<Cell>) {
+    pub fn run_control(&mut self) -> Vec<Cell> {
         let (end_energy, budgeted_control_requests) = self.get_budgeted_control_requests();
         self.energy = end_energy;
         self.execute_control_requests(&budgeted_control_requests);
@@ -175,7 +175,7 @@ impl Cell {
         self.newtonian_state.mass = Self::calc_mass(&self.layers);
     }
 
-    fn after_control_requests(&mut self) -> (bool, Vec<Cell>) {
+    fn after_control_requests(&mut self) -> Vec<Cell> {
         // TODO test: inner layer grows while outer layer buds at correct distance
         let mut children = vec![];
         let cell_state = self.get_state_snapshot();
@@ -184,7 +184,7 @@ impl Cell {
                 children.push(child);
             }
         }
-        (self.is_alive(), children)
+        children
     }
 
     fn get_state_snapshot(&self) -> CellStateSnapshot {
@@ -602,7 +602,7 @@ mod tests {
             BuddingCellLayerSpecialty::donation_energy_request(1, BioEnergy::new(1.0)),
         ])));
 
-        let (_, children) = cell.run_control();
+        let children = cell.run_control();
 
         assert_eq!(children.len(), 1);
         let child = &children[0];

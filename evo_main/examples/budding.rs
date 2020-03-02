@@ -43,7 +43,7 @@ fn create_child(
                 Area::new(5.0 * PI),
                 Density::new(1.0),
                 Color::Green,
-                Box::new(EnergyGeneratingCellLayerSpecialty::new()),
+                Box::new(NullCellLayerSpecialty::new()),
             ),
             CellLayer::new(
                 Area::new(5.0 * PI),
@@ -84,15 +84,6 @@ impl BuddingControl {
     }
 
     fn adult_requests(&mut self) -> Vec<ControlRequest> {
-        let mut requests = vec![EnergyGeneratingCellLayerSpecialty::energy_request(
-            0,
-            BioEnergy::new(1.0),
-        )];
-        requests.append(&mut self.budding_requests());
-        requests
-    }
-
-    fn budding_requests(&mut self) -> Vec<ControlRequest> {
         self.tick += 1;
         if self.tick < self.budding_ticks {
             return vec![];

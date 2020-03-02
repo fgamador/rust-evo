@@ -557,60 +557,6 @@ impl CellLayerSpecialty for PhotoCellLayerSpecialty {
     }
 }
 
-#[derive(Debug)]
-pub struct EnergyGeneratingCellLayerSpecialty {
-    energy: BioEnergy,
-}
-
-impl EnergyGeneratingCellLayerSpecialty {
-    const ENERGY_CHANNEL_INDEX: usize = 2;
-
-    #[allow(clippy::new_without_default)]
-    pub fn new() -> Self {
-        EnergyGeneratingCellLayerSpecialty {
-            energy: BioEnergy::ZERO,
-        }
-    }
-
-    pub fn energy_request(layer_index: usize, energy: BioEnergy) -> ControlRequest {
-        ControlRequest::new(layer_index, Self::ENERGY_CHANNEL_INDEX, energy.value())
-    }
-}
-
-impl CellLayerSpecialty for EnergyGeneratingCellLayerSpecialty {
-    fn after_influences(
-        &mut self,
-        body: &CellLayerBody,
-        _env: &LocalEnvironment,
-        subtick_duration: Duration,
-    ) -> (BioEnergy, Force) {
-        (
-            self.energy * body.health * subtick_duration.value(),
-            Force::ZERO,
-        )
-    }
-
-    fn cost_control_request(&self, request: ControlRequest) -> CostedControlRequest {
-        match request.channel_index {
-            Self::ENERGY_CHANNEL_INDEX => CostedControlRequest::new(request, BioEnergyDelta::ZERO),
-            _ => panic!("Invalid control channel index: {}", request.channel_index),
-        }
-    }
-
-    fn execute_control_request(&mut self, _body: &CellLayerBody, request: BudgetedControlRequest) {
-        match request.channel_index {
-            Self::ENERGY_CHANNEL_INDEX => {
-                self.energy = request.budgeted_fraction * BioEnergy::new(request.value.max(0.0))
-            }
-            _ => panic!("Invalid control channel index: {}", request.channel_index),
-        }
-    }
-
-    fn reset(&mut self) {
-        self.energy = BioEnergy::ZERO;
-    }
-}
-
 type CreateCellFn = fn(SparseNeuralNetGenome, u64, &'static MutationParameters) -> Cell;
 
 #[derive(Debug)]
@@ -1138,45 +1084,6 @@ mod tests {
         let (energy, _) = layer.after_influences(&env, Duration::new(1.0));
 
         assert_eq!(energy, BioEnergy::new(0.0));
-    }
-
-    #[test]
-    fn energy_generating_layer_adds_energy() {
-        let mut layer = CellLayer::new(
-            Area::new(1.0),
-            Density::new(1.0),
-            Color::Green,
-            Box::new(EnergyGeneratingCellLayerSpecialty::new()),
-        );
-
-        layer.execute_control_request(fully_budgeted(
-            EnergyGeneratingCellLayerSpecialty::energy_request(0, BioEnergy::new(2.0)),
-        ));
-
-        let env = LocalEnvironment::new();
-        let (energy, _) = layer.after_influences(&env, Duration::new(1.0));
-
-        assert_eq!(energy, BioEnergy::new(2.0));
-    }
-
-    #[test]
-    fn energy_generating_layer_does_not_remember_previous_requested_energy() {
-        let mut layer = CellLayer::new(
-            Area::new(1.0),
-            Density::new(1.0),
-            Color::Green,
-            Box::new(EnergyGeneratingCellLayerSpecialty::new()),
-        );
-
-        layer.execute_control_request(fully_budgeted(
-            EnergyGeneratingCellLayerSpecialty::energy_request(0, BioEnergy::new(2.0)),
-        ));
-        layer.after_control_requests(&CellStateSnapshot::ZEROS);
-
-        let env = LocalEnvironment::new();
-        let (energy, _) = layer.after_influences(&env, Duration::new(1.0));
-
-        assert_eq!(energy, BioEnergy::ZERO);
     }
 
     #[test]

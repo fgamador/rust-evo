@@ -16,7 +16,7 @@ pub struct Cell {
     radius: Length,
     newtonian_state: NewtonianState,
     environment: LocalEnvironment,
-    layers: Vec<CellLayer>,
+    layers: Vec<CellLayer>, // TODO array? smallvec?
     control: Box<dyn CellControl>,
     energy: BioEnergy,
 }

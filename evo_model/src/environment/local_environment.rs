@@ -8,8 +8,8 @@ pub trait HasLocalEnvironment {
 
 #[derive(Clone, Debug)]
 pub struct LocalEnvironment {
-    overlaps: Vec<Overlap>,
-    light_intensity: f64,
+    overlaps: Vec<Overlap>, // TODO smallvec?
+    light_intensity: f64,   // TODO non-zero type?
 }
 
 impl LocalEnvironment {

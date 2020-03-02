@@ -262,7 +262,7 @@ pub trait MutationRandomness {
     fn mutate_weight(&mut self, weight: Coefficient) -> Coefficient;
 }
 
-#[derive(Debug)]
+#[derive(Clone, Debug)]
 pub struct SeededMutationRandomness {
     rng: Pcg64Mcg,
     mutation_parameters: &'static MutationParameters,

@@ -225,6 +225,17 @@ impl CellLayerBody {
         body
     }
 
+    fn _reproduce(&self, area: Area) -> Self {
+        let mut copy = CellLayerBody {
+            area,
+            health: 1.0,
+            brain: &CellLayer::LIVING_BRAIN,
+            ..*self
+        };
+        copy.init_from_area();
+        copy
+    }
+
     fn init_from_area(&mut self) {
         self.mass = self.area * self.density;
         self.outer_radius = (self.area / PI).sqrt();

@@ -22,7 +22,6 @@ pub struct Cell {
 }
 
 impl Cell {
-    #[allow(clippy::vec_box)]
     pub fn new(position: Position, velocity: Velocity, mut layers: Vec<CellLayer>) -> Self {
         if layers.is_empty() {
             panic!("Cell must have at least one layer");

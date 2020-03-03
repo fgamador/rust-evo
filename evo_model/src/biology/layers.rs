@@ -443,6 +443,8 @@ impl CellLayerBrain for DeadCellLayerBrain {
 }
 
 pub trait CellLayerSpecialty: Debug {
+    fn box_reproduce(&self) -> Box<dyn CellLayerSpecialty>;
+
     fn after_influences(
         &mut self,
         _body: &CellLayerBody,
@@ -472,6 +474,16 @@ pub trait CellLayerSpecialty: Debug {
     fn reset(&mut self) {}
 }
 
+trait Reproduce {
+    fn reproduce(&self) -> Box<dyn CellLayerSpecialty>;
+}
+
+impl Reproduce for Box<dyn CellLayerSpecialty> {
+    fn reproduce(&self) -> Box<dyn CellLayerSpecialty> {
+        self.box_reproduce()
+    }
+}
+
 #[derive(Debug)]
 pub struct NullCellLayerSpecialty {}
 
@@ -482,7 +494,11 @@ impl NullCellLayerSpecialty {
     }
 }
 
-impl CellLayerSpecialty for NullCellLayerSpecialty {}
+impl CellLayerSpecialty for NullCellLayerSpecialty {
+    fn box_reproduce(&self) -> Box<dyn CellLayerSpecialty> {
+        Box::new(NullCellLayerSpecialty::new())
+    }
+}
 
 #[derive(Debug)]
 pub struct ThrusterCellLayerSpecialty {
@@ -512,6 +528,10 @@ impl ThrusterCellLayerSpecialty {
 }
 
 impl CellLayerSpecialty for ThrusterCellLayerSpecialty {
+    fn box_reproduce(&self) -> Box<dyn CellLayerSpecialty> {
+        Box::new(ThrusterCellLayerSpecialty::new())
+    }
+
     fn after_influences(
         &mut self,
         _body: &CellLayerBody,
@@ -544,7 +564,7 @@ impl CellLayerSpecialty for ThrusterCellLayerSpecialty {
     }
 }
 
-#[derive(Debug)]
+#[derive(Clone, Debug)]
 pub struct PhotoCellLayerSpecialty {
     efficiency: f64,
 }
@@ -556,6 +576,10 @@ impl PhotoCellLayerSpecialty {
 }
 
 impl CellLayerSpecialty for PhotoCellLayerSpecialty {
+    fn box_reproduce(&self) -> Box<dyn CellLayerSpecialty> {
+        Box::new(self.clone())
+    }
+
     fn after_influences(
         &mut self,
         body: &CellLayerBody,
@@ -641,6 +665,10 @@ impl BuddingCellLayerSpecialty {
 }
 
 impl CellLayerSpecialty for BuddingCellLayerSpecialty {
+    fn box_reproduce(&self) -> Box<dyn CellLayerSpecialty> {
+        unimplemented!()
+    }
+
     fn cost_control_request(&self, request: ControlRequest) -> CostedControlRequest {
         match request.channel_index {
             Self::BUDDING_ANGLE_CHANNEL_INDEX => {

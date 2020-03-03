@@ -60,7 +60,7 @@ mod tests {
     use std::f64::consts::PI;
 
     #[test]
-    fn budding_layer_creates_child_with_right_state() {
+    fn reproduction_creates_child_with_right_state() {
         let genome = SparseNeuralNetGenome::new(TransferFn::IDENTITY);
         let mut reproduction = Reproduction::new(
             Rc::new(genome),

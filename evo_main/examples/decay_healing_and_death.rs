@@ -6,10 +6,12 @@ use evo_model::biology::cell::Cell;
 use evo_model::biology::control::*;
 use evo_model::biology::control_requests::*;
 use evo_model::biology::layers::*;
+use evo_model::genome::sparse_neural_net::*;
 use evo_model::physics::quantities::*;
 use evo_model::world::World;
 use std::f64;
 use std::f64::consts::PI;
+use std::rc::Rc;
 
 fn main() {
     init_and_run(create_world());
@@ -41,6 +43,7 @@ fn create_world() -> World {
                 )
                 .with_resize_parameters(&LAYER_RESIZE_PARAMS)
                 .with_health_parameters(&LAYER_HEALTH_PARAMS)],
+                Rc::new(SparseNeuralNetGenome::new(TransferFn::IDENTITY)),
             )
             .with_control(Box::new(GrowThenHealControl::new(
                 0,

@@ -2,12 +2,14 @@ use crate::biology::control::*;
 use crate::biology::control_requests::*;
 use crate::biology::layers::*;
 use crate::environment::local_environment::*;
+use crate::genome::sparse_neural_net::*;
 use crate::physics::newtonian::*;
 use crate::physics::quantities::*;
 use crate::physics::shapes::*;
 use crate::physics::sortable_graph::*;
 use std::f64::consts::PI;
 use std::ptr;
+use std::rc::Rc;
 
 #[allow(clippy::vec_box)]
 #[derive(Debug, GraphNode, HasLocalEnvironment, NewtonianBody)]
@@ -18,11 +20,17 @@ pub struct Cell {
     environment: LocalEnvironment,
     layers: Vec<CellLayer>, // TODO array? smallvec?
     control: Box<dyn CellControl>,
+    genome: Rc<SparseNeuralNetGenome>,
     energy: BioEnergy,
 }
 
 impl Cell {
-    pub fn new(position: Position, velocity: Velocity, mut layers: Vec<CellLayer>) -> Self {
+    pub fn new(
+        position: Position,
+        velocity: Velocity,
+        mut layers: Vec<CellLayer>,
+        genome: Rc<SparseNeuralNetGenome>,
+    ) -> Self {
         if layers.is_empty() {
             panic!("Cell must have at least one layer");
         }
@@ -35,6 +43,7 @@ impl Cell {
             environment: LocalEnvironment::new(),
             layers,
             control: Box::new(NullControl::new()),
+            genome,
             energy: BioEnergy::new(0.0),
         }
     }
@@ -50,6 +59,7 @@ impl Cell {
                 Color::Green,
                 Box::new(NullCellLayerSpecialty::new()),
             )],
+            Rc::new(SparseNeuralNetGenome::new(TransferFn::IDENTITY)),
         )
     }
 
@@ -246,22 +256,13 @@ impl Circle for Cell {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::genome::sparse_neural_net::*;
     use crate::physics::overlap::Overlap;
     use std::rc::Rc;
 
     #[test]
     fn cells_use_pointer_equality() {
-        let cell1 = Cell::new(
-            Position::ORIGIN,
-            Velocity::ZERO,
-            vec![simple_cell_layer(Area::new(PI), Density::new(1.0))],
-        );
-        let cell2 = Cell::new(
-            Position::ORIGIN,
-            Velocity::ZERO,
-            vec![simple_cell_layer(Area::new(PI), Density::new(1.0))],
-        );
+        let cell1 = simple_layered_cell(vec![simple_cell_layer(Area::new(PI), Density::new(1.0))]);
+        let cell2 = simple_layered_cell(vec![simple_cell_layer(Area::new(PI), Density::new(1.0))]);
         assert_eq!(cell1, cell1);
         assert_ne!(cell1, cell2);
     }
@@ -269,58 +270,42 @@ mod tests {
     #[test]
     #[should_panic]
     fn cell_must_have_layers() {
-        Cell::new(Position::ORIGIN, Velocity::ZERO, vec![]);
+        simple_layered_cell(vec![]);
     }
 
     #[test]
     fn cell_has_radius_of_outer_layer() {
-        let cell = Cell::new(
-            Position::ORIGIN,
-            Velocity::ZERO,
-            vec![
-                simple_cell_layer(Area::new(PI), Density::new(1.0)),
-                simple_cell_layer(Area::new(3.0 * PI), Density::new(1.0)),
-            ],
-        );
+        let cell = simple_layered_cell(vec![
+            simple_cell_layer(Area::new(PI), Density::new(1.0)),
+            simple_cell_layer(Area::new(3.0 * PI), Density::new(1.0)),
+        ]);
         assert_eq!(Length::new(2.0), cell.radius());
     }
 
     #[test]
     fn cell_has_mass_of_all_layers() {
-        let cell = Cell::new(
-            Position::ORIGIN,
-            Velocity::ZERO,
-            vec![
-                simple_cell_layer(Area::new(PI), Density::new(1.0)),
-                simple_cell_layer(Area::new(2.0 * PI), Density::new(2.0)),
-            ],
-        );
+        let cell = simple_layered_cell(vec![
+            simple_cell_layer(Area::new(PI), Density::new(1.0)),
+            simple_cell_layer(Area::new(2.0 * PI), Density::new(2.0)),
+        ]);
         assert_eq!(Mass::new(5.0 * PI), cell.mass());
     }
 
     #[test]
     fn cell_with_all_dead_layers_is_dead() {
-        let cell = Cell::new(
-            Position::ORIGIN,
-            Velocity::ZERO,
-            vec![
-                simple_cell_layer(Area::new(1.0), Density::new(1.0)).dead(),
-                simple_cell_layer(Area::new(1.0), Density::new(1.0)).dead(),
-            ],
-        );
+        let cell = simple_layered_cell(vec![
+            simple_cell_layer(Area::new(1.0), Density::new(1.0)).dead(),
+            simple_cell_layer(Area::new(1.0), Density::new(1.0)).dead(),
+        ]);
         assert!(!cell.is_alive());
     }
 
     #[test]
     fn cell_with_one_live_layer_is_alive() {
-        let cell = Cell::new(
-            Position::ORIGIN,
-            Velocity::ZERO,
-            vec![
-                simple_cell_layer(Area::new(1.0), Density::new(1.0)),
-                simple_cell_layer(Area::new(1.0), Density::new(1.0)).dead(),
-            ],
-        );
+        let cell = simple_layered_cell(vec![
+            simple_cell_layer(Area::new(1.0), Density::new(1.0)),
+            simple_cell_layer(Area::new(1.0), Density::new(1.0)).dead(),
+        ]);
         assert!(cell.is_alive());
     }
 
@@ -340,15 +325,12 @@ mod tests {
 
     #[test]
     fn cell_with_continuous_growth_control_grows_on_first_tick() {
-        let mut cell = Cell::new(
-            Position::ORIGIN,
-            Velocity::ZERO,
-            vec![simple_cell_layer(Area::new(10.0), Density::new(1.0))],
-        )
-        .with_control(Box::new(ContinuousResizeControl::new(
-            0,
-            AreaDelta::new(0.5),
-        )));
+        let mut cell =
+            simple_layered_cell(vec![simple_cell_layer(Area::new(10.0), Density::new(1.0))])
+                .with_control(Box::new(ContinuousResizeControl::new(
+                    0,
+                    AreaDelta::new(0.5),
+                )));
         cell.run_control();
         assert_eq!(Mass::new(10.5), cell.mass());
     }
@@ -360,17 +342,14 @@ mod tests {
             ..LayerResizeParameters::UNLIMITED
         };
 
-        let mut cell = Cell::new(
-            Position::ORIGIN,
-            Velocity::ZERO,
-            vec![simple_cell_layer(Area::new(1.0), Density::new(1.0))
-                .with_resize_parameters(&LAYER_RESIZE_PARAMS)],
-        )
-        .with_control(Box::new(ContinuousResizeControl::new(
-            0,
-            AreaDelta::new(2.0),
-        )))
-        .with_initial_energy(BioEnergy::new(10.0));
+        let mut cell =
+            simple_layered_cell(vec![simple_cell_layer(Area::new(1.0), Density::new(1.0))
+                .with_resize_parameters(&LAYER_RESIZE_PARAMS)])
+            .with_control(Box::new(ContinuousResizeControl::new(
+                0,
+                AreaDelta::new(2.0),
+            )))
+            .with_initial_energy(BioEnergy::new(10.0));
 
         cell.run_control();
 
@@ -379,16 +358,12 @@ mod tests {
 
     #[test]
     fn thruster_layer_adds_force_to_cell() {
-        let mut cell = Cell::new(
-            Position::ORIGIN,
-            Velocity::ZERO,
-            vec![CellLayer::new(
-                Area::new(1.0),
-                Density::new(1.0),
-                Color::Green,
-                Box::new(ThrusterCellLayerSpecialty::new()),
-            )],
-        )
+        let mut cell = simple_layered_cell(vec![CellLayer::new(
+            Area::new(1.0),
+            Density::new(1.0),
+            Color::Green,
+            Box::new(ThrusterCellLayerSpecialty::new()),
+        )])
         .with_control(Box::new(SimpleThrusterControl::new(
             0,
             Force::new(1.0, -1.0),
@@ -400,16 +375,12 @@ mod tests {
 
     #[test]
     fn photo_layer_adds_energy_to_cell() {
-        let mut cell = Cell::new(
-            Position::ORIGIN,
-            Velocity::ZERO,
-            vec![CellLayer::new(
-                Area::new(4.0),
-                Density::new(1.0),
-                Color::Green,
-                Box::new(PhotoCellLayerSpecialty::new(0.5)),
-            )],
-        );
+        let mut cell = simple_layered_cell(vec![CellLayer::new(
+            Area::new(4.0),
+            Density::new(1.0),
+            Color::Green,
+            Box::new(PhotoCellLayerSpecialty::new(0.5)),
+        )]);
         cell.environment_mut().add_light_intensity(10.0);
 
         cell.after_influences(Duration::new(1.0));
@@ -520,16 +491,12 @@ mod tests {
             ..LayerHealthParameters::DEFAULT
         };
 
-        let mut cell = Cell::new(
-            Position::ORIGIN,
-            Velocity::ZERO,
-            vec![
-                simple_cell_layer(Area::new(1.0), Density::new(1.0))
-                    .with_health_parameters(&LAYER0_HEALTH_PARAMS),
-                simple_cell_layer(Area::new(1.0), Density::new(1.0))
-                    .with_health_parameters(&LAYER1_HEALTH_PARAMS),
-            ],
-        );
+        let mut cell = simple_layered_cell(vec![
+            simple_cell_layer(Area::new(1.0), Density::new(1.0))
+                .with_health_parameters(&LAYER0_HEALTH_PARAMS),
+            simple_cell_layer(Area::new(1.0), Density::new(1.0))
+                .with_health_parameters(&LAYER1_HEALTH_PARAMS),
+        ]);
 
         cell.environment_mut()
             .add_overlap(Overlap::new(Displacement::new(1.0, 0.0), 1.0));
@@ -552,16 +519,12 @@ mod tests {
             ..LayerResizeParameters::UNLIMITED
         };
 
-        let mut cell = Cell::new(
-            Position::ORIGIN,
-            Velocity::ZERO,
-            vec![
-                simple_cell_layer(Area::new(10.0), Density::new(1.0))
-                    .with_resize_parameters(&LAYER0_RESIZE_PARAMS),
-                simple_cell_layer(Area::new(5.0), Density::new(1.0))
-                    .with_resize_parameters(&LAYER1_RESIZE_PARAMS),
-            ],
-        )
+        let mut cell = simple_layered_cell(vec![
+            simple_cell_layer(Area::new(10.0), Density::new(1.0))
+                .with_resize_parameters(&LAYER0_RESIZE_PARAMS),
+            simple_cell_layer(Area::new(5.0), Density::new(1.0))
+                .with_resize_parameters(&LAYER1_RESIZE_PARAMS),
+        ])
         .with_control(Box::new(ContinuousRequestsControl::new(vec![
             CellLayer::resize_request(0, AreaDelta::new(-100.0)),
             CellLayer::resize_request(1, AreaDelta::new(100.0)),
@@ -594,6 +557,7 @@ mod tests {
                     )),
                 ),
             ],
+            Rc::new(SparseNeuralNetGenome::new(TransferFn::IDENTITY)),
         )
         .with_control(Box::new(ContinuousRequestsControl::new(vec![
             CellLayer::resize_request(0, AreaDelta::new(10.0)),
@@ -621,10 +585,15 @@ mod tests {
         _seed: u64,
         _mutation_parameters: &'static MutationParameters,
     ) -> Cell {
+        simple_layered_cell(vec![simple_cell_layer(Area::new(PI), Density::new(1.0))])
+    }
+
+    fn simple_layered_cell(layers: Vec<CellLayer>) -> Cell {
         Cell::new(
             Position::ORIGIN,
             Velocity::ZERO,
-            vec![simple_cell_layer(Area::new(PI), Density::new(1.0))],
+            layers,
+            Rc::new(SparseNeuralNetGenome::new(TransferFn::IDENTITY)),
         )
     }
 

@@ -63,6 +63,7 @@ fn create_cell(
             create_photo_layer(),
             create_budding_layer(seed, mutation_parameters),
         ],
+        Rc::new(SparseNeuralNetGenome::new(TransferFn::IDENTITY)),
     )
     .with_control(Box::new(DuckweedControl::new(-50.0)))
 }

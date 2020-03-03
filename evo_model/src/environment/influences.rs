@@ -336,7 +336,9 @@ impl Influence for Sunlight {
 mod tests {
     use super::*;
     use crate::biology::layers::*;
+    use crate::genome::sparse_neural_net::*;
     use std::f64::consts::PI;
+    use std::rc::Rc;
 
     #[test]
     fn wall_collisions_add_overlap_and_force() {
@@ -543,11 +545,10 @@ mod tests {
     fn sunlight_adds_light() {
         let sunlight = Sunlight::new(-10.0, 10.0, 10.0, 20.0);
         let mut cell_graph = SortableGraph::new();
-        let cell_handle = cell_graph.add_node(Cell::new(
-            Position::new(0.0, 0.0),
-            Velocity::ZERO,
-            vec![simple_cell_layer(Area::new(PI), Density::new(1.0))],
-        ));
+        let cell_handle = cell_graph.add_node(simple_layered_cell(vec![simple_cell_layer(
+            Area::new(PI),
+            Density::new(1.0),
+        )]));
 
         sunlight.apply(&mut cell_graph, Duration::new(0.5));
 
@@ -559,16 +560,24 @@ mod tests {
     fn sunlight_never_negative() {
         let sunlight = Sunlight::new(-10.0, 0.0, 0.0, 10.0);
         let mut cell_graph = SortableGraph::new();
-        let cell_handle = cell_graph.add_node(Cell::new(
-            Position::new(0.0, -11.0),
-            Velocity::ZERO,
-            vec![simple_cell_layer(Area::new(1.0), Density::new(1.0))],
-        ));
+        let cell_handle = cell_graph.add_node(
+            simple_layered_cell(vec![simple_cell_layer(Area::new(1.0), Density::new(1.0))])
+                .with_initial_position(Position::new(0.0, -11.0)),
+        );
 
         sunlight.apply(&mut cell_graph, Duration::new(0.5));
 
         let cell = cell_graph.node(cell_handle);
         assert_eq!(cell.environment().light_intensity(), 0.0);
+    }
+
+    fn simple_layered_cell(layers: Vec<CellLayer>) -> Cell {
+        Cell::new(
+            Position::ORIGIN,
+            Velocity::ZERO,
+            layers,
+            Rc::new(SparseNeuralNetGenome::new(TransferFn::IDENTITY)),
+        )
     }
 
     fn simple_cell_layer(area: Area, density: Density) -> CellLayer {

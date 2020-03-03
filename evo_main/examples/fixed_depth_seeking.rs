@@ -7,9 +7,11 @@ use evo_model::biology::control::*;
 use evo_model::biology::control_requests::*;
 use evo_model::biology::layers::*;
 use evo_model::environment::influences::*;
+use evo_model::genome::sparse_neural_net::*;
 use evo_model::physics::quantities::*;
 use evo_model::world::World;
 use std::f64::consts::PI;
+use std::rc::Rc;
 
 fn main() {
     init_and_run(create_world());
@@ -49,6 +51,7 @@ fn create_world() -> World {
                         Color::Green,
                     ),
                 ],
+                Rc::new(SparseNeuralNetGenome::new(TransferFn::IDENTITY)),
             )
             .with_control(Box::new(FixedDepthSeekingControl::new(-150.0))),
             Cell::new(
@@ -66,6 +69,7 @@ fn create_world() -> World {
                         Color::Green,
                     ),
                 ],
+                Rc::new(SparseNeuralNetGenome::new(TransferFn::IDENTITY)),
             )
             .with_control(Box::new(FixedDepthSeekingControl::new(-250.0))),
         ])

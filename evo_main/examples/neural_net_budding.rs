@@ -65,6 +65,7 @@ fn create_cell(
             create_photo_layer(),
             create_budding_layer(Rc::clone(&genome), seed, mutation_parameters),
         ],
+        Rc::clone(&genome),
     )
     .with_control(Box::new(NeuralNetBuddingControl::new(genome)))
 }

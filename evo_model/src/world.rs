@@ -337,16 +337,12 @@ mod tests {
     fn tick_runs_photo_layer() {
         let mut world = World::new(Position::ORIGIN, Position::ORIGIN)
             .with_influence(Box::new(Sunlight::new(-10.0, 10.0, 0.0, 10.0)))
-            .with_cell(Cell::new(
-                Position::ORIGIN,
-                Velocity::ZERO,
-                vec![CellLayer::new(
-                    Area::new(10.0),
-                    Density::new(1.0),
-                    Color::Green,
-                    Box::new(PhotoCellLayerSpecialty::new(1.0)),
-                )],
-            ));
+            .with_cell(simple_layered_cell(vec![CellLayer::new(
+                Area::new(10.0),
+                Density::new(1.0),
+                Color::Green,
+                Box::new(PhotoCellLayerSpecialty::new(1.0)),
+            )]));
 
         world.tick();
 
@@ -357,16 +353,12 @@ mod tests {
     #[test]
     fn tick_runs_cell_growth() {
         let mut world = World::new(Position::ORIGIN, Position::ORIGIN).with_cell(
-            Cell::new(
-                Position::ORIGIN,
-                Velocity::ZERO,
-                vec![CellLayer::new(
-                    Area::new(1.0),
-                    Density::new(1.0),
-                    Color::Green,
-                    Box::new(NullCellLayerSpecialty::new()),
-                )],
-            )
+            simple_layered_cell(vec![CellLayer::new(
+                Area::new(1.0),
+                Density::new(1.0),
+                Color::Green,
+                Box::new(NullCellLayerSpecialty::new()),
+            )])
             .with_control(Box::new(ContinuousResizeControl::new(
                 0,
                 AreaDelta::new(2.0),
@@ -383,16 +375,12 @@ mod tests {
     fn tick_runs_cell_thruster() {
         let mut world = World::new(Position::new(-10.0, -10.0), Position::new(10.0, 10.0))
             .with_cell(
-                Cell::new(
-                    Position::ORIGIN,
-                    Velocity::ZERO,
-                    vec![CellLayer::new(
-                        Area::new(1.0),
-                        Density::new(1.0),
-                        Color::Green,
-                        Box::new(ThrusterCellLayerSpecialty::new()),
-                    )],
-                )
+                simple_layered_cell(vec![CellLayer::new(
+                    Area::new(1.0),
+                    Density::new(1.0),
+                    Color::Green,
+                    Box::new(ThrusterCellLayerSpecialty::new()),
+                )])
                 .with_control(Box::new(SimpleThrusterControl::new(
                     0,
                     Force::new(1.0, -1.0),
@@ -417,17 +405,13 @@ mod tests {
         let mut world = World::new(Position::new(-10.0, -10.0), Position::new(10.0, 10.0))
             .with_influence(Box::new(Sunlight::new(-10.0, 10.0, 0.0, 10.0)))
             .with_cell(
-                Cell::new(
-                    Position::ORIGIN,
-                    Velocity::ZERO,
-                    vec![CellLayer::new(
-                        Area::new(10.0),
-                        Density::new(1.0),
-                        Color::Green,
-                        Box::new(PhotoCellLayerSpecialty::new(1.0)),
-                    )
-                    .with_resize_parameters(&LAYER_RESIZE_PARAMS)],
+                simple_layered_cell(vec![CellLayer::new(
+                    Area::new(10.0),
+                    Density::new(1.0),
+                    Color::Green,
+                    Box::new(PhotoCellLayerSpecialty::new(1.0)),
                 )
+                .with_resize_parameters(&LAYER_RESIZE_PARAMS)])
                 .with_control(Box::new(ContinuousResizeControl::new(
                     0,
                     AreaDelta::new(100.0),
@@ -444,21 +428,17 @@ mod tests {
     fn new_cells_get_added_to_world() {
         let genome = SparseNeuralNetGenome::new(TransferFn::IDENTITY);
         let mut world = World::new(Position::ORIGIN, Position::ORIGIN).with_cell(
-            Cell::new(
-                Position::ORIGIN,
-                Velocity::ZERO,
-                vec![CellLayer::new(
-                    Area::new(1.0),
-                    Density::new(1.0),
-                    Color::Green,
-                    Box::new(BuddingCellLayerSpecialty::new(
-                        Rc::new(genome),
-                        0,
-                        &MutationParameters::NO_MUTATION,
-                        create_child,
-                    )),
-                )],
-            )
+            simple_layered_cell(vec![CellLayer::new(
+                Area::new(1.0),
+                Density::new(1.0),
+                Color::Green,
+                Box::new(BuddingCellLayerSpecialty::new(
+                    Rc::new(genome),
+                    0,
+                    &MutationParameters::NO_MUTATION,
+                    create_child,
+                )),
+            )])
             .with_control(Box::new(ContinuousRequestsControl::new(vec![
                 BuddingCellLayerSpecialty::donation_energy_request(0, BioEnergy::new(1.0)),
             ]))),
@@ -471,11 +451,10 @@ mod tests {
 
     #[test]
     fn dead_cells_get_removed_from_world() {
-        let mut world = World::new(Position::ORIGIN, Position::ORIGIN).with_cell(Cell::new(
-            Position::ORIGIN,
-            Velocity::ZERO,
-            vec![simple_cell_layer(Area::new(1.0), Density::new(1.0)).dead()],
-        ));
+        let mut world =
+            World::new(Position::ORIGIN, Position::ORIGIN).with_cell(simple_layered_cell(vec![
+                simple_cell_layer(Area::new(1.0), Density::new(1.0)).dead(),
+            ]));
 
         world.tick();
 
@@ -487,10 +466,15 @@ mod tests {
         _seed: u64,
         _mutation_parameters: &'static MutationParameters,
     ) -> Cell {
+        simple_layered_cell(vec![simple_cell_layer(Area::new(1.0), Density::new(1.0))])
+    }
+
+    fn simple_layered_cell(layers: Vec<CellLayer>) -> Cell {
         Cell::new(
             Position::ORIGIN,
             Velocity::ZERO,
-            vec![simple_cell_layer(Area::new(1.0), Density::new(1.0))],
+            layers,
+            Rc::new(SparseNeuralNetGenome::new(TransferFn::IDENTITY)),
         )
     }
 

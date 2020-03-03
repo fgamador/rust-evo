@@ -35,6 +35,7 @@ fn create_child(
     seed: u64,
     mutation_parameters: &'static MutationParameters,
 ) -> Cell {
+    let genome = Rc::new(genome);
     Cell::new(
         Position::ORIGIN,
         Velocity::ZERO,
@@ -50,13 +51,14 @@ fn create_child(
                 Density::new(1.0),
                 Color::Yellow,
                 Box::new(BuddingCellLayerSpecialty::new(
-                    Rc::new(genome),
+                    Rc::clone(&genome),
                     seed,
                     mutation_parameters,
                     create_child,
                 )),
             ),
         ],
+        genome,
     )
     .with_control(Box::new(BuddingControl::new(1)))
 }

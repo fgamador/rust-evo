@@ -18,6 +18,10 @@ fn main() {
 }
 
 fn create_world() -> World {
+    let mut genome = SparseNeuralNetGenome::new(TransferFn::IDENTITY);
+    genome.connect_node(1, -100.0, &[(0, -1.0)]);
+    let genome = Rc::new(genome);
+
     World::new(Position::new(0.0, -400.0), Position::new(400.0, 0.0))
         .with_perimeter_walls()
         .with_influences(vec![
@@ -34,8 +38,9 @@ fn create_world() -> World {
                 simple_cell_layer(Area::new(100.0 * PI), Density::new(0.0004), Color::White),
                 simple_cell_layer(Area::new(300.0 * PI), Density::new(0.00075), Color::Green),
             ],
+            Rc::clone(&genome),
         )
-        .with_control(Box::new(NeuralNetControl::new()))])
+        .with_control(Box::new(NeuralNetControl::new(genome)))])
 }
 
 fn simple_cell_layer(area: Area, density: Density, color: Color) -> CellLayer {
@@ -53,11 +58,9 @@ pub struct NeuralNetControl {
 }
 
 impl NeuralNetControl {
-    pub fn new() -> Self {
-        let mut genome = SparseNeuralNetGenome::new(TransferFn::IDENTITY);
-        genome.connect_node(1, -100.0, &[(0, -1.0)]);
+    pub fn new(genome: Rc<SparseNeuralNetGenome>) -> Self {
         NeuralNetControl {
-            nnet: SparseNeuralNet::new(Rc::new(genome)),
+            nnet: SparseNeuralNet::new(genome),
         }
     }
 }

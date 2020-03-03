@@ -1274,7 +1274,7 @@ mod tests {
     }
 
     fn create_child(
-        _genome: SparseNeuralNetGenome,
+        genome: SparseNeuralNetGenome,
         _seed: u64,
         _mutation_parameters: &'static MutationParameters,
     ) -> Cell {
@@ -1285,6 +1285,7 @@ mod tests {
                 simple_cell_layer(Area::new(PI), Density::new(1.0)),
                 simple_cell_layer(Area::new(PI), Density::new(1.0)),
             ],
+            Rc::new(genome),
         )
     }
 

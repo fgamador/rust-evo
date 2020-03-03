@@ -1,6 +1,7 @@
 use crate::biology::cell::Cell;
 use crate::biology::control::CellStateSnapshot;
 use crate::biology::control_requests::*;
+use crate::biology::reproduction::*;
 use crate::environment::local_environment::LocalEnvironment;
 use crate::genome::sparse_neural_net::*;
 use crate::physics::overlap::Overlap;
@@ -603,10 +604,7 @@ type CreateCellFn = fn(SparseNeuralNetGenome, u64, &'static MutationParameters) 
 
 #[derive(Debug)]
 pub struct BuddingCellLayerSpecialty {
-    genome: Rc<SparseNeuralNetGenome>,
-    mutation_parameters: &'static MutationParameters,
-    randomness: SeededMutationRandomness,
-    create_child: CreateCellFn,
+    reproduction: Reproduction,
     budding_angle: Angle,
     donation_energy: BioEnergy,
 }
@@ -622,29 +620,18 @@ impl BuddingCellLayerSpecialty {
         create_child: CreateCellFn,
     ) -> Self {
         BuddingCellLayerSpecialty {
-            genome,
-            mutation_parameters,
-            randomness: SeededMutationRandomness::new(seed, mutation_parameters),
-            create_child,
+            reproduction: Reproduction::new(genome, seed, mutation_parameters, create_child),
             budding_angle: Angle::ZERO,
             donation_energy: BioEnergy::ZERO,
         }
     }
 
     fn create_and_init_child(&mut self, cell_state: &CellStateSnapshot) -> Cell {
-        let mut child = (self.create_child)(
-            // TODO test that this is called?
-            self.genome.copy_with_mutation(&mut self.randomness),
-            // TODO test that this is called?
-            self.randomness.child_seed(),
-            self.mutation_parameters,
-        );
-        let offset =
-            Displacement::from_polar(cell_state.radius + child.radius(), self.budding_angle);
-        child.set_initial_position(cell_state.center + offset);
-        child.set_initial_velocity(cell_state.velocity);
-        child.set_initial_energy(self.donation_energy);
-        child
+        self.reproduction.create_and_init_child(
+            cell_state,
+            self.budding_angle,
+            self.donation_energy,
+        )
     }
 
     pub fn budding_angle_request(layer_index: usize, angle: Angle) -> ControlRequest {

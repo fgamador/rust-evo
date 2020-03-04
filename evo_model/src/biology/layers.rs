@@ -604,7 +604,7 @@ type CreateCellFn = fn(SparseNeuralNetGenome, SeededMutationRandomness) -> Cell;
 
 #[derive(Debug)]
 pub struct BuddingCellLayerSpecialty {
-    reproduction: CellFactory,
+    cell_factory: CellFactory,
     budding_angle: Angle,
     donation_energy: BioEnergy,
 }
@@ -619,14 +619,14 @@ impl BuddingCellLayerSpecialty {
         create_child: CreateCellFn,
     ) -> Self {
         BuddingCellLayerSpecialty {
-            reproduction: CellFactory::new(genome, randomness, create_child),
+            cell_factory: CellFactory::new(genome, randomness, create_child),
             budding_angle: Angle::ZERO,
             donation_energy: BioEnergy::ZERO,
         }
     }
 
-    fn create_and_init_child(&mut self, cell_state: &CellStateSnapshot) -> Cell {
-        self.reproduction.create_and_place_child_cell(
+    fn create_and_place_child_cell(&mut self, cell_state: &CellStateSnapshot) -> Cell {
+        self.cell_factory.create_and_place_child_cell(
             cell_state,
             self.budding_angle,
             self.donation_energy,
@@ -685,7 +685,7 @@ impl CellLayerSpecialty for BuddingCellLayerSpecialty {
             return None;
         }
 
-        Some(self.create_and_init_child(cell_state))
+        Some(self.create_and_place_child_cell(cell_state))
     }
 
     fn reset(&mut self) {

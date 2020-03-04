@@ -1,3 +1,4 @@
+use crate::biology::cell_factory::*;
 use crate::biology::control::*;
 use crate::biology::control_requests::*;
 use crate::biology::layers::*;
@@ -23,8 +24,7 @@ pub struct Cell {
     layers: Vec<CellLayer>, // TODO array? smallvec?
     control: Box<dyn CellControl>,
     genome: Rc<SparseNeuralNetGenome>,
-    randomness: SeededMutationRandomness,
-    create_child: CreateCellFn,
+    cell_factory: CellFactory,
     energy: BioEnergy,
 }
 
@@ -49,9 +49,8 @@ impl Cell {
             environment: LocalEnvironment::new(),
             layers,
             control: Box::new(NullControl::new()),
-            genome,
-            randomness,
-            create_child,
+            genome: Rc::clone(&genome),
+            cell_factory: CellFactory::new(genome, randomness, create_child),
             energy: BioEnergy::new(0.0),
         }
     }

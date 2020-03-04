@@ -1,7 +1,7 @@
 use crate::biology::cell::Cell;
+use crate::biology::cell_factory::*;
 use crate::biology::control::CellStateSnapshot;
 use crate::biology::control_requests::*;
-use crate::biology::reproduction::*;
 use crate::environment::local_environment::LocalEnvironment;
 use crate::genome::sparse_neural_net::*;
 use crate::physics::overlap::Overlap;
@@ -604,7 +604,7 @@ type CreateCellFn = fn(SparseNeuralNetGenome, SeededMutationRandomness) -> Cell;
 
 #[derive(Debug)]
 pub struct BuddingCellLayerSpecialty {
-    reproduction: Reproduction,
+    reproduction: CellFactory,
     budding_angle: Angle,
     donation_energy: BioEnergy,
 }
@@ -619,14 +619,14 @@ impl BuddingCellLayerSpecialty {
         create_child: CreateCellFn,
     ) -> Self {
         BuddingCellLayerSpecialty {
-            reproduction: Reproduction::new(genome, randomness, create_child),
+            reproduction: CellFactory::new(genome, randomness, create_child),
             budding_angle: Angle::ZERO,
             donation_energy: BioEnergy::ZERO,
         }
     }
 
     fn create_and_init_child(&mut self, cell_state: &CellStateSnapshot) -> Cell {
-        self.reproduction.create_and_init_child(
+        self.reproduction.create_and_place_child_cell(
             cell_state,
             self.budding_angle,
             self.donation_energy,

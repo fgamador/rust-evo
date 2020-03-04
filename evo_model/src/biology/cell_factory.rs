@@ -9,13 +9,13 @@ use std::rc::Rc;
 type CreateCellFn = fn(SparseNeuralNetGenome, SeededMutationRandomness) -> Cell;
 
 #[derive(Debug)]
-pub struct Reproduction {
+pub struct CellFactory {
     genome: Rc<SparseNeuralNetGenome>,
     randomness: SeededMutationRandomness,
     create_child: CreateCellFn,
 }
 
-impl Reproduction {
+impl CellFactory {
     pub fn new(
         genome: Rc<SparseNeuralNetGenome>,
         randomness: SeededMutationRandomness,
@@ -28,9 +28,9 @@ impl Reproduction {
         }
     }
 
-    pub fn create_and_init_child(
+    pub fn create_and_place_child_cell(
         &mut self,
-        cell_state: &CellStateSnapshot,
+        parent_state: &CellStateSnapshot,
         budding_angle: Angle,
         donation_energy: BioEnergy,
     ) -> Cell {
@@ -40,9 +40,9 @@ impl Reproduction {
             // TODO test that this is called?
             self.randomness.spawn(),
         );
-        let offset = Displacement::from_polar(cell_state.radius + child.radius(), budding_angle);
-        child.set_initial_position(cell_state.center + offset);
-        child.set_initial_velocity(cell_state.velocity);
+        let offset = Displacement::from_polar(parent_state.radius + child.radius(), budding_angle);
+        child.set_initial_position(parent_state.center + offset);
+        child.set_initial_velocity(parent_state.velocity);
         child.set_initial_energy(donation_energy);
         child
     }
@@ -58,7 +58,7 @@ mod tests {
     #[test]
     fn reproduction_creates_child_with_right_state() {
         let genome = SparseNeuralNetGenome::new(TransferFn::IDENTITY);
-        let mut reproduction = Reproduction::new(
+        let mut reproduction = CellFactory::new(
             Rc::new(genome),
             SeededMutationRandomness::new(0, &MutationParameters::NO_MUTATION),
             create_child,
@@ -70,7 +70,7 @@ mod tests {
             ..CellStateSnapshot::ZEROS
         };
 
-        let child = reproduction.create_and_init_child(
+        let child = reproduction.create_and_place_child_cell(
             &parent_state,
             Angle::from_radians(0.0),
             BioEnergy::new(1.0),

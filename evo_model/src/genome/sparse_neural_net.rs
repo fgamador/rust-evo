@@ -276,6 +276,10 @@ impl SeededMutationRandomness {
         }
     }
 
+    pub fn spawn(&mut self) -> Self {
+        Self::new(self.child_seed(), self.mutation_parameters)
+    }
+
     pub fn child_seed(&mut self) -> u64 {
         self.rng.gen()
     }

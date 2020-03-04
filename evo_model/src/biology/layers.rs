@@ -600,7 +600,7 @@ impl CellLayerSpecialty for PhotoCellLayerSpecialty {
     }
 }
 
-type CreateCellFn = fn(SparseNeuralNetGenome, u64, &'static MutationParameters) -> Cell;
+type CreateCellFn = fn(SparseNeuralNetGenome, SeededMutationRandomness) -> Cell;
 
 #[derive(Debug)]
 pub struct BuddingCellLayerSpecialty {
@@ -615,12 +615,11 @@ impl BuddingCellLayerSpecialty {
 
     pub fn new(
         genome: Rc<SparseNeuralNetGenome>,
-        seed: u64,
-        mutation_parameters: &'static MutationParameters,
+        randomness: SeededMutationRandomness,
         create_child: CreateCellFn,
     ) -> Self {
         BuddingCellLayerSpecialty {
-            reproduction: Reproduction::new(genome, seed, mutation_parameters, create_child),
+            reproduction: Reproduction::new(genome, randomness, create_child),
             budding_angle: Angle::ZERO,
             donation_energy: BioEnergy::ZERO,
         }
@@ -1128,8 +1127,7 @@ mod tests {
             Color::Green,
             Box::new(BuddingCellLayerSpecialty::new(
                 Rc::new(genome),
-                0,
-                &MutationParameters::NO_MUTATION,
+                SeededMutationRandomness::new(0, &MutationParameters::NO_MUTATION),
                 create_child,
             )),
         );
@@ -1169,8 +1167,7 @@ mod tests {
             Color::Green,
             Box::new(BuddingCellLayerSpecialty::new(
                 Rc::new(genome),
-                0,
-                &MutationParameters::NO_MUTATION,
+                SeededMutationRandomness::new(0, &MutationParameters::NO_MUTATION),
                 create_child,
             )),
         );
@@ -1192,8 +1189,7 @@ mod tests {
             Color::Green,
             Box::new(BuddingCellLayerSpecialty::new(
                 Rc::new(genome),
-                0,
-                &MutationParameters::NO_MUTATION,
+                SeededMutationRandomness::new(0, &MutationParameters::NO_MUTATION),
                 create_child,
             )),
         );
@@ -1216,8 +1212,7 @@ mod tests {
             Color::Green,
             Box::new(BuddingCellLayerSpecialty::new(
                 Rc::new(genome),
-                0,
-                &MutationParameters::NO_MUTATION,
+                SeededMutationRandomness::new(0, &MutationParameters::NO_MUTATION),
                 create_child,
             )),
         );
@@ -1243,8 +1238,7 @@ mod tests {
             Color::Green,
             Box::new(BuddingCellLayerSpecialty::new(
                 Rc::new(genome),
-                0,
-                &MutationParameters::NO_MUTATION,
+                SeededMutationRandomness::new(0, &MutationParameters::NO_MUTATION),
                 create_child,
             )),
         )
@@ -1260,11 +1254,7 @@ mod tests {
         assert_eq!(child.energy(), BioEnergy::new(0.5));
     }
 
-    fn create_child(
-        genome: SparseNeuralNetGenome,
-        _seed: u64,
-        _mutation_parameters: &'static MutationParameters,
-    ) -> Cell {
+    fn create_child(genome: SparseNeuralNetGenome, _randomness: SeededMutationRandomness) -> Cell {
         Cell::new(
             Position::ORIGIN,
             Velocity::ZERO,

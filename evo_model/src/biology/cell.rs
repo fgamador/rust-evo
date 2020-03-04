@@ -551,8 +551,7 @@ mod tests {
                     Color::White,
                     Box::new(BuddingCellLayerSpecialty::new(
                         Rc::new(genome),
-                        0,
-                        &MutationParameters::NO_MUTATION,
+                        SeededMutationRandomness::new(0, &MutationParameters::NO_MUTATION),
                         create_child,
                     )),
                 ),
@@ -580,11 +579,7 @@ mod tests {
         assert_eq!(child.energy(), BioEnergy::new(1.0));
     }
 
-    fn create_child(
-        _genome: SparseNeuralNetGenome,
-        _seed: u64,
-        _mutation_parameters: &'static MutationParameters,
-    ) -> Cell {
+    fn create_child(_genome: SparseNeuralNetGenome, _randomness: SeededMutationRandomness) -> Cell {
         simple_layered_cell(vec![simple_cell_layer(Area::new(PI), Density::new(1.0))])
     }
 

@@ -23,18 +23,13 @@ fn create_world() -> World {
         .with_cell(
             create_child(
                 SparseNeuralNetGenome::new(TransferFn::IDENTITY),
-                0,
-                &MutationParameters::NO_MUTATION,
+                SeededMutationRandomness::new(0, &MutationParameters::NO_MUTATION),
             )
             .with_initial_position(Position::new(200.0, -100.0)),
         )
 }
 
-fn create_child(
-    genome: SparseNeuralNetGenome,
-    seed: u64,
-    mutation_parameters: &'static MutationParameters,
-) -> Cell {
+fn create_child(genome: SparseNeuralNetGenome, randomness: SeededMutationRandomness) -> Cell {
     let genome = Rc::new(genome);
     Cell::new(
         Position::ORIGIN,
@@ -52,8 +47,7 @@ fn create_child(
                 Color::Yellow,
                 Box::new(BuddingCellLayerSpecialty::new(
                     Rc::clone(&genome),
-                    seed,
-                    mutation_parameters,
+                    randomness,
                     create_child,
                 )),
             ),

@@ -6,12 +6,11 @@ use crate::physics::shapes::Circle;
 use std::fmt::Debug;
 use std::rc::Rc;
 
-type CreateCellFn = fn(SparseNeuralNetGenome, u64, &'static MutationParameters) -> Cell;
+type CreateCellFn = fn(SparseNeuralNetGenome, SeededMutationRandomness) -> Cell;
 
 #[derive(Debug)]
 pub struct Reproduction {
     genome: Rc<SparseNeuralNetGenome>,
-    mutation_parameters: &'static MutationParameters,
     randomness: SeededMutationRandomness,
     create_child: CreateCellFn,
 }
@@ -19,14 +18,12 @@ pub struct Reproduction {
 impl Reproduction {
     pub fn new(
         genome: Rc<SparseNeuralNetGenome>,
-        seed: u64,
-        mutation_parameters: &'static MutationParameters,
+        randomness: SeededMutationRandomness,
         create_child: CreateCellFn,
     ) -> Self {
         Self {
             genome,
-            mutation_parameters,
-            randomness: SeededMutationRandomness::new(seed, mutation_parameters),
+            randomness,
             create_child,
         }
     }
@@ -41,8 +38,7 @@ impl Reproduction {
             // TODO test that this is called?
             self.genome.copy_with_mutation(&mut self.randomness),
             // TODO test that this is called?
-            self.randomness.child_seed(),
-            self.mutation_parameters,
+            self.randomness.spawn(),
         );
         let offset = Displacement::from_polar(cell_state.radius + child.radius(), budding_angle);
         child.set_initial_position(cell_state.center + offset);
@@ -64,8 +60,7 @@ mod tests {
         let genome = SparseNeuralNetGenome::new(TransferFn::IDENTITY);
         let mut reproduction = Reproduction::new(
             Rc::new(genome),
-            0,
-            &MutationParameters::NO_MUTATION,
+            SeededMutationRandomness::new(0, &MutationParameters::NO_MUTATION),
             create_child,
         );
         let parent_state = CellStateSnapshot {
@@ -93,11 +88,7 @@ mod tests {
         assert_eq!(child.energy(), BioEnergy::new(1.0));
     }
 
-    fn create_child(
-        genome: SparseNeuralNetGenome,
-        _seed: u64,
-        _mutation_parameters: &'static MutationParameters,
-    ) -> Cell {
+    fn create_child(genome: SparseNeuralNetGenome, _randomness: SeededMutationRandomness) -> Cell {
         Cell::new(
             Position::ORIGIN,
             Velocity::ZERO,

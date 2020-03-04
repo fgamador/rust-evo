@@ -45,17 +45,16 @@ fn create_world() -> World {
             DragForce::new(0.005),
         )))])
         .with_cell(
-            create_cell(NeuralNetBuddingControl::new_genome(), 0, &SOME_MUTATION)
-                .with_initial_energy(BioEnergy::new(50.0))
-                .with_initial_position(Position::new(200.0, -50.0)),
+            create_cell(
+                NeuralNetBuddingControl::new_genome(),
+                SeededMutationRandomness::new(0, &SOME_MUTATION),
+            )
+            .with_initial_energy(BioEnergy::new(50.0))
+            .with_initial_position(Position::new(200.0, -50.0)),
         )
 }
 
-fn create_cell(
-    genome: SparseNeuralNetGenome,
-    seed: u64,
-    mutation_parameters: &'static MutationParameters,
-) -> Cell {
+fn create_cell(genome: SparseNeuralNetGenome, randomness: SeededMutationRandomness) -> Cell {
     let genome = Rc::new(genome);
     Cell::new(
         Position::ORIGIN,
@@ -63,7 +62,7 @@ fn create_cell(
         vec![
             create_float_layer(),
             create_photo_layer(),
-            create_budding_layer(Rc::clone(&genome), seed, mutation_parameters),
+            create_budding_layer(Rc::clone(&genome), randomness),
         ],
         Rc::clone(&genome),
     )
@@ -118,8 +117,7 @@ fn create_photo_layer() -> CellLayer {
 
 fn create_budding_layer(
     genome: Rc<SparseNeuralNetGenome>,
-    seed: u64,
-    mutation_parameters: &'static MutationParameters,
+    randomness: SeededMutationRandomness,
 ) -> CellLayer {
     const LAYER_RESIZE_PARAMS: LayerResizeParameters = LayerResizeParameters {
         growth_energy_delta: BioEnergyDelta::new(-1.0),
@@ -139,8 +137,7 @@ fn create_budding_layer(
         Color::Yellow,
         Box::new(BuddingCellLayerSpecialty::new(
             genome,
-            seed,
-            mutation_parameters,
+            randomness,
             create_cell,
         )),
     )

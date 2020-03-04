@@ -470,6 +470,8 @@ mod tests {
             Velocity::ZERO,
             layers,
             Rc::new(SparseNeuralNetGenome::new(TransferFn::IDENTITY)),
+            SeededMutationRandomness::new(0, &MutationParameters::NO_MUTATION),
+            Cell::dummy_create_child,
         )
     }
 

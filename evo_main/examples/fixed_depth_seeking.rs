@@ -52,6 +52,8 @@ fn create_world() -> World {
                     ),
                 ],
                 Rc::new(SparseNeuralNetGenome::new(TransferFn::IDENTITY)),
+                SeededMutationRandomness::new(0, &MutationParameters::NO_MUTATION),
+                Cell::dummy_create_child,
             )
             .with_control(Box::new(FixedDepthSeekingControl::new(-150.0))),
             Cell::new(
@@ -70,6 +72,8 @@ fn create_world() -> World {
                     ),
                 ],
                 Rc::new(SparseNeuralNetGenome::new(TransferFn::IDENTITY)),
+                SeededMutationRandomness::new(0, &MutationParameters::NO_MUTATION),
+                Cell::dummy_create_child,
             )
             .with_control(Box::new(FixedDepthSeekingControl::new(-250.0))),
         ])

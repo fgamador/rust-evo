@@ -11,6 +11,8 @@ use std::f64::consts::PI;
 use std::ptr;
 use std::rc::Rc;
 
+type CreateCellFn = fn(SparseNeuralNetGenome, SeededMutationRandomness) -> Cell;
+
 #[allow(clippy::vec_box)]
 #[derive(Debug, GraphNode, HasLocalEnvironment, NewtonianBody)]
 pub struct Cell {
@@ -21,6 +23,8 @@ pub struct Cell {
     layers: Vec<CellLayer>, // TODO array? smallvec?
     control: Box<dyn CellControl>,
     genome: Rc<SparseNeuralNetGenome>,
+    randomness: SeededMutationRandomness,
+    create_child: CreateCellFn,
     energy: BioEnergy,
 }
 
@@ -30,6 +34,8 @@ impl Cell {
         velocity: Velocity,
         mut layers: Vec<CellLayer>,
         genome: Rc<SparseNeuralNetGenome>,
+        randomness: SeededMutationRandomness,
+        create_child: CreateCellFn,
     ) -> Self {
         if layers.is_empty() {
             panic!("Cell must have at least one layer");
@@ -44,6 +50,8 @@ impl Cell {
             layers,
             control: Box::new(NullControl::new()),
             genome,
+            randomness,
+            create_child,
             energy: BioEnergy::new(0.0),
         }
     }
@@ -60,6 +68,22 @@ impl Cell {
                 Box::new(NullCellLayerSpecialty::new()),
             )],
             Rc::new(SparseNeuralNetGenome::new(TransferFn::IDENTITY)),
+            SeededMutationRandomness::new(0, &MutationParameters::NO_MUTATION),
+            Self::dummy_create_child,
+        )
+    }
+
+    pub fn dummy_create_child(
+        _genome: SparseNeuralNetGenome,
+        _randomness: SeededMutationRandomness,
+    ) -> Cell {
+        Self::new(
+            Position::ORIGIN,
+            Velocity::ZERO,
+            vec![],
+            Rc::new(SparseNeuralNetGenome::new(TransferFn::IDENTITY)),
+            SeededMutationRandomness::new(0, &MutationParameters::NO_MUTATION),
+            Self::dummy_create_child,
         )
     }
 
@@ -557,6 +581,8 @@ mod tests {
                 ),
             ],
             Rc::new(SparseNeuralNetGenome::new(TransferFn::IDENTITY)),
+            SeededMutationRandomness::new(0, &MutationParameters::NO_MUTATION),
+            Cell::dummy_create_child,
         )
         .with_control(Box::new(ContinuousRequestsControl::new(vec![
             CellLayer::resize_request(0, AreaDelta::new(10.0)),
@@ -589,6 +615,8 @@ mod tests {
             Velocity::ZERO,
             layers,
             Rc::new(SparseNeuralNetGenome::new(TransferFn::IDENTITY)),
+            SeededMutationRandomness::new(0, &MutationParameters::NO_MUTATION),
+            Cell::dummy_create_child,
         )
     }
 

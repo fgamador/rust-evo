@@ -88,7 +88,7 @@ mod tests {
         assert_eq!(child.energy(), BioEnergy::new(1.0));
     }
 
-    fn create_child(genome: SparseNeuralNetGenome, _randomness: SeededMutationRandomness) -> Cell {
+    fn create_child(genome: SparseNeuralNetGenome, randomness: SeededMutationRandomness) -> Cell {
         Cell::new(
             Position::ORIGIN,
             Velocity::ZERO,
@@ -97,6 +97,8 @@ mod tests {
                 simple_cell_layer(Area::new(PI), Density::new(1.0)),
             ],
             Rc::new(genome),
+            randomness,
+            create_child,
         )
     }
 

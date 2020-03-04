@@ -59,6 +59,8 @@ fn create_cell(_genome: SparseNeuralNetGenome, randomness: SeededMutationRandomn
             create_budding_layer(randomness),
         ],
         Rc::new(SparseNeuralNetGenome::new(TransferFn::IDENTITY)),
+        SeededMutationRandomness::new(0, &MutationParameters::NO_MUTATION),
+        Cell::dummy_create_child,
     )
     .with_control(Box::new(DuckweedControl::new(-50.0)))
 }

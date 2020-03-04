@@ -58,7 +58,7 @@ mod tests {
     #[test]
     fn creates_child_with_right_state() {
         let genome = SparseNeuralNetGenome::new(TransferFn::IDENTITY);
-        let mut reproduction = CellFactory::new(
+        let mut cell_factory = CellFactory::new(
             Rc::new(genome),
             SeededMutationRandomness::new(0, &MutationParameters::NO_MUTATION),
             create_child,
@@ -70,7 +70,7 @@ mod tests {
             ..CellStateSnapshot::ZEROS
         };
 
-        let child = reproduction.create_and_place_child_cell(
+        let child = cell_factory.create_and_place_child_cell(
             &parent_state,
             Angle::from_radians(0.0),
             BioEnergy::new(1.0),

@@ -175,13 +175,13 @@ impl CellLayer {
             .execute_control_request(&mut *self.specialty, &mut self.body, request);
     }
 
-    pub fn after_control_requests(&mut self, cell_state: &CellStateSnapshot) -> Option<Cell> {
-        let child = self
+    pub fn after_control_requests(&mut self, cell_state: &CellStateSnapshot) -> SpawningRequest {
+        let spawning_request = self
             .body
             .brain
             .after_control_requests(&mut *self.specialty, cell_state);
         self.specialty.reset();
-        child
+        spawning_request
     }
 
     pub fn healing_request(layer_index: usize, delta_health: f64) -> ControlRequest {
@@ -321,7 +321,7 @@ trait CellLayerBrain: Debug {
         &self,
         specialty: &mut dyn CellLayerSpecialty,
         cell_state: &CellStateSnapshot,
-    ) -> Option<Cell>;
+    ) -> SpawningRequest;
 }
 
 #[derive(Debug)]
@@ -396,7 +396,7 @@ impl CellLayerBrain for LivingCellLayerBrain {
         &self,
         specialty: &mut dyn CellLayerSpecialty,
         cell_state: &CellStateSnapshot,
-    ) -> Option<Cell> {
+    ) -> SpawningRequest {
         specialty.after_control_requests(cell_state)
     }
 }
@@ -438,8 +438,8 @@ impl CellLayerBrain for DeadCellLayerBrain {
         &self,
         _specialty: &mut dyn CellLayerSpecialty,
         _cell_state: &CellStateSnapshot,
-    ) -> Option<Cell> {
-        None
+    ) -> SpawningRequest {
+        SpawningRequest::NONE
     }
 }
 
@@ -468,11 +468,26 @@ pub trait CellLayerSpecialty: Debug {
         panic!("Invalid control channel index: {}", request.channel_index);
     }
 
-    fn after_control_requests(&mut self, _cell_state: &CellStateSnapshot) -> Option<Cell> {
-        None
+    fn after_control_requests(&mut self, _cell_state: &CellStateSnapshot) -> SpawningRequest {
+        SpawningRequest::NONE
     }
 
     fn reset(&mut self) {}
+}
+
+#[derive(Debug)]
+pub struct SpawningRequest {
+    pub child: Option<Cell>,
+    pub budding_angle: Angle,
+    pub donation_energy: BioEnergy,
+}
+
+impl SpawningRequest {
+    pub const NONE: SpawningRequest = SpawningRequest {
+        child: None,
+        budding_angle: Angle::ZERO,
+        donation_energy: BioEnergy::ZERO,
+    };
 }
 
 trait Reproduce {
@@ -680,12 +695,16 @@ impl CellLayerSpecialty for BuddingCellLayerSpecialty {
         }
     }
 
-    fn after_control_requests(&mut self, cell_state: &CellStateSnapshot) -> Option<Cell> {
+    fn after_control_requests(&mut self, cell_state: &CellStateSnapshot) -> SpawningRequest {
         if self.donation_energy.value() == 0.0 {
-            return None;
+            return SpawningRequest::NONE;
         }
 
-        Some(self.create_and_place_child_cell(cell_state))
+        SpawningRequest {
+            child: Some(self.create_and_place_child_cell(cell_state)),
+            budding_angle: self.budding_angle,
+            donation_energy: self.donation_energy,
+        }
     }
 
     fn reset(&mut self) {
@@ -1144,7 +1163,7 @@ mod tests {
             ..CellStateSnapshot::ZEROS
         };
 
-        let child = layer.after_control_requests(&parent_state).unwrap();
+        let child = layer.after_control_requests(&parent_state).child.unwrap();
 
         assert_eq!(child.layers().len(), 2);
         assert_eq!(
@@ -1175,7 +1194,9 @@ mod tests {
             BuddingCellLayerSpecialty::donation_energy_request(0, BioEnergy::new(0.0)),
         ));
         assert_eq!(
-            layer.after_control_requests(&CellStateSnapshot::ZEROS),
+            layer
+                .after_control_requests(&CellStateSnapshot::ZEROS)
+                .child,
             None
         );
     }
@@ -1198,7 +1219,9 @@ mod tests {
         ));
         layer.after_control_requests(&CellStateSnapshot::ZEROS);
         assert_eq!(
-            layer.after_control_requests(&CellStateSnapshot::ZEROS),
+            layer
+                .after_control_requests(&CellStateSnapshot::ZEROS)
+                .child,
             None
         );
     }
@@ -1224,6 +1247,7 @@ mod tests {
 
         let child = layer
             .after_control_requests(&CellStateSnapshot::ZEROS)
+            .child
             .unwrap();
 
         assert_eq!(child.energy(), BioEnergy::new(0.5));
@@ -1249,6 +1273,7 @@ mod tests {
 
         let child = layer
             .after_control_requests(&CellStateSnapshot::ZEROS)
+            .child
             .unwrap();
 
         assert_eq!(child.energy(), BioEnergy::new(0.5));

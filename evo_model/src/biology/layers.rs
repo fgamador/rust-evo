@@ -1,6 +1,5 @@
 use crate::biology::cell::Cell;
 use crate::biology::cell_factory::*;
-use crate::biology::control::CellStateSnapshot;
 use crate::biology::control_requests::*;
 use crate::environment::local_environment::LocalEnvironment;
 use crate::genome::sparse_neural_net::*;
@@ -174,11 +173,8 @@ impl CellLayer {
             .execute_control_request(&mut *self.specialty, &mut self.body, request);
     }
 
-    pub fn after_control_requests(&mut self, cell_state: &CellStateSnapshot) -> SpawningRequest {
-        let spawning_request = self
-            .body
-            .brain
-            .after_control_requests(&mut *self.specialty, cell_state);
+    pub fn after_control_requests(&mut self) -> SpawningRequest {
+        let spawning_request = self.body.brain.after_control_requests(&mut *self.specialty);
         self.specialty.reset();
         spawning_request
     }
@@ -316,11 +312,7 @@ trait CellLayerBrain: Debug {
         request: BudgetedControlRequest,
     );
 
-    fn after_control_requests(
-        &self,
-        specialty: &mut dyn CellLayerSpecialty,
-        cell_state: &CellStateSnapshot,
-    ) -> SpawningRequest;
+    fn after_control_requests(&self, specialty: &mut dyn CellLayerSpecialty) -> SpawningRequest;
 }
 
 #[derive(Debug)]
@@ -391,12 +383,8 @@ impl CellLayerBrain for LivingCellLayerBrain {
         }
     }
 
-    fn after_control_requests(
-        &self,
-        specialty: &mut dyn CellLayerSpecialty,
-        cell_state: &CellStateSnapshot,
-    ) -> SpawningRequest {
-        specialty.after_control_requests(cell_state)
+    fn after_control_requests(&self, specialty: &mut dyn CellLayerSpecialty) -> SpawningRequest {
+        specialty.after_control_requests()
     }
 }
 
@@ -433,11 +421,7 @@ impl CellLayerBrain for DeadCellLayerBrain {
     ) {
     }
 
-    fn after_control_requests(
-        &self,
-        _specialty: &mut dyn CellLayerSpecialty,
-        _cell_state: &CellStateSnapshot,
-    ) -> SpawningRequest {
+    fn after_control_requests(&self, _specialty: &mut dyn CellLayerSpecialty) -> SpawningRequest {
         SpawningRequest::NONE
     }
 }
@@ -467,7 +451,7 @@ pub trait CellLayerSpecialty: Debug {
         panic!("Invalid control channel index: {}", request.channel_index);
     }
 
-    fn after_control_requests(&mut self, _cell_state: &CellStateSnapshot) -> SpawningRequest {
+    fn after_control_requests(&mut self) -> SpawningRequest {
         SpawningRequest::NONE
     }
 
@@ -686,7 +670,7 @@ impl CellLayerSpecialty for BuddingCellLayerSpecialty {
         }
     }
 
-    fn after_control_requests(&mut self, _cell_state: &CellStateSnapshot) -> SpawningRequest {
+    fn after_control_requests(&mut self) -> SpawningRequest {
         if self.donation_energy.value() == 0.0 {
             return SpawningRequest::NONE;
         }
@@ -1143,12 +1127,10 @@ mod tests {
         layer.execute_control_request(fully_budgeted(
             BuddingCellLayerSpecialty::donation_energy_request(0, BioEnergy::new(1.0)),
         ));
-        layer.after_control_requests(&CellStateSnapshot::ZEROS);
+        layer.after_control_requests();
 
         assert_eq!(
-            layer
-                .after_control_requests(&CellStateSnapshot::ZEROS)
-                .donation_energy,
+            layer.after_control_requests().donation_energy,
             BioEnergy::new(0.0)
         );
     }
@@ -1173,9 +1155,7 @@ mod tests {
         ));
 
         assert_eq!(
-            layer
-                .after_control_requests(&CellStateSnapshot::ZEROS)
-                .donation_energy,
+            layer.after_control_requests().donation_energy,
             BioEnergy::new(0.5)
         );
     }
@@ -1199,9 +1179,7 @@ mod tests {
         ));
 
         assert_eq!(
-            layer
-                .after_control_requests(&CellStateSnapshot::ZEROS)
-                .donation_energy,
+            layer.after_control_requests().donation_energy,
             BioEnergy::new(0.5)
         );
     }

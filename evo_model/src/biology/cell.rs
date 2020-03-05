@@ -212,7 +212,7 @@ impl Cell {
         let mut children = vec![];
         let cell_state = self.get_state_snapshot();
         for layer in &mut self.layers {
-            let spawning_request = layer.after_control_requests(&cell_state);
+            let spawning_request = layer.after_control_requests();
             if spawning_request.donation_energy != BioEnergy::ZERO {
                 let child = self.cell_factory.create_and_place_child_cell(
                     &cell_state,

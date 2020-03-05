@@ -639,14 +639,6 @@ impl BuddingCellLayerSpecialty {
         }
     }
 
-    fn create_and_place_child_cell(&mut self, cell_state: &CellStateSnapshot) -> Cell {
-        self.cell_factory.create_and_place_child_cell(
-            cell_state,
-            self.budding_angle,
-            self.donation_energy,
-        )
-    }
-
     pub fn budding_angle_request(layer_index: usize, angle: Angle) -> ControlRequest {
         ControlRequest::new(
             layer_index,
@@ -694,7 +686,7 @@ impl CellLayerSpecialty for BuddingCellLayerSpecialty {
         }
     }
 
-    fn after_control_requests(&mut self, cell_state: &CellStateSnapshot) -> SpawningRequest {
+    fn after_control_requests(&mut self, _cell_state: &CellStateSnapshot) -> SpawningRequest {
         if self.donation_energy.value() == 0.0 {
             return SpawningRequest::NONE;
         }

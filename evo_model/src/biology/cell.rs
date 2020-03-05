@@ -586,7 +586,7 @@ mod tests {
             ],
             Rc::new(SparseNeuralNetGenome::new(TransferFn::IDENTITY)),
             SeededMutationRandomness::new(0, &MutationParameters::NO_MUTATION),
-            Cell::dummy_create_child,
+            create_child,
         )
         .with_control(Box::new(ContinuousRequestsControl::new(vec![
             CellLayer::resize_request(0, AreaDelta::new(10.0)),
@@ -607,6 +607,35 @@ mod tests {
         );
         assert_eq!(child.velocity(), cell.velocity());
         assert_eq!(child.energy(), BioEnergy::new(1.0));
+    }
+
+    #[test]
+    fn budding_does_not_create_child_if_given_zero_energy() {
+        let genome = SparseNeuralNetGenome::new(TransferFn::IDENTITY);
+        let mut cell = Cell::new(
+            Position::ORIGIN,
+            Velocity::ZERO,
+            vec![CellLayer::new(
+                Area::new(1.0),
+                Density::new(1.0),
+                Color::White,
+                Box::new(BuddingCellLayerSpecialty::new(
+                    Rc::new(genome),
+                    SeededMutationRandomness::new(0, &MutationParameters::NO_MUTATION),
+                    create_child,
+                )),
+            )],
+            Rc::new(SparseNeuralNetGenome::new(TransferFn::IDENTITY)),
+            SeededMutationRandomness::new(0, &MutationParameters::NO_MUTATION),
+            create_child,
+        )
+        .with_control(Box::new(ContinuousRequestsControl::new(vec![
+            BuddingCellLayerSpecialty::donation_energy_request(0, BioEnergy::new(0.0)),
+        ])));
+
+        let children = cell.run_control();
+
+        assert!(children.is_empty());
     }
 
     fn create_child(_genome: SparseNeuralNetGenome, _randomness: SeededMutationRandomness) -> Cell {

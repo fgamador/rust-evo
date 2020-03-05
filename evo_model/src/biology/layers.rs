@@ -6,7 +6,6 @@ use crate::environment::local_environment::LocalEnvironment;
 use crate::genome::sparse_neural_net::*;
 use crate::physics::overlap::Overlap;
 use crate::physics::quantities::*;
-use crate::physics::shapes::Circle;
 use std::f64;
 use std::f64::consts::PI;
 use std::fmt::Debug;
@@ -717,7 +716,6 @@ mod tests {
     use super::*;
     use crate::biology::control_requests::BudgetedControlRequest;
     use crate::environment::local_environment::LocalEnvironment;
-    use crate::physics::newtonian::NewtonianBody;
     use crate::physics::overlap::Overlap;
 
     #[test]
@@ -1135,30 +1133,6 @@ mod tests {
         let (energy, _) = layer.after_influences(&env, Duration::new(1.0));
 
         assert_eq!(energy, BioEnergy::new(0.0));
-    }
-
-    #[test]
-    fn budding_layer_does_not_create_child_if_given_zero_energy() {
-        let genome = SparseNeuralNetGenome::new(TransferFn::IDENTITY);
-        let mut layer = CellLayer::new(
-            Area::new(1.0),
-            Density::new(1.0),
-            Color::Green,
-            Box::new(BuddingCellLayerSpecialty::new(
-                Rc::new(genome),
-                SeededMutationRandomness::new(0, &MutationParameters::NO_MUTATION),
-                create_child,
-            )),
-        );
-        layer.execute_control_request(fully_budgeted(
-            BuddingCellLayerSpecialty::donation_energy_request(0, BioEnergy::new(0.0)),
-        ));
-        assert_eq!(
-            layer
-                .after_control_requests(&CellStateSnapshot::ZEROS)
-                .child,
-            None
-        );
     }
 
     #[test]

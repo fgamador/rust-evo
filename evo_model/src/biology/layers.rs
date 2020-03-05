@@ -1218,11 +1218,12 @@ mod tests {
             BuddingCellLayerSpecialty::donation_energy_request(0, BioEnergy::new(1.0)),
         ));
         layer.after_control_requests(&CellStateSnapshot::ZEROS);
+
         assert_eq!(
             layer
                 .after_control_requests(&CellStateSnapshot::ZEROS)
-                .child,
-            None
+                .donation_energy,
+            BioEnergy::new(0.0)
         );
     }
 
@@ -1245,12 +1246,12 @@ mod tests {
             0.5,
         ));
 
-        let child = layer
-            .after_control_requests(&CellStateSnapshot::ZEROS)
-            .child
-            .unwrap();
-
-        assert_eq!(child.energy(), BioEnergy::new(0.5));
+        assert_eq!(
+            layer
+                .after_control_requests(&CellStateSnapshot::ZEROS)
+                .donation_energy,
+            BioEnergy::new(0.5)
+        );
     }
 
     #[test]
@@ -1271,12 +1272,12 @@ mod tests {
             BuddingCellLayerSpecialty::donation_energy_request(0, BioEnergy::new(1.0)),
         ));
 
-        let child = layer
-            .after_control_requests(&CellStateSnapshot::ZEROS)
-            .child
-            .unwrap();
-
-        assert_eq!(child.energy(), BioEnergy::new(0.5));
+        assert_eq!(
+            layer
+                .after_control_requests(&CellStateSnapshot::ZEROS)
+                .donation_energy,
+            BioEnergy::new(0.5)
+        );
     }
 
     fn create_child(genome: SparseNeuralNetGenome, randomness: SeededMutationRandomness) -> Cell {

@@ -1138,46 +1138,6 @@ mod tests {
     }
 
     #[test]
-    fn budding_layer_creates_child_with_right_state() {
-        let genome = SparseNeuralNetGenome::new(TransferFn::IDENTITY);
-        let mut layer = CellLayer::new(
-            Area::new(1.0),
-            Density::new(1.0),
-            Color::Green,
-            Box::new(BuddingCellLayerSpecialty::new(
-                Rc::new(genome),
-                SeededMutationRandomness::new(0, &MutationParameters::NO_MUTATION),
-                create_child,
-            )),
-        );
-        layer.execute_control_request(fully_budgeted(
-            BuddingCellLayerSpecialty::budding_angle_request(0, Angle::from_radians(0.0)),
-        ));
-        layer.execute_control_request(fully_budgeted(
-            BuddingCellLayerSpecialty::donation_energy_request(0, BioEnergy::new(1.0)),
-        ));
-        let parent_state = CellStateSnapshot {
-            radius: Length::new(2.0),
-            center: Position::new(1.0, -1.0),
-            velocity: Velocity::new(2.0, -2.0),
-            ..CellStateSnapshot::ZEROS
-        };
-
-        let child = layer.after_control_requests(&parent_state).child.unwrap();
-
-        assert_eq!(child.layers().len(), 2);
-        assert_eq!(
-            child.center(),
-            Position::new(
-                parent_state.center.x() + parent_state.radius.value() + child.radius().value(),
-                parent_state.center.y(),
-            )
-        );
-        assert_eq!(child.velocity(), parent_state.velocity);
-        assert_eq!(child.energy(), BioEnergy::new(1.0));
-    }
-
-    #[test]
     fn budding_layer_does_not_create_child_if_given_zero_energy() {
         let genome = SparseNeuralNetGenome::new(TransferFn::IDENTITY);
         let mut layer = CellLayer::new(

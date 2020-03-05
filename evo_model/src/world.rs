@@ -428,16 +428,23 @@ mod tests {
     fn new_cells_get_added_to_world() {
         let genome = SparseNeuralNetGenome::new(TransferFn::IDENTITY);
         let mut world = World::new(Position::ORIGIN, Position::ORIGIN).with_cell(
-            simple_layered_cell(vec![CellLayer::new(
-                Area::new(1.0),
-                Density::new(1.0),
-                Color::Green,
-                Box::new(BuddingCellLayerSpecialty::new(
-                    Rc::new(genome),
-                    SeededMutationRandomness::new(0, &MutationParameters::NO_MUTATION),
-                    create_child,
-                )),
-            )])
+            Cell::new(
+                Position::ORIGIN,
+                Velocity::ZERO,
+                vec![CellLayer::new(
+                    Area::new(1.0),
+                    Density::new(1.0),
+                    Color::Green,
+                    Box::new(BuddingCellLayerSpecialty::new(
+                        Rc::new(genome),
+                        SeededMutationRandomness::new(0, &MutationParameters::NO_MUTATION),
+                        create_child,
+                    )),
+                )],
+                Rc::new(SparseNeuralNetGenome::new(TransferFn::IDENTITY)),
+                SeededMutationRandomness::new(0, &MutationParameters::NO_MUTATION),
+                create_child,
+            )
             .with_control(Box::new(ContinuousRequestsControl::new(vec![
                 BuddingCellLayerSpecialty::donation_energy_request(0, BioEnergy::new(1.0)),
             ]))),

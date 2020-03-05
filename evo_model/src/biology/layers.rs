@@ -700,7 +700,7 @@ impl CellLayerSpecialty for BuddingCellLayerSpecialty {
         }
 
         SpawningRequest {
-            child: Some(self.create_and_place_child_cell(cell_state)),
+            child: None,
             budding_angle: self.budding_angle,
             donation_energy: self.donation_energy,
         }

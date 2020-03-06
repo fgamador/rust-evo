@@ -423,7 +423,7 @@ impl CellLayerBrain for DeadCellLayerBrain {
 }
 
 pub trait CellLayerSpecialty: Debug {
-    fn box_reproduce(&self) -> Box<dyn CellLayerSpecialty>;
+    fn box_spawn(&self) -> Box<dyn CellLayerSpecialty>;
 
     fn after_influences(
         &mut self,
@@ -467,13 +467,13 @@ impl SpawningRequest {
     };
 }
 
-trait Reproduce {
-    fn reproduce(&self) -> Box<dyn CellLayerSpecialty>;
+trait CellLayerSpecialtySpawn {
+    fn spawn(&self) -> Box<dyn CellLayerSpecialty>;
 }
 
-impl Reproduce for Box<dyn CellLayerSpecialty> {
-    fn reproduce(&self) -> Box<dyn CellLayerSpecialty> {
-        self.box_reproduce()
+impl CellLayerSpecialtySpawn for Box<dyn CellLayerSpecialty> {
+    fn spawn(&self) -> Box<dyn CellLayerSpecialty> {
+        self.box_spawn()
     }
 }
 
@@ -488,7 +488,7 @@ impl NullCellLayerSpecialty {
 }
 
 impl CellLayerSpecialty for NullCellLayerSpecialty {
-    fn box_reproduce(&self) -> Box<dyn CellLayerSpecialty> {
+    fn box_spawn(&self) -> Box<dyn CellLayerSpecialty> {
         Box::new(NullCellLayerSpecialty::new())
     }
 }
@@ -521,7 +521,7 @@ impl ThrusterCellLayerSpecialty {
 }
 
 impl CellLayerSpecialty for ThrusterCellLayerSpecialty {
-    fn box_reproduce(&self) -> Box<dyn CellLayerSpecialty> {
+    fn box_spawn(&self) -> Box<dyn CellLayerSpecialty> {
         Box::new(ThrusterCellLayerSpecialty::new())
     }
 
@@ -569,7 +569,7 @@ impl PhotoCellLayerSpecialty {
 }
 
 impl CellLayerSpecialty for PhotoCellLayerSpecialty {
-    fn box_reproduce(&self) -> Box<dyn CellLayerSpecialty> {
+    fn box_spawn(&self) -> Box<dyn CellLayerSpecialty> {
         Box::new(self.clone())
     }
 
@@ -628,7 +628,7 @@ impl BuddingCellLayerSpecialty {
 }
 
 impl CellLayerSpecialty for BuddingCellLayerSpecialty {
-    fn box_reproduce(&self) -> Box<dyn CellLayerSpecialty> {
+    fn box_spawn(&self) -> Box<dyn CellLayerSpecialty> {
         unimplemented!()
     }
 

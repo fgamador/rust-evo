@@ -426,7 +426,6 @@ mod tests {
 
     #[test]
     fn new_cells_get_added_to_world() {
-        let genome = SparseNeuralNetGenome::new(TransferFn::IDENTITY);
         let mut world = World::new(Position::ORIGIN, Position::ORIGIN).with_cell(
             Cell::new(
                 Position::ORIGIN,
@@ -435,11 +434,7 @@ mod tests {
                     Area::new(1.0),
                     Density::new(1.0),
                     Color::Green,
-                    Box::new(BuddingCellLayerSpecialty::new(
-                        Rc::new(genome),
-                        SeededMutationRandomness::new(0, &MutationParameters::NO_MUTATION),
-                        create_child,
-                    )),
+                    Box::new(BuddingCellLayerSpecialty::new()),
                 )],
                 Rc::new(SparseNeuralNetGenome::new(TransferFn::IDENTITY)),
                 SeededMutationRandomness::new(0, &MutationParameters::NO_MUTATION),

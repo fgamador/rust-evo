@@ -1,14 +1,11 @@
 use crate::biology::cell::Cell;
-use crate::biology::cell_factory::*;
 use crate::biology::control_requests::*;
 use crate::environment::local_environment::LocalEnvironment;
-use crate::genome::sparse_neural_net::*;
 use crate::physics::overlap::Overlap;
 use crate::physics::quantities::*;
 use std::f64;
 use std::f64::consts::PI;
 use std::fmt::Debug;
-use std::rc::Rc;
 
 // TODO rename as TissueType?
 #[derive(Clone, Copy, Debug, Eq, Hash, PartialEq)]
@@ -598,11 +595,8 @@ impl CellLayerSpecialty for PhotoCellLayerSpecialty {
     }
 }
 
-type CreateCellFn = fn(SparseNeuralNetGenome, SeededMutationRandomness) -> Cell;
-
 #[derive(Debug)]
 pub struct BuddingCellLayerSpecialty {
-    cell_factory: CellFactory,
     budding_angle: Angle,
     donation_energy: BioEnergy,
 }
@@ -611,13 +605,9 @@ impl BuddingCellLayerSpecialty {
     const BUDDING_ANGLE_CHANNEL_INDEX: usize = 2;
     const DONATION_ENERGY_CHANNEL_INDEX: usize = 3;
 
-    pub fn new(
-        genome: Rc<SparseNeuralNetGenome>,
-        randomness: SeededMutationRandomness,
-        create_child: CreateCellFn,
-    ) -> Self {
+    #[allow(clippy::new_without_default)]
+    pub fn new() -> Self {
         BuddingCellLayerSpecialty {
-            cell_factory: CellFactory::new(genome, randomness, create_child),
             budding_angle: Angle::ZERO,
             donation_energy: BioEnergy::ZERO,
         }
@@ -1113,16 +1103,11 @@ mod tests {
 
     #[test]
     fn budding_layer_does_not_remember_previous_donation_energy() {
-        let genome = SparseNeuralNetGenome::new(TransferFn::IDENTITY);
         let mut layer = CellLayer::new(
             Area::new(1.0),
             Density::new(1.0),
             Color::Green,
-            Box::new(BuddingCellLayerSpecialty::new(
-                Rc::new(genome),
-                SeededMutationRandomness::new(0, &MutationParameters::NO_MUTATION),
-                create_child,
-            )),
+            Box::new(BuddingCellLayerSpecialty::new()),
         );
         layer.execute_control_request(fully_budgeted(
             BuddingCellLayerSpecialty::donation_energy_request(0, BioEnergy::new(1.0)),
@@ -1137,16 +1122,11 @@ mod tests {
 
     #[test]
     fn budding_energy_is_limited_by_budget() {
-        let genome = SparseNeuralNetGenome::new(TransferFn::IDENTITY);
         let mut layer = CellLayer::new(
             Area::new(1.0),
             Density::new(1.0),
             Color::Green,
-            Box::new(BuddingCellLayerSpecialty::new(
-                Rc::new(genome),
-                SeededMutationRandomness::new(0, &MutationParameters::NO_MUTATION),
-                create_child,
-            )),
+            Box::new(BuddingCellLayerSpecialty::new()),
         );
         layer.execute_control_request(budgeted(
             BuddingCellLayerSpecialty::donation_energy_request(0, BioEnergy::new(1.0)),
@@ -1162,16 +1142,11 @@ mod tests {
 
     #[test]
     fn budding_energy_is_limited_by_health() {
-        let genome = SparseNeuralNetGenome::new(TransferFn::IDENTITY);
         let mut layer = CellLayer::new(
             Area::new(1.0),
             Density::new(1.0),
             Color::Green,
-            Box::new(BuddingCellLayerSpecialty::new(
-                Rc::new(genome),
-                SeededMutationRandomness::new(0, &MutationParameters::NO_MUTATION),
-                create_child,
-            )),
+            Box::new(BuddingCellLayerSpecialty::new()),
         )
         .with_health(0.5);
         layer.execute_control_request(fully_budgeted(
@@ -1182,20 +1157,6 @@ mod tests {
             layer.after_control_requests().donation_energy,
             BioEnergy::new(0.5)
         );
-    }
-
-    fn create_child(genome: SparseNeuralNetGenome, randomness: SeededMutationRandomness) -> Cell {
-        Cell::new(
-            Position::ORIGIN,
-            Velocity::ZERO,
-            vec![
-                simple_cell_layer(Area::new(PI), Density::new(1.0)),
-                simple_cell_layer(Area::new(PI), Density::new(1.0)),
-            ],
-            Rc::new(genome),
-            randomness,
-            create_child,
-        )
     }
 
     fn simple_cell_layer(area: Area, density: Density) -> CellLayer {

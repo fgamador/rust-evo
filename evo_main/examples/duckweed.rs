@@ -49,14 +49,14 @@ fn create_world() -> World {
         .with_initial_energy(BioEnergy::new(100.0))])
 }
 
-fn create_cell(_genome: SparseNeuralNetGenome, randomness: SeededMutationRandomness) -> Cell {
+fn create_cell(_genome: SparseNeuralNetGenome, _randomness: SeededMutationRandomness) -> Cell {
     Cell::new(
         Position::ORIGIN,
         Velocity::ZERO,
         vec![
             create_float_layer(),
             create_photo_layer(),
-            create_budding_layer(randomness),
+            create_budding_layer(),
         ],
         Rc::new(SparseNeuralNetGenome::new(TransferFn::IDENTITY)),
         SeededMutationRandomness::new(0, &MutationParameters::NO_MUTATION),
@@ -111,7 +111,7 @@ fn create_photo_layer() -> CellLayer {
     .with_health_parameters(&LAYER_HEALTH_PARAMS)
 }
 
-fn create_budding_layer(randomness: SeededMutationRandomness) -> CellLayer {
+fn create_budding_layer() -> CellLayer {
     const LAYER_RESIZE_PARAMS: LayerResizeParameters = LayerResizeParameters {
         growth_energy_delta: BioEnergyDelta::new(0.0),
         max_growth_rate: f64::INFINITY,
@@ -124,16 +124,11 @@ fn create_budding_layer(randomness: SeededMutationRandomness) -> CellLayer {
         overlap_damage_health_delta: OVERLAP_DAMAGE_HEALTH_DELTA,
     };
 
-    let genome = SparseNeuralNetGenome::new(TransferFn::IDENTITY);
     CellLayer::new(
         Area::new(5.0 * PI),
         Density::new(BUDDING_LAYER_DENSITY),
         Color::Yellow,
-        Box::new(BuddingCellLayerSpecialty::new(
-            Rc::new(genome),
-            randomness,
-            create_cell,
-        )),
+        Box::new(BuddingCellLayerSpecialty::new()),
     )
     .with_resize_parameters(&LAYER_RESIZE_PARAMS)
     .with_health_parameters(&LAYER_HEALTH_PARAMS)

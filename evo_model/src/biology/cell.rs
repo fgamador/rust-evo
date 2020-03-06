@@ -568,7 +568,6 @@ mod tests {
 
     #[test]
     fn budding_creates_child_with_right_state() {
-        let genome = SparseNeuralNetGenome::new(TransferFn::IDENTITY);
         let mut cell = Cell::new(
             Position::new(2.0, -2.0),
             Velocity::new(3.0, -3.0),
@@ -578,11 +577,7 @@ mod tests {
                     Area::new(5.0),
                     Density::new(1.0),
                     Color::White,
-                    Box::new(BuddingCellLayerSpecialty::new(
-                        Rc::new(genome),
-                        SeededMutationRandomness::new(0, &MutationParameters::NO_MUTATION),
-                        create_child,
-                    )),
+                    Box::new(BuddingCellLayerSpecialty::new()),
                 ),
             ],
             Rc::new(SparseNeuralNetGenome::new(TransferFn::IDENTITY)),
@@ -612,7 +607,6 @@ mod tests {
 
     #[test]
     fn budding_does_not_create_child_if_given_zero_energy() {
-        let genome = SparseNeuralNetGenome::new(TransferFn::IDENTITY);
         let mut cell = Cell::new(
             Position::ORIGIN,
             Velocity::ZERO,
@@ -620,11 +614,7 @@ mod tests {
                 Area::new(1.0),
                 Density::new(1.0),
                 Color::White,
-                Box::new(BuddingCellLayerSpecialty::new(
-                    Rc::new(genome),
-                    SeededMutationRandomness::new(0, &MutationParameters::NO_MUTATION),
-                    create_child,
-                )),
+                Box::new(BuddingCellLayerSpecialty::new()),
             )],
             Rc::new(SparseNeuralNetGenome::new(TransferFn::IDENTITY)),
             SeededMutationRandomness::new(0, &MutationParameters::NO_MUTATION),

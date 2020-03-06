@@ -62,7 +62,7 @@ fn create_cell(genome: SparseNeuralNetGenome, randomness: SeededMutationRandomne
         vec![
             create_float_layer(),
             create_photo_layer(),
-            create_budding_layer(Rc::clone(&genome), randomness.clone()),
+            create_budding_layer(),
         ],
         Rc::clone(&genome),
         randomness,
@@ -117,10 +117,7 @@ fn create_photo_layer() -> CellLayer {
     .with_health_parameters(&LAYER_HEALTH_PARAMS)
 }
 
-fn create_budding_layer(
-    genome: Rc<SparseNeuralNetGenome>,
-    randomness: SeededMutationRandomness,
-) -> CellLayer {
+fn create_budding_layer() -> CellLayer {
     const LAYER_RESIZE_PARAMS: LayerResizeParameters = LayerResizeParameters {
         growth_energy_delta: BioEnergyDelta::new(-1.0),
         max_growth_rate: 10.0,
@@ -137,11 +134,7 @@ fn create_budding_layer(
         Area::new(5.0 * PI),
         Density::new(BUDDING_LAYER_DENSITY),
         Color::Yellow,
-        Box::new(BuddingCellLayerSpecialty::new(
-            genome,
-            randomness,
-            create_cell,
-        )),
+        Box::new(BuddingCellLayerSpecialty::new()),
     )
     .with_resize_parameters(&LAYER_RESIZE_PARAMS)
     .with_health_parameters(&LAYER_HEALTH_PARAMS)

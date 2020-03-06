@@ -112,6 +112,13 @@ impl CellLayer {
         self
     }
 
+    pub fn spawn(&self, area: Area) -> Self {
+        Self {
+            body: self.body.spawn(area),
+            specialty: self.specialty.spawn(),
+        }
+    }
+
     pub fn is_alive(&self) -> bool {
         self.health() > 0.0
     }
@@ -217,8 +224,8 @@ impl CellLayerBody {
         body
     }
 
-    fn _reproduce(&self, area: Area) -> Self {
-        let mut copy = CellLayerBody {
+    fn spawn(&self, area: Area) -> Self {
+        let mut copy = Self {
             area,
             health: 1.0,
             brain: &CellLayer::LIVING_BRAIN,
@@ -422,6 +429,16 @@ impl CellLayerBrain for DeadCellLayerBrain {
     }
 }
 
+trait CellLayerSpecialtySpawn {
+    fn spawn(&self) -> Box<dyn CellLayerSpecialty>;
+}
+
+impl CellLayerSpecialtySpawn for Box<dyn CellLayerSpecialty> {
+    fn spawn(&self) -> Box<dyn CellLayerSpecialty> {
+        self.box_spawn()
+    }
+}
+
 pub trait CellLayerSpecialty: Debug {
     fn box_spawn(&self) -> Box<dyn CellLayerSpecialty>;
 
@@ -465,16 +482,6 @@ impl SpawningRequest {
         budding_angle: Angle::ZERO,
         donation_energy: BioEnergy::ZERO,
     };
-}
-
-trait CellLayerSpecialtySpawn {
-    fn spawn(&self) -> Box<dyn CellLayerSpecialty>;
-}
-
-impl CellLayerSpecialtySpawn for Box<dyn CellLayerSpecialty> {
-    fn spawn(&self) -> Box<dyn CellLayerSpecialty> {
-        self.box_spawn()
-    }
 }
 
 #[derive(Debug)]
@@ -629,7 +636,7 @@ impl BuddingCellLayerSpecialty {
 
 impl CellLayerSpecialty for BuddingCellLayerSpecialty {
     fn box_spawn(&self) -> Box<dyn CellLayerSpecialty> {
-        unimplemented!()
+        Box::new(BuddingCellLayerSpecialty::new())
     }
 
     fn cost_control_request(&self, request: ControlRequest) -> CostedControlRequest {

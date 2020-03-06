@@ -1,4 +1,3 @@
-use crate::biology::cell_factory::*;
 use crate::biology::control::*;
 use crate::biology::control_requests::*;
 use crate::biology::layers::*;
@@ -24,7 +23,8 @@ pub struct Cell {
     layers: Vec<CellLayer>, // TODO array? smallvec?
     control: Box<dyn CellControl>,
     genome: Rc<SparseNeuralNetGenome>,
-    cell_factory: CellFactory,
+    randomness: SeededMutationRandomness,
+    create_child: CreateCellFn,
     energy: BioEnergy,
 }
 
@@ -50,7 +50,8 @@ impl Cell {
             layers,
             control: Box::new(NullControl::new()),
             genome: Rc::clone(&genome),
-            cell_factory: CellFactory::new(genome, randomness, create_child),
+            randomness,
+            create_child,
             energy: BioEnergy::new(0.0),
         }
     }
@@ -148,6 +149,30 @@ impl Cell {
         Self::budget_control_requests(self.energy, &costed_requests)
     }
 
+    fn get_state_snapshot(&self) -> CellStateSnapshot {
+        CellStateSnapshot {
+            radius: self.radius(),
+            area: self.area(),
+            mass: self.mass(),
+            center: self.center(),
+            velocity: self.velocity(),
+            energy: self.energy(),
+            layers: self.get_layer_state_snapshots(),
+        }
+    }
+
+    fn get_layer_state_snapshots(&self) -> Vec<CellLayerStateSnapshot> {
+        let mut result = Vec::with_capacity(self.layers.len());
+        for layer in &self.layers {
+            result.push(CellLayerStateSnapshot {
+                area: layer.area(),
+                mass: layer.mass(),
+                health: layer.health(),
+            });
+        }
+        result
+    }
+
     fn cost_control_requests(
         &mut self,
         control_requests: &[ControlRequest],
@@ -209,13 +234,15 @@ impl Cell {
 
     fn after_control_requests(&mut self) -> Vec<Cell> {
         // TODO test: inner layer grows while outer layer buds at correct distance
-        let mut children = vec![];
-        let cell_state = self.get_state_snapshot();
+        let mut spawning_requests = vec![];
         for layer in &mut self.layers {
-            let spawning_request = layer.after_control_requests();
+            spawning_requests.push(layer.after_control_requests());
+        }
+
+        let mut children = vec![];
+        for spawning_request in spawning_requests {
             if spawning_request.donation_energy != BioEnergy::ZERO {
-                let child = self.cell_factory.create_and_place_child_cell(
-                    &cell_state,
+                let child = self.create_and_place_child_cell(
                     spawning_request.budding_angle,
                     spawning_request.donation_energy,
                 );
@@ -225,28 +252,22 @@ impl Cell {
         children
     }
 
-    fn get_state_snapshot(&self) -> CellStateSnapshot {
-        CellStateSnapshot {
-            radius: self.radius(),
-            area: self.area(),
-            mass: self.mass(),
-            center: self.center(),
-            velocity: self.velocity(),
-            energy: self.energy(),
-            layers: self.get_layer_state_snapshots(),
-        }
-    }
-
-    fn get_layer_state_snapshots(&self) -> Vec<CellLayerStateSnapshot> {
-        let mut result = Vec::with_capacity(self.layers.len());
-        for layer in &self.layers {
-            result.push(CellLayerStateSnapshot {
-                area: layer.area(),
-                mass: layer.mass(),
-                health: layer.health(),
-            });
-        }
-        result
+    fn create_and_place_child_cell(
+        &mut self,
+        budding_angle: Angle,
+        donation_energy: BioEnergy,
+    ) -> Cell {
+        let mut child = (self.create_child)(
+            // TODO test that this is called?
+            self.genome.copy_with_mutation(&mut self.randomness),
+            // TODO test that this is called?
+            self.randomness.spawn(),
+        );
+        let offset = Displacement::from_polar(self.radius + child.radius(), budding_angle);
+        child.set_initial_position(self.center() + offset);
+        child.set_initial_velocity(self.velocity());
+        child.set_initial_energy(donation_energy);
+        child
     }
 
     #[allow(clippy::vec_box)]

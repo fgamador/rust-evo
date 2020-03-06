@@ -1,4 +1,3 @@
-use crate::biology::cell::Cell;
 use crate::biology::control_requests::*;
 use crate::environment::local_environment::LocalEnvironment;
 use crate::physics::overlap::Overlap;
@@ -457,14 +456,12 @@ pub trait CellLayerSpecialty: Debug {
 
 #[derive(Debug)]
 pub struct SpawningRequest {
-    pub child: Option<Cell>,
     pub budding_angle: Angle,
     pub donation_energy: BioEnergy,
 }
 
 impl SpawningRequest {
     pub const NONE: SpawningRequest = SpawningRequest {
-        child: None,
         budding_angle: Angle::ZERO,
         donation_energy: BioEnergy::ZERO,
     };
@@ -666,7 +663,6 @@ impl CellLayerSpecialty for BuddingCellLayerSpecialty {
         }
 
         SpawningRequest {
-            child: None,
             budding_angle: self.budding_angle,
             donation_energy: self.donation_energy,
         }

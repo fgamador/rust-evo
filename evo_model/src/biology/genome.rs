@@ -8,7 +8,6 @@ use rand_pcg::Pcg64Mcg;
 use std::f32;
 use std::fmt;
 use std::fmt::{Error, Formatter};
-use std::rc::Rc;
 
 type Coefficient = f32;
 type VecIndex = u16;
@@ -16,12 +15,12 @@ type NodeValue = f32;
 
 #[derive(Clone, Debug, PartialEq)]
 pub struct SparseNeuralNet {
-    genome: Rc<SparseNeuralNetGenome>,
+    genome: SparseNeuralNetGenome,
     node_values: Vec<NodeValue>,
 }
 
 impl SparseNeuralNet {
-    pub fn new(genome: Rc<SparseNeuralNetGenome>) -> Self {
+    pub fn new(genome: SparseNeuralNetGenome) -> Self {
         let num_nodes = genome.num_nodes;
         SparseNeuralNet {
             genome,
@@ -30,7 +29,7 @@ impl SparseNeuralNet {
     }
 
     pub fn spawn(&self, randomness: &mut dyn MutationRandomness) -> Self {
-        Self::new(Rc::new(self.genome.spawn(randomness)))
+        Self::new(self.genome.spawn(randomness))
     }
 
     pub fn set_node_value(&mut self, index: VecIndex, value: NodeValue) {
@@ -315,7 +314,7 @@ mod tests {
         genome.connect_node(2, 0.5, &[(0, 0.5)]);
         genome.connect_node(3, 0.0, &[(0, 0.75), (1, 0.25)]);
 
-        let mut nnet = SparseNeuralNet::new(Rc::new(genome));
+        let mut nnet = SparseNeuralNet::new(genome);
         nnet.set_node_value(0, 2.0);
         nnet.set_node_value(1, 4.0);
         nnet.run();
@@ -329,7 +328,7 @@ mod tests {
         let mut genome = SparseNeuralNetGenome::new(TransferFn::IDENTITY);
         genome.connect_node(1, 0.0, &[(0, 1.0)]);
 
-        let mut nnet = SparseNeuralNet::new(Rc::new(genome));
+        let mut nnet = SparseNeuralNet::new(genome);
         nnet.set_node_value(0, 1.0);
         nnet.run();
         nnet.set_node_value(0, 3.0);
@@ -344,7 +343,7 @@ mod tests {
         genome.connect_node(1, 0.5, &[(0, 0.5)]);
         genome.connect_node(2, 0.0, &[(1, 0.5)]);
 
-        let mut nnet = SparseNeuralNet::new(Rc::new(genome));
+        let mut nnet = SparseNeuralNet::new(genome);
         nnet.set_node_value(0, 2.0);
         nnet.run();
 
@@ -357,7 +356,7 @@ mod tests {
         genome.connect_node(1, 0.0, &[(0, 1.0), (2, 2.0)]);
         genome.connect_node(2, 0.0, &[(1, 1.0)]);
 
-        let mut nnet = SparseNeuralNet::new(Rc::new(genome));
+        let mut nnet = SparseNeuralNet::new(genome);
         nnet.set_node_value(0, 1.0);
         nnet.run();
 

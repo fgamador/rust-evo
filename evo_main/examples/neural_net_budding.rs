@@ -11,7 +11,6 @@ use evo_model::environment::influences::*;
 use evo_model::physics::quantities::*;
 use evo_model::world::World;
 use std::f64::consts::PI;
-use std::rc::Rc;
 
 type VecIndex = u16;
 
@@ -160,7 +159,6 @@ impl NeuralNetBuddingControl {
     const DONATION_ENERGY_OUTPUT_INDEX: VecIndex = 13;
 
     fn new(genome: SparseNeuralNetGenome, randomness: SeededMutationRandomness) -> Self {
-        let genome = Rc::new(genome);
         NeuralNetBuddingControl {
             nnet: SparseNeuralNet::new(genome),
             randomness,

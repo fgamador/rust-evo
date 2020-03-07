@@ -11,7 +11,6 @@ use evo_model::environment::influences::*;
 use evo_model::physics::quantities::*;
 use evo_model::world::World;
 use std::f64::consts::PI;
-use std::rc::Rc;
 
 fn main() {
     init_and_run(create_world());
@@ -20,7 +19,6 @@ fn main() {
 fn create_world() -> World {
     let mut genome = SparseNeuralNetGenome::new(TransferFn::IDENTITY);
     genome.connect_node(1, -100.0, &[(0, -1.0)]);
-    let genome = Rc::new(genome);
 
     World::new(Position::new(0.0, -400.0), Position::new(400.0, 0.0))
         .with_perimeter_walls()
@@ -57,7 +55,7 @@ pub struct NeuralNetControl {
 }
 
 impl NeuralNetControl {
-    pub fn new(genome: Rc<SparseNeuralNetGenome>) -> Self {
+    pub fn new(genome: SparseNeuralNetGenome) -> Self {
         NeuralNetControl {
             nnet: SparseNeuralNet::new(genome),
         }

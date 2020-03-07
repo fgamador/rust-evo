@@ -259,7 +259,7 @@ impl Cell {
     ) -> Cell {
         let mut child = (self.create_child)(
             // TODO test that this is called?
-            self.genome.copy_with_mutation(&mut self.randomness),
+            self.genome.spawn(&mut self.randomness),
             // TODO test that this is called?
             self.randomness.spawn(),
         );

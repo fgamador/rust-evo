@@ -93,7 +93,7 @@ impl SparseNeuralNetGenome {
         }
     }
 
-    pub fn copy_with_mutation(&self, randomness: &mut dyn MutationRandomness) -> Self {
+    pub fn spawn(&self, randomness: &mut dyn MutationRandomness) -> Self {
         Self {
             ops: Self::copy_with_mutated_weights(&self.ops, randomness),
             transfer_fn: self.transfer_fn,
@@ -378,7 +378,7 @@ mod tests {
         let mut randomness = StubMutationRandomness {
             mutated_weights: vec![],
         };
-        let copied = genome.copy_with_mutation(&mut randomness);
+        let copied = genome.spawn(&mut randomness);
 
         assert_eq!(copied.ops, genome.ops);
         assert_eq!(copied.transfer_fn, TransferFn::SIGMOIDAL);
@@ -392,7 +392,7 @@ mod tests {
         let mut randomness = StubMutationRandomness {
             mutated_weights: vec![(1.5, -0.5), (2.0, 2.25)],
         };
-        let copied = genome.copy_with_mutation(&mut randomness);
+        let copied = genome.spawn(&mut randomness);
 
         assert_eq!(
             copied.ops,

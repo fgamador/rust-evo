@@ -1,8 +1,8 @@
 use crate::biology::control::*;
 use crate::biology::control_requests::*;
+use crate::biology::genome::*;
 use crate::biology::layers::*;
 use crate::environment::local_environment::*;
-use crate::genome::sparse_neural_net::*;
 use crate::physics::newtonian::*;
 use crate::physics::quantities::*;
 use crate::physics::shapes::*;

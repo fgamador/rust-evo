@@ -9,7 +9,6 @@ extern crate smallvec;
 
 pub mod biology;
 pub mod environment;
-pub mod genome;
 pub mod physics;
 pub mod world;
 

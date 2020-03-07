@@ -3,8 +3,8 @@ extern crate evo_model;
 
 use evo_main::main_support::init_and_run;
 use evo_model::biology::cell::Cell;
+use evo_model::biology::genome::*;
 use evo_model::biology::layers::*;
-use evo_model::genome::sparse_neural_net::*;
 use evo_model::physics::quantities::*;
 use evo_model::world::World;
 use std::f64::consts::PI;

@@ -232,8 +232,8 @@ impl World {
 mod tests {
     use super::*;
     use crate::biology::control::*;
+    use crate::biology::genome::*;
     use crate::biology::layers::*;
-    use crate::genome::sparse_neural_net::*;
     use crate::physics::overlap::Overlap;
     use crate::physics::shapes::*;
     use std::rc::Rc;

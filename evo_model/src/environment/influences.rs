@@ -335,8 +335,8 @@ impl Influence for Sunlight {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::biology::genome::*;
     use crate::biology::layers::*;
-    use crate::genome::sparse_neural_net::*;
     use std::f64::consts::PI;
     use std::rc::Rc;
 

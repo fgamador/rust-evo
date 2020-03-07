@@ -52,9 +52,6 @@ fn create_cell() -> Cell {
         ..MutationParameters::NO_MUTATION
     };
 
-    let genome = NeuralNetBuddingControl::new_genome();
-    let randomness = SeededMutationRandomness::new(0, &SOME_MUTATION);
-
     Cell::new(
         Position::ORIGIN,
         Velocity::ZERO,
@@ -64,7 +61,10 @@ fn create_cell() -> Cell {
             create_budding_layer(),
         ],
     )
-    .with_control(Box::new(NeuralNetBuddingControl::new(genome, randomness)))
+    .with_control(Box::new(NeuralNetBuddingControl::new(
+        NeuralNetBuddingControl::new_genome(),
+        SeededMutationRandomness::new(0, &SOME_MUTATION),
+    )))
 }
 
 fn create_float_layer() -> CellLayer {

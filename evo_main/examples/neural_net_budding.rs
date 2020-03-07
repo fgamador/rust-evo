@@ -52,7 +52,7 @@ fn create_cell() -> Cell {
         ..MutationParameters::NO_MUTATION
     };
 
-    let genome = Rc::new(NeuralNetBuddingControl::new_genome());
+    let genome = NeuralNetBuddingControl::new_genome();
     let randomness = SeededMutationRandomness::new(0, &SOME_MUTATION);
 
     Cell::new(
@@ -160,7 +160,8 @@ impl NeuralNetBuddingControl {
     const BUDDING_LAYER_HEALING_OUTPUT_INDEX: VecIndex = 12;
     const DONATION_ENERGY_OUTPUT_INDEX: VecIndex = 13;
 
-    fn new(genome: Rc<SparseNeuralNetGenome>, randomness: SeededMutationRandomness) -> Self {
+    fn new(genome: SparseNeuralNetGenome, randomness: SeededMutationRandomness) -> Self {
+        let genome = Rc::new(genome);
         NeuralNetBuddingControl {
             genome: Rc::clone(&genome),
             randomness,
@@ -269,7 +270,7 @@ impl CellControl for NeuralNetBuddingControl {
 
     fn spawn(&mut self) -> Box<dyn CellControl> {
         Box::new(Self::new(
-            Rc::new(self.genome.spawn(&mut self.randomness)),
+            self.genome.spawn(&mut self.randomness),
             self.randomness.spawn(),
         ))
     }

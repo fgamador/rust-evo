@@ -138,9 +138,8 @@ fn create_budding_layer() -> CellLayer {
 
 #[derive(Debug)]
 pub struct NeuralNetBuddingControl {
-    genome: Rc<SparseNeuralNetGenome>,
-    randomness: SeededMutationRandomness,
     nnet: SparseNeuralNet,
+    randomness: SeededMutationRandomness,
 }
 
 impl NeuralNetBuddingControl {
@@ -163,9 +162,8 @@ impl NeuralNetBuddingControl {
     fn new(genome: SparseNeuralNetGenome, randomness: SeededMutationRandomness) -> Self {
         let genome = Rc::new(genome);
         NeuralNetBuddingControl {
-            genome: Rc::clone(&genome),
-            randomness,
             nnet: SparseNeuralNet::new(genome),
+            randomness,
         }
     }
 
@@ -270,14 +268,8 @@ impl CellControl for NeuralNetBuddingControl {
 
     fn spawn(&mut self) -> Box<dyn CellControl> {
         Box::new(NeuralNetBuddingControl {
-            genome: Rc::clone(&self.genome),
-            randomness: self.randomness.clone(),
             nnet: self.nnet.spawn(&mut self.randomness),
+            randomness: self.randomness.clone(),
         })
-
-        // Box::new(Self::new(
-        //     self.genome.spawn(&mut self.randomness),
-        //     self.randomness.spawn(),
-        // ))
     }
 }

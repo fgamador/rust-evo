@@ -1,6 +1,5 @@
 use crate::biology::control::*;
 use crate::biology::control_requests::*;
-use crate::biology::genome::*;
 use crate::biology::layers::*;
 use crate::environment::local_environment::*;
 use crate::physics::newtonian::*;
@@ -52,13 +51,6 @@ impl Cell {
                 Box::new(NullCellLayerSpecialty::new()),
             )],
         )
-    }
-
-    pub fn dummy_create_child(
-        _genome: SparseNeuralNetGenome,
-        _randomness: SeededMutationRandomness,
-    ) -> Cell {
-        Self::new(Position::ORIGIN, Velocity::ZERO, vec![])
     }
 
     pub fn with_control(mut self, control: Box<dyn CellControl>) -> Self {

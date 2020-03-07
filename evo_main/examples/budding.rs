@@ -55,7 +55,7 @@ fn create_child(genome: SparseNeuralNetGenome, randomness: SeededMutationRandomn
     .with_control(Box::new(BuddingControl::new(1)))
 }
 
-#[derive(Debug)]
+#[derive(Clone, Debug)]
 pub struct BuddingControl {
     budding_layer_index: usize,
     budding_ticks: u32,
@@ -112,5 +112,9 @@ impl CellControl for BuddingControl {
         } else {
             self.youth_requests()
         }
+    }
+
+    fn spawn(&mut self) -> Box<dyn CellControl> {
+        Box::new(self.clone())
     }
 }

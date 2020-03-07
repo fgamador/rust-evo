@@ -88,7 +88,7 @@ fn simple_cell_layer(area: Area, density: Density, color: Color) -> CellLayer {
     )
 }
 
-#[derive(Debug)]
+#[derive(Clone, Debug)]
 pub struct FixedDepthSeekingControl {
     target_y: f64,
 }
@@ -114,5 +114,9 @@ impl FixedDepthSeekingControl {
 impl CellControl for FixedDepthSeekingControl {
     fn run(&mut self, cell_state: &CellStateSnapshot) -> Vec<ControlRequest> {
         vec![self.float_layer_resize_request(cell_state)]
+    }
+
+    fn spawn(&mut self) -> Box<dyn CellControl> {
+        Box::new(self.clone())
     }
 }

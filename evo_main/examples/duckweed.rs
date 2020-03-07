@@ -134,7 +134,7 @@ fn create_budding_layer() -> CellLayer {
     .with_health_parameters(&LAYER_HEALTH_PARAMS)
 }
 
-#[derive(Debug)]
+#[derive(Clone, Debug)]
 pub struct DuckweedControl {
     target_y: f64,
     budding_ticks: u32,
@@ -222,5 +222,9 @@ impl CellControl for DuckweedControl {
         } else {
             self.youth_requests(cell_state)
         }
+    }
+
+    fn spawn(&mut self) -> Box<dyn CellControl> {
+        Box::new(self.clone())
     }
 }

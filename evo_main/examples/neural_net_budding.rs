@@ -172,13 +172,6 @@ impl NeuralNetBuddingControl {
         }
     }
 
-    pub fn spawn(&mut self) -> impl CellControl {
-        Self::new(
-            Rc::new(self.genome.copy_with_mutation(&mut self.randomness)),
-            self.randomness.spawn(),
-        )
-    }
-
     fn new_genome() -> SparseNeuralNetGenome {
         let mut genome = SparseNeuralNetGenome::new(TransferFn::IDENTITY);
         genome.connect_node(
@@ -276,5 +269,12 @@ impl CellControl for NeuralNetBuddingControl {
                 BioEnergy::new(donation_energy.max(0.0)),
             ),
         ]
+    }
+
+    fn spawn(&mut self) -> Box<dyn CellControl> {
+        Box::new(Self::new(
+            Rc::new(self.genome.copy_with_mutation(&mut self.randomness)),
+            self.randomness.spawn(),
+        ))
     }
 }

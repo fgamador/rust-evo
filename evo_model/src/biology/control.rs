@@ -5,6 +5,8 @@ use std::fmt::Debug;
 
 pub trait CellControl: Debug {
     fn run(&mut self, cell_state: &CellStateSnapshot) -> Vec<ControlRequest>;
+
+    fn spawn(&mut self) -> Box<dyn CellControl>;
 }
 
 #[derive(Debug)]
@@ -51,29 +53,13 @@ impl CellControl for NullControl {
     fn run(&mut self, _cell_state: &CellStateSnapshot) -> Vec<ControlRequest> {
         vec![]
     }
-}
 
-#[derive(Debug)]
-pub struct CompositeControl {
-    controls: Vec<Box<dyn CellControl>>,
-}
-
-impl CompositeControl {
-    pub fn new(controls: Vec<Box<dyn CellControl>>) -> Self {
-        CompositeControl { controls }
+    fn spawn(&mut self) -> Box<dyn CellControl> {
+        Box::new(Self::new())
     }
 }
 
-impl CellControl for CompositeControl {
-    fn run(&mut self, cell_state: &CellStateSnapshot) -> Vec<ControlRequest> {
-        self.controls
-            .iter_mut()
-            .flat_map(|control| control.run(cell_state))
-            .collect()
-    }
-}
-
-#[derive(Debug)]
+#[derive(Clone, Debug)]
 pub struct ContinuousRequestsControl {
     requests: Vec<ControlRequest>,
 }
@@ -88,9 +74,13 @@ impl CellControl for ContinuousRequestsControl {
     fn run(&mut self, _cell_state: &CellStateSnapshot) -> Vec<ControlRequest> {
         self.requests.clone()
     }
+
+    fn spawn(&mut self) -> Box<dyn CellControl> {
+        Box::new(self.clone())
+    }
 }
 
-#[derive(Debug)]
+#[derive(Clone, Debug)]
 pub struct ContinuousResizeControl {
     layer_index: usize,
     resize_amount: AreaDelta,
@@ -112,9 +102,13 @@ impl CellControl for ContinuousResizeControl {
             self.resize_amount,
         )]
     }
+
+    fn spawn(&mut self) -> Box<dyn CellControl> {
+        Box::new(self.clone())
+    }
 }
 
-#[derive(Debug)]
+#[derive(Clone, Debug)]
 pub struct SimpleThrusterControl {
     thruster_layer_index: usize,
     force: Force,
@@ -135,6 +129,10 @@ impl CellControl for SimpleThrusterControl {
             ControlRequest::new(self.thruster_layer_index, 2, self.force.x()),
             ControlRequest::new(self.thruster_layer_index, 3, self.force.y()),
         ]
+    }
+
+    fn spawn(&mut self) -> Box<dyn CellControl> {
+        Box::new(self.clone())
     }
 }
 

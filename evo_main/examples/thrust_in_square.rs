@@ -53,7 +53,7 @@ pub enum Direction {
     Down,
 }
 
-#[derive(Debug)]
+#[derive(Clone, Debug)]
 pub struct ThrustInSquareControl {
     thruster_layer_index: usize,
     force: f64,
@@ -118,5 +118,9 @@ impl CellControl for ThrustInSquareControl {
             ControlRequest::new(self.thruster_layer_index, 2, force.x()),
             ControlRequest::new(self.thruster_layer_index, 3, force.y()),
         ]
+    }
+
+    fn spawn(&mut self) -> Box<dyn CellControl> {
+        Box::new(self.clone())
     }
 }

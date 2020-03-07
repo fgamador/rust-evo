@@ -54,7 +54,7 @@ fn simple_cell_layer(area: Area, density: Density, color: Color) -> CellLayer {
     )
 }
 
-#[derive(Debug)]
+#[derive(Clone, Debug)]
 pub struct NeuralNetControl {
     nnet: SparseNeuralNet,
 }
@@ -75,5 +75,9 @@ impl CellControl for NeuralNetControl {
             0,
             AreaDelta::new(self.nnet.node_value(1) as f64),
         )]
+    }
+
+    fn spawn(&mut self) -> Box<dyn CellControl> {
+        Box::new(self.clone())
     }
 }

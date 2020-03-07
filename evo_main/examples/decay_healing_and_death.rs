@@ -57,7 +57,7 @@ fn create_world() -> World {
         )
 }
 
-#[derive(Debug)]
+#[derive(Clone, Debug)]
 pub struct GrowThenHealControl {
     layer_index: usize,
     growth_ticks: u32,
@@ -100,5 +100,9 @@ impl CellControl for GrowThenHealControl {
         }
 
         vec![request]
+    }
+
+    fn spawn(&mut self) -> Box<dyn CellControl> {
+        Box::new(self.clone())
     }
 }

@@ -232,11 +232,9 @@ impl World {
 mod tests {
     use super::*;
     use crate::biology::control::*;
-    use crate::biology::genome::*;
     use crate::biology::layers::*;
     use crate::physics::overlap::Overlap;
     use crate::physics::shapes::*;
-    use std::rc::Rc;
 
     #[test]
     fn tick_moves_ball() {
@@ -457,10 +455,6 @@ mod tests {
         world.tick();
 
         assert_eq!(world.cells().len(), 0);
-    }
-
-    fn create_child(_genome: SparseNeuralNetGenome, _randomness: SeededMutationRandomness) -> Cell {
-        simple_layered_cell(vec![simple_cell_layer(Area::new(1.0), Density::new(1.0))])
     }
 
     fn simple_layered_cell(layers: Vec<CellLayer>) -> Cell {

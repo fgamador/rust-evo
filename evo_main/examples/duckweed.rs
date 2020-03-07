@@ -5,14 +5,12 @@ use evo_main::main_support::init_and_run;
 use evo_model::biology::cell::Cell;
 use evo_model::biology::control::*;
 use evo_model::biology::control_requests::*;
-use evo_model::biology::genome::*;
 use evo_model::biology::layers::*;
 use evo_model::environment::influences::*;
 use evo_model::physics::quantities::*;
 use evo_model::world::World;
 use std::f64;
 use std::f64::consts::PI;
-use std::rc::Rc;
 
 fn main() {
     init_and_run(create_world());
@@ -26,7 +24,6 @@ const GRAVITY: f64 = -0.05;
 const OVERLAP_DAMAGE_HEALTH_DELTA: f64 = -0.1;
 
 fn create_world() -> World {
-    let genome = SparseNeuralNetGenome::new(TransferFn::IDENTITY);
     World::new(Position::new(0.0, -400.0), Position::new(1000.0, 0.0))
         .with_perimeter_walls()
         .with_pair_collisions()
@@ -41,15 +38,12 @@ fn create_world() -> World {
             )))),
             Box::new(SimpleForceInfluence::new(Box::new(DragForce::new(0.005)))),
         ])
-        .with_cells(vec![create_cell(
-            genome,
-            SeededMutationRandomness::new(0, &MutationParameters::NO_MUTATION),
-        )
-        .with_initial_position(Position::new(200.0, -50.0))
-        .with_initial_energy(BioEnergy::new(100.0))])
+        .with_cells(vec![create_cell()
+            .with_initial_position(Position::new(200.0, -50.0))
+            .with_initial_energy(BioEnergy::new(100.0))])
 }
 
-fn create_cell(_genome: SparseNeuralNetGenome, _randomness: SeededMutationRandomness) -> Cell {
+fn create_cell() -> Cell {
     Cell::new(
         Position::ORIGIN,
         Velocity::ZERO,

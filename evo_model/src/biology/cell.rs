@@ -9,9 +9,6 @@ use crate::physics::shapes::*;
 use crate::physics::sortable_graph::*;
 use std::f64::consts::PI;
 use std::ptr;
-use std::rc::Rc;
-
-type CreateCellFn = fn(SparseNeuralNetGenome, SeededMutationRandomness) -> Cell;
 
 #[allow(clippy::vec_box)]
 #[derive(Debug, GraphNode, HasLocalEnvironment, NewtonianBody)]
@@ -301,7 +298,6 @@ impl Circle for Cell {
 mod tests {
     use super::*;
     use crate::physics::overlap::Overlap;
-    use std::rc::Rc;
 
     #[test]
     fn cells_use_pointer_equality() {
@@ -636,10 +632,6 @@ mod tests {
         let children = cell.run_control();
 
         assert!(children.is_empty());
-    }
-
-    fn create_child(_genome: SparseNeuralNetGenome, _randomness: SeededMutationRandomness) -> Cell {
-        simple_layered_cell(vec![simple_cell_layer(Area::new(PI), Density::new(1.0))])
     }
 
     fn simple_layered_cell(layers: Vec<CellLayer>) -> Cell {

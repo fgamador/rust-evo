@@ -335,10 +335,8 @@ impl Influence for Sunlight {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::biology::genome::*;
     use crate::biology::layers::*;
     use std::f64::consts::PI;
-    use std::rc::Rc;
 
     #[test]
     fn wall_collisions_add_overlap_and_force() {

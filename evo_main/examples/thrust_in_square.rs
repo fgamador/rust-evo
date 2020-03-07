@@ -5,13 +5,11 @@ use evo_main::main_support::init_and_run;
 use evo_model::biology::cell::Cell;
 use evo_model::biology::control::*;
 use evo_model::biology::control_requests::*;
-use evo_model::biology::genome::*;
 use evo_model::biology::layers::*;
 use evo_model::environment::influences::*;
 use evo_model::physics::quantities::*;
 use evo_model::world::World;
 use std::f64::consts::PI;
-use std::rc::Rc;
 
 fn main() {
     init_and_run(create_world());

@@ -65,10 +65,10 @@ fn create_cell(genome: SparseNeuralNetGenome, randomness: SeededMutationRandomne
             create_budding_layer(),
         ],
         Rc::clone(&genome),
-        randomness,
+        randomness.clone(),
         create_cell,
     )
-    .with_control(Box::new(NeuralNetBuddingControl::new(genome)))
+    .with_control(Box::new(NeuralNetBuddingControl::new(genome, randomness)))
 }
 
 fn create_float_layer() -> CellLayer {
@@ -142,6 +142,8 @@ fn create_budding_layer() -> CellLayer {
 
 #[derive(Debug)]
 pub struct NeuralNetBuddingControl {
+    genome: Rc<SparseNeuralNetGenome>,
+    randomness: SeededMutationRandomness,
     nnet: SparseNeuralNet,
 }
 
@@ -162,10 +164,19 @@ impl NeuralNetBuddingControl {
     const BUDDING_LAYER_HEALING_OUTPUT_INDEX: VecIndex = 12;
     const DONATION_ENERGY_OUTPUT_INDEX: VecIndex = 13;
 
-    fn new(genome: Rc<SparseNeuralNetGenome>) -> Self {
+    fn new(genome: Rc<SparseNeuralNetGenome>, randomness: SeededMutationRandomness) -> Self {
         NeuralNetBuddingControl {
+            genome: Rc::clone(&genome),
+            randomness,
             nnet: SparseNeuralNet::new(genome),
         }
+    }
+
+    pub fn spawn(&mut self) -> impl CellControl {
+        Self::new(
+            Rc::new(self.genome.copy_with_mutation(&mut self.randomness)),
+            self.randomness.spawn(),
+        )
     }
 
     fn new_genome() -> SparseNeuralNetGenome {

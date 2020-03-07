@@ -269,9 +269,15 @@ impl CellControl for NeuralNetBuddingControl {
     }
 
     fn spawn(&mut self) -> Box<dyn CellControl> {
-        Box::new(Self::new(
-            self.genome.spawn(&mut self.randomness),
-            self.randomness.spawn(),
-        ))
+        Box::new(NeuralNetBuddingControl {
+            genome: Rc::clone(&self.genome),
+            randomness: self.randomness.clone(),
+            nnet: self.nnet.spawn(&mut self.randomness),
+        })
+
+        // Box::new(Self::new(
+        //     self.genome.spawn(&mut self.randomness),
+        //     self.randomness.spawn(),
+        // ))
     }
 }

@@ -29,6 +29,10 @@ impl SparseNeuralNet {
         }
     }
 
+    pub fn spawn(&self, randomness: &mut dyn MutationRandomness) -> Self {
+        Self::new(Rc::new(self.genome.spawn(randomness)))
+    }
+
     pub fn set_node_value(&mut self, index: VecIndex, value: NodeValue) {
         self.node_values[index as usize] = value;
     }
@@ -51,7 +55,7 @@ pub struct SparseNeuralNetGenome {
 
 impl SparseNeuralNetGenome {
     pub fn new(transfer_fn: TransferFn) -> Self {
-        Self {
+        SparseNeuralNetGenome {
             ops: vec![],
             transfer_fn,
             num_nodes: 0,
@@ -94,7 +98,7 @@ impl SparseNeuralNetGenome {
     }
 
     pub fn spawn(&self, randomness: &mut dyn MutationRandomness) -> Self {
-        Self {
+        SparseNeuralNetGenome {
             ops: Self::copy_with_mutated_weights(&self.ops, randomness),
             transfer_fn: self.transfer_fn,
             num_nodes: self.num_nodes,

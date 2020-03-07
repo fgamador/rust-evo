@@ -102,6 +102,33 @@ impl Cell {
         self
     }
 
+    pub fn spawn(
+        &mut self,
+        position: Position,
+        velocity: Velocity,
+        layer_area: Area,
+        energy: BioEnergy,
+    ) -> Self {
+        let mut layers = self
+            .layers
+            .iter()
+            .map(|layer| layer.spawn(layer_area))
+            .collect();
+        let radius = Self::update_layer_outer_radii(&mut layers);
+        Cell {
+            graph_node_data: GraphNodeData::new(),
+            radius,
+            newtonian_state: NewtonianState::new(Self::calc_mass(&layers), position, velocity),
+            environment: LocalEnvironment::new(),
+            layers,
+            control: self.control.spawn(),
+            genome: Rc::new(self.genome.spawn(&mut self.randomness)),
+            randomness: self.randomness.spawn(),
+            create_child: self.create_child,
+            energy,
+        }
+    }
+
     pub fn layers(&self) -> &[CellLayer] {
         &self.layers
     }

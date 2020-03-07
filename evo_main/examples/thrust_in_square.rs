@@ -32,9 +32,6 @@ fn create_world() -> World {
                 Color::Green,
                 Box::new(ThrusterCellLayerSpecialty::new()),
             )],
-            Rc::new(SparseNeuralNetGenome::new(TransferFn::IDENTITY)),
-            SeededMutationRandomness::new(0, &MutationParameters::NO_MUTATION),
-            Cell::dummy_create_child,
         )
         .with_control(Box::new(ThrustInSquareControl::new(
             0,

@@ -572,14 +572,7 @@ mod tests {
     }
 
     fn simple_layered_cell(layers: Vec<CellLayer>) -> Cell {
-        Cell::new(
-            Position::ORIGIN,
-            Velocity::ZERO,
-            layers,
-            Rc::new(SparseNeuralNetGenome::new(TransferFn::IDENTITY)),
-            SeededMutationRandomness::new(0, &MutationParameters::NO_MUTATION),
-            Cell::dummy_create_child,
-        )
+        Cell::new(Position::ORIGIN, Velocity::ZERO, layers)
     }
 
     fn simple_cell_layer(area: Area, density: Density) -> CellLayer {

@@ -22,21 +22,11 @@ pub struct Cell {
     environment: LocalEnvironment,
     layers: Vec<CellLayer>, // TODO array? smallvec?
     control: Box<dyn CellControl>,
-    genome: Rc<SparseNeuralNetGenome>,
-    randomness: SeededMutationRandomness,
-    create_child: CreateCellFn,
     energy: BioEnergy,
 }
 
 impl Cell {
-    pub fn new(
-        position: Position,
-        velocity: Velocity,
-        mut layers: Vec<CellLayer>,
-        genome: Rc<SparseNeuralNetGenome>,
-        randomness: SeededMutationRandomness,
-        create_child: CreateCellFn,
-    ) -> Self {
+    pub fn new(position: Position, velocity: Velocity, mut layers: Vec<CellLayer>) -> Self {
         if layers.is_empty() {
             panic!("Cell must have at least one layer");
         }
@@ -49,9 +39,6 @@ impl Cell {
             environment: LocalEnvironment::new(),
             layers,
             control: Box::new(NullControl::new()),
-            genome: Rc::clone(&genome),
-            randomness,
-            create_child,
             energy: BioEnergy::new(0.0),
         }
     }
@@ -67,9 +54,6 @@ impl Cell {
                 Color::Green,
                 Box::new(NullCellLayerSpecialty::new()),
             )],
-            Rc::new(SparseNeuralNetGenome::new(TransferFn::IDENTITY)),
-            SeededMutationRandomness::new(0, &MutationParameters::NO_MUTATION),
-            Self::dummy_create_child,
         )
     }
 
@@ -77,14 +61,7 @@ impl Cell {
         _genome: SparseNeuralNetGenome,
         _randomness: SeededMutationRandomness,
     ) -> Cell {
-        Self::new(
-            Position::ORIGIN,
-            Velocity::ZERO,
-            vec![],
-            Rc::new(SparseNeuralNetGenome::new(TransferFn::IDENTITY)),
-            SeededMutationRandomness::new(0, &MutationParameters::NO_MUTATION),
-            Self::dummy_create_child,
-        )
+        Self::new(Position::ORIGIN, Velocity::ZERO, vec![])
     }
 
     pub fn with_control(mut self, control: Box<dyn CellControl>) -> Self {
@@ -120,9 +97,6 @@ impl Cell {
             environment: LocalEnvironment::new(),
             layers,
             control: self.control.spawn(),
-            genome: Rc::new(self.genome.spawn(&mut self.randomness)),
-            randomness: self.randomness.spawn(),
-            create_child: self.create_child,
             energy: BioEnergy::ZERO,
         }
     }
@@ -621,9 +595,6 @@ mod tests {
                     Box::new(BuddingCellLayerSpecialty::new()),
                 ),
             ],
-            Rc::new(SparseNeuralNetGenome::new(TransferFn::IDENTITY)),
-            SeededMutationRandomness::new(0, &MutationParameters::NO_MUTATION),
-            create_child,
         )
         .with_control(Box::new(ContinuousRequestsControl::new(vec![
             CellLayer::resize_request(0, AreaDelta::new(10.0)),
@@ -657,9 +628,6 @@ mod tests {
                 Color::White,
                 Box::new(BuddingCellLayerSpecialty::new()),
             )],
-            Rc::new(SparseNeuralNetGenome::new(TransferFn::IDENTITY)),
-            SeededMutationRandomness::new(0, &MutationParameters::NO_MUTATION),
-            create_child,
         )
         .with_control(Box::new(ContinuousRequestsControl::new(vec![
             BuddingCellLayerSpecialty::donation_energy_request(0, BioEnergy::new(0.0)),
@@ -675,14 +643,7 @@ mod tests {
     }
 
     fn simple_layered_cell(layers: Vec<CellLayer>) -> Cell {
-        Cell::new(
-            Position::ORIGIN,
-            Velocity::ZERO,
-            layers,
-            Rc::new(SparseNeuralNetGenome::new(TransferFn::IDENTITY)),
-            SeededMutationRandomness::new(0, &MutationParameters::NO_MUTATION),
-            Cell::dummy_create_child,
-        )
+        Cell::new(Position::ORIGIN, Velocity::ZERO, layers)
     }
 
     fn simple_cell_layer(area: Area, density: Density) -> CellLayer {

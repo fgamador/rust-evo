@@ -48,9 +48,6 @@ fn create_child(genome: SparseNeuralNetGenome, randomness: SeededMutationRandomn
                 Box::new(BuddingCellLayerSpecialty::new()),
             ),
         ],
-        genome,
-        randomness,
-        create_child,
     )
     .with_control(Box::new(BuddingControl::new(1)))
 }

@@ -436,9 +436,6 @@ mod tests {
                     Color::Green,
                     Box::new(BuddingCellLayerSpecialty::new()),
                 )],
-                Rc::new(SparseNeuralNetGenome::new(TransferFn::IDENTITY)),
-                SeededMutationRandomness::new(0, &MutationParameters::NO_MUTATION),
-                create_child,
             )
             .with_control(Box::new(ContinuousRequestsControl::new(vec![
                 BuddingCellLayerSpecialty::donation_energy_request(0, BioEnergy::new(1.0)),
@@ -467,14 +464,7 @@ mod tests {
     }
 
     fn simple_layered_cell(layers: Vec<CellLayer>) -> Cell {
-        Cell::new(
-            Position::ORIGIN,
-            Velocity::ZERO,
-            layers,
-            Rc::new(SparseNeuralNetGenome::new(TransferFn::IDENTITY)),
-            SeededMutationRandomness::new(0, &MutationParameters::NO_MUTATION),
-            Cell::dummy_create_child,
-        )
+        Cell::new(Position::ORIGIN, Velocity::ZERO, layers)
     }
 
     fn simple_cell_layer(area: Area, density: Density) -> CellLayer {

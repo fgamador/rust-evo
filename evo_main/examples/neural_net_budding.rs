@@ -64,9 +64,6 @@ fn create_cell(genome: SparseNeuralNetGenome, randomness: SeededMutationRandomne
             create_photo_layer(),
             create_budding_layer(),
         ],
-        Rc::clone(&genome),
-        randomness.clone(),
-        create_cell,
     )
     .with_control(Box::new(NeuralNetBuddingControl::new(genome, randomness)))
 }

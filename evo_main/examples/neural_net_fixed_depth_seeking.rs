@@ -38,9 +38,6 @@ fn create_world() -> World {
                 simple_cell_layer(Area::new(100.0 * PI), Density::new(0.0004), Color::White),
                 simple_cell_layer(Area::new(300.0 * PI), Density::new(0.00075), Color::Green),
             ],
-            Rc::clone(&genome),
-            SeededMutationRandomness::new(0, &MutationParameters::NO_MUTATION),
-            Cell::dummy_create_child,
         )
         .with_control(Box::new(NeuralNetControl::new(genome)))])
 }

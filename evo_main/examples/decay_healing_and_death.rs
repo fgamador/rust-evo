@@ -43,9 +43,6 @@ fn create_world() -> World {
                 )
                 .with_resize_parameters(&LAYER_RESIZE_PARAMS)
                 .with_health_parameters(&LAYER_HEALTH_PARAMS)],
-                Rc::new(SparseNeuralNetGenome::new(TransferFn::IDENTITY)),
-                SeededMutationRandomness::new(0, &MutationParameters::NO_MUTATION),
-                Cell::dummy_create_child,
             )
             .with_control(Box::new(GrowThenHealControl::new(
                 0,

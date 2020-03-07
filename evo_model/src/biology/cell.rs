@@ -102,13 +102,7 @@ impl Cell {
         self
     }
 
-    pub fn spawn(
-        &mut self,
-        position: Position,
-        velocity: Velocity,
-        layer_area: Area,
-        energy: BioEnergy,
-    ) -> Self {
+    pub fn spawn(&mut self, layer_area: Area) -> Self {
         let mut layers = self
             .layers
             .iter()
@@ -118,14 +112,18 @@ impl Cell {
         Cell {
             graph_node_data: GraphNodeData::new(),
             radius,
-            newtonian_state: NewtonianState::new(Self::calc_mass(&layers), position, velocity),
+            newtonian_state: NewtonianState::new(
+                Self::calc_mass(&layers),
+                Position::ORIGIN,
+                Velocity::ZERO,
+            ),
             environment: LocalEnvironment::new(),
             layers,
             control: self.control.spawn(),
             genome: Rc::new(self.genome.spawn(&mut self.randomness)),
             randomness: self.randomness.spawn(),
             create_child: self.create_child,
-            energy,
+            energy: BioEnergy::ZERO,
         }
     }
 
@@ -284,12 +282,7 @@ impl Cell {
         budding_angle: Angle,
         donation_energy: BioEnergy,
     ) -> Cell {
-        let mut child = (self.create_child)(
-            // TODO test that this is called?
-            self.genome.spawn(&mut self.randomness),
-            // TODO test that this is called?
-            self.randomness.spawn(),
-        );
+        let mut child = self.spawn(Area::new(10.0 * PI));
         let offset = Displacement::from_polar(self.radius + child.radius(), budding_angle);
         child.set_initial_position(self.center() + offset);
         child.set_initial_velocity(self.velocity());

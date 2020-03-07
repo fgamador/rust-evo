@@ -373,7 +373,7 @@ mod tests {
     }
 
     #[test]
-    fn copy_unmutated() {
+    fn spawn_unmutated() {
         let mut genome = SparseNeuralNetGenome::new(TransferFn::SIGMOIDAL);
         genome.connect_node(1, 0.0, &[(0, 1.0), (2, 2.0)]);
         genome.connect_node(2, 0.0, &[(1, 1.0)]);
@@ -381,24 +381,24 @@ mod tests {
         let mut randomness = StubMutationRandomness {
             mutated_weights: vec![],
         };
-        let copied = genome.spawn(&mut randomness);
+        let copy = genome.spawn(&mut randomness);
 
-        assert_eq!(copied.ops, genome.ops);
-        assert_eq!(copied.transfer_fn, TransferFn::SIGMOIDAL);
+        assert_eq!(copy.ops, genome.ops);
+        assert_eq!(copy.transfer_fn, TransferFn::SIGMOIDAL);
     }
 
     #[test]
-    fn copy_with_mutated_weights() {
+    fn spawn_with_mutated_weights() {
         let mut genome = SparseNeuralNetGenome::new(TransferFn::SIGMOIDAL);
         genome.connect_node(2, 1.5, &[(0, 1.0), (1, 2.0)]);
 
         let mut randomness = StubMutationRandomness {
             mutated_weights: vec![(1.5, -0.5), (2.0, 2.25)],
         };
-        let copied = genome.spawn(&mut randomness);
+        let copy = genome.spawn(&mut randomness);
 
         assert_eq!(
-            copied.ops,
+            copy.ops,
             vec![
                 Op::Bias {
                     value_index: 2,

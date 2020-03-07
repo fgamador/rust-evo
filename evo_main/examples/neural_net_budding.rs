@@ -31,12 +31,6 @@ const PHOTO_LAYER_INDEX: usize = 1;
 const BUDDING_LAYER_INDEX: usize = 2;
 
 fn create_world() -> World {
-    const SOME_MUTATION: MutationParameters = MutationParameters {
-        weight_mutation_probability: 0.5,
-        weight_mutation_stdev: 1.0,
-        ..MutationParameters::NO_MUTATION
-    };
-
     World::new(Position::new(0.0, -400.0), Position::new(400.0, 0.0))
         .with_perimeter_walls()
         .with_pair_collisions()
@@ -45,17 +39,22 @@ fn create_world() -> World {
             DragForce::new(0.005),
         )))])
         .with_cell(
-            create_cell(
-                NeuralNetBuddingControl::new_genome(),
-                SeededMutationRandomness::new(0, &SOME_MUTATION),
-            )
-            .with_initial_energy(BioEnergy::new(50.0))
-            .with_initial_position(Position::new(200.0, -50.0)),
+            create_cell()
+                .with_initial_energy(BioEnergy::new(50.0))
+                .with_initial_position(Position::new(200.0, -50.0)),
         )
 }
 
-fn create_cell(genome: SparseNeuralNetGenome, randomness: SeededMutationRandomness) -> Cell {
-    let genome = Rc::new(genome);
+fn create_cell() -> Cell {
+    const SOME_MUTATION: MutationParameters = MutationParameters {
+        weight_mutation_probability: 0.5,
+        weight_mutation_stdev: 1.0,
+        ..MutationParameters::NO_MUTATION
+    };
+
+    let genome = Rc::new(NeuralNetBuddingControl::new_genome());
+    let randomness = SeededMutationRandomness::new(0, &SOME_MUTATION);
+
     Cell::new(
         Position::ORIGIN,
         Velocity::ZERO,

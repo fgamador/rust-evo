@@ -110,8 +110,8 @@ impl CellControl for ThrustInSquareControl {
         }
 
         vec![
-            ControlRequest::new(self.thruster_layer_index, 2, force.x()),
-            ControlRequest::new(self.thruster_layer_index, 3, force.y()),
+            ThrusterCellLayerSpecialty::force_x_request(self.thruster_layer_index, force.x()),
+            ThrusterCellLayerSpecialty::force_y_request(self.thruster_layer_index, force.y()),
         ]
     }
 

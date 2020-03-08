@@ -183,11 +183,16 @@ impl CellLayer {
     }
 
     pub fn healing_request(layer_index: usize, delta_health: f64) -> ControlRequest {
-        ControlRequest::new(layer_index, Self::HEALING_CHANNEL_INDEX, delta_health)
+        ControlRequest::new(layer_index, Self::HEALING_CHANNEL_INDEX, 0, delta_health)
     }
 
     pub fn resize_request(layer_index: usize, delta_area: AreaDelta) -> ControlRequest {
-        ControlRequest::new(layer_index, Self::RESIZE_CHANNEL_INDEX, delta_area.value())
+        ControlRequest::new(
+            layer_index,
+            Self::RESIZE_CHANNEL_INDEX,
+            0,
+            delta_area.value(),
+        )
     }
 }
 
@@ -519,11 +524,11 @@ impl ThrusterCellLayerSpecialty {
     }
 
     pub fn force_x_request(layer_index: usize, value: f64) -> ControlRequest {
-        ControlRequest::new(layer_index, Self::FORCE_X_CHANNEL_INDEX, value)
+        ControlRequest::new(layer_index, Self::FORCE_X_CHANNEL_INDEX, 0, value)
     }
 
     pub fn force_y_request(layer_index: usize, value: f64) -> ControlRequest {
-        ControlRequest::new(layer_index, Self::FORCE_Y_CHANNEL_INDEX, value)
+        ControlRequest::new(layer_index, Self::FORCE_Y_CHANNEL_INDEX, 0, value)
     }
 }
 
@@ -621,6 +626,7 @@ impl BuddingCellLayerSpecialty {
         ControlRequest::new(
             layer_index,
             Self::BUDDING_ANGLE_CHANNEL_INDEX,
+            0,
             angle.radians(),
         )
     }
@@ -629,6 +635,7 @@ impl BuddingCellLayerSpecialty {
         ControlRequest::new(
             layer_index,
             Self::DONATION_ENERGY_CHANNEL_INDEX,
+            0,
             energy.value(),
         )
     }

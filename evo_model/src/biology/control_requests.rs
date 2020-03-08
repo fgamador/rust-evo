@@ -4,6 +4,7 @@ use crate::physics::quantities::*;
 pub struct ControlRequest {
     layer_index: u16,
     channel_index: u16,
+    value_index: u16,
     value: f64,
 }
 
@@ -11,13 +12,15 @@ impl ControlRequest {
     pub const ZEROS: ControlRequest = ControlRequest {
         layer_index: 0,
         channel_index: 0,
+        value_index: 0,
         value: 0.0,
     };
 
-    pub fn new(layer_index: usize, channel_index: usize, value: f64) -> Self {
+    pub fn new(layer_index: usize, channel_index: usize, value_index: usize, value: f64) -> Self {
         ControlRequest {
             layer_index: layer_index as u16,
             channel_index: channel_index as u16,
+            value_index: value_index as u16,
             value,
         }
     }
@@ -28,6 +31,10 @@ impl ControlRequest {
 
     pub fn channel_index(&self) -> usize {
         self.channel_index as usize
+    }
+
+    pub fn value_index(&self) -> usize {
+        self.value_index as usize
     }
 
     pub fn value(&self) -> f64 {

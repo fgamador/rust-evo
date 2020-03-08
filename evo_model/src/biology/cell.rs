@@ -167,7 +167,7 @@ impl Cell {
     ) -> Vec<CostedControlRequest> {
         control_requests
             .iter()
-            .map(|req| self.layers[req.layer_index].cost_control_request(*req))
+            .map(|req| self.layers[req.layer_index()].cost_control_request(*req))
             .collect()
     }
 
@@ -213,7 +213,7 @@ impl Cell {
     fn execute_control_requests(&mut self, budgeted_control_requests: &[BudgetedControlRequest]) {
         // TODO do healing first
         for request in budgeted_control_requests {
-            let layer = &mut self.layers[request.layer_index];
+            let layer = &mut self.layers[request.layer_index()];
             layer.execute_control_request(*request);
         }
         self.radius = Self::update_layer_outer_radii(&mut self.layers);

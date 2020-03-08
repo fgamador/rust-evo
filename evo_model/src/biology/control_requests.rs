@@ -2,9 +2,9 @@ use crate::physics::quantities::*;
 
 #[derive(Clone, Copy, Debug, PartialEq)]
 pub struct ControlRequest {
-    pub layer_index: usize,
-    pub channel_index: usize,
-    pub value: f64,
+    layer_index: u16,
+    channel_index: u16,
+    value: f64,
 }
 
 impl ControlRequest {
@@ -16,17 +16,29 @@ impl ControlRequest {
 
     pub fn new(layer_index: usize, channel_index: usize, value: f64) -> Self {
         ControlRequest {
-            layer_index,
-            channel_index,
+            layer_index: layer_index as u16,
+            channel_index: channel_index as u16,
             value,
         }
+    }
+
+    pub fn layer_index(&self) -> usize {
+        self.layer_index as usize
+    }
+
+    pub fn channel_index(&self) -> usize {
+        self.channel_index as usize
+    }
+
+    pub fn value(&self) -> f64 {
+        self.value
     }
 }
 
 #[derive(Clone, Copy, Debug, PartialEq)]
 pub struct CostedControlRequest {
-    pub layer_index: usize,
-    pub channel_index: usize,
+    pub layer_index: u16,
+    pub channel_index: u16,
     pub value: f64,
     pub energy_delta: BioEnergyDelta,
 }
@@ -47,12 +59,24 @@ impl CostedControlRequest {
             energy_delta,
         }
     }
+
+    pub fn layer_index(&self) -> usize {
+        self.layer_index as usize
+    }
+
+    pub fn channel_index(&self) -> usize {
+        self.channel_index as usize
+    }
+
+    pub fn value(&self) -> f64 {
+        self.value
+    }
 }
 
 #[derive(Clone, Copy, Debug, PartialEq)]
 pub struct BudgetedControlRequest {
-    pub layer_index: usize,
-    pub channel_index: usize,
+    pub layer_index: u16,
+    pub channel_index: u16,
     pub value: f64,
     pub energy_delta: BioEnergyDelta,
     pub budgeted_fraction: f64,
@@ -75,5 +99,17 @@ impl BudgetedControlRequest {
             energy_delta: costed_request.energy_delta,
             budgeted_fraction,
         }
+    }
+
+    pub fn layer_index(&self) -> usize {
+        self.layer_index as usize
+    }
+
+    pub fn channel_index(&self) -> usize {
+        self.channel_index as usize
+    }
+
+    pub fn value(&self) -> f64 {
+        self.value
     }
 }

@@ -252,13 +252,13 @@ impl CellLayerBody {
     fn cost_restore_health(&self, request: ControlRequest) -> CostedControlRequest {
         CostedControlRequest::new(
             request,
-            self.health_parameters.healing_energy_delta * self.area.value() * request.value,
+            self.health_parameters.healing_energy_delta * self.area.value() * request.value(),
         )
     }
 
     fn cost_resize(&self, request: ControlRequest) -> CostedControlRequest {
-        let delta_area = self.bound_resize_delta_area(request.value);
-        let energy_delta = if request.value >= 0.0 {
+        let delta_area = self.bound_resize_delta_area(request.value());
+        let energy_delta = if request.value() >= 0.0 {
             self.resize_parameters.growth_energy_delta
         } else {
             -self.resize_parameters.shrinkage_energy_delta
@@ -362,7 +362,7 @@ impl CellLayerBrain for LivingCellLayerBrain {
         body: &CellLayerBody,
         request: ControlRequest,
     ) -> CostedControlRequest {
-        match request.channel_index {
+        match request.channel_index() {
             CellLayer::HEALING_CHANNEL_INDEX => body.cost_restore_health(request),
             CellLayer::RESIZE_CHANNEL_INDEX => body.cost_resize(request),
             _ => specialty.cost_control_request(request),
@@ -375,7 +375,7 @@ impl CellLayerBrain for LivingCellLayerBrain {
         body: &mut CellLayerBody,
         request: BudgetedControlRequest,
     ) {
-        match request.channel_index {
+        match request.channel_index() {
             CellLayer::HEALING_CHANNEL_INDEX => {
                 body.restore_health(request.value, request.budgeted_fraction)
             }
@@ -457,7 +457,7 @@ pub trait CellLayerSpecialty: Debug {
     //    }
 
     fn cost_control_request(&self, request: ControlRequest) -> CostedControlRequest {
-        panic!("Invalid control channel index: {}", request.channel_index);
+        panic!("Invalid control channel index: {}", request.channel_index());
     }
 
     fn execute_control_request(&mut self, _body: &CellLayerBody, request: BudgetedControlRequest) {
@@ -542,17 +542,17 @@ impl CellLayerSpecialty for ThrusterCellLayerSpecialty {
     }
 
     fn cost_control_request(&self, request: ControlRequest) -> CostedControlRequest {
-        match request.channel_index {
+        match request.channel_index() {
             // TODO cost forces based on a parameter struct(?)
             Self::FORCE_X_CHANNEL_INDEX | Self::FORCE_Y_CHANNEL_INDEX => {
                 CostedControlRequest::new(request, BioEnergyDelta::ZERO)
             }
-            _ => panic!("Invalid control channel index: {}", request.channel_index),
+            _ => panic!("Invalid control channel index: {}", request.channel_index()),
         }
     }
 
     fn execute_control_request(&mut self, body: &CellLayerBody, request: BudgetedControlRequest) {
-        match request.channel_index {
+        match request.channel_index() {
             Self::FORCE_X_CHANNEL_INDEX => {
                 self.force_x = body.health * request.budgeted_fraction * request.value
             }
@@ -640,19 +640,19 @@ impl CellLayerSpecialty for BuddingCellLayerSpecialty {
     }
 
     fn cost_control_request(&self, request: ControlRequest) -> CostedControlRequest {
-        match request.channel_index {
+        match request.channel_index() {
             Self::BUDDING_ANGLE_CHANNEL_INDEX => {
                 CostedControlRequest::new(request, BioEnergyDelta::ZERO)
             }
             Self::DONATION_ENERGY_CHANNEL_INDEX => {
-                CostedControlRequest::new(request, BioEnergyDelta::new(request.value))
+                CostedControlRequest::new(request, BioEnergyDelta::new(request.value()))
             }
-            _ => panic!("Invalid control channel index: {}", request.channel_index),
+            _ => panic!("Invalid control channel index: {}", request.channel_index()),
         }
     }
 
     fn execute_control_request(&mut self, body: &CellLayerBody, request: BudgetedControlRequest) {
-        match request.channel_index {
+        match request.channel_index() {
             Self::BUDDING_ANGLE_CHANNEL_INDEX => {
                 self.budding_angle = Angle::from_radians(request.value)
             }

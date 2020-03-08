@@ -478,12 +478,14 @@ pub trait CellLayerSpecialty: Debug {
 
 #[derive(Debug)]
 pub struct SpawningRequest {
+    pub bond_index: usize,
     pub budding_angle: Angle,
     pub donation_energy: BioEnergy,
 }
 
 impl SpawningRequest {
     pub const NONE: SpawningRequest = SpawningRequest {
+        bond_index: 0,
         budding_angle: Angle::ZERO,
         donation_energy: BioEnergy::ZERO,
     };
@@ -624,26 +626,26 @@ impl BuddingCellLayerSpecialty {
 
     pub fn budding_angle_request(
         layer_index: usize,
-        value_index: usize,
+        bond_index: usize,
         angle: Angle,
     ) -> ControlRequest {
         ControlRequest::new(
             layer_index,
             Self::BUDDING_ANGLE_CHANNEL_INDEX,
-            value_index,
+            bond_index,
             angle.radians(),
         )
     }
 
     pub fn donation_energy_request(
         layer_index: usize,
-        value_index: usize,
+        bond_index: usize,
         energy: BioEnergy,
     ) -> ControlRequest {
         ControlRequest::new(
             layer_index,
             Self::DONATION_ENERGY_CHANNEL_INDEX,
-            value_index,
+            bond_index,
             energy.value(),
         )
     }
@@ -685,6 +687,7 @@ impl CellLayerSpecialty for BuddingCellLayerSpecialty {
         }
 
         SpawningRequest {
+            bond_index: 0,
             budding_angle: self.budding_angle,
             donation_energy: self.donation_energy,
         }

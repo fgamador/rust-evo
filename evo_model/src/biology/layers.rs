@@ -622,20 +622,28 @@ impl BuddingCellLayerSpecialty {
         }
     }
 
-    pub fn budding_angle_request(layer_index: usize, angle: Angle) -> ControlRequest {
+    pub fn budding_angle_request(
+        layer_index: usize,
+        value_index: usize,
+        angle: Angle,
+    ) -> ControlRequest {
         ControlRequest::new(
             layer_index,
             Self::BUDDING_ANGLE_CHANNEL_INDEX,
-            0,
+            value_index,
             angle.radians(),
         )
     }
 
-    pub fn donation_energy_request(layer_index: usize, energy: BioEnergy) -> ControlRequest {
+    pub fn donation_energy_request(
+        layer_index: usize,
+        value_index: usize,
+        energy: BioEnergy,
+    ) -> ControlRequest {
         ControlRequest::new(
             layer_index,
             Self::DONATION_ENERGY_CHANNEL_INDEX,
-            0,
+            value_index,
             energy.value(),
         )
     }
@@ -1120,7 +1128,7 @@ mod tests {
             Box::new(BuddingCellLayerSpecialty::new()),
         );
         layer.execute_control_request(fully_budgeted(
-            BuddingCellLayerSpecialty::donation_energy_request(0, BioEnergy::new(1.0)),
+            BuddingCellLayerSpecialty::donation_energy_request(0, 0, BioEnergy::new(1.0)),
         ));
         layer.after_control_requests();
 
@@ -1139,7 +1147,7 @@ mod tests {
             Box::new(BuddingCellLayerSpecialty::new()),
         );
         layer.execute_control_request(budgeted(
-            BuddingCellLayerSpecialty::donation_energy_request(0, BioEnergy::new(1.0)),
+            BuddingCellLayerSpecialty::donation_energy_request(0, 0, BioEnergy::new(1.0)),
             BioEnergyDelta::new(1.0),
             0.5,
         ));
@@ -1160,7 +1168,7 @@ mod tests {
         )
         .with_health(0.5);
         layer.execute_control_request(fully_budgeted(
-            BuddingCellLayerSpecialty::donation_energy_request(0, BioEnergy::new(1.0)),
+            BuddingCellLayerSpecialty::donation_energy_request(0, 0, BioEnergy::new(1.0)),
         ));
 
         assert_eq!(

@@ -586,8 +586,8 @@ mod tests {
         )
         .with_control(Box::new(ContinuousRequestsControl::new(vec![
             CellLayer::resize_request(0, AreaDelta::new(10.0)),
-            BuddingCellLayerSpecialty::budding_angle_request(1, Angle::from_radians(0.0)),
-            BuddingCellLayerSpecialty::donation_energy_request(1, BioEnergy::new(1.0)),
+            BuddingCellLayerSpecialty::budding_angle_request(1, 0, Angle::from_radians(0.0)),
+            BuddingCellLayerSpecialty::donation_energy_request(1, 0, BioEnergy::new(1.0)),
         ])));
 
         let children = cell.run_control();
@@ -618,7 +618,7 @@ mod tests {
             )],
         )
         .with_control(Box::new(ContinuousRequestsControl::new(vec![
-            BuddingCellLayerSpecialty::donation_energy_request(0, BioEnergy::new(0.0)),
+            BuddingCellLayerSpecialty::donation_energy_request(0, 0, BioEnergy::new(0.0)),
         ])));
 
         let children = cell.run_control();

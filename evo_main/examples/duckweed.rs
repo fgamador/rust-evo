@@ -191,8 +191,8 @@ impl DuckweedControl {
         self.tick = 0;
         self.budding_angle += Deflection::from_radians(PI / 4.0);
         vec![
-            BuddingCellLayerSpecialty::budding_angle_request(2, self.budding_angle),
-            BuddingCellLayerSpecialty::donation_energy_request(2, BioEnergy::new(100.0)),
+            BuddingCellLayerSpecialty::budding_angle_request(2, 0, self.budding_angle),
+            BuddingCellLayerSpecialty::donation_energy_request(2, 0, BioEnergy::new(100.0)),
         ]
     }
 

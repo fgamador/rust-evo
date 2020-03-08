@@ -76,10 +76,12 @@ impl BuddingControl {
         vec![
             BuddingCellLayerSpecialty::budding_angle_request(
                 self.budding_layer_index,
+                0,
                 self.budding_angle,
             ),
             BuddingCellLayerSpecialty::donation_energy_request(
                 self.budding_layer_index,
+                0,
                 BioEnergy::new(1.0),
             ),
         ]

@@ -436,7 +436,7 @@ mod tests {
                 )],
             )
             .with_control(Box::new(ContinuousRequestsControl::new(vec![
-                BuddingCellLayerSpecialty::donation_energy_request(0, BioEnergy::new(1.0)),
+                BuddingCellLayerSpecialty::donation_energy_request(0, 0, BioEnergy::new(1.0)),
             ]))),
         );
 

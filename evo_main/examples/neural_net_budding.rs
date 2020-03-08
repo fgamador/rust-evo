@@ -259,6 +259,7 @@ impl CellControl for NeuralNetBuddingControl {
             ),
             BuddingCellLayerSpecialty::donation_energy_request(
                 BUDDING_LAYER_INDEX,
+                0,
                 BioEnergy::new(donation_energy.max(0.0)),
             ),
         ]

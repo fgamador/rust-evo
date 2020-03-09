@@ -176,7 +176,7 @@ impl CellLayer {
             .execute_control_request(&mut *self.specialty, &mut self.body, request);
     }
 
-    pub fn after_control_requests(&mut self) -> SpawningRequest {
+    pub fn after_control_requests(&mut self) -> BondRequest {
         let spawning_request = self.body.brain.after_control_requests(&mut *self.specialty);
         self.specialty.reset();
         spawning_request
@@ -320,7 +320,7 @@ trait CellLayerBrain: Debug {
         request: BudgetedControlRequest,
     );
 
-    fn after_control_requests(&self, specialty: &mut dyn CellLayerSpecialty) -> SpawningRequest;
+    fn after_control_requests(&self, specialty: &mut dyn CellLayerSpecialty) -> BondRequest;
 }
 
 #[derive(Debug)]
@@ -391,7 +391,7 @@ impl CellLayerBrain for LivingCellLayerBrain {
         }
     }
 
-    fn after_control_requests(&self, specialty: &mut dyn CellLayerSpecialty) -> SpawningRequest {
+    fn after_control_requests(&self, specialty: &mut dyn CellLayerSpecialty) -> BondRequest {
         specialty.after_control_requests()
     }
 }
@@ -429,8 +429,8 @@ impl CellLayerBrain for DeadCellLayerBrain {
     ) {
     }
 
-    fn after_control_requests(&self, _specialty: &mut dyn CellLayerSpecialty) -> SpawningRequest {
-        SpawningRequest::NONE
+    fn after_control_requests(&self, _specialty: &mut dyn CellLayerSpecialty) -> BondRequest {
+        BondRequest::NONE
     }
 }
 
@@ -469,22 +469,24 @@ pub trait CellLayerSpecialty: Debug {
         panic!("Invalid control channel index: {}", request.channel_index());
     }
 
-    fn after_control_requests(&mut self) -> SpawningRequest {
-        SpawningRequest::NONE
+    fn after_control_requests(&mut self) -> BondRequest {
+        BondRequest::NONE
     }
 
     fn reset(&mut self) {}
 }
 
 #[derive(Clone, Copy, Debug)]
-pub struct SpawningRequest {
+pub struct BondRequest {
     pub maintain_bond: bool,
     pub budding_angle: Angle,
     pub donation_energy: BioEnergy,
 }
 
-impl SpawningRequest {
-    pub const NONE: SpawningRequest = SpawningRequest {
+impl BondRequest {
+    pub const MAX_BONDS: usize = 8;
+
+    pub const NONE: BondRequest = BondRequest {
         maintain_bond: false,
         budding_angle: Angle::ZERO,
         donation_energy: BioEnergy::ZERO,
@@ -612,7 +614,7 @@ impl CellLayerSpecialty for PhotoCellLayerSpecialty {
 
 #[derive(Debug)]
 pub struct BuddingCellLayerSpecialty {
-    spawning_requests: [SpawningRequest; 8],
+    bond_requests: [BondRequest; BondRequest::MAX_BONDS],
 }
 
 impl BuddingCellLayerSpecialty {
@@ -622,7 +624,7 @@ impl BuddingCellLayerSpecialty {
     #[allow(clippy::new_without_default)]
     pub fn new() -> Self {
         BuddingCellLayerSpecialty {
-            spawning_requests: [SpawningRequest::NONE; 8],
+            bond_requests: [BondRequest::NONE; BondRequest::MAX_BONDS],
         }
     }
 
@@ -671,7 +673,7 @@ impl CellLayerSpecialty for BuddingCellLayerSpecialty {
     }
 
     fn execute_control_request(&mut self, body: &CellLayerBody, request: BudgetedControlRequest) {
-        let spawning_request = &mut self.spawning_requests[request.value_index()];
+        let spawning_request = &mut self.bond_requests[request.value_index()];
         match request.channel_index() {
             Self::BUDDING_ANGLE_CHANNEL_INDEX => {
                 spawning_request.budding_angle = Angle::from_radians(request.value())
@@ -684,16 +686,16 @@ impl CellLayerSpecialty for BuddingCellLayerSpecialty {
         }
     }
 
-    fn after_control_requests(&mut self) -> SpawningRequest {
-        if self.spawning_requests[0].donation_energy.value() == 0.0 {
-            return SpawningRequest::NONE;
+    fn after_control_requests(&mut self) -> BondRequest {
+        if self.bond_requests[0].donation_energy.value() == 0.0 {
+            return BondRequest::NONE;
         }
 
-        self.spawning_requests[0]
+        self.bond_requests[0]
     }
 
     fn reset(&mut self) {
-        for request in &mut self.spawning_requests {
+        for request in &mut self.bond_requests {
             request.reset();
         }
     }

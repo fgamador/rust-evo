@@ -489,6 +489,10 @@ impl SpawningRequest {
         budding_angle: Angle::ZERO,
         donation_energy: BioEnergy::ZERO,
     };
+
+    pub fn reset(&mut self) {
+        *self = Self::NONE;
+    }
 }
 
 #[derive(Debug)]
@@ -689,7 +693,9 @@ impl CellLayerSpecialty for BuddingCellLayerSpecialty {
     }
 
     fn reset(&mut self) {
-        self.spawning_requests[0].donation_energy = BioEnergy::ZERO;
+        for request in &mut self.spawning_requests {
+            request.reset();
+        }
     }
 }
 

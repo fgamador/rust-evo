@@ -44,16 +44,18 @@ impl ControlRequest {
 
 #[derive(Clone, Copy, Debug, PartialEq)]
 pub struct CostedControlRequest {
-    pub layer_index: u16,
-    pub channel_index: u16,
-    pub value: f64,
-    pub energy_delta: BioEnergyDelta,
+    layer_index: u16,
+    channel_index: u16,
+    value_index: u16,
+    value: f64,
+    energy_delta: BioEnergyDelta,
 }
 
 impl CostedControlRequest {
     pub const NULL_REQUEST: CostedControlRequest = CostedControlRequest {
         layer_index: 0,
         channel_index: 0,
+        value_index: 0,
         value: 0.0,
         energy_delta: BioEnergyDelta::ZERO,
     };
@@ -62,6 +64,7 @@ impl CostedControlRequest {
         CostedControlRequest {
             layer_index: control_request.layer_index,
             channel_index: control_request.channel_index,
+            value_index: control_request.value_index,
             value: control_request.value,
             energy_delta,
         }
@@ -75,24 +78,34 @@ impl CostedControlRequest {
         self.channel_index as usize
     }
 
+    pub fn value_index(&self) -> usize {
+        self.value_index as usize
+    }
+
     pub fn value(&self) -> f64 {
         self.value
+    }
+
+    pub fn energy_delta(&self) -> BioEnergyDelta {
+        self.energy_delta
     }
 }
 
 #[derive(Clone, Copy, Debug, PartialEq)]
 pub struct BudgetedControlRequest {
-    pub layer_index: u16,
-    pub channel_index: u16,
-    pub value: f64,
-    pub energy_delta: BioEnergyDelta,
-    pub budgeted_fraction: f64,
+    layer_index: u16,
+    channel_index: u16,
+    value_index: u16,
+    value: f64,
+    energy_delta: BioEnergyDelta,
+    budgeted_fraction: f64,
 }
 
 impl BudgetedControlRequest {
     pub const NULL_REQUEST: BudgetedControlRequest = BudgetedControlRequest {
         layer_index: 0,
         channel_index: 0,
+        value_index: 0,
         value: 0.0,
         energy_delta: BioEnergyDelta::ZERO,
         budgeted_fraction: 1.0,
@@ -102,6 +115,7 @@ impl BudgetedControlRequest {
         BudgetedControlRequest {
             layer_index: costed_request.layer_index,
             channel_index: costed_request.channel_index,
+            value_index: costed_request.value_index,
             value: costed_request.value,
             energy_delta: costed_request.energy_delta,
             budgeted_fraction,
@@ -116,7 +130,19 @@ impl BudgetedControlRequest {
         self.channel_index as usize
     }
 
+    pub fn value_index(&self) -> usize {
+        self.value_index as usize
+    }
+
     pub fn value(&self) -> f64 {
         self.value
+    }
+
+    pub fn energy_delta(&self) -> BioEnergyDelta {
+        self.energy_delta
+    }
+
+    pub fn budgeted_fraction(&self) -> f64 {
+        self.budgeted_fraction
     }
 }

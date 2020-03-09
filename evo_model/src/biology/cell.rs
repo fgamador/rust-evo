@@ -183,7 +183,7 @@ impl Cell {
         let budgeted_requests = costed_requests
             .iter()
             .map(|costed_request| {
-                let request_budgeted_fraction = if costed_request.energy_delta.value() < 0.0 {
+                let request_budgeted_fraction = if costed_request.energy_delta().value() < 0.0 {
                     budgeted_fraction
                 } else {
                     1.0
@@ -200,7 +200,7 @@ impl Cell {
         costed_requests.iter().fold(
             (BioEnergy::new(0.0), BioEnergy::new(0.0)),
             |(income, expense), request| {
-                let energy_delta = request.energy_delta;
+                let energy_delta = request.energy_delta();
                 if energy_delta.value() > 0.0 {
                     (income + energy_delta, expense)
                 } else {
@@ -428,7 +428,7 @@ mod tests {
         let (_, budgeted_requests) =
             Cell::budget_control_requests(BioEnergy::new(0.0), &vec![costed_request]);
 
-        assert_eq!(budgeted_requests[0].budgeted_fraction, 1.0);
+        assert_eq!(budgeted_requests[0].budgeted_fraction(), 1.0);
     }
 
     #[test]
@@ -439,7 +439,7 @@ mod tests {
         let (_, budgeted_requests) =
             Cell::budget_control_requests(BioEnergy::new(0.0), &vec![costed_request]);
 
-        assert_eq!(budgeted_requests[0].budgeted_fraction, 1.0);
+        assert_eq!(budgeted_requests[0].budgeted_fraction(), 1.0);
     }
 
     #[test]
@@ -450,7 +450,7 @@ mod tests {
         let (_, budgeted_requests) =
             Cell::budget_control_requests(BioEnergy::new(1.0), &vec![costed_request]);
 
-        assert_eq!(budgeted_requests[0].budgeted_fraction, 1.0);
+        assert_eq!(budgeted_requests[0].budgeted_fraction(), 1.0);
     }
 
     #[test]
@@ -461,7 +461,7 @@ mod tests {
         let (_, budgeted_requests) =
             Cell::budget_control_requests(BioEnergy::new(1.0), &vec![costed_request]);
 
-        assert_eq!(budgeted_requests[0].budgeted_fraction, 0.5);
+        assert_eq!(budgeted_requests[0].budgeted_fraction(), 0.5);
     }
 
     #[test]

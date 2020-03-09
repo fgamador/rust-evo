@@ -382,10 +382,10 @@ impl CellLayerBrain for LivingCellLayerBrain {
     ) {
         match request.channel_index() {
             CellLayer::HEALING_CHANNEL_INDEX => {
-                body.restore_health(request.value, request.budgeted_fraction)
+                body.restore_health(request.value(), request.budgeted_fraction())
             }
             CellLayer::RESIZE_CHANNEL_INDEX => {
-                body.resize(request.value, request.budgeted_fraction)
+                body.resize(request.value(), request.budgeted_fraction())
             }
             _ => specialty.execute_control_request(body, request),
         }
@@ -466,7 +466,7 @@ pub trait CellLayerSpecialty: Debug {
     }
 
     fn execute_control_request(&mut self, _body: &CellLayerBody, request: BudgetedControlRequest) {
-        panic!("Invalid control channel index: {}", request.channel_index);
+        panic!("Invalid control channel index: {}", request.channel_index());
     }
 
     fn after_control_requests(&mut self) -> SpawningRequest {
@@ -476,7 +476,7 @@ pub trait CellLayerSpecialty: Debug {
     fn reset(&mut self) {}
 }
 
-#[derive(Debug)]
+#[derive(Clone, Copy, Debug)]
 pub struct SpawningRequest {
     pub maintain_bond: bool,
     pub budding_angle: Angle,
@@ -561,12 +561,12 @@ impl CellLayerSpecialty for ThrusterCellLayerSpecialty {
     fn execute_control_request(&mut self, body: &CellLayerBody, request: BudgetedControlRequest) {
         match request.channel_index() {
             Self::FORCE_X_CHANNEL_INDEX => {
-                self.force_x = body.health * request.budgeted_fraction * request.value
+                self.force_x = body.health * request.budgeted_fraction() * request.value()
             }
             Self::FORCE_Y_CHANNEL_INDEX => {
-                self.force_y = body.health * request.budgeted_fraction * request.value
+                self.force_y = body.health * request.budgeted_fraction() * request.value()
             }
-            _ => panic!("Invalid control channel index: {}", request.channel_index),
+            _ => panic!("Invalid control channel index: {}", request.channel_index()),
         }
     }
 }
@@ -608,8 +608,7 @@ impl CellLayerSpecialty for PhotoCellLayerSpecialty {
 
 #[derive(Debug)]
 pub struct BuddingCellLayerSpecialty {
-    budding_angle: Angle,
-    donation_energy: BioEnergy,
+    spawning_requests: [SpawningRequest; 8],
 }
 
 impl BuddingCellLayerSpecialty {
@@ -619,8 +618,7 @@ impl BuddingCellLayerSpecialty {
     #[allow(clippy::new_without_default)]
     pub fn new() -> Self {
         BuddingCellLayerSpecialty {
-            budding_angle: Angle::ZERO,
-            donation_energy: BioEnergy::ZERO,
+            spawning_requests: [SpawningRequest::NONE; 8],
         }
     }
 
@@ -669,32 +667,29 @@ impl CellLayerSpecialty for BuddingCellLayerSpecialty {
     }
 
     fn execute_control_request(&mut self, body: &CellLayerBody, request: BudgetedControlRequest) {
+        let spawning_request = &mut self.spawning_requests[request.value_index()];
         match request.channel_index() {
             Self::BUDDING_ANGLE_CHANNEL_INDEX => {
-                self.budding_angle = Angle::from_radians(request.value)
+                spawning_request.budding_angle = Angle::from_radians(request.value())
             }
             Self::DONATION_ENERGY_CHANNEL_INDEX => {
-                self.donation_energy =
-                    body.health * request.budgeted_fraction * BioEnergy::new(request.value)
+                spawning_request.donation_energy =
+                    body.health * request.budgeted_fraction() * BioEnergy::new(request.value())
             }
-            _ => panic!("Invalid control channel index: {}", request.channel_index),
+            _ => panic!("Invalid control channel index: {}", request.channel_index()),
         }
     }
 
     fn after_control_requests(&mut self) -> SpawningRequest {
-        if self.donation_energy.value() == 0.0 {
+        if self.spawning_requests[0].donation_energy.value() == 0.0 {
             return SpawningRequest::NONE;
         }
 
-        SpawningRequest {
-            maintain_bond: true,
-            budding_angle: self.budding_angle,
-            donation_energy: self.donation_energy,
-        }
+        self.spawning_requests[0]
     }
 
     fn reset(&mut self) {
-        self.donation_energy = BioEnergy::ZERO;
+        self.spawning_requests[0].donation_energy = BioEnergy::ZERO;
     }
 }
 

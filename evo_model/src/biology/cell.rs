@@ -223,7 +223,7 @@ impl Cell {
     fn execute_bond_requests(&mut self) -> Vec<Cell> {
         // TODO test: inner layer grows while outer layer buds at correct distance
         let mut bond_requestses = vec![];
-        for layer in &mut self.layers {
+        for layer in &self.layers {
             bond_requestses.push(layer.get_bond_requests());
         }
 
@@ -239,6 +239,12 @@ impl Cell {
                 }
             }
         }
+
+        // TODO move to own method?
+        for layer in &mut self.layers {
+            layer.reset();
+        }
+
         children
     }
 

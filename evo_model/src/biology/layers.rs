@@ -176,10 +176,12 @@ impl CellLayer {
             .execute_control_request(&mut *self.specialty, &mut self.body, request);
     }
 
-    pub fn get_bond_requests(&mut self) -> BondRequests {
-        let bond_requests = self.body.brain.get_bond_requests(&*self.specialty);
+    pub fn get_bond_requests(&self) -> BondRequests {
+        self.body.brain.get_bond_requests(&*self.specialty)
+    }
+
+    pub fn reset(&mut self) {
         self.specialty.reset();
-        bond_requests
     }
 
     pub fn healing_request(layer_index: usize, delta_health: f64) -> ControlRequest {
@@ -1135,6 +1137,7 @@ mod tests {
             BuddingCellLayerSpecialty::donation_energy_request(0, 0, BioEnergy::new(1.0)),
         ));
         layer.get_bond_requests();
+        layer.reset();
 
         assert_eq!(
             layer.get_bond_requests()[0].donation_energy,

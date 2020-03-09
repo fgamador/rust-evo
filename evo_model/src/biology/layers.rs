@@ -478,14 +478,14 @@ pub trait CellLayerSpecialty: Debug {
 
 #[derive(Debug)]
 pub struct SpawningRequest {
-    pub bond_index: usize,
+    pub maintain_bond: bool,
     pub budding_angle: Angle,
     pub donation_energy: BioEnergy,
 }
 
 impl SpawningRequest {
     pub const NONE: SpawningRequest = SpawningRequest {
-        bond_index: 0,
+        maintain_bond: false,
         budding_angle: Angle::ZERO,
         donation_energy: BioEnergy::ZERO,
     };
@@ -687,7 +687,7 @@ impl CellLayerSpecialty for BuddingCellLayerSpecialty {
         }
 
         SpawningRequest {
-            bond_index: 0,
+            maintain_bond: true,
             budding_angle: self.budding_angle,
             donation_energy: self.donation_energy,
         }

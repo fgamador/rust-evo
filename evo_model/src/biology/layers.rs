@@ -176,10 +176,10 @@ impl CellLayer {
             .execute_control_request(&mut *self.specialty, &mut self.body, request);
     }
 
-    pub fn after_control_requests(&mut self) -> BondRequest {
-        let spawning_request = self.body.brain.after_control_requests(&mut *self.specialty);
+    pub fn after_control_requests(&mut self) -> BondRequests {
+        let bond_requests = self.body.brain.after_control_requests(&mut *self.specialty);
         self.specialty.reset();
-        spawning_request
+        bond_requests
     }
 
     pub fn healing_request(layer_index: usize, delta_health: f64) -> ControlRequest {
@@ -320,7 +320,7 @@ trait CellLayerBrain: Debug {
         request: BudgetedControlRequest,
     );
 
-    fn after_control_requests(&self, specialty: &mut dyn CellLayerSpecialty) -> BondRequest;
+    fn after_control_requests(&self, specialty: &mut dyn CellLayerSpecialty) -> BondRequests;
 }
 
 #[derive(Debug)]
@@ -391,7 +391,7 @@ impl CellLayerBrain for LivingCellLayerBrain {
         }
     }
 
-    fn after_control_requests(&self, specialty: &mut dyn CellLayerSpecialty) -> BondRequest {
+    fn after_control_requests(&self, specialty: &mut dyn CellLayerSpecialty) -> BondRequests {
         specialty.after_control_requests()
     }
 }
@@ -429,8 +429,8 @@ impl CellLayerBrain for DeadCellLayerBrain {
     ) {
     }
 
-    fn after_control_requests(&self, _specialty: &mut dyn CellLayerSpecialty) -> BondRequest {
-        BondRequest::NONE
+    fn after_control_requests(&self, _specialty: &mut dyn CellLayerSpecialty) -> BondRequests {
+        NONE_BOND_REQUESTS
     }
 }
 
@@ -469,8 +469,8 @@ pub trait CellLayerSpecialty: Debug {
         panic!("Invalid control channel index: {}", request.channel_index());
     }
 
-    fn after_control_requests(&mut self) -> BondRequest {
-        BondRequest::NONE
+    fn after_control_requests(&mut self) -> BondRequests {
+        NONE_BOND_REQUESTS
     }
 
     fn reset(&mut self) {}
@@ -690,12 +690,12 @@ impl CellLayerSpecialty for BuddingCellLayerSpecialty {
         }
     }
 
-    fn after_control_requests(&mut self) -> BondRequest {
+    fn after_control_requests(&mut self) -> BondRequests {
         if self.bond_requests[0].donation_energy.value() == 0.0 {
-            return BondRequest::NONE;
+            return NONE_BOND_REQUESTS;
         }
 
-        self.bond_requests[0]
+        self.bond_requests
     }
 
     fn reset(&mut self) {
@@ -1143,7 +1143,7 @@ mod tests {
         layer.after_control_requests();
 
         assert_eq!(
-            layer.after_control_requests().donation_energy,
+            layer.after_control_requests()[0].donation_energy,
             BioEnergy::new(0.0)
         );
     }
@@ -1163,7 +1163,7 @@ mod tests {
         ));
 
         assert_eq!(
-            layer.after_control_requests().donation_energy,
+            layer.after_control_requests()[0].donation_energy,
             BioEnergy::new(0.5)
         );
     }
@@ -1182,7 +1182,7 @@ mod tests {
         ));
 
         assert_eq!(
-            layer.after_control_requests().donation_energy,
+            layer.after_control_requests()[0].donation_energy,
             BioEnergy::new(0.5)
         );
     }

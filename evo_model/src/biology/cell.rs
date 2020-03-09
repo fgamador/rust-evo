@@ -222,17 +222,17 @@ impl Cell {
 
     fn after_control_requests(&mut self) -> Vec<Cell> {
         // TODO test: inner layer grows while outer layer buds at correct distance
-        let mut spawning_requests = vec![];
+        let mut bond_requestses = vec![];
         for layer in &mut self.layers {
-            spawning_requests.push(layer.after_control_requests());
+            bond_requestses.push(layer.after_control_requests());
         }
 
         let mut children = vec![];
-        for spawning_request in spawning_requests {
-            if spawning_request.donation_energy != BioEnergy::ZERO {
+        for bond_requests in bond_requestses {
+            if bond_requests[0].donation_energy != BioEnergy::ZERO {
                 let child = self.create_and_place_child_cell(
-                    spawning_request.budding_angle,
-                    spawning_request.donation_energy,
+                    bond_requests[0].budding_angle,
+                    bond_requests[0].donation_energy,
                 );
                 children.push(child);
             }

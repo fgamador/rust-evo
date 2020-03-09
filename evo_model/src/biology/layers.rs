@@ -499,6 +499,8 @@ impl BondRequest {
 
 type BondRequests = [BondRequest; BondRequest::MAX_BONDS];
 
+const NONE_BOND_REQUESTS: BondRequests = [BondRequest::NONE; BondRequest::MAX_BONDS];
+
 #[derive(Debug)]
 pub struct NullCellLayerSpecialty {}
 
@@ -626,7 +628,7 @@ impl BuddingCellLayerSpecialty {
     #[allow(clippy::new_without_default)]
     pub fn new() -> Self {
         BuddingCellLayerSpecialty {
-            bond_requests: [BondRequest::NONE; BondRequest::MAX_BONDS],
+            bond_requests: NONE_BOND_REQUESTS,
         }
     }
 

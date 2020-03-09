@@ -127,7 +127,7 @@ impl Cell {
         let (end_energy, budgeted_control_requests) = self.get_budgeted_control_requests();
         self.energy = end_energy;
         self.execute_control_requests(&budgeted_control_requests);
-        self.after_control_requests()
+        self.execute_bond_requests()
     }
 
     fn get_budgeted_control_requests(&mut self) -> (BioEnergy, Vec<BudgetedControlRequest>) {
@@ -220,7 +220,7 @@ impl Cell {
         self.newtonian_state.mass = Self::calc_mass(&self.layers);
     }
 
-    fn after_control_requests(&mut self) -> Vec<Cell> {
+    fn execute_bond_requests(&mut self) -> Vec<Cell> {
         // TODO test: inner layer grows while outer layer buds at correct distance
         let mut bond_requestses = vec![];
         for layer in &mut self.layers {

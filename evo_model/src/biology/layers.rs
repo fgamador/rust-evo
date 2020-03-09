@@ -612,9 +612,11 @@ impl CellLayerSpecialty for PhotoCellLayerSpecialty {
     }
 }
 
+type BondRequests = [BondRequest; BondRequest::MAX_BONDS];
+
 #[derive(Debug)]
 pub struct BuddingCellLayerSpecialty {
-    bond_requests: [BondRequest; BondRequest::MAX_BONDS],
+    bond_requests: BondRequests,
 }
 
 impl BuddingCellLayerSpecialty {

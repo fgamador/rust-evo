@@ -469,7 +469,7 @@ pub trait CellLayerSpecialty: Debug {
         panic!("Invalid control channel index: {}", request.channel_index());
     }
 
-    fn get_bond_requests(&mut self) -> BondRequests {
+    fn get_bond_requests(&self) -> BondRequests {
         NONE_BOND_REQUESTS
     }
 
@@ -690,7 +690,7 @@ impl CellLayerSpecialty for BuddingCellLayerSpecialty {
         }
     }
 
-    fn get_bond_requests(&mut self) -> BondRequests {
+    fn get_bond_requests(&self) -> BondRequests {
         self.bond_requests
     }
 

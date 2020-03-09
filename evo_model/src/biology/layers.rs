@@ -176,8 +176,8 @@ impl CellLayer {
             .execute_control_request(&mut *self.specialty, &mut self.body, request);
     }
 
-    pub fn after_control_requests(&mut self) -> BondRequests {
-        let bond_requests = self.body.brain.after_control_requests(&mut *self.specialty);
+    pub fn get_bond_requests(&mut self) -> BondRequests {
+        let bond_requests = self.body.brain.get_bond_requests(&mut *self.specialty);
         self.specialty.reset();
         bond_requests
     }
@@ -320,7 +320,7 @@ trait CellLayerBrain: Debug {
         request: BudgetedControlRequest,
     );
 
-    fn after_control_requests(&self, specialty: &mut dyn CellLayerSpecialty) -> BondRequests;
+    fn get_bond_requests(&self, specialty: &mut dyn CellLayerSpecialty) -> BondRequests;
 }
 
 #[derive(Debug)]
@@ -391,8 +391,8 @@ impl CellLayerBrain for LivingCellLayerBrain {
         }
     }
 
-    fn after_control_requests(&self, specialty: &mut dyn CellLayerSpecialty) -> BondRequests {
-        specialty.after_control_requests()
+    fn get_bond_requests(&self, specialty: &mut dyn CellLayerSpecialty) -> BondRequests {
+        specialty.get_bond_requests()
     }
 }
 
@@ -429,7 +429,7 @@ impl CellLayerBrain for DeadCellLayerBrain {
     ) {
     }
 
-    fn after_control_requests(&self, _specialty: &mut dyn CellLayerSpecialty) -> BondRequests {
+    fn get_bond_requests(&self, _specialty: &mut dyn CellLayerSpecialty) -> BondRequests {
         NONE_BOND_REQUESTS
     }
 }
@@ -469,7 +469,7 @@ pub trait CellLayerSpecialty: Debug {
         panic!("Invalid control channel index: {}", request.channel_index());
     }
 
-    fn after_control_requests(&mut self) -> BondRequests {
+    fn get_bond_requests(&mut self) -> BondRequests {
         NONE_BOND_REQUESTS
     }
 
@@ -690,7 +690,7 @@ impl CellLayerSpecialty for BuddingCellLayerSpecialty {
         }
     }
 
-    fn after_control_requests(&mut self) -> BondRequests {
+    fn get_bond_requests(&mut self) -> BondRequests {
         self.bond_requests
     }
 
@@ -1134,10 +1134,10 @@ mod tests {
         layer.execute_control_request(fully_budgeted(
             BuddingCellLayerSpecialty::donation_energy_request(0, 0, BioEnergy::new(1.0)),
         ));
-        layer.after_control_requests();
+        layer.get_bond_requests();
 
         assert_eq!(
-            layer.after_control_requests()[0].donation_energy,
+            layer.get_bond_requests()[0].donation_energy,
             BioEnergy::new(0.0)
         );
     }
@@ -1157,7 +1157,7 @@ mod tests {
         ));
 
         assert_eq!(
-            layer.after_control_requests()[0].donation_energy,
+            layer.get_bond_requests()[0].donation_energy,
             BioEnergy::new(0.5)
         );
     }
@@ -1176,7 +1176,7 @@ mod tests {
         ));
 
         assert_eq!(
-            layer.after_control_requests()[0].donation_energy,
+            layer.get_bond_requests()[0].donation_energy,
             BioEnergy::new(0.5)
         );
     }

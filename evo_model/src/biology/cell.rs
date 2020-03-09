@@ -224,7 +224,7 @@ impl Cell {
         // TODO test: inner layer grows while outer layer buds at correct distance
         let mut bond_requestses = vec![];
         for layer in &mut self.layers {
-            bond_requestses.push(layer.after_control_requests());
+            bond_requestses.push(layer.get_bond_requests());
         }
 
         let mut children = vec![];

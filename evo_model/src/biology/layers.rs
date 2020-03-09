@@ -177,7 +177,7 @@ impl CellLayer {
     }
 
     pub fn get_bond_requests(&mut self) -> BondRequests {
-        let bond_requests = self.body.brain.get_bond_requests(&mut *self.specialty);
+        let bond_requests = self.body.brain.get_bond_requests(&*self.specialty);
         self.specialty.reset();
         bond_requests
     }
@@ -320,7 +320,7 @@ trait CellLayerBrain: Debug {
         request: BudgetedControlRequest,
     );
 
-    fn get_bond_requests(&self, specialty: &mut dyn CellLayerSpecialty) -> BondRequests;
+    fn get_bond_requests(&self, specialty: &dyn CellLayerSpecialty) -> BondRequests;
 }
 
 #[derive(Debug)]
@@ -391,7 +391,7 @@ impl CellLayerBrain for LivingCellLayerBrain {
         }
     }
 
-    fn get_bond_requests(&self, specialty: &mut dyn CellLayerSpecialty) -> BondRequests {
+    fn get_bond_requests(&self, specialty: &dyn CellLayerSpecialty) -> BondRequests {
         specialty.get_bond_requests()
     }
 }
@@ -429,7 +429,7 @@ impl CellLayerBrain for DeadCellLayerBrain {
     ) {
     }
 
-    fn get_bond_requests(&self, _specialty: &mut dyn CellLayerSpecialty) -> BondRequests {
+    fn get_bond_requests(&self, _specialty: &dyn CellLayerSpecialty) -> BondRequests {
         NONE_BOND_REQUESTS
     }
 }

@@ -228,13 +228,15 @@ impl Cell {
         }
 
         let mut children = vec![];
-        for bond_requests in bond_requestses {
-            if bond_requests[0].donation_energy != BioEnergy::ZERO {
-                let child = self.create_and_place_child_cell(
-                    bond_requests[0].budding_angle,
-                    bond_requests[0].donation_energy,
-                );
-                children.push(child);
+        for bond_requests in &bond_requestses {
+            for bond_request in bond_requests {
+                if bond_request.donation_energy != BioEnergy::ZERO {
+                    let child = self.create_and_place_child_cell(
+                        bond_request.budding_angle,
+                        bond_request.donation_energy,
+                    );
+                    children.push(child);
+                }
             }
         }
         children

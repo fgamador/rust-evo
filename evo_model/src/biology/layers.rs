@@ -691,17 +691,11 @@ impl CellLayerSpecialty for BuddingCellLayerSpecialty {
     }
 
     fn after_control_requests(&mut self) -> BondRequests {
-        if self.bond_requests[0].donation_energy.value() == 0.0 {
-            return NONE_BOND_REQUESTS;
-        }
-
         self.bond_requests
     }
 
     fn reset(&mut self) {
-        for request in &mut self.bond_requests {
-            request.reset();
-        }
+        self.bond_requests = NONE_BOND_REQUESTS;
     }
 }
 

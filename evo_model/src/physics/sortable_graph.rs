@@ -161,12 +161,9 @@ impl<N: GraphNode, E: GraphEdge, ME: GraphMetaEdge> SortableGraph<N, E, ME> {
         old_handle: EdgeHandle,
         new_handle: EdgeHandle,
     ) {
-        let node_data = self.node_mut(node_handle).graph_node_data_mut();
-        for edge_handle in &mut node_data.edge_handles {
-            if *edge_handle == old_handle {
-                edge_handle.index = new_handle.index;
-            }
-        }
+        self.node_mut(node_handle)
+            .graph_node_data_mut()
+            .replace_edge_handle(old_handle, new_handle);
     }
 
     pub fn sort_node_handles(&mut self, cmp: fn(&N, &N) -> Ordering) {
@@ -310,6 +307,14 @@ impl GraphNodeData {
 
     fn remove_edge(&mut self, edge_handle: EdgeHandle) {
         self.edge_handles.retain(|h| *h != edge_handle);
+    }
+
+    fn replace_edge_handle(&mut self, old_handle: EdgeHandle, new_handle: EdgeHandle) {
+        for edge_handle in &mut self.edge_handles {
+            if *edge_handle == old_handle {
+                edge_handle.index = new_handle.index;
+            }
+        }
     }
 }
 

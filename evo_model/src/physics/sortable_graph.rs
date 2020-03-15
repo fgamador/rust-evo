@@ -135,11 +135,9 @@ impl<N: GraphNode, E: GraphEdge, ME: GraphMetaEdge> SortableGraph<N, E, ME> {
     }
 
     fn remove_edge_from_node(&mut self, node_handle: NodeHandle, edge_handle: EdgeHandle) {
-        let edge_handles = &mut self
-            .node_mut(node_handle)
+        self.node_mut(node_handle)
             .graph_node_data_mut()
-            .edge_handles;
-        edge_handles.retain(|h| *h != edge_handle);
+            .remove_edge(edge_handle);
     }
 
     fn fix_swapped_edge_if_needed(&mut self, handle: EdgeHandle) {
@@ -308,6 +306,10 @@ impl GraphNodeData {
     fn set_edge_handle(&mut self, _node_edge_index: usize, handle: EdgeHandle) {
         //self.edge_handles[node_edge_index] = handle;
         self.edge_handles.push(handle);
+    }
+
+    fn remove_edge(&mut self, edge_handle: EdgeHandle) {
+        self.edge_handles.retain(|h| *h != edge_handle);
     }
 }
 

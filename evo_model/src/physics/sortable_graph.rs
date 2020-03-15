@@ -107,13 +107,9 @@ impl<N: GraphNode, E: GraphEdge, ME: GraphMetaEdge> SortableGraph<N, E, ME> {
     fn fix_swapped_node_and_its_edges(&mut self, old_handle: NodeHandle, new_handle: NodeHandle) {
         self.node_mut(new_handle).graph_node_data_mut().handle = new_handle;
         for edge_handle in self.node(new_handle).graph_node_data().edge_handles.clone() {
-            let edge_data = self.edge_mut(edge_handle).graph_edge_data_mut();
-            if edge_data.node1_handle == old_handle {
-                edge_data.node1_handle.index = new_handle.index;
-            }
-            if edge_data.node2_handle == old_handle {
-                edge_data.node2_handle.index = new_handle.index;
-            }
+            self.edge_mut(edge_handle)
+                .graph_edge_data_mut()
+                .replace_node_handle(old_handle, new_handle);
         }
     }
 
@@ -305,12 +301,12 @@ impl GraphNodeData {
         self.handle
     }
 
-    pub fn edge_handle(&self, index: usize) -> EdgeHandle {
-        self.edge_handles[index]
-    }
+    // fn edge_handle(&self, edge_index: usize) -> EdgeHandle {
+    //     self.edge_handles[edge_index]
+    // }
 
-    pub fn set_edge_handle(&mut self, _index: usize, handle: EdgeHandle) {
-        //self.edge_handles[index] = handle;
+    fn set_edge_handle(&mut self, _node_edge_index: usize, handle: EdgeHandle) {
+        //self.edge_handles[node_edge_index] = handle;
         self.edge_handles.push(handle);
     }
 }
@@ -380,6 +376,15 @@ impl GraphEdgeData {
 
     pub fn node2_handle_mut(&mut self) -> &mut NodeHandle {
         &mut self.node2_handle
+    }
+
+    fn replace_node_handle(&mut self, old_handle: NodeHandle, new_handle: NodeHandle) {
+        if self.node1_handle == old_handle {
+            self.node1_handle.index = new_handle.index;
+        }
+        if self.node2_handle == old_handle {
+            self.node2_handle.index = new_handle.index;
+        }
     }
 }
 

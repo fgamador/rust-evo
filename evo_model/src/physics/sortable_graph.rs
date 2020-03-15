@@ -5,6 +5,8 @@ use std::fmt;
 use std::fmt::{Error, Formatter};
 use std::u32;
 
+pub const MAX_NODE_HANDLES: usize = 8;
+
 #[derive(Debug)]
 pub struct SortableGraph<N: GraphNode, E: GraphEdge, ME: GraphMetaEdge> {
     nodes: Vec<N>,
@@ -92,7 +94,7 @@ impl<N: GraphNode, E: GraphEdge, ME: GraphMetaEdge> SortableGraph<N, E, ME> {
 
     /// Warning: invalidates handles to the last node in self.nodes.
     fn remove_node(&mut self, handle: NodeHandle) {
-        self.remove_edges(&self.node(handle).graph_node_data().edge_handles.clone());
+        self.remove_node_edges(&self.node(handle).graph_node_data().edge_handles.clone());
         self.nodes.swap_remove(handle.index());
         self.fix_swapped_node_if_needed(handle);
     }
@@ -107,7 +109,7 @@ impl<N: GraphNode, E: GraphEdge, ME: GraphMetaEdge> SortableGraph<N, E, ME> {
     fn fix_swapped_node_and_its_edges(&mut self, old_handle: NodeHandle, new_handle: NodeHandle) {
         self.node_mut(new_handle).graph_node_data_mut().handle = new_handle;
         for edge_handle in self.node(new_handle).graph_node_data().edge_handles.clone() {
-            self.edge_mut(edge_handle)
+            self.edge_mut(edge_handle.unwrap())
                 .graph_edge_data_mut()
                 .replace_node_handle(old_handle, new_handle);
         }
@@ -116,6 +118,13 @@ impl<N: GraphNode, E: GraphEdge, ME: GraphMetaEdge> SortableGraph<N, E, ME> {
     fn remove_obsolete_node_handles(&mut self) {
         let first_invalid_index = self.next_node_handle().index;
         self.node_handles.retain(|h| h.index < first_invalid_index);
+    }
+
+    fn remove_node_edges(&mut self, handles: &[Option<EdgeHandle>]) {
+        let mut live_handles: SmallVec<[EdgeHandle; MAX_NODE_HANDLES]> =
+            handles.iter().filter_map(|h| *h).collect();
+        live_handles.sort();
+        self.remove_edges(&live_handles);
     }
 
     /// Same gotchas as in remove_nodes.
@@ -203,7 +212,7 @@ impl<N: GraphNode, E: GraphEdge, ME: GraphMetaEdge> SortableGraph<N, E, ME> {
             .graph_node_data()
             .edge_handles
             .iter()
-            .map(|edge_handle| self.edges[edge_handle.index()].node2_handle())
+            .map(|edge_handle| self.edges[edge_handle.unwrap().index()].node2_handle())
             .any(|node2_handle| node2_handle == node2.node_handle())
     }
 
@@ -280,7 +289,7 @@ impl fmt::Display for NodeHandle {
 #[derive(Clone, Debug, PartialEq)]
 pub struct GraphNodeData {
     handle: NodeHandle,
-    edge_handles: SmallVec<[EdgeHandle; 8]>,
+    edge_handles: SmallVec<[Option<EdgeHandle>; MAX_NODE_HANDLES]>,
 }
 
 impl GraphNodeData {
@@ -302,17 +311,17 @@ impl GraphNodeData {
 
     fn set_edge_handle(&mut self, _node_edge_index: usize, handle: EdgeHandle) {
         //self.edge_handles[node_edge_index] = handle;
-        self.edge_handles.push(handle);
+        self.edge_handles.push(Some(handle));
     }
 
     fn remove_edge_handle(&mut self, edge_handle: EdgeHandle) {
-        self.edge_handles.retain(|h| *h != edge_handle);
+        self.edge_handles.retain(|h| *h != Some(edge_handle));
     }
 
     fn replace_edge_handle(&mut self, old_handle: EdgeHandle, new_handle: EdgeHandle) {
         for edge_handle in &mut self.edge_handles {
-            if *edge_handle == old_handle {
-                edge_handle.index = new_handle.index;
+            if *edge_handle == Some(old_handle) {
+                *edge_handle = Some(new_handle);
             }
         }
     }
@@ -330,7 +339,7 @@ pub trait GraphEdge {
     fn graph_edge_data_mut(&mut self) -> &mut GraphEdgeData;
 }
 
-#[derive(Clone, Copy, Debug, PartialEq)]
+#[derive(Clone, Copy, Debug, Eq, Ord, PartialEq, PartialOrd)]
 pub struct EdgeHandle {
     index: u32,
 }
@@ -534,14 +543,14 @@ mod tests {
             *graph.node(node1_handle).graph_node_data(),
             GraphNodeData {
                 handle: NodeHandle { index: 1 },
-                edge_handles: smallvec![EdgeHandle { index: 0 }]
+                edge_handles: smallvec![Some(EdgeHandle { index: 0 })]
             }
         );
         assert_eq!(
             *graph.node(node2_handle).graph_node_data(),
             GraphNodeData {
                 handle: NodeHandle { index: 2 },
-                edge_handles: smallvec![EdgeHandle { index: 0 }]
+                edge_handles: smallvec![Some(EdgeHandle { index: 0 })]
             }
         );
     }

@@ -102,13 +102,13 @@ impl World {
     pub fn with_bonds(mut self, index_pairs: Vec<(usize, usize)>) -> Self {
         for pair in index_pairs {
             let bond = Bond::new(&self.cells()[pair.0], &self.cells()[pair.1]);
-            self.add_bond(bond);
+            self.add_bond(bond, 1, 0);
         }
         self
     }
 
-    pub fn add_bond(&mut self, bond: Bond) {
-        self.cell_graph.add_edge(bond);
+    pub fn add_bond(&mut self, bond: Bond, cell0_index: usize, cell1_index: usize) {
+        self.cell_graph.add_edge(bond, cell0_index, cell1_index);
     }
 
     pub fn bonds(&self) -> &[Bond] {

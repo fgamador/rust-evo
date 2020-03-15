@@ -313,7 +313,7 @@ mod tests {
         ));
 
         let edge = SimpleGraphEdge::new(&graph.nodes()[0], &graph.nodes()[1]);
-        graph.add_edge(edge);
+        graph.add_edge(edge, 1, 0);
 
         let overlaps = find_pair_overlaps(&mut graph);
 

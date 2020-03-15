@@ -36,11 +36,11 @@ impl<N: GraphNode, E: GraphEdge, ME: GraphMetaEdge> SortableGraph<N, E, ME> {
         NodeHandle::new(self.nodes.len().try_into().unwrap())
     }
 
-    pub fn add_edge(&mut self, mut edge: E) -> EdgeHandle {
+    pub fn add_edge(&mut self, mut edge: E, cell0_index: usize, cell1_index: usize) -> EdgeHandle {
         let handle = self.next_edge_handle();
         edge.graph_edge_data_mut().handle = handle;
-        self.add_edge_to_node(edge.node1_handle(), handle);
-        self.add_edge_to_node(edge.node2_handle(), handle);
+        self.add_edge_to_node(edge.node1_handle(), handle, cell0_index);
+        self.add_edge_to_node(edge.node2_handle(), handle, cell1_index);
         self.edges.push(edge);
         handle
     }
@@ -49,7 +49,12 @@ impl<N: GraphNode, E: GraphEdge, ME: GraphMetaEdge> SortableGraph<N, E, ME> {
         EdgeHandle::new(self.edges.len().try_into().unwrap())
     }
 
-    fn add_edge_to_node(&mut self, node_handle: NodeHandle, edge_handle: EdgeHandle) {
+    fn add_edge_to_node(
+        &mut self,
+        node_handle: NodeHandle,
+        edge_handle: EdgeHandle,
+        _cell_index: usize,
+    ) {
         self.node_mut(node_handle)
             .graph_node_data_mut()
             .edge_handles
@@ -451,10 +456,11 @@ mod tests {
         let node0_handle = graph.add_node(SimpleGraphNode::new(0));
         let node1_handle = graph.add_node(SimpleGraphNode::new(1));
 
-        let edge_handle = graph.add_edge(SimpleGraphEdge::new(
-            graph.node(node0_handle),
-            graph.node(node1_handle),
-        ));
+        let edge_handle = graph.add_edge(
+            SimpleGraphEdge::new(graph.node(node0_handle), graph.node(node1_handle)),
+            1,
+            0,
+        );
 
         let edge = &graph.edges()[0];
         assert_eq!(edge.edge_handle(), edge_handle);
@@ -470,14 +476,16 @@ mod tests {
         let node0_handle = graph.add_node(SimpleGraphNode::new(0));
         let node1_handle = graph.add_node(SimpleGraphNode::new(1));
         let node2_handle = graph.add_node(SimpleGraphNode::new(2));
-        let edge01_handle = graph.add_edge(SimpleGraphEdge::new(
-            graph.node(node0_handle),
-            graph.node(node1_handle),
-        ));
-        graph.add_edge(SimpleGraphEdge::new(
-            graph.node(node1_handle),
-            graph.node(node2_handle),
-        ));
+        let edge01_handle = graph.add_edge(
+            SimpleGraphEdge::new(graph.node(node0_handle), graph.node(node1_handle)),
+            1,
+            0,
+        );
+        graph.add_edge(
+            SimpleGraphEdge::new(graph.node(node1_handle), graph.node(node2_handle)),
+            1,
+            0,
+        );
 
         graph.remove_edges(&vec![edge01_handle]);
 
@@ -521,18 +529,21 @@ mod tests {
         let node0_handle = graph.add_node(SimpleGraphNode::new(0));
         let node1_handle = graph.add_node(SimpleGraphNode::new(1));
         let node2_handle = graph.add_node(SimpleGraphNode::new(2));
-        graph.add_edge(SimpleGraphEdge::new(
-            graph.node(node0_handle),
-            graph.node(node1_handle),
-        ));
-        graph.add_edge(SimpleGraphEdge::new(
-            graph.node(node1_handle),
-            graph.node(node2_handle),
-        ));
-        graph.add_edge(SimpleGraphEdge::new(
-            graph.node(node2_handle),
-            graph.node(node0_handle),
-        ));
+        graph.add_edge(
+            SimpleGraphEdge::new(graph.node(node0_handle), graph.node(node1_handle)),
+            1,
+            0,
+        );
+        graph.add_edge(
+            SimpleGraphEdge::new(graph.node(node1_handle), graph.node(node2_handle)),
+            1,
+            0,
+        );
+        graph.add_edge(
+            SimpleGraphEdge::new(graph.node(node2_handle), graph.node(node0_handle)),
+            1,
+            0,
+        );
 
         graph.remove_nodes(&vec![node0_handle]);
 
@@ -555,10 +566,11 @@ mod tests {
         let node0_handle = graph.add_node(SimpleGraphNode::new(0));
         let node1_handle = graph.add_node(SimpleGraphNode::new(1));
         let node2_handle = graph.add_node(SimpleGraphNode::new(2));
-        graph.add_edge(SimpleGraphEdge::new(
-            graph.node(node0_handle),
-            graph.node(node1_handle),
-        ));
+        graph.add_edge(
+            SimpleGraphEdge::new(graph.node(node0_handle), graph.node(node1_handle)),
+            1,
+            0,
+        );
 
         assert!(graph.have_edge(&graph.node(node0_handle), &graph.node(node1_handle)));
         assert!(graph.have_edge(&graph.node(node1_handle), &graph.node(node0_handle)));
@@ -574,14 +586,16 @@ mod tests {
         let node1_handle = graph.add_node(SimpleGraphNode::new(1));
         let node2_handle = graph.add_node(SimpleGraphNode::new(2));
 
-        let edge01_handle = graph.add_edge(SimpleGraphEdge::new(
-            graph.node(node0_handle),
-            graph.node(node1_handle),
-        ));
-        let edge12_handle = graph.add_edge(SimpleGraphEdge::new(
-            graph.node(node1_handle),
-            graph.node(node2_handle),
-        ));
+        let edge01_handle = graph.add_edge(
+            SimpleGraphEdge::new(graph.node(node0_handle), graph.node(node1_handle)),
+            1,
+            0,
+        );
+        let edge12_handle = graph.add_edge(
+            SimpleGraphEdge::new(graph.node(node1_handle), graph.node(node2_handle)),
+            1,
+            0,
+        );
 
         graph.add_meta_edge(SimpleGraphMetaEdge::new(
             graph.edge(edge01_handle),

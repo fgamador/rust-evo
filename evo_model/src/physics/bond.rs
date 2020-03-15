@@ -301,7 +301,7 @@ mod tests {
         node2: NodeHandle,
     ) -> EdgeHandle {
         let bond = Bond::new(graph.node(node1), graph.node(node2));
-        graph.add_edge(bond)
+        graph.add_edge(bond, 1, 0)
     }
 
     fn add_angle_gusset(

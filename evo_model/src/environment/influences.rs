@@ -408,7 +408,7 @@ mod tests {
             Velocity::new(1.0, 1.0),
         ));
         let bond = Bond::new(cell_graph.node(ball1_handle), cell_graph.node(ball2_handle));
-        cell_graph.add_edge(bond);
+        cell_graph.add_edge(bond, 1, 0);
 
         bond_forces.apply(&mut cell_graph, Duration::new(0.5));
 
@@ -445,9 +445,9 @@ mod tests {
         ));
 
         let bond = Bond::new(cell_graph.node(ball1_handle), cell_graph.node(ball2_handle));
-        let bond1_handle = cell_graph.add_edge(bond);
+        let bond1_handle = cell_graph.add_edge(bond, 1, 0);
         let bond = Bond::new(cell_graph.node(ball2_handle), cell_graph.node(ball3_handle));
-        let bond2_handle = cell_graph.add_edge(bond);
+        let bond2_handle = cell_graph.add_edge(bond, 1, 0);
 
         let gusset = AngleGusset::new(
             cell_graph.edge(bond1_handle),

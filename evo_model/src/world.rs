@@ -107,9 +107,9 @@ impl World {
         self
     }
 
-    pub fn add_bond(&mut self, bond: Bond, cell1_bond_index: usize, cell2_bond_index: usize) {
+    pub fn add_bond(&mut self, bond: Bond, bond_index_on_cell1: usize, bond_index_on_cell2: usize) {
         self.cell_graph
-            .add_edge(bond, cell1_bond_index, cell2_bond_index);
+            .add_edge(bond, bond_index_on_cell1, bond_index_on_cell2);
     }
 
     pub fn bonds(&self) -> &[Bond] {

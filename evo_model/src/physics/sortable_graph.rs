@@ -212,17 +212,16 @@ impl<N: GraphNode, E: GraphEdge, ME: GraphMetaEdge> SortableGraph<N, E, ME> {
     }
 
     pub fn have_edge(&self, node1: &N, node2: &N) -> bool {
-        self.has_edge_to(node1, node2) || self.has_edge_to(node2, node1)
-    }
-
-    fn has_edge_to(&self, node1: &N, node2: &N) -> bool {
         node1
             .graph_node_data()
             .edge_handles
             .iter()
             .filter_map(|h| *h)
-            .map(|edge_handle| self.edges[edge_handle.index()].node2_handle())
-            .any(|node2_handle| node2_handle == node2.node_handle())
+            .any(|edge_handle| {
+                self.edge(edge_handle)
+                    .graph_edge_data()
+                    .joins(node1.node_handle(), node2.node_handle())
+            })
     }
 
     pub fn node_handles(&self) -> &[NodeHandle] {
@@ -406,6 +405,11 @@ impl GraphEdgeData {
 
     pub fn node2_handle_mut(&mut self) -> &mut NodeHandle {
         &mut self.node2_handle
+    }
+
+    fn joins(&self, node_handle1: NodeHandle, node_handle2: NodeHandle) -> bool {
+        (self.node1_handle == node_handle1 && self.node2_handle == node_handle2)
+            || (self.node1_handle == node_handle2 && self.node2_handle == node_handle1)
     }
 
     fn replace_node_handle(&mut self, old_handle: NodeHandle, new_handle: NodeHandle) {

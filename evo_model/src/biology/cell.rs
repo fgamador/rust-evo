@@ -123,13 +123,11 @@ impl Cell {
         }
     }
 
-    pub fn run_control(&mut self, bond_requests: &mut BondRequests) -> Vec<Cell> {
+    pub fn run_control(&mut self, bond_requests: &mut BondRequests) {
         let (end_energy, budgeted_control_requests) = self.get_budgeted_control_requests();
         self.energy = end_energy;
         self.execute_control_requests(&budgeted_control_requests, bond_requests);
-        let children = self.execute_bond_requests(&bond_requests);
         self.reset_layers();
-        children
     }
 
     fn get_budgeted_control_requests(&mut self) -> (BioEnergy, Vec<BudgetedControlRequest>) {
@@ -226,22 +224,7 @@ impl Cell {
         self.newtonian_state.mass = Self::calc_mass(&self.layers);
     }
 
-    fn execute_bond_requests(&mut self, bond_requests: &BondRequests) -> Vec<Cell> {
-        // TODO test: inner layer grows while outer layer buds at correct distance
-        let mut children = vec![];
-        for bond_request in bond_requests {
-            if bond_request.donation_energy != BioEnergy::ZERO {
-                let child = self.create_and_place_child_cell(
-                    bond_request.budding_angle,
-                    bond_request.donation_energy,
-                );
-                children.push(child);
-            }
-        }
-        children
-    }
-
-    fn create_and_place_child_cell(
+    pub fn create_and_place_child_cell(
         &mut self,
         budding_angle: Angle,
         donation_energy: BioEnergy,
@@ -578,65 +561,6 @@ mod tests {
         assert_eq!(5.0, cell.layers()[0].area().value());
         assert_eq!(10.0, cell.layers()[1].area().value());
         assert_eq!(BioEnergy::new(5.0), cell.energy());
-    }
-
-    #[test]
-    fn budding_creates_child_with_right_state() {
-        let mut cell = Cell::new(
-            Position::new(2.0, -2.0),
-            Velocity::new(3.0, -3.0),
-            vec![
-                simple_cell_layer(Area::new(10.0), Density::new(1.0)),
-                CellLayer::new(
-                    Area::new(5.0),
-                    Density::new(1.0),
-                    Color::White,
-                    Box::new(BuddingCellLayerSpecialty::new()),
-                ),
-            ],
-        )
-        .with_control(Box::new(ContinuousRequestsControl::new(vec![
-            CellLayer::resize_request(0, AreaDelta::new(10.0)),
-            BuddingCellLayerSpecialty::budding_angle_request(1, 0, Angle::from_radians(0.0)),
-            BuddingCellLayerSpecialty::donation_energy_request(1, 0, BioEnergy::new(1.0)),
-        ])));
-
-        let mut bond_requests = NONE_BOND_REQUESTS;
-        let children = cell.run_control(&mut bond_requests);
-
-        assert_eq!(children.len(), 1);
-        let child = &children[0];
-        assert_eq!(
-            child.center(),
-            Position::new(
-                cell.center().x() + cell.radius().value() + child.radius().value(),
-                cell.center().y()
-            )
-        );
-        assert_eq!(child.velocity(), cell.velocity());
-        assert_eq!(child.energy(), BioEnergy::new(1.0));
-    }
-
-    #[test]
-    fn budding_does_not_create_child_if_given_zero_energy() {
-        let mut cell = Cell::new(
-            Position::ORIGIN,
-            Velocity::ZERO,
-            vec![CellLayer::new(
-                Area::new(1.0),
-                Density::new(1.0),
-                Color::White,
-                Box::new(BuddingCellLayerSpecialty::new()),
-            )],
-        )
-        .with_control(Box::new(ContinuousRequestsControl::new(vec![
-            BuddingCellLayerSpecialty::donation_energy_request(0, 0, BioEnergy::new(0.0)),
-        ])));
-
-        let mut bond_requests = NONE_BOND_REQUESTS;
-        let children = cell.run_control(&mut bond_requests);
-
-        assert!(children.is_empty());
     }
 
     fn simple_layered_cell(layers: Vec<CellLayer>) -> Cell {

@@ -217,7 +217,8 @@ impl World {
         let mut dead_cell_handles: Vec<NodeHandle> = vec![];
         for cell in self.cell_graph.nodes_mut() {
             let mut bond_requests = NONE_BOND_REQUESTS;
-            let mut cell_children = cell.run_control(&mut bond_requests);
+            cell.run_control(&mut bond_requests);
+            let mut cell_children = Self::execute_bond_requests(cell, &bond_requests);
             new_cells.append(&mut cell_children);
             if !cell.is_alive() {
                 dead_cell_handles.push(cell.node_handle());
@@ -227,6 +228,21 @@ impl World {
             self.add_cell(new_cell);
         }
         self.cell_graph.remove_nodes(&dead_cell_handles);
+    }
+
+    fn execute_bond_requests(cell: &mut Cell, bond_requests: &BondRequests) -> Vec<Cell> {
+        // TODO test: inner layer grows while outer layer buds at correct distance
+        let mut children = vec![];
+        for bond_request in bond_requests {
+            if bond_request.donation_energy != BioEnergy::ZERO {
+                let child = cell.create_and_place_child_cell(
+                    bond_request.budding_angle,
+                    bond_request.donation_energy,
+                );
+                children.push(child);
+            }
+        }
+        children
     }
 }
 
@@ -422,6 +438,79 @@ mod tests {
         let cell = &world.cells()[0];
         assert_eq!(cell.area().value().round(), 15.0);
     }
+
+    // #[test]
+    // fn budding_creates_child_with_right_state() {
+    //     let mut world = World::new(Position::new(-10.0, -10.0), Position::new(10.0, 10.0))
+    //         .with_cell(
+    //             Cell::new(
+    //                 Position::new(2.0, -2.0),
+    //                 Velocity::new(3.0, -3.0),
+    //                 vec![
+    //                     simple_cell_layer(Area::new(10.0), Density::new(1.0)),
+    //                     CellLayer::new(
+    //                         Area::new(5.0),
+    //                         Density::new(1.0),
+    //                         Color::White,
+    //                         Box::new(BuddingCellLayerSpecialty::new()),
+    //                     ),
+    //                 ],
+    //             )
+    //             .with_control(Box::new(ContinuousRequestsControl::new(vec![
+    //                 CellLayer::resize_request(0, AreaDelta::new(10.0)),
+    //                 BuddingCellLayerSpecialty::budding_angle_request(
+    //                     1,
+    //                     0,
+    //                     Angle::from_radians(0.0),
+    //                 ),
+    //                 BuddingCellLayerSpecialty::donation_energy_request(1, 0, BioEnergy::new(1.0)),
+    //             ]))),
+    //         );
+    //
+    //     let cell = &mut world.cells_mut()[0];
+    //     let mut bond_requests = NONE_BOND_REQUESTS;
+    //     cell.run_control(&mut bond_requests);
+    //     let children = world.execute_bond_requests(cell, &bond_requests);
+    //
+    //     assert_eq!(children.len(), 1);
+    //     let child = &children[0];
+    //     assert_eq!(
+    //         child.center(),
+    //         Position::new(
+    //             cell.center().x() + cell.radius().value() + child.radius().value(),
+    //             cell.center().y()
+    //         )
+    //     );
+    //     assert_eq!(child.velocity(), cell.velocity());
+    //     assert_eq!(child.energy(), BioEnergy::new(1.0));
+    // }
+
+    // #[test]
+    // fn budding_does_not_create_child_if_given_zero_energy() {
+    //     let mut world = World::new(Position::new(-10.0, -10.0), Position::new(10.0, 10.0))
+    //         .with_cell(
+    //             Cell::new(
+    //                 Position::ORIGIN,
+    //                 Velocity::ZERO,
+    //                 vec![CellLayer::new(
+    //                     Area::new(1.0),
+    //                     Density::new(1.0),
+    //                     Color::White,
+    //                     Box::new(BuddingCellLayerSpecialty::new()),
+    //                 )],
+    //             )
+    //             .with_control(Box::new(ContinuousRequestsControl::new(vec![
+    //                 BuddingCellLayerSpecialty::donation_energy_request(0, 0, BioEnergy::new(0.0)),
+    //             ]))),
+    //         );
+    //
+    //     let cell = &mut world.cells_mut()[0];
+    //     let mut bond_requests = NONE_BOND_REQUESTS;
+    //     cell.run_control(&mut bond_requests);
+    //     let children = world.execute_bond_requests(cell, &bond_requests);
+    //
+    //     assert!(children.is_empty());
+    // }
 
     #[test]
     fn new_cells_get_added_to_world() {

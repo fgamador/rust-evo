@@ -126,8 +126,9 @@ impl Cell {
     pub fn run_control(&mut self) -> Vec<Cell> {
         let (end_energy, budgeted_control_requests) = self.get_budgeted_control_requests();
         self.energy = end_energy;
-        self.execute_control_requests(&budgeted_control_requests);
-        self.execute_bond_requests()
+        let mut bond_requests = NONE_BOND_REQUESTS;
+        self.execute_control_requests(&budgeted_control_requests, &mut bond_requests);
+        self.execute_bond_requests(&bond_requests)
     }
 
     fn get_budgeted_control_requests(&mut self) -> (BioEnergy, Vec<BudgetedControlRequest>) {
@@ -210,33 +211,30 @@ impl Cell {
         )
     }
 
-    fn execute_control_requests(&mut self, budgeted_control_requests: &[BudgetedControlRequest]) {
+    fn execute_control_requests(
+        &mut self,
+        budgeted_control_requests: &[BudgetedControlRequest],
+        bond_requests: &mut BondRequests,
+    ) {
         // TODO do healing first
         for request in budgeted_control_requests {
             let layer = &mut self.layers[request.layer_index()];
-            layer.execute_control_request(*request);
+            layer.execute_control_request(*request, bond_requests);
         }
         self.radius = Self::update_layer_outer_radii(&mut self.layers);
         self.newtonian_state.mass = Self::calc_mass(&self.layers);
     }
 
-    fn execute_bond_requests(&mut self) -> Vec<Cell> {
+    fn execute_bond_requests(&mut self, bond_requests: &BondRequests) -> Vec<Cell> {
         // TODO test: inner layer grows while outer layer buds at correct distance
-        let mut bond_requestses = vec![];
-        for layer in &self.layers {
-            bond_requestses.push(layer.get_bond_requests());
-        }
-
         let mut children = vec![];
-        for bond_requests in &bond_requestses {
-            for bond_request in bond_requests {
-                if bond_request.donation_energy != BioEnergy::ZERO {
-                    let child = self.create_and_place_child_cell(
-                        bond_request.budding_angle,
-                        bond_request.donation_energy,
-                    );
-                    children.push(child);
-                }
+        for bond_request in bond_requests {
+            if bond_request.donation_energy != BioEnergy::ZERO {
+                let child = self.create_and_place_child_cell(
+                    bond_request.budding_angle,
+                    bond_request.donation_energy,
+                );
+                children.push(child);
             }
         }
 

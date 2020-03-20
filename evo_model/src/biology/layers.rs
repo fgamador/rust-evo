@@ -183,10 +183,6 @@ impl CellLayer {
         );
     }
 
-    pub fn get_bond_requests(&self) -> BondRequests {
-        self.body.brain.get_bond_requests(&*self.specialty)
-    }
-
     pub fn reset(&mut self) {
         self.specialty.reset();
     }
@@ -329,8 +325,6 @@ trait CellLayerBrain: Debug {
         request: BudgetedControlRequest,
         bond_requests: &mut BondRequests,
     );
-
-    fn get_bond_requests(&self, specialty: &dyn CellLayerSpecialty) -> BondRequests;
 }
 
 #[derive(Debug)]
@@ -401,10 +395,6 @@ impl CellLayerBrain for LivingCellLayerBrain {
             _ => specialty.execute_control_request(body, request, bond_requests),
         }
     }
-
-    fn get_bond_requests(&self, specialty: &dyn CellLayerSpecialty) -> BondRequests {
-        specialty.get_bond_requests()
-    }
 }
 
 #[derive(Debug)]
@@ -439,10 +429,6 @@ impl CellLayerBrain for DeadCellLayerBrain {
         _request: BudgetedControlRequest,
         _bond_requests: &mut BondRequests,
     ) {
-    }
-
-    fn get_bond_requests(&self, _specialty: &dyn CellLayerSpecialty) -> BondRequests {
-        NONE_BOND_REQUESTS
     }
 }
 
@@ -484,10 +470,6 @@ pub trait CellLayerSpecialty: Debug {
         _bond_requests: &mut BondRequests,
     ) {
         panic!("Invalid control channel index: {}", request.channel_index());
-    }
-
-    fn get_bond_requests(&self) -> BondRequests {
-        NONE_BOND_REQUESTS
     }
 
     fn reset(&mut self) {}
@@ -639,9 +621,7 @@ impl CellLayerSpecialty for PhotoCellLayerSpecialty {
 }
 
 #[derive(Debug)]
-pub struct BuddingCellLayerSpecialty {
-    bond_requests: BondRequests,
-}
+pub struct BuddingCellLayerSpecialty {}
 
 impl BuddingCellLayerSpecialty {
     const BUDDING_ANGLE_CHANNEL_INDEX: usize = 2;
@@ -649,9 +629,7 @@ impl BuddingCellLayerSpecialty {
 
     #[allow(clippy::new_without_default)]
     pub fn new() -> Self {
-        BuddingCellLayerSpecialty {
-            bond_requests: NONE_BOND_REQUESTS,
-        }
+        BuddingCellLayerSpecialty {}
     }
 
     pub fn budding_angle_request(
@@ -715,14 +693,6 @@ impl CellLayerSpecialty for BuddingCellLayerSpecialty {
             }
             _ => panic!("Invalid control channel index: {}", request.channel_index()),
         }
-    }
-
-    fn get_bond_requests(&self) -> BondRequests {
-        self.bond_requests
-    }
-
-    fn reset(&mut self) {
-        self.bond_requests = NONE_BOND_REQUESTS;
     }
 }
 
@@ -1179,32 +1149,6 @@ mod tests {
         let (energy, _) = layer.after_influences(&env, Duration::new(1.0));
 
         assert_eq!(energy, BioEnergy::new(0.0));
-    }
-
-    #[test]
-    fn budding_layer_does_not_remember_previous_donation_energy() {
-        let mut layer = CellLayer::new(
-            Area::new(1.0),
-            Density::new(1.0),
-            Color::Green,
-            Box::new(BuddingCellLayerSpecialty::new()),
-        );
-        let mut bond_requests = NONE_BOND_REQUESTS;
-        layer.execute_control_request(
-            fully_budgeted(BuddingCellLayerSpecialty::donation_energy_request(
-                0,
-                0,
-                BioEnergy::new(1.0),
-            )),
-            &mut bond_requests,
-        );
-        layer.get_bond_requests();
-        layer.reset();
-
-        assert_eq!(
-            layer.get_bond_requests()[0].donation_energy,
-            BioEnergy::new(0.0)
-        );
     }
 
     #[test]

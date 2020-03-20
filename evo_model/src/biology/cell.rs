@@ -128,7 +128,9 @@ impl Cell {
         self.energy = end_energy;
         let mut bond_requests = NONE_BOND_REQUESTS;
         self.execute_control_requests(&budgeted_control_requests, &mut bond_requests);
-        self.execute_bond_requests(&bond_requests)
+        let children = self.execute_bond_requests(&bond_requests);
+        self.reset_layers();
+        children
     }
 
     fn get_budgeted_control_requests(&mut self) -> (BioEnergy, Vec<BudgetedControlRequest>) {
@@ -237,12 +239,6 @@ impl Cell {
                 children.push(child);
             }
         }
-
-        // TODO move to own method?
-        for layer in &mut self.layers {
-            layer.reset();
-        }
-
         children
     }
 
@@ -257,6 +253,12 @@ impl Cell {
         child.set_initial_velocity(self.velocity());
         child.set_initial_energy(donation_energy);
         child
+    }
+
+    fn reset_layers(&mut self) {
+        for layer in &mut self.layers {
+            layer.reset();
+        }
     }
 
     #[allow(clippy::vec_box)]

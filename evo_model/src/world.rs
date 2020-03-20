@@ -1,5 +1,5 @@
 use crate::biology::cell::Cell;
-//use crate::biology::layers::{Onion, OnionLayer};
+use crate::biology::layers::*;
 use crate::environment::influences::*;
 use crate::environment::local_environment::*;
 use crate::physics::bond::*;
@@ -216,7 +216,8 @@ impl World {
         let mut new_cells: Vec<Cell> = vec![];
         let mut dead_cell_handles: Vec<NodeHandle> = vec![];
         for cell in self.cell_graph.nodes_mut() {
-            let mut cell_children = cell.run_control();
+            let mut bond_requests = NONE_BOND_REQUESTS;
+            let mut cell_children = cell.run_control(&mut bond_requests);
             new_cells.append(&mut cell_children);
             if !cell.is_alive() {
                 dead_cell_handles.push(cell.node_handle());
@@ -233,7 +234,6 @@ impl World {
 mod tests {
     use super::*;
     use crate::biology::control::*;
-    use crate::biology::layers::*;
     use crate::physics::overlap::Overlap;
     use crate::physics::shapes::*;
 

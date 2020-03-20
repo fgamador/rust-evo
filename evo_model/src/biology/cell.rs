@@ -123,11 +123,10 @@ impl Cell {
         }
     }
 
-    pub fn run_control(&mut self) -> Vec<Cell> {
+    pub fn run_control(&mut self, bond_requests: &mut BondRequests) -> Vec<Cell> {
         let (end_energy, budgeted_control_requests) = self.get_budgeted_control_requests();
         self.energy = end_energy;
-        let mut bond_requests = NONE_BOND_REQUESTS;
-        self.execute_control_requests(&budgeted_control_requests, &mut bond_requests);
+        self.execute_control_requests(&budgeted_control_requests, bond_requests);
         let children = self.execute_bond_requests(&bond_requests);
         self.reset_layers();
         children
@@ -371,7 +370,8 @@ mod tests {
                     0,
                     AreaDelta::new(0.5),
                 )));
-        cell.run_control();
+        let mut bond_requests = NONE_BOND_REQUESTS;
+        cell.run_control(&mut bond_requests);
         assert_eq!(Mass::new(10.5), cell.mass());
     }
 
@@ -391,7 +391,8 @@ mod tests {
             )))
             .with_initial_energy(BioEnergy::new(10.0));
 
-        cell.run_control();
+        let mut bond_requests = NONE_BOND_REQUESTS;
+        cell.run_control(&mut bond_requests);
 
         assert_eq!(BioEnergy::new(8.0), cell.energy());
     }
@@ -408,7 +409,8 @@ mod tests {
             0,
             Force::new(1.0, -1.0),
         )));
-        cell.run_control();
+        let mut bond_requests = NONE_BOND_REQUESTS;
+        cell.run_control(&mut bond_requests);
         cell.after_influences(Duration::new(1.0));
         assert_eq!(Force::new(1.0, -1.0), cell.forces().net_force());
     }
@@ -570,7 +572,8 @@ mod tests {
             CellLayer::resize_request(1, AreaDelta::new(100.0)),
         ])));
 
-        cell.run_control();
+        let mut bond_requests = NONE_BOND_REQUESTS;
+        cell.run_control(&mut bond_requests);
 
         assert_eq!(5.0, cell.layers()[0].area().value());
         assert_eq!(10.0, cell.layers()[1].area().value());
@@ -598,7 +601,8 @@ mod tests {
             BuddingCellLayerSpecialty::donation_energy_request(1, 0, BioEnergy::new(1.0)),
         ])));
 
-        let children = cell.run_control();
+        let mut bond_requests = NONE_BOND_REQUESTS;
+        let children = cell.run_control(&mut bond_requests);
 
         assert_eq!(children.len(), 1);
         let child = &children[0];
@@ -629,7 +633,8 @@ mod tests {
             BuddingCellLayerSpecialty::donation_energy_request(0, 0, BioEnergy::new(0.0)),
         ])));
 
-        let children = cell.run_control();
+        let mut bond_requests = NONE_BOND_REQUESTS;
+        let children = cell.run_control(&mut bond_requests);
 
         assert!(children.is_empty());
     }

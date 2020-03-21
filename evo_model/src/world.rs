@@ -213,6 +213,7 @@ impl World {
     }
 
     fn run_cell_controls(&mut self) {
+        // TODO test: inner layer grows while outer layer buds at correct distance
         let mut new_cells: Vec<Cell> = vec![];
         let mut dead_cell_handles: Vec<NodeHandle> = vec![];
         for cell in self.cell_graph.nodes_mut() {
@@ -231,7 +232,6 @@ impl World {
     }
 
     fn execute_bond_requests(cell: &mut Cell, bond_requests: &BondRequests) -> Vec<Cell> {
-        // TODO test: inner layer grows while outer layer buds at correct distance
         let mut children = vec![];
         for (index, bond_request) in bond_requests.iter().enumerate() {
             if bond_request.retain_bond {

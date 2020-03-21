@@ -477,7 +477,7 @@ pub trait CellLayerSpecialty: Debug {
 
 #[derive(Clone, Copy, Debug)]
 pub struct BondRequest {
-    pub maintain_bond: bool,
+    pub retain_bond: bool,
     pub budding_angle: Angle,
     pub donation_energy: BioEnergy,
 }
@@ -486,7 +486,7 @@ impl BondRequest {
     pub const MAX_BONDS: usize = 8;
 
     pub const NONE: BondRequest = BondRequest {
-        maintain_bond: false,
+        retain_bond: false,
         budding_angle: Angle::ZERO,
         donation_energy: BioEnergy::ZERO,
     };
@@ -624,12 +624,26 @@ impl CellLayerSpecialty for PhotoCellLayerSpecialty {
 pub struct BuddingCellLayerSpecialty {}
 
 impl BuddingCellLayerSpecialty {
-    const BUDDING_ANGLE_CHANNEL_INDEX: usize = 2;
-    const DONATION_ENERGY_CHANNEL_INDEX: usize = 3;
+    const RETAIN_BOND_CHANNEL_INDEX: usize = 2;
+    const BUDDING_ANGLE_CHANNEL_INDEX: usize = 3;
+    const DONATION_ENERGY_CHANNEL_INDEX: usize = 4;
 
     #[allow(clippy::new_without_default)]
     pub fn new() -> Self {
         BuddingCellLayerSpecialty {}
+    }
+
+    pub fn retain_bond_request(
+        layer_index: usize,
+        bond_index: usize,
+        flag: bool,
+    ) -> ControlRequest {
+        ControlRequest::new(
+            layer_index,
+            Self::BUDDING_ANGLE_CHANNEL_INDEX,
+            bond_index,
+            if flag { 1.0 } else { 0.0 },
+        )
     }
 
     pub fn budding_angle_request(
@@ -666,6 +680,9 @@ impl CellLayerSpecialty for BuddingCellLayerSpecialty {
 
     fn cost_control_request(&self, request: ControlRequest) -> CostedControlRequest {
         match request.channel_index() {
+            Self::RETAIN_BOND_CHANNEL_INDEX => {
+                CostedControlRequest::new(request, BioEnergyDelta::ZERO)
+            }
             Self::BUDDING_ANGLE_CHANNEL_INDEX => {
                 CostedControlRequest::new(request, BioEnergyDelta::ZERO)
             }
@@ -684,6 +701,7 @@ impl CellLayerSpecialty for BuddingCellLayerSpecialty {
     ) {
         let bond_request = &mut bond_requests[request.value_index()];
         match request.channel_index() {
+            Self::RETAIN_BOND_CHANNEL_INDEX => bond_request.retain_bond = request.value() > 0.0,
             Self::BUDDING_ANGLE_CHANNEL_INDEX => {
                 bond_request.budding_angle = Angle::from_radians(request.value())
             }

@@ -260,6 +260,16 @@ impl CellControl for NeuralNetBuddingControl {
                 BUDDING_LAYER_INDEX,
                 budding_layer_healing.max(0.0).min(1.0),
             ),
+            BuddingCellLayerSpecialty::retain_bond_request(
+                BUDDING_LAYER_INDEX,
+                0,
+                donation_energy > 0.0,
+            ),
+            BuddingCellLayerSpecialty::budding_angle_request(
+                BUDDING_LAYER_INDEX,
+                0,
+                Angle::from_radians(0.0),
+            ),
             BuddingCellLayerSpecialty::donation_energy_request(
                 BUDDING_LAYER_INDEX,
                 0,

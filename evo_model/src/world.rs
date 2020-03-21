@@ -233,13 +233,16 @@ impl World {
     fn execute_bond_requests(cell: &mut Cell, bond_requests: &BondRequests) -> Vec<Cell> {
         // TODO test: inner layer grows while outer layer buds at correct distance
         let mut children = vec![];
-        for bond_request in bond_requests {
-            if bond_request.donation_energy != BioEnergy::ZERO {
-                let child = cell.create_and_place_child_cell(
-                    bond_request.budding_angle,
-                    bond_request.donation_energy,
-                );
-                children.push(child);
+        for (index, bond_request) in bond_requests.iter().enumerate() {
+            if bond_request.retain_bond {
+                //cell.graph_node_data().has_edge(bond_request.)
+                if bond_request.donation_energy != BioEnergy::ZERO {
+                    let child = cell.create_and_place_child_cell(
+                        bond_request.budding_angle,
+                        bond_request.donation_energy,
+                    );
+                    children.push(child);
+                }
             }
         }
         children
@@ -453,6 +456,7 @@ mod tests {
                 )],
             )
             .with_control(Box::new(ContinuousRequestsControl::new(vec![
+                BuddingCellLayerSpecialty::retain_bond_request(0, 0, true),
                 BuddingCellLayerSpecialty::donation_energy_request(0, 0, BioEnergy::new(1.0)),
             ]))),
         );

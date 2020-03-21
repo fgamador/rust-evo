@@ -640,7 +640,7 @@ impl BuddingCellLayerSpecialty {
     ) -> ControlRequest {
         ControlRequest::new(
             layer_index,
-            Self::BUDDING_ANGLE_CHANNEL_INDEX,
+            Self::RETAIN_BOND_CHANNEL_INDEX,
             bond_index,
             if flag { 1.0 } else { 0.0 },
         )

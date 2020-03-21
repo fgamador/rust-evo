@@ -414,6 +414,27 @@ mod tests {
     }
 
     #[test]
+    fn budding_creates_child_with_right_state() {
+        let mut cell = Cell::new(
+            Position::new(2.0, -2.0),
+            Velocity::new(3.0, -3.0),
+            vec![simple_cell_layer(Area::new(10.0), Density::new(1.0))],
+        );
+
+        let child = cell.create_and_place_child_cell(Angle::from_radians(0.0), BioEnergy::new(1.0));
+
+        assert_eq!(
+            child.center(),
+            Position::new(
+                cell.center().x() + cell.radius().value() + child.radius().value(),
+                cell.center().y()
+            )
+        );
+        assert_eq!(child.velocity(), cell.velocity());
+        assert_eq!(child.energy(), BioEnergy::new(1.0));
+    }
+
+    #[test]
     fn zero_cost_request_gets_fully_budgeted() {
         let costed_request =
             CostedControlRequest::new(ControlRequest::ZEROS, BioEnergyDelta::new(0.0));

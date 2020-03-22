@@ -7,6 +7,7 @@ use crate::physics::newtonian::NewtonianBody;
 use crate::physics::quantities::*;
 use crate::physics::sortable_graph::*;
 use crate::physics::spring::*;
+use std::collections::HashSet;
 
 pub struct World {
     min_corner: Position,
@@ -223,20 +224,17 @@ impl World {
     fn run_cell_controls(&mut self) {
         // TODO test: inner layer grows while outer layer buds at correct distance
         let mut parent_index_child_triples = vec![];
-        let mut broken_bond_handles: Vec<EdgeHandle> = vec![];
-        let mut dead_cell_handles: Vec<NodeHandle> = vec![];
+        let mut broken_bond_handles = HashSet::new();
+        let mut dead_cell_handles = vec![];
         for cell in self.cell_graph.nodes_mut() {
             let mut bond_requests = NONE_BOND_REQUESTS;
             cell.run_control(&mut bond_requests);
-            let mut val = Self::execute_bond_requests(cell, &bond_requests);
-            for index_child_pair in val.0 {
-                parent_index_child_triples.push((
-                    cell.node_handle(),
-                    index_child_pair.0,
-                    index_child_pair.1,
-                ));
-            }
-            broken_bond_handles.append(&mut val.1);
+            Self::execute_bond_requests(
+                cell,
+                &bond_requests,
+                &mut parent_index_child_triples,
+                &mut broken_bond_handles,
+            );
             if !cell.is_alive() {
                 dead_cell_handles.push(cell.node_handle());
             }
@@ -250,9 +248,9 @@ impl World {
     fn execute_bond_requests(
         cell: &mut Cell,
         bond_requests: &BondRequests,
-    ) -> (Vec<(usize, Cell)>, Vec<EdgeHandle>) {
-        let mut index_child_pairs = vec![];
-        let mut broken_bonds = vec![];
+        parent_index_child_triples: &mut Vec<(NodeHandle, usize, Cell)>,
+        broken_bond_handles: &mut HashSet<EdgeHandle>,
+    ) {
         for (index, bond_request) in bond_requests.iter().enumerate() {
             if bond_request.retain_bond {
                 if !cell.has_edge(index) && bond_request.donation_energy != BioEnergy::ZERO {
@@ -260,15 +258,14 @@ impl World {
                         bond_request.budding_angle,
                         bond_request.donation_energy,
                     );
-                    index_child_pairs.push((index, child));
+                    parent_index_child_triples.push((cell.node_handle(), index, child));
                 }
             } else {
                 if cell.has_edge(index) {
-                    broken_bonds.push(cell.edge_handle(index));
+                    broken_bond_handles.insert(cell.edge_handle(index));
                 }
             }
         }
-        (index_child_pairs, broken_bonds)
     }
 
     fn add_children(&mut self, parent_index_child_triples: Vec<(NodeHandle, usize, Cell)>) {

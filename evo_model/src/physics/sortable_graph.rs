@@ -273,7 +273,7 @@ pub trait GraphNode {
     fn edge_handle(&self, node_edge_index: usize) -> EdgeHandle;
 }
 
-#[derive(Clone, Copy, Debug, PartialEq)]
+#[derive(Clone, Copy, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
 pub struct NodeHandle {
     index: u32,
 }
@@ -360,7 +360,7 @@ pub trait GraphEdge {
     fn graph_edge_data_mut(&mut self) -> &mut GraphEdgeData;
 }
 
-#[derive(Clone, Copy, Debug, Eq, Ord, PartialEq, PartialOrd)]
+#[derive(Clone, Copy, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
 pub struct EdgeHandle {
     index: u32,
 }

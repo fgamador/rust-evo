@@ -487,6 +487,29 @@ mod tests {
     }
 
     #[test]
+    #[ignore]
+    fn world_breaks_bond_when_requested() {
+        let mut world = World::new(Position::ORIGIN, Position::ORIGIN)
+            .with_cells(vec![
+                simple_layered_cell(vec![CellLayer::new(
+                    Area::new(1.0),
+                    Density::new(1.0),
+                    Color::Green,
+                    Box::new(BuddingCellLayerSpecialty::new()),
+                )])
+                .with_control(Box::new(ContinuousRequestsControl::new(vec![
+                    BuddingCellLayerSpecialty::retain_bond_request(0, 1, false),
+                ]))),
+                simple_layered_cell(vec![simple_cell_layer(Area::new(1.0), Density::new(1.0))]),
+            ])
+            .with_bonds(vec![(0, 1)]);
+
+        world.tick();
+
+        assert_eq!(world.bonds().len(), 0);
+    }
+
+    #[test]
     fn dead_cells_get_removed_from_world() {
         let mut world =
             World::new(Position::ORIGIN, Position::ORIGIN).with_cell(simple_layered_cell(vec![

@@ -8,6 +8,7 @@ use crate::physics::quantities::*;
 use crate::physics::sortable_graph::*;
 use crate::physics::spring::*;
 use std::collections::HashSet;
+use std::iter::FromIterator;
 
 pub struct World {
     min_corner: Position,
@@ -240,8 +241,9 @@ impl World {
             }
         }
         self.add_children(parent_index_child_triples);
-        // TODO sort?
-        //self.cell_graph.remove_edges(&broken_bond_handles);
+        let mut sorted_broken_bond_handles = Vec::from_iter(broken_bond_handles.iter().cloned());
+        sorted_broken_bond_handles.sort_unstable();
+        self.cell_graph.remove_edges(&sorted_broken_bond_handles);
         self.cell_graph.remove_nodes(&dead_cell_handles);
     }
 
@@ -501,7 +503,6 @@ mod tests {
     }
 
     #[test]
-    #[ignore]
     fn world_breaks_bond_when_requested() {
         let mut world = World::new(Position::ORIGIN, Position::ORIGIN)
             .with_cells(vec![

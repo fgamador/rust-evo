@@ -277,11 +277,7 @@ impl World {
         dead_cell_handles: Vec<NodeHandle>,
     ) {
         self.add_children(parent_index_child_triples);
-
-        let mut sorted_broken_bond_handles = Vec::from_iter(broken_bond_handles.iter().cloned());
-        sorted_broken_bond_handles.sort_unstable();
-        self.cell_graph.remove_edges(&sorted_broken_bond_handles);
-
+        self.remove_bonds(&broken_bond_handles);
         self.cell_graph.remove_nodes(&dead_cell_handles);
     }
 
@@ -292,6 +288,12 @@ impl World {
             let bond = Bond::new(self.cell(parent_index_child_triple.0), child);
             self.add_bond(bond, parent_index_child_triple.1, 0);
         }
+    }
+
+    fn remove_bonds(&mut self, bond_handles: &HashSet<EdgeHandle>) {
+        let mut sorted_bond_handles = Vec::from_iter(bond_handles.iter().cloned());
+        sorted_bond_handles.sort_unstable();
+        self.cell_graph.remove_edges(&sorted_bond_handles);
     }
 }
 

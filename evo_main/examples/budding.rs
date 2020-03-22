@@ -36,7 +36,7 @@ fn create_child() -> Cell {
                 Area::new(5.0 * PI),
                 Density::new(1.0),
                 Color::Yellow,
-                Box::new(BuddingCellLayerSpecialty::new()),
+                Box::new(BondingCellLayerSpecialty::new()),
             ),
         ],
     )
@@ -68,7 +68,7 @@ impl BuddingControl {
     fn adult_requests(&mut self) -> Vec<ControlRequest> {
         self.adult_tick += 1;
         if self.adult_tick < self.budding_ticks {
-            return vec![BuddingCellLayerSpecialty::retain_bond_request(
+            return vec![BondingCellLayerSpecialty::retain_bond_request(
                 self.budding_layer_index,
                 1,
                 true,
@@ -78,13 +78,13 @@ impl BuddingControl {
         self.adult_tick = 0;
         self.budding_angle += Deflection::from_radians(PI / 4.0);
         vec![
-            BuddingCellLayerSpecialty::retain_bond_request(self.budding_layer_index, 1, true),
-            BuddingCellLayerSpecialty::budding_angle_request(
+            BondingCellLayerSpecialty::retain_bond_request(self.budding_layer_index, 1, true),
+            BondingCellLayerSpecialty::budding_angle_request(
                 self.budding_layer_index,
                 1,
                 self.budding_angle,
             ),
-            BuddingCellLayerSpecialty::donation_energy_request(
+            BondingCellLayerSpecialty::donation_energy_request(
                 self.budding_layer_index,
                 1,
                 BioEnergy::new(1.0),
@@ -96,7 +96,7 @@ impl BuddingControl {
         vec![
             CellLayer::resize_request(0, AreaDelta::new(5.0)),
             CellLayer::resize_request(self.budding_layer_index, AreaDelta::new(5.0)),
-            BuddingCellLayerSpecialty::retain_bond_request(self.budding_layer_index, 0, true),
+            BondingCellLayerSpecialty::retain_bond_request(self.budding_layer_index, 0, true),
         ]
     }
 }

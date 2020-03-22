@@ -500,12 +500,12 @@ mod tests {
                     Area::new(1.0),
                     Density::new(1.0),
                     Color::Green,
-                    Box::new(BuddingCellLayerSpecialty::new()),
+                    Box::new(BondingCellLayerSpecialty::new()),
                 )],
             )
             .with_control(Box::new(ContinuousRequestsControl::new(vec![
-                BuddingCellLayerSpecialty::retain_bond_request(0, 1, true),
-                BuddingCellLayerSpecialty::donation_energy_request(0, 1, BioEnergy::new(1.0)),
+                BondingCellLayerSpecialty::retain_bond_request(0, 1, true),
+                BondingCellLayerSpecialty::donation_energy_request(0, 1, BioEnergy::new(1.0)),
             ]))),
         );
 
@@ -527,10 +527,10 @@ mod tests {
                     Area::new(1.0),
                     Density::new(1.0),
                     Color::Green,
-                    Box::new(BuddingCellLayerSpecialty::new()),
+                    Box::new(BondingCellLayerSpecialty::new()),
                 )])
                 .with_control(Box::new(ContinuousRequestsControl::new(vec![
-                    BuddingCellLayerSpecialty::retain_bond_request(0, 1, false),
+                    BondingCellLayerSpecialty::retain_bond_request(0, 1, false),
                 ]))),
                 simple_layered_cell(vec![simple_cell_layer(Area::new(1.0), Density::new(1.0))]),
             ])

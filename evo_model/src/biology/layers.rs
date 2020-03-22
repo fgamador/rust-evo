@@ -621,16 +621,16 @@ impl CellLayerSpecialty for PhotoCellLayerSpecialty {
 }
 
 #[derive(Debug)]
-pub struct BuddingCellLayerSpecialty {}
+pub struct BondingCellLayerSpecialty {}
 
-impl BuddingCellLayerSpecialty {
+impl BondingCellLayerSpecialty {
     const RETAIN_BOND_CHANNEL_INDEX: usize = 2;
     const BUDDING_ANGLE_CHANNEL_INDEX: usize = 3;
     const DONATION_ENERGY_CHANNEL_INDEX: usize = 4;
 
     #[allow(clippy::new_without_default)]
     pub fn new() -> Self {
-        BuddingCellLayerSpecialty {}
+        BondingCellLayerSpecialty {}
     }
 
     pub fn retain_bond_request(
@@ -673,9 +673,9 @@ impl BuddingCellLayerSpecialty {
     }
 }
 
-impl CellLayerSpecialty for BuddingCellLayerSpecialty {
+impl CellLayerSpecialty for BondingCellLayerSpecialty {
     fn box_spawn(&self) -> Box<dyn CellLayerSpecialty> {
-        Box::new(BuddingCellLayerSpecialty::new())
+        Box::new(BondingCellLayerSpecialty::new())
     }
 
     fn cost_control_request(&self, request: ControlRequest) -> CostedControlRequest {
@@ -1175,12 +1175,12 @@ mod tests {
             Area::new(1.0),
             Density::new(1.0),
             Color::Green,
-            Box::new(BuddingCellLayerSpecialty::new()),
+            Box::new(BondingCellLayerSpecialty::new()),
         );
         let mut bond_requests = NONE_BOND_REQUESTS;
         layer.execute_control_request(
             budgeted(
-                BuddingCellLayerSpecialty::donation_energy_request(0, 0, BioEnergy::new(1.0)),
+                BondingCellLayerSpecialty::donation_energy_request(0, 0, BioEnergy::new(1.0)),
                 BioEnergyDelta::new(1.0),
                 0.5,
             ),
@@ -1196,12 +1196,12 @@ mod tests {
             Area::new(1.0),
             Density::new(1.0),
             Color::Green,
-            Box::new(BuddingCellLayerSpecialty::new()),
+            Box::new(BondingCellLayerSpecialty::new()),
         )
         .with_health(0.5);
         let mut bond_requests = NONE_BOND_REQUESTS;
         layer.execute_control_request(
-            fully_budgeted(BuddingCellLayerSpecialty::donation_energy_request(
+            fully_budgeted(BondingCellLayerSpecialty::donation_energy_request(
                 0,
                 0,
                 BioEnergy::new(1.0),

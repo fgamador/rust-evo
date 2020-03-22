@@ -132,7 +132,7 @@ fn create_budding_layer() -> CellLayer {
         Area::new(5.0 * PI),
         Density::new(BUDDING_LAYER_DENSITY),
         Color::Yellow,
-        Box::new(BuddingCellLayerSpecialty::new()),
+        Box::new(BondingCellLayerSpecialty::new()),
     )
     .with_resize_parameters(&LAYER_RESIZE_PARAMS)
     .with_health_parameters(&LAYER_HEALTH_PARAMS)
@@ -260,17 +260,17 @@ impl CellControl for NeuralNetBuddingControl {
                 BUDDING_LAYER_INDEX,
                 budding_layer_healing.max(0.0).min(1.0),
             ),
-            BuddingCellLayerSpecialty::retain_bond_request(
+            BondingCellLayerSpecialty::retain_bond_request(
                 BUDDING_LAYER_INDEX,
                 0,
                 donation_energy > 0.0,
             ),
-            BuddingCellLayerSpecialty::budding_angle_request(
+            BondingCellLayerSpecialty::budding_angle_request(
                 BUDDING_LAYER_INDEX,
                 0,
                 Angle::from_radians(0.0),
             ),
-            BuddingCellLayerSpecialty::donation_energy_request(
+            BondingCellLayerSpecialty::donation_energy_request(
                 BUDDING_LAYER_INDEX,
                 0,
                 BioEnergy::new(donation_energy.max(0.0)),

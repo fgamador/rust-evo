@@ -48,12 +48,12 @@ impl Cell {
                 area,
                 mass / area,
                 Color::Green,
-                Box::new(BuddingCellLayerSpecialty::new()),
+                Box::new(BondingCellLayerSpecialty::new()),
             )],
         )
         .with_control(Box::new(ContinuousRequestsControl::new(vec![
-            BuddingCellLayerSpecialty::retain_bond_request(0, 0, true),
-            BuddingCellLayerSpecialty::retain_bond_request(0, 1, true),
+            BondingCellLayerSpecialty::retain_bond_request(0, 0, true),
+            BondingCellLayerSpecialty::retain_bond_request(0, 1, true),
         ])))
     }
 

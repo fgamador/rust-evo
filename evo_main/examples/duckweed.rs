@@ -119,7 +119,7 @@ fn create_budding_layer() -> CellLayer {
         Area::new(5.0 * PI),
         Density::new(BUDDING_LAYER_DENSITY),
         Color::Yellow,
-        Box::new(BuddingCellLayerSpecialty::new()),
+        Box::new(BondingCellLayerSpecialty::new()),
     )
     .with_resize_parameters(&LAYER_RESIZE_PARAMS)
     .with_health_parameters(&LAYER_HEALTH_PARAMS)
@@ -191,9 +191,9 @@ impl DuckweedControl {
         self.tick = 0;
         self.budding_angle += Deflection::from_radians(PI / 4.0);
         vec![
-            BuddingCellLayerSpecialty::retain_bond_request(2, 0, true),
-            BuddingCellLayerSpecialty::budding_angle_request(2, 0, self.budding_angle),
-            BuddingCellLayerSpecialty::donation_energy_request(2, 0, BioEnergy::new(100.0)),
+            BondingCellLayerSpecialty::retain_bond_request(2, 0, true),
+            BondingCellLayerSpecialty::budding_angle_request(2, 0, self.budding_angle),
+            BondingCellLayerSpecialty::donation_energy_request(2, 0, BioEnergy::new(100.0)),
         ]
     }
 

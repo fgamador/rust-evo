@@ -83,6 +83,10 @@ pub fn graph_node_derive(input: TokenStream) -> TokenStream {
                 fn graph_node_data_mut(&mut self) -> &mut GraphNodeData {
                     &mut self.#field_name
                 }
+
+                fn has_edge_at(&self, node_edge_index: usize) -> bool {
+                    self.#field_name.has_edge_handle_at(node_edge_index)
+                }
             }
         }
     })

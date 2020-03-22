@@ -74,6 +74,7 @@ impl BuddingControl {
         self.tick = 0;
         self.budding_angle += Deflection::from_radians(PI / 4.0);
         vec![
+            BuddingCellLayerSpecialty::retain_bond_request(self.budding_layer_index, 0, true),
             BuddingCellLayerSpecialty::budding_angle_request(
                 self.budding_layer_index,
                 0,

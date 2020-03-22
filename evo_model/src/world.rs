@@ -235,8 +235,7 @@ impl World {
         let mut children = vec![];
         for (index, bond_request) in bond_requests.iter().enumerate() {
             if bond_request.retain_bond {
-                //cell.graph_node_data().has_edge(bond_request.)
-                if bond_request.donation_energy != BioEnergy::ZERO {
+                if !cell.has_edge_at(index) && bond_request.donation_energy != BioEnergy::ZERO {
                     let child = cell.create_and_place_child_cell(
                         bond_request.budding_angle,
                         bond_request.donation_energy,

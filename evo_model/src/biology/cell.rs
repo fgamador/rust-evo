@@ -48,9 +48,13 @@ impl Cell {
                 area,
                 mass / area,
                 Color::Green,
-                Box::new(NullCellLayerSpecialty::new()),
+                Box::new(BuddingCellLayerSpecialty::new()),
             )],
         )
+        .with_control(Box::new(ContinuousRequestsControl::new(vec![
+            BuddingCellLayerSpecialty::retain_bond_request(0, 0, true),
+            BuddingCellLayerSpecialty::retain_bond_request(0, 1, true),
+        ])))
     }
 
     pub fn with_control(mut self, control: Box<dyn CellControl>) -> Self {

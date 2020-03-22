@@ -240,11 +240,11 @@ impl World {
                 dead_cell_handles.push(cell.node_handle());
             }
         }
-        self.add_children(parent_index_child_triples);
-        let mut sorted_broken_bond_handles = Vec::from_iter(broken_bond_handles.iter().cloned());
-        sorted_broken_bond_handles.sort_unstable();
-        self.cell_graph.remove_edges(&sorted_broken_bond_handles);
-        self.cell_graph.remove_nodes(&dead_cell_handles);
+        self.update_cell_graph(
+            parent_index_child_triples,
+            broken_bond_handles,
+            dead_cell_handles,
+        );
     }
 
     fn execute_bond_requests(
@@ -268,6 +268,21 @@ impl World {
                 }
             }
         }
+    }
+
+    fn update_cell_graph(
+        &mut self,
+        parent_index_child_triples: Vec<(NodeHandle, usize, Cell)>,
+        broken_bond_handles: HashSet<EdgeHandle>,
+        dead_cell_handles: Vec<NodeHandle>,
+    ) {
+        self.add_children(parent_index_child_triples);
+
+        let mut sorted_broken_bond_handles = Vec::from_iter(broken_bond_handles.iter().cloned());
+        sorted_broken_bond_handles.sort_unstable();
+        self.cell_graph.remove_edges(&sorted_broken_bond_handles);
+
+        self.cell_graph.remove_nodes(&dead_cell_handles);
     }
 
     fn add_children(&mut self, parent_index_child_triples: Vec<(NodeHandle, usize, Cell)>) {

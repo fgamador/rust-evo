@@ -467,8 +467,8 @@ mod tests {
                 )],
             )
             .with_control(Box::new(ContinuousRequestsControl::new(vec![
-                BuddingCellLayerSpecialty::retain_bond_request(0, 0, true),
-                BuddingCellLayerSpecialty::donation_energy_request(0, 0, BioEnergy::new(1.0)),
+                BuddingCellLayerSpecialty::retain_bond_request(0, 1, true),
+                BuddingCellLayerSpecialty::donation_energy_request(0, 1, BioEnergy::new(1.0)),
             ]))),
         );
 
@@ -476,6 +476,10 @@ mod tests {
 
         assert_eq!(world.cells().len(), 2);
         assert_eq!(world.bonds().len(), 1);
+        let parent = &world.cells()[0];
+        assert!(parent.has_edge_at(1));
+        let child = &world.cells()[1];
+        assert!(child.has_edge_at(0));
     }
 
     #[test]

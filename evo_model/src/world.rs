@@ -234,12 +234,7 @@ impl World {
                 dead_cell_handles.push(cell.node_handle());
             }
         }
-        for parent_index_child_triple in parent_index_child_triples {
-            let child_handle = self.add_cell(parent_index_child_triple.2);
-            let child = self.cell(child_handle);
-            let bond = Bond::new(self.cell(parent_index_child_triple.0), child);
-            self.add_bond(bond, parent_index_child_triple.1, 0);
-        }
+        self.add_children(parent_index_child_triples);
         self.cell_graph.remove_nodes(&dead_cell_handles);
     }
 
@@ -257,6 +252,15 @@ impl World {
             }
         }
         index_child_pairs
+    }
+
+    fn add_children(&mut self, parent_index_child_triples: Vec<(NodeHandle, usize, Cell)>) {
+        for parent_index_child_triple in parent_index_child_triples {
+            let child_handle = self.add_cell(parent_index_child_triple.2);
+            let child = self.cell(child_handle);
+            let bond = Bond::new(self.cell(parent_index_child_triple.0), child);
+            self.add_bond(bond, parent_index_child_triple.1, 0);
+        }
     }
 }
 

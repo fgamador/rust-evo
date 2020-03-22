@@ -84,8 +84,12 @@ pub fn graph_node_derive(input: TokenStream) -> TokenStream {
                     &mut self.#field_name
                 }
 
-                fn has_edge_at(&self, node_edge_index: usize) -> bool {
-                    self.#field_name.has_edge_handle_at(node_edge_index)
+                fn has_edge(&self, node_edge_index: usize) -> bool {
+                    self.#field_name.has_edge_handle(node_edge_index)
+                }
+
+                fn edge_handle(&self, node_edge_index: usize) -> EdgeHandle {
+                    self.#field_name.edge_handle(node_edge_index)
                 }
             }
         }

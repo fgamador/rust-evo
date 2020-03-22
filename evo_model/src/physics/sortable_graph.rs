@@ -268,7 +268,9 @@ pub trait GraphNode {
 
     fn graph_node_data_mut(&mut self) -> &mut GraphNodeData;
 
-    fn has_edge_at(&self, node_edge_index: usize) -> bool;
+    fn has_edge(&self, node_edge_index: usize) -> bool;
+
+    fn edge_handle(&self, node_edge_index: usize) -> EdgeHandle;
 }
 
 #[derive(Clone, Copy, Debug, PartialEq)]
@@ -315,12 +317,12 @@ impl GraphNodeData {
         self.handle
     }
 
-    // fn edge_handle(&self, edge_index: usize) -> EdgeHandle {
-    //     self.edge_handles[edge_index]
-    // }
-
-    pub fn has_edge_handle_at(&self, node_edge_index: usize) -> bool {
+    pub fn has_edge_handle(&self, node_edge_index: usize) -> bool {
         self.edge_handles[node_edge_index] != None
+    }
+
+    pub fn edge_handle(&self, edge_index: usize) -> EdgeHandle {
+        self.edge_handles[edge_index].unwrap()
     }
 
     fn set_edge_handle(&mut self, node_edge_index: usize, handle: EdgeHandle) {

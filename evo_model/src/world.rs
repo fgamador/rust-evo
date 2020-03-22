@@ -120,6 +120,10 @@ impl World {
         &self.cell_graph.edges()
     }
 
+    pub fn bond(&self, handle: EdgeHandle) -> &Bond {
+        &self.cell_graph.edge(handle)
+    }
+
     pub fn with_angle_gussets(mut self, index_pairs_with_angles: Vec<(usize, usize, f64)>) -> Self {
         for tuple in index_pairs_with_angles {
             let gusset = AngleGusset::new(
@@ -219,39 +223,52 @@ impl World {
     fn run_cell_controls(&mut self) {
         // TODO test: inner layer grows while outer layer buds at correct distance
         let mut parent_index_child_triples = vec![];
+        let mut broken_bond_handles: Vec<EdgeHandle> = vec![];
         let mut dead_cell_handles: Vec<NodeHandle> = vec![];
         for cell in self.cell_graph.nodes_mut() {
             let mut bond_requests = NONE_BOND_REQUESTS;
             cell.run_control(&mut bond_requests);
-            for index_child_pair in Self::execute_bond_requests(cell, &bond_requests) {
+            let mut val = Self::execute_bond_requests(cell, &bond_requests);
+            for index_child_pair in val.0 {
                 parent_index_child_triples.push((
                     cell.node_handle(),
                     index_child_pair.0,
                     index_child_pair.1,
                 ));
             }
+            broken_bond_handles.append(&mut val.1);
             if !cell.is_alive() {
                 dead_cell_handles.push(cell.node_handle());
             }
         }
         self.add_children(parent_index_child_triples);
+        // TODO sort?
+        //self.cell_graph.remove_edges(&broken_bond_handles);
         self.cell_graph.remove_nodes(&dead_cell_handles);
     }
 
-    fn execute_bond_requests(cell: &mut Cell, bond_requests: &BondRequests) -> Vec<(usize, Cell)> {
+    fn execute_bond_requests(
+        cell: &mut Cell,
+        bond_requests: &BondRequests,
+    ) -> (Vec<(usize, Cell)>, Vec<EdgeHandle>) {
         let mut index_child_pairs = vec![];
+        let mut broken_bonds = vec![];
         for (index, bond_request) in bond_requests.iter().enumerate() {
             if bond_request.retain_bond {
-                if !cell.has_edge_at(index) && bond_request.donation_energy != BioEnergy::ZERO {
+                if !cell.has_edge(index) && bond_request.donation_energy != BioEnergy::ZERO {
                     let child = cell.create_and_place_child_cell(
                         bond_request.budding_angle,
                         bond_request.donation_energy,
                     );
                     index_child_pairs.push((index, child));
                 }
+            } else {
+                if cell.has_edge(index) {
+                    broken_bonds.push(cell.edge_handle(index));
+                }
             }
         }
-        index_child_pairs
+        (index_child_pairs, broken_bonds)
     }
 
     fn add_children(&mut self, parent_index_child_triples: Vec<(NodeHandle, usize, Cell)>) {
@@ -481,9 +498,9 @@ mod tests {
         assert_eq!(world.cells().len(), 2);
         assert_eq!(world.bonds().len(), 1);
         let parent = &world.cells()[0];
-        assert!(parent.has_edge_at(1));
+        assert!(parent.has_edge(1));
         let child = &world.cells()[1];
-        assert!(child.has_edge_at(0));
+        assert!(child.has_edge(0));
     }
 
     #[test]

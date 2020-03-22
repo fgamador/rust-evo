@@ -24,18 +24,19 @@ fn main() {
 //const FLUID_DENSITY: f64 = 0.001;
 const FLOAT_LAYER_DENSITY: f64 = 0.0001;
 const PHOTO_LAYER_DENSITY: f64 = 0.002;
-const BUDDING_LAYER_DENSITY: f64 = 0.002;
+const BONDING_LAYER_DENSITY: f64 = 0.002;
 //const GRAVITY: f64 = -0.05;
 const OVERLAP_DAMAGE_HEALTH_DELTA: f64 = -0.1;
 
 const FLOAT_LAYER_INDEX: usize = 0;
 const PHOTO_LAYER_INDEX: usize = 1;
-const BUDDING_LAYER_INDEX: usize = 2;
+const BONDING_LAYER_INDEX: usize = 2;
 
 fn create_world() -> World {
     World::new(Position::new(0.0, -400.0), Position::new(400.0, 0.0))
         .with_perimeter_walls()
         .with_pair_collisions()
+        .with_influence(Box::new(BondForces::new()))
         .with_sunlight(0.0, 1.0)
         .with_influences(vec![Box::new(SimpleForceInfluence::new(Box::new(
             DragForce::new(0.005),
@@ -60,7 +61,7 @@ fn create_cell() -> Cell {
         vec![
             create_float_layer(),
             create_photo_layer(),
-            create_budding_layer(),
+            create_bonding_layer(),
         ],
     )
     .with_control(Box::new(NeuralNetBuddingControl::new(
@@ -115,7 +116,7 @@ fn create_photo_layer() -> CellLayer {
     .with_health_parameters(&LAYER_HEALTH_PARAMS)
 }
 
-fn create_budding_layer() -> CellLayer {
+fn create_bonding_layer() -> CellLayer {
     const LAYER_RESIZE_PARAMS: LayerResizeParameters = LayerResizeParameters {
         growth_energy_delta: BioEnergyDelta::new(-1.0),
         max_growth_rate: 10.0,
@@ -130,7 +131,7 @@ fn create_budding_layer() -> CellLayer {
 
     CellLayer::new(
         Area::new(5.0 * PI),
-        Density::new(BUDDING_LAYER_DENSITY),
+        Density::new(BONDING_LAYER_DENSITY),
         Color::Yellow,
         Box::new(BondingCellLayerSpecialty::new()),
     )
@@ -150,15 +151,15 @@ impl NeuralNetBuddingControl {
     const FLOAT_LAYER_HEALTH_INPUT_INDEX: VecIndex = 2;
     const PHOTO_LAYER_AREA_INPUT_INDEX: VecIndex = 3;
     const PHOTO_LAYER_HEALTH_INPUT_INDEX: VecIndex = 4;
-    const BUDDING_LAYER_AREA_INPUT_INDEX: VecIndex = 5;
-    const BUDDING_LAYER_HEALTH_INPUT_INDEX: VecIndex = 6;
+    const BONDING_LAYER_AREA_INPUT_INDEX: VecIndex = 5;
+    const BONDING_LAYER_HEALTH_INPUT_INDEX: VecIndex = 6;
 
     const FLOAT_LAYER_RESIZE_OUTPUT_INDEX: VecIndex = 7;
     const FLOAT_LAYER_HEALING_OUTPUT_INDEX: VecIndex = 8;
     const PHOTO_LAYER_RESIZE_OUTPUT_INDEX: VecIndex = 9;
     const PHOTO_LAYER_HEALING_OUTPUT_INDEX: VecIndex = 10;
-    const BUDDING_LAYER_RESIZE_OUTPUT_INDEX: VecIndex = 11;
-    const BUDDING_LAYER_HEALING_OUTPUT_INDEX: VecIndex = 12;
+    const BONDING_LAYER_RESIZE_OUTPUT_INDEX: VecIndex = 11;
+    const BONDING_LAYER_HEALING_OUTPUT_INDEX: VecIndex = 12;
     const DONATION_ENERGY_OUTPUT_INDEX: VecIndex = 13;
 
     fn new(genome: SparseNeuralNetGenome, randomness: SeededMutationRandomness) -> Self {
@@ -186,14 +187,14 @@ impl NeuralNetBuddingControl {
             &[(Self::PHOTO_LAYER_HEALTH_INPUT_INDEX, -1.0)],
         );
         genome.connect_node(
-            Self::BUDDING_LAYER_RESIZE_OUTPUT_INDEX,
+            Self::BONDING_LAYER_RESIZE_OUTPUT_INDEX,
             200.0,
-            &[(Self::BUDDING_LAYER_AREA_INPUT_INDEX, -1.0)],
+            &[(Self::BONDING_LAYER_AREA_INPUT_INDEX, -1.0)],
         );
         genome.connect_node(
-            Self::BUDDING_LAYER_HEALING_OUTPUT_INDEX,
+            Self::BONDING_LAYER_HEALING_OUTPUT_INDEX,
             1.0,
-            &[(Self::BUDDING_LAYER_HEALTH_INPUT_INDEX, -1.0)],
+            &[(Self::BONDING_LAYER_HEALTH_INPUT_INDEX, -1.0)],
         );
         genome.connect_node(
             Self::DONATION_ENERGY_OUTPUT_INDEX,
@@ -211,8 +212,8 @@ impl CellControl for NeuralNetBuddingControl {
         let float_layer_health = cell_state.layers[FLOAT_LAYER_INDEX].health as f32;
         let photo_layer_area = cell_state.layers[PHOTO_LAYER_INDEX].area.value() as f32;
         let photo_layer_health = cell_state.layers[PHOTO_LAYER_INDEX].health as f32;
-        let budding_layer_area = cell_state.layers[BUDDING_LAYER_INDEX].area.value() as f32;
-        let budding_layer_health = cell_state.layers[BUDDING_LAYER_INDEX].health as f32;
+        let bonding_layer_area = cell_state.layers[BONDING_LAYER_INDEX].area.value() as f32;
+        let bonding_layer_health = cell_state.layers[BONDING_LAYER_INDEX].health as f32;
 
         self.nnet
             .set_node_value(Self::CELL_ENERGY_INPUT_INDEX, cell_energy);
@@ -225,9 +226,9 @@ impl CellControl for NeuralNetBuddingControl {
         self.nnet
             .set_node_value(Self::PHOTO_LAYER_HEALTH_INPUT_INDEX, photo_layer_health);
         self.nnet
-            .set_node_value(Self::BUDDING_LAYER_AREA_INPUT_INDEX, budding_layer_area);
+            .set_node_value(Self::BONDING_LAYER_AREA_INPUT_INDEX, bonding_layer_area);
         self.nnet
-            .set_node_value(Self::BUDDING_LAYER_HEALTH_INPUT_INDEX, budding_layer_health);
+            .set_node_value(Self::BONDING_LAYER_HEALTH_INPUT_INDEX, bonding_layer_health);
 
         self.nnet.run();
 
@@ -239,12 +240,12 @@ impl CellControl for NeuralNetBuddingControl {
             self.nnet.node_value(Self::PHOTO_LAYER_RESIZE_OUTPUT_INDEX) as f64;
         let photo_layer_healing =
             self.nnet.node_value(Self::PHOTO_LAYER_HEALING_OUTPUT_INDEX) as f64;
-        let budding_layer_area_delta =
+        let bonding_layer_area_delta =
             self.nnet
-                .node_value(Self::BUDDING_LAYER_RESIZE_OUTPUT_INDEX) as f64;
-        let budding_layer_healing =
+                .node_value(Self::BONDING_LAYER_RESIZE_OUTPUT_INDEX) as f64;
+        let bonding_layer_healing =
             self.nnet
-                .node_value(Self::BUDDING_LAYER_HEALING_OUTPUT_INDEX) as f64;
+                .node_value(Self::BONDING_LAYER_HEALING_OUTPUT_INDEX) as f64;
         let donation_energy = self.nnet.node_value(Self::DONATION_ENERGY_OUTPUT_INDEX) as f64;
 
         vec![
@@ -253,25 +254,25 @@ impl CellControl for NeuralNetBuddingControl {
             CellLayer::resize_request(PHOTO_LAYER_INDEX, AreaDelta::new(photo_layer_area_delta)),
             CellLayer::healing_request(PHOTO_LAYER_INDEX, photo_layer_healing.max(0.0).min(1.0)),
             CellLayer::resize_request(
-                BUDDING_LAYER_INDEX,
-                AreaDelta::new(budding_layer_area_delta),
+                BONDING_LAYER_INDEX,
+                AreaDelta::new(bonding_layer_area_delta),
             ),
             CellLayer::healing_request(
-                BUDDING_LAYER_INDEX,
-                budding_layer_healing.max(0.0).min(1.0),
+                BONDING_LAYER_INDEX,
+                bonding_layer_healing.max(0.0).min(1.0),
             ),
             BondingCellLayerSpecialty::retain_bond_request(
-                BUDDING_LAYER_INDEX,
+                BONDING_LAYER_INDEX,
                 0,
                 donation_energy > 0.0,
             ),
             BondingCellLayerSpecialty::budding_angle_request(
-                BUDDING_LAYER_INDEX,
+                BONDING_LAYER_INDEX,
                 0,
                 Angle::from_radians(0.0),
             ),
             BondingCellLayerSpecialty::donation_energy_request(
-                BUDDING_LAYER_INDEX,
+                BONDING_LAYER_INDEX,
                 0,
                 BioEnergy::new(donation_energy.max(0.0)),
             ),

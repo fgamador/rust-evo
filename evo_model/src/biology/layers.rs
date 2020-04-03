@@ -687,7 +687,7 @@ impl CellLayerSpecialty for BondingCellLayerSpecialty {
                 CostedControlRequest::new(request, BioEnergyDelta::ZERO)
             }
             Self::DONATION_ENERGY_CHANNEL_INDEX => {
-                CostedControlRequest::new(request, BioEnergyDelta::new(request.value()))
+                CostedControlRequest::new(request, BioEnergyDelta::new(-request.value()))
             }
             _ => panic!("Invalid control channel index: {}", request.channel_index()),
         }

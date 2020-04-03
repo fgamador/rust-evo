@@ -506,7 +506,8 @@ mod tests {
             .with_control(Box::new(ContinuousRequestsControl::new(vec![
                 BondingCellLayerSpecialty::retain_bond_request(0, 1, true),
                 BondingCellLayerSpecialty::donation_energy_request(0, 1, BioEnergy::new(1.0)),
-            ]))),
+            ])))
+            .with_initial_energy(BioEnergy::new(10.0)),
         );
 
         world.tick();
@@ -517,6 +518,51 @@ mod tests {
         assert!(parent.has_edge(1));
         let child = &world.cells()[1];
         assert!(child.has_edge(0));
+    }
+
+    #[test]
+    fn cells_can_donate_energy_through_bond() {
+        let mut world = World::new(Position::ORIGIN, Position::ORIGIN)
+            .with_cells(vec![
+                Cell::new(
+                    Position::ORIGIN,
+                    Velocity::ZERO,
+                    vec![CellLayer::new(
+                        Area::new(1.0),
+                        Density::new(1.0),
+                        Color::Green,
+                        Box::new(BondingCellLayerSpecialty::new()),
+                    )],
+                )
+                .with_control(Box::new(ContinuousRequestsControl::new(vec![
+                    BondingCellLayerSpecialty::retain_bond_request(0, 1, true),
+                    BondingCellLayerSpecialty::donation_energy_request(0, 1, BioEnergy::new(2.0)),
+                ])))
+                .with_initial_energy(BioEnergy::new(10.0)),
+                Cell::new(
+                    Position::ORIGIN,
+                    Velocity::ZERO,
+                    vec![CellLayer::new(
+                        Area::new(1.0),
+                        Density::new(1.0),
+                        Color::Green,
+                        Box::new(BondingCellLayerSpecialty::new()),
+                    )],
+                )
+                .with_control(Box::new(ContinuousRequestsControl::new(vec![
+                    BondingCellLayerSpecialty::retain_bond_request(0, 0, true),
+                    BondingCellLayerSpecialty::donation_energy_request(0, 0, BioEnergy::new(3.0)),
+                ])))
+                .with_initial_energy(BioEnergy::new(10.0)),
+            ])
+            .with_bonds(vec![(0, 1)]);
+
+        world.tick();
+
+        let cell0 = &world.cells()[0];
+        assert_eq!(cell0.energy(), BioEnergy::new(8.0));
+        let cell1 = &world.cells()[1];
+        assert_eq!(cell1.energy(), BioEnergy::new(7.0));
     }
 
     #[test]

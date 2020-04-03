@@ -20,10 +20,10 @@ fn create_world() -> World {
         .with_perimeter_walls()
         .with_pair_collisions()
         .with_influence(Box::new(BondForces::new()))
-        .with_cell(create_child().with_initial_position(Position::new(200.0, -100.0)))
+        .with_cell(create_cell().with_initial_position(Position::new(200.0, -100.0)))
 }
 
-fn create_child() -> Cell {
+fn create_cell() -> Cell {
     Cell::new(
         Position::ORIGIN,
         Velocity::ZERO,
@@ -43,6 +43,7 @@ fn create_child() -> Cell {
         ],
     )
     .with_control(Box::new(BuddingControl::new(1)))
+    .with_initial_energy(BioEnergy::new(4.0))
 }
 
 #[derive(Clone, Debug)]

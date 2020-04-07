@@ -518,6 +518,8 @@ mod tests {
         assert!(parent.has_edge(1));
         let child = &world.cells()[1];
         assert!(child.has_edge(0));
+        assert_eq!(parent.energy(), BioEnergy::new(9.0));
+        assert_eq!(child.energy(), BioEnergy::new(1.0));
     }
 
     #[test]

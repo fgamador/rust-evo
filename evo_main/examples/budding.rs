@@ -30,13 +30,13 @@ fn create_cell() -> Cell {
         vec![
             CellLayer::new(
                 Area::new(5.0 * PI),
-                Density::new(1.0),
+                Density::new(0.002),
                 Color::Green,
                 Box::new(NullCellLayerSpecialty::new()),
             ),
             CellLayer::new(
                 Area::new(5.0 * PI),
-                Density::new(1.0),
+                Density::new(0.002),
                 Color::Yellow,
                 Box::new(BondingCellLayerSpecialty::new()),
             ),

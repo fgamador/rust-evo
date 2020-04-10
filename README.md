@@ -9,49 +9,31 @@ These instructions will get you a copy of the project up and running on your loc
 ### Prerequisites
 
 * [Rust](https://www.rust-lang.org/tools/install) - The Rust compiler and supporting tools
-
-What things you need to install the software and how to install them
-
-```
-Give examples
-```
+* [rustfmt](https://github.com/rust-lang/rustfmt) - The Rust standard code formatter
+* [Clippy](https://github.com/rust-lang/rust-clippy) - The Rust standard code linter
 
 ### Installing
 
-A step by step series of examples that tell you how to get a development env running
+[Fork and clone this repo](https://akrabat.com/the-beginners-guide-to-contributing-to-a-github-project/)
 
-Say what the step will be
-
-```
-Give the example
-```
-
-And repeat
+Run the tests
 
 ```
-until finished
+cargo test
+```
+
+Run evo
+
+```
+cargo run
 ```
 
 End with an example of getting some data out of the system or using it for a little demo
 
 ## Running the tests
 
-Explain how to run the automated tests for this system
-
-### Break down into end to end tests
-
-Explain what these tests test and why
-
 ```
-Give an example
-```
-
-### And coding style tests
-
-Explain what these tests test and why
-
-```
-Give an example
+cargo test
 ```
 
 ## Deployment

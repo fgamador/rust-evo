@@ -4,68 +4,48 @@ Evo aims to simulate evolution of simple digital organisms.
 
 ## Getting Started
 
-These instructions will get you a copy of the project up and running on your local machine for development and testing purposes. See deployment for notes on how to deploy the project on a live system.
+These instructions will get you a copy of the project up and running on your local machine for development and testing purposes.
 
 ### Prerequisites
 
 * [Rust](https://www.rust-lang.org/tools/install) - The Rust compiler and supporting tools
-* [rustfmt](https://github.com/rust-lang/rustfmt) - The Rust standard code formatter
-* [Clippy](https://github.com/rust-lang/rust-clippy) - The Rust standard code linter
 
 ### Installing
 
-[Fork and clone this repo](https://akrabat.com/the-beginners-guide-to-contributing-to-a-github-project/)
+[Fork and clone](https://akrabat.com/the-beginners-guide-to-contributing-to-a-github-project/) this repo.
 
-Run the tests
+Run the tests.
 
 ```
 cargo test
 ```
 
-Run evo
+Run evo.
 
 ```
 cargo run
 ```
 
-End with an example of getting some data out of the system or using it for a little demo
-
-## Running the tests
+Run the most interesting-looking demo.
 
 ```
-cargo test
+cargo run --example duckweed
 ```
 
-## Deployment
+### Development Tooling
 
-Add additional notes about how to deploy this on a live system
+* [rustfmt](https://github.com/rust-lang/rustfmt) - The Rust standard code formatter
+```
+rustup component add rustfmt
+```
 
-## Built With
+* [Clippy](https://github.com/rust-lang/rust-clippy) - The Rust standard code linter
+```
+rustup component add clippy
+```
 
-* [Dropwizard](http://www.dropwizard.io/1.0.2/docs/) - The web framework used
-* [Maven](https://maven.apache.org/) - Dependency Management
-* [ROME](https://rometools.github.io/rome/) - Used to generate RSS Feeds
-
-## Contributing
-
-Please read [CONTRIBUTING.md](https://gist.github.com/PurpleBooth/b24679402957c63ec426) for details on our code of conduct, and the process for submitting pull requests to us.
-
-## Versioning
-
-We use [SemVer](http://semver.org/) for versioning. For the versions available, see the [tags on this repository](https://github.com/your/project/tags). 
+* A development environment, such as [IntelliJ IDEA](https://www.jetbrains.com/idea/download) with the [Rust plugin](https://intellij-rust.github.io/), or one of the ones listed in "Other tools" [here](https://www.rust-lang.org/learn/get-started)
 
 ## Authors
 
-* **Billie Thompson** - *Initial work* - [PurpleBooth](https://github.com/PurpleBooth)
-
-See also the list of [contributors](https://github.com/your/project/contributors) who participated in this project.
-
-## License
-
-This project is licensed under the MIT License - see the [LICENSE.md](LICENSE.md) file for details
-
-## Acknowledgments
-
-* Hat tip to anyone whose code was used
-* Inspiration
-* etc
+* **Franz Amador** - *Initial work*

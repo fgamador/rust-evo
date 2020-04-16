@@ -8,6 +8,8 @@ use std::f64::consts::PI;
 #[derive(Clone, Debug, GraphEdge, PartialEq)]
 pub struct Bond {
     edge_data: GraphEdgeData,
+    energy_for_cell0: BioEnergy,
+    energy_for_cell1: BioEnergy,
 }
 
 impl Bond {
@@ -15,7 +17,17 @@ impl Bond {
         assert_ne!(circle1.node_handle(), circle2.node_handle());
         Bond {
             edge_data: GraphEdgeData::new(circle1.node_handle(), circle2.node_handle()),
+            energy_for_cell0: BioEnergy::new(0.0),
+            energy_for_cell1: BioEnergy::new(0.0),
         }
+    }
+
+    pub fn energy_for_cell0(&self) -> BioEnergy {
+        self.energy_for_cell0
+    }
+
+    pub fn energy_for_cell1(&self) -> BioEnergy {
+        self.energy_for_cell1
     }
 
     pub fn calc_strain(&self) -> Displacement {

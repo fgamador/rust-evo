@@ -261,6 +261,8 @@ impl World {
                         bond_request.donation_energy,
                     );
                     parent_index_child_triples.push((cell.node_handle(), index, child));
+                } else {
+                    //let bond = self.bond(cell.edge_handle(index));
                 }
             } else {
                 if cell.has_edge(index) {
@@ -523,6 +525,7 @@ mod tests {
     }
 
     #[test]
+    #[ignore]
     fn cells_can_donate_energy_through_bond() {
         let mut world = World::new(Position::ORIGIN, Position::ORIGIN)
             .with_cells(vec![
@@ -561,10 +564,15 @@ mod tests {
 
         world.tick();
 
+        assert_eq!(world.cells().len(), 2);
+        assert_eq!(world.bonds().len(), 1);
         let cell0 = &world.cells()[0];
         assert_eq!(cell0.energy(), BioEnergy::new(8.0));
         let cell1 = &world.cells()[1];
         assert_eq!(cell1.energy(), BioEnergy::new(7.0));
+        let bond = &world.bonds()[0];
+        assert_eq!(bond.energy_for_cell0(), BioEnergy::new(3.0));
+        assert_eq!(bond.energy_for_cell1(), BioEnergy::new(2.0));
     }
 
     #[test]

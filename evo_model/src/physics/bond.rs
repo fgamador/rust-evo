@@ -30,6 +30,16 @@ impl Bond {
         self.energy_for_cell1
     }
 
+    pub fn set_energy_from_cell(&mut self, cell_handle: NodeHandle, energy: BioEnergy) {
+        if cell_handle == self.edge_data.node1_handle() {
+            self.energy_for_cell1 = energy;
+        } else if cell_handle == self.edge_data.node2_handle() {
+            self.energy_for_cell0 = energy;
+        } else {
+            panic!("Tried to set bond energy from an unrelated cell");
+        }
+    }
+
     pub fn calc_strain(&self) -> Displacement {
         Displacement::new(0.0, 0.0)
     }

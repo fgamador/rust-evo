@@ -227,11 +227,12 @@ impl World {
         let mut parent_index_child_triples = vec![];
         let mut broken_bond_handles = HashSet::new();
         let mut dead_cell_handles = vec![];
-        for cell in self.cell_graph.nodes_mut() {
+        self.cell_graph.for_each_node(|cell, bonds| {
             let mut bond_requests = NONE_BOND_REQUESTS;
             cell.run_control(&mut bond_requests);
             Self::execute_bond_requests(
                 cell,
+                bonds,
                 &bond_requests,
                 &mut parent_index_child_triples,
                 &mut broken_bond_handles,
@@ -239,7 +240,7 @@ impl World {
             if !cell.is_alive() {
                 dead_cell_handles.push(cell.node_handle());
             }
-        }
+        });
         self.update_cell_graph(
             parent_index_child_triples,
             broken_bond_handles,
@@ -249,6 +250,7 @@ impl World {
 
     fn execute_bond_requests(
         cell: &mut Cell,
+        bonds: &mut [Bond],
         bond_requests: &BondRequests,
         parent_index_child_triples: &mut Vec<(NodeHandle, usize, Cell)>,
         broken_bond_handles: &mut HashSet<EdgeHandle>,
@@ -262,7 +264,8 @@ impl World {
                     );
                     parent_index_child_triples.push((cell.node_handle(), index, child));
                 } else {
-                    //let bond = self.bond(cell.edge_handle(index));
+                    let bond = &mut bonds[cell.edge_handle(index).index()];
+                    bond.set_energy_from_cell(cell.node_handle(), bond_request.donation_energy);
                 }
             } else {
                 if cell.has_edge(index) {
@@ -525,7 +528,6 @@ mod tests {
     }
 
     #[test]
-    #[ignore]
     fn cells_can_donate_energy_through_bond() {
         let mut world = World::new(Position::ORIGIN, Position::ORIGIN)
             .with_cells(vec![

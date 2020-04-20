@@ -296,6 +296,20 @@ impl NodeHandle {
         NodeHandle { index: u32::MAX }
     }
 
+    pub fn resolve<'a, N>(&self, nodes: &'a mut [N]) -> &'a N
+    where
+        N: GraphNode,
+    {
+        &nodes[self.index()]
+    }
+
+    pub fn resolve_mut<'a, N>(&self, nodes: &'a mut [N]) -> &'a mut N
+    where
+        N: GraphNode,
+    {
+        &mut nodes[self.index()]
+    }
+
     fn index(self) -> usize {
         self.index.try_into().unwrap()
     }
@@ -381,6 +395,13 @@ impl EdgeHandle {
 
     pub fn unset() -> Self {
         EdgeHandle { index: u32::MAX }
+    }
+
+    pub fn resolve<'a, E>(&self, edges: &'a mut [E]) -> &'a E
+    where
+        E: GraphEdge,
+    {
+        &edges[self.index()]
     }
 
     pub fn resolve_mut<'a, E>(&self, edges: &'a mut [E]) -> &'a mut E

@@ -263,7 +263,7 @@ impl World {
                         bond_request.donation_energy,
                     );
                     parent_index_child_triples.push((cell.node_handle(), index, child));
-                } else {
+                } else if bond_request.donation_energy != BioEnergy::ZERO {
                     let bond = &mut bonds[cell.edge_handle(index).index()];
                     bond.set_energy_from_cell(cell.node_handle(), bond_request.donation_energy);
                 }
@@ -573,8 +573,8 @@ mod tests {
         let cell1 = &world.cells()[1];
         assert_eq!(cell1.energy(), BioEnergy::new(7.0));
         let bond = &world.bonds()[0];
-        assert_eq!(bond.energy_for_cell0(), BioEnergy::new(3.0));
-        assert_eq!(bond.energy_for_cell1(), BioEnergy::new(2.0));
+        assert_eq!(bond.energy_for_cell1(), BioEnergy::new(3.0));
+        assert_eq!(bond.energy_for_cell2(), BioEnergy::new(2.0));
     }
 
     #[test]

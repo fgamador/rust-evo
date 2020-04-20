@@ -8,8 +8,8 @@ use std::f64::consts::PI;
 #[derive(Clone, Debug, GraphEdge, PartialEq)]
 pub struct Bond {
     edge_data: GraphEdgeData,
-    energy_for_cell0: BioEnergy,
     energy_for_cell1: BioEnergy,
+    energy_for_cell2: BioEnergy,
 }
 
 impl Bond {
@@ -17,24 +17,24 @@ impl Bond {
         assert_ne!(circle1.node_handle(), circle2.node_handle());
         Bond {
             edge_data: GraphEdgeData::new(circle1.node_handle(), circle2.node_handle()),
-            energy_for_cell0: BioEnergy::new(0.0),
             energy_for_cell1: BioEnergy::new(0.0),
+            energy_for_cell2: BioEnergy::new(0.0),
         }
-    }
-
-    pub fn energy_for_cell0(&self) -> BioEnergy {
-        self.energy_for_cell0
     }
 
     pub fn energy_for_cell1(&self) -> BioEnergy {
         self.energy_for_cell1
     }
 
+    pub fn energy_for_cell2(&self) -> BioEnergy {
+        self.energy_for_cell2
+    }
+
     pub fn set_energy_from_cell(&mut self, cell_handle: NodeHandle, energy: BioEnergy) {
         if cell_handle == self.edge_data.node1_handle() {
-            self.energy_for_cell1 = energy;
+            self.energy_for_cell2 = energy;
         } else if cell_handle == self.edge_data.node2_handle() {
-            self.energy_for_cell0 = energy;
+            self.energy_for_cell1 = energy;
         } else {
             panic!("Tried to set bond energy from an unrelated cell");
         }

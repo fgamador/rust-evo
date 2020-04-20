@@ -264,7 +264,7 @@ impl World {
                     );
                     parent_index_child_triples.push((cell.node_handle(), index, child));
                 } else if bond_request.donation_energy != BioEnergy::ZERO {
-                    let bond = &mut bonds[cell.edge_handle(index).index()];
+                    let bond = cell.edge_handle(index).resolve_mut(bonds);
                     bond.set_energy_from_cell(cell.node_handle(), bond_request.donation_energy);
                 }
             } else {

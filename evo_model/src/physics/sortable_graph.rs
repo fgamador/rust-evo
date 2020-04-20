@@ -224,6 +224,15 @@ impl<N: GraphNode, E: GraphEdge, ME: GraphMetaEdge> SortableGraph<N, E, ME> {
             })
     }
 
+    pub fn for_each_node<F>(&mut self, mut f: F)
+    where
+        F: FnMut(&mut N, &mut [E]),
+    {
+        for node in &mut self.nodes {
+            f(node, &mut self.edges);
+        }
+    }
+
     pub fn node_handles(&self) -> &[NodeHandle] {
         &self.node_handles
     }
@@ -374,7 +383,7 @@ impl EdgeHandle {
         EdgeHandle { index: u32::MAX }
     }
 
-    fn index(self) -> usize {
+    pub fn index(self) -> usize {
         self.index.try_into().unwrap()
     }
 }

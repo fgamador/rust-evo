@@ -268,10 +268,8 @@ impl World {
                     let bond = edge_source.edge(cell.edge_handle(index));
                     bond.set_energy_from_cell(cell.node_handle(), bond_request.donation_energy);
                 }
-            } else {
-                if cell.has_edge(index) {
-                    broken_bond_handles.insert(cell.edge_handle(index));
-                }
+            } else if cell.has_edge(index) {
+                broken_bond_handles.insert(cell.edge_handle(index));
             }
         }
     }

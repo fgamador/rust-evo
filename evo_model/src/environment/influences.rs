@@ -8,6 +8,7 @@ use crate::physics::shapes::Circle;
 use crate::physics::sortable_graph::*;
 use crate::physics::spring::*;
 use crate::physics::util::*;
+use log::trace;
 
 pub trait Influence {
     fn apply(

@@ -7,6 +7,7 @@ use crate::physics::newtonian::NewtonianBody;
 use crate::physics::quantities::*;
 use crate::physics::sortable_graph::*;
 use crate::physics::spring::*;
+use log::trace;
 use std::collections::HashSet;
 use std::iter::FromIterator;
 

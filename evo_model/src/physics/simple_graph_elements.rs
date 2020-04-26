@@ -1,6 +1,7 @@
 use crate::physics::quantities::*;
 use crate::physics::shapes::*;
 use crate::physics::sortable_graph::*;
+use evo_model_derive::*;
 
 #[derive(Clone, Debug, GraphNode, PartialEq)]
 pub struct SimpleGraphNode {

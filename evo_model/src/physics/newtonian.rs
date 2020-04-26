@@ -1,4 +1,5 @@
 use crate::physics::quantities::*;
+use evo_model_derive::*;
 
 pub trait NewtonianBody {
     fn mass(&self) -> Mass;

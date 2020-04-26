@@ -6,6 +6,7 @@ use crate::physics::newtonian::*;
 use crate::physics::quantities::*;
 use crate::physics::shapes::*;
 use crate::physics::sortable_graph::*;
+use evo_model_derive::*;
 use std::f64::consts::PI;
 use std::ptr;
 

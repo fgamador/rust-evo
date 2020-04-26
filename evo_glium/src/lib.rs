@@ -1,7 +1,7 @@
 use glium::{glutin, Surface};
 
-pub mod background_drawing;
-pub mod cell_drawing;
+mod background_drawing;
+mod cell_drawing;
 
 use background_drawing::*;
 use cell_drawing::*;

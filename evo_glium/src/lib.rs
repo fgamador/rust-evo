@@ -1,7 +1,3 @@
-#[macro_use]
-extern crate glium;
-extern crate evo_model;
-
 use glium::{glutin, Surface};
 
 pub mod background_drawing;

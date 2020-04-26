@@ -1,4 +1,4 @@
-use glium::Surface;
+use glium::{implement_vertex, uniform, Surface};
 
 #[derive(Clone, Copy)]
 pub struct CellSprite {

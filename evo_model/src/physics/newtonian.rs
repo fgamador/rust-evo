@@ -1,5 +1,4 @@
 use crate::physics::quantities::*;
-use evo_model_derive::NewtonianBody;
 
 pub trait NewtonianBody {
     fn mass(&self) -> Mass;
@@ -94,6 +93,7 @@ impl Forces {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use evo_model_derive::NewtonianBody;
 
     #[test]
     fn coasting() {

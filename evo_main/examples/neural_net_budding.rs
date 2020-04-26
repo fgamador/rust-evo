@@ -1,6 +1,3 @@
-extern crate evo_main;
-extern crate evo_model;
-
 use evo_main::main_support::init_and_run;
 use evo_model::biology::cell::Cell;
 use evo_model::biology::control::*;

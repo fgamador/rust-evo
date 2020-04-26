@@ -228,12 +228,12 @@ impl World {
         let mut parent_index_child_triples = vec![];
         let mut broken_bond_handles = HashSet::new();
         let mut dead_cell_handles = vec![];
-        self.cell_graph.for_each_node(|cell, bonds| {
+        self.cell_graph.for_each_node(|cell, edge_source| {
             let mut bond_requests = NONE_BOND_REQUESTS;
             cell.run_control(&mut bond_requests);
             Self::execute_bond_requests(
                 cell,
-                bonds,
+                edge_source,
                 &bond_requests,
                 &mut parent_index_child_triples,
                 &mut broken_bond_handles,
@@ -251,7 +251,7 @@ impl World {
 
     fn execute_bond_requests(
         cell: &mut Cell,
-        bonds: &mut [Bond],
+        edge_source: &mut EdgeSource<Bond>,
         bond_requests: &BondRequests,
         parent_index_child_triples: &mut Vec<(NodeHandle, usize, Cell)>,
         broken_bond_handles: &mut HashSet<EdgeHandle>,
@@ -265,7 +265,7 @@ impl World {
                     );
                     parent_index_child_triples.push((cell.node_handle(), index, child));
                 } else if bond_request.donation_energy != BioEnergy::ZERO {
-                    let bond = cell.edge_handle(index).resolve_mut(bonds);
+                    let bond = edge_source.edge(cell.edge_handle(index));
                     bond.set_energy_from_cell(cell.node_handle(), bond_request.donation_energy);
                 }
             } else {

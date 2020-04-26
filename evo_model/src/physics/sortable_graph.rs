@@ -226,10 +226,11 @@ impl<N: GraphNode, E: GraphEdge, ME: GraphMetaEdge> SortableGraph<N, E, ME> {
 
     pub fn for_each_node<F>(&mut self, mut f: F)
     where
-        F: FnMut(&mut N, &mut [E]),
+        F: FnMut(&mut N, &mut EdgeSource<E>),
     {
+        let mut edge_source = EdgeSource::new(&mut self.edges);
         for node in &mut self.nodes {
-            f(node, &mut self.edges);
+            f(node, &mut edge_source);
         }
     }
 
@@ -267,6 +268,20 @@ impl<N: GraphNode, E: GraphEdge, ME: GraphMetaEdge> SortableGraph<N, E, ME> {
 
     pub fn meta_edges(&self) -> &[ME] {
         &self.meta_edges
+    }
+}
+
+pub struct EdgeSource<'a, E: GraphEdge> {
+    edges: &'a mut [E],
+}
+
+impl<'a, E: GraphEdge> EdgeSource<'a, E> {
+    fn new(edges: &'a mut [E]) -> Self {
+        EdgeSource { edges }
+    }
+
+    pub fn edge(&mut self, handle: EdgeHandle) -> &mut E {
+        &mut self.edges[handle.index()]
     }
 }
 

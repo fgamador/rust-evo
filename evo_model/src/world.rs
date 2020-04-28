@@ -527,7 +527,8 @@ mod tests {
     }
 
     #[test]
-    fn cells_can_donate_energy_through_bond() {
+    #[ignore]
+    fn cells_can_pass_energy_through_bond() {
         let mut world = World::new(Position::ORIGIN, Position::ORIGIN)
             .with_cells(vec![
                 Cell::new(
@@ -567,10 +568,20 @@ mod tests {
 
         assert_eq!(world.cells().len(), 2);
         assert_eq!(world.bonds().len(), 1);
-        let cell0 = &world.cells()[0];
-        assert_eq!(cell0.energy(), BioEnergy::new(8.0));
-        let cell1 = &world.cells()[1];
-        assert_eq!(cell1.energy(), BioEnergy::new(7.0));
+        let cell1 = &world.cells()[0];
+        assert_eq!(cell1.energy(), BioEnergy::new(8.0));
+        let cell2 = &world.cells()[1];
+        assert_eq!(cell2.energy(), BioEnergy::new(7.0));
+        let bond = &world.bonds()[0];
+        assert_eq!(bond.energy_for_cell1(), BioEnergy::new(3.0));
+        assert_eq!(bond.energy_for_cell2(), BioEnergy::new(2.0));
+
+        world.tick();
+
+        let cell1 = &world.cells()[0];
+        assert_eq!(cell1.energy(), BioEnergy::new(9.0)); // 8 + 3 - 2
+        let cell2 = &world.cells()[1];
+        assert_eq!(cell2.energy(), BioEnergy::new(6.0)); // 7 + 2 - 3
         let bond = &world.bonds()[0];
         assert_eq!(bond.energy_for_cell1(), BioEnergy::new(3.0));
         assert_eq!(bond.energy_for_cell2(), BioEnergy::new(2.0));

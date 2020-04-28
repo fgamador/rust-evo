@@ -103,6 +103,10 @@ impl Cell {
         self.energy
     }
 
+    pub fn add_energy(&mut self, energy: BioEnergy) {
+        self.energy += energy;
+    }
+
     pub fn is_alive(&self) -> bool {
         self.layers.iter().any(|layer| layer.is_alive())
     }

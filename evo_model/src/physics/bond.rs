@@ -41,6 +41,20 @@ impl Bond {
         }
     }
 
+    pub fn claim_energy_for_cell(&mut self, cell_handle: NodeHandle) -> BioEnergy {
+        let ret_energy;
+        if cell_handle == self.edge_data.node1_handle() {
+            ret_energy = self.energy_for_cell1;
+            self.energy_for_cell1 = BioEnergy::ZERO;
+        } else if cell_handle == self.edge_data.node2_handle() {
+            ret_energy = self.energy_for_cell2;
+            self.energy_for_cell2 = BioEnergy::ZERO;
+        } else {
+            panic!("Tried to claim bond energy for an unrelated cell");
+        }
+        ret_energy
+    }
+
     pub fn calc_strain(&self) -> Displacement {
         Displacement::new(0.0, 0.0)
     }

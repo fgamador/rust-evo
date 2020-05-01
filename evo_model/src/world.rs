@@ -243,7 +243,7 @@ impl World {
 
     fn run_cell_controls(&mut self) {
         // TODO test: inner layer grows while outer layer buds at correct distance
-        let mut parent_index_child_triples = vec![];
+        let mut new_children = vec![];
         let mut broken_bond_handles = HashSet::new();
         let mut dead_cell_handles = vec![];
         self.cell_graph.for_each_node(|cell, edge_source| {
@@ -253,7 +253,7 @@ impl World {
                 cell,
                 edge_source,
                 &bond_requests,
-                &mut parent_index_child_triples,
+                &mut new_children,
                 &mut broken_bond_handles,
             );
             if !cell.is_alive() {
@@ -261,7 +261,7 @@ impl World {
             }
         });
         self.update_cell_graph(
-            parent_index_child_triples,
+            new_children,
             broken_bond_handles,
             dead_cell_handles,
         );
@@ -271,7 +271,7 @@ impl World {
         cell: &mut Cell,
         edge_source: &mut EdgeSource<Bond>,
         bond_requests: &BondRequests,
-        parent_index_child_triples: &mut Vec<(NodeHandle, usize, Cell)>,
+        new_children: &mut Vec<(NodeHandle, usize, Cell)>,
         broken_bond_handles: &mut HashSet<EdgeHandle>,
     ) {
         for (index, bond_request) in bond_requests.iter().enumerate() {
@@ -285,7 +285,7 @@ impl World {
                             bond_request.budding_angle,
                             bond_request.donation_energy,
                         );
-                        parent_index_child_triples.push((cell.node_handle(), index, child));
+                        new_children.push((cell.node_handle(), index, child));
                     }
                 }
             } else if cell.has_edge(index) {
@@ -296,17 +296,17 @@ impl World {
 
     fn update_cell_graph(
         &mut self,
-        parent_index_child_triples: Vec<(NodeHandle, usize, Cell)>,
+        new_children: Vec<(NodeHandle, usize, Cell)>,
         broken_bond_handles: HashSet<EdgeHandle>,
         dead_cell_handles: Vec<NodeHandle>,
     ) {
-        self.add_children(parent_index_child_triples);
+        self.add_children(new_children);
         self.remove_bonds(&broken_bond_handles);
         self.cell_graph.remove_nodes(&dead_cell_handles);
     }
 
-    fn add_children(&mut self, parent_index_child_triples: Vec<(NodeHandle, usize, Cell)>) {
-        for parent_index_child_triple in parent_index_child_triples {
+    fn add_children(&mut self, new_children: Vec<(NodeHandle, usize, Cell)>) {
+        for parent_index_child_triple in new_children {
             let child_handle = self.add_cell(parent_index_child_triple.2);
             let child = self.cell(child_handle);
             let bond = Bond::new(self.cell(parent_index_child_triple.0), child);

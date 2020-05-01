@@ -260,18 +260,14 @@ impl World {
                 dead_cell_handles.push(cell.node_handle());
             }
         });
-        self.update_cell_graph(
-            new_children,
-            broken_bond_handles,
-            dead_cell_handles,
-        );
+        self.update_cell_graph(new_children, broken_bond_handles, dead_cell_handles);
     }
 
     fn execute_bond_requests(
         cell: &mut Cell,
         edge_source: &mut EdgeSource<Bond>,
         bond_requests: &BondRequests,
-        new_children: &mut Vec<(NodeHandle, usize, Cell)>,
+        new_children: &mut Vec<(NodeHandle, usize, Cell, BioEnergy)>,
         broken_bond_handles: &mut HashSet<EdgeHandle>,
     ) {
         for (index, bond_request) in bond_requests.iter().enumerate() {
@@ -285,7 +281,12 @@ impl World {
                             bond_request.budding_angle,
                             bond_request.donation_energy,
                         );
-                        new_children.push((cell.node_handle(), index, child));
+                        new_children.push((
+                            cell.node_handle(),
+                            index,
+                            child,
+                            bond_request.donation_energy,
+                        ));
                     }
                 }
             } else if cell.has_edge(index) {
@@ -296,7 +297,7 @@ impl World {
 
     fn update_cell_graph(
         &mut self,
-        new_children: Vec<(NodeHandle, usize, Cell)>,
+        new_children: Vec<(NodeHandle, usize, Cell, BioEnergy)>,
         broken_bond_handles: HashSet<EdgeHandle>,
         dead_cell_handles: Vec<NodeHandle>,
     ) {
@@ -305,7 +306,7 @@ impl World {
         self.cell_graph.remove_nodes(&dead_cell_handles);
     }
 
-    fn add_children(&mut self, new_children: Vec<(NodeHandle, usize, Cell)>) {
+    fn add_children(&mut self, new_children: Vec<(NodeHandle, usize, Cell, BioEnergy)>) {
         for parent_index_child_triple in new_children {
             let child_handle = self.add_cell(parent_index_child_triple.2);
             let child = self.cell(child_handle);

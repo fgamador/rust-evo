@@ -267,7 +267,7 @@ impl World {
         cell: &mut Cell,
         edge_source: &mut EdgeSource<Bond>,
         bond_requests: &BondRequests,
-        new_children: &mut Vec<(NodeHandle, usize, Cell, BioEnergy)>,
+        new_children: &mut Vec<NewChildData>,
         broken_bond_handles: &mut HashSet<EdgeHandle>,
     ) {
         for (index, bond_request) in bond_requests.iter().enumerate() {
@@ -281,12 +281,12 @@ impl World {
                             bond_request.budding_angle,
                             BioEnergy::ZERO,
                         );
-                        new_children.push((
-                            cell.node_handle(),
-                            index,
+                        new_children.push(NewChildData{
+                            parent: cell.node_handle(),
+                            bond_index: index,
                             child,
-                            bond_request.donation_energy,
-                        ));
+                            donated_energy: bond_request.donation_energy,
+                        });
                     }
                 }
             } else if cell.has_edge(index) {
@@ -297,7 +297,7 @@ impl World {
 
     fn update_cell_graph(
         &mut self,
-        new_children: Vec<(NodeHandle, usize, Cell, BioEnergy)>,
+        new_children: Vec<NewChildData>,
         broken_bond_handles: HashSet<EdgeHandle>,
         dead_cell_handles: Vec<NodeHandle>,
     ) {
@@ -306,13 +306,13 @@ impl World {
         self.cell_graph.remove_nodes(&dead_cell_handles);
     }
 
-    fn add_children(&mut self, new_children: Vec<(NodeHandle, usize, Cell, BioEnergy)>) {
-        for new_child in new_children {
-            let child_handle = self.add_cell(new_child.2);
+    fn add_children(&mut self, new_children: Vec<NewChildData>) {
+        for new_child_data in new_children {
+            let child_handle = self.add_cell(new_child_data.child);
             let child = self.cell(child_handle);
-            let mut bond = Bond::new(self.cell(new_child.0), child);
-            bond.set_energy_from_cell(new_child.0, new_child.3);
-            self.add_bond(bond, new_child.1, 0);
+            let mut bond = Bond::new(self.cell(new_child_data.parent), child);
+            bond.set_energy_from_cell(new_child_data.parent, new_child_data.donated_energy);
+            self.add_bond(bond, new_child_data.bond_index, 0);
         }
     }
 
@@ -321,6 +321,13 @@ impl World {
         sorted_bond_handles.sort_unstable();
         self.cell_graph.remove_edges(&sorted_bond_handles);
     }
+}
+
+struct NewChildData {
+    parent: NodeHandle,
+    bond_index: usize,
+    child: Cell,
+    donated_energy: BioEnergy
 }
 
 #[cfg(test)]

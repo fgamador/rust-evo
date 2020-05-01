@@ -226,17 +226,11 @@ impl World {
 
     fn process_cell_bond_energy(&mut self) {
         self.cell_graph.for_each_node(|cell, edge_source| {
-            Self::claim_bond_energy(
-                cell,
-                edge_source,
-            );
+            Self::claim_bond_energy(cell, edge_source);
         });
     }
 
-    fn claim_bond_energy(
-        cell: &mut Cell,
-        edge_source: &mut EdgeSource<Bond>,
-    ) {
+    fn claim_bond_energy(cell: &mut Cell, edge_source: &mut EdgeSource<Bond>) {
         let mut energy = BioEnergy::ZERO;
         for edge_handle in cell.edge_handles() {
             if let Some(edge_handle) = edge_handle {
@@ -283,15 +277,15 @@ impl World {
         for (index, bond_request) in bond_requests.iter().enumerate() {
             if bond_request.retain_bond {
                 if bond_request.donation_energy != BioEnergy::ZERO {
-                    if !cell.has_edge(index) {
+                    if cell.has_edge(index) {
+                        let bond = edge_source.edge(cell.edge_handle(index));
+                        bond.set_energy_from_cell(cell.node_handle(), bond_request.donation_energy);
+                    } else {
                         let child = cell.create_and_place_child_cell(
                             bond_request.budding_angle,
                             bond_request.donation_energy,
                         );
                         parent_index_child_triples.push((cell.node_handle(), index, child));
-                    } else {
-                        let bond = edge_source.edge(cell.edge_handle(index));
-                        bond.set_energy_from_cell(cell.node_handle(), bond_request.donation_energy);
                     }
                 }
             } else if cell.has_edge(index) {

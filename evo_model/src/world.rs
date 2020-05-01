@@ -282,15 +282,17 @@ impl World {
     ) {
         for (index, bond_request) in bond_requests.iter().enumerate() {
             if bond_request.retain_bond {
-                if !cell.has_edge(index) && bond_request.donation_energy != BioEnergy::ZERO {
-                    let child = cell.create_and_place_child_cell(
-                        bond_request.budding_angle,
-                        bond_request.donation_energy,
-                    );
-                    parent_index_child_triples.push((cell.node_handle(), index, child));
-                } else if bond_request.donation_energy != BioEnergy::ZERO {
-                    let bond = edge_source.edge(cell.edge_handle(index));
-                    bond.set_energy_from_cell(cell.node_handle(), bond_request.donation_energy);
+                if bond_request.donation_energy != BioEnergy::ZERO {
+                    if !cell.has_edge(index) {
+                        let child = cell.create_and_place_child_cell(
+                            bond_request.budding_angle,
+                            bond_request.donation_energy,
+                        );
+                        parent_index_child_triples.push((cell.node_handle(), index, child));
+                    } else {
+                        let bond = edge_source.edge(cell.edge_handle(index));
+                        bond.set_energy_from_cell(cell.node_handle(), bond_request.donation_energy);
+                    }
                 }
             } else if cell.has_edge(index) {
                 broken_bond_handles.insert(cell.edge_handle(index));

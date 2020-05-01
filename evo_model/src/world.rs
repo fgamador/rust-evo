@@ -279,7 +279,7 @@ impl World {
                     } else {
                         let child = cell.create_and_place_child_cell(
                             bond_request.budding_angle,
-                            bond_request.donation_energy,
+                            BioEnergy::ZERO,
                         );
                         new_children.push((
                             cell.node_handle(),
@@ -307,11 +307,12 @@ impl World {
     }
 
     fn add_children(&mut self, new_children: Vec<(NodeHandle, usize, Cell, BioEnergy)>) {
-        for parent_index_child_triple in new_children {
-            let child_handle = self.add_cell(parent_index_child_triple.2);
+        for new_child in new_children {
+            let child_handle = self.add_cell(new_child.2);
             let child = self.cell(child_handle);
-            let bond = Bond::new(self.cell(parent_index_child_triple.0), child);
-            self.add_bond(bond, parent_index_child_triple.1, 0);
+            let mut bond = Bond::new(self.cell(new_child.0), child);
+            bond.set_energy_from_cell(new_child.0, new_child.3);
+            self.add_bond(bond, new_child.1, 0);
         }
     }
 
@@ -544,7 +545,9 @@ mod tests {
         let child = &world.cells()[1];
         assert!(child.has_edge(0));
         assert_eq!(parent.energy(), BioEnergy::new(9.0));
-        assert_eq!(child.energy(), BioEnergy::new(1.0));
+        assert_eq!(child.energy(), BioEnergy::ZERO);
+        let bond = &world.bonds()[0];
+        assert_eq!(bond.energy_for_cell2(), BioEnergy::new(1.0));
     }
 
     #[test]

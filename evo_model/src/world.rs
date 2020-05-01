@@ -160,6 +160,7 @@ impl World {
             self.subtick_cells(subtick_duration, subtick);
         }
 
+        self.process_cell_bond_energy();
         self.run_cell_controls();
     }
 
@@ -223,16 +224,35 @@ impl World {
         );
     }
 
+    fn process_cell_bond_energy(&mut self) {
+        self.cell_graph.for_each_node(|cell, edge_source| {
+            Self::claim_bond_energy(
+                cell,
+                edge_source,
+            );
+        });
+    }
+
+    fn claim_bond_energy(
+        cell: &mut Cell,
+        edge_source: &mut EdgeSource<Bond>,
+    ) {
+        let mut energy = BioEnergy::ZERO;
+        for edge_handle in cell.edge_handles() {
+            if let Some(edge_handle) = edge_handle {
+                let bond = edge_source.edge(*edge_handle);
+                energy += bond.claim_energy_for_cell(cell.node_handle());
+            }
+        }
+        cell.add_energy(energy);
+    }
+
     fn run_cell_controls(&mut self) {
         // TODO test: inner layer grows while outer layer buds at correct distance
         let mut parent_index_child_triples = vec![];
         let mut broken_bond_handles = HashSet::new();
         let mut dead_cell_handles = vec![];
         self.cell_graph.for_each_node(|cell, edge_source| {
-            // Self::claim_bond_energy(
-            //     cell,
-            //     edge_source,
-            // );
             let mut bond_requests = NONE_BOND_REQUESTS;
             cell.run_control(&mut bond_requests);
             Self::execute_bond_requests(
@@ -251,20 +271,6 @@ impl World {
             broken_bond_handles,
             dead_cell_handles,
         );
-    }
-
-    fn claim_bond_energy(
-        cell: &mut Cell,
-        edge_source: &mut EdgeSource<Bond>,
-    ) {
-        let mut energy = BioEnergy::ZERO;
-        for edge_handle in cell.edge_handles() {
-            if let Some(edge_handle) = edge_handle {
-                let bond = edge_source.edge(*edge_handle);
-                energy += bond.claim_energy_for_cell(cell.node_handle());
-            }
-        }
-        cell.add_energy(energy);
     }
 
     fn execute_bond_requests(
@@ -545,7 +551,6 @@ mod tests {
     }
 
     #[test]
-    #[ignore]
     fn cells_can_pass_energy_through_bond() {
         let mut world = World::new(Position::ORIGIN, Position::ORIGIN)
             .with_cells(vec![

@@ -160,6 +160,7 @@ impl World {
             self.subtick_cells(subtick_duration, subtick);
         }
 
+        self.process_cell_bond_energy();
         self.run_cell_controls();
     }
 
@@ -223,9 +224,26 @@ impl World {
         );
     }
 
+    fn process_cell_bond_energy(&mut self) {
+        self.cell_graph.for_each_node(|cell, edge_source| {
+            Self::claim_bond_energy(cell, edge_source);
+        });
+    }
+
+    fn claim_bond_energy(cell: &mut Cell, edge_source: &mut EdgeSource<Bond>) {
+        let mut energy = BioEnergy::ZERO;
+        for edge_handle in cell.edge_handles() {
+            if let Some(edge_handle) = edge_handle {
+                let bond = edge_source.edge(*edge_handle);
+                energy += bond.claim_energy_for_cell(cell.node_handle());
+            }
+        }
+        cell.add_energy(energy);
+    }
+
     fn run_cell_controls(&mut self) {
         // TODO test: inner layer grows while outer layer buds at correct distance
-        let mut parent_index_child_triples = vec![];
+        let mut new_children = vec![];
         let mut broken_bond_handles = HashSet::new();
         let mut dead_cell_handles = vec![];
         self.cell_graph.for_each_node(|cell, edge_source| {
@@ -235,38 +253,41 @@ impl World {
                 cell,
                 edge_source,
                 &bond_requests,
-                &mut parent_index_child_triples,
+                &mut new_children,
                 &mut broken_bond_handles,
             );
             if !cell.is_alive() {
                 dead_cell_handles.push(cell.node_handle());
             }
         });
-        self.update_cell_graph(
-            parent_index_child_triples,
-            broken_bond_handles,
-            dead_cell_handles,
-        );
+        self.update_cell_graph(new_children, broken_bond_handles, dead_cell_handles);
     }
 
     fn execute_bond_requests(
         cell: &mut Cell,
         edge_source: &mut EdgeSource<Bond>,
         bond_requests: &BondRequests,
-        parent_index_child_triples: &mut Vec<(NodeHandle, usize, Cell)>,
+        new_children: &mut Vec<NewChildData>,
         broken_bond_handles: &mut HashSet<EdgeHandle>,
     ) {
         for (index, bond_request) in bond_requests.iter().enumerate() {
             if bond_request.retain_bond {
-                if !cell.has_edge(index) && bond_request.donation_energy != BioEnergy::ZERO {
-                    let child = cell.create_and_place_child_cell(
-                        bond_request.budding_angle,
-                        bond_request.donation_energy,
-                    );
-                    parent_index_child_triples.push((cell.node_handle(), index, child));
-                } else if bond_request.donation_energy != BioEnergy::ZERO {
-                    let bond = edge_source.edge(cell.edge_handle(index));
-                    bond.set_energy_from_cell(cell.node_handle(), bond_request.donation_energy);
+                if bond_request.donation_energy != BioEnergy::ZERO {
+                    if cell.has_edge(index) {
+                        let bond = edge_source.edge(cell.edge_handle(index));
+                        bond.set_energy_from_cell(cell.node_handle(), bond_request.donation_energy);
+                    } else {
+                        let child = cell.create_and_place_child_cell(
+                            bond_request.budding_angle,
+                            BioEnergy::ZERO,
+                        );
+                        new_children.push(NewChildData{
+                            parent: cell.node_handle(),
+                            bond_index: index,
+                            child,
+                            donated_energy: bond_request.donation_energy,
+                        });
+                    }
                 }
             } else if cell.has_edge(index) {
                 broken_bond_handles.insert(cell.edge_handle(index));
@@ -276,21 +297,22 @@ impl World {
 
     fn update_cell_graph(
         &mut self,
-        parent_index_child_triples: Vec<(NodeHandle, usize, Cell)>,
+        new_children: Vec<NewChildData>,
         broken_bond_handles: HashSet<EdgeHandle>,
         dead_cell_handles: Vec<NodeHandle>,
     ) {
-        self.add_children(parent_index_child_triples);
+        self.add_children(new_children);
         self.remove_bonds(&broken_bond_handles);
         self.cell_graph.remove_nodes(&dead_cell_handles);
     }
 
-    fn add_children(&mut self, parent_index_child_triples: Vec<(NodeHandle, usize, Cell)>) {
-        for parent_index_child_triple in parent_index_child_triples {
-            let child_handle = self.add_cell(parent_index_child_triple.2);
+    fn add_children(&mut self, new_children: Vec<NewChildData>) {
+        for new_child_data in new_children {
+            let child_handle = self.add_cell(new_child_data.child);
             let child = self.cell(child_handle);
-            let bond = Bond::new(self.cell(parent_index_child_triple.0), child);
-            self.add_bond(bond, parent_index_child_triple.1, 0);
+            let mut bond = Bond::new(self.cell(new_child_data.parent), child);
+            bond.set_energy_from_cell(new_child_data.parent, new_child_data.donated_energy);
+            self.add_bond(bond, new_child_data.bond_index, 0);
         }
     }
 
@@ -299,6 +321,13 @@ impl World {
         sorted_bond_handles.sort_unstable();
         self.cell_graph.remove_edges(&sorted_bond_handles);
     }
+}
+
+struct NewChildData {
+    parent: NodeHandle,
+    bond_index: usize,
+    child: Cell,
+    donated_energy: BioEnergy
 }
 
 #[cfg(test)]
@@ -523,11 +552,13 @@ mod tests {
         let child = &world.cells()[1];
         assert!(child.has_edge(0));
         assert_eq!(parent.energy(), BioEnergy::new(9.0));
-        assert_eq!(child.energy(), BioEnergy::new(1.0));
+        assert_eq!(child.energy(), BioEnergy::ZERO);
+        let bond = &world.bonds()[0];
+        assert_eq!(bond.energy_for_cell2(), BioEnergy::new(1.0));
     }
 
     #[test]
-    fn cells_can_donate_energy_through_bond() {
+    fn cells_can_pass_energy_through_bond() {
         let mut world = World::new(Position::ORIGIN, Position::ORIGIN)
             .with_cells(vec![
                 Cell::new(
@@ -567,10 +598,20 @@ mod tests {
 
         assert_eq!(world.cells().len(), 2);
         assert_eq!(world.bonds().len(), 1);
-        let cell0 = &world.cells()[0];
-        assert_eq!(cell0.energy(), BioEnergy::new(8.0));
-        let cell1 = &world.cells()[1];
-        assert_eq!(cell1.energy(), BioEnergy::new(7.0));
+        let cell1 = &world.cells()[0];
+        assert_eq!(cell1.energy(), BioEnergy::new(8.0));
+        let cell2 = &world.cells()[1];
+        assert_eq!(cell2.energy(), BioEnergy::new(7.0));
+        let bond = &world.bonds()[0];
+        assert_eq!(bond.energy_for_cell1(), BioEnergy::new(3.0));
+        assert_eq!(bond.energy_for_cell2(), BioEnergy::new(2.0));
+
+        world.tick();
+
+        let cell1 = &world.cells()[0];
+        assert_eq!(cell1.energy(), BioEnergy::new(9.0)); // 8 + 3 - 2
+        let cell2 = &world.cells()[1];
+        assert_eq!(cell2.energy(), BioEnergy::new(6.0)); // 7 + 2 - 3
         let bond = &world.bonds()[0];
         assert_eq!(bond.energy_for_cell1(), BioEnergy::new(3.0));
         assert_eq!(bond.energy_for_cell2(), BioEnergy::new(2.0));

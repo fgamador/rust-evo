@@ -89,6 +89,10 @@ pub fn graph_node_derive(input: TokenStream) -> TokenStream {
                 fn edge_handle(&self, node_edge_index: usize) -> EdgeHandle {
                     self.#field_name.edge_handle(node_edge_index)
                 }
+
+                fn edge_handles(&self) -> &[Option<EdgeHandle>] {
+                    self.#field_name.edge_handles()
+                }
             }
         }
     })

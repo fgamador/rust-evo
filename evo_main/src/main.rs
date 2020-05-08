@@ -15,11 +15,11 @@ fn main() {
     init_and_run(create_world());
 }
 
-//const FLUID_DENSITY: f64 = 0.001;
+const FLUID_DENSITY: f64 = 0.001;
 const FLOAT_LAYER_DENSITY: f64 = 0.0001;
 const PHOTO_LAYER_DENSITY: f64 = 0.002;
 const BONDING_LAYER_DENSITY: f64 = 0.002;
-//const GRAVITY: f64 = -0.05;
+const GRAVITY: f64 = -0.05;
 const OVERLAP_DAMAGE_HEALTH_DELTA: f64 = -0.1;
 
 const FLOAT_LAYER_INDEX: usize = 0;
@@ -32,9 +32,16 @@ fn create_world() -> World {
         .with_pair_collisions()
         .with_influence(Box::new(BondForces::new()))
         .with_sunlight(0.0, 1.0)
-        .with_influences(vec![Box::new(SimpleForceInfluence::new(Box::new(
-            DragForce::new(0.005),
-        )))])
+        .with_influences(vec![
+            Box::new(SimpleForceInfluence::new(Box::new(WeightForce::new(
+                GRAVITY,
+            )))),
+            Box::new(SimpleForceInfluence::new(Box::new(BuoyancyForce::new(
+                GRAVITY,
+                FLUID_DENSITY,
+            )))),
+            Box::new(SimpleForceInfluence::new(Box::new(DragForce::new(0.005)))),
+        ])
         .with_cell(
             create_cell()
                 .with_initial_energy(BioEnergy::new(50.0))
@@ -141,20 +148,21 @@ pub struct NeuralNetBuddingControl {
 
 impl NeuralNetBuddingControl {
     const CELL_ENERGY_INPUT_INDEX: VecIndex = 0;
-    const FLOAT_LAYER_AREA_INPUT_INDEX: VecIndex = 1;
-    const FLOAT_LAYER_HEALTH_INPUT_INDEX: VecIndex = 2;
-    const PHOTO_LAYER_AREA_INPUT_INDEX: VecIndex = 3;
-    const PHOTO_LAYER_HEALTH_INPUT_INDEX: VecIndex = 4;
-    const BONDING_LAYER_AREA_INPUT_INDEX: VecIndex = 5;
-    const BONDING_LAYER_HEALTH_INPUT_INDEX: VecIndex = 6;
+    const CELL_Y_INPUT_INDEX: VecIndex = 1;
+    const FLOAT_LAYER_AREA_INPUT_INDEX: VecIndex = 2;
+    const FLOAT_LAYER_HEALTH_INPUT_INDEX: VecIndex = 3;
+    const PHOTO_LAYER_AREA_INPUT_INDEX: VecIndex = 4;
+    const PHOTO_LAYER_HEALTH_INPUT_INDEX: VecIndex = 5;
+    const BONDING_LAYER_AREA_INPUT_INDEX: VecIndex = 6;
+    const BONDING_LAYER_HEALTH_INPUT_INDEX: VecIndex = 7;
 
-    const FLOAT_LAYER_RESIZE_OUTPUT_INDEX: VecIndex = 7;
-    const FLOAT_LAYER_HEALING_OUTPUT_INDEX: VecIndex = 8;
-    const PHOTO_LAYER_RESIZE_OUTPUT_INDEX: VecIndex = 9;
-    const PHOTO_LAYER_HEALING_OUTPUT_INDEX: VecIndex = 10;
-    const BONDING_LAYER_RESIZE_OUTPUT_INDEX: VecIndex = 11;
-    const BONDING_LAYER_HEALING_OUTPUT_INDEX: VecIndex = 12;
-    const DONATION_ENERGY_OUTPUT_INDEX: VecIndex = 13;
+    const FLOAT_LAYER_RESIZE_OUTPUT_INDEX: VecIndex = 8;
+    const FLOAT_LAYER_HEALING_OUTPUT_INDEX: VecIndex = 9;
+    const PHOTO_LAYER_RESIZE_OUTPUT_INDEX: VecIndex = 10;
+    const PHOTO_LAYER_HEALING_OUTPUT_INDEX: VecIndex = 11;
+    const BONDING_LAYER_RESIZE_OUTPUT_INDEX: VecIndex = 12;
+    const BONDING_LAYER_HEALING_OUTPUT_INDEX: VecIndex = 13;
+    const DONATION_ENERGY_OUTPUT_INDEX: VecIndex = 14;
 
     fn new(genome: SparseNeuralNetGenome, randomness: SeededMutationRandomness) -> Self {
         NeuralNetBuddingControl {
@@ -165,6 +173,11 @@ impl NeuralNetBuddingControl {
 
     fn new_genome() -> SparseNeuralNetGenome {
         let mut genome = SparseNeuralNetGenome::new(TransferFn::IDENTITY);
+        genome.connect_node(
+            Self::FLOAT_LAYER_RESIZE_OUTPUT_INDEX,
+            -100.0,
+            &[(Self::CELL_Y_INPUT_INDEX, -1.0)],
+        );
         genome.connect_node(
             Self::FLOAT_LAYER_HEALING_OUTPUT_INDEX,
             1.0,
@@ -202,6 +215,7 @@ impl NeuralNetBuddingControl {
 impl CellControl for NeuralNetBuddingControl {
     fn run(&mut self, cell_state: &CellStateSnapshot) -> Vec<ControlRequest> {
         let cell_energy = cell_state.energy.value() as f32;
+        let cell_y = cell_state.center.y() as f32;
         let float_layer_area = cell_state.layers[FLOAT_LAYER_INDEX].area.value() as f32;
         let float_layer_health = cell_state.layers[FLOAT_LAYER_INDEX].health as f32;
         let photo_layer_area = cell_state.layers[PHOTO_LAYER_INDEX].area.value() as f32;
@@ -211,6 +225,7 @@ impl CellControl for NeuralNetBuddingControl {
 
         self.nnet
             .set_node_value(Self::CELL_ENERGY_INPUT_INDEX, cell_energy);
+        self.nnet.set_node_value(Self::CELL_Y_INPUT_INDEX, cell_y);
         self.nnet
             .set_node_value(Self::FLOAT_LAYER_AREA_INPUT_INDEX, float_layer_area);
         self.nnet

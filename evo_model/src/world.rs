@@ -281,7 +281,7 @@ impl World {
                             bond_request.budding_angle,
                             BioEnergy::ZERO,
                         );
-                        new_children.push(NewChildData{
+                        new_children.push(NewChildData {
                             parent: cell.node_handle(),
                             bond_index: index,
                             child,
@@ -327,7 +327,7 @@ struct NewChildData {
     parent: NodeHandle,
     bond_index: usize,
     child: Cell,
-    donated_energy: BioEnergy
+    donated_energy: BioEnergy,
 }
 
 #[cfg(test)]

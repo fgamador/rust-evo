@@ -91,20 +91,20 @@ impl GliumView {
 
     pub fn render(&mut self, world: &evo_model::world::World) {
         self.draw_frame(
-            &Self::view_model_bullseyes_to_drawing_cells(world),
+            &Self::world_cells_to_cell_sprites(world),
             Self::get_layer_colors(world),
         );
     }
 
-    fn view_model_bullseyes_to_drawing_cells(world: &evo_model::world::World) -> Vec<CellSprite> {
+    fn world_cells_to_cell_sprites(world: &evo_model::world::World) -> Vec<CellSprite> {
         world
             .cells()
             .iter()
-            .map(Self::model_cell_to_drawing_cell)
+            .map(Self::world_cell_to_cell_sprite)
             .collect()
     }
 
-    fn model_cell_to_drawing_cell(cell: &Cell) -> CellSprite {
+    fn world_cell_to_cell_sprite(cell: &Cell) -> CellSprite {
         let mut radii: [f32; 8] = [0.0; 8];
         let mut health: [f32; 8] = [0.0; 8];
         assert!(cell.layers().len() <= radii.len());

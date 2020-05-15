@@ -274,17 +274,17 @@ impl CellControl for NeuralNetBuddingControl {
             ),
             BondingCellLayerSpecialty::retain_bond_request(
                 BONDING_LAYER_INDEX,
-                0,
+                1,
                 donation_energy > 0.0,
             ),
             BondingCellLayerSpecialty::budding_angle_request(
                 BONDING_LAYER_INDEX,
-                0,
+                1,
                 Angle::from_radians(0.0),
             ),
             BondingCellLayerSpecialty::donation_energy_request(
                 BONDING_LAYER_INDEX,
-                0,
+                1,
                 BioEnergy::new(donation_energy.max(0.0)),
             ),
         ]

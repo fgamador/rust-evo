@@ -20,6 +20,7 @@ pub struct Cell {
     layers: Vec<CellLayer>, // TODO array? smallvec?
     control: Box<dyn CellControl>,
     energy: BioEnergy,
+    selected: bool,
 }
 
 impl Cell {
@@ -37,6 +38,7 @@ impl Cell {
             layers,
             control: Box::new(NullControl::new()),
             energy: BioEnergy::new(0.0),
+            selected: false,
         }
     }
 
@@ -92,6 +94,7 @@ impl Cell {
             layers,
             control: self.control.spawn(),
             energy: BioEnergy::ZERO,
+            selected: false,
         }
     }
 
@@ -109,6 +112,14 @@ impl Cell {
 
     pub fn is_alive(&self) -> bool {
         self.layers.iter().any(|layer| layer.is_alive())
+    }
+
+    pub fn is_selected(&self) -> bool {
+        self.selected
+    }
+
+    pub fn set_selected(&mut self, is_selected: bool) {
+        self.selected = is_selected;
     }
 
     pub fn set_initial_position(&mut self, position: Position) {
@@ -134,6 +145,7 @@ impl Cell {
 
     pub fn run_control(&mut self, bond_requests: &mut BondRequests) {
         let (end_energy, budgeted_control_requests) = self.get_budgeted_control_requests();
+        self.print_selected_cell_control_requests(&budgeted_control_requests);
         self.energy = end_energy;
         self.execute_control_requests(&budgeted_control_requests, bond_requests);
         self.reset_layers();
@@ -144,6 +156,17 @@ impl Cell {
         let control_requests = self.control.run(&cell_state);
         let costed_requests = self.cost_control_requests(&control_requests);
         Self::budget_control_requests(self.energy, &costed_requests)
+    }
+
+    fn print_selected_cell_control_requests(
+        &self,
+        budgeted_control_requests: &[BudgetedControlRequest],
+    ) {
+        if self.is_selected() {
+            for request in budgeted_control_requests {
+                println!("  Request: {}", request);
+            }
+        }
     }
 
     fn get_state_snapshot(&self) -> CellStateSnapshot {

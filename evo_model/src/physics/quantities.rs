@@ -1,4 +1,5 @@
 use std::f64::consts::PI;
+use std::fmt;
 use std::ops::Add;
 use std::ops::AddAssign;
 use std::ops::Div;
@@ -300,6 +301,12 @@ impl Position {
     }
 }
 
+impl fmt::Display for Position {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "({}, {})", self.x, self.y)
+    }
+}
+
 impl Add<Displacement> for Position {
     type Output = Position;
 
@@ -420,6 +427,12 @@ impl Velocity {
     #[allow(dead_code)]
     pub fn y(&self) -> f64 {
         self.y
+    }
+}
+
+impl fmt::Display for Velocity {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "({}, {})", self.x, self.y)
     }
 }
 
@@ -593,6 +606,12 @@ impl Force {
     #[allow(dead_code)]
     pub fn y(&self) -> f64 {
         self.y
+    }
+}
+
+impl fmt::Display for Force {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "({}, {})", self.x, self.y)
     }
 }
 

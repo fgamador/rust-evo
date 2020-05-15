@@ -49,7 +49,7 @@ fn create_cell() -> Cell {
         ..MutationParameters::NO_MUTATION
     };
 
-    Cell::new(
+    let mut cell = Cell::new(
         Position::ORIGIN,
         Velocity::ZERO,
         vec![
@@ -61,7 +61,9 @@ fn create_cell() -> Cell {
     .with_control(Box::new(NeuralNetBuddingControl::new(
         NeuralNetBuddingControl::new_genome(),
         SeededMutationRandomness::new(0, &SOME_MUTATION),
-    )))
+    )));
+    cell.set_selected(true);
+    cell
 }
 
 fn create_float_layer() -> CellLayer {

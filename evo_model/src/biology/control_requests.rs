@@ -1,4 +1,5 @@
 use crate::physics::quantities::*;
+use std::fmt;
 
 #[derive(Clone, Copy, Debug, PartialEq)]
 pub struct ControlRequest {
@@ -144,5 +145,20 @@ impl BudgetedControlRequest {
 
     pub fn budgeted_fraction(&self) -> f64 {
         self.budgeted_fraction
+    }
+}
+
+impl fmt::Display for BudgetedControlRequest {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(
+            f,
+            "({}:{}:{}, value: {}, energy: {}, budget: {})",
+            self.layer_index,
+            self.channel_index,
+            self.value_index,
+            self.value,
+            self.energy_delta.value(),
+            self.budgeted_fraction
+        )
     }
 }

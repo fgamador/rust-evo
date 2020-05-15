@@ -199,11 +199,26 @@ impl World {
 
     fn subtick_cell(cell: &mut Cell, subtick_duration: Duration, subtick: u32) {
         cell.after_influences(subtick_duration);
+        Self::print_selected_cell_state(cell, subtick);
         cell.exert_forces(subtick_duration);
         cell.move_for(subtick_duration);
         Self::post_subtick_cell_logging(cell, subtick);
         cell.environment_mut().clear();
         cell.forces_mut().clear();
+    }
+
+    fn print_selected_cell_state(cell: &Cell, subtick: u32) {
+        if cell.is_selected() {
+            // TODO
+            println!(
+                "Subtick {} Cell {} at: {}, velocity: {}, force: {}",
+                subtick,
+                cell.node_handle(),
+                cell.position(),
+                cell.velocity(),
+                cell.forces().net_force()
+            );
+        }
     }
 
     fn post_subtick_cell_logging(cell: &Cell, subtick: u32) {
@@ -281,7 +296,7 @@ impl World {
                             bond_request.budding_angle,
                             BioEnergy::ZERO,
                         );
-                        new_children.push(NewChildData{
+                        new_children.push(NewChildData {
                             parent: cell.node_handle(),
                             bond_index: index,
                             child,
@@ -327,7 +342,7 @@ struct NewChildData {
     parent: NodeHandle,
     bond_index: usize,
     child: Cell,
-    donated_energy: BioEnergy
+    donated_energy: BioEnergy,
 }
 
 #[cfg(test)]

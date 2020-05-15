@@ -105,16 +105,23 @@ impl GliumView {
     }
 
     fn world_cell_to_cell_sprite(cell: &Cell) -> CellSprite {
+        let mut num_layers = cell.layers().len();
         let mut radii: [f32; 8] = [0.0; 8];
         let mut health: [f32; 8] = [0.0; 8];
-        assert!(cell.layers().len() <= radii.len());
+        assert!(num_layers <= radii.len());
         for (i, layer) in cell.layers().iter().enumerate() {
             radii[i] = layer.outer_radius().value() as f32;
             health[i] = layer.health() as f32;
         }
+        if cell.is_selected() {
+            num_layers += 1;
+            assert!(num_layers <= radii.len());
+            radii[num_layers - 1] = (cell.radius().value() + 1.0) as f32;
+            health[num_layers - 1] = 1.0;
+        }
         CellSprite {
             center: [cell.center().x() as f32, cell.center().y() as f32],
-            num_layers: cell.layers().len() as u32,
+            num_layers: num_layers as u32,
             radii_0_3: [radii[0], radii[1], radii[2], radii[3]],
             radii_4_7: [radii[4], radii[5], radii[6], radii[7]],
             health_0_3: [health[0], health[1], health[2], health[3]],
@@ -123,13 +130,16 @@ impl GliumView {
     }
 
     fn get_layer_colors(world: &evo_model::world::World) -> [[f32; 4]; 8] {
+        const SELECTION_HALO_COLOR: [f32; 4] = [1.0, 0.0, 0.2, 1.0];
+
         let mut layer_colors: [[f32; 4]; 8] = [[0.0, 0.0, 0.0, 1.0]; 8];
         if !world.cells().is_empty() {
             let sample_cell = &world.cells()[0];
-            assert!(sample_cell.layers().len() <= layer_colors.len());
+            assert!(sample_cell.layers().len() + 1 <= layer_colors.len());
             for (i, layer) in sample_cell.layers().iter().enumerate() {
                 layer_colors[i] = Self::convert_to_rgb_color(layer.color());
             }
+            layer_colors[sample_cell.layers().len()] = SELECTION_HALO_COLOR;
         }
         layer_colors
     }

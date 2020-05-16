@@ -23,6 +23,7 @@ fn run(mut world: World, mut view: View) {
                     return;
                 }
             }
+            UserAction::SelectCell { x, y } => println!("*** SelectCell at ({}, {}) ***", x, y),
             UserAction::SingleTick => single_tick(&mut world, &mut view),
         }
         user_action = view.wait_for_user_action();

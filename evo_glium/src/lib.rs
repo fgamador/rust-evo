@@ -20,6 +20,7 @@ pub struct GliumView {
     background_drawing: BackgroundDrawing,
     cell_drawing: CellDrawing,
     world_vb: glium::VertexBuffer<World>,
+    mouse_position: glutin::dpi::LogicalPosition,
 }
 
 impl GliumView {
@@ -59,6 +60,7 @@ impl GliumView {
             background_drawing,
             cell_drawing: bullseye_drawing,
             world_vb,
+            mouse_position: glutin::dpi::LogicalPosition::new(0.0, 0.0),
         }
     }
 
@@ -208,33 +210,48 @@ impl GliumView {
 
     pub fn check_for_user_action(&mut self) -> Option<UserAction> {
         let mut result = None;
+        let mut mouse_position = self.mouse_position;
         self.events_loop.poll_events(|event| {
             // drain the event queue, capturing the first user action
             if result == None {
-                result = Self::interpret_event_as_user_action(&event);
+                result = Self::interpret_event_as_user_action(&event, &mut mouse_position);
             }
         });
+        self.mouse_position = mouse_position;
         result
     }
 
     pub fn wait_for_user_action(&mut self) -> UserAction {
         let mut result = UserAction::Exit; // bogus initial value
+        let mut mouse_position = self.mouse_position;
         self.events_loop
             .run_forever(|event| -> glutin::ControlFlow {
-                if let Some(user_action) = Self::interpret_event_as_user_action(&event) {
+                if let Some(user_action) =
+                    Self::interpret_event_as_user_action(&event, &mut mouse_position)
+                {
                     result = user_action;
                     glutin::ControlFlow::Break
                 } else {
                     glutin::ControlFlow::Continue
                 }
             });
+        self.mouse_position = mouse_position;
         result
     }
 
-    fn interpret_event_as_user_action(event: &glutin::Event) -> Option<UserAction> {
+    fn interpret_event_as_user_action(
+        event: &glutin::Event,
+        mouse_position: &mut glutin::dpi::LogicalPosition,
+    ) -> Option<UserAction> {
         match event {
             glutin::Event::WindowEvent { event, .. } => match event {
                 glutin::WindowEvent::CloseRequested => Some(UserAction::Exit),
+
+                glutin::WindowEvent::CursorMoved { position, .. } => {
+                    *mouse_position = *position;
+                    None
+                }
+
                 glutin::WindowEvent::KeyboardInput {
                     input:
                         glutin::KeyboardInput {
@@ -244,8 +261,19 @@ impl GliumView {
                         },
                     ..
                 } => Self::interpret_key_as_user_action(*key_code),
+
+                glutin::WindowEvent::MouseInput {
+                    button: glutin::MouseButton::Left,
+                    state: glutin::ElementState::Pressed,
+                    ..
+                } => Some(UserAction::SelectCell {
+                    x: mouse_position.x as f32,
+                    y: mouse_position.y as f32,
+                }),
+
                 _ => None,
             },
+
             _ => None,
         }
     }

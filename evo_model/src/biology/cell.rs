@@ -150,16 +150,11 @@ impl Cell {
 
     pub fn run_control(&mut self, bond_requests: &mut BondRequests) {
         let (end_energy, budgeted_control_requests) = self.get_budgeted_control_requests();
-        if self.is_selected() {
-            println!("  Start energy: {:.4}", self.energy.value());
-        }
+        self.print_selected_cell_energy(end_energy);
         self.print_selected_cell_control_requests(&budgeted_control_requests);
         self.energy = end_energy;
         self.execute_control_requests(&budgeted_control_requests, bond_requests);
         self.print_selected_cell_bond_requests(bond_requests);
-        if self.is_selected() {
-            println!("  End energy: {:.4}", self.energy.value());
-        }
         self.reset_layers();
     }
 
@@ -255,6 +250,16 @@ impl Cell {
         }
         self.radius = Self::update_layer_outer_radii(&mut self.layers);
         self.newtonian_state.mass = Self::calc_mass(&self.layers);
+    }
+
+    fn print_selected_cell_energy(&self, end_energy: BioEnergy) {
+        if self.is_selected() {
+            println!(
+                "  Energy: {:.4} (start), {:.4} (end)",
+                self.energy.value(),
+                end_energy.value()
+            );
+        }
     }
 
     fn print_selected_cell_control_requests(

@@ -147,6 +147,15 @@ impl World {
         println!("{:#?}", self.cell_graph);
     }
 
+    pub fn select_cell_at(&mut self, pos: Position) {
+        for cell in self.cell_graph.nodes_mut() {
+            if cell.overlaps(pos) {
+                cell.set_selected(true);
+                return;
+            }
+        }
+    }
+
     pub fn tick(&mut self) {
         self.tick_with(Duration::new(1.0), 2);
     }
@@ -209,11 +218,10 @@ impl World {
 
     fn print_selected_cell_state(cell: &Cell, subtick: u32) {
         if cell.is_selected() {
-            // TODO
             println!(
-                "Subtick {} Cell {} at: {}, velocity: {}, force: {}",
-                subtick,
+                "Cell {} subtick {} position: {}, velocity: {}, force: {}",
                 cell.node_handle(),
+                subtick,
                 cell.position(),
                 cell.velocity(),
                 cell.forces().net_force()

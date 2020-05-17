@@ -303,7 +303,7 @@ impl Position {
 
 impl fmt::Display for Position {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "({}, {})", self.x, self.y)
+        write!(f, "({:.4}, {:.4})", self.x, self.y)
     }
 }
 
@@ -432,7 +432,7 @@ impl Velocity {
 
 impl fmt::Display for Velocity {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "({}, {})", self.x, self.y)
+        write!(f, "({:.4}, {:.4})", self.x, self.y)
     }
 }
 
@@ -611,7 +611,7 @@ impl Force {
 
 impl fmt::Display for Force {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "({}, {})", self.x, self.y)
+        write!(f, "({:.4}, {:.4})", self.x, self.y)
     }
 }
 

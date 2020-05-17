@@ -4,6 +4,7 @@ use crate::physics::overlap::Overlap;
 use crate::physics::quantities::*;
 use std::f64;
 use std::f64::consts::PI;
+use std::fmt;
 use std::fmt::Debug;
 
 // TODO rename as TissueType?
@@ -493,6 +494,18 @@ impl BondRequest {
 
     pub fn reset(&mut self) {
         *self = Self::NONE;
+    }
+}
+
+impl fmt::Display for BondRequest {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(
+            f,
+            "(retain: {}, angle: {:.4}, energy: {:.4})",
+            self.retain_bond,
+            self.budding_angle.radians(),
+            self.donation_energy.value(),
+        )
     }
 }
 

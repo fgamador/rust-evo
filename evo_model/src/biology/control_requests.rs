@@ -152,7 +152,7 @@ impl fmt::Display for BudgetedControlRequest {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         write!(
             f,
-            "({}:{}:{}, value: {}, energy: {}, budget: {})",
+            "{}.{}.{}: value: {:.4}, cost: {:.4}, budget: {:.4})",
             self.layer_index,
             self.channel_index,
             self.value_index,

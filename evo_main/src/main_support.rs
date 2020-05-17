@@ -1,4 +1,5 @@
 use crate::view::*;
+use evo_model::physics::quantities::Position;
 use evo_model::world::World;
 use evo_model::UserAction;
 use std::thread;
@@ -23,7 +24,10 @@ fn run(mut world: World, mut view: View) {
                     return;
                 }
             }
-            UserAction::SelectCell { x, y } => println!("*** SelectCell at ({}, {}) ***", x, y),
+            UserAction::SelectCell { x, y } => {
+                world.select_cell_at(Position::new(x, y));
+                view.render(&world);
+            }
             UserAction::SingleTick => single_tick(&mut world, &mut view),
         }
         user_action = view.wait_for_user_action();

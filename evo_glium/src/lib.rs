@@ -267,8 +267,8 @@ impl GliumView {
                     state: glutin::ElementState::Pressed,
                     ..
                 } => Some(UserAction::SelectCell {
-                    x: mouse_position.x as f32,
-                    y: mouse_position.y as f32,
+                    x: mouse_position.x,
+                    y: mouse_position.y,
                 }),
 
                 _ => None,

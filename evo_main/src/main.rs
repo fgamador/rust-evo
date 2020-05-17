@@ -56,7 +56,7 @@ fn create_cell() -> Cell {
         ..MutationParameters::NO_MUTATION
     };
 
-    let mut cell = Cell::new(
+    Cell::new(
         Position::ORIGIN,
         Velocity::ZERO,
         vec![
@@ -68,9 +68,7 @@ fn create_cell() -> Cell {
     .with_control(Box::new(NeuralNetBuddingControl::new(
         NeuralNetBuddingControl::new_genome(),
         SeededMutationRandomness::new(0, &SOME_MUTATION),
-    )));
-    cell.set_selected(true);
-    cell
+    )))
 }
 
 fn create_float_layer() -> CellLayer {
@@ -260,17 +258,17 @@ impl CellControl for NeuralNetBuddingControl {
         let donation_energy = self.nnet.node_value(Self::DONATION_ENERGY_OUTPUT_INDEX) as f64;
 
         vec![
-            CellLayer::resize_request(FLOAT_LAYER_INDEX, AreaDelta::new(float_layer_area_delta)),
             CellLayer::healing_request(FLOAT_LAYER_INDEX, float_layer_healing.max(0.0).min(1.0)),
-            CellLayer::resize_request(PHOTO_LAYER_INDEX, AreaDelta::new(photo_layer_area_delta)),
+            CellLayer::resize_request(FLOAT_LAYER_INDEX, AreaDelta::new(float_layer_area_delta)),
             CellLayer::healing_request(PHOTO_LAYER_INDEX, photo_layer_healing.max(0.0).min(1.0)),
-            CellLayer::resize_request(
-                BONDING_LAYER_INDEX,
-                AreaDelta::new(bonding_layer_area_delta),
-            ),
+            CellLayer::resize_request(PHOTO_LAYER_INDEX, AreaDelta::new(photo_layer_area_delta)),
             CellLayer::healing_request(
                 BONDING_LAYER_INDEX,
                 bonding_layer_healing.max(0.0).min(1.0),
+            ),
+            CellLayer::resize_request(
+                BONDING_LAYER_INDEX,
+                AreaDelta::new(bonding_layer_area_delta),
             ),
             BondingCellLayerSpecialty::retain_bond_request(
                 BONDING_LAYER_INDEX,

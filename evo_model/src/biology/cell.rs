@@ -134,6 +134,11 @@ impl Cell {
         self.energy = energy;
     }
 
+    pub fn overlaps(&self, pos: Position) -> bool {
+        println!("overlaps: {:?}", pos);
+        true // TODO
+    }
+
     pub fn after_influences(&mut self, subtick_duration: Duration) {
         let forces = self.newtonian_state.forces_mut();
         for layer in &mut self.layers {
@@ -145,9 +150,16 @@ impl Cell {
 
     pub fn run_control(&mut self, bond_requests: &mut BondRequests) {
         let (end_energy, budgeted_control_requests) = self.get_budgeted_control_requests();
+        if self.is_selected() {
+            println!("  Start energy: {:.4}", self.energy.value());
+        }
         self.print_selected_cell_control_requests(&budgeted_control_requests);
         self.energy = end_energy;
         self.execute_control_requests(&budgeted_control_requests, bond_requests);
+        self.print_selected_cell_bond_requests(bond_requests);
+        if self.is_selected() {
+            println!("  End energy: {:.4}", self.energy.value());
+        }
         self.reset_layers();
     }
 
@@ -156,17 +168,6 @@ impl Cell {
         let control_requests = self.control.run(&cell_state);
         let costed_requests = self.cost_control_requests(&control_requests);
         Self::budget_control_requests(self.energy, &costed_requests)
-    }
-
-    fn print_selected_cell_control_requests(
-        &self,
-        budgeted_control_requests: &[BudgetedControlRequest],
-    ) {
-        if self.is_selected() {
-            for request in budgeted_control_requests {
-                println!("  Request: {}", request);
-            }
-        }
     }
 
     fn get_state_snapshot(&self) -> CellStateSnapshot {
@@ -254,6 +255,27 @@ impl Cell {
         }
         self.radius = Self::update_layer_outer_radii(&mut self.layers);
         self.newtonian_state.mass = Self::calc_mass(&self.layers);
+    }
+
+    fn print_selected_cell_control_requests(
+        &self,
+        budgeted_control_requests: &[BudgetedControlRequest],
+    ) {
+        if self.is_selected() {
+            for request in budgeted_control_requests {
+                println!("  Layer request {}", request);
+            }
+        }
+    }
+
+    fn print_selected_cell_bond_requests(&self, bond_requests: &BondRequests) {
+        if self.is_selected() {
+            for (index, request) in bond_requests.iter().enumerate() {
+                if request.retain_bond {
+                    println!("  Bond request {}: {}", index, request);
+                }
+            }
+        }
     }
 
     pub fn create_and_place_child_cell(

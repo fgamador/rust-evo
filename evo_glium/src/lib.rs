@@ -173,7 +173,6 @@ impl GliumView {
         Self::calc_screen_transform(self.world_min_corner, self.world_max_corner, window_dim)
     }
 
-    #[allow(clippy::useless_let_if_seq)]
     fn calc_screen_transform(
         world_min_corner: Point,
         world_max_corner: Point,
@@ -184,16 +183,17 @@ impl GliumView {
             world_max_corner[1] - world_min_corner[1],
         ];
 
-        let x_scale;
-        let y_scale;
-
-        if world_dim[0] / world_dim[1] > window_dim[0] / window_dim[1] {
-            x_scale = 2.0 / world_dim[0];
-            y_scale = 2.0 / world_dim[0] * (window_dim[0] / window_dim[1]);
+        let (x_scale, y_scale) = if world_dim[0] / world_dim[1] > window_dim[0] / window_dim[1] {
+            (
+                2.0 / world_dim[0],
+                2.0 / world_dim[0] * (window_dim[0] / window_dim[1]),
+            )
         } else {
-            x_scale = 2.0 / world_dim[1] * (window_dim[1] / window_dim[0]);
-            y_scale = 2.0 / world_dim[1];
-        }
+            (
+                2.0 / world_dim[1] * (window_dim[1] / window_dim[0]),
+                2.0 / world_dim[1],
+            )
+        };
 
         let x_midpoint = world_min_corner[0] + world_dim[0] / 2.0;
         let y_midpoint = world_min_corner[1] + world_dim[1] / 2.0;

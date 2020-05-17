@@ -39,7 +39,7 @@ impl GliumView {
             .with_multisampling(4);
         let display = glium::Display::new(window, context, &events_loop).unwrap();
         let background_drawing = BackgroundDrawing::new(&display);
-        let bullseye_drawing = CellDrawing::new(&display);
+        let cell_drawing = CellDrawing::new(&display);
         let world = vec![World {
             corners: [
                 world_min_corner[0],
@@ -58,7 +58,7 @@ impl GliumView {
             world_min_corner,
             world_max_corner,
             background_drawing,
-            cell_drawing: bullseye_drawing,
+            cell_drawing,
             world_vb,
             mouse_position: glutin::dpi::LogicalPosition::new(0.0, 0.0),
         }

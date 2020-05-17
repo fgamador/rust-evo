@@ -64,6 +64,13 @@ impl GliumView {
         }
     }
 
+    fn get_world_size(&self) -> (f64, f64) {
+        (
+            (self.world_max_corner[0] - self.world_min_corner[0]) as f64,
+            (self.world_max_corner[1] - self.world_min_corner[1]) as f64,
+        )
+    }
+
     fn get_screen_size(monitor: glutin::MonitorId) -> glutin::dpi::LogicalSize {
         monitor
             .get_dimensions()
@@ -214,12 +221,14 @@ impl GliumView {
 
     pub fn check_for_user_action(&mut self) -> Option<UserAction> {
         let mut result = None;
-        let window_size = self.window_size();
+        let logical_position_to_world_position =
+            LogicalPositionToWorldPosition::new(self.window_size(), self.get_world_size());
         let mouse_position = &mut self.mouse_position;
         self.events_loop.poll_events(|event| {
             // drain the event queue, capturing the first user action
             if result == None {
-                result = Self::handle_event(&event, window_size, mouse_position);
+                result =
+                    Self::handle_event(&event, &logical_position_to_world_position, mouse_position);
             }
         });
         result
@@ -227,11 +236,14 @@ impl GliumView {
 
     pub fn wait_for_user_action(&mut self) -> UserAction {
         let mut result = UserAction::Exit; // bogus initial value
-        let window_size = self.window_size();
+        let logical_position_to_world_position =
+            LogicalPositionToWorldPosition::new(self.window_size(), self.get_world_size());
         let mouse_position = &mut self.mouse_position;
         self.events_loop
             .run_forever(|event| -> glutin::ControlFlow {
-                if let Some(user_action) = Self::handle_event(&event, window_size, mouse_position) {
+                if let Some(user_action) =
+                    Self::handle_event(&event, &logical_position_to_world_position, mouse_position)
+                {
                     result = user_action;
                     glutin::ControlFlow::Break
                 } else {
@@ -243,7 +255,7 @@ impl GliumView {
 
     fn handle_event(
         event: &glutin::Event,
-        window_size: glutin::dpi::LogicalSize,
+        logical_position_to_world_position: &LogicalPositionToWorldPosition,
         mouse_position: &mut glutin::dpi::LogicalPosition,
     ) -> Option<UserAction> {
         match event {
@@ -269,10 +281,14 @@ impl GliumView {
                     button: glutin::MouseButton::Left,
                     state: glutin::ElementState::Pressed,
                     ..
-                } => Some(UserAction::SelectCell {
-                    x: mouse_position.x,
-                    y: mouse_position.y,
-                }),
+                } => {
+                    let world_position =
+                        logical_position_to_world_position.convert(*mouse_position);
+                    Some(UserAction::SelectCell {
+                        x: world_position.0,
+                        y: world_position.1,
+                    })
+                }
 
                 _ => None,
             },
@@ -291,6 +307,27 @@ impl GliumView {
             glutin::VirtualKeyCode::S => Some(UserAction::SingleTick),
             _ => None,
         }
+    }
+}
+
+struct LogicalPositionToWorldPosition {
+    window_size: glutin::dpi::LogicalSize,
+    world_size: (f64, f64),
+}
+
+impl LogicalPositionToWorldPosition {
+    fn new(window_size: glutin::dpi::LogicalSize, world_size: (f64, f64)) -> Self {
+        LogicalPositionToWorldPosition {
+            window_size,
+            world_size,
+        }
+    }
+
+    fn convert(&self, logical_pos: glutin::dpi::LogicalPosition) -> (f64, f64) {
+        (
+            logical_pos.x * self.world_size.0 / self.window_size.width,
+            logical_pos.y * self.world_size.1 / self.window_size.height,
+        )
     }
 }
 

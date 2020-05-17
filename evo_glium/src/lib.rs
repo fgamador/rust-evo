@@ -137,7 +137,7 @@ impl GliumView {
         let mut layer_colors: [[f32; 4]; 8] = [[0.0, 0.0, 0.0, 1.0]; 8];
         if !world.cells().is_empty() {
             let sample_cell = &world.cells()[0];
-            assert!(sample_cell.layers().len() + 1 <= layer_colors.len());
+            assert!(sample_cell.layers().len() < layer_colors.len());
             for (i, layer) in sample_cell.layers().iter().enumerate() {
                 layer_colors[i] = Self::convert_to_rgb_color(layer.color());
             }

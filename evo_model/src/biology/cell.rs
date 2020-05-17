@@ -6,6 +6,7 @@ use crate::physics::newtonian::*;
 use crate::physics::quantities::*;
 use crate::physics::shapes::*;
 use crate::physics::sortable_graph::*;
+use crate::physics::util::*;
 use evo_model_derive::*;
 use std::f64::consts::PI;
 use std::ptr;
@@ -135,8 +136,12 @@ impl Cell {
     }
 
     pub fn overlaps(&self, pos: Position) -> bool {
-        println!("overlaps: {:?}", pos);
-        true // TODO
+        self.position().x() - self.radius.value() <= pos.x()
+            && pos.x() <= self.position().x() + self.radius.value()
+            && self.position().y() - self.radius.value() <= pos.y()
+            && pos.y() <= self.position().y() + self.radius.value()
+            && sqr(pos.x() - self.position().x()) + sqr(pos.y() - self.position().y())
+                <= sqr(self.radius.value())
     }
 
     pub fn after_influences(&mut self, subtick_duration: Duration) {
@@ -402,6 +407,18 @@ mod tests {
         assert_eq!(Mass::new(3.0), ball.mass());
         assert_eq!(Position::new(1.0, -1.0), ball.center());
         assert_eq!(Velocity::new(-2.0, 3.0), ball.velocity());
+    }
+
+    #[test]
+    fn cell_overlaps_position() {
+        let cell = Cell::ball(
+            Length::new(2.0),
+            Mass::ZERO,
+            Position::new(10.0, 20.0),
+            Velocity::ZERO,
+        );
+        assert!(cell.overlaps(Position::new(11.0, 19.0)));
+        assert!(!cell.overlaps(Position::new(11.9, 18.1)));
     }
 
     #[test]

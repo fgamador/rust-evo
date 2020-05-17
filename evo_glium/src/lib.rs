@@ -64,13 +64,6 @@ impl GliumView {
         }
     }
 
-    fn get_world_size(&self) -> (f64, f64) {
-        (
-            (self.world_max_corner[0] - self.world_min_corner[0]) as f64,
-            (self.world_max_corner[1] - self.world_min_corner[1]) as f64,
-        )
-    }
-
     fn get_screen_size(monitor: glutin::MonitorId) -> glutin::dpi::LogicalSize {
         monitor
             .get_dimensions()
@@ -221,8 +214,11 @@ impl GliumView {
 
     pub fn check_for_user_action(&mut self) -> Option<UserAction> {
         let mut result = None;
-        let logical_position_to_world_position =
-            LogicalPositionToWorldPosition::new(self.window_size(), self.get_world_size());
+        let logical_position_to_world_position = LogicalPositionToWorldPosition::new(
+            self.window_size(),
+            self.world_min_corner,
+            self.world_max_corner,
+        );
         let mouse_position = &mut self.mouse_position;
         self.events_loop.poll_events(|event| {
             // drain the event queue, capturing the first user action
@@ -236,8 +232,11 @@ impl GliumView {
 
     pub fn wait_for_user_action(&mut self) -> UserAction {
         let mut result = UserAction::Exit; // bogus initial value
-        let logical_position_to_world_position =
-            LogicalPositionToWorldPosition::new(self.window_size(), self.get_world_size());
+        let logical_position_to_world_position = LogicalPositionToWorldPosition::new(
+            self.window_size(),
+            self.world_min_corner,
+            self.world_max_corner,
+        );
         let mouse_position = &mut self.mouse_position;
         self.events_loop
             .run_forever(|event| -> glutin::ControlFlow {
@@ -312,21 +311,36 @@ impl GliumView {
 
 struct LogicalPositionToWorldPosition {
     window_size: glutin::dpi::LogicalSize,
-    world_size: (f64, f64),
+    world_min_corner: Point,
+    world_max_corner: Point,
 }
 
 impl LogicalPositionToWorldPosition {
-    fn new(window_size: glutin::dpi::LogicalSize, world_size: (f64, f64)) -> Self {
+    fn new(
+        window_size: glutin::dpi::LogicalSize,
+        world_min_corner: Point,
+        world_max_corner: Point,
+    ) -> Self {
         LogicalPositionToWorldPosition {
             window_size,
-            world_size,
+            world_min_corner,
+            world_max_corner,
         }
     }
 
     fn convert(&self, logical_pos: glutin::dpi::LogicalPosition) -> (f64, f64) {
+        let (world_width, world_height) = self.world_size();
         (
-            logical_pos.x * self.world_size.0 / self.window_size.width,
-            logical_pos.y * self.world_size.1 / self.window_size.height,
+            self.world_min_corner[0] as f64 + logical_pos.x * world_width / self.window_size.width,
+            self.world_max_corner[1] as f64
+                - logical_pos.y * world_height / self.window_size.height,
+        )
+    }
+
+    fn world_size(&self) -> (f64, f64) {
+        (
+            (self.world_max_corner[0] - self.world_min_corner[0]) as f64,
+            (self.world_max_corner[1] - self.world_min_corner[1]) as f64,
         )
     }
 }

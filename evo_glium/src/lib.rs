@@ -214,11 +214,12 @@ impl GliumView {
 
     pub fn check_for_user_action(&mut self) -> Option<UserAction> {
         let mut result = None;
+        let window_size = self.window_size();
         let mut mouse_position = self.mouse_position;
         self.events_loop.poll_events(|event| {
             // drain the event queue, capturing the first user action
             if result == None {
-                result = Self::handle_event(&event, &mut mouse_position);
+                result = Self::handle_event(&event, window_size, &mut mouse_position);
             }
         });
         self.mouse_position = mouse_position;
@@ -227,10 +228,13 @@ impl GliumView {
 
     pub fn wait_for_user_action(&mut self) -> UserAction {
         let mut result = UserAction::Exit; // bogus initial value
+        let window_size = self.window_size();
         let mut mouse_position = self.mouse_position;
         self.events_loop
             .run_forever(|event| -> glutin::ControlFlow {
-                if let Some(user_action) = Self::handle_event(&event, &mut mouse_position) {
+                if let Some(user_action) =
+                    Self::handle_event(&event, window_size, &mut mouse_position)
+                {
                     result = user_action;
                     glutin::ControlFlow::Break
                 } else {
@@ -243,6 +247,7 @@ impl GliumView {
 
     fn handle_event(
         event: &glutin::Event,
+        window_size: glutin::dpi::LogicalSize,
         mouse_position: &mut glutin::dpi::LogicalPosition,
     ) -> Option<UserAction> {
         match event {

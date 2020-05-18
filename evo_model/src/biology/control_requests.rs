@@ -157,7 +157,7 @@ impl fmt::Display for BudgetedControlRequest {
             self.channel_index,
             self.value_index,
             self.value,
-            self.energy_delta.value(),
+            -self.energy_delta.value(),
             self.budgeted_fraction
         )
     }

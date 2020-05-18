@@ -155,6 +155,7 @@ impl Cell {
 
     pub fn run_control(&mut self, bond_requests: &mut BondRequests) {
         let (end_energy, budgeted_control_requests) = self.get_budgeted_control_requests();
+        self.print_selected_cell_layers();
         self.print_selected_cell_energy(end_energy);
         self.print_selected_cell_control_requests(&budgeted_control_requests);
         self.energy = end_energy;
@@ -264,6 +265,19 @@ impl Cell {
                 self.energy.value(),
                 end_energy.value()
             );
+        }
+    }
+
+    fn print_selected_cell_layers(&self) {
+        if self.is_selected() {
+            for (index, layer) in self.layers.iter().enumerate() {
+                println!(
+                    "  Layer {}: area: {:.4} health: {:.4}",
+                    index,
+                    layer.area().value(),
+                    layer.health()
+                );
+            }
         }
     }
 

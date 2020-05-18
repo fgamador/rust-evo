@@ -147,10 +147,10 @@ impl World {
         println!("{:#?}", self.cell_graph);
     }
 
-    pub fn select_cell_at(&mut self, pos: Position) {
+    pub fn toggle_select_cell_at(&mut self, pos: Position) {
         for cell in self.cell_graph.nodes_mut() {
             if cell.overlaps(pos) {
-                cell.set_selected(true);
+                cell.set_selected(!cell.is_selected());
                 return;
             }
         }

@@ -8,6 +8,6 @@ pub enum UserAction {
     DebugPrint,
     Exit,
     PlayToggle,
-    SelectCell { x: f64, y: f64 },
+    SelectCellToggle { x: f64, y: f64 },
     SingleTick,
 }

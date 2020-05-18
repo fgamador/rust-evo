@@ -24,8 +24,8 @@ fn run(mut world: World, mut view: View) {
                     return;
                 }
             }
-            UserAction::SelectCell { x, y } => {
-                world.select_cell_at(Position::new(x, y));
+            UserAction::SelectCellToggle { x, y } => {
+                world.toggle_select_cell_at(Position::new(x, y));
                 view.render(&world);
             }
             UserAction::SingleTick => single_tick(&mut world, &mut view),

@@ -283,7 +283,7 @@ impl GliumView {
                 } => {
                     let world_position =
                         logical_position_to_world_position.convert(*mouse_position);
-                    Some(UserAction::SelectCell {
+                    Some(UserAction::SelectCellToggle {
                         x: world_position.0,
                         y: world_position.1,
                     })

@@ -6,7 +6,7 @@ pub struct ControlRequest {
     layer_index: u16,
     channel_index: u16,
     value_index: u16,
-    value: f64,
+    requested_value: f64,
 }
 
 impl ControlRequest {
@@ -14,7 +14,7 @@ impl ControlRequest {
         layer_index: 0,
         channel_index: 0,
         value_index: 0,
-        value: 0.0,
+        requested_value: 0.0,
     };
 
     pub fn new(layer_index: usize, channel_index: usize, value_index: usize, value: f64) -> Self {
@@ -22,7 +22,7 @@ impl ControlRequest {
             layer_index: layer_index as u16,
             channel_index: channel_index as u16,
             value_index: value_index as u16,
-            value,
+            requested_value: value,
         }
     }
 
@@ -38,8 +38,8 @@ impl ControlRequest {
         self.value_index as usize
     }
 
-    pub fn value(&self) -> f64 {
-        self.value
+    pub fn requested_value(&self) -> f64 {
+        self.requested_value
     }
 }
 
@@ -48,7 +48,7 @@ pub struct CostedControlRequest {
     layer_index: u16,
     channel_index: u16,
     value_index: u16,
-    value: f64,
+    requested_value: f64,
     energy_delta: BioEnergyDelta,
 }
 
@@ -57,7 +57,7 @@ impl CostedControlRequest {
         layer_index: 0,
         channel_index: 0,
         value_index: 0,
-        value: 0.0,
+        requested_value: 0.0,
         energy_delta: BioEnergyDelta::ZERO,
     };
 
@@ -66,7 +66,7 @@ impl CostedControlRequest {
             layer_index: control_request.layer_index,
             channel_index: control_request.channel_index,
             value_index: control_request.value_index,
-            value: control_request.value,
+            requested_value: control_request.requested_value,
             energy_delta,
         }
     }
@@ -83,8 +83,8 @@ impl CostedControlRequest {
         self.value_index as usize
     }
 
-    pub fn value(&self) -> f64 {
-        self.value
+    pub fn requested_value(&self) -> f64 {
+        self.requested_value
     }
 
     pub fn energy_delta(&self) -> BioEnergyDelta {
@@ -97,7 +97,7 @@ pub struct BudgetedControlRequest {
     layer_index: u16,
     channel_index: u16,
     value_index: u16,
-    value: f64,
+    requested_value: f64,
     energy_delta: BioEnergyDelta,
     budgeted_fraction: f64,
 }
@@ -107,7 +107,7 @@ impl BudgetedControlRequest {
         layer_index: 0,
         channel_index: 0,
         value_index: 0,
-        value: 0.0,
+        requested_value: 0.0,
         energy_delta: BioEnergyDelta::ZERO,
         budgeted_fraction: 1.0,
     };
@@ -117,7 +117,7 @@ impl BudgetedControlRequest {
             layer_index: costed_request.layer_index,
             channel_index: costed_request.channel_index,
             value_index: costed_request.value_index,
-            value: costed_request.value,
+            requested_value: costed_request.requested_value,
             energy_delta: costed_request.energy_delta,
             budgeted_fraction,
         }
@@ -135,8 +135,8 @@ impl BudgetedControlRequest {
         self.value_index as usize
     }
 
-    pub fn value(&self) -> f64 {
-        self.value
+    pub fn requested_value(&self) -> f64 {
+        self.requested_value
     }
 
     pub fn energy_delta(&self) -> BioEnergyDelta {
@@ -156,7 +156,7 @@ impl fmt::Display for BudgetedControlRequest {
             self.layer_index,
             self.channel_index,
             self.value_index,
-            self.value,
+            self.requested_value,
             -self.energy_delta.value(),
             self.budgeted_fraction
         )

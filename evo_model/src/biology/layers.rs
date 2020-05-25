@@ -263,13 +263,15 @@ impl CellLayerBody {
     fn cost_restore_health(&self, request: ControlRequest) -> CostedControlRequest {
         CostedControlRequest::new(
             request,
-            self.health_parameters.healing_energy_delta * self.area.value() * request.value(),
+            self.health_parameters.healing_energy_delta
+                * self.area.value()
+                * request.requested_value(),
         )
     }
 
     fn cost_resize(&self, request: ControlRequest) -> CostedControlRequest {
-        let delta_area = self.bound_resize_delta_area(request.value());
-        let energy_delta = if request.value() >= 0.0 {
+        let delta_area = self.bound_resize_delta_area(request.requested_value());
+        let energy_delta = if request.requested_value() >= 0.0 {
             self.resize_parameters.growth_energy_delta
         } else {
             -self.resize_parameters.shrinkage_energy_delta
@@ -388,10 +390,10 @@ impl CellLayerBrain for LivingCellLayerBrain {
     ) {
         match request.channel_index() {
             CellLayer::HEALING_CHANNEL_INDEX => {
-                body.restore_health(request.value(), request.budgeted_fraction())
+                body.restore_health(request.requested_value(), request.budgeted_fraction())
             }
             CellLayer::RESIZE_CHANNEL_INDEX => {
-                body.resize(request.value(), request.budgeted_fraction())
+                body.resize(request.requested_value(), request.budgeted_fraction())
             }
             _ => specialty.execute_control_request(body, request, bond_requests),
         }
@@ -588,10 +590,10 @@ impl CellLayerSpecialty for ThrusterCellLayerSpecialty {
     ) {
         match request.channel_index() {
             Self::FORCE_X_CHANNEL_INDEX => {
-                self.force_x = body.health * request.budgeted_fraction() * request.value()
+                self.force_x = body.health * request.budgeted_fraction() * request.requested_value()
             }
             Self::FORCE_Y_CHANNEL_INDEX => {
-                self.force_y = body.health * request.budgeted_fraction() * request.value()
+                self.force_y = body.health * request.budgeted_fraction() * request.requested_value()
             }
             _ => panic!("Invalid control channel index: {}", request.channel_index()),
         }
@@ -700,7 +702,7 @@ impl CellLayerSpecialty for BondingCellLayerSpecialty {
                 CostedControlRequest::new(request, BioEnergyDelta::ZERO)
             }
             Self::DONATION_ENERGY_CHANNEL_INDEX => {
-                CostedControlRequest::new(request, BioEnergyDelta::new(-request.value()))
+                CostedControlRequest::new(request, BioEnergyDelta::new(-request.requested_value()))
             }
             _ => panic!("Invalid control channel index: {}", request.channel_index()),
         }
@@ -714,13 +716,16 @@ impl CellLayerSpecialty for BondingCellLayerSpecialty {
     ) {
         let bond_request = &mut bond_requests[request.value_index()];
         match request.channel_index() {
-            Self::RETAIN_BOND_CHANNEL_INDEX => bond_request.retain_bond = request.value() > 0.0,
+            Self::RETAIN_BOND_CHANNEL_INDEX => {
+                bond_request.retain_bond = request.requested_value() > 0.0
+            }
             Self::BUDDING_ANGLE_CHANNEL_INDEX => {
-                bond_request.budding_angle = Angle::from_radians(request.value())
+                bond_request.budding_angle = Angle::from_radians(request.requested_value())
             }
             Self::DONATION_ENERGY_CHANNEL_INDEX => {
-                bond_request.donation_energy =
-                    body.health * request.budgeted_fraction() * BioEnergy::new(request.value())
+                bond_request.donation_energy = body.health
+                    * request.budgeted_fraction()
+                    * BioEnergy::new(request.requested_value())
             }
             _ => panic!("Invalid control channel index: {}", request.channel_index()),
         }

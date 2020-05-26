@@ -8,7 +8,7 @@ pub struct ControlRequest {
 }
 
 impl ControlRequest {
-    pub const ZEROS: ControlRequest = ControlRequest {
+    pub const NULL_REQUEST: ControlRequest = ControlRequest {
         id: ControlRequestId::ZEROS,
         requested_value: 0.0,
     };

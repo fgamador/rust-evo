@@ -121,15 +121,6 @@ impl CostedControlRequest {
         }
     }
 
-    pub fn new(control_request: ControlRequest, energy_delta: BioEnergyDelta) -> Self {
-        CostedControlRequest {
-            id: control_request.id,
-            requested_value: control_request.requested_value,
-            allowed_value: 0.0,
-            energy_delta,
-        }
-    }
-
     pub fn layer_index(&self) -> usize {
         self.id.layer_index()
     }

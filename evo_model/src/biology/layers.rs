@@ -261,7 +261,7 @@ impl CellLayerBody {
     }
 
     fn cost_restore_health(&self, request: ControlRequest) -> CostedControlRequest {
-        CostedControlRequest::new(
+        CostedControlRequest::unlimited(
             request,
             self.health_parameters.healing_energy_delta
                 * self.area.value()
@@ -276,7 +276,7 @@ impl CellLayerBody {
         } else {
             -self.resize_parameters.shrinkage_energy_delta
         };
-        CostedControlRequest::new(request, delta_area * energy_delta)
+        CostedControlRequest::unlimited(request, delta_area * energy_delta)
     }
 
     fn restore_health(&mut self, requested_delta_health: f64, budgeted_fraction: f64) {
@@ -697,9 +697,10 @@ impl CellLayerSpecialty for BondingCellLayerSpecialty {
         match request.channel_index() {
             Self::RETAIN_BOND_CHANNEL_INDEX => CostedControlRequest::free(request),
             Self::BUDDING_ANGLE_CHANNEL_INDEX => CostedControlRequest::free(request),
-            Self::DONATION_ENERGY_CHANNEL_INDEX => {
-                CostedControlRequest::new(request, BioEnergyDelta::new(-request.requested_value()))
-            }
+            Self::DONATION_ENERGY_CHANNEL_INDEX => CostedControlRequest::unlimited(
+                request,
+                BioEnergyDelta::new(-request.requested_value()),
+            ),
             _ => panic!("Invalid control channel index: {}", request.channel_index()),
         }
     }
@@ -804,7 +805,7 @@ mod tests {
             layer.cost_control_request(CellLayer::resize_request(0, AreaDelta::new(3.0)));
         assert_eq!(
             costed_request,
-            CostedControlRequest::new(
+            CostedControlRequest::unlimited(
                 CellLayer::resize_request(0, AreaDelta::new(3.0)),
                 BioEnergyDelta::new(-1.5),
             )
@@ -854,7 +855,7 @@ mod tests {
         let costed_request = layer.cost_control_request(control_request);
         assert_eq!(
             costed_request,
-            CostedControlRequest::new(control_request, BioEnergyDelta::new(-1.5))
+            CostedControlRequest::unlimited(control_request, BioEnergyDelta::new(-1.5))
         );
     }
 
@@ -886,7 +887,7 @@ mod tests {
         let costed_request = layer.cost_control_request(control_request);
         assert_eq!(
             costed_request,
-            CostedControlRequest::new(control_request, BioEnergyDelta::new(6.0))
+            CostedControlRequest::unlimited(control_request, BioEnergyDelta::new(6.0))
         );
     }
 
@@ -912,7 +913,7 @@ mod tests {
         let costed_request = layer.cost_control_request(control_request);
         assert_eq!(
             costed_request,
-            CostedControlRequest::new(control_request, BioEnergyDelta::new(-1.0))
+            CostedControlRequest::unlimited(control_request, BioEnergyDelta::new(-1.0))
         );
     }
 
@@ -961,7 +962,7 @@ mod tests {
         let costed_request = layer.cost_control_request(control_request);
         assert_eq!(
             costed_request,
-            CostedControlRequest::new(control_request, BioEnergyDelta::new(-1.5))
+            CostedControlRequest::unlimited(control_request, BioEnergyDelta::new(-1.5))
         );
     }
 
@@ -1253,7 +1254,7 @@ mod tests {
         budgeted_fraction: f64,
     ) -> BudgetedControlRequest {
         BudgetedControlRequest::new(
-            CostedControlRequest::new(control_request, cost),
+            CostedControlRequest::unlimited(control_request, cost),
             budgeted_fraction,
         )
     }

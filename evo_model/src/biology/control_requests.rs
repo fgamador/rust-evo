@@ -48,6 +48,50 @@ impl ControlRequest {
     }
 }
 
+pub struct ControlRequestId {
+    layer_index: u16,
+    channel_index: u16,
+    value_index: u16,
+}
+
+impl ControlRequestId {
+    pub const ZEROS: ControlRequestId = ControlRequestId {
+        layer_index: 0,
+        channel_index: 0,
+        value_index: 0,
+    };
+
+    pub fn new(layer_index: usize, channel_index: usize, value_index: usize) -> Self {
+        ControlRequestId {
+            layer_index: layer_index as u16,
+            channel_index: channel_index as u16,
+            value_index: value_index as u16,
+        }
+    }
+
+    pub fn layer_index(&self) -> usize {
+        self.layer_index as usize
+    }
+
+    pub fn channel_index(&self) -> usize {
+        self.channel_index as usize
+    }
+
+    pub fn value_index(&self) -> usize {
+        self.value_index as usize
+    }
+}
+
+impl fmt::Display for ControlRequestId {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(
+            f,
+            "{}.{}.{}",
+            self.layer_index, self.channel_index, self.value_index,
+        )
+    }
+}
+
 #[derive(Clone, Copy, Debug, PartialEq)]
 pub struct CostedControlRequest {
     layer_index: u16,

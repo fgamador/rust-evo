@@ -276,7 +276,7 @@ impl CellLayerBody {
         } else {
             -self.resize_parameters.shrinkage_energy_delta
         };
-        CostedControlRequest::unlimited(request, delta_area * energy_delta)
+        CostedControlRequest::limited(request, delta_area, delta_area * energy_delta)
     }
 
     fn restore_health(&mut self, requested_delta_health: f64, budgeted_fraction: f64) {
@@ -855,7 +855,7 @@ mod tests {
         let costed_request = layer.cost_control_request(control_request);
         assert_eq!(
             costed_request,
-            CostedControlRequest::unlimited(control_request, BioEnergyDelta::new(-1.5))
+            CostedControlRequest::limited(control_request, 0.5, BioEnergyDelta::new(-1.5))
         );
     }
 
@@ -887,7 +887,7 @@ mod tests {
         let costed_request = layer.cost_control_request(control_request);
         assert_eq!(
             costed_request,
-            CostedControlRequest::unlimited(control_request, BioEnergyDelta::new(6.0))
+            CostedControlRequest::limited(control_request, -2.0, BioEnergyDelta::new(6.0))
         );
     }
 

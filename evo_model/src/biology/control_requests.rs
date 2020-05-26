@@ -116,6 +116,19 @@ impl CostedControlRequest {
         }
     }
 
+    pub fn limited(
+        control_request: ControlRequest,
+        allowed_value: f64,
+        energy_delta: BioEnergyDelta,
+    ) -> Self {
+        CostedControlRequest {
+            id: control_request.id,
+            requested_value: control_request.requested_value,
+            allowed_value,
+            energy_delta,
+        }
+    }
+
     pub fn layer_index(&self) -> usize {
         self.id.layer_index()
     }

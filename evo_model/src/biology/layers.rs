@@ -422,7 +422,7 @@ impl CellLayerBrain for DeadCellLayerBrain {
         _body: &CellLayerBody,
         request: ControlRequest,
     ) -> CostedControlRequest {
-        CostedControlRequest::new(request, BioEnergyDelta::ZERO)
+        CostedControlRequest::free(request)
     }
 
     fn execute_control_request(
@@ -576,7 +576,7 @@ impl CellLayerSpecialty for ThrusterCellLayerSpecialty {
         match request.channel_index() {
             // TODO cost forces based on a parameter struct(?)
             Self::FORCE_X_CHANNEL_INDEX | Self::FORCE_Y_CHANNEL_INDEX => {
-                CostedControlRequest::new(request, BioEnergyDelta::ZERO)
+                CostedControlRequest::free(request)
             }
             _ => panic!("Invalid control channel index: {}", request.channel_index()),
         }
@@ -695,12 +695,8 @@ impl CellLayerSpecialty for BondingCellLayerSpecialty {
 
     fn cost_control_request(&self, request: ControlRequest) -> CostedControlRequest {
         match request.channel_index() {
-            Self::RETAIN_BOND_CHANNEL_INDEX => {
-                CostedControlRequest::new(request, BioEnergyDelta::ZERO)
-            }
-            Self::BUDDING_ANGLE_CHANNEL_INDEX => {
-                CostedControlRequest::new(request, BioEnergyDelta::ZERO)
-            }
+            Self::RETAIN_BOND_CHANNEL_INDEX => CostedControlRequest::free(request),
+            Self::BUDDING_ANGLE_CHANNEL_INDEX => CostedControlRequest::free(request),
             Self::DONATION_ENERGY_CHANNEL_INDEX => {
                 CostedControlRequest::new(request, BioEnergyDelta::new(-request.requested_value()))
             }
@@ -1014,10 +1010,7 @@ mod tests {
             .dead();
         let control_request = CellLayer::healing_request(0, 1.0);
         let costed_request = layer.cost_control_request(control_request);
-        assert_eq!(
-            costed_request,
-            CostedControlRequest::new(control_request, BioEnergyDelta::new(0.0))
-        );
+        assert_eq!(costed_request, CostedControlRequest::free(control_request));
     }
 
     #[test]

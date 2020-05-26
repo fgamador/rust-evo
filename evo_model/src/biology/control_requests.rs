@@ -3,17 +3,13 @@ use std::fmt;
 
 #[derive(Clone, Copy, Debug, PartialEq)]
 pub struct ControlRequest {
-    layer_index: u16,
-    channel_index: u16,
-    value_index: u16,
+    id: ControlRequestId,
     requested_value: f64,
 }
 
 impl ControlRequest {
     pub const ZEROS: ControlRequest = ControlRequest {
-        layer_index: 0,
-        channel_index: 0,
-        value_index: 0,
+        id: ControlRequestId::ZEROS,
         requested_value: 0.0,
     };
 
@@ -24,23 +20,21 @@ impl ControlRequest {
         requested_value: f64,
     ) -> Self {
         ControlRequest {
-            layer_index: layer_index as u16,
-            channel_index: channel_index as u16,
-            value_index: value_index as u16,
+            id: ControlRequestId::new(layer_index, channel_index, value_index),
             requested_value,
         }
     }
 
     pub fn layer_index(&self) -> usize {
-        self.layer_index as usize
+        self.id.layer_index()
     }
 
     pub fn channel_index(&self) -> usize {
-        self.channel_index as usize
+        self.id.channel_index()
     }
 
     pub fn value_index(&self) -> usize {
-        self.value_index as usize
+        self.id.value_index()
     }
 
     pub fn requested_value(&self) -> f64 {
@@ -48,6 +42,7 @@ impl ControlRequest {
     }
 }
 
+#[derive(Clone, Copy, Debug, PartialEq)]
 pub struct ControlRequestId {
     layer_index: u16,
     channel_index: u16,
@@ -69,15 +64,15 @@ impl ControlRequestId {
         }
     }
 
-    pub fn layer_index(&self) -> usize {
+    pub fn layer_index(self) -> usize {
         self.layer_index as usize
     }
 
-    pub fn channel_index(&self) -> usize {
+    pub fn channel_index(self) -> usize {
         self.channel_index as usize
     }
 
-    pub fn value_index(&self) -> usize {
+    pub fn value_index(self) -> usize {
         self.value_index as usize
     }
 }
@@ -94,9 +89,7 @@ impl fmt::Display for ControlRequestId {
 
 #[derive(Clone, Copy, Debug, PartialEq)]
 pub struct CostedControlRequest {
-    layer_index: u16,
-    channel_index: u16,
-    value_index: u16,
+    id: ControlRequestId,
     requested_value: f64,
     allowed_value: f64,
     energy_delta: BioEnergyDelta,
@@ -104,9 +97,7 @@ pub struct CostedControlRequest {
 
 impl CostedControlRequest {
     pub const NULL_REQUEST: CostedControlRequest = CostedControlRequest {
-        layer_index: 0,
-        channel_index: 0,
-        value_index: 0,
+        id: ControlRequestId::ZEROS,
         requested_value: 0.0,
         allowed_value: 0.0,
         energy_delta: BioEnergyDelta::ZERO,
@@ -114,9 +105,7 @@ impl CostedControlRequest {
 
     pub fn new(control_request: ControlRequest, energy_delta: BioEnergyDelta) -> Self {
         CostedControlRequest {
-            layer_index: control_request.layer_index,
-            channel_index: control_request.channel_index,
-            value_index: control_request.value_index,
+            id: control_request.id,
             requested_value: control_request.requested_value,
             allowed_value: 0.0,
             energy_delta,
@@ -124,15 +113,15 @@ impl CostedControlRequest {
     }
 
     pub fn layer_index(&self) -> usize {
-        self.layer_index as usize
+        self.id.layer_index()
     }
 
     pub fn channel_index(&self) -> usize {
-        self.channel_index as usize
+        self.id.channel_index()
     }
 
     pub fn value_index(&self) -> usize {
-        self.value_index as usize
+        self.id.value_index()
     }
 
     pub fn requested_value(&self) -> f64 {
@@ -150,9 +139,7 @@ impl CostedControlRequest {
 
 #[derive(Clone, Copy, Debug, PartialEq)]
 pub struct BudgetedControlRequest {
-    layer_index: u16,
-    channel_index: u16,
-    value_index: u16,
+    id: ControlRequestId,
     requested_value: f64,
     allowed_value: f64,
     energy_delta: BioEnergyDelta,
@@ -161,9 +148,7 @@ pub struct BudgetedControlRequest {
 
 impl BudgetedControlRequest {
     pub const NULL_REQUEST: BudgetedControlRequest = BudgetedControlRequest {
-        layer_index: 0,
-        channel_index: 0,
-        value_index: 0,
+        id: ControlRequestId::ZEROS,
         requested_value: 0.0,
         allowed_value: 0.0,
         energy_delta: BioEnergyDelta::ZERO,
@@ -172,9 +157,7 @@ impl BudgetedControlRequest {
 
     pub fn new(costed_request: CostedControlRequest, budgeted_fraction: f64) -> Self {
         BudgetedControlRequest {
-            layer_index: costed_request.layer_index,
-            channel_index: costed_request.channel_index,
-            value_index: costed_request.value_index,
+            id: costed_request.id,
             requested_value: costed_request.requested_value,
             allowed_value: costed_request.allowed_value,
             energy_delta: costed_request.energy_delta,
@@ -183,15 +166,15 @@ impl BudgetedControlRequest {
     }
 
     pub fn layer_index(&self) -> usize {
-        self.layer_index as usize
+        self.id.layer_index()
     }
 
     pub fn channel_index(&self) -> usize {
-        self.channel_index as usize
+        self.id.channel_index()
     }
 
     pub fn value_index(&self) -> usize {
-        self.value_index as usize
+        self.id.value_index()
     }
 
     pub fn requested_value(&self) -> f64 {
@@ -215,10 +198,8 @@ impl fmt::Display for BudgetedControlRequest {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         write!(
             f,
-            "{}.{}.{}: requested: {:.4}, allowed: {:.4}, cost: {:.4}, budget: {:.4})",
-            self.layer_index,
-            self.channel_index,
-            self.value_index,
+            "{}: requested: {:.4}, allowed: {:.4}, cost: {:.4}, budget: {:.4})",
+            self.id,
             self.requested_value,
             self.allowed_value,
             -self.energy_delta.value(),

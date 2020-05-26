@@ -104,12 +104,7 @@ impl CostedControlRequest {
     };
 
     pub fn free(control_request: ControlRequest) -> Self {
-        CostedControlRequest {
-            id: control_request.id,
-            requested_value: control_request.requested_value,
-            allowed_value: control_request.requested_value,
-            energy_delta: BioEnergyDelta::ZERO,
-        }
+        Self::unlimited(control_request, BioEnergyDelta::ZERO)
     }
 
     pub fn unlimited(control_request: ControlRequest, energy_delta: BioEnergyDelta) -> Self {

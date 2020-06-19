@@ -32,8 +32,9 @@ impl WallCollisions {
         }
     }
 
-    pub fn collision_force(mass: Mass, velocity: Velocity, _overlap: Displacement) -> Force {
-        Force::new(-2.0 * mass.value() * velocity.x(), 0.0)
+    pub fn collision_force(mass: Mass, velocity: Velocity, overlap: Displacement) -> Force {
+        let v = velocity.x().max(overlap.x());
+        Force::new(-mass.value() * (velocity.x() + v), 0.0)
     }
 }
 
@@ -375,6 +376,18 @@ mod tests {
                 Displacement::new(2.0, 0.0)
             ),
             Force::new(-12.0, 0.0)
+        );
+    }
+
+    #[test]
+    fn right_wall_slow_collision_force() {
+        assert_eq!(
+            WallCollisions::collision_force(
+                Mass::new(2.0),
+                Velocity::new(1.0, 2.0),
+                Displacement::new(2.0, 0.0)
+            ),
+            Force::new(-6.0, 0.0)
         );
     }
 

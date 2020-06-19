@@ -42,10 +42,10 @@ impl WallCollisions {
             Force::new(-mass.value() * (velocity.x() + v), 0.0)
         } else {
             let v = //if overlap.x() > 0.0 {
-                velocity.y(); //.max(overlap.x())
-                              // } else {
-                              //     velocity.x().min(overlap.x())
-                              // };
+                velocity.y().max(overlap.y());
+            // } else {
+            //     velocity.x().min(overlap.x())
+            // };
             Force::new(0.0, -mass.value() * (velocity.y() + v))
         }
     }
@@ -440,17 +440,17 @@ mod tests {
         );
     }
 
-    // #[test]
-    // fn right_wall_slow_collision_force() {
-    //     assert_eq!(
-    //         WallCollisions::collision_force(
-    //             Mass::new(2.0),
-    //             Velocity::new(1.0, 2.0),
-    //             Displacement::new(2.0, 0.0)
-    //         ),
-    //         Force::new(-6.0, 0.0)
-    //     );
-    // }
+    #[test]
+    fn top_wall_slow_collision_force() {
+        assert_eq!(
+            WallCollisions::collision_force(
+                Mass::new(2.0),
+                Velocity::new(2.0, 1.0),
+                Displacement::new(0.0, 2.0)
+            ),
+            Force::new(0.0, -6.0)
+        );
+    }
 
     #[test]
     fn pair_collisions_add_overlaps_and_forces() {

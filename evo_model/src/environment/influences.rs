@@ -408,6 +408,18 @@ mod tests {
     }
 
     #[test]
+    fn left_wall_slow_collision_force() {
+        assert_eq!(
+            WallCollisions::collision_force(
+                Mass::new(2.0),
+                Velocity::new(-1.0, 2.0),
+                Displacement::new(-2.0, 0.0)
+            ),
+            Force::new(6.0, 0.0)
+        );
+    }
+
+    #[test]
     fn pair_collisions_add_overlaps_and_forces() {
         let mut cell_graph = SortableGraph::new();
         let pair_collisions = PairCollisions::new(Box::new(LinearSpring::new(1.0)));

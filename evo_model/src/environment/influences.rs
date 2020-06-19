@@ -31,6 +31,10 @@ impl WallCollisions {
             spring,
         }
     }
+
+    pub fn collision_force(mass: Mass, velocity: Velocity, _overlap: Displacement) -> Force {
+        Force::new(-2.0 * mass.value() * velocity.x(), 0.0)
+    }
 }
 
 impl Influence for WallCollisions {
@@ -360,6 +364,18 @@ mod tests {
         assert_eq!(ball.environment().overlaps().len(), 1);
         assert_ne!(ball.forces().net_force().x(), 0.0);
         assert_ne!(ball.forces().net_force().y(), 0.0);
+    }
+
+    #[test]
+    fn right_wall_fast_collision_force() {
+        assert_eq!(
+            WallCollisions::collision_force(
+                Mass::new(2.0),
+                Velocity::new(3.0, 2.0),
+                Displacement::new(2.0, 0.0)
+            ),
+            Force::new(-12.0, 0.0)
+        );
     }
 
     #[test]

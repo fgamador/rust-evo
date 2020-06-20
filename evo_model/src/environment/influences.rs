@@ -82,6 +82,13 @@ impl PairCollisions {
     pub fn new(spring: Box<dyn Spring>) -> Self {
         PairCollisions { spring }
     }
+
+    fn add_overlap_and_force(&self, cell: &mut Cell, overlap: Overlap) {
+        cell.environment_mut().add_overlap(overlap);
+        let force = overlap.to_force(&*self.spring);
+        trace!("Cell {} Pair {:?}", cell.node_handle(), force);
+        cell.forces_mut().add_force(force);
+    }
 }
 
 impl Influence for PairCollisions {
@@ -93,10 +100,7 @@ impl Influence for PairCollisions {
         let overlaps = find_pair_overlaps(cell_graph);
         for ((handle, overlap), (_, _)) in overlaps {
             let cell = cell_graph.node_mut(handle);
-            cell.environment_mut().add_overlap(overlap);
-            let force = overlap.to_force(&*self.spring);
-            trace!("Cell {} Pair {:?}", cell.node_handle(), force);
-            cell.forces_mut().add_force(force);
+            self.add_overlap_and_force(cell, overlap);
         }
     }
 }

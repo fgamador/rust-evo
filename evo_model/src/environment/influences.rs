@@ -35,27 +35,19 @@ impl WallCollisions {
     fn x_or_y_collision_force(mass: Mass, velocity: f64, overlap: f64) -> f64 {
         let v = if overlap > 0.0 {
             velocity.max(overlap)
-        } else {
+        } else if overlap < 0.0 {
             velocity.min(overlap)
+        } else {
+            -velocity
         };
         -mass.value() * (velocity + v)
     }
 
     pub fn collision_force(mass: Mass, velocity: Velocity, overlap: Displacement) -> Force {
-        let mut force = Force::ZERO;
-        if overlap.x() != 0.0 {
-            force += Force::new(
-                Self::x_or_y_collision_force(mass, velocity.x(), overlap.x()),
-                0.0,
-            );
-        }
-        if overlap.y() != 0.0 {
-            force += Force::new(
-                0.0,
-                Self::x_or_y_collision_force(mass, velocity.y(), overlap.y()),
-            );
-        }
-        force
+        Force::new(
+            Self::x_or_y_collision_force(mass, velocity.x(), overlap.x()),
+            Self::x_or_y_collision_force(mass, velocity.y(), overlap.y()),
+        )
     }
 }
 

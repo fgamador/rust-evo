@@ -438,26 +438,14 @@ mod tests {
     }
 
     #[test]
-    fn left_wall_slow_collision_force() {
+    fn bottom_left_walls_slow_collision_force() {
         assert_eq!(
             WallCollisions::collision_force(
                 Mass::new(2.0),
-                Velocity::new(-1.0, 2.0),
-                Displacement::new(-2.0, 0.0)
+                Velocity::new(-1.0, -0.5),
+                Displacement::new(-2.0, -1.5)
             ),
-            Force::new(6.0, 0.0)
-        );
-    }
-
-    #[test]
-    fn bottom_wall_slow_collision_force() {
-        assert_eq!(
-            WallCollisions::collision_force(
-                Mass::new(2.0),
-                Velocity::new(2.0, -1.0),
-                Displacement::new(0.0, -2.0)
-            ),
-            Force::new(0.0, 6.0)
+            Force::new(6.0, 4.0)
         );
     }
 

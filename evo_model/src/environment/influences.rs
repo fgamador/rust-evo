@@ -86,6 +86,23 @@ impl PairCollisions {
         PairCollisions { spring }
     }
 
+    pub fn collision_force(
+        mass1: Mass,
+        velocity1: Velocity,
+        _overlap1: Displacement,
+        mass2: Mass,
+        velocity2: Velocity,
+    ) -> Force {
+        let relative_velocity1_x = velocity1.x() - velocity2.x();
+        let relative_velocity1_y = velocity1.y() - velocity2.y();
+        let mass_prod = mass1.value() * mass2.value();
+        let mass_sum = mass1.value() + mass2.value();
+        Force::new(
+            -mass_prod * (relative_velocity1_x + relative_velocity1_x) / mass_sum,
+            -mass_prod * (relative_velocity1_y + relative_velocity1_y) / mass_sum,
+        )
+    }
+
     fn add_overlap_and_spring_force(&self, cell: &mut Cell, overlap: Overlap) {
         cell.environment_mut().add_overlap(overlap);
         let force = overlap.to_force(&*self.spring);
@@ -502,6 +519,20 @@ mod tests {
         assert_eq!(ball2.environment().overlaps().len(), 1);
         assert_ne!(ball2.forces().net_force().x(), 0.0);
         assert_ne!(ball2.forces().net_force().y(), 0.0);
+    }
+
+    #[test]
+    fn pair_positive_fast_collision_force() {
+        assert_eq!(
+            PairCollisions::collision_force(
+                Mass::new(2.0),
+                Velocity::new(3.0, 4.0),
+                Displacement::new(1.5, 2.5),
+                Mass::new(6.0),
+                Velocity::new(-5.0, -6.0),
+            ),
+            Force::new(-24.0, -30.0)
+        );
     }
 
     #[test]

@@ -55,14 +55,17 @@ impl Influence for WallCollisions {
     fn apply(
         &self,
         cell_graph: &mut SortableGraph<Cell, Bond, AngleGusset>,
-        _subtick_duration: Duration,
+        subtick_duration: Duration,
     ) {
         let overlaps = self.walls.find_overlaps(cell_graph);
         for (handle, overlap) in overlaps {
             let cell = cell_graph.node_mut(handle);
             cell.environment_mut().add_overlap(overlap);
-            // let force = Self::collision_force(cell.mass(), cell.velocity(), -overlap.incursion());
-            let force = overlap.to_force(&*self.spring);
+            let force = if subtick_duration == Duration::new(1.0) {
+                Self::collision_force(cell.mass(), cell.velocity(), -overlap.incursion())
+            } else {
+                overlap.to_force(&*self.spring)
+            };
             trace!("Cell {} Wall {:?}", cell.node_handle(), force);
             cell.forces_mut().add_force(force);
         }
@@ -359,7 +362,7 @@ mod tests {
     use std::f64::consts::PI;
 
     #[test]
-    fn wall_collisions_add_overlap_and_force() {
+    fn wall_collisions_add_overlap_and_force_old() {
         let mut cell_graph = SortableGraph::new();
         let wall_collisions = WallCollisions::new(
             Position::new(-10.0, -10.0),
@@ -374,6 +377,29 @@ mod tests {
         ));
 
         wall_collisions.apply(&mut cell_graph, Duration::new(0.5));
+
+        let ball = cell_graph.node(ball_handle);
+        assert_eq!(ball.environment().overlaps().len(), 1);
+        assert_ne!(ball.forces().net_force().x(), 0.0);
+        assert_ne!(ball.forces().net_force().y(), 0.0);
+    }
+
+    #[test]
+    fn wall_collisions_add_overlap_and_force() {
+        let mut cell_graph = SortableGraph::new();
+        let wall_collisions = WallCollisions::new(
+            Position::new(-10.0, -10.0),
+            Position::new(10.0, 10.0),
+            Box::new(LinearSpring::new(1.0)),
+        );
+        let ball_handle = cell_graph.add_node(Cell::ball(
+            Length::new(1.0),
+            Mass::new(1.0),
+            Position::new(9.5, 9.5),
+            Velocity::new(1.0, 1.0),
+        ));
+
+        wall_collisions.apply(&mut cell_graph, Duration::new(1.0));
 
         let ball = cell_graph.node(ball_handle);
         assert_eq!(ball.environment().overlaps().len(), 1);

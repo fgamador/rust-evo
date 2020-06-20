@@ -120,10 +120,6 @@ where
                     (*handle1, Overlap::new(incursion, width)),
                     (*handle2, Overlap::new(-incursion, width)),
                 ));
-                overlaps.push((
-                    (*handle2, Overlap::new(-incursion, width)),
-                    (*handle1, Overlap::new(incursion, width)),
-                ));
             }
         }
     }
@@ -293,7 +289,7 @@ mod tests {
 
         let overlaps = find_pair_overlaps(&mut graph);
 
-        assert_eq!(overlaps.len(), 2);
+        assert_eq!(overlaps.len(), 1);
         assert_eq!(
             overlaps[0].0,
             (
@@ -302,7 +298,7 @@ mod tests {
             )
         );
         assert_eq!(
-            overlaps[1].0,
+            overlaps[0].1,
             (
                 graph.node_handles()[1],
                 Overlap::new(Displacement::new(1.5, 0.0), 1.5)
@@ -352,11 +348,11 @@ mod tests {
 
         let overlaps = find_pair_overlaps(&mut graph);
 
-        assert_eq!(overlaps.len(), 4);
+        assert_eq!(overlaps.len(), 2);
         assert_eq!((overlaps[0].0).0, graph.node_handles()[0]);
+        assert_eq!((overlaps[0].1).0, graph.node_handles()[1]);
         assert_eq!((overlaps[1].0).0, graph.node_handles()[1]);
-        assert_eq!((overlaps[2].0).0, graph.node_handles()[1]);
-        assert_eq!((overlaps[3].0).0, graph.node_handles()[2]);
+        assert_eq!((overlaps[1].1).0, graph.node_handles()[2]);
     }
 
     #[test]

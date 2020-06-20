@@ -42,19 +42,20 @@ impl WallCollisions {
     }
 
     pub fn collision_force(mass: Mass, velocity: Velocity, overlap: Displacement) -> Force {
+        let mut force = Force::ZERO;
         if overlap.x() != 0.0 {
-            Force::new(
+            force += Force::new(
                 Self::x_or_y_collision_force(mass, velocity.x(), overlap.x()),
                 0.0,
-            )
-        } else if overlap.y() != 0.0 {
-            Force::new(
+            );
+        }
+        if overlap.y() != 0.0 {
+            force += Force::new(
                 0.0,
                 Self::x_or_y_collision_force(mass, velocity.y(), overlap.y()),
-            )
-        } else {
-            Force::ZERO
+            );
         }
+        force
     }
 }
 
@@ -401,14 +402,14 @@ mod tests {
     }
 
     #[test]
-    fn right_wall_fast_collision_force() {
+    fn top_right_walls_fast_collision_force() {
         assert_eq!(
             WallCollisions::collision_force(
                 Mass::new(2.0),
-                Velocity::new(3.0, 2.0),
-                Displacement::new(2.0, 0.0)
+                Velocity::new(3.0, 4.0),
+                Displacement::new(2.0, 3.0)
             ),
-            Force::new(-12.0, 0.0)
+            Force::new(-12.0, -16.0)
         );
     }
 
@@ -445,18 +446,6 @@ mod tests {
                 Displacement::new(-2.0, 0.0)
             ),
             Force::new(6.0, 0.0)
-        );
-    }
-
-    #[test]
-    fn top_wall_fast_collision_force() {
-        assert_eq!(
-            WallCollisions::collision_force(
-                Mass::new(2.0),
-                Velocity::new(2.0, 3.0),
-                Displacement::new(0.0, 2.0)
-            ),
-            Force::new(0.0, -12.0)
         );
     }
 

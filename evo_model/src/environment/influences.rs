@@ -61,8 +61,8 @@ impl Influence for WallCollisions {
         for (handle, overlap) in overlaps {
             let cell = cell_graph.node_mut(handle);
             cell.environment_mut().add_overlap(overlap);
-            //let force = Self::collision_force(cell.mass(), cell.velocity(), overlap.incursion());
-            let force = overlap.to_force(&(*self.spring));
+            // let force = Self::collision_force(cell.mass(), cell.velocity(), -overlap.incursion());
+            let force = overlap.to_force(&*self.spring);
             trace!("Cell {} Wall {:?}", cell.node_handle(), force);
             cell.forces_mut().add_force(force);
         }

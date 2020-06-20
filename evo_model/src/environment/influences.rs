@@ -98,9 +98,9 @@ impl Influence for PairCollisions {
         _subtick_duration: Duration,
     ) {
         let overlaps = find_pair_overlaps(cell_graph);
-        for ((handle, overlap), (_, _)) in overlaps {
-            let cell = cell_graph.node_mut(handle);
-            self.add_overlap_and_force(cell, overlap);
+        for ((handle1, overlap1), (_, _)) in overlaps {
+            let cell = cell_graph.node_mut(handle1);
+            self.add_overlap_and_force(cell, overlap1);
         }
     }
 }

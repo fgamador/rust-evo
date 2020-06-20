@@ -536,6 +536,20 @@ mod tests {
     }
 
     #[test]
+    fn pair_negative_fast_collision_force() {
+        assert_eq!(
+            PairCollisions::collision_force(
+                Mass::new(2.0),
+                Velocity::new(-3.0, -4.0),
+                Displacement::new(1.5, 2.5),
+                Mass::new(6.0),
+                Velocity::new(5.0, 6.0),
+            ),
+            Force::new(24.0, 30.0)
+        );
+    }
+
+    #[test]
     fn bond_forces_add_forces() {
         let mut cell_graph = SortableGraph::new();
         let bond_forces = BondForces::new();

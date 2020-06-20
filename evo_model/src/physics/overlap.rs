@@ -18,6 +18,10 @@ impl Overlap {
         Overlap { incursion, width }
     }
 
+    pub fn incursion(&self) -> Displacement {
+        self.incursion
+    }
+
     pub fn magnitude(&self) -> f64 {
         self.incursion.length().value()
     }

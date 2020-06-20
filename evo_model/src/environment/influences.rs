@@ -47,11 +47,13 @@ impl WallCollisions {
                 Self::x_or_y_collision_force(mass, velocity.x(), overlap.x()),
                 0.0,
             )
-        } else {
+        } else if overlap.y() != 0.0 {
             Force::new(
                 0.0,
                 Self::x_or_y_collision_force(mass, velocity.y(), overlap.y()),
             )
+        } else {
+            Force::ZERO
         }
     }
 }
@@ -66,6 +68,7 @@ impl Influence for WallCollisions {
         for (handle, overlap) in overlaps {
             let cell = cell_graph.node_mut(handle);
             cell.environment_mut().add_overlap(overlap);
+            //let force = Self::collision_force(cell.mass(), cell.velocity(), overlap.incursion());
             let force = overlap.to_force(&(*self.spring));
             trace!("Cell {} Wall {:?}", cell.node_handle(), force);
             cell.forces_mut().add_force(force);
@@ -383,6 +386,18 @@ mod tests {
         assert_eq!(ball.environment().overlaps().len(), 1);
         assert_ne!(ball.forces().net_force().x(), 0.0);
         assert_ne!(ball.forces().net_force().y(), 0.0);
+    }
+
+    #[test]
+    fn no_walls_collision_force() {
+        assert_eq!(
+            WallCollisions::collision_force(
+                Mass::new(2.0),
+                Velocity::new(3.0, 2.0),
+                Displacement::new(0.0, 0.0)
+            ),
+            Force::new(0.0, 0.0)
+        );
     }
 
     #[test]

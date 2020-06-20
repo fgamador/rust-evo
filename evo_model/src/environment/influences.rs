@@ -32,6 +32,17 @@ impl WallCollisions {
         }
     }
 
+    fn add_overlap_and_force(&self, cell: &mut Cell, overlap: Overlap, subtick_duration: Duration) {
+        cell.environment_mut().add_overlap(overlap);
+        let force = if subtick_duration == Duration::new(1.0) {
+            Self::collision_force(cell.mass(), cell.velocity(), -overlap.incursion())
+        } else {
+            overlap.to_force(&*self.spring)
+        };
+        trace!("Cell {} Wall {:?}", cell.node_handle(), force);
+        cell.forces_mut().add_force(force);
+    }
+
     pub fn collision_force(mass: Mass, velocity: Velocity, overlap: Displacement) -> Force {
         Force::new(
             Self::x_or_y_collision_force(mass, velocity.x(), overlap.x()),
@@ -59,15 +70,7 @@ impl Influence for WallCollisions {
     ) {
         let overlaps = self.walls.find_overlaps(cell_graph);
         for (handle, overlap) in overlaps {
-            let cell = cell_graph.node_mut(handle);
-            cell.environment_mut().add_overlap(overlap);
-            let force = if subtick_duration == Duration::new(1.0) {
-                Self::collision_force(cell.mass(), cell.velocity(), -overlap.incursion())
-            } else {
-                overlap.to_force(&*self.spring)
-            };
-            trace!("Cell {} Wall {:?}", cell.node_handle(), force);
-            cell.forces_mut().add_force(force);
+            self.add_overlap_and_force(cell_graph.node_mut(handle), overlap, subtick_duration);
         }
     }
 }

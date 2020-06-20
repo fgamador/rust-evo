@@ -91,7 +91,7 @@ impl Influence for PairCollisions {
         _subtick_duration: Duration,
     ) {
         let overlaps = find_pair_overlaps(cell_graph);
-        for (handle, overlap) in overlaps {
+        for ((handle, overlap), (_, _)) in overlaps {
             let cell = cell_graph.node_mut(handle);
             cell.environment_mut().add_overlap(overlap);
             let force = overlap.to_force(&*self.spring);

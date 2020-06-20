@@ -88,7 +88,7 @@ impl Walls {
 
 pub fn find_pair_overlaps<C, E, ME>(
     graph: &mut SortableGraph<C, E, ME>,
-) -> Vec<(NodeHandle, Overlap)>
+) -> Vec<((NodeHandle, Overlap), (NodeHandle, Overlap))>
 where
     C: Circle + GraphNode,
     E: GraphEdge,
@@ -96,7 +96,8 @@ where
 {
     graph.sort_already_mostly_sorted_node_handles(cmp_by_min_x);
 
-    let mut overlaps: Vec<(NodeHandle, Overlap)> = Vec::with_capacity(graph.nodes().len() * 2);
+    let mut overlaps: Vec<((NodeHandle, Overlap), (NodeHandle, Overlap))> =
+        Vec::with_capacity(graph.nodes().len() * 2);
 
     for (i, handle1) in graph.node_handles().iter().enumerate() {
         for handle2 in &graph.node_handles()[(i + 1)..] {
@@ -115,8 +116,14 @@ where
 
             if let Some(incursion) = calc_incursion(circle1, circle2) {
                 let width = circle1.radius().value().min(circle2.radius().value());
-                overlaps.push((*handle1, Overlap::new(incursion, width)));
-                overlaps.push((*handle2, Overlap::new(-incursion, width)));
+                overlaps.push((
+                    (*handle1, Overlap::new(incursion, width)),
+                    (*handle2, Overlap::new(-incursion, width)),
+                ));
+                overlaps.push((
+                    (*handle2, Overlap::new(-incursion, width)),
+                    (*handle1, Overlap::new(incursion, width)),
+                ));
             }
         }
     }
@@ -288,14 +295,14 @@ mod tests {
 
         assert_eq!(overlaps.len(), 2);
         assert_eq!(
-            overlaps[0],
+            overlaps[0].0,
             (
                 graph.node_handles()[0],
                 Overlap::new(Displacement::new(-1.5, 0.0), 1.5)
             )
         );
         assert_eq!(
-            overlaps[1],
+            overlaps[1].0,
             (
                 graph.node_handles()[1],
                 Overlap::new(Displacement::new(1.5, 0.0), 1.5)
@@ -346,10 +353,10 @@ mod tests {
         let overlaps = find_pair_overlaps(&mut graph);
 
         assert_eq!(overlaps.len(), 4);
-        assert_eq!(overlaps[0].0, graph.node_handles()[0]);
-        assert_eq!(overlaps[1].0, graph.node_handles()[1]);
-        assert_eq!(overlaps[2].0, graph.node_handles()[1]);
-        assert_eq!(overlaps[3].0, graph.node_handles()[2]);
+        assert_eq!((overlaps[0].0).0, graph.node_handles()[0]);
+        assert_eq!((overlaps[1].0).0, graph.node_handles()[1]);
+        assert_eq!((overlaps[2].0).0, graph.node_handles()[1]);
+        assert_eq!((overlaps[3].0).0, graph.node_handles()[2]);
     }
 
     #[test]

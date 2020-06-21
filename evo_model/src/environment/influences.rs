@@ -708,18 +708,35 @@ mod tests {
     }
 
     #[test]
-    fn bond_force_undoes_strain() {
-        assert_eq!(
-            BondForces::bond_force(
-                Mass::new(2.0),
-                Velocity::new(1.5, -2.5),
-                Displacement::new(3.0, -5.0),
-                Mass::new(6.0),
-                Velocity::new(-0.5, 1.5),
-            ),
-            Force::new(-7.5, 13.5)
-        );
+    fn bond_force_undoes_compression_strain() {
+        let mass1 = Mass::new(2.0);
+        let velocity1 = Velocity::new(1.5, -2.5);
+        let strain1 = Displacement::new(3.0, -5.0);
+        let mass2 = Mass::new(6.0);
+        let velocity2 = Velocity::new(-0.5, 1.5);
+
+        let force1 = BondForces::bond_force(mass1, velocity1, strain1, mass2, velocity2);
+        assert_eq!(force1, Force::new(-7.5, 13.5));
+
+        let velocity1_after = velocity1 + (force1 / mass1) * Duration::ONE;
+        let velocity2_after = velocity2 + (-force1 / mass2) * Duration::ONE;
+        let relative_velocity1_after = velocity1_after - velocity2_after;
+        assert_eq!(relative_velocity1_after * Duration::ONE, -strain1);
     }
+
+    // #[test]
+    // fn bond_force_undoes_extension_strain() {
+    //     assert_eq!(
+    //         BondForces::bond_force(
+    //             Mass::new(2.0),
+    //             Velocity::new(1.5, -2.5),
+    //             Displacement::new(-3.0, 5.0),
+    //             Mass::new(6.0),
+    //             Velocity::new(-0.5, 1.5),
+    //         ),
+    //         Force::new(7.5, -13.5)
+    //     );
+    // }
 
     #[test]
     fn bond_angle_forces_add_forces() {

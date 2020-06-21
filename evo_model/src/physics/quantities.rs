@@ -388,6 +388,9 @@ pub struct Duration {
 }
 
 impl Duration {
+    pub const ZERO: Duration = Duration { value: 0.0 };
+    pub const ONE: Duration = Duration { value: 1.0 };
+
     pub fn new(value: f64) -> Self {
         Duration { value }
     }
@@ -482,6 +485,14 @@ impl Acceleration {
     }
 }
 
+impl Mul<Duration> for Acceleration {
+    type Output = DeltaV;
+
+    fn mul(self, rhs: Duration) -> Self::Output {
+        DeltaV::new(self.x * rhs.value, self.y * rhs.value)
+    }
+}
+
 #[derive(Clone, Copy, Debug, PartialEq)]
 pub struct DeltaV {
     x: f64,
@@ -501,6 +512,14 @@ impl DeltaV {
     #[allow(dead_code)]
     pub fn y(&self) -> f64 {
         self.y
+    }
+}
+
+impl Mul<Duration> for DeltaV {
+    type Output = Displacement;
+
+    fn mul(self, rhs: Duration) -> Self::Output {
+        Displacement::new(self.x * rhs.value, self.y * rhs.value)
     }
 }
 
@@ -651,6 +670,14 @@ impl Mul<Duration> for Force {
 
     fn mul(self, rhs: Duration) -> Self::Output {
         Impulse::new(self.x * rhs.value, self.y * rhs.value)
+    }
+}
+
+impl Div<Mass> for Force {
+    type Output = Acceleration;
+
+    fn div(self, rhs: Mass) -> Self::Output {
+        Acceleration::new(self.x / rhs.value, self.y / rhs.value)
     }
 }
 

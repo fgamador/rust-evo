@@ -192,31 +192,28 @@ impl BondForces {
         mass2: Mass,
         velocity2: Velocity,
     ) -> Force {
-        Force::ZERO
-        // let mass_prod = mass1.value() * mass2.value();
-        // let mass_sum = mass1.value() + mass2.value();
-        // let relative_velocity1 = velocity1 - velocity2;
-        // Force::new(
-        //     Self::x_or_y_collision_force(mass_prod, mass_sum, relative_velocity1.x(), overlap1.x()),
-        //     Self::x_or_y_collision_force(mass_prod, mass_sum, relative_velocity1.y(), overlap1.y()),
-        // )
+        let mass_prod = mass1.value() * mass2.value();
+        let mass_sum = mass1.value() + mass2.value();
+        let relative_velocity1 = velocity1 - velocity2;
+        Force::new(
+            Self::x_or_y_bond_force(mass_prod, mass_sum, relative_velocity1.x(), strain1.x()),
+            Self::x_or_y_bond_force(mass_prod, mass_sum, relative_velocity1.y(), strain1.y()),
+        )
     }
 
-    // fn x_or_y_collision_force(
-    //     mass_prod: f64,
-    //     mass_sum: f64,
-    //     relative_velocity1: f64,
-    //     overlap1: f64,
-    // ) -> f64 {
-    //     let v = if overlap1 > 0.0 {
-    //         relative_velocity1.max(overlap1)
-    //     } else if overlap1 < 0.0 {
-    //         relative_velocity1.min(overlap1)
-    //     } else {
-    //         -relative_velocity1
-    //     };
-    //     -mass_prod * (relative_velocity1 + v) / mass_sum
-    // }
+    fn x_or_y_bond_force(
+        mass_prod: f64,
+        mass_sum: f64,
+        relative_velocity1: f64,
+        strain1: f64,
+    ) -> f64 {
+        let v = if strain1 != 0.0 {
+            strain1
+        } else {
+            -relative_velocity1
+        };
+        -mass_prod * (relative_velocity1 + v) / mass_sum
+    }
 
     fn add_force(cell: &mut Cell, force: Force) {
         trace!("Cell {} Bond {:?}", cell.node_handle(), force);
@@ -707,6 +704,20 @@ mod tests {
                 Velocity::new(-5.0, 6.0),
             ),
             Force::new(0.0, 0.0)
+        );
+    }
+
+    #[test]
+    fn bond_force_undoes_strain() {
+        assert_eq!(
+            BondForces::bond_force(
+                Mass::new(2.0),
+                Velocity::new(1.5, -2.5),
+                Displacement::new(3.0, -5.0),
+                Mass::new(6.0),
+                Velocity::new(-0.5, 1.5),
+            ),
+            Force::new(-7.5, 13.5)
         );
     }
 

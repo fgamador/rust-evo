@@ -625,7 +625,7 @@ mod tests {
     }
 
     #[test]
-    fn pair_no_collision_force() {
+    fn pair_not_in_collision_adds_no_force() {
         assert_eq!(
             PairCollisions::collision_force(
                 Mass::new(2.0),
@@ -639,7 +639,7 @@ mod tests {
     }
 
     #[test]
-    fn pair_fast_collision_force() {
+    fn pair_collision_force_reverses_incoming_velocity() {
         assert_eq!(
             PairCollisions::collision_force(
                 Mass::new(2.0),
@@ -653,7 +653,7 @@ mod tests {
     }
 
     #[test]
-    fn pair_slow_collision_force() {
+    fn pair_collision_force_undoes_overlap() {
         assert_eq!(
             PairCollisions::collision_force(
                 Mass::new(2.0),

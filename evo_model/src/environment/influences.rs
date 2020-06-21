@@ -86,6 +86,16 @@ impl PairCollisions {
         PairCollisions { spring }
     }
 
+    fn cell1_collision_force(cell1: &Cell, overlap1: Overlap, cell2: &Cell) -> Force {
+        Self::collision_force(
+            cell1.mass(),
+            cell1.velocity(),
+            -overlap1.incursion(),
+            cell2.mass(),
+            cell2.velocity(),
+        )
+    }
+
     pub fn collision_force(
         mass1: Mass,
         velocity1: Velocity,
@@ -118,6 +128,12 @@ impl PairCollisions {
         -mass_prod * (relative_velocity1 + v) / mass_sum
     }
 
+    fn add_overlap_and_force(&self, cell: &mut Cell, overlap: Overlap, force: Force) {
+        cell.environment_mut().add_overlap(overlap);
+        trace!("Cell {} Pair {:?}", cell.node_handle(), force);
+        cell.forces_mut().add_force(force);
+    }
+
     fn add_overlap_and_spring_force(&self, cell: &mut Cell, overlap: Overlap) {
         cell.environment_mut().add_overlap(overlap);
         let force = overlap.to_force(&*self.spring);
@@ -130,12 +146,22 @@ impl Influence for PairCollisions {
     fn apply(
         &self,
         cell_graph: &mut SortableGraph<Cell, Bond, AngleGusset>,
-        _subtick_duration: Duration,
+        subtick_duration: Duration,
     ) {
         let overlaps = find_pair_overlaps(cell_graph);
         for ((handle1, overlap1), (handle2, overlap2)) in overlaps {
-            self.add_overlap_and_spring_force(cell_graph.node_mut(handle1), overlap1);
-            self.add_overlap_and_spring_force(cell_graph.node_mut(handle2), overlap2);
+            if subtick_duration == Duration::new(1.0) {
+                let force1 = Self::cell1_collision_force(
+                    cell_graph.node(handle1),
+                    overlap1,
+                    cell_graph.node(handle2),
+                );
+                self.add_overlap_and_force(cell_graph.node_mut(handle1), overlap1, force1);
+                self.add_overlap_and_force(cell_graph.node_mut(handle2), overlap2, -force1);
+            } else {
+                self.add_overlap_and_spring_force(cell_graph.node_mut(handle1), overlap1);
+                self.add_overlap_and_spring_force(cell_graph.node_mut(handle2), overlap2);
+            }
         }
     }
 }

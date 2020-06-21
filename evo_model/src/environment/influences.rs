@@ -189,8 +189,9 @@ impl Influence for BondForces {
         _subtick_duration: Duration,
     ) {
         let strains = calc_bond_strains(cell_graph);
-        for ((handle1, strain1), (_handle2, _strain2)) in strains {
+        for ((handle1, strain1), (handle2, strain2)) in strains {
             Self::add_strain_force(cell_graph.node_mut(handle1), strain1);
+            Self::add_strain_force(cell_graph.node_mut(handle2), strain2);
         }
     }
 }

@@ -97,10 +97,6 @@ where
             (circle1.node_handle(), BondStrain::new(strain)),
             (circle2.node_handle(), BondStrain::new(-strain)),
         ));
-        strains.push((
-            (circle2.node_handle(), BondStrain::new(-strain)),
-            (circle1.node_handle(), BondStrain::new(strain)),
-        ));
     }
     strains
 }

@@ -70,6 +70,10 @@ impl BondStrain {
         BondStrain { strain }
     }
 
+    pub fn strain(&self) -> Displacement {
+        self.strain
+    }
+
     // TODO move this to a Spring class
     pub fn to_force(&self) -> Force {
         const SPRING_CONSTANT: f64 = 1.0;

@@ -128,7 +128,7 @@ impl PairCollisions {
         -mass_prod * (relative_velocity1 + v) / mass_sum
     }
 
-    fn add_overlap_and_force(&self, cell: &mut Cell, overlap: Overlap, force: Force) {
+    fn add_overlap_and_force(cell: &mut Cell, overlap: Overlap, force: Force) {
         cell.environment_mut().add_overlap(overlap);
         trace!("Cell {} Pair {:?}", cell.node_handle(), force);
         cell.forces_mut().add_force(force);
@@ -156,8 +156,8 @@ impl Influence for PairCollisions {
                     overlap1,
                     cell_graph.node(handle2),
                 );
-                self.add_overlap_and_force(cell_graph.node_mut(handle1), overlap1, force1);
-                self.add_overlap_and_force(cell_graph.node_mut(handle2), overlap2, -force1);
+                Self::add_overlap_and_force(cell_graph.node_mut(handle1), overlap1, force1);
+                Self::add_overlap_and_force(cell_graph.node_mut(handle2), overlap2, -force1);
             } else {
                 self.add_overlap_and_spring_force(cell_graph.node_mut(handle1), overlap1);
                 self.add_overlap_and_spring_force(cell_graph.node_mut(handle2), overlap2);
@@ -175,6 +175,54 @@ impl BondForces {
         BondForces {}
     }
 
+    fn cell1_bond_force(cell1: &Cell, strain1: BondStrain, cell2: &Cell) -> Force {
+        Self::bond_force(
+            cell1.mass(),
+            cell1.velocity(),
+            -strain1.strain(),
+            cell2.mass(),
+            cell2.velocity(),
+        )
+    }
+
+    pub fn bond_force(
+        mass1: Mass,
+        velocity1: Velocity,
+        strain1: Displacement,
+        mass2: Mass,
+        velocity2: Velocity,
+    ) -> Force {
+        Force::ZERO
+        // let mass_prod = mass1.value() * mass2.value();
+        // let mass_sum = mass1.value() + mass2.value();
+        // let relative_velocity1 = velocity1 - velocity2;
+        // Force::new(
+        //     Self::x_or_y_collision_force(mass_prod, mass_sum, relative_velocity1.x(), overlap1.x()),
+        //     Self::x_or_y_collision_force(mass_prod, mass_sum, relative_velocity1.y(), overlap1.y()),
+        // )
+    }
+
+    // fn x_or_y_collision_force(
+    //     mass_prod: f64,
+    //     mass_sum: f64,
+    //     relative_velocity1: f64,
+    //     overlap1: f64,
+    // ) -> f64 {
+    //     let v = if overlap1 > 0.0 {
+    //         relative_velocity1.max(overlap1)
+    //     } else if overlap1 < 0.0 {
+    //         relative_velocity1.min(overlap1)
+    //     } else {
+    //         -relative_velocity1
+    //     };
+    //     -mass_prod * (relative_velocity1 + v) / mass_sum
+    // }
+
+    fn add_force(cell: &mut Cell, force: Force) {
+        trace!("Cell {} Bond {:?}", cell.node_handle(), force);
+        cell.forces_mut().add_force(force);
+    }
+
     fn add_strain_force(cell: &mut Cell, strain: BondStrain) {
         let force = strain.to_force();
         trace!("Cell {} Bond {:?}", cell.node_handle(), force);
@@ -186,12 +234,22 @@ impl Influence for BondForces {
     fn apply(
         &self,
         cell_graph: &mut SortableGraph<Cell, Bond, AngleGusset>,
-        _subtick_duration: Duration,
+        subtick_duration: Duration,
     ) {
         let strains = calc_bond_strains(cell_graph);
         for ((handle1, strain1), (handle2, strain2)) in strains {
-            Self::add_strain_force(cell_graph.node_mut(handle1), strain1);
-            Self::add_strain_force(cell_graph.node_mut(handle2), strain2);
+            if subtick_duration == Duration::new(1.0) {
+                let force1 = Self::cell1_bond_force(
+                    cell_graph.node(handle1),
+                    strain1,
+                    cell_graph.node(handle2),
+                );
+                Self::add_force(cell_graph.node_mut(handle1), force1);
+                Self::add_force(cell_graph.node_mut(handle2), -force1);
+            } else {
+                Self::add_strain_force(cell_graph.node_mut(handle1), strain1);
+                Self::add_strain_force(cell_graph.node_mut(handle2), strain2);
+            }
         }
     }
 }

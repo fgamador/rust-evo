@@ -174,6 +174,12 @@ impl BondForces {
     pub fn new() -> Self {
         BondForces {}
     }
+
+    fn add_strain_force(cell: &mut Cell, strain: BondStrain) {
+        let force = strain.to_force();
+        trace!("Cell {} Bond {:?}", cell.node_handle(), force);
+        cell.forces_mut().add_force(force);
+    }
 }
 
 impl Influence for BondForces {
@@ -184,10 +190,7 @@ impl Influence for BondForces {
     ) {
         let strains = calc_bond_strains(cell_graph);
         for ((handle1, strain1), (_handle2, _strain2)) in strains {
-            let cell = cell_graph.node_mut(handle1);
-            let force = strain1.to_force();
-            trace!("Cell {} Bond {:?}", cell.node_handle(), force);
-            cell.forces_mut().add_force(force);
+            Self::add_strain_force(cell_graph.node_mut(handle1), strain1);
         }
     }
 }

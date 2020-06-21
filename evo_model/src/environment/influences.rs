@@ -98,9 +98,13 @@ impl PairCollisions {
         let mass_prod = mass1.value() * mass2.value();
         let mass_sum = mass1.value() + mass2.value();
         Force::new(
-            -mass_prod * (relative_velocity1_x + relative_velocity1_x) / mass_sum,
-            -mass_prod * (relative_velocity1_y + relative_velocity1_y) / mass_sum,
+            Self::x_or_y_collision_force(mass_prod, mass_sum, relative_velocity1_x),
+            Self::x_or_y_collision_force(mass_prod, mass_sum, relative_velocity1_y),
         )
+    }
+
+    fn x_or_y_collision_force(mass_prod: f64, mass_sum: f64, relative_velocity1: f64) -> f64 {
+        -mass_prod * (relative_velocity1 + relative_velocity1) / mass_sum
     }
 
     fn add_overlap_and_spring_force(&self, cell: &mut Cell, overlap: Overlap) {

@@ -82,18 +82,25 @@ impl BondStrain {
 
 pub fn calc_bond_strains<C>(
     graph: &SortableGraph<C, Bond, AngleGusset>,
-) -> Vec<(NodeHandle, BondStrain)>
+) -> Vec<((NodeHandle, BondStrain), (NodeHandle, BondStrain))>
 where
     C: Circle + GraphNode,
 {
-    let mut strains: Vec<(NodeHandle, BondStrain)> = Vec::with_capacity(graph.edges().len() * 2);
+    let mut strains: Vec<((NodeHandle, BondStrain), (NodeHandle, BondStrain))> =
+        Vec::with_capacity(graph.edges().len() * 2);
     for bond in graph.edges() {
         let circle1 = graph.node(bond.node1_handle());
         let circle2 = graph.node(bond.node2_handle());
 
         let strain = calc_bond_strain(circle1, circle2);
-        strains.push((circle1.node_handle(), BondStrain::new(strain)));
-        strains.push((circle2.node_handle(), BondStrain::new(-strain)));
+        strains.push((
+            (circle1.node_handle(), BondStrain::new(strain)),
+            (circle2.node_handle(), BondStrain::new(-strain)),
+        ));
+        strains.push((
+            (circle2.node_handle(), BondStrain::new(-strain)),
+            (circle1.node_handle(), BondStrain::new(strain)),
+        ));
     }
     strains
 }

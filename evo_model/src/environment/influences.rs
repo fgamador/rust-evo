@@ -183,7 +183,7 @@ impl Influence for BondForces {
         _subtick_duration: Duration,
     ) {
         let strains = calc_bond_strains(cell_graph);
-        for (handle, strain) in strains {
+        for ((handle, strain), (_, _)) in strains {
             let cell = cell_graph.node_mut(handle);
             let force = strain.to_force();
             trace!("Cell {} Bond {:?}", cell.node_handle(), force);

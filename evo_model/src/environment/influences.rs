@@ -93,13 +93,12 @@ impl PairCollisions {
         mass2: Mass,
         velocity2: Velocity,
     ) -> Force {
-        let relative_velocity1_x = velocity1.x() - velocity2.x();
-        let relative_velocity1_y = velocity1.y() - velocity2.y();
         let mass_prod = mass1.value() * mass2.value();
         let mass_sum = mass1.value() + mass2.value();
+        let relative_velocity1 = velocity1 - velocity2;
         Force::new(
-            Self::x_or_y_collision_force(mass_prod, mass_sum, relative_velocity1_x),
-            Self::x_or_y_collision_force(mass_prod, mass_sum, relative_velocity1_y),
+            Self::x_or_y_collision_force(mass_prod, mass_sum, relative_velocity1.x()),
+            Self::x_or_y_collision_force(mass_prod, mass_sum, relative_velocity1.y()),
         )
     }
 

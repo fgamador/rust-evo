@@ -436,6 +436,14 @@ impl fmt::Display for Velocity {
     }
 }
 
+impl Sub<Velocity> for Velocity {
+    type Output = DeltaV;
+
+    fn sub(self, rhs: Velocity) -> Self::Output {
+        DeltaV::new(self.x - rhs.x, self.y - rhs.y)
+    }
+}
+
 impl Add<DeltaV> for Velocity {
     type Output = Velocity;
 

@@ -125,7 +125,7 @@ impl PairCollisions {
         } else {
             -relative_velocity1
         };
-        -mass_prod * (relative_velocity1 + v) / mass_sum
+        -(mass_prod / mass_sum) * (relative_velocity1 + v)
     }
 
     fn add_overlap_and_force(cell: &mut Cell, overlap: Overlap, force: Force) {
@@ -212,7 +212,7 @@ impl BondForces {
         } else {
             -relative_velocity1
         };
-        -mass_prod * (relative_velocity1 + v) / mass_sum
+        -(mass_prod / mass_sum) * (relative_velocity1 + v)
     }
 
     fn add_force(cell: &mut Cell, force: Force) {

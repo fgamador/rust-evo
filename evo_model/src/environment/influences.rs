@@ -107,17 +107,20 @@ impl PairCollisions {
         let mass_sum = mass1.value() + mass2.value();
         let relative_velocity1 = velocity1 - velocity2;
         Force::new(
-            Self::x_or_y_collision_force(mass_prod, mass_sum, relative_velocity1.x(), overlap1.x()),
-            Self::x_or_y_collision_force(mass_prod, mass_sum, relative_velocity1.y(), overlap1.y()),
+            Self::x_or_y_collision_force(
+                (mass_prod / mass_sum),
+                relative_velocity1.x(),
+                overlap1.x(),
+            ),
+            Self::x_or_y_collision_force(
+                (mass_prod / mass_sum),
+                relative_velocity1.y(),
+                overlap1.y(),
+            ),
         )
     }
 
-    fn x_or_y_collision_force(
-        mass_prod: f64,
-        mass_sum: f64,
-        relative_velocity1: f64,
-        overlap1: f64,
-    ) -> f64 {
+    fn x_or_y_collision_force(mass_factor: f64, relative_velocity1: f64, overlap1: f64) -> f64 {
         let v = if overlap1 > 0.0 {
             relative_velocity1.max(overlap1)
         } else if overlap1 < 0.0 {
@@ -125,7 +128,7 @@ impl PairCollisions {
         } else {
             -relative_velocity1
         };
-        -(mass_prod / mass_sum) * (relative_velocity1 + v)
+        -mass_factor * (relative_velocity1 + v)
     }
 
     fn add_overlap_and_force(cell: &mut Cell, overlap: Overlap, force: Force) {
@@ -196,23 +199,18 @@ impl BondForces {
         let mass_sum = mass1.value() + mass2.value();
         let relative_velocity1 = velocity1 - velocity2;
         Force::new(
-            Self::x_or_y_bond_force(mass_prod, mass_sum, relative_velocity1.x(), strain1.x()),
-            Self::x_or_y_bond_force(mass_prod, mass_sum, relative_velocity1.y(), strain1.y()),
+            Self::x_or_y_bond_force((mass_prod / mass_sum), relative_velocity1.x(), strain1.x()),
+            Self::x_or_y_bond_force((mass_prod / mass_sum), relative_velocity1.y(), strain1.y()),
         )
     }
 
-    fn x_or_y_bond_force(
-        mass_prod: f64,
-        mass_sum: f64,
-        relative_velocity1: f64,
-        strain1: f64,
-    ) -> f64 {
+    fn x_or_y_bond_force(mass_factor: f64, relative_velocity1: f64, strain1: f64) -> f64 {
         let v = if strain1 != 0.0 {
             strain1
         } else {
             -relative_velocity1
         };
-        -(mass_prod / mass_sum) * (relative_velocity1 + v)
+        -mass_factor * (relative_velocity1 + v)
     }
 
     fn add_force(cell: &mut Cell, force: Force) {

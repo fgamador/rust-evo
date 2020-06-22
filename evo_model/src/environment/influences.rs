@@ -103,20 +103,11 @@ impl PairCollisions {
         mass2: Mass,
         velocity2: Velocity,
     ) -> Force {
-        let mass_prod = mass1.value() * mass2.value();
-        let mass_sum = mass1.value() + mass2.value();
+        let mass_factor = (mass1.value() * mass2.value()) / (mass1.value() + mass2.value());
         let relative_velocity1 = velocity1 - velocity2;
         Force::new(
-            Self::x_or_y_collision_force(
-                (mass_prod / mass_sum),
-                relative_velocity1.x(),
-                overlap1.x(),
-            ),
-            Self::x_or_y_collision_force(
-                (mass_prod / mass_sum),
-                relative_velocity1.y(),
-                overlap1.y(),
-            ),
+            Self::x_or_y_collision_force(mass_factor, relative_velocity1.x(), overlap1.x()),
+            Self::x_or_y_collision_force(mass_factor, relative_velocity1.y(), overlap1.y()),
         )
     }
 
@@ -195,12 +186,11 @@ impl BondForces {
         mass2: Mass,
         velocity2: Velocity,
     ) -> Force {
-        let mass_prod = mass1.value() * mass2.value();
-        let mass_sum = mass1.value() + mass2.value();
+        let mass_factor = (mass1.value() * mass2.value()) / (mass1.value() + mass2.value());
         let relative_velocity1 = velocity1 - velocity2;
         Force::new(
-            Self::x_or_y_bond_force((mass_prod / mass_sum), relative_velocity1.x(), strain1.x()),
-            Self::x_or_y_bond_force((mass_prod / mass_sum), relative_velocity1.y(), strain1.y()),
+            Self::x_or_y_bond_force(mass_factor, relative_velocity1.x(), strain1.x()),
+            Self::x_or_y_bond_force(mass_factor, relative_velocity1.y(), strain1.y()),
         )
     }
 

@@ -8,21 +8,21 @@ fn main() {
 }
 
 fn create_world() -> World {
-    World::new(Position::new(-200.0, -200.0), Position::new(200.0, 200.0))
+    World::new(Position::new(-100.0, -100.0), Position::new(100.0, 100.0))
         .with_perimeter_walls()
         .with_pair_collisions()
         .with_cells(vec![
             Cell::ball(
                 Length::new(40.0),
                 Mass::new(10.0),
-                Position::new(-180.0, 0.0),
-                Velocity::new(1.0, 0.0),
+                Position::new(-50.0, 0.0),
+                Velocity::new(1.0, 0.5),
             ),
-            // Cell::ball(
-            //     Length::new(10.0),
-            //     Mass::new(1.0),
-            //     Position::new(0.0, 0.0),
-            //     Velocity::new(2.0, 0.0),
-            // ),
+            Cell::ball(
+                Length::new(5.0),
+                Mass::new(0.5),
+                Position::new(0.0, 0.0),
+                Velocity::new(2.0, 2.0),
+            ),
         ])
 }

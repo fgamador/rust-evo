@@ -3,10 +3,126 @@ use std::fmt;
 use std::ops::Add;
 use std::ops::AddAssign;
 use std::ops::Div;
+use std::ops::DivAssign;
 use std::ops::Mul;
+use std::ops::MulAssign;
 use std::ops::Neg;
 use std::ops::Sub;
 use std::ops::SubAssign;
+
+pub type Value1D = f64;
+
+#[derive(Clone, Copy, Debug, PartialEq, PartialOrd)]
+pub struct Value2D {
+    x: Value1D,
+    y: Value1D,
+}
+
+impl Value2D {
+    pub const ZERO: Self = Value2D { x: 0.0, y: 0.0 };
+
+    pub fn new(x: Value1D, y: Value1D) -> Self {
+        Value2D { x, y }
+    }
+
+    pub fn x(self) -> Value1D {
+        self.x
+    }
+
+    pub fn y(self) -> Value1D {
+        self.y
+    }
+
+    pub fn max(self, rhs: Self) -> Self {
+        Self::new(self.x.max(rhs.x), self.y.max(rhs.y))
+    }
+
+    pub fn min(self, rhs: Self) -> Self {
+        Self::new(self.x.min(rhs.x), self.y.min(rhs.y))
+    }
+
+    pub fn dot(self, rhs: Self) -> Value1D {
+        (self.x * rhs.x) + (self.y * rhs.y)
+    }
+
+    pub fn magnitude(self) -> Value1D {
+        self.x.hypot(self.y)
+    }
+}
+
+impl fmt::Display for Value2D {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "({:.4}, {:.4})", self.x, self.y)
+    }
+}
+
+impl Neg for Value2D {
+    type Output = Value2D;
+
+    fn neg(self) -> Self::Output {
+        Value2D::new(-self.x, -self.y)
+    }
+}
+
+impl Add for Value2D {
+    type Output = Value2D;
+
+    fn add(self, rhs: Value2D) -> Self::Output {
+        Value2D::new(self.x + rhs.x, self.y + rhs.y)
+    }
+}
+
+impl AddAssign for Value2D {
+    fn add_assign(&mut self, rhs: Value2D) {
+        self.x += rhs.x;
+        self.y += rhs.y;
+    }
+}
+
+impl Sub for Value2D {
+    type Output = Value2D;
+
+    fn sub(self, rhs: Value2D) -> Self::Output {
+        Value2D::new(self.x - rhs.x, self.y - rhs.y)
+    }
+}
+
+impl SubAssign for Value2D {
+    fn sub_assign(&mut self, rhs: Value2D) {
+        self.x -= rhs.x;
+        self.y -= rhs.y;
+    }
+}
+
+impl Mul<Value1D> for Value2D {
+    type Output = Value2D;
+
+    fn mul(self, rhs: Value1D) -> Self::Output {
+        Value2D::new(self.x * rhs, self.y * rhs)
+    }
+}
+
+impl MulAssign<Value1D> for Value2D {
+    fn mul_assign(&mut self, rhs: Value1D) {
+        self.x *= rhs;
+        self.y *= rhs;
+    }
+}
+
+impl Div<Value1D> for Value2D {
+    type Output = Value2D;
+
+    fn div(self, rhs: Value1D) -> Self::Output {
+        Value2D::new(self.x / rhs, self.y / rhs)
+    }
+}
+
+impl DivAssign<Value1D> for Value2D {
+    fn div_assign(&mut self, rhs: Value1D) {
+        self.x /= rhs;
+        self.y /= rhs;
+    }
+}
 
 #[derive(Clone, Copy, Debug, PartialEq, PartialOrd)]
 pub struct Angle {

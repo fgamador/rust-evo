@@ -423,6 +423,12 @@ impl fmt::Display for Position {
     }
 }
 
+impl From<Value2D> for Position {
+    fn from(value: Value2D) -> Self {
+        Position::new(value.x(), value.y())
+    }
+}
+
 impl Add<Displacement> for Position {
     type Output = Position;
 
@@ -479,6 +485,12 @@ impl Displacement {
 
     pub fn length(&self) -> Length {
         Length::new(self.x.hypot(self.y))
+    }
+}
+
+impl From<Value2D> for Displacement {
+    fn from(value: Value2D) -> Self {
+        Displacement::new(value.x(), value.y())
     }
 }
 
@@ -555,6 +567,12 @@ impl fmt::Display for Velocity {
     }
 }
 
+impl From<Value2D> for Velocity {
+    fn from(value: Value2D) -> Self {
+        Velocity::new(value.x(), value.y())
+    }
+}
+
 impl Sub<Velocity> for Velocity {
     type Output = DeltaV;
 
@@ -601,6 +619,12 @@ impl Acceleration {
     }
 }
 
+impl From<Value2D> for Acceleration {
+    fn from(value: Value2D) -> Self {
+        Acceleration::new(value.x(), value.y())
+    }
+}
+
 impl Mul<Duration> for Acceleration {
     type Output = DeltaV;
 
@@ -628,6 +652,12 @@ impl DeltaV {
     #[allow(dead_code)]
     pub fn y(&self) -> f64 {
         self.y
+    }
+}
+
+impl From<Value2D> for DeltaV {
+    fn from(value: Value2D) -> Self {
+        DeltaV::new(value.x(), value.y())
     }
 }
 
@@ -755,6 +785,12 @@ impl Force {
 impl fmt::Display for Force {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         write!(f, "({:.4}, {:.4})", self.x, self.y)
+    }
+}
+
+impl From<Value2D> for Force {
+    fn from(value: Value2D) -> Self {
+        Force::new(value.x(), value.y())
     }
 }
 

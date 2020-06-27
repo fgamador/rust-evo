@@ -109,9 +109,9 @@ impl PairCollisions {
         relative_position1: Displacement,
     ) -> Force {
         Force::from(
-            -2.0 * mass1.value() * mass2.value() / (mass1 + mass2).value()
-                * relative_velocity1.value().dot(relative_position1.value())
-                / relative_position1.value().dot_sqr()
+            -2.0 * (mass1.value() * mass2.value() / (mass1 + mass2).value())
+                * (relative_velocity1.value().dot(relative_position1.value())
+                    / relative_position1.value().dot_sqr())
                 * relative_position1.value(),
         )
     }

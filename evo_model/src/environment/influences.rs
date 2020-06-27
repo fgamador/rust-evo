@@ -658,10 +658,10 @@ mod tests {
                 &Cell::ball(
                     Length::new(2.0),
                     Mass::new(2.0),
-                    Position::new(-1.5, 1.5),
+                    Position::new(-1.5, 2.0),
                     Velocity::new(3.0, -4.0)
                 ),
-                Overlap::new(Displacement::new(-1.5, 2.5), 2.0),
+                Overlap::new(Displacement::new(-1.5, 2.0), 2.0),
                 &Cell::ball(
                     Length::new(3.0),
                     Mass::new(6.0),

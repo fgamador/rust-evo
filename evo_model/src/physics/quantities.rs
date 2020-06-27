@@ -45,6 +45,10 @@ impl Value2D {
         (self.x * rhs.x) + (self.y * rhs.y)
     }
 
+    pub fn dot_sqr(self) -> Value1D {
+        self.dot(self)
+    }
+
     pub fn magnitude(self) -> Value1D {
         self.x.hypot(self.y)
     }

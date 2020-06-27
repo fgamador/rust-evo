@@ -676,12 +676,20 @@ mod tests {
     #[test]
     fn pair_collision_force_undoes_overlap() {
         assert_eq!(
-            PairCollisions::collision_force(
-                Mass::new(2.0),
-                Velocity::new(1.5, -2.5),
-                Displacement::new(3.0, -5.0),
-                Mass::new(6.0),
-                Velocity::new(-0.5, 1.5),
+            PairCollisions::cell1_collision_force(
+                &Cell::ball(
+                    Length::new(2.0),
+                    Mass::new(2.0),
+                    Position::new(-1.5, 2.0),
+                    Velocity::new(1.5, -2.5)
+                ),
+                Overlap::new(Displacement::new(-3.0, 5.0), 2.0),
+                &Cell::ball(
+                    Length::new(3.0),
+                    Mass::new(6.0),
+                    Position::new(0.0, 0.0),
+                    Velocity::new(-0.5, 1.5),
+                ),
             ),
             Force::new(-7.5, 13.5)
         );

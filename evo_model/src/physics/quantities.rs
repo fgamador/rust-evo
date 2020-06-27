@@ -102,6 +102,14 @@ impl Mul<Value1D> for Value2D {
     }
 }
 
+impl Mul<Value2D> for Value1D {
+    type Output = Value2D;
+
+    fn mul(self, rhs: Value2D) -> Self::Output {
+        Value2D::new(self * rhs.x, self * rhs.y)
+    }
+}
+
 impl MulAssign<Value1D> for Value2D {
     fn mul_assign(&mut self, rhs: Value1D) {
         self.x *= rhs;
@@ -754,6 +762,22 @@ impl Mul<Acceleration> for Mass {
 
     fn mul(self, rhs: Acceleration) -> Self::Output {
         Force::new(self.value * rhs.x(), self.value * rhs.y())
+    }
+}
+
+impl Mul<f64> for Mass {
+    type Output = Mass;
+
+    fn mul(self, rhs: f64) -> Self::Output {
+        Mass::new(self.value * rhs)
+    }
+}
+
+impl Mul<Mass> for f64 {
+    type Output = Mass;
+
+    fn mul(self, rhs: Mass) -> Self::Output {
+        Mass::new(self * rhs.value)
     }
 }
 

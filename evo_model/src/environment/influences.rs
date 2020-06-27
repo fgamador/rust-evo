@@ -678,20 +678,20 @@ mod tests {
         assert_eq!(
             PairCollisions::cell1_collision_force(
                 &Cell::ball(
-                    Length::new(2.0),
+                    Length::new(8.0),
                     Mass::new(2.0),
-                    Position::new(-1.5, 2.0),
+                    Position::new(-9.0, 12.0),
                     Velocity::new(1.5, -2.5)
                 ),
-                Overlap::new(Displacement::new(-3.0, 5.0), 2.0),
+                Overlap::new(Displacement::new(-3.0, 4.0), 2.0),
                 &Cell::ball(
-                    Length::new(3.0),
+                    Length::new(12.0),
                     Mass::new(6.0),
                     Position::new(0.0, 0.0),
                     Velocity::new(-0.5, 1.5),
                 ),
             ),
-            Force::new(-7.5, 13.5)
+            Force::new(-7.5, 12.0)
         );
     }
 

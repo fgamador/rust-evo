@@ -392,6 +392,10 @@ impl Position {
         Position { x, y }
     }
 
+    pub fn value(&self) -> Value2D {
+        Value2D::new(self.x, self.y)
+    }
+
     #[allow(dead_code)]
     pub fn x(&self) -> f64 {
         self.x
@@ -463,6 +467,10 @@ impl Displacement {
             x: radius.value() * angle.cos(),
             y: radius.value() * angle.sin(),
         }
+    }
+
+    pub fn value(&self) -> Value2D {
+        Value2D::new(self.x, self.y)
     }
 
     #[allow(dead_code)]
@@ -550,6 +558,10 @@ impl Velocity {
         Velocity { x, y }
     }
 
+    pub fn value(&self) -> Value2D {
+        Value2D::new(self.x, self.y)
+    }
+
     #[allow(dead_code)]
     pub fn x(&self) -> f64 {
         self.x
@@ -608,6 +620,10 @@ impl Acceleration {
         Acceleration { x, y }
     }
 
+    pub fn value(&self) -> Value2D {
+        Value2D::new(self.x, self.y)
+    }
+
     #[allow(dead_code)]
     pub fn x(&self) -> f64 {
         self.x
@@ -644,6 +660,10 @@ impl DeltaV {
         DeltaV { x, y }
     }
 
+    pub fn value(&self) -> Value2D {
+        Value2D::new(self.x, self.y)
+    }
+
     #[allow(dead_code)]
     pub fn x(&self) -> f64 {
         self.x
@@ -678,6 +698,10 @@ pub struct Impulse {
 impl Impulse {
     pub fn new(x: f64, y: f64) -> Self {
         Impulse { x, y }
+    }
+
+    pub fn value(&self) -> Value2D {
+        Value2D::new(self.x, self.y)
     }
 
     #[allow(dead_code)]
@@ -769,6 +793,10 @@ impl Force {
 
     pub fn new(x: f64, y: f64) -> Self {
         Force { x, y }
+    }
+
+    pub fn value(&self) -> Value2D {
+        Value2D::new(self.x, self.y)
     }
 
     #[allow(dead_code)]

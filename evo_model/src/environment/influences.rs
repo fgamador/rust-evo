@@ -86,20 +86,20 @@ impl PairCollisions {
         PairCollisions { spring }
     }
 
-    fn cell1_collision_force(cell1: &Cell, _overlap1: Overlap, cell2: &Cell) -> Force {
-        Self::collision_force2(
-            cell1.mass(),
-            cell2.mass(),
-            cell1.velocity() - cell2.velocity(),
-            cell1.position() - cell2.position(),
-        )
-        // Self::collision_force(
+    pub fn cell1_collision_force(cell1: &Cell, _overlap1: Overlap, cell2: &Cell) -> Force {
+        // Self::collision_force2(
         //     cell1.mass(),
-        //     cell1.velocity(),
-        //     -overlap1.incursion(),
         //     cell2.mass(),
-        //     cell2.velocity(),
+        //     cell1.velocity() - cell2.velocity(),
+        //     cell1.position() - cell2.position(),
         // )
+        Self::collision_force(
+            cell1.mass(),
+            cell1.velocity(),
+            -_overlap1.incursion(),
+            cell2.mass(),
+            cell2.velocity(),
+        )
     }
 
     pub fn collision_force2(
@@ -632,12 +632,20 @@ mod tests {
     #[test]
     fn pair_not_in_collision_adds_no_force() {
         assert_eq!(
-            PairCollisions::collision_force(
-                Mass::new(2.0),
-                Velocity::new(3.0, -4.0),
-                Displacement::new(0.0, 0.0),
-                Mass::new(6.0),
-                Velocity::new(-5.0, 6.0),
+            PairCollisions::cell1_collision_force(
+                &Cell::ball(
+                    Length::new(2.0),
+                    Mass::new(2.0),
+                    Position::new(-3.0, 4.0),
+                    Velocity::new(3.0, -4.0)
+                ),
+                Overlap::new(Displacement::new(0.0, 0.0), 1.0),
+                &Cell::ball(
+                    Length::new(3.0),
+                    Mass::new(6.0),
+                    Position::new(0.0, 0.0),
+                    Velocity::new(-5.0, 6.0),
+                ),
             ),
             Force::new(0.0, 0.0)
         );

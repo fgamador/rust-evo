@@ -90,8 +90,8 @@ impl PairCollisions {
         Self::collision_force2(
             cell1.mass(),
             cell2.mass(),
-            (cell1.velocity() - cell2.velocity()).value(),
-            (cell1.position() - cell2.position()).value(),
+            cell1.velocity() - cell2.velocity(),
+            cell1.position() - cell2.position(),
         )
         // Self::collision_force(
         //     cell1.mass(),
@@ -105,14 +105,14 @@ impl PairCollisions {
     pub fn collision_force2(
         mass1: Mass,
         mass2: Mass,
-        relative_velocity1: Value2D,
-        relative_position1: Value2D,
+        relative_velocity1: DeltaV,
+        relative_position1: Displacement,
     ) -> Force {
         Force::from(
             -2.0 * mass1.value() * mass2.value() / (mass1 + mass2).value()
-                * relative_velocity1.dot(relative_position1)
-                / relative_position1.dot_sqr()
-                * relative_position1,
+                * relative_velocity1.value().dot(relative_position1.value())
+                / relative_position1.value().dot_sqr()
+                * relative_position1.value(),
         )
     }
 

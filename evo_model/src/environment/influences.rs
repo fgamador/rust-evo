@@ -653,24 +653,32 @@ mod tests {
 
     #[test]
     fn pair_collision_force_reverses_incoming_velocity() {
-        assert_eq!(
-            PairCollisions::cell1_collision_force(
-                &Cell::ball(
-                    Length::new(2.0),
-                    Mass::new(2.0),
-                    Position::new(-1.5, 2.0),
-                    Velocity::new(3.0, -4.0)
-                ),
-                Overlap::new(Displacement::new(-1.5, 2.0), 2.0),
-                &Cell::ball(
-                    Length::new(3.0),
-                    Mass::new(6.0),
-                    Position::new(0.0, 0.0),
-                    Velocity::new(-5.0, 6.0),
-                ),
-            ),
-            Force::new(-24.0, 30.0)
+        let cell1 = Cell::ball(
+            Length::new(2.0),
+            Mass::new(2.0),
+            Position::new(-1.5, 2.0),
+            Velocity::new(3.0, -4.0),
         );
+        let cell2 = Cell::ball(
+            Length::new(3.0),
+            Mass::new(6.0),
+            Position::new(0.0, 0.0),
+            Velocity::new(-5.0, 6.0),
+        );
+
+        let force1 = PairCollisions::cell1_collision_force(
+            &cell1,
+            Overlap::new(Displacement::new(-1.5, 2.0), 2.0),
+            &cell2,
+        );
+        assert_eq!(force1, Force::new(-24.0, 30.0));
+        // assert_eq!(force1, Force::new(-23.04, 30.72));
+
+        // let relative_velocity1 = cell1.velocity() - cell2.velocity();
+        // let velocity1_after = cell1.velocity() + (force1 / cell1.mass()) * Duration::ONE;
+        // let velocity2_after = cell2.velocity() + (-force1 / cell2.mass()) * Duration::ONE;
+        // let relative_velocity1_after = velocity1_after - velocity2_after;
+        // assert_eq!(relative_velocity1_after, -relative_velocity1);
     }
 
     #[test]

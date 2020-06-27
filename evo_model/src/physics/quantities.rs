@@ -693,6 +693,14 @@ impl From<Value2D> for DeltaV {
     }
 }
 
+impl Neg for DeltaV {
+    type Output = DeltaV;
+
+    fn neg(self) -> Self::Output {
+        DeltaV::new(-self.x, -self.y)
+    }
+}
+
 impl Mul<Duration> for DeltaV {
     type Output = Displacement;
 

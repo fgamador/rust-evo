@@ -639,7 +639,7 @@ mod tests {
                     Position::new(-3.0, 4.0),
                     Velocity::new(3.0, -4.0)
                 ),
-                Overlap::new(Displacement::new(0.0, 0.0), 1.0),
+                Overlap::new(Displacement::new(0.0, 0.0), 2.0),
                 &Cell::ball(
                     Length::new(3.0),
                     Mass::new(6.0),
@@ -654,12 +654,20 @@ mod tests {
     #[test]
     fn pair_collision_force_reverses_incoming_velocity() {
         assert_eq!(
-            PairCollisions::collision_force(
-                Mass::new(2.0),
-                Velocity::new(3.0, -4.0),
-                Displacement::new(1.5, -2.5),
-                Mass::new(6.0),
-                Velocity::new(-5.0, 6.0),
+            PairCollisions::cell1_collision_force(
+                &Cell::ball(
+                    Length::new(2.0),
+                    Mass::new(2.0),
+                    Position::new(-1.5, 1.5),
+                    Velocity::new(3.0, -4.0)
+                ),
+                Overlap::new(Displacement::new(-1.5, 2.5), 2.0),
+                &Cell::ball(
+                    Length::new(3.0),
+                    Mass::new(6.0),
+                    Position::new(0.0, 0.0),
+                    Velocity::new(-5.0, 6.0),
+                ),
             ),
             Force::new(-24.0, 30.0)
         );

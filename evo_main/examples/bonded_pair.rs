@@ -17,15 +17,21 @@ fn create_world() -> World {
             Cell::ball(
                 Length::new(20.0),
                 Mass::new(1.0),
-                Position::new(-21.0, 0.0),
+                Position::new(-45.0, 0.0),
+                Velocity::new(0.0, 1.0),
+            ),
+            Cell::ball(
+                Length::new(20.0),
+                Mass::new(1.0),
+                Position::new(0.0, 0.0),
                 Velocity::new(0.0, 0.0),
             ),
             Cell::ball(
                 Length::new(20.0),
                 Mass::new(1.0),
-                Position::new(21.0, 0.0),
-                Velocity::new(0.0, 0.0),
+                Position::new(45.0, 0.0),
+                Velocity::new(0.0, -1.0),
             ),
         ])
-        .with_bonds(vec![(0, 1)])
+        .with_bonds(vec![(0, 1), (1, 2)])
 }

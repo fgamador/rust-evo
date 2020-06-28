@@ -710,6 +710,62 @@ impl Mul<Duration> for DeltaV {
 }
 
 #[derive(Clone, Copy, Debug, PartialEq)]
+pub struct Momentum {
+    x: f64,
+    y: f64,
+}
+
+impl Momentum {
+    pub const ZERO: Momentum = Momentum { x: 0.0, y: 0.0 };
+
+    pub fn new(x: f64, y: f64) -> Self {
+        Momentum { x, y }
+    }
+
+    pub fn value(&self) -> Value2D {
+        Value2D::new(self.x, self.y)
+    }
+
+    #[allow(dead_code)]
+    pub fn x(&self) -> f64 {
+        self.x
+    }
+
+    #[allow(dead_code)]
+    pub fn y(&self) -> f64 {
+        self.y
+    }
+}
+
+impl fmt::Display for Momentum {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "({:.4}, {:.4})", self.x, self.y)
+    }
+}
+
+impl From<Value2D> for Momentum {
+    fn from(value: Value2D) -> Self {
+        Momentum::new(value.x(), value.y())
+    }
+}
+
+impl Add<Momentum> for Momentum {
+    type Output = Momentum;
+
+    fn add(self, rhs: Momentum) -> Self::Output {
+        Momentum::new(self.x + rhs.x, self.y + rhs.y)
+    }
+}
+
+impl Div<Mass> for Momentum {
+    type Output = Velocity;
+
+    fn div(self, rhs: Mass) -> Self::Output {
+        Velocity::new(self.x / rhs.value, self.y / rhs.value)
+    }
+}
+
+#[derive(Clone, Copy, Debug, PartialEq)]
 pub struct Impulse {
     x: f64,
     y: f64,
@@ -766,6 +822,14 @@ impl Add<Mass> for Mass {
 
     fn add(self, rhs: Mass) -> Self::Output {
         Mass::new(self.value + rhs.value)
+    }
+}
+
+impl Mul<Velocity> for Mass {
+    type Output = Momentum;
+
+    fn mul(self, rhs: Velocity) -> Self::Output {
+        Momentum::new(self.value * rhs.x(), self.value * rhs.y())
     }
 }
 

@@ -86,23 +86,30 @@ impl PairCollisions {
         PairCollisions { spring }
     }
 
-    pub fn cell1_collision_force(cell1: &Cell, _overlap1: Overlap, cell2: &Cell) -> Force {
-        // Self::collision_force2(
-        //     cell1.mass(),
-        //     cell2.mass(),
-        //     cell1.velocity() - cell2.velocity(),
-        //     cell1.position() - cell2.position(),
-        // )
-        Self::collision_force(
-            cell1.mass(),
-            cell1.velocity(),
-            -_overlap1.incursion(),
-            cell2.mass(),
-            cell2.velocity(),
-        )
+    pub fn cell1_collision_force(cell1: &Cell, overlap1: Overlap, cell2: &Cell) -> Force {
+        if overlap1.incursion() == Displacement::ZERO {
+            Force::ZERO
+        } else {
+            // Self::body1_elastic_collision_force(
+            //     cell1.mass(),
+            //     cell2.mass(),
+            //     cell1.velocity() - cell2.velocity(),
+            //     cell1.position() - cell2.position(),
+            // )
+            Self::collision_force(
+                cell1.mass(),
+                cell1.velocity(),
+                -overlap1.incursion(),
+                cell2.mass(),
+                cell2.velocity(),
+            )
+        }
     }
 
-    pub fn collision_force2(
+    // Derived from Wikipedia's "Elastic collision" page, the "angle-free representation"
+    // at the end of the two-dimensional collision section. This is the force needed to
+    // produce Wikipedia's post-elastic-collision velocity.
+    pub fn body1_elastic_collision_force(
         mass1: Mass,
         mass2: Mass,
         relative_velocity1: DeltaV,

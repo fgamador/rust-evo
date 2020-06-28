@@ -690,23 +690,34 @@ mod tests {
 
     #[test]
     fn pair_collision_force_undoes_overlap() {
+        let cell1 = Cell::ball(
+            Length::new(8.0),
+            Mass::new(2.0),
+            Position::new(-9.0, 12.0),
+            Velocity::new(1.5, -2.5),
+        );
+        let cell2 = Cell::ball(
+            Length::new(12.0),
+            Mass::new(6.0),
+            Position::new(0.0, 0.0),
+            Velocity::new(-0.5, 1.5),
+        );
+
+        let force1 = PairCollisions::cell1_collision_force(
+            &cell1,
+            Overlap::new(Displacement::new(-3.0, 4.0), 2.0),
+            &cell2,
+        );
+        assert_eq!(force1, Force::new(-7.5, 12.0));
+
+        let velocity1_after = cell1.velocity() + (force1 / cell1.mass()) * Duration::ONE;
+        let position1_after = cell1.position() + velocity1_after * Duration::ONE;
+        let velocity2_after = cell2.velocity() + (-force1 / cell2.mass()) * Duration::ONE;
+        let position2_after = cell2.position() + velocity2_after * Duration::ONE;
+        let relative_position1_after = position1_after - position2_after;
         assert_eq!(
-            PairCollisions::cell1_collision_force(
-                &Cell::ball(
-                    Length::new(8.0),
-                    Mass::new(2.0),
-                    Position::new(-9.0, 12.0),
-                    Velocity::new(1.5, -2.5)
-                ),
-                Overlap::new(Displacement::new(-3.0, 4.0), 2.0),
-                &Cell::ball(
-                    Length::new(12.0),
-                    Mass::new(6.0),
-                    Position::new(0.0, 0.0),
-                    Velocity::new(-0.5, 1.5),
-                ),
-            ),
-            Force::new(-7.5, 12.0)
+            relative_position1_after.length(),
+            cell1.radius() + cell2.radius()
         );
     }
 

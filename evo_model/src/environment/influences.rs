@@ -88,28 +88,28 @@ impl PairCollisions {
 
     pub fn cell1_collision_force(cell1: &Cell, overlap1: Overlap, cell2: &Cell) -> Force {
         if overlap1.incursion() == Displacement::ZERO {
-            Force::ZERO
+            return Force::ZERO;
+        }
+
+        let collision_force = Self::body1_elastic_collision_force(
+            cell1.mass(),
+            cell2.mass(),
+            cell1.velocity() - cell2.velocity(),
+            cell1.position() - cell2.position(),
+        );
+        let overlap_force = Self::body1_overlap_force(cell1.mass(), cell2.mass(), overlap1);
+
+        if overlap_force.value().magnitude() > collision_force.value().magnitude() {
+            overlap_force
         } else {
-            // Self::body1_elastic_collision_force(
-            //     cell1.mass(),
-            //     cell2.mass(),
-            //     cell1.velocity() - cell2.velocity(),
-            //     cell1.position() - cell2.position(),
-            // )
-            Self::collision_force(
-                cell1.mass(),
-                cell1.velocity(),
-                -overlap1.incursion(),
-                cell2.mass(),
-                cell2.velocity(),
-            )
+            collision_force
         }
     }
 
     // Derived from Wikipedia's "Elastic collision" page, the "angle-free representation"
     // at the end of the two-dimensional collision section. This is the force needed to
     // produce Wikipedia's post-elastic-collision velocity.
-    pub fn body1_elastic_collision_force(
+    fn body1_elastic_collision_force(
         mass1: Mass,
         mass2: Mass,
         relative_velocity1: DeltaV,
@@ -123,30 +123,11 @@ impl PairCollisions {
         )
     }
 
-    pub fn collision_force(
-        mass1: Mass,
-        velocity1: Velocity,
-        overlap1: Displacement,
-        mass2: Mass,
-        velocity2: Velocity,
-    ) -> Force {
-        let mass_factor = (mass1.value() * mass2.value()) / (mass1.value() + mass2.value());
-        let relative_velocity1 = velocity1 - velocity2;
-        Force::new(
-            Self::x_or_y_collision_force(mass_factor, relative_velocity1.x(), overlap1.x()),
-            Self::x_or_y_collision_force(mass_factor, relative_velocity1.y(), overlap1.y()),
+    fn body1_overlap_force(mass1: Mass, mass2: Mass, overlap1: Overlap) -> Force {
+        Force::from(
+            (mass1.value() * mass2.value() / (mass1 + mass2).value())
+                * overlap1.incursion().value(),
         )
-    }
-
-    fn x_or_y_collision_force(mass_factor: f64, relative_velocity1: f64, overlap1: f64) -> f64 {
-        let v = if overlap1 > 0.0 {
-            relative_velocity1.max(overlap1)
-        } else if overlap1 < 0.0 {
-            relative_velocity1.min(overlap1)
-        } else {
-            -relative_velocity1
-        };
-        -mass_factor * (relative_velocity1 + v)
     }
 
     fn add_overlap_and_force(cell: &mut Cell, overlap: Overlap, force: Force) {
@@ -659,7 +640,7 @@ mod tests {
     }
 
     #[test]
-    fn pair_collision_force_reverses_incoming_velocity() {
+    fn pair_collision_force_reflects_incoming_velocity() {
         let cell1 = Cell::ball(
             Length::new(2.0),
             Mass::new(2.0),
@@ -678,14 +659,7 @@ mod tests {
             Overlap::new(Displacement::new(-1.5, 2.0), 2.0),
             &cell2,
         );
-        assert_eq!(force1, Force::new(-24.0, 30.0));
-        // assert_eq!(force1, Force::new(-23.04, 30.72));
-
-        // let relative_velocity1 = cell1.velocity() - cell2.velocity();
-        // let velocity1_after = cell1.velocity() + (force1 / cell1.mass()) * Duration::ONE;
-        // let velocity2_after = cell2.velocity() + (-force1 / cell2.mass()) * Duration::ONE;
-        // let relative_velocity1_after = velocity1_after - velocity2_after;
-        // assert_eq!(relative_velocity1_after, -relative_velocity1);
+        assert_eq!(force1, Force::new(-23.04, 30.72));
     }
 
     #[test]
@@ -694,13 +668,13 @@ mod tests {
             Length::new(8.0),
             Mass::new(2.0),
             Position::new(-9.0, 12.0),
-            Velocity::new(1.5, -2.5),
+            Velocity::new(0.0, 0.0),
         );
         let cell2 = Cell::ball(
             Length::new(12.0),
             Mass::new(6.0),
             Position::new(0.0, 0.0),
-            Velocity::new(-0.5, 1.5),
+            Velocity::new(0.0, 0.0),
         );
 
         let force1 = PairCollisions::cell1_collision_force(
@@ -708,7 +682,7 @@ mod tests {
             Overlap::new(Displacement::new(-3.0, 4.0), 2.0),
             &cell2,
         );
-        assert_eq!(force1, Force::new(-7.5, 12.0));
+        assert_eq!(force1, Force::new(-4.5, 6.0));
 
         let velocity1_after = cell1.velocity() + (force1 / cell1.mass()) * Duration::ONE;
         let position1_after = cell1.position() + velocity1_after * Duration::ONE;

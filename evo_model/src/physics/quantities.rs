@@ -881,6 +881,14 @@ impl Mul<f64> for Force {
     }
 }
 
+impl Mul<Force> for f64 {
+    type Output = Force;
+
+    fn mul(self, rhs: Force) -> Self::Output {
+        Force::new(self * rhs.x, self * rhs.y)
+    }
+}
+
 impl Mul<Duration> for Force {
     type Output = Impulse;
 

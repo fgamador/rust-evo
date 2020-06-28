@@ -178,12 +178,23 @@ impl BondForces {
     }
 
     fn cell1_bond_force(cell1: &Cell, strain1: BondStrain, cell2: &Cell) -> Force {
-        Self::bond_force(
-            cell1.mass(),
-            cell1.velocity(),
-            -strain1.strain(),
-            cell2.mass(),
-            cell2.velocity(),
+        if strain1.strain() == Displacement::ZERO {
+            return Force::ZERO;
+        }
+
+        0.9 * Self::body1_bond_force(cell1.mass(), cell2.mass(), strain1)
+        // Self::bond_force(
+        //     cell1.mass(),
+        //     cell1.velocity(),
+        //     -strain1.strain(),
+        //     cell2.mass(),
+        //     cell2.velocity(),
+        // )
+    }
+
+    fn body1_bond_force(mass1: Mass, mass2: Mass, strain1: BondStrain) -> Force {
+        Force::from(
+            (mass1.value() * mass2.value() / (mass1 + mass2).value()) * strain1.strain().value(),
         )
     }
 

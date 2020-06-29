@@ -49,6 +49,10 @@ impl Value2D {
         self.dot(self)
     }
 
+    pub fn project_onto(self, rhs: Self) -> Self {
+        (self.dot(rhs) / rhs.dot_sqr()) * rhs
+    }
+
     pub fn magnitude(self) -> Value1D {
         self.x.hypot(self.y)
     }

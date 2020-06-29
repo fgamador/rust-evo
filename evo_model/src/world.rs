@@ -208,20 +208,22 @@ impl World {
 
     fn subtick_cell(cell: &mut Cell, subtick_duration: Duration, subtick: u32) {
         cell.after_influences(subtick_duration);
-        Self::print_selected_cell_state(cell, subtick);
+        Self::print_selected_cell_state(cell, subtick, "start");
         cell.exert_forces(subtick_duration);
         cell.move_for(subtick_duration);
         Self::post_subtick_cell_logging(cell, subtick);
         cell.environment_mut().clear();
         cell.forces_mut().clear();
+        Self::print_selected_cell_state(cell, subtick, "end");
     }
 
-    fn print_selected_cell_state(cell: &Cell, subtick: u32) {
+    fn print_selected_cell_state(cell: &Cell, subtick: u32, start_end_str: &str) {
         if cell.is_selected() {
             println!(
-                "Cell {} subtick {} position: {}, velocity: {}, force: {}",
+                "Cell {} subtick {} {} position: {}, velocity: {}, force: {}",
                 cell.node_handle(),
                 subtick,
+                start_end_str,
                 cell.position(),
                 cell.velocity(),
                 cell.forces().net_force()

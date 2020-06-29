@@ -155,10 +155,10 @@ impl Cell {
 
     pub fn run_control(&mut self, bond_requests: &mut BondRequests) {
         let (end_energy, budgeted_control_requests) = self.get_budgeted_control_requests();
-        self.print_selected_cell_status(end_energy, &budgeted_control_requests);
+        //self._print_selected_cell_status(end_energy, &budgeted_control_requests);
         self.energy = end_energy;
         self.execute_control_requests(&budgeted_control_requests, bond_requests);
-        self.print_selected_cell_bond_requests(bond_requests);
+        //self._print_selected_cell_bond_requests(bond_requests);
         self.reset_layers();
     }
 
@@ -256,18 +256,18 @@ impl Cell {
         self.newtonian_state.mass = Self::calc_mass(&self.layers);
     }
 
-    fn print_selected_cell_status(
+    fn _print_selected_cell_status(
         &self,
         end_energy: BioEnergy,
         budgeted_control_requests: &[BudgetedControlRequest],
     ) {
-        self.print_selected_cell_basics();
-        self.print_selected_cell_layers();
-        self.print_selected_cell_energy(end_energy);
-        self.print_selected_cell_control_requests(&budgeted_control_requests);
+        self._print_selected_cell_basics();
+        self._print_selected_cell_layers();
+        self._print_selected_cell_energy(end_energy);
+        self._print_selected_cell_control_requests(&budgeted_control_requests);
     }
 
-    fn print_selected_cell_basics(&self) {
+    fn _print_selected_cell_basics(&self) {
         if self.is_selected() {
             println!(
                 "  Mass: {:.4}, radius: {:.4}",
@@ -277,7 +277,7 @@ impl Cell {
         }
     }
 
-    fn print_selected_cell_layers(&self) {
+    fn _print_selected_cell_layers(&self) {
         if self.is_selected() {
             for (index, layer) in self.layers.iter().enumerate() {
                 println!(
@@ -290,7 +290,7 @@ impl Cell {
         }
     }
 
-    fn print_selected_cell_energy(&self, end_energy: BioEnergy) {
+    fn _print_selected_cell_energy(&self, end_energy: BioEnergy) {
         if self.is_selected() {
             println!(
                 "  Energy: {:.4} (start), {:.4} (end)",
@@ -300,7 +300,7 @@ impl Cell {
         }
     }
 
-    fn print_selected_cell_control_requests(
+    fn _print_selected_cell_control_requests(
         &self,
         budgeted_control_requests: &[BudgetedControlRequest],
     ) {
@@ -311,7 +311,7 @@ impl Cell {
         }
     }
 
-    fn print_selected_cell_bond_requests(&self, bond_requests: &BondRequests) {
+    fn _print_selected_cell_bond_requests(&self, bond_requests: &BondRequests) {
         if self.is_selected() {
             for (index, request) in bond_requests.iter().enumerate() {
                 if request.retain_bond {

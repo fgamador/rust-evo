@@ -178,41 +178,42 @@ impl BondForces {
     }
 
     fn cell1_bond_force(cell1: &Cell, strain1: BondStrain, cell2: &Cell) -> Force {
-        // if strain1.strain() == Displacement::ZERO {
-        //     return Force::ZERO;
-        // }
-
-        Self::body1_bond_force(
+        let velocity_force = Self::body1_clear_velocity_force(
             cell1.mass(),
             cell2.mass(),
             cell1.velocity(),
             cell2.velocity(),
-            strain1,
-        )
-        // Self::bond_force(
-        //     cell1.mass(),
-        //     cell1.velocity(),
-        //     -strain1.strain(),
-        //     cell2.mass(),
-        //     cell2.velocity(),
-        // )
+        );
+        let strain_force = Self::body1_clear_strain_force(cell1.mass(), cell2.mass(), strain1);
+        if cell1.is_selected() {
+            println!(
+                "Bond {}-{} velocity force: {}, strain force: {}",
+                cell1.node_handle(),
+                cell2.node_handle(),
+                velocity_force,
+                strain_force
+            );
+        }
+        velocity_force + strain_force
     }
 
-    fn body1_bond_force(
+    fn body1_clear_velocity_force(
         mass1: Mass,
         mass2: Mass,
         velocity1: Velocity,
         velocity2: Velocity,
-        strain1: BondStrain,
     ) -> Force {
         let velocity_cm = (mass1 * velocity1 + mass2 * velocity2) / (mass1 + mass2);
+        Force::from(mass1.value() * (velocity_cm - velocity1).value())
+    }
+
+    fn body1_clear_strain_force(mass1: Mass, mass2: Mass, strain1: BondStrain) -> Force {
         Force::from(
-            mass1.value() * (velocity_cm - velocity1).value()
-                + (mass1.value() * mass2.value() / (mass1 + mass2).value())
-                    * strain1.strain().value(),
+            (mass1.value() * mass2.value() / (mass1 + mass2).value()) * strain1.strain().value(),
         )
     }
 
+    // TODO lose this after updating tests
     pub fn bond_force(
         mass1: Mass,
         velocity1: Velocity,

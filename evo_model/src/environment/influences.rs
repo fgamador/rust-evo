@@ -183,6 +183,7 @@ impl BondForces {
             cell2.mass(),
             cell1.velocity(),
             cell2.velocity(),
+            cell1.position() - cell2.position(),
         );
         let strain_force = Self::body1_clear_strain_force(cell1.mass(), cell2.mass(), strain1);
         if cell1.is_selected() {
@@ -202,9 +203,15 @@ impl BondForces {
         mass2: Mass,
         velocity1: Velocity,
         velocity2: Velocity,
+        relative_position1: Displacement,
     ) -> Force {
         let velocity_cm = (mass1 * velocity1 + mass2 * velocity2) / (mass1 + mass2);
-        Force::from(mass1.value() * (velocity_cm - velocity1).value())
+        -Force::from(
+            mass1.value()
+                * (velocity1 - velocity_cm)
+                    .value()
+                    .project_onto(relative_position1.value()),
+        )
     }
 
     fn body1_clear_strain_force(mass1: Mass, mass2: Mass, strain1: BondStrain) -> Force {

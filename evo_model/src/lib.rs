@@ -7,6 +7,7 @@ pub mod world;
 pub enum UserAction {
     DebugPrint,
     Exit,
+    None,
     PlayToggle,
     SelectCellToggle { x: f64, y: f64 },
     SingleTick,

@@ -2,23 +2,34 @@ use crate::view::*;
 use evo_model::physics::quantities::Position;
 use evo_model::world::World;
 use evo_model::UserAction;
+use std::env;
 use std::thread;
 use std::time::{Duration, Instant};
 
 pub fn init_and_run(world: World) {
     simple_logger::init().unwrap();
 
+    let args: Vec<String> = env::args().collect();
+    let start_paused = args.len() == 2 && args[1] == "-p".to_string();
+
     let view = View::new(world.min_corner(), world.max_corner());
-    run(world, view);
+    run(world, view, start_paused);
 }
 
-fn run(mut world: World, mut view: View) {
+fn run(mut world: World, mut view: View, start_paused: bool) {
     view.render(&world);
-    let mut user_action = UserAction::PlayToggle;
+
+    let mut user_action = if start_paused {
+        UserAction::None
+    } else {
+        UserAction::PlayToggle
+    };
+
     loop {
         match user_action {
             UserAction::DebugPrint => world.debug_print_cells(),
             UserAction::Exit => return,
+            UserAction::None => (),
             UserAction::PlayToggle => {
                 if normal_speed(&mut world, &mut view) == UserAction::Exit {
                     return;

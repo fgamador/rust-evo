@@ -152,17 +152,10 @@ impl CellLayer {
         self.body.update_outer_radius(inner_radius);
     }
 
-    pub fn after_influences(
-        &mut self,
-        env: &LocalEnvironment,
-        subtick_duration: Duration,
-    ) -> (BioEnergy, Force) {
-        self.body.brain.after_influences(
-            &mut *self.specialty,
-            &mut self.body,
-            env,
-            subtick_duration,
-        )
+    pub fn after_influences(&mut self, env: &LocalEnvironment) -> (BioEnergy, Force) {
+        self.body
+            .brain
+            .after_influences(&mut *self.specialty, &mut self.body, env)
     }
 
     pub fn cost_control_request(&mut self, request: ControlRequest) -> CostedControlRequest {
@@ -311,7 +304,6 @@ trait CellLayerBrain: Debug {
         specialty: &mut dyn CellLayerSpecialty,
         body: &mut CellLayerBody,
         env: &LocalEnvironment,
-        subtick_duration: Duration,
     ) -> (BioEnergy, Force);
 
     fn cost_control_request(
@@ -334,10 +326,9 @@ trait CellLayerBrain: Debug {
 struct LivingCellLayerBrain {}
 
 impl LivingCellLayerBrain {
-    fn entropic_damage(&self, body: &mut CellLayerBody, subtick_duration: Duration) {
-        let subtick_damage =
-            body.health_parameters.entropic_damage_health_delta * subtick_duration.value();
-        self.damage(body, -subtick_damage);
+    fn entropic_damage(&self, body: &mut CellLayerBody) {
+        let damage = body.health_parameters.entropic_damage_health_delta;
+        self.damage(body, -damage);
     }
 
     fn overlap_damage(&self, body: &mut CellLayerBody, overlaps: &[Overlap]) {
@@ -361,11 +352,10 @@ impl CellLayerBrain for LivingCellLayerBrain {
         specialty: &mut dyn CellLayerSpecialty,
         body: &mut CellLayerBody,
         env: &LocalEnvironment,
-        subtick_duration: Duration,
     ) -> (BioEnergy, Force) {
-        self.entropic_damage(body, subtick_duration);
+        self.entropic_damage(body);
         self.overlap_damage(body, env.overlaps());
-        specialty.after_influences(body, env, subtick_duration)
+        specialty.after_influences(body, env)
     }
 
     fn cost_control_request(
@@ -411,7 +401,6 @@ impl CellLayerBrain for DeadCellLayerBrain {
         _specialty: &mut dyn CellLayerSpecialty,
         _body: &mut CellLayerBody,
         _env: &LocalEnvironment,
-        _subtick_duration: Duration,
     ) -> (BioEnergy, Force) {
         (BioEnergy::ZERO, Force::ZERO)
     }
@@ -452,7 +441,6 @@ pub trait CellLayerSpecialty: Debug {
         &mut self,
         _body: &CellLayerBody,
         _env: &LocalEnvironment,
-        _subtick_duration: Duration,
     ) -> (BioEnergy, Force) {
         (BioEnergy::ZERO, Force::ZERO)
     }
@@ -567,7 +555,6 @@ impl CellLayerSpecialty for ThrusterCellLayerSpecialty {
         &mut self,
         _body: &CellLayerBody,
         _env: &LocalEnvironment,
-        _subtick_duration: Duration,
     ) -> (BioEnergy, Force) {
         (BioEnergy::ZERO, Force::new(self.force_x, self.force_y))
     }
@@ -620,15 +607,10 @@ impl CellLayerSpecialty for PhotoCellLayerSpecialty {
         &mut self,
         body: &CellLayerBody,
         env: &LocalEnvironment,
-        subtick_duration: Duration,
     ) -> (BioEnergy, Force) {
         (
             BioEnergy::new(
-                env.light_intensity()
-                    * self.efficiency
-                    * body.health
-                    * body.area.value()
-                    * subtick_duration.value(),
+                env.light_intensity() * self.efficiency * body.health * body.area.value(),
             ),
             Force::ZERO,
         )
@@ -977,9 +959,9 @@ mod tests {
             .with_health_parameters(&LAYER_HEALTH_PARAMS);
 
         let env = LocalEnvironment::new();
-        layer.after_influences(&env, Duration::new(0.5));
+        layer.after_influences(&env);
 
-        assert_eq!(layer.health(), 0.875);
+        assert_eq!(layer.health(), 0.75);
     }
 
     #[test]
@@ -994,7 +976,7 @@ mod tests {
 
         let mut env = LocalEnvironment::new();
         env.add_overlap(Overlap::new(Displacement::new(0.5, 0.0), 1.0));
-        layer.after_influences(&env, Duration::new(1.0));
+        layer.after_influences(&env);
 
         assert_eq!(layer.health(), 0.875);
     }
@@ -1041,7 +1023,7 @@ mod tests {
         );
 
         let env = LocalEnvironment::new();
-        let (_, force) = layer.after_influences(&env, Duration::new(0.5));
+        let (_, force) = layer.after_influences(&env);
 
         assert_eq!(force, Force::new(1.0, -1.0));
     }
@@ -1073,7 +1055,7 @@ mod tests {
         );
 
         let env = LocalEnvironment::new();
-        let (_, force) = layer.after_influences(&env, Duration::new(1.0));
+        let (_, force) = layer.after_influences(&env);
 
         assert_eq!(force, Force::new(0.5, -0.25));
     }
@@ -1098,7 +1080,7 @@ mod tests {
         );
 
         let env = LocalEnvironment::new();
-        let (_, force) = layer.after_influences(&env, Duration::new(1.0));
+        let (_, force) = layer.after_influences(&env);
 
         assert_eq!(force, Force::new(0.5, -0.5));
     }
@@ -1123,7 +1105,7 @@ mod tests {
         layer.damage(1.0);
 
         let env = LocalEnvironment::new();
-        let (_, force) = layer.after_influences(&env, Duration::new(1.0));
+        let (_, force) = layer.after_influences(&env);
 
         assert_eq!(force, Force::new(0.0, 0.0));
     }
@@ -1140,9 +1122,9 @@ mod tests {
         let mut env = LocalEnvironment::new();
         env.add_light_intensity(10.0);
 
-        let (energy, _) = layer.after_influences(&env, Duration::new(0.5));
+        let (energy, _) = layer.after_influences(&env);
 
-        assert_eq!(energy, BioEnergy::new(10.0));
+        assert_eq!(energy, BioEnergy::new(20.0));
     }
 
     #[test]
@@ -1158,7 +1140,7 @@ mod tests {
         let mut env = LocalEnvironment::new();
         env.add_light_intensity(1.0);
 
-        let (energy, _) = layer.after_influences(&env, Duration::new(1.0));
+        let (energy, _) = layer.after_influences(&env);
 
         assert_eq!(energy, BioEnergy::new(0.75));
     }
@@ -1176,7 +1158,7 @@ mod tests {
         let mut env = LocalEnvironment::new();
         env.add_light_intensity(1.0);
 
-        let (energy, _) = layer.after_influences(&env, Duration::new(1.0));
+        let (energy, _) = layer.after_influences(&env);
 
         assert_eq!(energy, BioEnergy::new(0.0));
     }

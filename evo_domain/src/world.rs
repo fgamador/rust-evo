@@ -164,8 +164,8 @@ impl World {
         let subtick_duration = tick_duration / (subticks_per_tick as f64);
 
         for subtick in 0..subticks_per_tick {
-            self.pre_subtick_logging(subtick);
-            self.apply_influences(subtick_duration);
+            self.pre_subtick_logging();
+            self.apply_influences();
             self.subtick_cells(subtick_duration, subtick);
         }
 
@@ -173,28 +173,18 @@ impl World {
         self.run_cell_controls();
     }
 
-    fn pre_subtick_logging(&self, subtick: u32) {
+    fn pre_subtick_logging(&self) {
         for cell in self.cell_graph.nodes() {
-            Self::pre_subtick_cell_logging(cell, subtick);
+            Self::pre_subtick_cell_logging(cell);
         }
     }
 
-    fn pre_subtick_cell_logging(cell: &Cell, subtick: u32) {
-        trace!(
-            "Subtick {} Cell {} {:?}",
-            subtick,
-            cell.node_handle(),
-            cell.velocity()
-        );
-        trace!(
-            "Subtick {} Cell {} {:?}",
-            subtick,
-            cell.node_handle(),
-            cell.position()
-        );
+    fn pre_subtick_cell_logging(cell: &Cell) {
+        trace!("Cell {} {:?}", cell.node_handle(), cell.velocity());
+        trace!("Cell {} {:?}", cell.node_handle(), cell.position());
     }
 
-    fn apply_influences(&mut self, _subtick_duration: Duration) {
+    fn apply_influences(&mut self) {
         for influence in &self.influences {
             influence.apply(&mut self.cell_graph);
         }

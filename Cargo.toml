@@ -3,6 +3,6 @@
 members = [
     "evo_glium",
     "evo_main",
-    "evo_model",
-    "evo_model/evo_model_derive",
+    "evo_domain",
+    "evo_domain/evo_model_derive",
 ]

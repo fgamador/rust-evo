@@ -11,11 +11,7 @@ use crate::physics::util::*;
 use log::trace;
 
 pub trait Influence {
-    fn apply(
-        &self,
-        cell_graph: &mut SortableGraph<Cell, Bond, AngleGusset>,
-        subtick_duration: Duration,
-    );
+    fn apply(&self, cell_graph: &mut SortableGraph<Cell, Bond, AngleGusset>);
 }
 
 #[derive(Debug)]
@@ -32,13 +28,9 @@ impl WallCollisions {
         }
     }
 
-    fn add_overlap_and_force(&self, cell: &mut Cell, overlap: Overlap, subtick_duration: Duration) {
+    fn add_overlap_and_force(&self, cell: &mut Cell, overlap: Overlap) {
         cell.environment_mut().add_overlap(overlap);
-        let force = if subtick_duration == Duration::new(1.0) {
-            Self::collision_force(cell.mass(), cell.velocity(), -overlap.incursion())
-        } else {
-            overlap.to_force(&*self.spring)
-        };
+        let force = Self::collision_force(cell.mass(), cell.velocity(), -overlap.incursion());
         trace!("Cell {} Wall {:?}", cell.node_handle(), force);
         cell.forces_mut().add_force(force);
     }
@@ -63,14 +55,10 @@ impl WallCollisions {
 }
 
 impl Influence for WallCollisions {
-    fn apply(
-        &self,
-        cell_graph: &mut SortableGraph<Cell, Bond, AngleGusset>,
-        subtick_duration: Duration,
-    ) {
+    fn apply(&self, cell_graph: &mut SortableGraph<Cell, Bond, AngleGusset>) {
         let overlaps = self.walls.find_overlaps(cell_graph);
         for (handle, overlap) in overlaps {
-            self.add_overlap_and_force(cell_graph.node_mut(handle), overlap, subtick_duration);
+            self.add_overlap_and_force(cell_graph.node_mut(handle), overlap);
         }
     }
 }
@@ -138,11 +126,7 @@ impl PairCollisions {
 }
 
 impl Influence for PairCollisions {
-    fn apply(
-        &self,
-        cell_graph: &mut SortableGraph<Cell, Bond, AngleGusset>,
-        _subtick_duration: Duration,
-    ) {
+    fn apply(&self, cell_graph: &mut SortableGraph<Cell, Bond, AngleGusset>) {
         let overlaps = find_pair_overlaps(cell_graph);
         for ((handle1, overlap1), (handle2, overlap2)) in overlaps {
             let force1 = Self::cell1_collision_force(
@@ -240,11 +224,7 @@ impl BondForces {
 }
 
 impl Influence for BondForces {
-    fn apply(
-        &self,
-        cell_graph: &mut SortableGraph<Cell, Bond, AngleGusset>,
-        _subtick_duration: Duration,
-    ) {
+    fn apply(&self, cell_graph: &mut SortableGraph<Cell, Bond, AngleGusset>) {
         let strains = calc_bond_strains(cell_graph);
         for ((handle1, strain1), (handle2, _strain2)) in strains {
             let force1 =
@@ -266,11 +246,7 @@ impl BondAngleForces {
 }
 
 impl Influence for BondAngleForces {
-    fn apply(
-        &self,
-        cell_graph: &mut SortableGraph<Cell, Bond, AngleGusset>,
-        _subtick_duration: Duration,
-    ) {
+    fn apply(&self, cell_graph: &mut SortableGraph<Cell, Bond, AngleGusset>) {
         let forces = calc_bond_angle_forces(cell_graph);
         for (handle, force) in forces {
             let cell = cell_graph.node_mut(handle);
@@ -291,11 +267,7 @@ impl SimpleForceInfluence {
 }
 
 impl Influence for SimpleForceInfluence {
-    fn apply(
-        &self,
-        cell_graph: &mut SortableGraph<Cell, Bond, AngleGusset>,
-        _subtick_duration: Duration,
-    ) {
+    fn apply(&self, cell_graph: &mut SortableGraph<Cell, Bond, AngleGusset>) {
         for cell in cell_graph.nodes_mut() {
             let force = self.influence_force.calc_force(cell);
             cell.forces_mut().add_force(force);
@@ -418,11 +390,7 @@ impl UniversalOverlap {
 }
 
 impl Influence for UniversalOverlap {
-    fn apply(
-        &self,
-        cell_graph: &mut SortableGraph<Cell, Bond, AngleGusset>,
-        _subtick_duration: Duration,
-    ) {
+    fn apply(&self, cell_graph: &mut SortableGraph<Cell, Bond, AngleGusset>) {
         for cell in cell_graph.nodes_mut() {
             cell.environment_mut().add_overlap(self.overlap);
         }
@@ -450,11 +418,7 @@ impl Sunlight {
 }
 
 impl Influence for Sunlight {
-    fn apply(
-        &self,
-        cell_graph: &mut SortableGraph<Cell, Bond, AngleGusset>,
-        _subtick_duration: Duration,
-    ) {
+    fn apply(&self, cell_graph: &mut SortableGraph<Cell, Bond, AngleGusset>) {
         for cell in cell_graph.nodes_mut() {
             let y = cell.center().y();
             cell.environment_mut()
@@ -484,7 +448,7 @@ mod tests {
             Velocity::new(1.0, 1.0),
         ));
 
-        wall_collisions.apply(&mut cell_graph, Duration::new(0.5));
+        wall_collisions.apply(&mut cell_graph);
 
         let ball = cell_graph.node(ball_handle);
         assert_eq!(ball.environment().overlaps().len(), 1);
@@ -507,7 +471,7 @@ mod tests {
             Velocity::new(1.0, 1.0),
         ));
 
-        wall_collisions.apply(&mut cell_graph, Duration::new(1.0));
+        wall_collisions.apply(&mut cell_graph);
 
         let ball = cell_graph.node(ball_handle);
         assert_eq!(ball.environment().overlaps().len(), 1);
@@ -592,7 +556,7 @@ mod tests {
             Velocity::new(-1.0, -1.0),
         ));
 
-        pair_collisions.apply(&mut cell_graph, Duration::new(0.5));
+        pair_collisions.apply(&mut cell_graph);
 
         let ball1 = cell_graph.node(ball1_handle);
         assert_eq!(ball1.environment().overlaps().len(), 1);
@@ -702,7 +666,7 @@ mod tests {
         let bond = Bond::new(cell_graph.node(ball1_handle), cell_graph.node(ball2_handle));
         cell_graph.add_edge(bond, 1, 0);
 
-        bond_forces.apply(&mut cell_graph, Duration::new(0.5));
+        bond_forces.apply(&mut cell_graph);
 
         let ball1 = cell_graph.node(ball1_handle);
         assert_ne!(ball1.forces().net_force().x(), 0.0);
@@ -796,7 +760,7 @@ mod tests {
         );
         cell_graph.add_meta_edge(gusset);
 
-        BondAngleForces::new().apply(&mut cell_graph, Duration::new(0.5));
+        BondAngleForces::new().apply(&mut cell_graph);
 
         let ball3 = cell_graph.node(ball3_handle);
         assert!(ball3.forces().net_force().x() < 0.0);
@@ -814,7 +778,7 @@ mod tests {
             Velocity::ZERO,
         ));
 
-        influence.apply(&mut cell_graph, Duration::new(0.5));
+        influence.apply(&mut cell_graph);
 
         let ball = cell_graph.node(ball_handle);
         assert_eq!(ball.forces().net_force(), force);
@@ -879,7 +843,7 @@ mod tests {
             Density::new(1.0),
         )]));
 
-        sunlight.apply(&mut cell_graph, Duration::new(0.5));
+        sunlight.apply(&mut cell_graph);
 
         let cell = cell_graph.node(cell_handle);
         assert_eq!(cell.environment().light_intensity(), 15.0);
@@ -894,7 +858,7 @@ mod tests {
                 .with_initial_position(Position::new(0.0, -11.0)),
         );
 
-        sunlight.apply(&mut cell_graph, Duration::new(0.5));
+        sunlight.apply(&mut cell_graph);
 
         let cell = cell_graph.node(cell_handle);
         assert_eq!(cell.environment().light_intensity(), 0.0);

@@ -194,9 +194,9 @@ impl World {
         );
     }
 
-    fn apply_influences(&mut self, subtick_duration: Duration) {
+    fn apply_influences(&mut self, _subtick_duration: Duration) {
         for influence in &self.influences {
-            influence.apply(&mut self.cell_graph, subtick_duration);
+            influence.apply(&mut self.cell_graph);
         }
     }
 

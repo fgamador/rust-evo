@@ -135,35 +135,23 @@ impl PairCollisions {
         trace!("Cell {} Pair {:?}", cell.node_handle(), force);
         cell.forces_mut().add_force(force);
     }
-
-    fn add_overlap_and_spring_force(&self, cell: &mut Cell, overlap: Overlap) {
-        cell.environment_mut().add_overlap(overlap);
-        let force = overlap.to_force(&*self.spring);
-        trace!("Cell {} Pair {:?}", cell.node_handle(), force);
-        cell.forces_mut().add_force(force);
-    }
 }
 
 impl Influence for PairCollisions {
     fn apply(
         &self,
         cell_graph: &mut SortableGraph<Cell, Bond, AngleGusset>,
-        subtick_duration: Duration,
+        _subtick_duration: Duration,
     ) {
         let overlaps = find_pair_overlaps(cell_graph);
         for ((handle1, overlap1), (handle2, overlap2)) in overlaps {
-            if subtick_duration == Duration::new(1.0) {
-                let force1 = Self::cell1_collision_force(
-                    cell_graph.node(handle1),
-                    overlap1,
-                    cell_graph.node(handle2),
-                );
-                Self::add_overlap_and_force(cell_graph.node_mut(handle1), overlap1, force1);
-                Self::add_overlap_and_force(cell_graph.node_mut(handle2), overlap2, -force1);
-            } else {
-                self.add_overlap_and_spring_force(cell_graph.node_mut(handle1), overlap1);
-                self.add_overlap_and_spring_force(cell_graph.node_mut(handle2), overlap2);
-            }
+            let force1 = Self::cell1_collision_force(
+                cell_graph.node(handle1),
+                overlap1,
+                cell_graph.node(handle2),
+            );
+            Self::add_overlap_and_force(cell_graph.node_mut(handle1), overlap1, force1);
+            Self::add_overlap_and_force(cell_graph.node_mut(handle2), overlap2, -force1);
         }
     }
 }
@@ -249,34 +237,20 @@ impl BondForces {
         trace!("Cell {} Bond {:?}", cell.node_handle(), force);
         cell.forces_mut().set_net_force_if_stronger(force);
     }
-
-    fn add_strain_force(cell: &mut Cell, strain: BondStrain) {
-        let force = strain.to_force();
-        trace!("Cell {} Bond {:?}", cell.node_handle(), force);
-        cell.forces_mut().add_force(force);
-    }
 }
 
 impl Influence for BondForces {
     fn apply(
         &self,
         cell_graph: &mut SortableGraph<Cell, Bond, AngleGusset>,
-        subtick_duration: Duration,
+        _subtick_duration: Duration,
     ) {
         let strains = calc_bond_strains(cell_graph);
-        for ((handle1, strain1), (handle2, strain2)) in strains {
-            if subtick_duration == Duration::new(1.0) {
-                let force1 = Self::cell1_bond_force(
-                    cell_graph.node(handle1),
-                    strain1,
-                    cell_graph.node(handle2),
-                );
-                Self::add_force(cell_graph.node_mut(handle1), force1);
-                Self::add_force(cell_graph.node_mut(handle2), -force1);
-            } else {
-                Self::add_strain_force(cell_graph.node_mut(handle1), strain1);
-                Self::add_strain_force(cell_graph.node_mut(handle2), strain2);
-            }
+        for ((handle1, strain1), (handle2, _strain2)) in strains {
+            let force1 =
+                Self::cell1_bond_force(cell_graph.node(handle1), strain1, cell_graph.node(handle2));
+            Self::add_force(cell_graph.node_mut(handle1), force1);
+            Self::add_force(cell_graph.node_mut(handle2), -force1);
         }
     }
 }
@@ -320,17 +294,17 @@ impl Influence for SimpleForceInfluence {
     fn apply(
         &self,
         cell_graph: &mut SortableGraph<Cell, Bond, AngleGusset>,
-        subtick_duration: Duration,
+        _subtick_duration: Duration,
     ) {
         for cell in cell_graph.nodes_mut() {
-            let force = self.influence_force.calc_force(cell, subtick_duration);
+            let force = self.influence_force.calc_force(cell);
             cell.forces_mut().add_force(force);
         }
     }
 }
 
 pub trait SimpleInfluenceForce {
-    fn calc_force(&self, cell: &Cell, subtick_duration: Duration) -> Force;
+    fn calc_force(&self, cell: &Cell) -> Force;
 }
 
 #[derive(Debug)]
@@ -345,7 +319,7 @@ impl ConstantForce {
 }
 
 impl SimpleInfluenceForce for ConstantForce {
-    fn calc_force(&self, _ball: &Cell, _subtick_duration: Duration) -> Force {
+    fn calc_force(&self, _ball: &Cell) -> Force {
         self.force
     }
 }
@@ -364,7 +338,7 @@ impl WeightForce {
 }
 
 impl SimpleInfluenceForce for WeightForce {
-    fn calc_force(&self, cell: &Cell, _subtick_duration: Duration) -> Force {
+    fn calc_force(&self, cell: &Cell) -> Force {
         let force = cell.mass() * self.gravity;
         trace!("Cell {} Weight {:?}", cell.node_handle(), force);
         force
@@ -387,7 +361,7 @@ impl BuoyancyForce {
 }
 
 impl SimpleInfluenceForce for BuoyancyForce {
-    fn calc_force(&self, cell: &Cell, _subtick_duration: Duration) -> Force {
+    fn calc_force(&self, cell: &Cell) -> Force {
         let displaced_fluid_mass = cell.area() * self.fluid_density;
         let force = -(displaced_fluid_mass * self.gravity);
         trace!("Cell {} Buoyancy {:?}", cell.node_handle(), force);
@@ -405,47 +379,27 @@ impl DragForce {
         DragForce { viscosity }
     }
 
-    fn calc_drag(
-        &self,
-        mass: Mass,
-        radius: Length,
-        velocity: f64,
-        subtick_duration: Duration,
-    ) -> f64 {
+    fn calc_drag(&self, mass: Mass, radius: Length, velocity: f64) -> f64 {
         -velocity.signum()
-            * self.instantaneous_abs_drag(radius, velocity).min(
-                Self::abs_drag_that_will_stop_the_cell(mass, velocity, subtick_duration),
-            )
+            * self
+                .instantaneous_abs_drag(radius, velocity)
+                .min(Self::abs_drag_that_will_stop_the_cell(mass, velocity))
     }
 
     fn instantaneous_abs_drag(&self, radius: Length, velocity: f64) -> f64 {
         self.viscosity * radius.value() * sqr(velocity)
     }
 
-    fn abs_drag_that_will_stop_the_cell(
-        mass: Mass,
-        velocity: f64,
-        subtick_duration: Duration,
-    ) -> f64 {
-        mass.value() * velocity.abs() / subtick_duration.value()
+    fn abs_drag_that_will_stop_the_cell(mass: Mass, velocity: f64) -> f64 {
+        mass.value() * velocity.abs()
     }
 }
 
 impl SimpleInfluenceForce for DragForce {
-    fn calc_force(&self, cell: &Cell, subtick_duration: Duration) -> Force {
+    fn calc_force(&self, cell: &Cell) -> Force {
         let force = Force::new(
-            self.calc_drag(
-                cell.mass(),
-                cell.radius(),
-                cell.velocity().x(),
-                subtick_duration,
-            ),
-            self.calc_drag(
-                cell.mass(),
-                cell.radius(),
-                cell.velocity().y(),
-                subtick_duration,
-            ),
+            self.calc_drag(cell.mass(), cell.radius(), cell.velocity().x()),
+            self.calc_drag(cell.mass(), cell.radius(), cell.velocity().y()),
         );
         trace!("Cell {} Drag {:?}", cell.node_handle(), force);
         force
@@ -875,10 +829,7 @@ mod tests {
             Position::new(0.0, 0.0),
             Velocity::ZERO,
         );
-        assert_eq!(
-            weight.calc_force(&ball, Duration::new(0.5)),
-            Force::new(0.0, -6.0)
-        );
+        assert_eq!(weight.calc_force(&ball), Force::new(0.0, -6.0));
     }
 
     #[test]
@@ -890,7 +841,7 @@ mod tests {
             Position::new(0.0, 0.0),
             Velocity::ZERO,
         );
-        let force = buoyancy.calc_force(&ball, Duration::new(0.5));
+        let force = buoyancy.calc_force(&ball);
         assert_eq!(force.x(), 0.0);
         assert_eq!(force.y().round(), 16.0);
     }
@@ -904,10 +855,7 @@ mod tests {
             Position::new(0.0, 0.0),
             Velocity::new(2.0, -3.0),
         );
-        assert_eq!(
-            drag.calc_force(&ball, Duration::new(0.5)),
-            Force::new(-4.0, 9.0)
-        );
+        assert_eq!(drag.calc_force(&ball), Force::new(-4.0, 9.0));
     }
 
     #[test]
@@ -919,10 +867,7 @@ mod tests {
             Position::ORIGIN,
             Velocity::new(10.0, -10.0),
         );
-        assert_eq!(
-            drag.calc_force(&ball, Duration::new(0.5)),
-            Force::new(-0.2, 0.2)
-        );
+        assert_eq!(drag.calc_force(&ball), Force::new(-0.1, 0.1));
     }
 
     #[test]

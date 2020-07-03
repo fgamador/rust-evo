@@ -247,7 +247,8 @@ impl BondForces {
 
     fn add_force(cell: &mut Cell, force: Force) {
         trace!("Cell {} Bond {:?}", cell.node_handle(), force);
-        cell.forces_mut().add_force(force);
+        // cell.forces_mut().add_force(force);
+        cell.forces_mut().set_net_force_if_stronger(force);
     }
 
     fn add_strain_force(cell: &mut Cell, strain: BondStrain) {

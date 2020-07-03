@@ -81,6 +81,21 @@ impl Forces {
         self.net_force += f;
     }
 
+    pub fn set_net_force_if_stronger(&mut self, f: Force) {
+        self.net_force = Force::new(
+            Self::stronger(f.x(), self.net_force.x()),
+            Self::stronger(f.y(), self.net_force.y()),
+        );
+    }
+
+    fn stronger(lhs: f64, rhs: f64) -> f64 {
+        if lhs.abs() > rhs.abs() {
+            lhs
+        } else {
+            rhs
+        }
+    }
+
     pub fn clear(&mut self) {
         self.net_force = Force::new(0.0, 0.0);
     }

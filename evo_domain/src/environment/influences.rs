@@ -667,15 +667,23 @@ mod tests {
     }
 
     #[test]
-    fn bond_with_no_strain_adds_no_force() {
+    fn bond_with_no_velocity_and_no_strain_adds_no_force() {
+        let cell1 = Cell::ball(
+            Length::new(1.0),
+            Mass::new(1.0),
+            Position::new(-0.5, 0.0),
+            Velocity::ZERO,
+        );
+        let strain1 = BondStrain::new(Displacement::new(0.0, 0.0));
+        let cell2 = Cell::ball(
+            Length::new(1.0),
+            Mass::new(1.0),
+            Position::new(0.5, 0.0),
+            Velocity::ZERO,
+        );
+
         assert_eq!(
-            BondForces::bond_force(
-                Mass::new(2.0),
-                Velocity::new(3.0, -4.0),
-                Displacement::new(0.0, 0.0),
-                Mass::new(6.0),
-                Velocity::new(-5.0, 6.0),
-            ),
+            BondForces::cell1_bond_force(&cell1, strain1, &cell2),
             Force::new(0.0, 0.0)
         );
     }

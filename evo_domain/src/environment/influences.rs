@@ -69,7 +69,7 @@ impl PairCollisions {
         PairCollisions {}
     }
 
-    pub fn cell1_collision_force(cell1: &Cell, overlap1: Overlap, cell2: &Cell) -> Force {
+    fn cell1_collision_force(cell1: &Cell, overlap1: Overlap, cell2: &Cell) -> Force {
         if overlap1.incursion() == Displacement::ZERO {
             return Force::ZERO;
         }

@@ -192,7 +192,7 @@ impl World {
         cell.after_influences();
         Self::print_selected_cell_state(cell, "start");
         cell.exert_forces();
-        cell.move_for();
+        cell.move_for_tick();
         Self::post_tick_cell_logging(cell);
         cell.environment_mut().clear();
         cell.forces_mut().clear();

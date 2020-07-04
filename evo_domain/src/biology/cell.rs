@@ -144,7 +144,7 @@ impl Cell {
                 <= sqr(self.radius.value())
     }
 
-    pub fn after_influences(&mut self, _subtick_duration: Duration) {
+    pub fn after_influences(&mut self) {
         let forces = self.newtonian_state.forces_mut();
         for layer in &mut self.layers {
             let (energy, force) = layer.after_influences(&self.environment);
@@ -503,7 +503,7 @@ mod tests {
         )));
         let mut bond_requests = NONE_BOND_REQUESTS;
         cell.run_control(&mut bond_requests);
-        cell.after_influences(Duration::new(1.0));
+        cell.after_influences();
         assert_eq!(Force::new(1.0, -1.0), cell.forces().net_force());
     }
 
@@ -517,7 +517,7 @@ mod tests {
         )]);
         cell.environment_mut().add_light_intensity(10.0);
 
-        cell.after_influences(Duration::new(1.0));
+        cell.after_influences();
 
         assert_eq!(BioEnergy::new(20.0), cell.energy());
     }
@@ -667,7 +667,7 @@ mod tests {
 
         cell.environment_mut()
             .add_overlap(Overlap::new(Displacement::new(1.0, 0.0), 1.0));
-        cell.after_influences(Duration::new(1.0));
+        cell.after_influences();
 
         assert!(cell.layers()[0].health() < 1.0);
         assert!(cell.layers()[1].health() < 1.0);

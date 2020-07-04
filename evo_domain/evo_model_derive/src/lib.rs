@@ -138,8 +138,8 @@ pub fn newtonian_body_derive(input: TokenStream) -> TokenStream {
                     self.#field_name.velocity()
                 }
 
-                fn move_for(&mut self, duration: Duration) {
-                    self.#field_name.move_for(duration);
+                fn move_for(&mut self) {
+                    self.#field_name.move_for();
                 }
 
                 fn kick(&mut self, impulse: Impulse) {
@@ -154,8 +154,8 @@ pub fn newtonian_body_derive(input: TokenStream) -> TokenStream {
                     self.#field_name.forces_mut()
                 }
 
-                fn exert_forces(&mut self, duration: Duration) {
-                    self.#field_name.exert_forces(duration);
+                fn exert_forces(&mut self) {
+                    self.#field_name.exert_forces();
                 }
             }
         }

@@ -160,13 +160,11 @@ impl World {
         self.tick_with(Duration::new(1.0), 1);
     }
 
-    fn tick_with(&mut self, tick_duration: Duration, subticks_per_tick: u32) {
-        let subtick_duration = tick_duration / (subticks_per_tick as f64);
-
+    fn tick_with(&mut self, _tick_duration: Duration, subticks_per_tick: u32) {
         for subtick in 0..subticks_per_tick {
             self.pre_subtick_logging();
             self.apply_influences();
-            self.subtick_cells(subtick_duration, subtick);
+            self.subtick_cells(subtick);
         }
 
         self.process_cell_bond_energy();
@@ -190,17 +188,17 @@ impl World {
         }
     }
 
-    fn subtick_cells(&mut self, subtick_duration: Duration, subtick: u32) {
+    fn subtick_cells(&mut self, subtick: u32) {
         for cell in self.cell_graph.nodes_mut() {
-            Self::subtick_cell(cell, subtick_duration, subtick);
+            Self::subtick_cell(cell, subtick);
         }
     }
 
-    fn subtick_cell(cell: &mut Cell, subtick_duration: Duration, subtick: u32) {
-        cell.after_influences(subtick_duration);
+    fn subtick_cell(cell: &mut Cell, subtick: u32) {
+        cell.after_influences();
         Self::print_selected_cell_state(cell, subtick, "start");
-        cell.exert_forces(subtick_duration);
-        cell.move_for(subtick_duration);
+        cell.exert_forces();
+        cell.move_for();
         Self::post_subtick_cell_logging(cell, subtick);
         cell.environment_mut().clear();
         cell.forces_mut().clear();

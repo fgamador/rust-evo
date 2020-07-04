@@ -32,7 +32,7 @@ impl WallCollisions {
         cell.forces_mut().add_force(force);
     }
 
-    pub fn collision_force(mass: Mass, velocity: Velocity, overlap: Displacement) -> Force {
+    fn collision_force(mass: Mass, velocity: Velocity, overlap: Displacement) -> Force {
         Force::new(
             Self::x_or_y_collision_force(mass, velocity.x(), overlap.x()),
             Self::x_or_y_collision_force(mass, velocity.y(), overlap.y()),

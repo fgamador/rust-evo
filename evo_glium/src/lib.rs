@@ -1,11 +1,11 @@
 use glium::{glutin, Surface};
 
 mod background_drawing;
-mod bond_drawing;
+//mod bond_drawing;
 mod cell_drawing;
 
 use background_drawing::*;
-use bond_drawing::*;
+//use bond_drawing::*;
 use cell_drawing::*;
 use evo_model::biology::cell::Cell;
 use evo_model::biology::layers;

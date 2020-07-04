@@ -157,15 +157,9 @@ impl World {
     }
 
     pub fn tick(&mut self) {
-        self.tick_with(Duration::new(1.0), 1);
-    }
-
-    fn tick_with(&mut self, _tick_duration: Duration, subticks_per_tick: u32) {
-        for subtick in 0..subticks_per_tick {
-            self.pre_subtick_logging();
-            self.apply_influences();
-            self.subtick_cells(subtick);
-        }
+        self.pre_subtick_logging();
+        self.apply_influences();
+        self.subtick_cells();
 
         self.process_cell_bond_energy();
         self.run_cell_controls();
@@ -188,29 +182,28 @@ impl World {
         }
     }
 
-    fn subtick_cells(&mut self, subtick: u32) {
+    fn subtick_cells(&mut self) {
         for cell in self.cell_graph.nodes_mut() {
-            Self::subtick_cell(cell, subtick);
+            Self::subtick_cell(cell);
         }
     }
 
-    fn subtick_cell(cell: &mut Cell, subtick: u32) {
+    fn subtick_cell(cell: &mut Cell) {
         cell.after_influences();
-        Self::print_selected_cell_state(cell, subtick, "start");
+        Self::print_selected_cell_state(cell, "start");
         cell.exert_forces();
         cell.move_for();
-        Self::post_subtick_cell_logging(cell, subtick);
+        Self::post_subtick_cell_logging(cell);
         cell.environment_mut().clear();
         cell.forces_mut().clear();
-        Self::print_selected_cell_state(cell, subtick, "end");
+        Self::print_selected_cell_state(cell, "end");
     }
 
-    fn print_selected_cell_state(cell: &Cell, subtick: u32, start_end_str: &str) {
+    fn print_selected_cell_state(cell: &Cell, start_end_str: &str) {
         if cell.is_selected() {
             println!(
-                "Cell {} subtick {} {} position: {}, velocity: {}, force: {}",
+                "Cell {} {} position: {}, velocity: {}, force: {}",
                 cell.node_handle(),
-                subtick,
                 start_end_str,
                 cell.position(),
                 cell.velocity(),
@@ -219,10 +212,9 @@ impl World {
         }
     }
 
-    fn post_subtick_cell_logging(cell: &Cell, subtick: u32) {
+    fn post_subtick_cell_logging(cell: &Cell) {
         //            println!(
-        //                "Subtick {} Cell {} Energy {} Health0 {} Health1 {} Health2 {}",
-        //                subtick,
+        //                "Cell {} Energy {} Health0 {} Health1 {} Health2 {}",
         //                cell.node_handle(),
         //                cell.energy().value(),
         //                cell.layers()[0].health(),
@@ -230,8 +222,7 @@ impl World {
         //                cell.layers()[2].health()
         //            );
         trace!(
-            "Subtick {} Cell {} Net {:?}",
-            subtick,
+            "Cell {} Net {:?}",
             cell.node_handle(),
             cell.forces().net_force()
         );
@@ -438,7 +429,7 @@ mod tests {
                 DragForce::new(0.01),
             ))));
 
-        world.tick_with(Duration::new(1.0), 1);
+        world.tick();
 
         let ball = &world.cells()[0];
         assert!(ball.velocity().x() >= 0.0);

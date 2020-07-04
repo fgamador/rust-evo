@@ -69,6 +69,12 @@ impl PairCollisions {
         PairCollisions {}
     }
 
+    fn add_overlap_and_force(cell: &mut Cell, overlap: Overlap, force: Force) {
+        cell.environment_mut().add_overlap(overlap);
+        trace!("Cell {} Pair {:?}", cell.node_handle(), force);
+        cell.forces_mut().add_force(force);
+    }
+
     fn cell1_collision_force(cell1: &Cell, overlap1: Overlap, cell2: &Cell) -> Force {
         if overlap1.incursion() == Displacement::ZERO {
             return Force::ZERO;
@@ -111,12 +117,6 @@ impl PairCollisions {
             (mass1.value() * mass2.value() / (mass1 + mass2).value())
                 * overlap1.incursion().value(),
         )
-    }
-
-    fn add_overlap_and_force(cell: &mut Cell, overlap: Overlap, force: Force) {
-        cell.environment_mut().add_overlap(overlap);
-        trace!("Cell {} Pair {:?}", cell.node_handle(), force);
-        cell.forces_mut().add_force(force);
     }
 }
 

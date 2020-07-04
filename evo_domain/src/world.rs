@@ -157,21 +157,21 @@ impl World {
     }
 
     pub fn tick(&mut self) {
-        self.pre_subtick_logging();
+        self.pre_tick_logging();
         self.apply_influences();
-        self.subtick_cells();
+        self.tick_cells();
 
         self.process_cell_bond_energy();
         self.run_cell_controls();
     }
 
-    fn pre_subtick_logging(&self) {
+    fn pre_tick_logging(&self) {
         for cell in self.cell_graph.nodes() {
-            Self::pre_subtick_cell_logging(cell);
+            Self::pre_tick_cell_logging(cell);
         }
     }
 
-    fn pre_subtick_cell_logging(cell: &Cell) {
+    fn pre_tick_cell_logging(cell: &Cell) {
         trace!("Cell {} {:?}", cell.node_handle(), cell.velocity());
         trace!("Cell {} {:?}", cell.node_handle(), cell.position());
     }
@@ -182,18 +182,18 @@ impl World {
         }
     }
 
-    fn subtick_cells(&mut self) {
+    fn tick_cells(&mut self) {
         for cell in self.cell_graph.nodes_mut() {
-            Self::subtick_cell(cell);
+            Self::tick_cell(cell);
         }
     }
 
-    fn subtick_cell(cell: &mut Cell) {
+    fn tick_cell(cell: &mut Cell) {
         cell.after_influences();
         Self::print_selected_cell_state(cell, "start");
         cell.exert_forces();
         cell.move_for();
-        Self::post_subtick_cell_logging(cell);
+        Self::post_tick_cell_logging(cell);
         cell.environment_mut().clear();
         cell.forces_mut().clear();
         Self::print_selected_cell_state(cell, "end");
@@ -212,7 +212,7 @@ impl World {
         }
     }
 
-    fn post_subtick_cell_logging(cell: &Cell) {
+    fn post_tick_cell_logging(cell: &Cell) {
         //            println!(
         //                "Cell {} Energy {} Health0 {} Health1 {} Health2 {}",
         //                cell.node_handle(),

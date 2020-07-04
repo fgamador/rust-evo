@@ -17,8 +17,8 @@ fn create_world() -> World {
             Cell::ball(
                 Length::new(20.0),
                 Mass::new(1.0),
-                Position::new(-40.0, 0.0),
-                Velocity::new(0.0, 0.0),
+                Position::new(-50.0, 0.0),
+                Velocity::new(0.0, 2.0),
             ),
             Cell::ball(
                 Length::new(20.0),
@@ -29,7 +29,7 @@ fn create_world() -> World {
             Cell::ball(
                 Length::new(20.0),
                 Mass::new(1.0),
-                Position::new(40.0, 0.0),
+                Position::new(50.0, 0.0),
                 Velocity::new(0.0, 0.0),
             ),
         ])

@@ -19,13 +19,13 @@ fn create_world() -> World {
                 Length::new(20.0),
                 Mass::new(1.0),
                 Position::new(-offset, offset),
-                Velocity::new(0.0, 5.0),
+                Velocity::new(0.0, 0.0),
             ),
             Cell::ball(
                 Length::new(20.0),
                 Mass::new(1.0),
                 Position::new(0.0, 0.0),
-                Velocity::new(5.0, 0.0),
+                Velocity::new(0.0, 0.0),
             ),
             Cell::ball(
                 Length::new(20.0),
@@ -37,7 +37,7 @@ fn create_world() -> World {
                 Length::new(5.0),
                 Mass::new(10.0),
                 Position::new(-100.0, -100.0),
-                Velocity::new(10.0, 10.0),
+                Velocity::new(10.0, 2.0),
             ),
         ])
         .with_bonds(vec![(0, 1), (1, 2), (2, 0)])

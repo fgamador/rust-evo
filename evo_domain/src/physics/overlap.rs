@@ -1,7 +1,6 @@
 use crate::physics::quantities::*;
 use crate::physics::shapes::*;
 use crate::physics::sortable_graph::*;
-use crate::physics::spring::*;
 use crate::physics::util::*;
 use std::cmp::Ordering;
 
@@ -24,10 +23,6 @@ impl Overlap {
 
     pub fn magnitude(&self) -> f64 {
         self.incursion.length().value()
-    }
-
-    pub fn to_force(&self, spring: &dyn Spring) -> Force {
-        spring.to_force(self.incursion) * self.width
     }
 }
 
@@ -353,12 +348,5 @@ mod tests {
         assert_eq!((overlaps[0].1).0, graph.node_handles()[1]);
         assert_eq!((overlaps[1].0).0, graph.node_handles()[1]);
         assert_eq!((overlaps[1].1).0, graph.node_handles()[2]);
-    }
-
-    #[test]
-    fn overlap_to_force_includes_width() {
-        let spring = LinearSpring::new(1.0);
-        let overlap = Overlap::new(Displacement::new(2.0, -3.0), 1.5);
-        assert_eq!(overlap.to_force(&spring), Force::new(3.0, -4.5));
     }
 }

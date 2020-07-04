@@ -167,13 +167,13 @@ impl World {
 
     fn pre_tick_logging(&self) {
         for cell in self.cell_graph.nodes() {
-            Self::pre_tick_cell_logging(cell);
+            trace!(
+                "Cell {} {:?} {:?}",
+                cell.node_handle(),
+                cell.position(),
+                cell.velocity()
+            );
         }
-    }
-
-    fn pre_tick_cell_logging(cell: &Cell) {
-        trace!("Cell {} {:?}", cell.node_handle(), cell.velocity());
-        trace!("Cell {} {:?}", cell.node_handle(), cell.position());
     }
 
     fn apply_influences(&mut self) {

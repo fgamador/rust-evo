@@ -144,6 +144,11 @@ impl BondForces {
         BondForces {}
     }
 
+    fn add_force(cell: &mut Cell, force: Force) {
+        trace!("Cell {} Bond {:?}", cell.node_handle(), force);
+        cell.forces_mut().set_net_force_if_stronger(force);
+    }
+
     fn cell1_bond_force(cell1: &Cell, strain1: BondStrain, cell2: &Cell) -> Force {
         let velocity_force = Self::body1_clear_velocity_force(
             cell1.mass(),
@@ -210,11 +215,6 @@ impl BondForces {
             -relative_velocity1
         };
         -mass_factor * (relative_velocity1 + v)
-    }
-
-    fn add_force(cell: &mut Cell, force: Force) {
-        trace!("Cell {} Bond {:?}", cell.node_handle(), force);
-        cell.forces_mut().set_net_force_if_stronger(force);
     }
 }
 

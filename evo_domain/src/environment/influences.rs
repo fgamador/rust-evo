@@ -6,7 +6,6 @@ use crate::physics::overlap::*;
 use crate::physics::quantities::*;
 use crate::physics::shapes::Circle;
 use crate::physics::sortable_graph::*;
-use crate::physics::spring::*;
 use crate::physics::util::*;
 use log::trace;
 
@@ -17,14 +16,12 @@ pub trait Influence {
 #[derive(Debug)]
 pub struct WallCollisions {
     walls: Walls,
-    spring: Box<dyn Spring>,
 }
 
 impl WallCollisions {
-    pub fn new(min_corner: Position, max_corner: Position, spring: Box<dyn Spring>) -> Self {
+    pub fn new(min_corner: Position, max_corner: Position) -> Self {
         WallCollisions {
             walls: Walls::new(min_corner, max_corner),
-            spring,
         }
     }
 
@@ -64,14 +61,12 @@ impl Influence for WallCollisions {
 }
 
 #[derive(Debug)]
-pub struct PairCollisions {
-    spring: Box<dyn Spring>,
-}
+pub struct PairCollisions {}
 
 impl PairCollisions {
     #[allow(clippy::new_without_default)]
-    pub fn new(spring: Box<dyn Spring>) -> Self {
-        PairCollisions { spring }
+    pub fn new() -> Self {
+        PairCollisions {}
     }
 
     pub fn cell1_collision_force(cell1: &Cell, overlap1: Overlap, cell2: &Cell) -> Force {
@@ -436,11 +431,8 @@ mod tests {
     #[test]
     fn wall_collisions_add_overlap_and_force_old() {
         let mut cell_graph = SortableGraph::new();
-        let wall_collisions = WallCollisions::new(
-            Position::new(-10.0, -10.0),
-            Position::new(10.0, 10.0),
-            Box::new(LinearSpring::new(1.0)),
-        );
+        let wall_collisions =
+            WallCollisions::new(Position::new(-10.0, -10.0), Position::new(10.0, 10.0));
         let ball_handle = cell_graph.add_node(Cell::ball(
             Length::new(1.0),
             Mass::new(1.0),
@@ -459,11 +451,8 @@ mod tests {
     #[test]
     fn wall_collisions_add_overlap_and_force() {
         let mut cell_graph = SortableGraph::new();
-        let wall_collisions = WallCollisions::new(
-            Position::new(-10.0, -10.0),
-            Position::new(10.0, 10.0),
-            Box::new(LinearSpring::new(1.0)),
-        );
+        let wall_collisions =
+            WallCollisions::new(Position::new(-10.0, -10.0), Position::new(10.0, 10.0));
         let ball_handle = cell_graph.add_node(Cell::ball(
             Length::new(1.0),
             Mass::new(1.0),
@@ -542,7 +531,7 @@ mod tests {
     #[test]
     fn pair_collisions_add_overlaps_and_forces() {
         let mut cell_graph = SortableGraph::new();
-        let pair_collisions = PairCollisions::new(Box::new(LinearSpring::new(1.0)));
+        let pair_collisions = PairCollisions::new();
         let ball1_handle = cell_graph.add_node(Cell::ball(
             Length::new(1.0),
             Mass::new(1.0),

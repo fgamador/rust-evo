@@ -6,7 +6,6 @@ use crate::physics::bond::*;
 use crate::physics::newtonian::NewtonianBody;
 use crate::physics::quantities::*;
 use crate::physics::sortable_graph::*;
-use crate::physics::spring::*;
 use log::trace;
 use std::collections::HashSet;
 use std::iter::FromIterator;
@@ -43,14 +42,11 @@ impl World {
         self.with_influence(Box::new(WallCollisions::new(
             world_min_corner,
             world_max_corner,
-            Box::new(LinearSpring::new(0.05)),
         )))
     }
 
     pub fn with_pair_collisions(self) -> Self {
-        self.with_influence(Box::new(PairCollisions::new(Box::new(LinearSpring::new(
-            0.05,
-        )))))
+        self.with_influence(Box::new(PairCollisions::new()))
     }
 
     pub fn with_sunlight(self, min_intensity: f64, max_intensity: f64) -> Self {

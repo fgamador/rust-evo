@@ -408,26 +408,6 @@ mod tests {
     use std::f64::consts::PI;
 
     #[test]
-    fn wall_collisions_add_overlap_and_force_old() {
-        let mut cell_graph = SortableGraph::new();
-        let wall_collisions =
-            WallCollisions::new(Position::new(-10.0, -10.0), Position::new(10.0, 10.0));
-        let ball_handle = cell_graph.add_node(Cell::ball(
-            Length::new(1.0),
-            Mass::new(1.0),
-            Position::new(9.5, 9.5),
-            Velocity::new(1.0, 1.0),
-        ));
-
-        wall_collisions.apply(&mut cell_graph);
-
-        let ball = cell_graph.node(ball_handle);
-        assert_eq!(ball.environment().overlaps().len(), 1);
-        assert_ne!(ball.forces().net_force().x(), 0.0);
-        assert_ne!(ball.forces().net_force().y(), 0.0);
-    }
-
-    #[test]
     fn wall_collisions_add_overlap_and_force() {
         let mut cell_graph = SortableGraph::new();
         let wall_collisions =

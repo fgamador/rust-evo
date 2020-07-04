@@ -6,7 +6,6 @@ use crate::physics::bond::*;
 use crate::physics::newtonian::NewtonianBody;
 use crate::physics::quantities::*;
 use crate::physics::sortable_graph::*;
-use log::trace;
 use std::collections::HashSet;
 use std::iter::FromIterator;
 
@@ -153,23 +152,10 @@ impl World {
     }
 
     pub fn tick(&mut self) {
-        self.pre_tick_logging();
         self.apply_influences();
         self.tick_cells();
-
         self.process_cell_bond_energy();
         self.run_cell_controls();
-    }
-
-    fn pre_tick_logging(&self) {
-        for cell in self.cell_graph.nodes() {
-            trace!(
-                "Cell {} {:?} {:?}",
-                cell.node_handle(),
-                cell.position(),
-                cell.velocity()
-            );
-        }
     }
 
     fn apply_influences(&mut self) {
@@ -189,7 +175,6 @@ impl World {
         Self::print_selected_cell_state(cell, "start");
         cell.exert_forces();
         cell.move_one_tick();
-        Self::post_tick_cell_logging(cell);
         cell.environment_mut().clear();
         cell.forces_mut().clear();
         Self::print_selected_cell_state(cell, "end");
@@ -206,22 +191,6 @@ impl World {
                 cell.forces().net_force()
             );
         }
-    }
-
-    fn post_tick_cell_logging(cell: &Cell) {
-        //            println!(
-        //                "Cell {} Energy {} Health0 {} Health1 {} Health2 {}",
-        //                cell.node_handle(),
-        //                cell.energy().value(),
-        //                cell.layers()[0].health(),
-        //                cell.layers()[1].health(),
-        //                cell.layers()[2].health()
-        //            );
-        trace!(
-            "Cell {} Net {:?}",
-            cell.node_handle(),
-            cell.forces().net_force()
-        );
     }
 
     fn process_cell_bond_energy(&mut self) {

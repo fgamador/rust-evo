@@ -138,8 +138,8 @@ pub fn newtonian_body_derive(input: TokenStream) -> TokenStream {
                     self.#field_name.velocity()
                 }
 
-                fn move_for_tick(&mut self) {
-                    self.#field_name.move_for_tick();
+                fn move_one_tick(&mut self) {
+                    self.#field_name.move_one_tick();
                 }
 
                 fn kick(&mut self, impulse: Impulse) {

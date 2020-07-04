@@ -4,7 +4,7 @@ pub trait NewtonianBody {
     fn mass(&self) -> Mass;
     fn position(&self) -> Position;
     fn velocity(&self) -> Velocity;
-    fn move_for_tick(&mut self);
+    fn move_one_tick(&mut self);
     fn kick(&mut self, impulse: Impulse);
     fn forces(&self) -> &Forces;
     fn forces_mut(&mut self) -> &mut Forces;
@@ -43,7 +43,7 @@ impl NewtonianBody for NewtonianState {
         self.velocity
     }
 
-    fn move_for_tick(&mut self) {
+    fn move_one_tick(&mut self) {
         self.position = self.position + self.velocity * Duration::ONE;
     }
 
@@ -117,7 +117,7 @@ mod tests {
             Position::new(-1.0, 1.5),
             Velocity::new(1.0, 2.0),
         );
-        subject.move_for_tick();
+        subject.move_one_tick();
         assert_eq!(subject.position(), Position::new(0.0, 3.5));
         assert_eq!(subject.velocity(), Velocity::new(1.0, 2.0));
     }

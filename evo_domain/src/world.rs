@@ -167,12 +167,6 @@ impl World {
         }
     }
 
-    fn tick_cells(&mut self) {
-        for cell in self.cell_graph.nodes_mut() {
-            Self::tick_cell(cell);
-        }
-    }
-
     fn process_cell_bond_energy(&mut self) {
         self.cell_graph.for_each_node(|cell, edge_source| {
             Self::claim_bond_energy(cell, edge_source);
@@ -269,6 +263,12 @@ impl World {
         let mut sorted_bond_handles = Vec::from_iter(bond_handles.iter().cloned());
         sorted_bond_handles.sort_unstable();
         self.cell_graph.remove_edges(&sorted_bond_handles);
+    }
+
+    fn tick_cells(&mut self) {
+        for cell in self.cell_graph.nodes_mut() {
+            Self::tick_cell(cell);
+        }
     }
 
     fn tick_cell(cell: &mut Cell) {

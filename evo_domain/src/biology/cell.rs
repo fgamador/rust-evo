@@ -373,6 +373,22 @@ impl Circle for Cell {
     }
 }
 
+pub struct CellChanges {
+    pub energy: BioEnergyDelta,
+    pub thrust: Force,
+    pub layers: Vec<CellLayerChanges>,
+}
+
+impl CellChanges {
+    fn new() -> Self {
+        CellChanges {
+            energy: BioEnergyDelta::ZERO,
+            thrust: Force::ZERO,
+            layers: vec![],
+        }
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;

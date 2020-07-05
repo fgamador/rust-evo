@@ -466,6 +466,20 @@ pub trait CellLayerSpecialty: Debug {
     fn reset(&mut self) {}
 }
 
+pub struct CellLayerChanges {
+    pub health: f64,
+    pub radius: Length,
+}
+
+impl CellLayerChanges {
+    fn new() -> Self {
+        CellLayerChanges {
+            health: 0.0,
+            radius: Length::ZERO,
+        }
+    }
+}
+
 #[derive(Clone, Copy, Debug)]
 pub struct BondRequest {
     pub retain_bond: bool,

@@ -1,4 +1,4 @@
-use crate::biology::cell::Cell;
+use crate::biology::cell::{Cell, CellChanges};
 use crate::biology::layers::*;
 use crate::environment::influences::*;
 use crate::environment::local_environment::*;
@@ -152,13 +152,14 @@ impl World {
     }
 
     pub fn tick(&mut self) {
-        self.apply_influences();
+        let mut changes = WorldChanges::new(self.cell_graph.nodes().len());
+        self.apply_influences(&mut changes);
         self.process_cell_bond_energy();
         self.run_cell_controls();
         self.tick_cells();
     }
 
-    fn apply_influences(&mut self) {
+    fn apply_influences(&mut self, _changes: &mut WorldChanges) {
         for influence in &self.influences {
             influence.apply(&mut self.cell_graph);
         }
@@ -294,6 +295,19 @@ impl World {
                 cell.velocity(),
                 cell.forces().net_force()
             );
+        }
+    }
+}
+
+struct WorldChanges {
+    cells: Vec<CellChanges>,
+    // TODO bonds, new_cells, dead_cells, new_bonds, broken_bonds
+}
+
+impl WorldChanges {
+    fn new(num_cells: usize) -> Self {
+        WorldChanges {
+            cells: Vec::with_capacity(num_cells),
         }
     }
 }

@@ -191,9 +191,9 @@ impl World {
         let mut new_children = vec![];
         let mut broken_bond_handles = HashSet::new();
         let mut dead_cell_handles = vec![];
-        self.cell_graph.for_each_node(|_index, cell, edge_source| {
+        self.cell_graph.for_each_node(|index, cell, edge_source| {
             let mut bond_requests = NONE_BOND_REQUESTS;
-            cell.run_control(&mut bond_requests, &mut changes.cells[0]); // TODO index
+            cell.run_control(&mut bond_requests, &mut changes.cells[index]);
             Self::execute_bond_requests(
                 cell,
                 edge_source,

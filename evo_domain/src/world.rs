@@ -267,18 +267,21 @@ impl World {
 
     fn tick_cells(&mut self) {
         for cell in self.cell_graph.nodes_mut() {
-            Self::tick_cell(cell);
+            Self::print_selected_cell_state(cell, "start");
+            Self::move_cell(cell);
+            Self::clear_cell_environment(cell);
+            Self::print_selected_cell_state(cell, "end");
         }
     }
 
-    fn tick_cell(cell: &mut Cell) {
-        // cell.after_influences();
-        Self::print_selected_cell_state(cell, "start");
+    fn move_cell(cell: &mut Cell) {
         cell.exert_forces_for_one_tick();
         cell.move_for_one_tick();
+    }
+
+    fn clear_cell_environment(cell: &mut Cell) {
         cell.environment_mut().clear();
         cell.forces_mut().clear();
-        Self::print_selected_cell_state(cell, "end");
     }
 
     fn print_selected_cell_state(cell: &Cell, start_end_str: &str) {

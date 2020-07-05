@@ -173,29 +173,6 @@ impl World {
         }
     }
 
-    fn tick_cell(cell: &mut Cell) {
-        // cell.after_influences();
-        Self::print_selected_cell_state(cell, "start");
-        cell.exert_forces_for_one_tick();
-        cell.move_for_one_tick();
-        cell.environment_mut().clear();
-        cell.forces_mut().clear();
-        Self::print_selected_cell_state(cell, "end");
-    }
-
-    fn print_selected_cell_state(cell: &Cell, start_end_str: &str) {
-        if cell.is_selected() {
-            println!(
-                "Cell {} {} position: {}, velocity: {}, force: {}",
-                cell.node_handle(),
-                start_end_str,
-                cell.position(),
-                cell.velocity(),
-                cell.forces().net_force()
-            );
-        }
-    }
-
     fn process_cell_bond_energy(&mut self) {
         self.cell_graph.for_each_node(|cell, edge_source| {
             Self::claim_bond_energy(cell, edge_source);
@@ -292,6 +269,29 @@ impl World {
         let mut sorted_bond_handles = Vec::from_iter(bond_handles.iter().cloned());
         sorted_bond_handles.sort_unstable();
         self.cell_graph.remove_edges(&sorted_bond_handles);
+    }
+
+    fn tick_cell(cell: &mut Cell) {
+        // cell.after_influences();
+        Self::print_selected_cell_state(cell, "start");
+        cell.exert_forces_for_one_tick();
+        cell.move_for_one_tick();
+        cell.environment_mut().clear();
+        cell.forces_mut().clear();
+        Self::print_selected_cell_state(cell, "end");
+    }
+
+    fn print_selected_cell_state(cell: &Cell, start_end_str: &str) {
+        if cell.is_selected() {
+            println!(
+                "Cell {} {} position: {}, velocity: {}, force: {}",
+                cell.node_handle(),
+                start_end_str,
+                cell.position(),
+                cell.velocity(),
+                cell.forces().net_force()
+            );
+        }
     }
 }
 

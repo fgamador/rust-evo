@@ -154,11 +154,11 @@ impl Cell {
         }
     }
 
-    pub fn run_control(&mut self, bond_requests: &mut BondRequests, _changes: &mut CellChanges) {
+    pub fn run_control(&mut self, bond_requests: &mut BondRequests, changes: &mut CellChanges) {
         let (end_energy, budgeted_control_requests) = self.get_budgeted_control_requests();
         //self._print_selected_cell_status(end_energy, &budgeted_control_requests);
         self.energy = end_energy;
-        self.execute_control_requests(&budgeted_control_requests, bond_requests);
+        self.execute_control_requests(&budgeted_control_requests, bond_requests, changes);
         //self._print_selected_cell_bond_requests(bond_requests);
         self.reset_layers();
     }
@@ -247,11 +247,16 @@ impl Cell {
         &mut self,
         budgeted_control_requests: &[BudgetedControlRequest],
         bond_requests: &mut BondRequests,
+        changes: &mut CellChanges,
     ) {
         // TODO do healing first
         for request in budgeted_control_requests {
             let layer = &mut self.layers[request.layer_index()];
-            layer.execute_control_request(*request, bond_requests);
+            layer.execute_control_request(
+                *request,
+                bond_requests,
+                &mut changes.layers[request.layer_index()],
+            );
         }
         self.radius = Self::update_layer_outer_radii(&mut self.layers);
         self.newtonian_state.mass = Self::calc_mass(&self.layers);
@@ -390,11 +395,11 @@ pub struct CellChanges {
 }
 
 impl CellChanges {
-    pub fn new() -> Self {
+    pub fn new(num_layers: usize) -> Self {
         CellChanges {
             energy: BioEnergy::ZERO,
             thrust: Force::ZERO,
-            layers: vec![],
+            layers: vec![CellLayerChanges::new(); num_layers],
         }
     }
 }
@@ -489,7 +494,7 @@ mod tests {
                     AreaDelta::new(0.5),
                 )));
         let mut bond_requests = NONE_BOND_REQUESTS;
-        let mut changes = CellChanges::new();
+        let mut changes = CellChanges::new(cell.layers.len());
         cell.run_control(&mut bond_requests, &mut changes);
         assert_eq!(Mass::new(10.5), cell.mass());
     }
@@ -511,7 +516,7 @@ mod tests {
             .with_initial_energy(BioEnergy::new(10.0));
 
         let mut bond_requests = NONE_BOND_REQUESTS;
-        let mut changes = CellChanges::new();
+        let mut changes = CellChanges::new(cell.layers.len());
         cell.run_control(&mut bond_requests, &mut changes);
 
         assert_eq!(BioEnergy::new(8.0), cell.energy());
@@ -530,9 +535,9 @@ mod tests {
             Force::new(1.0, -1.0),
         )));
         let mut bond_requests = NONE_BOND_REQUESTS;
-        let mut changes = CellChanges::new();
+        let mut changes = CellChanges::new(cell.layers.len());
         cell.run_control(&mut bond_requests, &mut changes);
-        let mut changes = CellChanges::new();
+        let mut changes = CellChanges::new(cell.layers.len());
         cell.after_influences(&mut changes);
         assert_eq!(Force::new(1.0, -1.0), cell.forces().net_force());
     }
@@ -547,7 +552,7 @@ mod tests {
         )]);
         cell.environment_mut().add_light_intensity(10.0);
 
-        let mut changes = CellChanges::new();
+        let mut changes = CellChanges::new(cell.layers.len());
         cell.after_influences(&mut changes);
 
         assert_eq!(BioEnergy::new(20.0), cell.energy());
@@ -698,7 +703,7 @@ mod tests {
 
         cell.environment_mut()
             .add_overlap(Overlap::new(Displacement::new(1.0, 0.0), 1.0));
-        let mut changes = CellChanges::new();
+        let mut changes = CellChanges::new(cell.layers.len());
         cell.after_influences(&mut changes);
 
         assert!(cell.layers()[0].health() < 1.0);
@@ -730,7 +735,7 @@ mod tests {
         ])));
 
         let mut bond_requests = NONE_BOND_REQUESTS;
-        let mut changes = CellChanges::new();
+        let mut changes = CellChanges::new(cell.layers.len());
         cell.run_control(&mut bond_requests, &mut changes);
 
         assert_eq!(5.0, cell.layers()[0].area().value());

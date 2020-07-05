@@ -152,7 +152,8 @@ impl World {
     }
 
     pub fn tick(&mut self) {
-        let mut changes = WorldChanges::new(self.cell_graph.nodes().len());
+        // TODO real number of layers
+        let mut changes = WorldChanges::new(self.cell_graph.nodes().len(), 8);
         self.apply_influences(&mut changes);
         self.process_cell_bond_energy();
         self.run_cell_controls(&mut changes);
@@ -313,9 +314,9 @@ struct WorldChanges {
 }
 
 impl WorldChanges {
-    fn new(num_cells: usize) -> Self {
+    fn new(num_cells: usize, num_layers: usize) -> Self {
         WorldChanges {
-            cells: vec![CellChanges::new(); num_cells],
+            cells: vec![CellChanges::new(num_layers); num_cells],
         }
     }
 }

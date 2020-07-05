@@ -387,6 +387,20 @@ impl AreaDelta {
     }
 }
 
+impl Add for AreaDelta {
+    type Output = AreaDelta;
+
+    fn add(self, rhs: AreaDelta) -> Self::Output {
+        AreaDelta::new(self.value + rhs.value)
+    }
+}
+
+impl AddAssign for AreaDelta {
+    fn add_assign(&mut self, rhs: AreaDelta) {
+        self.value += rhs.value;
+    }
+}
+
 impl Add<AreaDelta> for Area {
     type Output = Area;
 

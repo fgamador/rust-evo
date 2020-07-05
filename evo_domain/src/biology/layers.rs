@@ -283,11 +283,15 @@ impl CellLayerBody {
         self.health = (self.health + budgeted_fraction * requested_delta_health).min(1.0);
     }
 
-    fn resize(&mut self, requested_delta_area: f64, budgeted_fraction: f64) {
+    fn resize(&mut self, delta_area: AreaDelta) {
+        self.area += delta_area;
+        self.mass = self.area * self.density;
+    }
+
+    fn actual_delta_area(&self, requested_delta_area: f64, budgeted_fraction: f64) -> AreaDelta {
         let delta_area =
             self.health * budgeted_fraction * self.bound_resize_delta_area(requested_delta_area);
-        self.area = Area::new((self.area.value() + delta_area).max(0.0));
-        self.mass = self.area * self.density;
+        AreaDelta::new(delta_area.max(-self.area.value()))
     }
 
     fn bound_resize_delta_area(&self, requested_delta_area: f64) -> f64 {
@@ -390,14 +394,17 @@ impl CellLayerBrain for LivingCellLayerBrain {
         body: &mut CellLayerBody,
         request: BudgetedControlRequest,
         bond_requests: &mut BondRequests,
-        _changes: &mut CellLayerChanges,
+        changes: &mut CellLayerChanges,
     ) {
         match request.channel_index() {
             CellLayer::HEALING_CHANNEL_INDEX => {
-                body.restore_health(request.requested_value(), request.budgeted_fraction())
+                body.restore_health(request.requested_value(), request.budgeted_fraction());
             }
             CellLayer::RESIZE_CHANNEL_INDEX => {
-                body.resize(request.requested_value(), request.budgeted_fraction())
+                let delta_area =
+                    body.actual_delta_area(request.requested_value(), request.budgeted_fraction());
+                body.resize(delta_area);
+                changes.area += delta_area;
             }
             _ => specialty.execute_control_request(body, request, bond_requests),
         }
@@ -779,6 +786,19 @@ mod tests {
         );
         assert_eq!(layer.area(), Area::new(3.0));
         assert_eq!(layer.mass(), Mass::new(6.0));
+    }
+
+    #[test]
+    fn layer_resize_records_changes() {
+        let mut layer = simple_cell_layer(Area::new(1.0), Density::new(2.0));
+        let mut bond_requests = NONE_BOND_REQUESTS;
+        let mut changes = CellLayerChanges::new();
+        layer.execute_control_request(
+            fully_budgeted_resize_request(0, 2.0),
+            &mut bond_requests,
+            &mut changes,
+        );
+        assert_eq!(changes.area, AreaDelta::new(2.0));
     }
 
     #[test]

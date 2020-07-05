@@ -231,7 +231,7 @@ impl Cell {
         costed_requests: &[CostedControlRequest],
     ) -> (BioEnergy, BioEnergy) {
         costed_requests.iter().fold(
-            (BioEnergy::new(0.0), BioEnergy::new(0.0)),
+            (BioEnergy::ZERO, BioEnergy::ZERO),
             |(income, expense), request| {
                 let energy_delta = request.energy_delta();
                 if energy_delta.value() > 0.0 {

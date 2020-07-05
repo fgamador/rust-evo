@@ -356,6 +356,14 @@ impl Cell {
             .iter()
             .fold(Mass::new(0.0), |mass, layer| mass + layer.mass())
     }
+
+    pub fn apply_changes(&mut self, changes: &CellChanges) {
+        self.energy += changes.energy;
+        // TODO thrust
+        for (index, layer) in self.layers.iter_mut().enumerate() {
+            layer.apply_changes(&changes.layers[index]);
+        }
+    }
 }
 
 impl PartialEq for Cell {

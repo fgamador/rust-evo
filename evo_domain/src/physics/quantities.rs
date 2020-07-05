@@ -256,6 +256,12 @@ impl Add for Length {
     }
 }
 
+impl AddAssign for Length {
+    fn add_assign(&mut self, rhs: Length) {
+        self.value += rhs.value;
+    }
+}
+
 impl Mul for Length {
     type Output = Area;
 

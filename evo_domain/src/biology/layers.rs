@@ -193,6 +193,10 @@ impl CellLayer {
             delta_area.value(),
         )
     }
+
+    pub fn apply_changes(&mut self, changes: &CellLayerChanges) {
+        self.body.apply_changes(changes);
+    }
 }
 
 // CellLayerBody is separate from CellLayer so it can be mutably passed to CellLayerSpecialty.
@@ -293,6 +297,12 @@ impl CellLayerBody {
             let min_delta_area = -self.resize_parameters.max_shrinkage_rate * self.area.value();
             requested_delta_area.max(min_delta_area)
         }
+    }
+
+    pub fn apply_changes(&mut self, changes: &CellLayerChanges) {
+        self.health += changes.health;
+        // TODO match resize fn
+        // self.area += changes.area;
     }
 }
 
@@ -469,14 +479,14 @@ pub trait CellLayerSpecialty: Debug {
 #[derive(Debug, Clone, Copy)]
 pub struct CellLayerChanges {
     pub health: f64,
-    pub radius: Length,
+    pub area: AreaDelta,
 }
 
 impl CellLayerChanges {
     pub fn new() -> Self {
         CellLayerChanges {
             health: 0.0,
-            radius: Length::ZERO,
+            area: AreaDelta::ZERO,
         }
     }
 }

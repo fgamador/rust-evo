@@ -157,6 +157,7 @@ impl World {
         self.process_cell_bond_energy();
         self.run_cell_controls();
         self.tick_cells();
+        //self._apply_changes(&changes);
     }
 
     fn apply_influences(&mut self, changes: &mut WorldChanges) {
@@ -295,6 +296,13 @@ impl World {
                 cell.velocity(),
                 cell.forces().net_force()
             );
+        }
+    }
+
+    // TODO
+    fn _apply_changes(&mut self, changes: &WorldChanges) {
+        for (index, cell) in self.cell_graph.nodes_mut().iter_mut().enumerate() {
+            cell.apply_changes(&changes.cells[index]);
         }
     }
 }

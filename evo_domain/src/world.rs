@@ -162,6 +162,9 @@ impl World {
         for influence in &self.influences {
             influence.apply(&mut self.cell_graph);
         }
+        for cell in self.cell_graph.nodes_mut() {
+            cell.after_influences();
+        }
     }
 
     fn tick_cells(&mut self) {
@@ -171,7 +174,7 @@ impl World {
     }
 
     fn tick_cell(cell: &mut Cell) {
-        cell.after_influences();
+        // cell.after_influences();
         Self::print_selected_cell_state(cell, "start");
         cell.exert_forces_for_one_tick();
         cell.move_for_one_tick();

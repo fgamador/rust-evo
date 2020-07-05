@@ -173,8 +173,8 @@ impl World {
     fn tick_cell(cell: &mut Cell) {
         cell.after_influences();
         Self::print_selected_cell_state(cell, "start");
-        cell.exert_forces();
-        cell.move_one_tick();
+        cell.exert_forces_for_one_tick();
+        cell.move_for_one_tick();
         cell.environment_mut().clear();
         cell.forces_mut().clear();
         Self::print_selected_cell_state(cell, "end");

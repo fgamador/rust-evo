@@ -4,11 +4,11 @@ pub trait NewtonianBody {
     fn mass(&self) -> Mass;
     fn position(&self) -> Position;
     fn velocity(&self) -> Velocity;
-    fn move_one_tick(&mut self);
+    fn move_for_one_tick(&mut self);
     fn kick(&mut self, impulse: Impulse);
     fn forces(&self) -> &Forces;
     fn forces_mut(&mut self) -> &mut Forces;
-    fn exert_forces(&mut self);
+    fn exert_forces_for_one_tick(&mut self);
 }
 
 #[derive(Clone, Debug, PartialEq)]
@@ -43,7 +43,7 @@ impl NewtonianBody for NewtonianState {
         self.velocity
     }
 
-    fn move_one_tick(&mut self) {
+    fn move_for_one_tick(&mut self) {
         self.position = self.position + self.velocity * Duration::ONE;
     }
 
@@ -59,7 +59,7 @@ impl NewtonianBody for NewtonianState {
         &mut self.forces
     }
 
-    fn exert_forces(&mut self) {
+    fn exert_forces_for_one_tick(&mut self) {
         let impulse = self.forces.net_force() * Duration::ONE;
         self.kick(impulse);
     }
@@ -117,7 +117,7 @@ mod tests {
             Position::new(-1.0, 1.5),
             Velocity::new(1.0, 2.0),
         );
-        subject.move_one_tick();
+        subject.move_for_one_tick();
         assert_eq!(subject.position(), Position::new(0.0, 3.5));
         assert_eq!(subject.velocity(), Velocity::new(1.0, 2.0));
     }
@@ -149,14 +149,14 @@ mod tests {
     }
 
     #[test]
-    fn exert_forces() {
+    fn exert_forces_for_one_tick() {
         let mut ball = SimpleBody::new(
             Mass::new(1.0),
             Position::new(1.0, 1.0),
             Velocity::new(1.0, 1.0),
         );
         ball.state.forces.add_force(Force::new(1.0, 1.0));
-        ball.exert_forces();
+        ball.exert_forces_for_one_tick();
         assert_eq!(Velocity::new(2.0, 2.0), ball.velocity());
     }
 

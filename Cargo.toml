@@ -4,5 +4,5 @@ members = [
     "evo_glium",
     "evo_main",
     "evo_domain",
-    "evo_domain/evo_model_derive",
+    "evo_domain/evo_domain_derive",
 ]

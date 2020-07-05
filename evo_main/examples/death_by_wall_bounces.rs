@@ -1,8 +1,8 @@
+use evo_domain::biology::cell::Cell;
+use evo_domain::biology::layers::*;
+use evo_domain::physics::quantities::*;
+use evo_domain::world::World;
 use evo_main::main_support::init_and_run;
-use evo_model::biology::cell::Cell;
-use evo_model::biology::layers::*;
-use evo_model::physics::quantities::*;
-use evo_model::world::World;
 use std::f64::consts::PI;
 
 fn main() {

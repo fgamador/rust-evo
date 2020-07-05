@@ -1,11 +1,11 @@
 [package]
-name = "evo_model"
+name = "evo_domain"
 version = "0.1.0"
 authors = ["Franz Amador <franzamador@gmail.com>"]
 edition = "2018"
 
 [dependencies]
-evo_model_derive = { path = "evo_model_derive" }
+evo_domain_derive = { path = "evo_domain_derive" }
 log = { version = "0.4", features = ["max_level_debug", "release_max_level_warn"] }
 rand = "0.7"
 rand_distr = "0.2"

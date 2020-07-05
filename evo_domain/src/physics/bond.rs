@@ -2,7 +2,7 @@ use crate::physics::quantities::*;
 use crate::physics::shapes::*;
 use crate::physics::sortable_graph::*;
 use crate::physics::util::*;
-use evo_model_derive::*;
+use evo_domain_derive::*;
 use std::f64;
 use std::f64::consts::PI;
 

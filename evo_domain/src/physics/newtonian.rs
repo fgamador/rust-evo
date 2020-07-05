@@ -108,7 +108,7 @@ impl Forces {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use evo_model_derive::NewtonianBody;
+    use evo_domain_derive::NewtonianBody;
 
     #[test]
     fn coasting() {

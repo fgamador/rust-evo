@@ -1,7 +1,7 @@
 use crate::view::*;
-use evo_model::physics::quantities::Position;
-use evo_model::world::World;
-use evo_model::UserAction;
+use evo_domain::physics::quantities::Position;
+use evo_domain::world::World;
+use evo_domain::UserAction;
 use std::env;
 use std::thread;
 use std::time::{Duration, Instant};

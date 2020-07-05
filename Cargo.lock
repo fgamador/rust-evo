@@ -200,28 +200,10 @@ version = "1.0.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 
 [[package]]
-name = "evo_glium"
+name = "evo_domain"
 version = "0.1.0"
 dependencies = [
- "evo_model 0.1.0",
- "glium 0.25.1 (registry+https://github.com/rust-lang/crates.io-index)",
-]
-
-[[package]]
-name = "evo_main"
-version = "0.1.0"
-dependencies = [
- "evo_glium 0.1.0",
- "evo_model 0.1.0",
- "log 0.4.8 (registry+https://github.com/rust-lang/crates.io-index)",
- "simple_logger 1.4.0 (registry+https://github.com/rust-lang/crates.io-index)",
-]
-
-[[package]]
-name = "evo_model"
-version = "0.1.0"
-dependencies = [
- "evo_model_derive 0.1.0",
+ "evo_domain_derive 0.1.0",
  "log 0.4.8 (registry+https://github.com/rust-lang/crates.io-index)",
  "rand 0.7.3 (registry+https://github.com/rust-lang/crates.io-index)",
  "rand_distr 0.2.2 (registry+https://github.com/rust-lang/crates.io-index)",
@@ -230,12 +212,30 @@ dependencies = [
 ]
 
 [[package]]
-name = "evo_model_derive"
+name = "evo_domain_derive"
 version = "0.1.0"
 dependencies = [
  "proc-macro2 1.0.6 (registry+https://github.com/rust-lang/crates.io-index)",
  "quote 1.0.2 (registry+https://github.com/rust-lang/crates.io-index)",
  "syn 1.0.8 (registry+https://github.com/rust-lang/crates.io-index)",
+]
+
+[[package]]
+name = "evo_glium"
+version = "0.1.0"
+dependencies = [
+ "evo_domain 0.1.0",
+ "glium 0.25.1 (registry+https://github.com/rust-lang/crates.io-index)",
+]
+
+[[package]]
+name = "evo_main"
+version = "0.1.0"
+dependencies = [
+ "evo_domain 0.1.0",
+ "evo_glium 0.1.0",
+ "log 0.4.8 (registry+https://github.com/rust-lang/crates.io-index)",
+ "simple_logger 1.4.0 (registry+https://github.com/rust-lang/crates.io-index)",
 ]
 
 [[package]]

@@ -1,7 +1,7 @@
+use evo_domain::physics::quantities::*;
+use evo_domain::world::World;
+use evo_domain::UserAction;
 use evo_glium::GliumView;
-use evo_model::physics::quantities::*;
-use evo_model::world::World;
-use evo_model::UserAction;
 
 pub struct View {
     view: GliumView,

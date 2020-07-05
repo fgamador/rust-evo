@@ -7,10 +7,10 @@ mod cell_drawing;
 use background_drawing::*;
 //use bond_drawing::*;
 use cell_drawing::*;
-use evo_model::biology::cell::Cell;
-use evo_model::biology::layers;
-use evo_model::physics::shapes::Circle;
-use evo_model::UserAction;
+use evo_domain::biology::cell::Cell;
+use evo_domain::biology::layers;
+use evo_domain::physics::shapes::Circle;
+use evo_domain::UserAction;
 
 type Point = [f32; 2];
 
@@ -93,14 +93,14 @@ impl GliumView {
         }
     }
 
-    pub fn render(&mut self, world: &evo_model::world::World) {
+    pub fn render(&mut self, world: &evo_domain::world::World) {
         self.draw_frame(
             &Self::world_cells_to_cell_sprites(world),
             Self::get_layer_colors(world),
         );
     }
 
-    fn world_cells_to_cell_sprites(world: &evo_model::world::World) -> Vec<CellSprite> {
+    fn world_cells_to_cell_sprites(world: &evo_domain::world::World) -> Vec<CellSprite> {
         world
             .cells()
             .iter()
@@ -133,7 +133,7 @@ impl GliumView {
         }
     }
 
-    fn get_layer_colors(world: &evo_model::world::World) -> [[f32; 4]; 8] {
+    fn get_layer_colors(world: &evo_domain::world::World) -> [[f32; 4]; 8] {
         const SELECTION_HALO_COLOR: [f32; 4] = [1.0, 0.0, 0.2, 1.0];
 
         let mut layer_colors: [[f32; 4]; 8] = [[0.0, 0.0, 0.0, 1.0]; 8];

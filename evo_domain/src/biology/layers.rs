@@ -1,3 +1,4 @@
+use crate::biology::changes::*;
 use crate::biology::control_requests::*;
 use crate::environment::local_environment::LocalEnvironment;
 use crate::physics::overlap::Overlap;
@@ -485,21 +486,6 @@ pub trait CellLayerSpecialty: Debug {
     }
 
     fn reset(&mut self) {}
-}
-
-#[derive(Debug, Clone, Copy)]
-pub struct CellLayerChanges {
-    pub health: f64,
-    pub area: AreaDelta,
-}
-
-impl CellLayerChanges {
-    pub fn new() -> Self {
-        CellLayerChanges {
-            health: 0.0,
-            area: AreaDelta::ZERO,
-        }
-    }
 }
 
 #[derive(Clone, Copy, Debug)]

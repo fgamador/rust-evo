@@ -1,3 +1,4 @@
+use crate::biology::changes::*;
 use crate::biology::control::*;
 use crate::biology::control_requests::*;
 use crate::biology::layers::*;
@@ -384,23 +385,6 @@ impl Circle for Cell {
 
     fn center(&self) -> Position {
         self.newtonian_state.position
-    }
-}
-
-#[derive(Debug, Clone)]
-pub struct CellChanges {
-    pub energy: BioEnergy,
-    pub thrust: Force,
-    pub layers: Vec<CellLayerChanges>,
-}
-
-impl CellChanges {
-    pub fn new(num_layers: usize) -> Self {
-        CellChanges {
-            energy: BioEnergy::ZERO,
-            thrust: Force::ZERO,
-            layers: vec![CellLayerChanges::new(); num_layers],
-        }
     }
 }
 

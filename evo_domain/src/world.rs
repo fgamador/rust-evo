@@ -1,4 +1,5 @@
-use crate::biology::cell::{Cell, CellChanges};
+use crate::biology::cell::Cell;
+use crate::biology::changes::*;
 use crate::biology::layers::*;
 use crate::environment::influences::*;
 use crate::environment::local_environment::*;
@@ -314,19 +315,6 @@ impl World {
     fn _apply_changes(&mut self, changes: &WorldChanges) {
         for (index, cell) in self.cell_graph.nodes_mut().iter_mut().enumerate() {
             cell.apply_changes(&changes.cells[index]);
-        }
-    }
-}
-
-struct WorldChanges {
-    cells: Vec<CellChanges>,
-    // TODO bonds, new_cells, dead_cells, new_bonds, broken_bonds
-}
-
-impl WorldChanges {
-    fn new(num_cells: usize, num_layers: usize) -> Self {
-        WorldChanges {
-            cells: vec![CellChanges::new(num_layers); num_cells],
         }
     }
 }

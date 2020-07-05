@@ -154,7 +154,7 @@ impl Cell {
         }
     }
 
-    pub fn run_control(&mut self, bond_requests: &mut BondRequests) {
+    pub fn run_control(&mut self, bond_requests: &mut BondRequests, _changes: &mut CellChanges) {
         let (end_energy, budgeted_control_requests) = self.get_budgeted_control_requests();
         //self._print_selected_cell_status(end_energy, &budgeted_control_requests);
         self.energy = end_energy;
@@ -489,7 +489,8 @@ mod tests {
                     AreaDelta::new(0.5),
                 )));
         let mut bond_requests = NONE_BOND_REQUESTS;
-        cell.run_control(&mut bond_requests);
+        let mut changes = CellChanges::new();
+        cell.run_control(&mut bond_requests, &mut changes);
         assert_eq!(Mass::new(10.5), cell.mass());
     }
 
@@ -510,7 +511,8 @@ mod tests {
             .with_initial_energy(BioEnergy::new(10.0));
 
         let mut bond_requests = NONE_BOND_REQUESTS;
-        cell.run_control(&mut bond_requests);
+        let mut changes = CellChanges::new();
+        cell.run_control(&mut bond_requests, &mut changes);
 
         assert_eq!(BioEnergy::new(8.0), cell.energy());
     }
@@ -528,7 +530,8 @@ mod tests {
             Force::new(1.0, -1.0),
         )));
         let mut bond_requests = NONE_BOND_REQUESTS;
-        cell.run_control(&mut bond_requests);
+        let mut changes = CellChanges::new();
+        cell.run_control(&mut bond_requests, &mut changes);
         let mut changes = CellChanges::new();
         cell.after_influences(&mut changes);
         assert_eq!(Force::new(1.0, -1.0), cell.forces().net_force());
@@ -727,7 +730,8 @@ mod tests {
         ])));
 
         let mut bond_requests = NONE_BOND_REQUESTS;
-        cell.run_control(&mut bond_requests);
+        let mut changes = CellChanges::new();
+        cell.run_control(&mut bond_requests, &mut changes);
 
         assert_eq!(5.0, cell.layers()[0].area().value());
         assert_eq!(10.0, cell.layers()[1].area().value());

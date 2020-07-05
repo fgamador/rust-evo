@@ -155,7 +155,7 @@ impl World {
         let mut changes = WorldChanges::new(self.cell_graph.nodes().len());
         self.apply_influences(&mut changes);
         self.process_cell_bond_energy();
-        self.run_cell_controls();
+        self.run_cell_controls(&mut changes);
         self.tick_cells();
         //self._apply_changes(&changes);
     }
@@ -186,14 +186,14 @@ impl World {
         cell.add_energy(energy);
     }
 
-    fn run_cell_controls(&mut self) {
+    fn run_cell_controls(&mut self, changes: &mut WorldChanges) {
         // TODO test: inner layer grows while outer layer buds at correct distance
         let mut new_children = vec![];
         let mut broken_bond_handles = HashSet::new();
         let mut dead_cell_handles = vec![];
         self.cell_graph.for_each_node(|cell, edge_source| {
             let mut bond_requests = NONE_BOND_REQUESTS;
-            cell.run_control(&mut bond_requests);
+            cell.run_control(&mut bond_requests, &mut changes.cells[0]); // TODO index
             Self::execute_bond_requests(
                 cell,
                 edge_source,

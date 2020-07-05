@@ -226,11 +226,11 @@ impl<N: GraphNode, E: GraphEdge, ME: GraphMetaEdge> SortableGraph<N, E, ME> {
 
     pub fn for_each_node<F>(&mut self, mut f: F)
     where
-        F: FnMut(&mut N, &mut EdgeSource<E>),
+        F: FnMut(usize, &mut N, &mut EdgeSource<E>),
     {
         let mut edge_source = EdgeSource::new(&mut self.edges);
-        for node in &mut self.nodes {
-            f(node, &mut edge_source);
+        for (index, node) in self.nodes.iter_mut().enumerate() {
+            f(index, node, &mut edge_source);
         }
     }
 

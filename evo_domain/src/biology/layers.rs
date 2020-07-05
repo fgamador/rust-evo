@@ -307,8 +307,7 @@ impl CellLayerBody {
 
     pub fn apply_changes(&mut self, changes: &CellLayerChanges) {
         self.health += changes.health;
-        // TODO match resize fn
-        // self.area += changes.area;
+        self.resize(changes.area);
     }
 }
 
@@ -794,11 +793,13 @@ mod tests {
         let mut bond_requests = NONE_BOND_REQUESTS;
         let mut changes = CellLayerChanges::new();
         layer.execute_control_request(
+            // TODO partially budgeted, poor health
             fully_budgeted_resize_request(0, 2.0),
             &mut bond_requests,
             &mut changes,
         );
         assert_eq!(changes.area, AreaDelta::new(2.0));
+        // TODO cell energy
     }
 
     #[test]

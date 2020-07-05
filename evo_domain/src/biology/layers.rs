@@ -466,13 +466,14 @@ pub trait CellLayerSpecialty: Debug {
     fn reset(&mut self) {}
 }
 
+#[derive(Debug, Clone, Copy)]
 pub struct CellLayerChanges {
     pub health: f64,
     pub radius: Length,
 }
 
 impl CellLayerChanges {
-    fn new() -> Self {
+    pub fn new() -> Self {
         CellLayerChanges {
             health: 0.0,
             radius: Length::ZERO,

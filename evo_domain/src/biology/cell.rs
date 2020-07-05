@@ -144,11 +144,12 @@ impl Cell {
                 <= sqr(self.radius.value())
     }
 
-    pub fn after_influences(&mut self) {
+    pub fn after_influences(&mut self, changes: &mut CellChanges) {
         let forces = self.newtonian_state.forces_mut();
         for layer in &mut self.layers {
             let (energy, force) = layer.after_influences(&self.environment);
             self.energy += energy;
+            changes.energy += energy;
             forces.add_force(force);
         }
     }
@@ -373,16 +374,17 @@ impl Circle for Cell {
     }
 }
 
+#[derive(Debug, Clone)]
 pub struct CellChanges {
-    pub energy: BioEnergyDelta,
+    pub energy: BioEnergy,
     pub thrust: Force,
     pub layers: Vec<CellLayerChanges>,
 }
 
 impl CellChanges {
-    fn new() -> Self {
+    pub fn new() -> Self {
         CellChanges {
-            energy: BioEnergyDelta::ZERO,
+            energy: BioEnergy::ZERO,
             thrust: Force::ZERO,
             layers: vec![],
         }
@@ -519,7 +521,8 @@ mod tests {
         )));
         let mut bond_requests = NONE_BOND_REQUESTS;
         cell.run_control(&mut bond_requests);
-        cell.after_influences();
+        let mut changes = CellChanges::new();
+        cell.after_influences(&mut changes);
         assert_eq!(Force::new(1.0, -1.0), cell.forces().net_force());
     }
 
@@ -533,7 +536,8 @@ mod tests {
         )]);
         cell.environment_mut().add_light_intensity(10.0);
 
-        cell.after_influences();
+        let mut changes = CellChanges::new();
+        cell.after_influences(&mut changes);
 
         assert_eq!(BioEnergy::new(20.0), cell.energy());
     }
@@ -683,7 +687,8 @@ mod tests {
 
         cell.environment_mut()
             .add_overlap(Overlap::new(Displacement::new(1.0, 0.0), 1.0));
-        cell.after_influences();
+        let mut changes = CellChanges::new();
+        cell.after_influences(&mut changes);
 
         assert!(cell.layers()[0].health() < 1.0);
         assert!(cell.layers()[1].health() < 1.0);

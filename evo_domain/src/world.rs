@@ -159,12 +159,12 @@ impl World {
         self.tick_cells();
     }
 
-    fn apply_influences(&mut self, _changes: &mut WorldChanges) {
+    fn apply_influences(&mut self, changes: &mut WorldChanges) {
         for influence in &self.influences {
             influence.apply(&mut self.cell_graph);
         }
-        for cell in self.cell_graph.nodes_mut() {
-            cell.after_influences();
+        for (index, cell) in self.cell_graph.nodes_mut().iter_mut().enumerate() {
+            cell.after_influences(&mut changes.cells[index]);
         }
     }
 
@@ -307,7 +307,7 @@ struct WorldChanges {
 impl WorldChanges {
     fn new(num_cells: usize) -> Self {
         WorldChanges {
-            cells: Vec::with_capacity(num_cells),
+            cells: vec![CellChanges::new(); num_cells],
         }
     }
 }

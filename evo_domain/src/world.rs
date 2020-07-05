@@ -153,9 +153,9 @@ impl World {
 
     pub fn tick(&mut self) {
         self.apply_influences();
-        self.tick_cells();
         self.process_cell_bond_energy();
         self.run_cell_controls();
+        self.tick_cells();
     }
 
     fn apply_influences(&mut self) {

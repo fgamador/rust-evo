@@ -253,11 +253,7 @@ impl Cell {
         // TODO do healing first
         for request in budgeted_control_requests {
             let layer = &mut self.layers[request.layer_index()];
-            layer.execute_control_request(
-                *request,
-                bond_requests,
-                &mut changes.layers[request.layer_index()],
-            );
+            layer.execute_control_request(*request, bond_requests, changes);
         }
         self.radius = Self::update_layer_outer_radii(&mut self.layers);
         self.newtonian_state.mass = Self::calc_mass(&self.layers);

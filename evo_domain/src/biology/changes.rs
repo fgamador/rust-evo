@@ -16,7 +16,7 @@ impl WorldChanges {
 
 #[derive(Debug, Clone)]
 pub struct CellChanges {
-    pub energy: BioEnergy,
+    pub energy: BioEnergyDelta,
     pub thrust: Force,
     pub layers: Vec<CellLayerChanges>,
 }
@@ -24,7 +24,7 @@ pub struct CellChanges {
 impl CellChanges {
     pub fn new(num_layers: usize) -> Self {
         CellChanges {
-            energy: BioEnergy::ZERO,
+            energy: BioEnergyDelta::ZERO,
             thrust: Force::ZERO,
             layers: vec![CellLayerChanges::new(); num_layers],
         }

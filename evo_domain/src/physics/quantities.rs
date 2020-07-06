@@ -1151,6 +1151,12 @@ impl Add<BioEnergyDelta> for BioEnergyDelta {
     }
 }
 
+impl AddAssign for BioEnergyDelta {
+    fn add_assign(&mut self, rhs: BioEnergyDelta) {
+        self.value += rhs.value;
+    }
+}
+
 impl Mul<f64> for BioEnergyDelta {
     type Output = BioEnergyDelta;
 

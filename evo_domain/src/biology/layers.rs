@@ -271,12 +271,12 @@ impl CellLayerBody {
 
     fn cost_resize(&self, request: ControlRequest) -> CostedControlRequest {
         let delta_area = self.bound_resize_delta_area(request.requested_value());
-        let energy_delta = if request.requested_value() >= 0.0 {
+        let energy_delta_per_area = if request.requested_value() >= 0.0 {
             self.resize_parameters.growth_energy_delta
         } else {
             -self.resize_parameters.shrinkage_energy_delta
         };
-        CostedControlRequest::limited(request, delta_area, delta_area * energy_delta)
+        CostedControlRequest::limited(request, delta_area, delta_area * energy_delta_per_area)
     }
 
     fn restore_health(&mut self, requested_delta_health: f64, budgeted_fraction: f64) {
@@ -404,8 +404,10 @@ impl CellLayerBrain for LivingCellLayerBrain {
                 let delta_area =
                     body.actual_delta_area(request.requested_value(), request.budgeted_fraction());
                 body.resize(delta_area);
+
                 let layer_changes = &mut changes.layers[request.layer_index()];
                 layer_changes.area += delta_area;
+                changes.energy += request.energy_delta() * request.budgeted_fraction();
             }
             _ => specialty.execute_control_request(body, request, bond_requests),
         }
@@ -781,13 +783,16 @@ mod tests {
         let mut changes = CellChanges::new(1);
         layer.execute_control_request(
             // TODO partially budgeted, poor health
-            fully_budgeted_resize_request(0, 2.0),
+            budgeted(
+                CellLayer::resize_request(0, AreaDelta::new(2.0)),
+                BioEnergyDelta::new(10.0),
+                0.75,
+            ),
             &mut bond_requests,
             &mut changes,
         );
-        let layer_changes = &changes.layers[0];
-        assert_eq!(layer_changes.area, AreaDelta::new(2.0));
-        // TODO cell energy
+        assert_eq!(changes.layers[0].area, AreaDelta::new(1.5));
+        assert_eq!(changes.energy, BioEnergyDelta::new(7.5));
     }
 
     #[test]

@@ -145,12 +145,12 @@ impl Cell {
                 <= sqr(self.radius.value())
     }
 
-    pub fn after_influences(&mut self, changes: &mut CellChanges) {
+    pub fn after_influences(&mut self, _changes: &mut CellChanges) {
         let forces = self.newtonian_state.forces_mut();
         for layer in &mut self.layers {
             let (energy, force) = layer.after_influences(&self.environment);
             self.energy += energy;
-            changes.energy += energy;
+            // TODO changes.energy += energy;
             forces.add_force(force);
         }
     }

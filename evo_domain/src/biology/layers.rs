@@ -774,15 +774,15 @@ mod tests {
         );
         assert_eq!(layer.area(), Area::new(3.0));
         assert_eq!(layer.mass(), Mass::new(6.0));
+        assert_eq!(changes.layers[0].area, AreaDelta::new(2.0));
     }
 
     #[test]
-    fn layer_resize_records_changes() {
+    fn layer_resize_records_energy_change() {
         let mut layer = simple_cell_layer(Area::new(1.0), Density::new(2.0));
         let mut bond_requests = NONE_BOND_REQUESTS;
         let mut changes = CellChanges::new(1);
         layer.execute_control_request(
-            // TODO partially budgeted, poor health
             budgeted(
                 CellLayer::resize_request(0, AreaDelta::new(2.0)),
                 BioEnergyDelta::new(10.0),
@@ -791,7 +791,6 @@ mod tests {
             &mut bond_requests,
             &mut changes,
         );
-        assert_eq!(changes.layers[0].area, AreaDelta::new(1.5));
         assert_eq!(changes.energy, BioEnergyDelta::new(7.5));
     }
 
@@ -858,6 +857,7 @@ mod tests {
             &mut changes,
         );
         assert_eq!(layer.area(), Area::new(3.0));
+        assert_eq!(changes.layers[0].area, AreaDelta::new(1.0));
     }
 
     #[test]
@@ -877,6 +877,7 @@ mod tests {
             &mut changes,
         );
         assert_eq!(layer.area(), Area::new(3.0));
+        assert_eq!(changes.layers[0].area, AreaDelta::new(1.0));
     }
 
     #[test]
@@ -914,6 +915,7 @@ mod tests {
             &mut changes,
         );
         assert_eq!(layer.area(), Area::new(1.5));
+        assert_eq!(changes.layers[0].area, AreaDelta::new(-0.5));
     }
 
     #[test]
@@ -945,6 +947,7 @@ mod tests {
             &mut changes,
         );
         assert_eq!(layer.area(), Area::new(6.0));
+        assert_eq!(changes.layers[0].area, AreaDelta::new(5.0));
     }
 
     #[test]
@@ -976,6 +979,7 @@ mod tests {
             &mut changes,
         );
         assert_eq!(layer.health(), 0.75);
+        //assert_eq!(changes.layers[0].health, Area::new(5.0));
     }
 
     #[test]

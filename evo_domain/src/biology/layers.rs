@@ -1003,6 +1003,7 @@ mod tests {
             &mut changes,
         );
         assert_eq!(layer.health(), 1.0);
+        assert_eq!(changes.layers[0].health, 0.5);
     }
 
     #[test]
@@ -1020,6 +1021,7 @@ mod tests {
             &mut changes,
         );
         assert_eq!(layer.health(), 0.75);
+        assert_eq!(changes.layers[0].health, 0.25);
     }
 
     #[test]

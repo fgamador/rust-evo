@@ -279,9 +279,13 @@ impl CellLayerBody {
         CostedControlRequest::limited(request, delta_area, delta_area * energy_delta_per_area)
     }
 
-    fn restore_health(&mut self, requested_delta_health: f64, budgeted_fraction: f64) {
+    fn restore_health(&mut self, delta_health: f64) {
+        self.health = self.health + delta_health;
+    }
+
+    fn actual_delta_health(&self, requested_delta_health: f64, budgeted_fraction: f64) -> f64 {
         assert!(requested_delta_health >= 0.0);
-        self.health = (self.health + budgeted_fraction * requested_delta_health).min(1.0);
+        (budgeted_fraction * requested_delta_health).min(1.0 - self.health)
     }
 
     fn resize(&mut self, delta_area: AreaDelta) {
@@ -398,7 +402,13 @@ impl CellLayerBrain for LivingCellLayerBrain {
     ) {
         match request.channel_index() {
             CellLayer::HEALING_CHANNEL_INDEX => {
-                body.restore_health(request.requested_value(), request.budgeted_fraction());
+                let delta_health =
+                    body.actual_delta_health(request.requested_value(), request.budgeted_fraction());
+                body.restore_health(delta_health);
+
+                let layer_changes = &mut changes.layers[request.layer_index()];
+                layer_changes.health += delta_health;
+                // changes.energy += request.energy_delta() * request.budgeted_fraction();
             }
             CellLayer::RESIZE_CHANNEL_INDEX => {
                 let delta_area =
@@ -979,7 +989,7 @@ mod tests {
             &mut changes,
         );
         assert_eq!(layer.health(), 0.75);
-        //assert_eq!(changes.layers[0].health, Area::new(5.0));
+        assert_eq!(changes.layers[0].health, 0.25);
     }
 
     #[test]

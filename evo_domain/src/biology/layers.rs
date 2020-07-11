@@ -178,7 +178,7 @@ impl CellLayer {
             bond_requests,
             changes,
         );
-        self.apply_changes(&changes.layers[request.layer_index()]);
+        // self.apply_changes(&changes.layers[request.layer_index()]);
     }
 
     pub fn reset(&mut self) {
@@ -405,6 +405,7 @@ impl CellLayerBrain for LivingCellLayerBrain {
             CellLayer::HEALING_CHANNEL_INDEX => {
                 let delta_health =
                     body.actual_delta_health(request.requested_value(), request.budgeted_fraction());
+                body.restore_health(delta_health);
 
                 let layer_changes = &mut changes.layers[request.layer_index()];
                 layer_changes.health += delta_health;
@@ -413,6 +414,7 @@ impl CellLayerBrain for LivingCellLayerBrain {
             CellLayer::RESIZE_CHANNEL_INDEX => {
                 let delta_area =
                     body.actual_delta_area(request.requested_value(), request.budgeted_fraction());
+                body.resize(delta_area);
 
                 let layer_changes = &mut changes.layers[request.layer_index()];
                 layer_changes.area += delta_area;

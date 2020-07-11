@@ -312,7 +312,7 @@ impl CellLayerBody {
 
     pub fn apply_changes(&mut self, changes: &CellLayerChanges) {
         self.health += changes.health;
-        // self.resize(changes.area);
+        self.resize(changes.area);
     }
 }
 
@@ -1089,6 +1089,16 @@ mod tests {
         changes.health = 0.25;
         layer.apply_changes(&changes);
         assert_eq!(layer.health(), 0.75);
+    }
+
+    #[test]
+    fn applying_layer_changes_resizes() {
+        let mut layer = simple_cell_layer(Area::new(1.0), Density::new(2.0));
+        let mut changes = CellLayerChanges::new();
+        changes.area = AreaDelta::new(2.0);
+        layer.apply_changes(&changes);
+        assert_eq!(layer.area(), Area::new(3.0));
+        assert_eq!(layer.mass(), Mass::new(6.0));
     }
 
     #[test]

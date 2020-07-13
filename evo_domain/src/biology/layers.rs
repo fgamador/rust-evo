@@ -418,7 +418,7 @@ impl CellLayerBrain for LivingCellLayerBrain {
 
                 let layer_changes = &mut changes.layers[request.layer_index()];
                 layer_changes.health += delta_health;
-                // changes.energy += request.energy_delta() * request.budgeted_fraction();
+                changes.energy += request.energy_delta() * request.budgeted_fraction();
             }
             CellLayer::RESIZE_CHANNEL_INDEX => {
                 let delta_area =
@@ -1008,6 +1008,23 @@ mod tests {
         );
         assert_eq!(layer.health(), 0.75);
         assert_eq!(changes.layers[0].health, 0.25);
+    }
+
+    #[test]
+    fn layer_healing_records_energy_change() {
+        let mut layer = simple_cell_layer(Area::new(1.0), Density::new(1.0)).with_health(0.5);
+        let mut bond_requests = NONE_BOND_REQUESTS;
+        let mut changes = CellChanges::new(1);
+        layer.execute_control_request(
+            budgeted(
+                CellLayer::healing_request(0, 0.5),
+                BioEnergyDelta::new(10.0),
+                0.5,
+            ),
+            &mut bond_requests,
+            &mut changes,
+        );
+        assert_eq!(changes.energy, BioEnergyDelta::new(5.0));
     }
 
     #[test]

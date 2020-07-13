@@ -627,12 +627,12 @@ impl CellLayerSpecialty for ThrusterCellLayerSpecialty {
             Self::FORCE_X_CHANNEL_INDEX => {
                 self.force_x =
                     body.health * request.budgeted_fraction() * request.requested_value();
-                changes.thrust = Force::new(self.force_x, changes.thrust.y());
+                changes.thrust += Force::new(self.force_x, 0.0);
             }
             Self::FORCE_Y_CHANNEL_INDEX => {
                 self.force_y =
                     body.health * request.budgeted_fraction() * request.requested_value();
-                changes.thrust = Force::new(changes.thrust.x(), self.force_y);
+                changes.thrust += Force::new(0.0, self.force_y);
             }
             _ => panic!("Invalid control channel index: {}", request.channel_index()),
         }

@@ -156,11 +156,14 @@ impl CellLayer {
     pub fn calculate_automatic_changes(
         &mut self,
         env: &LocalEnvironment,
-        _changes: &mut CellChanges,
+        changes: &mut CellChanges,
     ) -> (BioEnergy, Force) {
-        self.body
-            .brain
-            .calculate_automatic_changes(&mut *self.specialty, &mut self.body, env)
+        self.body.brain.calculate_automatic_changes(
+            &mut *self.specialty,
+            &mut self.body,
+            env,
+            changes,
+        )
     }
 
     pub fn cost_control_request(&mut self, request: ControlRequest) -> CostedControlRequest {
@@ -329,6 +332,7 @@ trait CellLayerBrain: Debug {
         specialty: &mut dyn CellLayerSpecialty,
         body: &mut CellLayerBody,
         env: &LocalEnvironment,
+        changes: &mut CellChanges,
     ) -> (BioEnergy, Force);
 
     fn cost_control_request(
@@ -378,6 +382,7 @@ impl CellLayerBrain for LivingCellLayerBrain {
         specialty: &mut dyn CellLayerSpecialty,
         body: &mut CellLayerBody,
         env: &LocalEnvironment,
+        _changes: &mut CellChanges,
     ) -> (BioEnergy, Force) {
         self.entropic_damage(body);
         self.overlap_damage(body, env.overlaps());
@@ -440,6 +445,7 @@ impl CellLayerBrain for DeadCellLayerBrain {
         _specialty: &mut dyn CellLayerSpecialty,
         _body: &mut CellLayerBody,
         _env: &LocalEnvironment,
+        _changes: &mut CellChanges,
     ) -> (BioEnergy, Force) {
         (BioEnergy::ZERO, Force::ZERO)
     }

@@ -647,6 +647,35 @@ mod tests {
         assert_eq!(world.cells().len(), 0);
     }
 
+    #[test]
+    fn tick_applies_all_changes() {
+        let mut world = World::new(Position::ORIGIN, Position::ORIGIN).with_cell(
+            Cell::new(
+                Position::ORIGIN,
+                Velocity::ZERO,
+                vec![CellLayer::new(
+                    Area::new(1.0),
+                    Density::new(1.0),
+                    Color::Green,
+                    Box::new(NullCellLayerSpecialty::new()),
+                )
+                .with_health(0.5)],
+            )
+            .with_control(Box::new(ContinuousRequestsControl::new(vec![
+                CellLayer::healing_request(0, 0.5),
+                CellLayer::resize_request(0, AreaDelta::new(2.0)),
+            ]))), // .with_initial_energy(BioEnergy::new(10.0)),
+        );
+
+        world.tick();
+
+        let cell = &world.cells()[0];
+        let layer = &cell.layers()[0];
+        assert_eq!(layer.health(), 1.0);
+        assert_eq!(layer.area(), Area::new(3.0));
+        // assert_eq!(cell.energy(), BioEnergy::ZERO);
+    }
+
     fn simple_layered_cell(layers: Vec<CellLayer>) -> Cell {
         Cell::new(Position::ORIGIN, Velocity::ZERO, layers)
     }

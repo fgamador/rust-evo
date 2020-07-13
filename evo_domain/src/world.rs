@@ -177,7 +177,7 @@ impl World {
             influence.apply(&mut self.cell_graph);
         }
         for (index, cell) in self.cell_graph.nodes_mut().iter_mut().enumerate() {
-            cell.after_influences(&mut changes.cells[index]);
+            cell.calculate_automatic_changes(&mut changes.cells[index]);
         }
     }
 

@@ -145,10 +145,10 @@ impl Cell {
                 <= sqr(self.radius.value())
     }
 
-    pub fn after_influences(&mut self, _changes: &mut CellChanges) {
+    pub fn calculate_automatic_changes(&mut self, _changes: &mut CellChanges) {
         let forces = self.newtonian_state.forces_mut();
         for layer in &mut self.layers {
-            let (energy, force) = layer.after_influences(&self.environment);
+            let (energy, force) = layer.calculate_automatic_changes(&self.environment);
             self.energy += energy;
             // TODO changes.energy += energy;
             forces.add_force(force);
@@ -518,7 +518,7 @@ mod tests {
         let mut changes = CellChanges::new(cell.layers.len());
         cell.run_control(&mut bond_requests, &mut changes);
         let mut changes = CellChanges::new(cell.layers.len());
-        cell.after_influences(&mut changes);
+        cell.calculate_automatic_changes(&mut changes);
         assert_eq!(Force::new(1.0, -1.0), cell.forces().net_force());
     }
 
@@ -533,7 +533,7 @@ mod tests {
         cell.environment_mut().add_light_intensity(10.0);
 
         let mut changes = CellChanges::new(cell.layers.len());
-        cell.after_influences(&mut changes);
+        cell.calculate_automatic_changes(&mut changes);
 
         assert_eq!(BioEnergy::new(20.0), cell.energy());
     }
@@ -684,7 +684,7 @@ mod tests {
         cell.environment_mut()
             .add_overlap(Overlap::new(Displacement::new(1.0, 0.0), 1.0));
         let mut changes = CellChanges::new(cell.layers.len());
-        cell.after_influences(&mut changes);
+        cell.calculate_automatic_changes(&mut changes);
 
         assert!(cell.layers()[0].health() < 1.0);
         assert!(cell.layers()[1].health() < 1.0);

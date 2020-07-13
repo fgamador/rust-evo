@@ -153,10 +153,10 @@ impl CellLayer {
         self.body.update_outer_radius(inner_radius);
     }
 
-    pub fn after_influences(&mut self, env: &LocalEnvironment) -> (BioEnergy, Force) {
+    pub fn calculate_automatic_changes(&mut self, env: &LocalEnvironment) -> (BioEnergy, Force) {
         self.body
             .brain
-            .after_influences(&mut *self.specialty, &mut self.body, env)
+            .calculate_automatic_changes(&mut *self.specialty, &mut self.body, env)
     }
 
     pub fn cost_control_request(&mut self, request: ControlRequest) -> CostedControlRequest {
@@ -320,7 +320,7 @@ impl CellLayerBody {
 trait CellLayerBrain: Debug {
     fn damage(&self, body: &mut CellLayerBody, health_loss: f64);
 
-    fn after_influences(
+    fn calculate_automatic_changes(
         &self,
         specialty: &mut dyn CellLayerSpecialty,
         body: &mut CellLayerBody,
@@ -369,7 +369,7 @@ impl CellLayerBrain for LivingCellLayerBrain {
         }
     }
 
-    fn after_influences(
+    fn calculate_automatic_changes(
         &self,
         specialty: &mut dyn CellLayerSpecialty,
         body: &mut CellLayerBody,
@@ -377,7 +377,7 @@ impl CellLayerBrain for LivingCellLayerBrain {
     ) -> (BioEnergy, Force) {
         self.entropic_damage(body);
         self.overlap_damage(body, env.overlaps());
-        specialty.after_influences(body, env)
+        specialty.calculate_automatic_changes(body, env)
     }
 
     fn cost_control_request(
@@ -403,8 +403,8 @@ impl CellLayerBrain for LivingCellLayerBrain {
     ) {
         match request.channel_index() {
             CellLayer::HEALING_CHANNEL_INDEX => {
-                let delta_health =
-                    body.actual_delta_health(request.requested_value(), request.budgeted_fraction());
+                let delta_health = body
+                    .actual_delta_health(request.requested_value(), request.budgeted_fraction());
                 body.restore_health(delta_health);
 
                 let layer_changes = &mut changes.layers[request.layer_index()];
@@ -431,7 +431,7 @@ struct DeadCellLayerBrain {}
 impl CellLayerBrain for DeadCellLayerBrain {
     fn damage(&self, _body: &mut CellLayerBody, _health_loss: f64) {}
 
-    fn after_influences(
+    fn calculate_automatic_changes(
         &self,
         _specialty: &mut dyn CellLayerSpecialty,
         _body: &mut CellLayerBody,
@@ -473,7 +473,7 @@ impl CellLayerSpecialtySpawn for Box<dyn CellLayerSpecialty> {
 pub trait CellLayerSpecialty: Debug {
     fn box_spawn(&self) -> Box<dyn CellLayerSpecialty>;
 
-    fn after_influences(
+    fn calculate_automatic_changes(
         &mut self,
         _body: &CellLayerBody,
         _env: &LocalEnvironment,
@@ -588,7 +588,7 @@ impl CellLayerSpecialty for ThrusterCellLayerSpecialty {
         Box::new(ThrusterCellLayerSpecialty::new())
     }
 
-    fn after_influences(
+    fn calculate_automatic_changes(
         &mut self,
         _body: &CellLayerBody,
         _env: &LocalEnvironment,
@@ -615,12 +615,14 @@ impl CellLayerSpecialty for ThrusterCellLayerSpecialty {
     ) {
         match request.channel_index() {
             Self::FORCE_X_CHANNEL_INDEX => {
-                self.force_x = body.health * request.budgeted_fraction() * request.requested_value();
+                self.force_x =
+                    body.health * request.budgeted_fraction() * request.requested_value();
                 println!("set x {:?} {:?}", self.force_x, changes.thrust.y());
                 changes.thrust = Force::new(self.force_x, changes.thrust.y());
             }
             Self::FORCE_Y_CHANNEL_INDEX => {
-                self.force_y = body.health * request.budgeted_fraction() * request.requested_value();
+                self.force_y =
+                    body.health * request.budgeted_fraction() * request.requested_value();
                 println!("set y {:?} {:?}", changes.thrust.x(), self.force_y);
                 changes.thrust = Force::new(changes.thrust.x(), self.force_y);
             }
@@ -645,7 +647,7 @@ impl CellLayerSpecialty for PhotoCellLayerSpecialty {
         Box::new(self.clone())
     }
 
-    fn after_influences(
+    fn calculate_automatic_changes(
         &mut self,
         body: &CellLayerBody,
         env: &LocalEnvironment,
@@ -1061,7 +1063,7 @@ mod tests {
             .with_health_parameters(&LAYER_HEALTH_PARAMS);
 
         let env = LocalEnvironment::new();
-        layer.after_influences(&env);
+        layer.calculate_automatic_changes(&env);
 
         assert_eq!(layer.health(), 0.75);
     }
@@ -1078,7 +1080,7 @@ mod tests {
 
         let mut env = LocalEnvironment::new();
         env.add_overlap(Overlap::new(Displacement::new(0.5, 0.0), 1.0));
-        layer.after_influences(&env);
+        layer.calculate_automatic_changes(&env);
 
         assert_eq!(layer.health(), 0.875);
     }
@@ -1153,7 +1155,7 @@ mod tests {
         );
 
         let env = LocalEnvironment::new();
-        let (_, force) = layer.after_influences(&env);
+        let (_, force) = layer.calculate_automatic_changes(&env);
 
         assert_eq!(force, Force::new(1.0, -1.0));
         assert_eq!(changes.thrust, Force::new(1.0, -1.0));
@@ -1189,7 +1191,7 @@ mod tests {
         );
 
         let env = LocalEnvironment::new();
-        let (_, force) = layer.after_influences(&env);
+        let (_, force) = layer.calculate_automatic_changes(&env);
 
         assert_eq!(force, Force::new(0.5, -0.25));
         assert_eq!(changes.thrust, Force::new(0.5, -0.25));
@@ -1218,7 +1220,7 @@ mod tests {
         );
 
         let env = LocalEnvironment::new();
-        let (_, force) = layer.after_influences(&env);
+        let (_, force) = layer.calculate_automatic_changes(&env);
 
         assert_eq!(force, Force::new(0.5, -0.5));
         assert_eq!(changes.thrust, Force::new(0.5, -0.5));
@@ -1248,7 +1250,7 @@ mod tests {
         layer.damage(1.0);
 
         let env = LocalEnvironment::new();
-        let (_, force) = layer.after_influences(&env);
+        let (_, force) = layer.calculate_automatic_changes(&env);
 
         assert_eq!(force, Force::new(0.0, 0.0));
         assert_eq!(changes.thrust, Force::new(0.0, 0.0));
@@ -1266,7 +1268,7 @@ mod tests {
         let mut env = LocalEnvironment::new();
         env.add_light_intensity(10.0);
 
-        let (energy, _) = layer.after_influences(&env);
+        let (energy, _) = layer.calculate_automatic_changes(&env);
 
         assert_eq!(energy, BioEnergy::new(20.0));
     }
@@ -1284,7 +1286,7 @@ mod tests {
         let mut env = LocalEnvironment::new();
         env.add_light_intensity(1.0);
 
-        let (energy, _) = layer.after_influences(&env);
+        let (energy, _) = layer.calculate_automatic_changes(&env);
 
         assert_eq!(energy, BioEnergy::new(0.75));
     }
@@ -1302,7 +1304,7 @@ mod tests {
         let mut env = LocalEnvironment::new();
         env.add_light_intensity(1.0);
 
-        let (energy, _) = layer.after_influences(&env);
+        let (energy, _) = layer.calculate_automatic_changes(&env);
 
         assert_eq!(energy, BioEnergy::new(0.0));
     }

@@ -155,7 +155,11 @@ impl Cell {
         }
     }
 
-    pub fn run_control(&mut self, bond_requests: &mut BondRequests, changes: &mut CellChanges) {
+    pub fn calculate_requested_changes(
+        &mut self,
+        bond_requests: &mut BondRequests,
+        changes: &mut CellChanges,
+    ) {
         let (end_energy, budgeted_control_requests) = self.get_budgeted_control_requests();
         //self._print_selected_cell_status(end_energy, &budgeted_control_requests);
         self.energy = end_energy;
@@ -475,7 +479,7 @@ mod tests {
                 )));
         let mut bond_requests = NONE_BOND_REQUESTS;
         let mut changes = CellChanges::new(cell.layers.len());
-        cell.run_control(&mut bond_requests, &mut changes);
+        cell.calculate_requested_changes(&mut bond_requests, &mut changes);
         assert_eq!(Mass::new(10.5), cell.mass());
     }
 
@@ -497,7 +501,7 @@ mod tests {
 
         let mut bond_requests = NONE_BOND_REQUESTS;
         let mut changes = CellChanges::new(cell.layers.len());
-        cell.run_control(&mut bond_requests, &mut changes);
+        cell.calculate_requested_changes(&mut bond_requests, &mut changes);
 
         assert_eq!(BioEnergy::new(8.0), cell.energy());
     }
@@ -516,7 +520,7 @@ mod tests {
         )));
         let mut bond_requests = NONE_BOND_REQUESTS;
         let mut changes = CellChanges::new(cell.layers.len());
-        cell.run_control(&mut bond_requests, &mut changes);
+        cell.calculate_requested_changes(&mut bond_requests, &mut changes);
         let mut changes = CellChanges::new(cell.layers.len());
         cell.calculate_automatic_changes(&mut changes);
         assert_eq!(Force::new(1.0, -1.0), cell.forces().net_force());
@@ -716,7 +720,7 @@ mod tests {
 
         let mut bond_requests = NONE_BOND_REQUESTS;
         let mut changes = CellChanges::new(cell.layers.len());
-        cell.run_control(&mut bond_requests, &mut changes);
+        cell.calculate_requested_changes(&mut bond_requests, &mut changes);
 
         assert_eq!(5.0, cell.layers()[0].area().value());
         assert_eq!(10.0, cell.layers()[1].area().value());

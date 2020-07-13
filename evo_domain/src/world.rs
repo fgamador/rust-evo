@@ -205,7 +205,7 @@ impl World {
         let mut dead_cell_handles = vec![];
         self.cell_graph.for_each_node(|index, cell, edge_source| {
             let mut bond_requests = NONE_BOND_REQUESTS;
-            cell.run_control(&mut bond_requests, &mut changes.cells[index]);
+            cell.calculate_requested_changes(&mut bond_requests, &mut changes.cells[index]);
             Self::execute_bond_requests(
                 cell,
                 edge_source,

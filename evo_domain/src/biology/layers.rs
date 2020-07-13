@@ -744,7 +744,7 @@ impl CellLayerSpecialty for BondingCellLayerSpecialty {
         body: &CellLayerBody,
         request: BudgetedControlRequest,
         bond_requests: &mut BondRequests,
-        _changes: &mut CellChanges,
+        changes: &mut CellChanges,
     ) {
         let bond_request = &mut bond_requests[request.value_index()];
         match request.channel_index() {
@@ -757,7 +757,8 @@ impl CellLayerSpecialty for BondingCellLayerSpecialty {
             Self::DONATION_ENERGY_CHANNEL_INDEX => {
                 bond_request.donation_energy = body.health
                     * request.budgeted_fraction()
-                    * BioEnergy::new(request.requested_value())
+                    * BioEnergy::new(request.requested_value());
+                changes.energy += request.energy_delta() * request.budgeted_fraction();
             }
             _ => panic!("Invalid control channel index: {}", request.channel_index()),
         }
@@ -813,13 +814,13 @@ mod tests {
         layer.execute_control_request(
             budgeted(
                 CellLayer::resize_request(0, AreaDelta::new(2.0)),
-                BioEnergyDelta::new(10.0),
+                BioEnergyDelta::new(-10.0),
                 0.75,
             ),
             &mut bond_requests,
             &mut changes,
         );
-        assert_eq!(changes.energy, BioEnergyDelta::new(7.5));
+        assert_eq!(changes.energy, BioEnergyDelta::new(-7.5));
     }
 
     #[test]
@@ -1018,13 +1019,13 @@ mod tests {
         layer.execute_control_request(
             budgeted(
                 CellLayer::healing_request(0, 0.5),
-                BioEnergyDelta::new(10.0),
+                BioEnergyDelta::new(-10.0),
                 0.5,
             ),
             &mut bond_requests,
             &mut changes,
         );
-        assert_eq!(changes.energy, BioEnergyDelta::new(5.0));
+        assert_eq!(changes.energy, BioEnergyDelta::new(-5.0));
     }
 
     #[test]
@@ -1356,7 +1357,7 @@ mod tests {
         layer.execute_control_request(
             budgeted(
                 BondingCellLayerSpecialty::donation_energy_request(0, 0, BioEnergy::new(1.0)),
-                BioEnergyDelta::new(1.0),
+                BioEnergyDelta::new(-1.0),
                 0.5,
             ),
             &mut bond_requests,
@@ -1364,6 +1365,7 @@ mod tests {
         );
 
         assert_eq!(bond_requests[0].donation_energy, BioEnergy::new(0.5));
+        assert_eq!(changes.energy, BioEnergyDelta::new(-0.5));
     }
 
     #[test]
@@ -1378,16 +1380,17 @@ mod tests {
         let mut bond_requests = NONE_BOND_REQUESTS;
         let mut changes = CellChanges::new(1);
         layer.execute_control_request(
-            fully_budgeted(BondingCellLayerSpecialty::donation_energy_request(
-                0,
-                0,
-                BioEnergy::new(1.0),
-            )),
+            budgeted(
+                BondingCellLayerSpecialty::donation_energy_request(0, 0, BioEnergy::new(1.0)),
+                BioEnergyDelta::new(-1.0),
+                1.0,
+            ),
             &mut bond_requests,
             &mut changes,
         );
 
         assert_eq!(bond_requests[0].donation_energy, BioEnergy::new(0.5));
+        assert_eq!(changes.energy, BioEnergyDelta::new(-1.0));
     }
 
     fn simple_cell_layer(area: Area, density: Density) -> CellLayer {
@@ -1416,11 +1419,11 @@ mod tests {
 
     fn budgeted(
         control_request: ControlRequest,
-        cost: BioEnergyDelta,
+        energy_delta: BioEnergyDelta,
         budgeted_fraction: f64,
     ) -> BudgetedControlRequest {
         BudgetedControlRequest::new(
-            CostedControlRequest::unlimited(control_request, cost),
+            CostedControlRequest::unlimited(control_request, energy_delta),
             budgeted_fraction,
         )
     }

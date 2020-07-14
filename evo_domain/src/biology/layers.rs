@@ -745,16 +745,12 @@ mod tests {
     }
 
     #[test]
-    fn layer_resize_updates_area_and_mass() {
+    fn layer_resize_records_area_change() {
         let mut changes = CellChanges::new(1);
 
         let mut layer = simple_cell_layer(Area::new(1.0), Density::new(2.0));
         layer.execute_control_request(fully_budgeted_resize_request(0, 2.0), &mut changes);
         assert_eq!(changes.layers[0].area, AreaDelta::new(2.0));
-
-        layer.apply_changes(&changes.layers[0]);
-        assert_eq!(layer.area(), Area::new(3.0));
-        assert_eq!(layer.mass(), Mass::new(6.0));
     }
 
     #[test]
@@ -832,7 +828,6 @@ mod tests {
             ),
             &mut changes,
         );
-        //assert_eq!(layer.area(), Area::new(3.0));
         assert_eq!(changes.layers[0].area, AreaDelta::new(1.0));
     }
 
@@ -847,7 +842,6 @@ mod tests {
             .with_resize_parameters(&LAYER_RESIZE_PARAMS);
         let mut changes = CellChanges::new(1);
         layer.execute_control_request(fully_budgeted_resize_request(0, 10.0), &mut changes);
-        //assert_eq!(layer.area(), Area::new(3.0));
         assert_eq!(changes.layers[0].area, AreaDelta::new(1.0));
     }
 
@@ -880,7 +874,6 @@ mod tests {
             .with_resize_parameters(&LAYER_RESIZE_PARAMS);
         let mut changes = CellChanges::new(1);
         layer.execute_control_request(fully_budgeted_resize_request(0, -10.0), &mut changes);
-        //assert_eq!(layer.area(), Area::new(1.5));
         assert_eq!(changes.layers[0].area, AreaDelta::new(-0.5));
     }
 
@@ -907,7 +900,6 @@ mod tests {
         let mut layer = simple_cell_layer(Area::new(1.0), Density::new(1.0)).with_health(0.5);
         let mut changes = CellChanges::new(1);
         layer.execute_control_request(fully_budgeted_resize_request(0, 10.0), &mut changes);
-        //assert_eq!(layer.area(), Area::new(6.0));
         assert_eq!(changes.layers[0].area, AreaDelta::new(5.0));
     }
 
@@ -930,11 +922,10 @@ mod tests {
     }
 
     #[test]
-    fn layer_health_can_be_restored() {
+    fn layer_healing_records_health_change() {
         let mut layer = simple_cell_layer(Area::new(1.0), Density::new(1.0)).with_health(0.5);
         let mut changes = CellChanges::new(1);
         layer.execute_control_request(fully_budgeted_healing_request(0, 0.25), &mut changes);
-        //assert_eq!(layer.health(), 0.75);
         assert_eq!(changes.layers[0].health, 0.25);
     }
 
@@ -958,7 +949,6 @@ mod tests {
         let mut layer = simple_cell_layer(Area::new(1.0), Density::new(1.0)).with_health(0.5);
         let mut changes = CellChanges::new(1);
         layer.execute_control_request(fully_budgeted_healing_request(0, 1.0), &mut changes);
-        //assert_eq!(layer.health(), 1.0);
         assert_eq!(changes.layers[0].health, 0.5);
     }
 
@@ -974,7 +964,6 @@ mod tests {
             ),
             &mut changes,
         );
-        //assert_eq!(layer.health(), 0.75);
         assert_eq!(changes.layers[0].health, 0.25);
     }
 

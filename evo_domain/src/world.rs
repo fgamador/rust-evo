@@ -156,8 +156,7 @@ impl World {
         self.apply_influences(&mut changes);
         self.process_cell_bond_energy();
         self.run_cell_controls(&mut changes);
-        self.tick_cells();
-        //self._apply_changes(&changes);
+        self.tick_cells(&changes);
     }
 
     fn new_world_changes(&self) -> WorldChanges {
@@ -277,10 +276,11 @@ impl World {
         self.cell_graph.remove_edges(&sorted_bond_handles);
     }
 
-    fn tick_cells(&mut self) {
-        for cell in self.cell_graph.nodes_mut() {
+    fn tick_cells(&mut self, _changes: &WorldChanges) {
+        for (_index, cell) in self.cell_graph.nodes_mut().iter_mut().enumerate() {
             Self::print_selected_cell_state(cell, "start");
             Self::move_cell(cell);
+            //cell.apply_changes(&changes.cells[index]);
             Self::clear_cell_environment(cell);
             Self::print_selected_cell_state(cell, "end");
         }
@@ -306,13 +306,6 @@ impl World {
                 cell.velocity(),
                 cell.forces().net_force()
             );
-        }
-    }
-
-    // TODO
-    fn _apply_changes(&mut self, changes: &WorldChanges) {
-        for (index, cell) in self.cell_graph.nodes_mut().iter_mut().enumerate() {
-            cell.apply_changes(&changes.cells[index]);
         }
     }
 }

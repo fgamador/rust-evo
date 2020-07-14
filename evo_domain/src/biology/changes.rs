@@ -1,6 +1,7 @@
 use crate::physics::quantities::*;
 use std::fmt;
 
+// TODO lose this once we can tick a cell in one pass; move any world-scale changes into CellChanges
 #[derive(Debug, Clone)]
 pub struct WorldChanges {
     pub cells: Vec<CellChanges>,

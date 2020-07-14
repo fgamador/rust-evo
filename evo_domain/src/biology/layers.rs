@@ -704,10 +704,10 @@ impl CellLayerSpecialty for BondingCellLayerSpecialty {
         &mut self,
         body: &CellLayerBody,
         request: BudgetedControlRequest,
-        bond_requests: &mut BondRequests,
+        _bond_requests: &mut BondRequests,
         changes: &mut CellChanges,
     ) {
-        let bond_request = &mut bond_requests[request.value_index()];
+        let bond_request = &mut changes.bond_requests[request.value_index()];
         match request.channel_index() {
             Self::RETAIN_BOND_CHANNEL_INDEX => {
                 bond_request.retain_bond = request.requested_value() > 0.0
@@ -1330,7 +1330,10 @@ mod tests {
             &mut changes,
         );
 
-        assert_eq!(bond_requests[0].donation_energy, BioEnergy::new(0.5));
+        assert_eq!(
+            changes.bond_requests[0].donation_energy,
+            BioEnergy::new(0.5)
+        );
         assert_eq!(changes.energy, BioEnergyDelta::new(-0.5));
     }
 
@@ -1355,7 +1358,10 @@ mod tests {
             &mut changes,
         );
 
-        assert_eq!(bond_requests[0].donation_energy, BioEnergy::new(0.5));
+        assert_eq!(
+            changes.bond_requests[0].donation_energy,
+            BioEnergy::new(0.5)
+        );
         assert_eq!(changes.energy, BioEnergyDelta::new(-1.0));
     }
 

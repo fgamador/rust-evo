@@ -1,6 +1,5 @@
 use crate::biology::cell::Cell;
 use crate::biology::changes::*;
-use crate::biology::layers::*;
 use crate::environment::influences::*;
 use crate::environment::local_environment::*;
 use crate::physics::bond::*;
@@ -209,7 +208,7 @@ impl World {
             Self::execute_bond_requests(
                 cell,
                 edge_source,
-                &bond_requests,
+                &changes.cells[index].bond_requests,
                 &mut new_children,
                 &mut broken_bond_handles,
             );
@@ -330,6 +329,7 @@ struct NewChildData {
 mod tests {
     use super::*;
     use crate::biology::control::*;
+    use crate::biology::layers::*;
     use crate::physics::overlap::Overlap;
     use crate::physics::shapes::*;
 

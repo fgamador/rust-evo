@@ -464,7 +464,21 @@ mod tests {
     }
 
     #[test]
-    fn cell_with_continuous_growth_control_grows_on_first_tick() {
+    fn applying_cell_changes_updates_cell_radius() {
+        let mut cell =
+            simple_layered_cell(vec![simple_cell_layer(Area::new(PI), Density::new(1.0))])
+                .with_control(Box::new(ContinuousResizeControl::new(
+                    0,
+                    AreaDelta::new(3.0 * PI),
+                )));
+        let mut changes = CellChanges::new(cell.layers.len());
+        cell.calculate_requested_changes(&mut changes);
+        cell.apply_changes(&changes);
+        assert_eq!(cell.radius(), Length::new(2.0));
+    }
+
+    #[test]
+    fn applying_cell_changes_updates_cell_mass() {
         let mut cell =
             simple_layered_cell(vec![simple_cell_layer(Area::new(10.0), Density::new(1.0))])
                 .with_control(Box::new(ContinuousResizeControl::new(
@@ -474,7 +488,7 @@ mod tests {
         let mut changes = CellChanges::new(cell.layers.len());
         cell.calculate_requested_changes(&mut changes);
         cell.apply_changes(&changes);
-        assert_eq!(Mass::new(10.5), cell.mass());
+        assert_eq!(cell.mass(), Mass::new(10.5));
     }
 
     #[test]

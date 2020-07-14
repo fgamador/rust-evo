@@ -1,4 +1,5 @@
 use crate::physics::quantities::*;
+use std::fmt;
 
 #[derive(Debug, Clone)]
 pub struct WorldChanges {
@@ -19,6 +20,7 @@ pub struct CellChanges {
     pub energy: BioEnergyDelta,
     pub thrust: Force,
     pub layers: Vec<CellLayerChanges>,
+    pub bond_requests: BondRequests,
 }
 
 impl CellChanges {
@@ -27,6 +29,7 @@ impl CellChanges {
             energy: BioEnergyDelta::ZERO,
             thrust: Force::ZERO,
             layers: vec![CellLayerChanges::new(); num_layers],
+            bond_requests: NONE_BOND_REQUESTS,
         }
     }
 }
@@ -45,3 +48,40 @@ impl CellLayerChanges {
         }
     }
 }
+
+#[derive(Clone, Copy, Debug)]
+pub struct BondRequest {
+    pub retain_bond: bool,
+    pub budding_angle: Angle,
+    pub donation_energy: BioEnergy,
+}
+
+impl BondRequest {
+    pub const MAX_BONDS: usize = 8;
+
+    pub const NONE: BondRequest = BondRequest {
+        retain_bond: false,
+        budding_angle: Angle::ZERO,
+        donation_energy: BioEnergy::ZERO,
+    };
+
+    pub fn reset(&mut self) {
+        *self = Self::NONE;
+    }
+}
+
+impl fmt::Display for BondRequest {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(
+            f,
+            "(retain: {}, angle: {:.4}, energy: {:.4})",
+            self.retain_bond,
+            self.budding_angle.radians(),
+            self.donation_energy.value(),
+        )
+    }
+}
+
+pub type BondRequests = [BondRequest; BondRequest::MAX_BONDS];
+
+pub const NONE_BOND_REQUESTS: BondRequests = [BondRequest::NONE; BondRequest::MAX_BONDS];

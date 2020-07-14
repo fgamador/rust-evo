@@ -5,7 +5,6 @@ use crate::physics::overlap::Overlap;
 use crate::physics::quantities::*;
 use std::f64;
 use std::f64::consts::PI;
-use std::fmt;
 use std::fmt::Debug;
 
 // TODO rename as TissueType?
@@ -510,43 +509,6 @@ pub trait CellLayerSpecialty: Debug {
 
     fn reset(&mut self) {}
 }
-
-#[derive(Clone, Copy, Debug)]
-pub struct BondRequest {
-    pub retain_bond: bool,
-    pub budding_angle: Angle,
-    pub donation_energy: BioEnergy,
-}
-
-impl BondRequest {
-    pub const MAX_BONDS: usize = 8;
-
-    pub const NONE: BondRequest = BondRequest {
-        retain_bond: false,
-        budding_angle: Angle::ZERO,
-        donation_energy: BioEnergy::ZERO,
-    };
-
-    pub fn reset(&mut self) {
-        *self = Self::NONE;
-    }
-}
-
-impl fmt::Display for BondRequest {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(
-            f,
-            "(retain: {}, angle: {:.4}, energy: {:.4})",
-            self.retain_bond,
-            self.budding_angle.radians(),
-            self.donation_energy.value(),
-        )
-    }
-}
-
-pub type BondRequests = [BondRequest; BondRequest::MAX_BONDS];
-
-pub const NONE_BOND_REQUESTS: BondRequests = [BondRequest::NONE; BondRequest::MAX_BONDS];
 
 #[derive(Debug)]
 pub struct NullCellLayerSpecialty {}

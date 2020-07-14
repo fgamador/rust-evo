@@ -382,11 +382,11 @@ impl CellLayerBrain for LivingCellLayerBrain {
         specialty: &mut dyn CellLayerSpecialty,
         body: &mut CellLayerBody,
         env: &LocalEnvironment,
-        _changes: &mut CellChanges,
+        changes: &mut CellChanges,
     ) -> (BioEnergy, Force) {
         self.entropic_damage(body);
         self.overlap_damage(body, env.overlaps());
-        specialty.calculate_automatic_changes(body, env)
+        specialty.calculate_automatic_changes(body, env, changes)
     }
 
     fn cost_control_request(
@@ -487,6 +487,7 @@ pub trait CellLayerSpecialty: Debug {
         &mut self,
         _body: &CellLayerBody,
         _env: &LocalEnvironment,
+        _changes: &mut CellChanges,
     ) -> (BioEnergy, Force) {
         (BioEnergy::ZERO, Force::ZERO)
     }
@@ -602,6 +603,7 @@ impl CellLayerSpecialty for ThrusterCellLayerSpecialty {
         &mut self,
         _body: &CellLayerBody,
         _env: &LocalEnvironment,
+        _changes: &mut CellChanges,
     ) -> (BioEnergy, Force) {
         (BioEnergy::ZERO, Force::new(self.force_x, self.force_y))
     }
@@ -659,13 +661,13 @@ impl CellLayerSpecialty for PhotoCellLayerSpecialty {
         &mut self,
         body: &CellLayerBody,
         env: &LocalEnvironment,
+        changes: &mut CellChanges,
     ) -> (BioEnergy, Force) {
-        (
-            BioEnergy::new(
-                env.light_intensity() * self.efficiency * body.health * body.area.value(),
-            ),
-            Force::ZERO,
-        )
+        let energy = BioEnergy::new(
+            env.light_intensity() * self.efficiency * body.health * body.area.value(),
+        );
+        changes.energy += energy.into();
+        (energy, Force::ZERO)
     }
 }
 
@@ -1304,6 +1306,7 @@ mod tests {
         let (energy, _) = layer.calculate_automatic_changes(&env, &mut changes);
 
         assert_eq!(energy, BioEnergy::new(20.0));
+        assert_eq!(changes.energy, BioEnergyDelta::new(20.0));
     }
 
     #[test]
@@ -1323,6 +1326,7 @@ mod tests {
         let (energy, _) = layer.calculate_automatic_changes(&env, &mut changes);
 
         assert_eq!(energy, BioEnergy::new(0.75));
+        assert_eq!(changes.energy, BioEnergyDelta::new(0.75));
     }
 
     #[test]

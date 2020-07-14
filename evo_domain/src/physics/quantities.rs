@@ -1143,6 +1143,14 @@ impl BioEnergyDelta {
     }
 }
 
+impl From<BioEnergy> for BioEnergyDelta {
+    fn from(value: BioEnergy) -> Self {
+        BioEnergyDelta {
+            value: value.value(),
+        }
+    }
+}
+
 impl Add<BioEnergyDelta> for BioEnergyDelta {
     type Output = BioEnergyDelta;
 

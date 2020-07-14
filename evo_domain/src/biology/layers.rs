@@ -185,7 +185,6 @@ impl CellLayer {
             bond_requests,
             changes,
         );
-        // self.apply_changes(&changes.layers[request.layer_index()]);
     }
 
     pub fn reset(&mut self) {
@@ -309,7 +308,7 @@ impl CellLayerBody {
 
     fn bound_resize_delta_area(&self, requested_delta_area: f64) -> f64 {
         if requested_delta_area >= 0.0 {
-            // TODO a layer that starts with area 0.0 cannot grow
+            // TODO a layer that starts with area 0.0 cannot grow; add min-area param?
             let max_delta_area = self.resize_parameters.max_growth_rate * self.area.value();
             requested_delta_area.min(max_delta_area)
         } else {
@@ -414,7 +413,6 @@ impl CellLayerBrain for LivingCellLayerBrain {
             CellLayer::HEALING_CHANNEL_INDEX => {
                 let delta_health = body
                     .actual_delta_health(request.requested_value(), request.budgeted_fraction());
-                body.restore_health(delta_health);
 
                 let layer_changes = &mut changes.layers[request.layer_index()];
                 layer_changes.health += delta_health;
@@ -423,7 +421,6 @@ impl CellLayerBrain for LivingCellLayerBrain {
             CellLayer::RESIZE_CHANNEL_INDEX => {
                 let delta_area =
                     body.actual_delta_area(request.requested_value(), request.budgeted_fraction());
-                body.resize(delta_area);
 
                 let layer_changes = &mut changes.layers[request.layer_index()];
                 layer_changes.area += delta_area;
@@ -795,17 +792,20 @@ mod tests {
 
     #[test]
     fn layer_resize_updates_area_and_mass() {
-        let mut layer = simple_cell_layer(Area::new(1.0), Density::new(2.0));
         let mut bond_requests = NONE_BOND_REQUESTS;
         let mut changes = CellChanges::new(1);
+
+        let mut layer = simple_cell_layer(Area::new(1.0), Density::new(2.0));
         layer.execute_control_request(
             fully_budgeted_resize_request(0, 2.0),
             &mut bond_requests,
             &mut changes,
         );
+        assert_eq!(changes.layers[0].area, AreaDelta::new(2.0));
+
+        layer.apply_changes(&changes.layers[0]);
         assert_eq!(layer.area(), Area::new(3.0));
         assert_eq!(layer.mass(), Mass::new(6.0));
-        assert_eq!(changes.layers[0].area, AreaDelta::new(2.0));
     }
 
     #[test]
@@ -887,7 +887,7 @@ mod tests {
             &mut bond_requests,
             &mut changes,
         );
-        assert_eq!(layer.area(), Area::new(3.0));
+        //assert_eq!(layer.area(), Area::new(3.0));
         assert_eq!(changes.layers[0].area, AreaDelta::new(1.0));
     }
 
@@ -907,7 +907,7 @@ mod tests {
             &mut bond_requests,
             &mut changes,
         );
-        assert_eq!(layer.area(), Area::new(3.0));
+        //assert_eq!(layer.area(), Area::new(3.0));
         assert_eq!(changes.layers[0].area, AreaDelta::new(1.0));
     }
 
@@ -945,7 +945,7 @@ mod tests {
             &mut bond_requests,
             &mut changes,
         );
-        assert_eq!(layer.area(), Area::new(1.5));
+        //assert_eq!(layer.area(), Area::new(1.5));
         assert_eq!(changes.layers[0].area, AreaDelta::new(-0.5));
     }
 
@@ -977,7 +977,7 @@ mod tests {
             &mut bond_requests,
             &mut changes,
         );
-        assert_eq!(layer.area(), Area::new(6.0));
+        //assert_eq!(layer.area(), Area::new(6.0));
         assert_eq!(changes.layers[0].area, AreaDelta::new(5.0));
     }
 
@@ -1009,7 +1009,7 @@ mod tests {
             &mut bond_requests,
             &mut changes,
         );
-        assert_eq!(layer.health(), 0.75);
+        //assert_eq!(layer.health(), 0.75);
         assert_eq!(changes.layers[0].health, 0.25);
     }
 
@@ -1040,7 +1040,7 @@ mod tests {
             &mut bond_requests,
             &mut changes,
         );
-        assert_eq!(layer.health(), 1.0);
+        //assert_eq!(layer.health(), 1.0);
         assert_eq!(changes.layers[0].health, 0.5);
     }
 
@@ -1058,7 +1058,7 @@ mod tests {
             &mut bond_requests,
             &mut changes,
         );
-        assert_eq!(layer.health(), 0.75);
+        //assert_eq!(layer.health(), 0.75);
         assert_eq!(changes.layers[0].health, 0.25);
     }
 

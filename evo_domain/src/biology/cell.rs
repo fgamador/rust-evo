@@ -258,6 +258,8 @@ impl Cell {
             let layer = &mut self.layers[request.layer_index()];
             layer.execute_control_request(*request, bond_requests, changes);
         }
+        // TODO call this from World instead
+        self.apply_changes(changes);
         self.radius = Self::update_layer_outer_radii(&mut self.layers);
         self.newtonian_state.mass = Self::calc_mass(&self.layers);
     }
@@ -363,7 +365,7 @@ impl Cell {
     }
 
     pub fn apply_changes(&mut self, changes: &CellChanges) {
-        self.energy += changes.energy;
+        // TODO self.energy += changes.energy;
         // TODO thrust
         for (index, layer) in self.layers.iter_mut().enumerate() {
             layer.apply_changes(&changes.layers[index]);

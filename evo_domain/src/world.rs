@@ -663,8 +663,9 @@ mod tests {
             )
             .with_control(Box::new(ContinuousRequestsControl::new(vec![
                 CellLayer::healing_request(0, 0.5),
-                CellLayer::resize_request(0, AreaDelta::new(2.0)),
-            ]))), // .with_initial_energy(BioEnergy::new(10.0)),
+                CellLayer::resize_request(0, AreaDelta::new(4.0)),
+            ])))
+            .with_initial_energy(BioEnergy::new(10.0)),
         );
 
         world.tick();

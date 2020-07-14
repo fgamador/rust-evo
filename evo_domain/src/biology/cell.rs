@@ -255,8 +255,6 @@ impl Cell {
         }
         // TODO call this from World instead
         self.apply_changes(changes);
-        self.radius = Self::update_layer_outer_radii(&mut self.layers);
-        self.newtonian_state.mass = Self::calc_mass(&self.layers);
     }
 
     fn _print_selected_cell_status(
@@ -365,6 +363,8 @@ impl Cell {
         for (index, layer) in self.layers.iter_mut().enumerate() {
             layer.apply_changes(&changes.layers[index]);
         }
+        self.radius = Self::update_layer_outer_radii(&mut self.layers);
+        self.newtonian_state.mass = Self::calc_mass(&self.layers);
     }
 }
 

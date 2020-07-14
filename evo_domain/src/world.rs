@@ -203,6 +203,7 @@ impl World {
         let mut dead_cell_handles = vec![];
         self.cell_graph.for_each_node(|index, cell, edge_source| {
             cell.calculate_requested_changes(&mut changes.cells[index]);
+            cell.apply_changes(&changes.cells[index]);
             Self::execute_bond_requests(
                 cell,
                 edge_source,
@@ -280,6 +281,7 @@ impl World {
         for (_index, cell) in self.cell_graph.nodes_mut().iter_mut().enumerate() {
             Self::print_selected_cell_state(cell, "start");
             Self::move_cell(cell);
+            // TODO move this here?
             //cell.apply_changes(&changes.cells[index]);
             Self::clear_cell_environment(cell);
             Self::print_selected_cell_state(cell, "end");

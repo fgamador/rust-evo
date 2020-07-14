@@ -253,8 +253,6 @@ impl Cell {
             let layer = &mut self.layers[request.layer_index()];
             layer.execute_control_request(*request, changes);
         }
-        // TODO call this from World instead
-        self.apply_changes(changes);
     }
 
     fn _print_selected_cell_status(
@@ -475,6 +473,7 @@ mod tests {
                 )));
         let mut changes = CellChanges::new(cell.layers.len());
         cell.calculate_requested_changes(&mut changes);
+        cell.apply_changes(&changes);
         assert_eq!(Mass::new(10.5), cell.mass());
     }
 
@@ -713,6 +712,7 @@ mod tests {
 
         let mut changes = CellChanges::new(cell.layers.len());
         cell.calculate_requested_changes(&mut changes);
+        cell.apply_changes(&changes);
 
         assert_eq!(5.0, cell.layers()[0].area().value());
         assert_eq!(10.0, cell.layers()[1].area().value());

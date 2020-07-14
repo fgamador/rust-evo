@@ -154,15 +154,11 @@ impl Cell {
         }
     }
 
-    pub fn calculate_requested_changes(
-        &mut self,
-        bond_requests: &mut BondRequests,
-        changes: &mut CellChanges,
-    ) {
+    pub fn calculate_requested_changes(&mut self, changes: &mut CellChanges) {
         let (end_energy, budgeted_control_requests) = self.get_budgeted_control_requests();
         //self._print_selected_cell_status(end_energy, &budgeted_control_requests);
         self.energy = end_energy;
-        self.execute_control_requests(&budgeted_control_requests, bond_requests, changes);
+        self.execute_control_requests(&budgeted_control_requests, changes);
         //self._print_selected_cell_bond_requests(bond_requests);
         self.reset_layers();
     }
@@ -250,13 +246,12 @@ impl Cell {
     fn execute_control_requests(
         &mut self,
         budgeted_control_requests: &[BudgetedControlRequest],
-        bond_requests: &mut BondRequests,
         changes: &mut CellChanges,
     ) {
         // TODO do healing first
         for request in budgeted_control_requests {
             let layer = &mut self.layers[request.layer_index()];
-            layer.execute_control_request(*request, bond_requests, changes);
+            layer.execute_control_request(*request, changes);
         }
         // TODO call this from World instead
         self.apply_changes(changes);
@@ -478,9 +473,8 @@ mod tests {
                     0,
                     AreaDelta::new(0.5),
                 )));
-        let mut bond_requests = NONE_BOND_REQUESTS;
         let mut changes = CellChanges::new(cell.layers.len());
-        cell.calculate_requested_changes(&mut bond_requests, &mut changes);
+        cell.calculate_requested_changes(&mut changes);
         assert_eq!(Mass::new(10.5), cell.mass());
     }
 
@@ -500,9 +494,8 @@ mod tests {
             )))
             .with_initial_energy(BioEnergy::new(10.0));
 
-        let mut bond_requests = NONE_BOND_REQUESTS;
         let mut changes = CellChanges::new(cell.layers.len());
-        cell.calculate_requested_changes(&mut bond_requests, &mut changes);
+        cell.calculate_requested_changes(&mut changes);
 
         assert_eq!(BioEnergy::new(8.0), cell.energy());
     }
@@ -519,9 +512,8 @@ mod tests {
             0,
             Force::new(1.0, -1.0),
         )));
-        let mut bond_requests = NONE_BOND_REQUESTS;
         let mut changes = CellChanges::new(cell.layers.len());
-        cell.calculate_requested_changes(&mut bond_requests, &mut changes);
+        cell.calculate_requested_changes(&mut changes);
         let mut changes = CellChanges::new(cell.layers.len());
         cell.calculate_automatic_changes(&mut changes);
         assert_eq!(Force::new(1.0, -1.0), cell.forces().net_force());
@@ -719,9 +711,8 @@ mod tests {
             CellLayer::resize_request(1, AreaDelta::new(100.0)),
         ])));
 
-        let mut bond_requests = NONE_BOND_REQUESTS;
         let mut changes = CellChanges::new(cell.layers.len());
-        cell.calculate_requested_changes(&mut bond_requests, &mut changes);
+        cell.calculate_requested_changes(&mut changes);
 
         assert_eq!(5.0, cell.layers()[0].area().value());
         assert_eq!(10.0, cell.layers()[1].area().value());

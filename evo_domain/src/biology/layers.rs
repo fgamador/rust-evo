@@ -174,14 +174,12 @@ impl CellLayer {
     pub fn execute_control_request(
         &mut self,
         request: BudgetedControlRequest,
-        bond_requests: &mut BondRequests,
         changes: &mut CellChanges,
     ) {
         self.body.brain.execute_control_request(
             &mut *self.specialty,
             &mut self.body,
             request,
-            bond_requests,
             changes,
         );
     }
@@ -345,7 +343,6 @@ trait CellLayerBrain: Debug {
         specialty: &mut dyn CellLayerSpecialty,
         body: &mut CellLayerBody,
         request: BudgetedControlRequest,
-        bond_requests: &mut BondRequests,
         changes: &mut CellChanges,
     );
 }
@@ -405,7 +402,6 @@ impl CellLayerBrain for LivingCellLayerBrain {
         specialty: &mut dyn CellLayerSpecialty,
         body: &mut CellLayerBody,
         request: BudgetedControlRequest,
-        bond_requests: &mut BondRequests,
         changes: &mut CellChanges,
     ) {
         match request.channel_index() {
@@ -425,7 +421,7 @@ impl CellLayerBrain for LivingCellLayerBrain {
                 layer_changes.area += delta_area;
                 changes.energy += request.energy_delta() * request.budgeted_fraction();
             }
-            _ => specialty.execute_control_request(body, request, bond_requests, changes),
+            _ => specialty.execute_control_request(body, request, changes),
         }
     }
 }
@@ -460,7 +456,6 @@ impl CellLayerBrain for DeadCellLayerBrain {
         _specialty: &mut dyn CellLayerSpecialty,
         _body: &mut CellLayerBody,
         _request: BudgetedControlRequest,
-        _bond_requests: &mut BondRequests,
         _changes: &mut CellChanges,
     ) {
     }
@@ -501,7 +496,6 @@ pub trait CellLayerSpecialty: Debug {
         &mut self,
         _body: &CellLayerBody,
         request: BudgetedControlRequest,
-        _bond_requests: &mut BondRequests,
         _changes: &mut CellChanges,
     ) {
         panic!("Invalid control channel index: {}", request.channel_index());
@@ -581,7 +575,6 @@ impl CellLayerSpecialty for ThrusterCellLayerSpecialty {
         &mut self,
         body: &CellLayerBody,
         request: BudgetedControlRequest,
-        _bond_requests: &mut BondRequests,
         changes: &mut CellChanges,
     ) {
         match request.channel_index() {
@@ -704,7 +697,6 @@ impl CellLayerSpecialty for BondingCellLayerSpecialty {
         &mut self,
         body: &CellLayerBody,
         request: BudgetedControlRequest,
-        _bond_requests: &mut BondRequests,
         changes: &mut CellChanges,
     ) {
         let bond_request = &mut changes.bond_requests[request.value_index()];
@@ -754,15 +746,10 @@ mod tests {
 
     #[test]
     fn layer_resize_updates_area_and_mass() {
-        let mut bond_requests = NONE_BOND_REQUESTS;
         let mut changes = CellChanges::new(1);
 
         let mut layer = simple_cell_layer(Area::new(1.0), Density::new(2.0));
-        layer.execute_control_request(
-            fully_budgeted_resize_request(0, 2.0),
-            &mut bond_requests,
-            &mut changes,
-        );
+        layer.execute_control_request(fully_budgeted_resize_request(0, 2.0), &mut changes);
         assert_eq!(changes.layers[0].area, AreaDelta::new(2.0));
 
         layer.apply_changes(&changes.layers[0]);
@@ -773,7 +760,6 @@ mod tests {
     #[test]
     fn layer_resize_records_energy_change() {
         let mut layer = simple_cell_layer(Area::new(1.0), Density::new(2.0));
-        let mut bond_requests = NONE_BOND_REQUESTS;
         let mut changes = CellChanges::new(1);
         layer.execute_control_request(
             budgeted(
@@ -781,7 +767,6 @@ mod tests {
                 BioEnergyDelta::new(-10.0),
                 0.75,
             ),
-            &mut bond_requests,
             &mut changes,
         );
         assert_eq!(changes.energy, BioEnergyDelta::new(-7.5));
@@ -838,7 +823,6 @@ mod tests {
     #[test]
     fn layer_growth_is_limited_by_budgeted_fraction() {
         let mut layer = simple_cell_layer(Area::new(2.0), Density::new(1.0));
-        let mut bond_requests = NONE_BOND_REQUESTS;
         let mut changes = CellChanges::new(1);
         layer.execute_control_request(
             budgeted(
@@ -846,7 +830,6 @@ mod tests {
                 BioEnergyDelta::ZERO,
                 0.5,
             ),
-            &mut bond_requests,
             &mut changes,
         );
         //assert_eq!(layer.area(), Area::new(3.0));
@@ -862,13 +845,8 @@ mod tests {
 
         let mut layer = simple_cell_layer(Area::new(2.0), Density::new(1.0))
             .with_resize_parameters(&LAYER_RESIZE_PARAMS);
-        let mut bond_requests = NONE_BOND_REQUESTS;
         let mut changes = CellChanges::new(1);
-        layer.execute_control_request(
-            fully_budgeted_resize_request(0, 10.0),
-            &mut bond_requests,
-            &mut changes,
-        );
+        layer.execute_control_request(fully_budgeted_resize_request(0, 10.0), &mut changes);
         //assert_eq!(layer.area(), Area::new(3.0));
         assert_eq!(changes.layers[0].area, AreaDelta::new(1.0));
     }
@@ -900,13 +878,8 @@ mod tests {
 
         let mut layer = simple_cell_layer(Area::new(2.0), Density::new(1.0))
             .with_resize_parameters(&LAYER_RESIZE_PARAMS);
-        let mut bond_requests = NONE_BOND_REQUESTS;
         let mut changes = CellChanges::new(1);
-        layer.execute_control_request(
-            fully_budgeted_resize_request(0, -10.0),
-            &mut bond_requests,
-            &mut changes,
-        );
+        layer.execute_control_request(fully_budgeted_resize_request(0, -10.0), &mut changes);
         //assert_eq!(layer.area(), Area::new(1.5));
         assert_eq!(changes.layers[0].area, AreaDelta::new(-0.5));
     }
@@ -932,13 +905,8 @@ mod tests {
     #[test]
     fn layer_resize_is_reduced_by_reduced_health() {
         let mut layer = simple_cell_layer(Area::new(1.0), Density::new(1.0)).with_health(0.5);
-        let mut bond_requests = NONE_BOND_REQUESTS;
         let mut changes = CellChanges::new(1);
-        layer.execute_control_request(
-            fully_budgeted_resize_request(0, 10.0),
-            &mut bond_requests,
-            &mut changes,
-        );
+        layer.execute_control_request(fully_budgeted_resize_request(0, 10.0), &mut changes);
         //assert_eq!(layer.area(), Area::new(6.0));
         assert_eq!(changes.layers[0].area, AreaDelta::new(5.0));
     }
@@ -964,13 +932,8 @@ mod tests {
     #[test]
     fn layer_health_can_be_restored() {
         let mut layer = simple_cell_layer(Area::new(1.0), Density::new(1.0)).with_health(0.5);
-        let mut bond_requests = NONE_BOND_REQUESTS;
         let mut changes = CellChanges::new(1);
-        layer.execute_control_request(
-            fully_budgeted_healing_request(0, 0.25),
-            &mut bond_requests,
-            &mut changes,
-        );
+        layer.execute_control_request(fully_budgeted_healing_request(0, 0.25), &mut changes);
         //assert_eq!(layer.health(), 0.75);
         assert_eq!(changes.layers[0].health, 0.25);
     }
@@ -978,7 +941,6 @@ mod tests {
     #[test]
     fn layer_healing_records_energy_change() {
         let mut layer = simple_cell_layer(Area::new(1.0), Density::new(1.0)).with_health(0.5);
-        let mut bond_requests = NONE_BOND_REQUESTS;
         let mut changes = CellChanges::new(1);
         layer.execute_control_request(
             budgeted(
@@ -986,7 +948,6 @@ mod tests {
                 BioEnergyDelta::new(-10.0),
                 0.5,
             ),
-            &mut bond_requests,
             &mut changes,
         );
         assert_eq!(changes.energy, BioEnergyDelta::new(-5.0));
@@ -995,13 +956,8 @@ mod tests {
     #[test]
     fn layer_health_cannot_be_restored_above_one() {
         let mut layer = simple_cell_layer(Area::new(1.0), Density::new(1.0)).with_health(0.5);
-        let mut bond_requests = NONE_BOND_REQUESTS;
         let mut changes = CellChanges::new(1);
-        layer.execute_control_request(
-            fully_budgeted_healing_request(0, 1.0),
-            &mut bond_requests,
-            &mut changes,
-        );
+        layer.execute_control_request(fully_budgeted_healing_request(0, 1.0), &mut changes);
         //assert_eq!(layer.health(), 1.0);
         assert_eq!(changes.layers[0].health, 0.5);
     }
@@ -1009,7 +965,6 @@ mod tests {
     #[test]
     fn layer_health_restoration_is_limited_by_budgeted_fraction() {
         let mut layer = simple_cell_layer(Area::new(1.0), Density::new(1.0)).with_health(0.5);
-        let mut bond_requests = NONE_BOND_REQUESTS;
         let mut changes = CellChanges::new(1);
         layer.execute_control_request(
             budgeted(
@@ -1017,7 +972,6 @@ mod tests {
                 BioEnergyDelta::ZERO,
                 0.5,
             ),
-            &mut bond_requests,
             &mut changes,
         );
         //assert_eq!(layer.health(), 0.75);
@@ -1114,13 +1068,8 @@ mod tests {
     #[test]
     fn dead_layer_ignores_control_requests() {
         let mut layer = simple_cell_layer(Area::new(1.0), Density::new(1.0)).dead();
-        let mut bond_requests = NONE_BOND_REQUESTS;
         let mut changes = CellChanges::new(1);
-        layer.execute_control_request(
-            fully_budgeted_healing_request(0, 1.0),
-            &mut bond_requests,
-            &mut changes,
-        );
+        layer.execute_control_request(fully_budgeted_healing_request(0, 1.0), &mut changes);
         assert_eq!(layer.health(), 0.0);
         assert_eq!(changes.layers[0].health, 0.0);
     }
@@ -1133,16 +1082,13 @@ mod tests {
             Color::Green,
             Box::new(ThrusterCellLayerSpecialty::new()),
         );
-        let mut bond_requests = NONE_BOND_REQUESTS;
         let mut changes = CellChanges::new(1);
         layer.execute_control_request(
             fully_budgeted(ThrusterCellLayerSpecialty::force_x_request(0, 1.0)),
-            &mut bond_requests,
             &mut changes,
         );
         layer.execute_control_request(
             fully_budgeted(ThrusterCellLayerSpecialty::force_y_request(0, -1.0)),
-            &mut bond_requests,
             &mut changes,
         );
 
@@ -1162,7 +1108,6 @@ mod tests {
             Color::Green,
             Box::new(ThrusterCellLayerSpecialty::new()),
         );
-        let mut bond_requests = NONE_BOND_REQUESTS;
         let mut changes = CellChanges::new(1);
         layer.execute_control_request(
             budgeted(
@@ -1170,7 +1115,6 @@ mod tests {
                 BioEnergyDelta::new(1.0),
                 0.5,
             ),
-            &mut bond_requests,
             &mut changes,
         );
         layer.execute_control_request(
@@ -1179,7 +1123,6 @@ mod tests {
                 BioEnergyDelta::new(1.0),
                 0.25,
             ),
-            &mut bond_requests,
             &mut changes,
         );
 
@@ -1200,16 +1143,13 @@ mod tests {
             Box::new(ThrusterCellLayerSpecialty::new()),
         )
         .with_health(0.5);
-        let mut bond_requests = NONE_BOND_REQUESTS;
         let mut changes = CellChanges::new(1);
         layer.execute_control_request(
             fully_budgeted(ThrusterCellLayerSpecialty::force_x_request(0, 1.0)),
-            &mut bond_requests,
             &mut changes,
         );
         layer.execute_control_request(
             fully_budgeted(ThrusterCellLayerSpecialty::force_y_request(0, -1.0)),
-            &mut bond_requests,
             &mut changes,
         );
 
@@ -1230,16 +1170,13 @@ mod tests {
             Color::Green,
             Box::new(ThrusterCellLayerSpecialty::new()),
         );
-        let mut bond_requests = NONE_BOND_REQUESTS;
         let mut changes = CellChanges::new(1);
         layer.execute_control_request(
             fully_budgeted(ThrusterCellLayerSpecialty::force_x_request(0, 1.0)),
-            &mut bond_requests,
             &mut changes,
         );
         layer.execute_control_request(
             fully_budgeted(ThrusterCellLayerSpecialty::force_y_request(0, -1.0)),
-            &mut bond_requests,
             &mut changes,
         );
         layer.damage(1.0);
@@ -1318,7 +1255,6 @@ mod tests {
             Color::Green,
             Box::new(BondingCellLayerSpecialty::new()),
         );
-        let mut bond_requests = NONE_BOND_REQUESTS;
         let mut changes = CellChanges::new(1);
         layer.execute_control_request(
             budgeted(
@@ -1326,7 +1262,6 @@ mod tests {
                 BioEnergyDelta::new(-1.0),
                 0.5,
             ),
-            &mut bond_requests,
             &mut changes,
         );
 
@@ -1346,7 +1281,6 @@ mod tests {
             Box::new(BondingCellLayerSpecialty::new()),
         )
         .with_health(0.5);
-        let mut bond_requests = NONE_BOND_REQUESTS;
         let mut changes = CellChanges::new(1);
         layer.execute_control_request(
             budgeted(
@@ -1354,7 +1288,6 @@ mod tests {
                 BioEnergyDelta::new(-1.0),
                 1.0,
             ),
-            &mut bond_requests,
             &mut changes,
         );
 

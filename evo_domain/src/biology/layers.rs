@@ -173,12 +173,9 @@ impl CellLayer {
         request: BudgetedControlRequest,
         changes: &mut CellChanges,
     ) {
-        self.body.brain.execute_control_request(
-            &mut *self.specialty,
-            &mut self.body,
-            request,
-            changes,
-        );
+        self.body
+            .brain
+            .execute_control_request(&*self.specialty, &mut self.body, request, changes);
     }
 
     pub fn apply_changes(&mut self, changes: &CellLayerChanges) {
@@ -333,8 +330,8 @@ trait CellLayerBrain: Debug {
 
     fn execute_control_request(
         &self,
-        specialty: &mut dyn CellLayerSpecialty,
-        body: &mut CellLayerBody,
+        specialty: &dyn CellLayerSpecialty,
+        body: &CellLayerBody,
         request: BudgetedControlRequest,
         changes: &mut CellChanges,
     );
@@ -393,8 +390,8 @@ impl CellLayerBrain for LivingCellLayerBrain {
 
     fn execute_control_request(
         &self,
-        specialty: &mut dyn CellLayerSpecialty,
-        body: &mut CellLayerBody,
+        specialty: &dyn CellLayerSpecialty,
+        body: &CellLayerBody,
         request: BudgetedControlRequest,
         changes: &mut CellChanges,
     ) {
@@ -446,8 +443,8 @@ impl CellLayerBrain for DeadCellLayerBrain {
 
     fn execute_control_request(
         &self,
-        _specialty: &mut dyn CellLayerSpecialty,
-        _body: &mut CellLayerBody,
+        _specialty: &dyn CellLayerSpecialty,
+        _body: &CellLayerBody,
         _request: BudgetedControlRequest,
         _changes: &mut CellChanges,
     ) {

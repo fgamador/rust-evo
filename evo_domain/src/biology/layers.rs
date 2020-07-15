@@ -611,7 +611,7 @@ impl CellLayerSpecialty for PhotoCellLayerSpecialty {
             env.light_intensity() * self.efficiency * body.health * body.area.value(),
         );
         changes.energy += energy.into();
-        (energy, Force::ZERO)
+        (BioEnergy::ZERO, Force::ZERO)
     }
 }
 
@@ -1180,9 +1180,8 @@ mod tests {
         env.add_light_intensity(10.0);
 
         let mut changes = CellChanges::new(1);
-        let (energy, _) = layer.calculate_automatic_changes(&env, &mut changes);
+        let (_, _) = layer.calculate_automatic_changes(&env, &mut changes);
 
-        assert_eq!(energy, BioEnergy::new(20.0));
         assert_eq!(changes.energy, BioEnergyDelta::new(20.0));
     }
 
@@ -1200,9 +1199,8 @@ mod tests {
         env.add_light_intensity(1.0);
 
         let mut changes = CellChanges::new(1);
-        let (energy, _) = layer.calculate_automatic_changes(&env, &mut changes);
+        let (_, _) = layer.calculate_automatic_changes(&env, &mut changes);
 
-        assert_eq!(energy, BioEnergy::new(0.75));
         assert_eq!(changes.energy, BioEnergyDelta::new(0.75));
     }
 

@@ -168,7 +168,7 @@ impl CellLayer {
     pub fn cost_control_request(&mut self, request: ControlRequest) -> CostedControlRequest {
         self.body
             .brain
-            .cost_control_request(&mut *self.specialty, &self.body, request)
+            .cost_control_request(&*self.specialty, &self.body, request)
     }
 
     pub fn execute_control_request(
@@ -329,7 +329,7 @@ trait CellLayerBrain: Debug {
 
     fn cost_control_request(
         &self,
-        specialty: &mut dyn CellLayerSpecialty,
+        specialty: &dyn CellLayerSpecialty,
         body: &CellLayerBody,
         request: ControlRequest,
     ) -> CostedControlRequest;
@@ -382,7 +382,7 @@ impl CellLayerBrain for LivingCellLayerBrain {
 
     fn cost_control_request(
         &self,
-        specialty: &mut dyn CellLayerSpecialty,
+        specialty: &dyn CellLayerSpecialty,
         body: &CellLayerBody,
         request: ControlRequest,
     ) -> CostedControlRequest {
@@ -439,7 +439,7 @@ impl CellLayerBrain for DeadCellLayerBrain {
 
     fn cost_control_request(
         &self,
-        _specialty: &mut dyn CellLayerSpecialty,
+        _specialty: &dyn CellLayerSpecialty,
         _body: &CellLayerBody,
         request: ControlRequest,
     ) -> CostedControlRequest {

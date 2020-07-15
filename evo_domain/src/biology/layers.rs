@@ -474,7 +474,7 @@ pub trait CellLayerSpecialty: Debug {
     fn box_spawn(&self) -> Box<dyn CellLayerSpecialty>;
 
     fn calculate_automatic_changes(
-        &mut self,
+        &self,
         _body: &CellLayerBody,
         _env: &LocalEnvironment,
         _changes: &mut CellChanges,
@@ -491,7 +491,7 @@ pub trait CellLayerSpecialty: Debug {
     }
 
     fn execute_control_request(
-        &mut self,
+        &self,
         _body: &CellLayerBody,
         request: BudgetedControlRequest,
         _changes: &mut CellChanges,
@@ -555,7 +555,7 @@ impl CellLayerSpecialty for ThrusterCellLayerSpecialty {
     }
 
     fn execute_control_request(
-        &mut self,
+        &self,
         body: &CellLayerBody,
         request: BudgetedControlRequest,
         changes: &mut CellChanges,
@@ -591,7 +591,7 @@ impl CellLayerSpecialty for PhotoCellLayerSpecialty {
     }
 
     fn calculate_automatic_changes(
-        &mut self,
+        &self,
         body: &CellLayerBody,
         env: &LocalEnvironment,
         changes: &mut CellChanges,
@@ -674,7 +674,7 @@ impl CellLayerSpecialty for BondingCellLayerSpecialty {
     }
 
     fn execute_control_request(
-        &mut self,
+        &self,
         body: &CellLayerBody,
         request: BudgetedControlRequest,
         changes: &mut CellChanges,

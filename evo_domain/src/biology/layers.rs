@@ -162,20 +162,20 @@ impl CellLayer {
             .calculate_automatic_changes(&*self.specialty, &mut self.body, env, changes);
     }
 
-    pub fn cost_control_request(&mut self, request: ControlRequest) -> CostedControlRequest {
+    pub fn cost_control_request(&self, request: ControlRequest) -> CostedControlRequest {
         self.body
             .brain
             .cost_control_request(&*self.specialty, &self.body, request)
     }
 
     pub fn execute_control_request(
-        &mut self,
+        &self,
         request: BudgetedControlRequest,
         changes: &mut CellChanges,
     ) {
         self.body
             .brain
-            .execute_control_request(&*self.specialty, &mut self.body, request, changes);
+            .execute_control_request(&*self.specialty, &self.body, request, changes);
     }
 
     pub fn apply_changes(&mut self, changes: &CellLayerChanges) {

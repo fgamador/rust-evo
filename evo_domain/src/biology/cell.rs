@@ -22,6 +22,7 @@ pub struct Cell {
     layers: Vec<CellLayer>, // TODO array? smallvec?
     control: Box<dyn CellControl>,
     energy: BioEnergy,
+    thrust: Force,
     selected: bool,
 }
 
@@ -39,7 +40,8 @@ impl Cell {
             environment: LocalEnvironment::new(),
             layers,
             control: Box::new(NullControl::new()),
-            energy: BioEnergy::new(0.0),
+            energy: BioEnergy::ZERO,
+            thrust: Force::ZERO,
             selected: false,
         }
     }
@@ -96,6 +98,7 @@ impl Cell {
             layers,
             control: self.control.spawn(),
             energy: BioEnergy::ZERO,
+            thrust: Force::ZERO,
             selected: false,
         }
     }
@@ -146,11 +149,10 @@ impl Cell {
     }
 
     pub fn calculate_automatic_changes(&mut self, changes: &mut CellChanges) {
-        let forces = self.newtonian_state.forces_mut();
         for layer in &mut self.layers {
-            let (_, force) = layer.calculate_automatic_changes(&self.environment, changes);
-            forces.add_force(force);
+            let (_, _) = layer.calculate_automatic_changes(&self.environment, changes);
         }
+        self.newtonian_state.forces_mut().add_force(self.thrust);
     }
 
     pub fn calculate_requested_changes(&mut self, changes: &mut CellChanges) {
@@ -355,7 +357,7 @@ impl Cell {
 
     pub fn apply_changes(&mut self, changes: &CellChanges) {
         self.energy += changes.energy;
-        // TODO thrust
+        self.thrust = changes.thrust;
         for (index, layer) in self.layers.iter_mut().enumerate() {
             layer.apply_changes(&changes.layers[index]);
         }
@@ -526,8 +528,11 @@ mod tests {
         )));
         let mut changes = CellChanges::new(cell.layers.len());
         cell.calculate_requested_changes(&mut changes);
-        let mut changes = CellChanges::new(cell.layers.len());
-        cell.calculate_automatic_changes(&mut changes);
+        cell.apply_changes(&changes);
+
+        // next tick
+        let mut changes2 = CellChanges::new(cell.layers.len());
+        cell.calculate_automatic_changes(&mut changes2);
         assert_eq!(Force::new(1.0, -1.0), cell.forces().net_force());
     }
 

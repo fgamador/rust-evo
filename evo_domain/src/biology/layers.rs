@@ -521,10 +521,7 @@ impl CellLayerSpecialty for NullCellLayerSpecialty {
 }
 
 #[derive(Debug)]
-pub struct ThrusterCellLayerSpecialty {
-    force_x: f64,
-    force_y: f64,
-}
+pub struct ThrusterCellLayerSpecialty {}
 
 impl ThrusterCellLayerSpecialty {
     const FORCE_X_CHANNEL_INDEX: usize = 2;
@@ -532,10 +529,7 @@ impl ThrusterCellLayerSpecialty {
 
     #[allow(clippy::new_without_default)]
     pub fn new() -> Self {
-        ThrusterCellLayerSpecialty {
-            force_x: 0.0,
-            force_y: 0.0,
-        }
+        ThrusterCellLayerSpecialty {}
     }
 
     pub fn force_x_request(layer_index: usize, value: f64) -> ControlRequest {
@@ -558,7 +552,7 @@ impl CellLayerSpecialty for ThrusterCellLayerSpecialty {
         _env: &LocalEnvironment,
         _changes: &mut CellChanges,
     ) -> (BioEnergy, Force) {
-        (BioEnergy::ZERO, Force::new(self.force_x, self.force_y))
+        (BioEnergy::ZERO, Force::ZERO)
     }
 
     fn cost_control_request(&self, request: ControlRequest) -> CostedControlRequest {
@@ -579,14 +573,12 @@ impl CellLayerSpecialty for ThrusterCellLayerSpecialty {
     ) {
         match request.channel_index() {
             Self::FORCE_X_CHANNEL_INDEX => {
-                self.force_x =
-                    body.health * request.budgeted_fraction() * request.requested_value();
-                changes.thrust += Force::new(self.force_x, 0.0);
+                let force_x = body.health * request.budgeted_fraction() * request.requested_value();
+                changes.thrust += Force::new(force_x, 0.0);
             }
             Self::FORCE_Y_CHANNEL_INDEX => {
-                self.force_y =
-                    body.health * request.budgeted_fraction() * request.requested_value();
-                changes.thrust += Force::new(0.0, self.force_y);
+                let force_y = body.health * request.budgeted_fraction() * request.requested_value();
+                changes.thrust += Force::new(0.0, force_y);
             }
             _ => panic!("Invalid control channel index: {}", request.channel_index()),
         }
@@ -1083,9 +1075,8 @@ mod tests {
 
         let env = LocalEnvironment::new();
         let mut changes2 = CellChanges::new(1);
-        let (_, force) = layer.calculate_automatic_changes(&env, &mut changes2);
+        let (_, _) = layer.calculate_automatic_changes(&env, &mut changes2);
 
-        assert_eq!(force, Force::new(1.0, -1.0));
         assert_eq!(changes.thrust, Force::new(1.0, -1.0));
     }
 
@@ -1117,9 +1108,8 @@ mod tests {
 
         let env = LocalEnvironment::new();
         let mut changes2 = CellChanges::new(1);
-        let (_, force) = layer.calculate_automatic_changes(&env, &mut changes2);
+        let (_, _) = layer.calculate_automatic_changes(&env, &mut changes2);
 
-        assert_eq!(force, Force::new(0.5, -0.25));
         assert_eq!(changes.thrust, Force::new(0.5, -0.25));
     }
 
@@ -1144,9 +1134,8 @@ mod tests {
 
         let env = LocalEnvironment::new();
         let mut changes2 = CellChanges::new(1);
-        let (_, force) = layer.calculate_automatic_changes(&env, &mut changes2);
+        let (_, _) = layer.calculate_automatic_changes(&env, &mut changes2);
 
-        assert_eq!(force, Force::new(0.5, -0.5));
         assert_eq!(changes.thrust, Force::new(0.5, -0.5));
     }
 

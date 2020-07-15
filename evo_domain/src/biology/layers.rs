@@ -184,6 +184,10 @@ impl CellLayer {
         );
     }
 
+    pub fn apply_changes(&mut self, changes: &CellLayerChanges) {
+        self.body.apply_changes(changes);
+    }
+
     pub fn healing_request(layer_index: usize, delta_health: f64) -> ControlRequest {
         ControlRequest::new(layer_index, Self::HEALING_CHANNEL_INDEX, 0, delta_health)
     }
@@ -195,10 +199,6 @@ impl CellLayer {
             0,
             delta_area.value(),
         )
-    }
-
-    pub fn apply_changes(&mut self, changes: &CellLayerChanges) {
-        self.body.apply_changes(changes);
     }
 }
 

@@ -717,14 +717,14 @@ mod tests {
     fn layer_resize_records_area_change() {
         let mut changes = CellChanges::new(1);
 
-        let mut layer = simple_cell_layer(Area::new(1.0), Density::new(2.0));
+        let layer = simple_cell_layer(Area::new(1.0), Density::new(2.0));
         layer.execute_control_request(fully_budgeted_resize_request(0, 2.0), &mut changes);
         assert_eq!(changes.layers[0].area, AreaDelta::new(2.0));
     }
 
     #[test]
     fn layer_resize_records_energy_change() {
-        let mut layer = simple_cell_layer(Area::new(1.0), Density::new(2.0));
+        let layer = simple_cell_layer(Area::new(1.0), Density::new(2.0));
         let mut changes = CellChanges::new(1);
         layer.execute_control_request(
             budgeted(
@@ -772,7 +772,7 @@ mod tests {
             ..LayerResizeParameters::UNLIMITED
         };
 
-        let mut layer = simple_cell_layer(Area::new(1.0), Density::new(1.0))
+        let layer = simple_cell_layer(Area::new(1.0), Density::new(1.0))
             .with_resize_parameters(&LAYER_RESIZE_PARAMS);
         let costed_request =
             layer.cost_control_request(CellLayer::resize_request(0, AreaDelta::new(3.0)));
@@ -787,7 +787,7 @@ mod tests {
 
     #[test]
     fn layer_growth_is_limited_by_budgeted_fraction() {
-        let mut layer = simple_cell_layer(Area::new(2.0), Density::new(1.0));
+        let layer = simple_cell_layer(Area::new(2.0), Density::new(1.0));
         let mut changes = CellChanges::new(1);
         layer.execute_control_request(
             budgeted(
@@ -807,7 +807,7 @@ mod tests {
             ..LayerResizeParameters::UNLIMITED
         };
 
-        let mut layer = simple_cell_layer(Area::new(2.0), Density::new(1.0))
+        let layer = simple_cell_layer(Area::new(2.0), Density::new(1.0))
             .with_resize_parameters(&LAYER_RESIZE_PARAMS);
         let mut changes = CellChanges::new(1);
         layer.execute_control_request(fully_budgeted_resize_request(0, 10.0), &mut changes);
@@ -822,7 +822,7 @@ mod tests {
             ..LayerResizeParameters::UNLIMITED
         };
 
-        let mut layer = simple_cell_layer(Area::new(1.0), Density::new(1.0))
+        let layer = simple_cell_layer(Area::new(1.0), Density::new(1.0))
             .with_resize_parameters(&LAYER_RESIZE_PARAMS);
         let control_request = CellLayer::resize_request(0, AreaDelta::new(2.0));
         let costed_request = layer.cost_control_request(control_request);
@@ -839,7 +839,7 @@ mod tests {
             ..LayerResizeParameters::UNLIMITED
         };
 
-        let mut layer = simple_cell_layer(Area::new(2.0), Density::new(1.0))
+        let layer = simple_cell_layer(Area::new(2.0), Density::new(1.0))
             .with_resize_parameters(&LAYER_RESIZE_PARAMS);
         let mut changes = CellChanges::new(1);
         layer.execute_control_request(fully_budgeted_resize_request(0, -10.0), &mut changes);
@@ -854,7 +854,7 @@ mod tests {
             ..LayerResizeParameters::UNLIMITED
         };
 
-        let mut layer = simple_cell_layer(Area::new(4.0), Density::new(1.0))
+        let layer = simple_cell_layer(Area::new(4.0), Density::new(1.0))
             .with_resize_parameters(&LAYER_RESIZE_PARAMS);
         let control_request = CellLayer::resize_request(0, AreaDelta::new(-10.0));
         let costed_request = layer.cost_control_request(control_request);
@@ -866,7 +866,7 @@ mod tests {
 
     #[test]
     fn layer_resize_is_reduced_by_reduced_health() {
-        let mut layer = simple_cell_layer(Area::new(1.0), Density::new(1.0)).with_health(0.5);
+        let layer = simple_cell_layer(Area::new(1.0), Density::new(1.0)).with_health(0.5);
         let mut changes = CellChanges::new(1);
         layer.execute_control_request(fully_budgeted_resize_request(0, 10.0), &mut changes);
         assert_eq!(changes.layers[0].area, AreaDelta::new(5.0));
@@ -879,7 +879,7 @@ mod tests {
             ..LayerResizeParameters::UNLIMITED
         };
 
-        let mut layer = simple_cell_layer(Area::new(1.0), Density::new(1.0))
+        let layer = simple_cell_layer(Area::new(1.0), Density::new(1.0))
             .with_resize_parameters(&LAYER_RESIZE_PARAMS)
             .with_health(0.5);
         let control_request = CellLayer::resize_request(0, AreaDelta::new(1.0));
@@ -892,7 +892,7 @@ mod tests {
 
     #[test]
     fn layer_healing_records_health_change() {
-        let mut layer = simple_cell_layer(Area::new(1.0), Density::new(1.0)).with_health(0.5);
+        let layer = simple_cell_layer(Area::new(1.0), Density::new(1.0)).with_health(0.5);
         let mut changes = CellChanges::new(1);
         layer.execute_control_request(fully_budgeted_healing_request(0, 0.25), &mut changes);
         assert_eq!(changes.layers[0].health, 0.25);
@@ -900,7 +900,7 @@ mod tests {
 
     #[test]
     fn layer_healing_records_energy_change() {
-        let mut layer = simple_cell_layer(Area::new(1.0), Density::new(1.0)).with_health(0.5);
+        let layer = simple_cell_layer(Area::new(1.0), Density::new(1.0)).with_health(0.5);
         let mut changes = CellChanges::new(1);
         layer.execute_control_request(
             budgeted(
@@ -915,7 +915,7 @@ mod tests {
 
     #[test]
     fn layer_health_cannot_be_restored_above_one() {
-        let mut layer = simple_cell_layer(Area::new(1.0), Density::new(1.0)).with_health(0.5);
+        let layer = simple_cell_layer(Area::new(1.0), Density::new(1.0)).with_health(0.5);
         let mut changes = CellChanges::new(1);
         layer.execute_control_request(fully_budgeted_healing_request(0, 1.0), &mut changes);
         assert_eq!(changes.layers[0].health, 0.5);
@@ -923,7 +923,7 @@ mod tests {
 
     #[test]
     fn layer_health_restoration_is_limited_by_budgeted_fraction() {
-        let mut layer = simple_cell_layer(Area::new(1.0), Density::new(1.0)).with_health(0.5);
+        let layer = simple_cell_layer(Area::new(1.0), Density::new(1.0)).with_health(0.5);
         let mut changes = CellChanges::new(1);
         layer.execute_control_request(
             budgeted(
@@ -943,7 +943,7 @@ mod tests {
             ..LayerHealthParameters::DEFAULT
         };
 
-        let mut layer = simple_cell_layer(Area::new(2.0), Density::new(1.0))
+        let layer = simple_cell_layer(Area::new(2.0), Density::new(1.0))
             .with_health_parameters(&LAYER_HEALTH_PARAMS)
             .with_health(0.5);
         let control_request = CellLayer::healing_request(0, 0.25);
@@ -1015,7 +1015,7 @@ mod tests {
             ..LayerHealthParameters::DEFAULT
         };
 
-        let mut layer = simple_cell_layer(Area::new(1.0), Density::new(1.0))
+        let layer = simple_cell_layer(Area::new(1.0), Density::new(1.0))
             .with_health_parameters(&LAYER_HEALTH_PARAMS)
             .dead();
         let control_request = CellLayer::healing_request(0, 1.0);
@@ -1025,7 +1025,7 @@ mod tests {
 
     #[test]
     fn dead_layer_ignores_control_requests() {
-        let mut layer = simple_cell_layer(Area::new(1.0), Density::new(1.0)).dead();
+        let layer = simple_cell_layer(Area::new(1.0), Density::new(1.0)).dead();
         let mut changes = CellChanges::new(1);
         layer.execute_control_request(fully_budgeted_healing_request(0, 1.0), &mut changes);
         assert_eq!(layer.health(), 0.0);
@@ -1201,7 +1201,7 @@ mod tests {
 
     #[test]
     fn budding_energy_is_limited_by_budget() {
-        let mut layer = CellLayer::new(
+        let layer = CellLayer::new(
             Area::new(1.0),
             Density::new(1.0),
             Color::Green,
@@ -1226,7 +1226,7 @@ mod tests {
 
     #[test]
     fn budding_energy_is_limited_by_health() {
-        let mut layer = CellLayer::new(
+        let layer = CellLayer::new(
             Area::new(1.0),
             Density::new(1.0),
             Color::Green,

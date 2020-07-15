@@ -329,7 +329,7 @@ trait CellLayerBrain: Debug {
         body: &mut CellLayerBody,
         env: &LocalEnvironment,
         changes: &mut CellChanges,
-    ) -> (BioEnergy, Force);
+    );
 
     fn cost_control_request(
         &self,
@@ -378,7 +378,7 @@ impl CellLayerBrain for LivingCellLayerBrain {
         body: &mut CellLayerBody,
         env: &LocalEnvironment,
         changes: &mut CellChanges,
-    ) -> (BioEnergy, Force) {
+    ) {
         self.entropic_damage(body);
         self.overlap_damage(body, env.overlaps());
         specialty.calculate_automatic_changes(body, env, changes)
@@ -438,8 +438,7 @@ impl CellLayerBrain for DeadCellLayerBrain {
         _body: &mut CellLayerBody,
         _env: &LocalEnvironment,
         _changes: &mut CellChanges,
-    ) -> (BioEnergy, Force) {
-        (BioEnergy::ZERO, Force::ZERO)
+    ) {
     }
 
     fn cost_control_request(
@@ -479,8 +478,7 @@ pub trait CellLayerSpecialty: Debug {
         _body: &CellLayerBody,
         _env: &LocalEnvironment,
         _changes: &mut CellChanges,
-    ) -> (BioEnergy, Force) {
-        (BioEnergy::ZERO, Force::ZERO)
+    ) {
     }
 
     // TODO implement and use this, e.g. for the invalid-index panic
@@ -546,15 +544,6 @@ impl CellLayerSpecialty for ThrusterCellLayerSpecialty {
         Box::new(ThrusterCellLayerSpecialty::new())
     }
 
-    fn calculate_automatic_changes(
-        &mut self,
-        _body: &CellLayerBody,
-        _env: &LocalEnvironment,
-        _changes: &mut CellChanges,
-    ) -> (BioEnergy, Force) {
-        (BioEnergy::ZERO, Force::ZERO)
-    }
-
     fn cost_control_request(&self, request: ControlRequest) -> CostedControlRequest {
         match request.channel_index() {
             // TODO cost forces based on a parameter struct(?)
@@ -606,12 +595,11 @@ impl CellLayerSpecialty for PhotoCellLayerSpecialty {
         body: &CellLayerBody,
         env: &LocalEnvironment,
         changes: &mut CellChanges,
-    ) -> (BioEnergy, Force) {
+    ) {
         let energy = BioEnergy::new(
             env.light_intensity() * self.efficiency * body.health * body.area.value(),
         );
         changes.energy += energy.into();
-        (BioEnergy::ZERO, Force::ZERO)
     }
 }
 

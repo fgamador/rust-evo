@@ -160,7 +160,6 @@ impl Cell {
         self._print_selected_cell_status(end_energy, &budgeted_control_requests);
         self.execute_control_requests(&budgeted_control_requests, changes);
         self._print_selected_cell_bond_requests(&changes.bond_requests);
-        self.reset_layers();
     }
 
     fn get_budgeted_control_requests(&mut self) -> (BioEnergy, Vec<BudgetedControlRequest>) {
@@ -331,12 +330,6 @@ impl Cell {
         child.set_initial_velocity(self.velocity());
         child.set_initial_energy(donation_energy);
         child
-    }
-
-    fn reset_layers(&mut self) {
-        for layer in &mut self.layers {
-            layer.reset();
-        }
     }
 
     #[allow(clippy::vec_box)]

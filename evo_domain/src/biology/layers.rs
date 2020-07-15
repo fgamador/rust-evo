@@ -184,10 +184,6 @@ impl CellLayer {
         );
     }
 
-    pub fn reset(&mut self) {
-        self.specialty.reset();
-    }
-
     pub fn healing_request(layer_index: usize, delta_health: f64) -> ControlRequest {
         ControlRequest::new(layer_index, Self::HEALING_CHANNEL_INDEX, 0, delta_health)
     }
@@ -498,8 +494,6 @@ pub trait CellLayerSpecialty: Debug {
     ) {
         panic!("Invalid control channel index: {}", request.channel_index());
     }
-
-    fn reset(&mut self) {}
 }
 
 #[derive(Debug)]

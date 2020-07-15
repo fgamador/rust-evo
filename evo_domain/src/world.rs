@@ -491,26 +491,20 @@ mod tests {
             ..LayerResizeParameters::UNLIMITED
         };
 
-        let mut world = World::new(Position::new(-10.0, -10.0), Position::new(10.0, 10.0))
-            .with_influence(Box::new(Sunlight::new(-10.0, 10.0, 0.0, 10.0)))
-            .with_cell(
-                simple_layered_cell(vec![CellLayer::new(
-                    Area::new(10.0),
-                    Density::new(1.0),
-                    Color::Green,
-                    Box::new(PhotoCellLayerSpecialty::new(1.0)),
-                )
+        let mut world = World::new(Position::ORIGIN, Position::ORIGIN).with_cell(
+            simple_layered_cell(vec![simple_cell_layer(Area::new(10.0), Density::new(1.0))
                 .with_resize_parameters(&LAYER_RESIZE_PARAMS)])
-                .with_control(Box::new(ContinuousResizeControl::new(
-                    0,
-                    AreaDelta::new(100.0),
-                ))),
-            );
+            .with_control(Box::new(ContinuousResizeControl::new(
+                0,
+                AreaDelta::new(100.0),
+            )))
+            .with_initial_energy(BioEnergy::new(10.0)),
+        );
 
         world.tick();
 
         let cell = &world.cells()[0];
-        assert_eq!(cell.area().value().round(), 15.0);
+        assert_eq!(cell.area().value().round(), 11.0);
     }
 
     #[test]

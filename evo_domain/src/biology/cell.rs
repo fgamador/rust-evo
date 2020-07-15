@@ -148,18 +148,16 @@ impl Cell {
     pub fn calculate_automatic_changes(&mut self, changes: &mut CellChanges) {
         let forces = self.newtonian_state.forces_mut();
         for layer in &mut self.layers {
-            let (energy, force) = layer.calculate_automatic_changes(&self.environment, changes);
-            self.energy += energy;
+            let (_, force) = layer.calculate_automatic_changes(&self.environment, changes);
             forces.add_force(force);
         }
     }
 
     pub fn calculate_requested_changes(&mut self, changes: &mut CellChanges) {
         let (end_energy, budgeted_control_requests) = self.get_budgeted_control_requests();
-        //self._print_selected_cell_status(end_energy, &budgeted_control_requests);
-        self.energy = end_energy;
+        self._print_selected_cell_status(end_energy, &budgeted_control_requests);
         self.execute_control_requests(&budgeted_control_requests, changes);
-        //self._print_selected_cell_bond_requests(bond_requests);
+        self._print_selected_cell_bond_requests(&changes.bond_requests);
         self.reset_layers();
     }
 
@@ -356,7 +354,7 @@ impl Cell {
     }
 
     pub fn apply_changes(&mut self, changes: &CellChanges) {
-        // TODO self.energy += changes.energy;
+        self.energy += changes.energy;
         // TODO thrust
         for (index, layer) in self.layers.iter_mut().enumerate() {
             layer.apply_changes(&changes.layers[index]);
@@ -509,6 +507,7 @@ mod tests {
 
         let mut changes = CellChanges::new(cell.layers.len());
         cell.calculate_requested_changes(&mut changes);
+        cell.apply_changes(&changes);
 
         assert_eq!(BioEnergy::new(8.0), cell.energy());
     }
@@ -544,6 +543,7 @@ mod tests {
 
         let mut changes = CellChanges::new(cell.layers.len());
         cell.calculate_automatic_changes(&mut changes);
+        cell.apply_changes(&changes);
 
         assert_eq!(BioEnergy::new(20.0), cell.energy());
     }

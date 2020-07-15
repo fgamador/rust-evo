@@ -157,12 +157,9 @@ impl CellLayer {
         env: &LocalEnvironment,
         changes: &mut CellChanges,
     ) {
-        self.body.brain.calculate_automatic_changes(
-            &mut *self.specialty,
-            &mut self.body,
-            env,
-            changes,
-        );
+        self.body
+            .brain
+            .calculate_automatic_changes(&*self.specialty, &mut self.body, env, changes);
     }
 
     pub fn cost_control_request(&mut self, request: ControlRequest) -> CostedControlRequest {
@@ -321,7 +318,7 @@ trait CellLayerBrain: Debug {
 
     fn calculate_automatic_changes(
         &self,
-        specialty: &mut dyn CellLayerSpecialty,
+        specialty: &dyn CellLayerSpecialty,
         body: &mut CellLayerBody,
         env: &LocalEnvironment,
         changes: &mut CellChanges,
@@ -370,11 +367,12 @@ impl CellLayerBrain for LivingCellLayerBrain {
 
     fn calculate_automatic_changes(
         &self,
-        specialty: &mut dyn CellLayerSpecialty,
+        specialty: &dyn CellLayerSpecialty,
         body: &mut CellLayerBody,
         env: &LocalEnvironment,
         changes: &mut CellChanges,
     ) {
+        // TODO move these
         self.entropic_damage(body);
         self.overlap_damage(body, env.overlaps());
         specialty.calculate_automatic_changes(body, env, changes)
@@ -430,7 +428,7 @@ impl CellLayerBrain for DeadCellLayerBrain {
 
     fn calculate_automatic_changes(
         &self,
-        _specialty: &mut dyn CellLayerSpecialty,
+        _specialty: &dyn CellLayerSpecialty,
         _body: &mut CellLayerBody,
         _env: &LocalEnvironment,
         _changes: &mut CellChanges,

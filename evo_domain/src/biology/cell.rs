@@ -150,7 +150,7 @@ impl Cell {
 
     pub fn calculate_automatic_changes(&mut self, changes: &mut CellChanges) {
         for layer in &mut self.layers {
-            let (_, _) = layer.calculate_automatic_changes(&self.environment, changes);
+            layer.calculate_automatic_changes(&self.environment, changes);
         }
         self.newtonian_state.forces_mut().add_force(self.thrust);
     }

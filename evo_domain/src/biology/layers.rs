@@ -156,13 +156,13 @@ impl CellLayer {
         &mut self,
         env: &LocalEnvironment,
         changes: &mut CellChanges,
-    ) -> (BioEnergy, Force) {
+    ) {
         self.body.brain.calculate_automatic_changes(
             &mut *self.specialty,
             &mut self.body,
             env,
             changes,
-        )
+        );
     }
 
     pub fn cost_control_request(&mut self, request: ControlRequest) -> CostedControlRequest {
@@ -1075,7 +1075,7 @@ mod tests {
 
         let env = LocalEnvironment::new();
         let mut changes2 = CellChanges::new(1);
-        let (_, _) = layer.calculate_automatic_changes(&env, &mut changes2);
+        layer.calculate_automatic_changes(&env, &mut changes2);
 
         assert_eq!(changes.thrust, Force::new(1.0, -1.0));
     }
@@ -1108,7 +1108,7 @@ mod tests {
 
         let env = LocalEnvironment::new();
         let mut changes2 = CellChanges::new(1);
-        let (_, _) = layer.calculate_automatic_changes(&env, &mut changes2);
+        layer.calculate_automatic_changes(&env, &mut changes2);
 
         assert_eq!(changes.thrust, Force::new(0.5, -0.25));
     }
@@ -1134,7 +1134,7 @@ mod tests {
 
         let env = LocalEnvironment::new();
         let mut changes2 = CellChanges::new(1);
-        let (_, _) = layer.calculate_automatic_changes(&env, &mut changes2);
+        layer.calculate_automatic_changes(&env, &mut changes2);
 
         assert_eq!(changes.thrust, Force::new(0.5, -0.5));
     }
@@ -1161,9 +1161,8 @@ mod tests {
 
         let env = LocalEnvironment::new();
         let mut changes = CellChanges::new(1);
-        let (_, force) = layer.calculate_automatic_changes(&env, &mut changes);
+        layer.calculate_automatic_changes(&env, &mut changes);
 
-        assert_eq!(force, Force::new(0.0, 0.0));
         assert_eq!(changes.thrust, Force::new(0.0, 0.0));
     }
 
@@ -1180,7 +1179,7 @@ mod tests {
         env.add_light_intensity(10.0);
 
         let mut changes = CellChanges::new(1);
-        let (_, _) = layer.calculate_automatic_changes(&env, &mut changes);
+        layer.calculate_automatic_changes(&env, &mut changes);
 
         assert_eq!(changes.energy, BioEnergyDelta::new(20.0));
     }
@@ -1199,7 +1198,7 @@ mod tests {
         env.add_light_intensity(1.0);
 
         let mut changes = CellChanges::new(1);
-        let (_, _) = layer.calculate_automatic_changes(&env, &mut changes);
+        layer.calculate_automatic_changes(&env, &mut changes);
 
         assert_eq!(changes.energy, BioEnergyDelta::new(0.75));
     }
@@ -1218,9 +1217,9 @@ mod tests {
         env.add_light_intensity(1.0);
 
         let mut changes = CellChanges::new(1);
-        let (energy, _) = layer.calculate_automatic_changes(&env, &mut changes);
+        layer.calculate_automatic_changes(&env, &mut changes);
 
-        assert_eq!(energy, BioEnergy::new(0.0));
+        assert_eq!(changes.energy, BioEnergyDelta::new(0.0));
     }
 
     #[test]

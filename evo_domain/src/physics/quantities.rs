@@ -415,6 +415,85 @@ impl AddAssign<AreaDelta> for Area {
     }
 }
 
+#[derive(Clone, Copy, Debug, PartialEq, PartialOrd)]
+pub struct Health {
+    value: Value1D,
+}
+
+impl Health {
+    pub const FULL: Health = Health { value: 1.0 };
+    pub const ZERO: Health = Health { value: 0.0 };
+
+    pub fn new(value: f64) -> Self {
+        Health {
+            value: Self::bound(value),
+        }
+    }
+
+    #[allow(dead_code)]
+    pub fn value(self) -> Value1D {
+        self.value
+    }
+
+    fn bound(value: Value1D) -> Value1D {
+        value.max(0.0).min(1.0)
+    }
+}
+
+impl Add<HealthDelta> for Health {
+    type Output = Health;
+
+    fn add(self, rhs: HealthDelta) -> Self::Output {
+        Health::new(self.value + rhs.value)
+    }
+}
+
+impl AddAssign<HealthDelta> for Health {
+    fn add_assign(&mut self, rhs: HealthDelta) {
+        self.value = Self::bound(self.value + rhs.value);
+    }
+}
+
+#[derive(Clone, Copy, Debug, PartialEq, PartialOrd)]
+pub struct HealthDelta {
+    value: Value1D,
+}
+
+impl HealthDelta {
+    pub const MAX: HealthDelta = HealthDelta { value: 1.0 };
+    pub const MIN: HealthDelta = HealthDelta { value: -1.0 };
+    pub const ZERO: HealthDelta = HealthDelta { value: 0.0 };
+
+    pub fn new(value: f64) -> Self {
+        HealthDelta {
+            value: Self::bound(value),
+        }
+    }
+
+    #[allow(dead_code)]
+    pub fn value(self) -> Value1D {
+        self.value
+    }
+
+    fn bound(value: Value1D) -> Value1D {
+        value.max(-1.0).min(1.0)
+    }
+}
+
+impl Add for HealthDelta {
+    type Output = HealthDelta;
+
+    fn add(self, rhs: HealthDelta) -> Self::Output {
+        HealthDelta::new(self.value + rhs.value)
+    }
+}
+
+impl AddAssign for HealthDelta {
+    fn add_assign(&mut self, rhs: HealthDelta) {
+        self.value = Self::bound(self.value + rhs.value);
+    }
+}
+
 #[derive(Clone, Copy, Debug, PartialEq)]
 pub struct Position {
     x: f64,
@@ -1260,6 +1339,60 @@ mod tests {
     #[test]
     fn multiply_area_by_density() {
         assert_eq!(Mass::new(3.0), Area::new(2.0) * Density::new(1.5));
+    }
+
+    #[test]
+    fn cannot_overflow_health_by_initialization() {
+        assert_eq!(Health::new(Health::FULL.value() + 1.0), Health::FULL);
+    }
+
+    #[test]
+    fn cannot_overflow_health_by_add_assign() {
+        let mut health = Health::FULL;
+        health += HealthDelta::MAX;
+        assert_eq!(health, Health::FULL);
+    }
+
+    #[test]
+    fn cannot_underflow_health_by_initialization() {
+        assert_eq!(Health::new(Health::ZERO.value() - 1.0), Health::ZERO);
+    }
+
+    #[test]
+    fn cannot_underflow_health_by_add_assign() {
+        let mut health = Health::ZERO;
+        health += HealthDelta::MIN;
+        assert_eq!(health, Health::ZERO);
+    }
+
+    #[test]
+    fn cannot_overflow_health_delta_by_initialization() {
+        assert_eq!(
+            HealthDelta::new(HealthDelta::MAX.value() + 1.0),
+            HealthDelta::MAX
+        );
+    }
+
+    #[test]
+    fn cannot_overflow_health_delta_by_add_assign() {
+        let mut health_delta = HealthDelta::MAX;
+        health_delta += HealthDelta::MAX;
+        assert_eq!(health_delta, HealthDelta::MAX);
+    }
+
+    #[test]
+    fn cannot_underflow_health_delta_by_initialization() {
+        assert_eq!(
+            HealthDelta::new(HealthDelta::MIN.value() - 1.0),
+            HealthDelta::MIN
+        );
+    }
+
+    #[test]
+    fn cannot_underflow_health_delta_by_add_assign() {
+        let mut health_delta = HealthDelta::MIN;
+        health_delta += HealthDelta::MIN;
+        assert_eq!(health_delta, HealthDelta::MIN);
     }
 
     #[test]

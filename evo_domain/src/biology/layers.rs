@@ -102,8 +102,7 @@ impl CellLayer {
         self
     }
 
-    pub fn with_health(mut self, health: f64) -> Self {
-        assert!(health >= 0.0);
+    pub fn with_health(mut self, health: Health) -> Self {
         self.body.health = health;
         self
     }
@@ -121,7 +120,7 @@ impl CellLayer {
     }
 
     pub fn is_alive(&self) -> bool {
-        self.health() > 0.0
+        self.health() > Health::ZERO
     }
 
     pub fn outer_radius(&self) -> Length {
@@ -132,7 +131,7 @@ impl CellLayer {
         self.body.color
     }
 
-    pub fn health(&self) -> f64 {
+    pub fn health(&self) -> Health {
         self.body.health
     }
 
@@ -204,7 +203,7 @@ pub struct CellLayerBody {
     density: Density,
     mass: Mass,
     outer_radius: Length,
-    health: f64,
+    health: Health,
     color: Color,
     brain: &'static dyn CellLayerBrain,
     // TODO move to CellLayerParameters struct?
@@ -219,7 +218,7 @@ impl CellLayerBody {
             density,
             mass: Mass::ZERO,
             outer_radius: Length::ZERO,
-            health: 1.0,
+            health: Health::FULL,
             color,
             brain: &CellLayer::LIVING_BRAIN,
             health_parameters: &LayerHealthParameters::DEFAULT,
@@ -232,7 +231,7 @@ impl CellLayerBody {
     fn spawn(&self, area: Area) -> Self {
         let mut copy = Self {
             area,
-            health: 1.0,
+            health: Health::FULL,
             brain: &CellLayer::LIVING_BRAIN,
             ..*self
         };
@@ -247,7 +246,7 @@ impl CellLayerBody {
 
     fn damage(&mut self, health_loss: f64) {
         assert!(health_loss >= 0.0);
-        self.health = (self.health - health_loss).max(0.0);
+        self.health += HealthDelta::new(-health_loss);
     }
 
     fn update_outer_radius(&mut self, inner_radius: Length) {
@@ -273,13 +272,17 @@ impl CellLayerBody {
         CostedControlRequest::limited(request, delta_area, delta_area * energy_delta_per_area)
     }
 
-    fn restore_health(&mut self, delta_health: f64) {
+    fn restore_health(&mut self, delta_health: HealthDelta) {
         self.health += delta_health;
     }
 
-    fn actual_delta_health(&self, requested_delta_health: f64, budgeted_fraction: f64) -> f64 {
-        assert!(requested_delta_health >= 0.0);
-        (budgeted_fraction * requested_delta_health).min(1.0 - self.health)
+    fn actual_delta_health(
+        &self,
+        requested_delta_health: HealthDelta,
+        budgeted_fraction: f64,
+    ) -> HealthDelta {
+        assert!(requested_delta_health.value() >= 0.0);
+        budgeted_fraction * requested_delta_health
     }
 
     fn resize(&mut self, delta_area: AreaDelta) {
@@ -288,8 +291,9 @@ impl CellLayerBody {
     }
 
     fn actual_delta_area(&self, requested_delta_area: f64, budgeted_fraction: f64) -> AreaDelta {
-        let delta_area =
-            self.health * budgeted_fraction * self.bound_resize_delta_area(requested_delta_area);
+        let delta_area = self.health.value()
+            * budgeted_fraction
+            * self.bound_resize_delta_area(requested_delta_area);
         AreaDelta::new(delta_area.max(-self.area.value()))
     }
 
@@ -357,7 +361,7 @@ impl LivingCellLayerBrain {
 impl CellLayerBrain for LivingCellLayerBrain {
     fn damage(&self, body: &mut CellLayerBody, health_loss: f64) {
         body.damage(health_loss);
-        if body.health == 0.0 {
+        if body.health == Health::ZERO {
             body.brain = &CellLayer::DEAD_BRAIN;
         }
     }
@@ -397,8 +401,10 @@ impl CellLayerBrain for LivingCellLayerBrain {
     ) {
         match request.channel_index() {
             CellLayer::HEALING_CHANNEL_INDEX => {
-                let delta_health = body
-                    .actual_delta_health(request.requested_value(), request.budgeted_fraction());
+                let delta_health = body.actual_delta_health(
+                    HealthDelta::new(request.requested_value()),
+                    request.budgeted_fraction(),
+                );
 
                 let layer_changes = &mut changes.layers[request.layer_index()];
                 layer_changes.health += delta_health;
@@ -551,11 +557,13 @@ impl CellLayerSpecialty for ThrusterCellLayerSpecialty {
     ) {
         match request.channel_index() {
             Self::FORCE_X_CHANNEL_INDEX => {
-                let force_x = body.health * request.budgeted_fraction() * request.requested_value();
+                let force_x =
+                    body.health.value() * request.budgeted_fraction() * request.requested_value();
                 changes.thrust += Force::new(force_x, 0.0);
             }
             Self::FORCE_Y_CHANNEL_INDEX => {
-                let force_y = body.health * request.budgeted_fraction() * request.requested_value();
+                let force_y =
+                    body.health.value() * request.budgeted_fraction() * request.requested_value();
                 changes.thrust += Force::new(0.0, force_y);
             }
             _ => panic!("Invalid control channel index: {}", request.channel_index()),
@@ -586,7 +594,7 @@ impl CellLayerSpecialty for PhotoCellLayerSpecialty {
         changes: &mut CellChanges,
     ) {
         let energy = BioEnergy::new(
-            env.light_intensity() * self.efficiency * body.health * body.area.value(),
+            env.light_intensity() * self.efficiency * body.health.value() * body.area.value(),
         );
         changes.energy += energy.into();
     }
@@ -677,7 +685,7 @@ impl CellLayerSpecialty for BondingCellLayerSpecialty {
                 bond_request.budding_angle = Angle::from_radians(request.requested_value())
             }
             Self::DONATION_ENERGY_CHANNEL_INDEX => {
-                bond_request.donation_energy = body.health
+                bond_request.donation_energy = body.health.value()
                     * request.budgeted_fraction()
                     * BioEnergy::new(request.requested_value());
                 changes.energy += request.energy_delta() * request.budgeted_fraction();
@@ -741,14 +749,14 @@ mod tests {
     fn layer_damage_reduces_health() {
         let mut layer = simple_cell_layer(Area::new(1.0), Density::new(1.0));
         layer.damage(0.25);
-        assert_eq!(layer.health(), 0.75);
+        assert_eq!(layer.health(), Health::new(0.75));
     }
 
     #[test]
     fn layer_damage_cannot_reduce_health_below_zero() {
         let mut layer = simple_cell_layer(Area::new(1.0), Density::new(1.0));
         layer.damage(2.0);
-        assert_eq!(layer.health(), 0.0);
+        assert_eq!(layer.health(), Health::ZERO);
     }
 
     #[test]
@@ -866,7 +874,8 @@ mod tests {
 
     #[test]
     fn layer_resize_is_reduced_by_reduced_health() {
-        let layer = simple_cell_layer(Area::new(1.0), Density::new(1.0)).with_health(0.5);
+        let layer =
+            simple_cell_layer(Area::new(1.0), Density::new(1.0)).with_health(Health::new(0.5));
         let mut changes = CellChanges::new(1);
         layer.execute_control_request(fully_budgeted_resize_request(0, 10.0), &mut changes);
         assert_eq!(changes.layers[0].area, AreaDelta::new(5.0));
@@ -881,7 +890,7 @@ mod tests {
 
         let layer = simple_cell_layer(Area::new(1.0), Density::new(1.0))
             .with_resize_parameters(&LAYER_RESIZE_PARAMS)
-            .with_health(0.5);
+            .with_health(Health::new(0.5));
         let control_request = CellLayer::resize_request(0, AreaDelta::new(1.0));
         let costed_request = layer.cost_control_request(control_request);
         assert_eq!(
@@ -892,15 +901,17 @@ mod tests {
 
     #[test]
     fn layer_healing_records_health_change() {
-        let layer = simple_cell_layer(Area::new(1.0), Density::new(1.0)).with_health(0.5);
+        let layer =
+            simple_cell_layer(Area::new(1.0), Density::new(1.0)).with_health(Health::new(0.5));
         let mut changes = CellChanges::new(1);
         layer.execute_control_request(fully_budgeted_healing_request(0, 0.25), &mut changes);
-        assert_eq!(changes.layers[0].health, 0.25);
+        assert_eq!(changes.layers[0].health, HealthDelta::new(0.25));
     }
 
     #[test]
     fn layer_healing_records_energy_change() {
-        let layer = simple_cell_layer(Area::new(1.0), Density::new(1.0)).with_health(0.5);
+        let layer =
+            simple_cell_layer(Area::new(1.0), Density::new(1.0)).with_health(Health::new(0.5));
         let mut changes = CellChanges::new(1);
         layer.execute_control_request(
             budgeted(
@@ -914,16 +925,9 @@ mod tests {
     }
 
     #[test]
-    fn layer_health_cannot_be_restored_above_one() {
-        let layer = simple_cell_layer(Area::new(1.0), Density::new(1.0)).with_health(0.5);
-        let mut changes = CellChanges::new(1);
-        layer.execute_control_request(fully_budgeted_healing_request(0, 1.0), &mut changes);
-        assert_eq!(changes.layers[0].health, 0.5);
-    }
-
-    #[test]
     fn layer_health_restoration_is_limited_by_budgeted_fraction() {
-        let layer = simple_cell_layer(Area::new(1.0), Density::new(1.0)).with_health(0.5);
+        let layer =
+            simple_cell_layer(Area::new(1.0), Density::new(1.0)).with_health(Health::new(0.5));
         let mut changes = CellChanges::new(1);
         layer.execute_control_request(
             budgeted(
@@ -933,7 +937,7 @@ mod tests {
             ),
             &mut changes,
         );
-        assert_eq!(changes.layers[0].health, 0.25);
+        assert_eq!(changes.layers[0].health, HealthDelta::new(0.25));
     }
 
     #[test]
@@ -945,7 +949,7 @@ mod tests {
 
         let layer = simple_cell_layer(Area::new(2.0), Density::new(1.0))
             .with_health_parameters(&LAYER_HEALTH_PARAMS)
-            .with_health(0.5);
+            .with_health(Health::new(0.5));
         let control_request = CellLayer::healing_request(0, 0.25);
         let costed_request = layer.cost_control_request(control_request);
         assert_eq!(
@@ -968,7 +972,7 @@ mod tests {
         let mut changes = CellChanges::new(1);
         layer.calculate_automatic_changes(&env, &mut changes);
 
-        assert_eq!(layer.health(), 0.75);
+        assert_eq!(layer.health(), Health::new(0.75));
     }
 
     #[test]
@@ -986,16 +990,17 @@ mod tests {
         let mut changes = CellChanges::new(1);
         layer.calculate_automatic_changes(&env, &mut changes);
 
-        assert_eq!(layer.health(), 0.875);
+        assert_eq!(layer.health(), Health::new(0.875));
     }
 
     #[test]
     fn applying_layer_changes_changes_health() {
-        let mut layer = simple_cell_layer(Area::new(1.0), Density::new(1.0)).with_health(0.5);
+        let mut layer =
+            simple_cell_layer(Area::new(1.0), Density::new(1.0)).with_health(Health::new(0.5));
         let mut changes = CellLayerChanges::new();
-        changes.health = 0.25;
+        changes.health = HealthDelta::new(0.25);
         layer.apply_changes(&changes);
-        assert_eq!(layer.health(), 0.75);
+        assert_eq!(layer.health(), Health::new(0.75));
     }
 
     #[test]
@@ -1028,8 +1033,8 @@ mod tests {
         let layer = simple_cell_layer(Area::new(1.0), Density::new(1.0)).dead();
         let mut changes = CellChanges::new(1);
         layer.execute_control_request(fully_budgeted_healing_request(0, 1.0), &mut changes);
-        assert_eq!(layer.health(), 0.0);
-        assert_eq!(changes.layers[0].health, 0.0);
+        assert_eq!(layer.health(), Health::ZERO);
+        assert_eq!(changes.layers[0].health, HealthDelta::ZERO);
     }
 
     #[test]
@@ -1098,7 +1103,7 @@ mod tests {
             Color::Green,
             Box::new(ThrusterCellLayerSpecialty::new()),
         )
-        .with_health(0.5);
+        .with_health(Health::new(0.5));
         let mut changes = CellChanges::new(1);
         layer.execute_control_request(
             fully_budgeted(ThrusterCellLayerSpecialty::force_x_request(0, 1.0)),
@@ -1169,7 +1174,7 @@ mod tests {
             Color::Green,
             Box::new(PhotoCellLayerSpecialty::new(1.0)),
         )
-        .with_health(0.75);
+        .with_health(Health::new(0.75));
 
         let mut env = LocalEnvironment::new();
         env.add_light_intensity(1.0);
@@ -1232,7 +1237,7 @@ mod tests {
             Color::Green,
             Box::new(BondingCellLayerSpecialty::new()),
         )
-        .with_health(0.5);
+        .with_health(Health::new(0.5));
         let mut changes = CellChanges::new(1);
         layer.execute_control_request(
             budgeted(

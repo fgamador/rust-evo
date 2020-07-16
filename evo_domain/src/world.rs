@@ -647,7 +647,7 @@ mod tests {
                     Color::Green,
                     Box::new(NullCellLayerSpecialty::new()),
                 )
-                .with_health(0.5)],
+                .with_health(Health::new(0.5))],
             )
             .with_control(Box::new(ContinuousRequestsControl::new(vec![
                 CellLayer::healing_request(0, 0.5),
@@ -660,7 +660,7 @@ mod tests {
 
         let cell = &world.cells()[0];
         let layer = &cell.layers()[0];
-        assert_eq!(layer.health(), 1.0);
+        assert_eq!(layer.health(), Health::FULL);
         assert_eq!(layer.area(), Area::new(3.0));
         // assert_eq!(cell.energy(), BioEnergy::ZERO);
     }

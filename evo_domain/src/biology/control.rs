@@ -36,7 +36,7 @@ impl CellStateSnapshot {
 pub struct CellLayerStateSnapshot {
     pub area: Area,
     pub mass: Mass,
-    pub health: f64,
+    pub health: Health,
 }
 
 #[derive(Debug)]

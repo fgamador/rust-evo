@@ -37,14 +37,14 @@ impl CellChanges {
 
 #[derive(Debug, Clone, Copy)]
 pub struct CellLayerChanges {
-    pub health: f64,
+    pub health: HealthDelta,
     pub area: AreaDelta,
 }
 
 impl CellLayerChanges {
     pub fn new() -> Self {
         CellLayerChanges {
-            health: 0.0,
+            health: HealthDelta::ZERO,
             area: AreaDelta::ZERO,
         }
     }

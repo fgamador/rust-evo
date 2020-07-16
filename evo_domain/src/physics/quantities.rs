@@ -494,6 +494,22 @@ impl AddAssign for HealthDelta {
     }
 }
 
+impl Mul<f64> for HealthDelta {
+    type Output = HealthDelta;
+
+    fn mul(self, rhs: f64) -> Self::Output {
+        HealthDelta::new(self.value * rhs)
+    }
+}
+
+impl Mul<HealthDelta> for f64 {
+    type Output = HealthDelta;
+
+    fn mul(self, rhs: HealthDelta) -> Self::Output {
+        HealthDelta::new(self * rhs.value)
+    }
+}
+
 #[derive(Clone, Copy, Debug, PartialEq)]
 pub struct Position {
     x: f64,

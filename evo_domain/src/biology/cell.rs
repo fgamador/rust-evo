@@ -282,7 +282,7 @@ impl Cell {
                     "  Layer {}: area: {:.4}, health: {:.4}",
                     index,
                     layer.area().value(),
-                    layer.health()
+                    layer.health().value()
                 );
             }
         }
@@ -694,8 +694,8 @@ mod tests {
         let mut changes = CellChanges::new(cell.layers.len());
         cell.calculate_automatic_changes(&mut changes);
 
-        assert!(cell.layers()[0].health() < 1.0);
-        assert!(cell.layers()[1].health() < 1.0);
+        assert!(cell.layers()[0].health() < Health::FULL);
+        assert!(cell.layers()[1].health() < Health::FULL);
     }
 
     #[test]

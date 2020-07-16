@@ -149,8 +149,8 @@ impl Cell {
     }
 
     pub fn calculate_automatic_changes(&mut self, changes: &mut CellChanges) {
-        for layer in &mut self.layers {
-            layer.calculate_automatic_changes(&self.environment, changes);
+        for (index, layer) in self.layers.iter_mut().enumerate() {
+            layer.calculate_automatic_changes(&self.environment, changes, index);
         }
         self.newtonian_state.forces_mut().add_force(self.thrust);
     }
@@ -247,7 +247,6 @@ impl Cell {
         budgeted_control_requests: &[BudgetedControlRequest],
         changes: &mut CellChanges,
     ) {
-        // TODO do healing first
         for request in budgeted_control_requests {
             let layer = &mut self.layers[request.layer_index()];
             layer.execute_control_request(*request, changes);

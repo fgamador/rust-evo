@@ -155,10 +155,15 @@ impl CellLayer {
         &mut self,
         env: &LocalEnvironment,
         changes: &mut CellChanges,
+        layer_index: usize,
     ) {
-        self.body
-            .brain
-            .calculate_automatic_changes(&*self.specialty, &mut self.body, env, changes);
+        self.body.brain.calculate_automatic_changes(
+            &*self.specialty,
+            &mut self.body,
+            env,
+            changes,
+            layer_index,
+        );
     }
 
     pub fn cost_control_request(&self, request: ControlRequest) -> CostedControlRequest {
@@ -328,6 +333,7 @@ trait CellLayerBrain: Debug {
         body: &mut CellLayerBody,
         env: &LocalEnvironment,
         changes: &mut CellChanges,
+        layer_index: usize,
     );
 
     fn cost_control_request(
@@ -350,16 +356,29 @@ trait CellLayerBrain: Debug {
 struct LivingCellLayerBrain {}
 
 impl LivingCellLayerBrain {
-    fn entropic_damage(&self, body: &mut CellLayerBody) {
+    fn entropic_damage(
+        &self,
+        body: &mut CellLayerBody,
+        changes: &mut CellChanges,
+        layer_index: usize,
+    ) {
         let damage = body.health_parameters.entropic_damage_health_delta;
         self.damage(body, -damage);
+        changes.layers[layer_index].health += HealthDelta::new(damage);
     }
 
-    fn overlap_damage(&self, body: &mut CellLayerBody, overlaps: &[Overlap]) {
+    fn overlap_damage(
+        &self,
+        body: &mut CellLayerBody,
+        overlaps: &[Overlap],
+        changes: &mut CellChanges,
+        layer_index: usize,
+    ) {
         let overlap_damage = overlaps.iter().fold(0.0, |total_damage, overlap| {
             total_damage + body.health_parameters.overlap_damage_health_delta * overlap.magnitude()
         });
         self.damage(body, -overlap_damage);
+        changes.layers[layer_index].health += HealthDelta::new(overlap_damage);
     }
 }
 
@@ -377,10 +396,10 @@ impl CellLayerBrain for LivingCellLayerBrain {
         body: &mut CellLayerBody,
         env: &LocalEnvironment,
         changes: &mut CellChanges,
+        layer_index: usize,
     ) {
-        // TODO move these
-        self.entropic_damage(body);
-        self.overlap_damage(body, env.overlaps());
+        self.entropic_damage(body, changes, layer_index);
+        self.overlap_damage(body, env.overlaps(), changes, layer_index);
         specialty.calculate_automatic_changes(body, env, changes)
     }
 
@@ -436,6 +455,7 @@ impl CellLayerBrain for DeadCellLayerBrain {
         _body: &mut CellLayerBody,
         _env: &LocalEnvironment,
         _changes: &mut CellChanges,
+        _layer_index: usize,
     ) {
     }
 
@@ -971,9 +991,10 @@ mod tests {
 
         let env = LocalEnvironment::new();
         let mut changes = CellChanges::new(1);
-        layer.calculate_automatic_changes(&env, &mut changes);
+        layer.calculate_automatic_changes(&env, &mut changes, 0);
 
         assert_eq!(layer.health(), Health::new(0.75));
+        assert_eq!(changes.layers[0].health, HealthDelta::new(-0.25));
     }
 
     #[test]
@@ -989,9 +1010,10 @@ mod tests {
         let mut env = LocalEnvironment::new();
         env.add_overlap(Overlap::new(Displacement::new(0.5, 0.0), 1.0));
         let mut changes = CellChanges::new(1);
-        layer.calculate_automatic_changes(&env, &mut changes);
+        layer.calculate_automatic_changes(&env, &mut changes, 0);
 
         assert_eq!(layer.health(), Health::new(0.875));
+        assert_eq!(changes.layers[0].health, HealthDelta::new(-0.125));
     }
 
     #[test]
@@ -1058,7 +1080,7 @@ mod tests {
 
         let env = LocalEnvironment::new();
         let mut changes2 = CellChanges::new(1);
-        layer.calculate_automatic_changes(&env, &mut changes2);
+        layer.calculate_automatic_changes(&env, &mut changes2, 0);
 
         assert_eq!(changes.thrust, Force::new(1.0, -1.0));
     }
@@ -1091,7 +1113,7 @@ mod tests {
 
         let env = LocalEnvironment::new();
         let mut changes2 = CellChanges::new(1);
-        layer.calculate_automatic_changes(&env, &mut changes2);
+        layer.calculate_automatic_changes(&env, &mut changes2, 0);
 
         assert_eq!(changes.thrust, Force::new(0.5, -0.25));
     }
@@ -1117,7 +1139,7 @@ mod tests {
 
         let env = LocalEnvironment::new();
         let mut changes2 = CellChanges::new(1);
-        layer.calculate_automatic_changes(&env, &mut changes2);
+        layer.calculate_automatic_changes(&env, &mut changes2, 0);
 
         assert_eq!(changes.thrust, Force::new(0.5, -0.5));
     }
@@ -1143,7 +1165,7 @@ mod tests {
 
         let env = LocalEnvironment::new();
         let mut changes2 = CellChanges::new(1);
-        layer.calculate_automatic_changes(&env, &mut changes2);
+        layer.calculate_automatic_changes(&env, &mut changes2, 0);
 
         assert_eq!(changes2.thrust, Force::new(0.0, 0.0));
     }
@@ -1161,7 +1183,7 @@ mod tests {
         env.add_light_intensity(10.0);
 
         let mut changes = CellChanges::new(1);
-        layer.calculate_automatic_changes(&env, &mut changes);
+        layer.calculate_automatic_changes(&env, &mut changes, 0);
 
         assert_eq!(changes.energy, BioEnergyDelta::new(20.0));
     }
@@ -1180,7 +1202,7 @@ mod tests {
         env.add_light_intensity(1.0);
 
         let mut changes = CellChanges::new(1);
-        layer.calculate_automatic_changes(&env, &mut changes);
+        layer.calculate_automatic_changes(&env, &mut changes, 0);
 
         assert_eq!(changes.energy, BioEnergyDelta::new(0.75));
     }
@@ -1199,7 +1221,7 @@ mod tests {
         env.add_light_intensity(1.0);
 
         let mut changes = CellChanges::new(1);
-        layer.calculate_automatic_changes(&env, &mut changes);
+        layer.calculate_automatic_changes(&env, &mut changes, 0);
 
         assert_eq!(changes.energy, BioEnergyDelta::new(0.0));
     }

@@ -197,7 +197,7 @@ impl DuckweedControl {
     fn healing_requests(&self, cell_state: &CellStateSnapshot) -> Vec<ControlRequest> {
         let mut requests = Vec::with_capacity(cell_state.layers.len());
         for (i, layer) in cell_state.layers.iter().enumerate() {
-            let delta_health = 1.0 - layer.health;
+            let delta_health = 1.0 - layer.health.value();
             requests.push(CellLayer::healing_request(i, delta_health));
         }
         requests

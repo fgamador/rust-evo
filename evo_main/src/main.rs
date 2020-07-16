@@ -217,11 +217,11 @@ impl CellControl for NeuralNetBuddingControl {
         let cell_energy = cell_state.energy.value() as f32;
         let cell_y = cell_state.center.y() as f32;
         let float_layer_area = cell_state.layers[FLOAT_LAYER_INDEX].area.value() as f32;
-        let float_layer_health = cell_state.layers[FLOAT_LAYER_INDEX].health as f32;
+        let float_layer_health = cell_state.layers[FLOAT_LAYER_INDEX].health.value() as f32;
         let photo_layer_area = cell_state.layers[PHOTO_LAYER_INDEX].area.value() as f32;
-        let photo_layer_health = cell_state.layers[PHOTO_LAYER_INDEX].health as f32;
+        let photo_layer_health = cell_state.layers[PHOTO_LAYER_INDEX].health.value() as f32;
         let bonding_layer_area = cell_state.layers[BONDING_LAYER_INDEX].area.value() as f32;
-        let bonding_layer_health = cell_state.layers[BONDING_LAYER_INDEX].health as f32;
+        let bonding_layer_health = cell_state.layers[BONDING_LAYER_INDEX].health.value() as f32;
 
         self.nnet
             .set_node_value(Self::CELL_ENERGY_INPUT_INDEX, cell_energy);

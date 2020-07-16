@@ -115,7 +115,7 @@ impl GliumView {
         assert!(num_layers <= radii.len());
         for (i, layer) in cell.layers().iter().enumerate() {
             radii[i] = layer.outer_radius().value() as f32;
-            health[i] = layer.health() as f32;
+            health[i] = layer.health().value() as f32;
         }
         if cell.is_selected() {
             num_layers += 1;

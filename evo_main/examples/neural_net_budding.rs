@@ -244,16 +244,16 @@ impl CellControl for NeuralNetBuddingControl {
 
         vec![
             CellLayer::resize_request(FLOAT_LAYER_INDEX, AreaDelta::new(float_layer_area_delta)),
-            CellLayer::healing_request(FLOAT_LAYER_INDEX, float_layer_healing.max(0.0).min(1.0)),
+            CellLayer::healing_request(FLOAT_LAYER_INDEX, HealthDelta::new(float_layer_healing)),
             CellLayer::resize_request(PHOTO_LAYER_INDEX, AreaDelta::new(photo_layer_area_delta)),
-            CellLayer::healing_request(PHOTO_LAYER_INDEX, photo_layer_healing.max(0.0).min(1.0)),
+            CellLayer::healing_request(PHOTO_LAYER_INDEX, HealthDelta::new(photo_layer_healing)),
             CellLayer::resize_request(
                 BUDDING_LAYER_INDEX,
                 AreaDelta::new(budding_layer_area_delta),
             ),
             CellLayer::healing_request(
                 BUDDING_LAYER_INDEX,
-                budding_layer_healing.max(0.0).min(1.0),
+                HealthDelta::new(budding_layer_healing),
             ),
             BondingCellLayerSpecialty::retain_bond_request(
                 BUDDING_LAYER_INDEX,

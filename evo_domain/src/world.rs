@@ -650,7 +650,7 @@ mod tests {
                 .with_health(Health::new(0.5))],
             )
             .with_control(Box::new(ContinuousRequestsControl::new(vec![
-                CellLayer::healing_request(0, 0.5),
+                CellLayer::healing_request(0, HealthDelta::new(0.5)),
                 CellLayer::resize_request(0, AreaDelta::new(4.0)),
             ])))
             .with_initial_energy(BioEnergy::new(10.0)),

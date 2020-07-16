@@ -83,7 +83,7 @@ impl CellControl for GrowThenHealControl {
         let request = if self.ticks <= self.growth_ticks {
             CellLayer::resize_request(self.layer_index, self.growth_delta_area)
         } else {
-            CellLayer::healing_request(self.layer_index, self.healing_delta)
+            CellLayer::healing_request(self.layer_index, HealthDelta::new(self.healing_delta))
         };
 
         self.ticks += 1;

@@ -181,8 +181,13 @@ impl CellLayer {
         self.body.apply_changes(changes);
     }
 
-    pub fn healing_request(layer_index: usize, delta_health: f64) -> ControlRequest {
-        ControlRequest::new(layer_index, Self::HEALING_CHANNEL_INDEX, 0, delta_health)
+    pub fn healing_request(layer_index: usize, delta_health: HealthDelta) -> ControlRequest {
+        ControlRequest::new(
+            layer_index,
+            Self::HEALING_CHANNEL_INDEX,
+            0,
+            delta_health.value(),
+        )
     }
 
     pub fn resize_request(layer_index: usize, delta_area: AreaDelta) -> ControlRequest {
@@ -911,7 +916,7 @@ mod tests {
         let mut changes = CellChanges::new(1);
         layer.execute_control_request(
             budgeted(
-                CellLayer::healing_request(0, 0.5),
+                CellLayer::healing_request(0, HealthDelta::new(0.5)),
                 BioEnergyDelta::new(-10.0),
                 0.5,
             ),
@@ -927,7 +932,7 @@ mod tests {
         let mut changes = CellChanges::new(1);
         layer.execute_control_request(
             budgeted(
-                CellLayer::healing_request(0, 0.5),
+                CellLayer::healing_request(0, HealthDelta::new(0.5)),
                 BioEnergyDelta::ZERO,
                 0.5,
             ),
@@ -946,7 +951,7 @@ mod tests {
         let layer = simple_cell_layer(Area::new(2.0), Density::new(1.0))
             .with_health_parameters(&LAYER_HEALTH_PARAMS)
             .with_health(Health::new(0.5));
-        let control_request = CellLayer::healing_request(0, 0.25);
+        let control_request = CellLayer::healing_request(0, HealthDelta::new(0.25));
         let costed_request = layer.cost_control_request(control_request);
         assert_eq!(
             costed_request,
@@ -1019,7 +1024,7 @@ mod tests {
         let layer = simple_cell_layer(Area::new(1.0), Density::new(1.0))
             .with_health_parameters(&LAYER_HEALTH_PARAMS)
             .dead();
-        let control_request = CellLayer::healing_request(0, 1.0);
+        let control_request = CellLayer::healing_request(0, HealthDelta::new(1.0));
         let costed_request = layer.cost_control_request(control_request);
         assert_eq!(costed_request, CostedControlRequest::free(control_request));
     }
@@ -1260,7 +1265,10 @@ mod tests {
     }
 
     fn fully_budgeted_healing_request(layer_index: usize, value: f64) -> BudgetedControlRequest {
-        fully_budgeted(CellLayer::healing_request(layer_index, value))
+        fully_budgeted(CellLayer::healing_request(
+            layer_index,
+            HealthDelta::new(value),
+        ))
     }
 
     fn fully_budgeted_resize_request(layer_index: usize, value: f64) -> BudgetedControlRequest {

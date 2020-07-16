@@ -405,17 +405,13 @@ impl CellLayerBrain for LivingCellLayerBrain {
                     HealthDelta::new(request.requested_value()),
                     request.budgeted_fraction(),
                 );
-
-                let layer_changes = &mut changes.layers[request.layer_index()];
-                layer_changes.health += delta_health;
+                changes.layers[request.layer_index()].health += delta_health;
                 changes.energy += request.energy_delta() * request.budgeted_fraction();
             }
             CellLayer::RESIZE_CHANNEL_INDEX => {
                 let delta_area =
                     body.actual_delta_area(request.requested_value(), request.budgeted_fraction());
-
-                let layer_changes = &mut changes.layers[request.layer_index()];
-                layer_changes.area += delta_area;
+                changes.layers[request.layer_index()].area += delta_area;
                 changes.energy += request.energy_delta() * request.budgeted_fraction();
             }
             _ => specialty.execute_control_request(body, request, changes),

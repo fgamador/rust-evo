@@ -1118,7 +1118,6 @@ mod tests {
     }
 
     #[test]
-    #[ignore] // ignored because changes.thrust isn't updated on layer death
     fn dead_thruster_layer_adds_no_force() {
         let mut layer = CellLayer::new(
             Area::new(1.0),
@@ -1138,10 +1137,10 @@ mod tests {
         layer.damage(1.0);
 
         let env = LocalEnvironment::new();
-        let mut changes = CellChanges::new(1);
-        layer.calculate_automatic_changes(&env, &mut changes);
+        let mut changes2 = CellChanges::new(1);
+        layer.calculate_automatic_changes(&env, &mut changes2);
 
-        assert_eq!(changes.thrust, Force::new(0.0, 0.0));
+        assert_eq!(changes2.thrust, Force::new(0.0, 0.0));
     }
 
     #[test]

@@ -514,6 +514,172 @@ impl Mul<HealthDelta> for f64 {
     }
 }
 
+#[derive(Clone, Copy, Debug, PartialEq, PartialOrd)]
+pub struct BioEnergy {
+    value: f64,
+}
+
+impl BioEnergy {
+    pub const ZERO: BioEnergy = BioEnergy { value: 0.0 };
+
+    pub fn new(value: f64) -> Self {
+        if value < 0.0 {
+            panic!("Negative energy: {}", value);
+        }
+
+        BioEnergy { value }
+    }
+
+    #[allow(dead_code)]
+    pub fn value(self) -> f64 {
+        self.value
+    }
+
+    pub fn min(self, e: BioEnergy) -> BioEnergy {
+        BioEnergy::new(self.value.min(e.value))
+    }
+}
+
+impl Add<BioEnergy> for BioEnergy {
+    type Output = BioEnergy;
+
+    fn add(self, rhs: BioEnergy) -> Self::Output {
+        BioEnergy::new(self.value + rhs.value)
+    }
+}
+
+impl AddAssign for BioEnergy {
+    fn add_assign(&mut self, rhs: BioEnergy) {
+        self.value += rhs.value;
+    }
+}
+
+impl Sub<BioEnergy> for BioEnergy {
+    type Output = BioEnergy;
+
+    fn sub(self, rhs: BioEnergy) -> Self::Output {
+        BioEnergy::new((self.value - rhs.value).max(0.0))
+    }
+}
+
+impl Mul<f64> for BioEnergy {
+    type Output = BioEnergy;
+
+    fn mul(self, rhs: f64) -> Self::Output {
+        BioEnergy::new(self.value * rhs)
+    }
+}
+
+impl Mul<BioEnergy> for f64 {
+    type Output = BioEnergy;
+
+    fn mul(self, rhs: BioEnergy) -> Self::Output {
+        BioEnergy::new(self * rhs.value)
+    }
+}
+
+impl Div<f64> for BioEnergy {
+    type Output = BioEnergy;
+
+    fn div(self, rhs: f64) -> Self::Output {
+        BioEnergy::new(self.value / rhs)
+    }
+}
+
+impl Add<BioEnergyDelta> for BioEnergy {
+    type Output = BioEnergy;
+
+    fn add(self, rhs: BioEnergyDelta) -> Self::Output {
+        BioEnergy::new((self.value + rhs.value).max(0.0))
+    }
+}
+
+impl AddAssign<BioEnergyDelta> for BioEnergy {
+    fn add_assign(&mut self, rhs: BioEnergyDelta) {
+        *self = *self + rhs;
+    }
+}
+
+impl Sub<BioEnergyDelta> for BioEnergy {
+    type Output = BioEnergy;
+
+    fn sub(self, rhs: BioEnergyDelta) -> Self::Output {
+        self + -rhs
+    }
+}
+
+#[derive(Clone, Copy, Debug, PartialEq, PartialOrd)]
+pub struct BioEnergyDelta {
+    value: f64,
+}
+
+impl BioEnergyDelta {
+    pub const ZERO: BioEnergyDelta = BioEnergyDelta { value: 0.0 };
+
+    pub const fn new(value: f64) -> Self {
+        BioEnergyDelta { value }
+    }
+
+    #[allow(dead_code)]
+    pub fn value(self) -> f64 {
+        self.value
+    }
+}
+
+impl From<BioEnergy> for BioEnergyDelta {
+    fn from(value: BioEnergy) -> Self {
+        BioEnergyDelta {
+            value: value.value(),
+        }
+    }
+}
+
+impl Add<BioEnergyDelta> for BioEnergyDelta {
+    type Output = BioEnergyDelta;
+
+    fn add(self, rhs: BioEnergyDelta) -> Self::Output {
+        BioEnergyDelta::new(self.value + rhs.value)
+    }
+}
+
+impl AddAssign for BioEnergyDelta {
+    fn add_assign(&mut self, rhs: BioEnergyDelta) {
+        self.value += rhs.value;
+    }
+}
+
+impl Mul<f64> for BioEnergyDelta {
+    type Output = BioEnergyDelta;
+
+    fn mul(self, rhs: f64) -> Self::Output {
+        BioEnergyDelta::new(self.value * rhs)
+    }
+}
+
+impl Mul<BioEnergyDelta> for f64 {
+    type Output = BioEnergyDelta;
+
+    fn mul(self, rhs: BioEnergyDelta) -> Self::Output {
+        BioEnergyDelta::new(self * rhs.value)
+    }
+}
+
+impl Div<f64> for BioEnergyDelta {
+    type Output = BioEnergyDelta;
+
+    fn div(self, rhs: f64) -> Self::Output {
+        BioEnergyDelta::new(self.value / rhs)
+    }
+}
+
+impl Neg for BioEnergyDelta {
+    type Output = BioEnergyDelta;
+
+    fn neg(self) -> Self::Output {
+        BioEnergyDelta::new(-self.value)
+    }
+}
+
 #[derive(Clone, Copy, Debug, PartialEq)]
 pub struct Position {
     x: f64,
@@ -1121,172 +1287,6 @@ impl Neg for Torque {
 
     fn neg(self) -> Self::Output {
         Torque::new(-self.value)
-    }
-}
-
-#[derive(Clone, Copy, Debug, PartialEq, PartialOrd)]
-pub struct BioEnergy {
-    value: f64,
-}
-
-impl BioEnergy {
-    pub const ZERO: BioEnergy = BioEnergy { value: 0.0 };
-
-    pub fn new(value: f64) -> Self {
-        if value < 0.0 {
-            panic!("Negative energy: {}", value);
-        }
-
-        BioEnergy { value }
-    }
-
-    #[allow(dead_code)]
-    pub fn value(self) -> f64 {
-        self.value
-    }
-
-    pub fn min(self, e: BioEnergy) -> BioEnergy {
-        BioEnergy::new(self.value.min(e.value))
-    }
-}
-
-impl Add<BioEnergy> for BioEnergy {
-    type Output = BioEnergy;
-
-    fn add(self, rhs: BioEnergy) -> Self::Output {
-        BioEnergy::new(self.value + rhs.value)
-    }
-}
-
-impl AddAssign for BioEnergy {
-    fn add_assign(&mut self, rhs: BioEnergy) {
-        self.value += rhs.value;
-    }
-}
-
-impl Sub<BioEnergy> for BioEnergy {
-    type Output = BioEnergy;
-
-    fn sub(self, rhs: BioEnergy) -> Self::Output {
-        BioEnergy::new((self.value - rhs.value).max(0.0))
-    }
-}
-
-impl Mul<f64> for BioEnergy {
-    type Output = BioEnergy;
-
-    fn mul(self, rhs: f64) -> Self::Output {
-        BioEnergy::new(self.value * rhs)
-    }
-}
-
-impl Mul<BioEnergy> for f64 {
-    type Output = BioEnergy;
-
-    fn mul(self, rhs: BioEnergy) -> Self::Output {
-        BioEnergy::new(self * rhs.value)
-    }
-}
-
-impl Div<f64> for BioEnergy {
-    type Output = BioEnergy;
-
-    fn div(self, rhs: f64) -> Self::Output {
-        BioEnergy::new(self.value / rhs)
-    }
-}
-
-impl Add<BioEnergyDelta> for BioEnergy {
-    type Output = BioEnergy;
-
-    fn add(self, rhs: BioEnergyDelta) -> Self::Output {
-        BioEnergy::new((self.value + rhs.value).max(0.0))
-    }
-}
-
-impl AddAssign<BioEnergyDelta> for BioEnergy {
-    fn add_assign(&mut self, rhs: BioEnergyDelta) {
-        *self = *self + rhs;
-    }
-}
-
-impl Sub<BioEnergyDelta> for BioEnergy {
-    type Output = BioEnergy;
-
-    fn sub(self, rhs: BioEnergyDelta) -> Self::Output {
-        self + -rhs
-    }
-}
-
-#[derive(Clone, Copy, Debug, PartialEq, PartialOrd)]
-pub struct BioEnergyDelta {
-    value: f64,
-}
-
-impl BioEnergyDelta {
-    pub const ZERO: BioEnergyDelta = BioEnergyDelta { value: 0.0 };
-
-    pub const fn new(value: f64) -> Self {
-        BioEnergyDelta { value }
-    }
-
-    #[allow(dead_code)]
-    pub fn value(self) -> f64 {
-        self.value
-    }
-}
-
-impl From<BioEnergy> for BioEnergyDelta {
-    fn from(value: BioEnergy) -> Self {
-        BioEnergyDelta {
-            value: value.value(),
-        }
-    }
-}
-
-impl Add<BioEnergyDelta> for BioEnergyDelta {
-    type Output = BioEnergyDelta;
-
-    fn add(self, rhs: BioEnergyDelta) -> Self::Output {
-        BioEnergyDelta::new(self.value + rhs.value)
-    }
-}
-
-impl AddAssign for BioEnergyDelta {
-    fn add_assign(&mut self, rhs: BioEnergyDelta) {
-        self.value += rhs.value;
-    }
-}
-
-impl Mul<f64> for BioEnergyDelta {
-    type Output = BioEnergyDelta;
-
-    fn mul(self, rhs: f64) -> Self::Output {
-        BioEnergyDelta::new(self.value * rhs)
-    }
-}
-
-impl Mul<BioEnergyDelta> for f64 {
-    type Output = BioEnergyDelta;
-
-    fn mul(self, rhs: BioEnergyDelta) -> Self::Output {
-        BioEnergyDelta::new(self * rhs.value)
-    }
-}
-
-impl Div<f64> for BioEnergyDelta {
-    type Output = BioEnergyDelta;
-
-    fn div(self, rhs: f64) -> Self::Output {
-        BioEnergyDelta::new(self.value / rhs)
-    }
-}
-
-impl Neg for BioEnergyDelta {
-    type Output = BioEnergyDelta;
-
-    fn neg(self) -> Self::Output {
-        BioEnergyDelta::new(-self.value)
     }
 }
 

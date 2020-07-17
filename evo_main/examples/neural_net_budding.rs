@@ -73,8 +73,8 @@ fn create_float_layer() -> CellLayer {
     };
     const LAYER_HEALTH_PARAMS: LayerHealthParameters = LayerHealthParameters {
         healing_energy_delta: BioEnergyDelta::new(-1.0),
-        entropic_damage_health_delta: HealthDelta::unbounded(-0.01),
-        overlap_damage_health_delta: HealthDelta::unbounded(OVERLAP_DAMAGE_HEALTH_DELTA),
+        entropic_damage_health_delta: HealthDelta::new(-0.01),
+        overlap_damage_health_delta: HealthDelta::new(OVERLAP_DAMAGE_HEALTH_DELTA),
     };
 
     CellLayer::new(
@@ -96,8 +96,8 @@ fn create_photo_layer() -> CellLayer {
     };
     const LAYER_HEALTH_PARAMS: LayerHealthParameters = LayerHealthParameters {
         healing_energy_delta: BioEnergyDelta::new(-1.0),
-        entropic_damage_health_delta: HealthDelta::unbounded(-0.01),
-        overlap_damage_health_delta: HealthDelta::unbounded(OVERLAP_DAMAGE_HEALTH_DELTA),
+        entropic_damage_health_delta: HealthDelta::new(-0.01),
+        overlap_damage_health_delta: HealthDelta::new(OVERLAP_DAMAGE_HEALTH_DELTA),
     };
 
     CellLayer::new(
@@ -119,8 +119,8 @@ fn create_budding_layer() -> CellLayer {
     };
     const LAYER_HEALTH_PARAMS: LayerHealthParameters = LayerHealthParameters {
         healing_energy_delta: BioEnergyDelta::new(-1.0),
-        entropic_damage_health_delta: HealthDelta::unbounded(-0.01),
-        overlap_damage_health_delta: HealthDelta::unbounded(OVERLAP_DAMAGE_HEALTH_DELTA),
+        entropic_damage_health_delta: HealthDelta::new(-0.01),
+        overlap_damage_health_delta: HealthDelta::new(OVERLAP_DAMAGE_HEALTH_DELTA),
     };
 
     CellLayer::new(
@@ -246,12 +246,12 @@ impl CellControl for NeuralNetBuddingControl {
             CellLayer::resize_request(FLOAT_LAYER_INDEX, AreaDelta::new(float_layer_area_delta)),
             CellLayer::healing_request(
                 FLOAT_LAYER_INDEX,
-                HealthDelta::unbounded(float_layer_healing.max(0.0)),
+                HealthDelta::new(float_layer_healing.max(0.0)),
             ),
             CellLayer::resize_request(PHOTO_LAYER_INDEX, AreaDelta::new(photo_layer_area_delta)),
             CellLayer::healing_request(
                 PHOTO_LAYER_INDEX,
-                HealthDelta::unbounded(photo_layer_healing.max(0.0)),
+                HealthDelta::new(photo_layer_healing.max(0.0)),
             ),
             CellLayer::resize_request(
                 BUDDING_LAYER_INDEX,
@@ -259,7 +259,7 @@ impl CellControl for NeuralNetBuddingControl {
             ),
             CellLayer::healing_request(
                 BUDDING_LAYER_INDEX,
-                HealthDelta::unbounded(budding_layer_healing.max(0.0)),
+                HealthDelta::new(budding_layer_healing.max(0.0)),
             ),
             BondingCellLayerSpecialty::retain_bond_request(
                 BUDDING_LAYER_INDEX,

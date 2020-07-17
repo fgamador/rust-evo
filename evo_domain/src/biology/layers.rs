@@ -993,7 +993,7 @@ mod tests {
     #[test]
     fn layer_undergoes_entropic_damage() {
         const LAYER_HEALTH_PARAMS: LayerHealthParameters = LayerHealthParameters {
-            entropic_damage_health_delta: HealthDelta::unbounded(-0.25),
+            entropic_damage_health_delta: HealthDelta::new(-0.25),
             ..LayerHealthParameters::DEFAULT
         };
 
@@ -1011,7 +1011,7 @@ mod tests {
     #[test]
     fn overlap_damages_layer() {
         const LAYER_HEALTH_PARAMS: LayerHealthParameters = LayerHealthParameters {
-            overlap_damage_health_delta: HealthDelta::unbounded(-0.25),
+            overlap_damage_health_delta: HealthDelta::new(-0.25),
             ..LayerHealthParameters::DEFAULT
         };
 

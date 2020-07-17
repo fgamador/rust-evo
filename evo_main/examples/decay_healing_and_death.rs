@@ -19,7 +19,7 @@ fn create_world() -> World {
     };
     const LAYER_HEALTH_PARAMS: LayerHealthParameters = LayerHealthParameters {
         healing_energy_delta: BioEnergyDelta::ZERO,
-        entropic_damage_health_delta: HealthDelta::unbounded(-0.006),
+        entropic_damage_health_delta: HealthDelta::new(-0.006),
         ..LayerHealthParameters::DEFAULT
     };
 

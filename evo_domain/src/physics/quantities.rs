@@ -462,27 +462,15 @@ pub struct HealthDelta {
 }
 
 impl HealthDelta {
-    pub const MAX: HealthDelta = HealthDelta { value: 1.0 };
-    pub const MIN: HealthDelta = HealthDelta { value: -1.0 };
     pub const ZERO: HealthDelta = HealthDelta { value: 0.0 };
 
-    pub fn new(value: f64) -> Self {
-        HealthDelta {
-            value: Self::bound(value),
-        }
-    }
-
-    pub const fn unbounded(value: f64) -> Self {
+    pub const fn new(value: f64) -> Self {
         HealthDelta { value }
     }
 
     #[allow(dead_code)]
     pub fn value(self) -> Value1D {
         self.value
-    }
-
-    fn bound(value: Value1D) -> Value1D {
-        value.max(-1.0).min(1.0)
     }
 }
 
@@ -496,7 +484,7 @@ impl Add for HealthDelta {
 
 impl AddAssign for HealthDelta {
     fn add_assign(&mut self, rhs: HealthDelta) {
-        self.value = Self::bound(self.value + rhs.value);
+        *self = *self + rhs;
     }
 }
 
@@ -1364,9 +1352,9 @@ mod tests {
     }
 
     #[test]
-    fn cannot_overflow_health_by_add_assign() {
+    fn cannot_overflow_health_by_add_assign_of_delta() {
         let mut health = Health::FULL;
-        health += HealthDelta::MAX;
+        health += HealthDelta::new(1.0);
         assert_eq!(health, Health::FULL);
     }
 
@@ -1377,40 +1365,10 @@ mod tests {
     }
 
     #[test]
-    fn cannot_underflow_health_by_add_assign() {
+    fn cannot_underflow_health_by_add_assign_of_delta() {
         let mut health = Health::ZERO;
-        health += HealthDelta::MIN;
+        health += HealthDelta::new(-1.0);
         assert_eq!(health, Health::ZERO);
-    }
-
-    #[test]
-    fn cannot_overflow_health_delta_by_initialization() {
-        assert_eq!(
-            HealthDelta::new(HealthDelta::MAX.value() + 1.0),
-            HealthDelta::MAX
-        );
-    }
-
-    #[test]
-    fn cannot_overflow_health_delta_by_add_assign() {
-        let mut health_delta = HealthDelta::MAX;
-        health_delta += HealthDelta::MAX;
-        assert_eq!(health_delta, HealthDelta::MAX);
-    }
-
-    #[test]
-    fn cannot_underflow_health_delta_by_initialization() {
-        assert_eq!(
-            HealthDelta::new(HealthDelta::MIN.value() - 1.0),
-            HealthDelta::MIN
-        );
-    }
-
-    #[test]
-    fn cannot_underflow_health_delta_by_add_assign() {
-        let mut health_delta = HealthDelta::MIN;
-        health_delta += HealthDelta::MIN;
-        assert_eq!(health_delta, HealthDelta::MIN);
     }
 
     #[test]

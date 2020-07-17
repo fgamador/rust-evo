@@ -11,7 +11,7 @@ fn main() {
 
 fn create_world() -> World {
     const LAYER_HEALTH_PARAMS: LayerHealthParameters = LayerHealthParameters {
-        overlap_damage_health_delta: -2.0,
+        overlap_damage_health_delta: HealthDelta::unbounded(-2.0),
         ..LayerHealthParameters::DEFAULT
     };
 

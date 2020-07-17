@@ -673,11 +673,11 @@ mod tests {
     #[test]
     fn overlap_damages_all_layers() {
         const LAYER0_HEALTH_PARAMS: LayerHealthParameters = LayerHealthParameters {
-            overlap_damage_health_delta: -1.0,
+            overlap_damage_health_delta: HealthDelta::unbounded(-1.0),
             ..LayerHealthParameters::DEFAULT
         };
         const LAYER1_HEALTH_PARAMS: LayerHealthParameters = LayerHealthParameters {
-            overlap_damage_health_delta: -1.0,
+            overlap_damage_health_delta: HealthDelta::unbounded(-1.0),
             ..LayerHealthParameters::DEFAULT
         };
 

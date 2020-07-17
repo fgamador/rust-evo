@@ -470,6 +470,10 @@ impl HealthDelta {
         }
     }
 
+    pub const fn unbounded(value: f64) -> Self {
+        HealthDelta { value }
+    }
+
     #[allow(dead_code)]
     pub fn value(self) -> Value1D {
         self.value

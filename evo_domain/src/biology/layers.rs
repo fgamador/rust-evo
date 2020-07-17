@@ -18,21 +18,21 @@ pub enum Color {
 #[derive(Debug, Clone, Copy)]
 pub struct LayerHealthParameters {
     pub healing_energy_delta: BioEnergyDelta,
-    pub entropic_damage_health_delta: f64,
-    pub overlap_damage_health_delta: f64,
+    pub entropic_damage_health_delta: HealthDelta,
+    pub overlap_damage_health_delta: HealthDelta,
 }
 
 impl LayerHealthParameters {
     pub const DEFAULT: LayerHealthParameters = LayerHealthParameters {
         healing_energy_delta: BioEnergyDelta::ZERO,
-        entropic_damage_health_delta: 0.0,
-        overlap_damage_health_delta: 0.0,
+        entropic_damage_health_delta: HealthDelta::ZERO,
+        overlap_damage_health_delta: HealthDelta::ZERO,
     };
 
     fn validate(&self) {
-        assert!(self.healing_energy_delta.value() <= 0.0);
-        assert!(self.entropic_damage_health_delta <= 0.0);
-        assert!(self.overlap_damage_health_delta <= 0.0);
+        assert!(self.healing_energy_delta <= BioEnergyDelta::ZERO);
+        assert!(self.entropic_damage_health_delta <= HealthDelta::ZERO);
+        assert!(self.overlap_damage_health_delta <= HealthDelta::ZERO);
     }
 }
 
@@ -363,8 +363,8 @@ impl LivingCellLayerBrain {
         layer_index: usize,
     ) {
         let damage = body.health_parameters.entropic_damage_health_delta;
-        self.damage(body, -damage);
-        changes.layers[layer_index].health += HealthDelta::new(damage);
+        self.damage(body, -damage.value());
+        changes.layers[layer_index].health += damage;
     }
 
     fn overlap_damage(
@@ -375,7 +375,8 @@ impl LivingCellLayerBrain {
         layer_index: usize,
     ) {
         let overlap_damage = overlaps.iter().fold(0.0, |total_damage, overlap| {
-            total_damage + body.health_parameters.overlap_damage_health_delta * overlap.magnitude()
+            total_damage
+                + body.health_parameters.overlap_damage_health_delta.value() * overlap.magnitude()
         });
         self.damage(body, -overlap_damage);
         changes.layers[layer_index].health += HealthDelta::new(overlap_damage);
@@ -982,7 +983,7 @@ mod tests {
     #[test]
     fn layer_undergoes_entropic_damage() {
         const LAYER_HEALTH_PARAMS: LayerHealthParameters = LayerHealthParameters {
-            entropic_damage_health_delta: -0.25,
+            entropic_damage_health_delta: HealthDelta::unbounded(-0.25),
             ..LayerHealthParameters::DEFAULT
         };
 
@@ -1000,7 +1001,7 @@ mod tests {
     #[test]
     fn overlap_damages_layer() {
         const LAYER_HEALTH_PARAMS: LayerHealthParameters = LayerHealthParameters {
-            overlap_damage_health_delta: -0.25,
+            overlap_damage_health_delta: HealthDelta::unbounded(-0.25),
             ..LayerHealthParameters::DEFAULT
         };
 

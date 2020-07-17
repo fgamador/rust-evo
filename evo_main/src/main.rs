@@ -80,8 +80,8 @@ fn create_float_layer() -> CellLayer {
     };
     const LAYER_HEALTH_PARAMS: LayerHealthParameters = LayerHealthParameters {
         healing_energy_delta: BioEnergyDelta::new(-1.0),
-        entropic_damage_health_delta: -0.01,
-        overlap_damage_health_delta: OVERLAP_DAMAGE_HEALTH_DELTA,
+        entropic_damage_health_delta: HealthDelta::unbounded(-0.01),
+        overlap_damage_health_delta: HealthDelta::unbounded(OVERLAP_DAMAGE_HEALTH_DELTA),
     };
 
     CellLayer::new(
@@ -103,8 +103,8 @@ fn create_photo_layer() -> CellLayer {
     };
     const LAYER_HEALTH_PARAMS: LayerHealthParameters = LayerHealthParameters {
         healing_energy_delta: BioEnergyDelta::new(-1.0),
-        entropic_damage_health_delta: -0.01,
-        overlap_damage_health_delta: OVERLAP_DAMAGE_HEALTH_DELTA,
+        entropic_damage_health_delta: HealthDelta::unbounded(-0.01),
+        overlap_damage_health_delta: HealthDelta::unbounded(OVERLAP_DAMAGE_HEALTH_DELTA),
     };
 
     CellLayer::new(
@@ -126,8 +126,8 @@ fn create_bonding_layer() -> CellLayer {
     };
     const LAYER_HEALTH_PARAMS: LayerHealthParameters = LayerHealthParameters {
         healing_energy_delta: BioEnergyDelta::new(-1.0),
-        entropic_damage_health_delta: -0.01,
-        overlap_damage_health_delta: OVERLAP_DAMAGE_HEALTH_DELTA,
+        entropic_damage_health_delta: HealthDelta::unbounded(-0.01),
+        overlap_damage_health_delta: HealthDelta::unbounded(OVERLAP_DAMAGE_HEALTH_DELTA),
     };
 
     CellLayer::new(

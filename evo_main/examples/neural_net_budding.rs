@@ -246,12 +246,12 @@ impl CellControl for NeuralNetBuddingControl {
             CellLayer::resize_request(FLOAT_LAYER_INDEX, AreaDelta::new(float_layer_area_delta)),
             CellLayer::healing_request(
                 FLOAT_LAYER_INDEX,
-                HealthDelta::unbounded(float_layer_healing),
+                HealthDelta::unbounded(float_layer_healing.max(0.0)),
             ),
             CellLayer::resize_request(PHOTO_LAYER_INDEX, AreaDelta::new(photo_layer_area_delta)),
             CellLayer::healing_request(
                 PHOTO_LAYER_INDEX,
-                HealthDelta::unbounded(photo_layer_healing),
+                HealthDelta::unbounded(photo_layer_healing.max(0.0)),
             ),
             CellLayer::resize_request(
                 BUDDING_LAYER_INDEX,
@@ -259,7 +259,7 @@ impl CellControl for NeuralNetBuddingControl {
             ),
             CellLayer::healing_request(
                 BUDDING_LAYER_INDEX,
-                HealthDelta::unbounded(budding_layer_healing),
+                HealthDelta::unbounded(budding_layer_healing.max(0.0)),
             ),
             BondingCellLayerSpecialty::retain_bond_request(
                 BUDDING_LAYER_INDEX,

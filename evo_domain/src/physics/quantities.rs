@@ -425,9 +425,11 @@ impl Health {
     pub const ZERO: Health = Health { value: 0.0 };
 
     pub fn new(value: f64) -> Self {
-        Health {
-            value: Self::bound(value),
+        if value < 0.0 || 1.0 < value {
+            panic!("Invalid health: {}", value);
         }
+
+        Health { value }
     }
 
     #[allow(dead_code)]
@@ -444,13 +446,13 @@ impl Add<HealthDelta> for Health {
     type Output = Health;
 
     fn add(self, rhs: HealthDelta) -> Self::Output {
-        Health::new(self.value + rhs.value)
+        Health::new(Self::bound(self.value + rhs.value))
     }
 }
 
 impl AddAssign<HealthDelta> for Health {
     fn add_assign(&mut self, rhs: HealthDelta) {
-        self.value = Self::bound(self.value + rhs.value);
+        *self = *self + rhs;
     }
 }
 
@@ -1356,8 +1358,9 @@ mod tests {
     }
 
     #[test]
+    #[should_panic]
     fn cannot_overflow_health_by_initialization() {
-        assert_eq!(Health::new(Health::FULL.value() + 1.0), Health::FULL);
+        Health::new(Health::FULL.value() + 1.0);
     }
 
     #[test]
@@ -1368,8 +1371,9 @@ mod tests {
     }
 
     #[test]
+    #[should_panic]
     fn cannot_underflow_health_by_initialization() {
-        assert_eq!(Health::new(Health::ZERO.value() - 1.0), Health::ZERO);
+        Health::new(Health::ZERO.value() - 1.0);
     }
 
     #[test]

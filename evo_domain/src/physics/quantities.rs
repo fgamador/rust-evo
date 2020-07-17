@@ -1150,28 +1150,6 @@ impl BioEnergy {
     }
 }
 
-impl Add<BioEnergyDelta> for BioEnergy {
-    type Output = BioEnergy;
-
-    fn add(self, rhs: BioEnergyDelta) -> Self::Output {
-        BioEnergy::new(self.value + rhs.value)
-    }
-}
-
-impl AddAssign<BioEnergyDelta> for BioEnergy {
-    fn add_assign(&mut self, rhs: BioEnergyDelta) {
-        self.value += rhs.value;
-    }
-}
-
-impl Sub<BioEnergyDelta> for BioEnergy {
-    type Output = BioEnergy;
-
-    fn sub(self, rhs: BioEnergyDelta) -> Self::Output {
-        BioEnergy::new(self.value - rhs.value)
-    }
-}
-
 impl Add<BioEnergy> for BioEnergy {
     type Output = BioEnergy;
 
@@ -1190,13 +1168,7 @@ impl Sub<BioEnergy> for BioEnergy {
     type Output = BioEnergy;
 
     fn sub(self, rhs: BioEnergy) -> Self::Output {
-        BioEnergy::new(self.value - rhs.value)
-    }
-}
-
-impl SubAssign for BioEnergy {
-    fn sub_assign(&mut self, rhs: BioEnergy) {
-        self.value -= rhs.value;
+        BioEnergy::new((self.value - rhs.value).max(0.0))
     }
 }
 
@@ -1221,6 +1193,28 @@ impl Div<f64> for BioEnergy {
 
     fn div(self, rhs: f64) -> Self::Output {
         BioEnergy::new(self.value / rhs)
+    }
+}
+
+impl Add<BioEnergyDelta> for BioEnergy {
+    type Output = BioEnergy;
+
+    fn add(self, rhs: BioEnergyDelta) -> Self::Output {
+        BioEnergy::new((self.value + rhs.value).max(0.0))
+    }
+}
+
+impl AddAssign<BioEnergyDelta> for BioEnergy {
+    fn add_assign(&mut self, rhs: BioEnergyDelta) {
+        *self = *self + rhs;
+    }
+}
+
+impl Sub<BioEnergyDelta> for BioEnergy {
+    type Output = BioEnergy;
+
+    fn sub(self, rhs: BioEnergyDelta) -> Self::Output {
+        self + -rhs
     }
 }
 
@@ -1413,6 +1407,59 @@ mod tests {
         let mut health_delta = HealthDelta::MIN;
         health_delta += HealthDelta::MIN;
         assert_eq!(health_delta, HealthDelta::MIN);
+    }
+
+    #[test]
+    fn can_decrease_bioenergy_by_addition_of_delta() {
+        assert_eq!(
+            BioEnergy::new(1.0) + BioEnergyDelta::new(-0.5),
+            BioEnergy::new(0.5)
+        );
+    }
+
+    #[test]
+    fn cannot_underflow_bioenergy_by_addition_of_delta() {
+        assert_eq!(BioEnergy::ZERO + BioEnergyDelta::new(-1.0), BioEnergy::ZERO);
+    }
+
+    #[test]
+    fn can_decrease_bioenergy_by_add_assign_of_delta() {
+        let mut energy = BioEnergy::new(1.0);
+        energy += BioEnergyDelta::new(-0.5);
+        assert_eq!(energy, BioEnergy::new(0.5));
+    }
+
+    #[test]
+    fn cannot_underflow_bioenergy_by_add_assign_of_delta() {
+        let mut energy = BioEnergy::ZERO;
+        energy += BioEnergyDelta::new(-1.0);
+        assert_eq!(energy, BioEnergy::ZERO);
+    }
+
+    #[test]
+    fn can_decrease_bioenergy_by_subtraction() {
+        assert_eq!(
+            BioEnergy::new(1.0) - BioEnergy::new(0.5),
+            BioEnergy::new(0.5)
+        );
+    }
+
+    #[test]
+    fn cannot_underflow_bioenergy_by_subtraction() {
+        assert_eq!(BioEnergy::ZERO - BioEnergy::new(1.0), BioEnergy::ZERO);
+    }
+
+    #[test]
+    fn can_decrease_bioenergy_by_subtraction_of_delta() {
+        assert_eq!(
+            BioEnergy::new(1.0) - BioEnergyDelta::new(0.5),
+            BioEnergy::new(0.5)
+        );
+    }
+
+    #[test]
+    fn cannot_underflow_bioenergy_by_subtraction_of_delta() {
+        assert_eq!(BioEnergy::ZERO - BioEnergyDelta::new(1.0), BioEnergy::ZERO);
     }
 
     #[test]

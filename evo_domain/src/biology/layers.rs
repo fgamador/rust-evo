@@ -187,6 +187,10 @@ impl CellLayer {
     }
 
     pub fn healing_request(layer_index: usize, delta_health: HealthDelta) -> ControlRequest {
+        if delta_health < HealthDelta::ZERO {
+            panic!("Negative healing request");
+        }
+
         ControlRequest::new(
             layer_index,
             Self::HEALING_CHANNEL_INDEX,
@@ -978,6 +982,12 @@ mod tests {
             costed_request,
             CostedControlRequest::unlimited(control_request, BioEnergyDelta::new(-1.5))
         );
+    }
+
+    #[test]
+    #[should_panic]
+    fn healing_request_cannot_be_negative() {
+        CellLayer::healing_request(0, HealthDelta::new(-0.25));
     }
 
     #[test]

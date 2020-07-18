@@ -382,11 +382,11 @@ impl LivingCellLayerBrain {
         changes: &mut CellChanges,
         layer_index: usize,
     ) {
-        let overlap_damage = overlaps.iter().fold(0.0, |total_damage, overlap| {
-            total_damage
+        let damage = overlaps.iter().fold(0.0, |damage, overlap| {
+            damage
                 + body.health_parameters.overlap_damage_health_delta.value() * overlap.magnitude()
         });
-        changes.layers[layer_index].health += HealthDelta::new(overlap_damage);
+        changes.layers[layer_index].health += HealthDelta::new(damage);
     }
 }
 

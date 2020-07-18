@@ -198,10 +198,10 @@ impl World {
     }
 
     fn run_cell_controls(&mut self, changes: &mut WorldChanges) {
-        self.cell_graph.for_each_node(|index, cell, _edge_source| {
+        for (index, cell) in self.cell_graph.nodes_mut().iter_mut().enumerate() {
             cell.calculate_requested_changes(&mut changes.cells[index]);
             cell.apply_changes(&changes.cells[index]);
-        });
+        }
     }
 
     fn apply_world_changes(&mut self, changes: &WorldChanges) {

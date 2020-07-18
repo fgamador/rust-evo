@@ -156,8 +156,8 @@ impl World {
         self.apply_influences(&mut changes);
         self.process_cell_bond_energy();
         self.run_cell_controls(&mut changes);
-        self.apply_world_changes(&changes);
         self.tick_cells(&changes);
+        self.apply_world_changes(&changes);
     }
 
     fn new_world_changes(&self) -> WorldChanges {

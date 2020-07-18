@@ -692,6 +692,7 @@ mod tests {
             .add_overlap(Overlap::new(Displacement::new(1.0, 0.0), 1.0));
         let mut changes = CellChanges::new(cell.layers.len());
         cell.calculate_automatic_changes(&mut changes);
+        cell.apply_changes(&changes);
 
         assert!(cell.layers()[0].health() < Health::FULL);
         assert!(cell.layers()[1].health() < Health::FULL);

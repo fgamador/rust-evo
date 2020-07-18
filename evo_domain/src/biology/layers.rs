@@ -120,7 +120,7 @@ impl CellLayer {
     }
 
     pub fn is_alive(&self) -> bool {
-        self.health() > Health::ZERO
+        self.body.brain.is_alive()
     }
 
     pub fn outer_radius(&self) -> Length {
@@ -286,8 +286,11 @@ impl CellLayerBody {
         CostedControlRequest::limited(request, delta_area, delta_area * energy_delta_per_area)
     }
 
-    fn restore_health(&mut self, delta_health: HealthDelta) {
+    fn update_health(&mut self, delta_health: HealthDelta) {
         self.health += delta_health;
+        if self.health == Health::ZERO {
+            self.brain = &CellLayer::DEAD_BRAIN;
+        }
     }
 
     fn actual_delta_health(
@@ -323,12 +326,14 @@ impl CellLayerBody {
     }
 
     pub fn apply_changes(&mut self, changes: &CellLayerChanges) {
-        self.restore_health(changes.health);
+        self.update_health(changes.health);
         self.resize(changes.area);
     }
 }
 
 trait CellLayerBrain: Debug {
+    fn is_alive(&self) -> bool;
+
     fn damage(&self, body: &mut CellLayerBody, health_loss: f64);
 
     fn calculate_automatic_changes(
@@ -367,7 +372,6 @@ impl LivingCellLayerBrain {
         layer_index: usize,
     ) {
         let damage = body.health_parameters.entropic_damage_health_delta;
-        self.damage(body, -damage.value());
         changes.layers[layer_index].health += damage;
     }
 
@@ -382,12 +386,15 @@ impl LivingCellLayerBrain {
             total_damage
                 + body.health_parameters.overlap_damage_health_delta.value() * overlap.magnitude()
         });
-        self.damage(body, -overlap_damage);
         changes.layers[layer_index].health += HealthDelta::new(overlap_damage);
     }
 }
 
 impl CellLayerBrain for LivingCellLayerBrain {
+    fn is_alive(&self) -> bool {
+        true
+    }
+
     fn damage(&self, body: &mut CellLayerBody, health_loss: f64) {
         body.damage(health_loss);
         if body.health == Health::ZERO {
@@ -452,6 +459,10 @@ impl CellLayerBrain for LivingCellLayerBrain {
 struct DeadCellLayerBrain {}
 
 impl CellLayerBrain for DeadCellLayerBrain {
+    fn is_alive(&self) -> bool {
+        false
+    }
+
     fn damage(&self, _body: &mut CellLayerBody, _health_loss: f64) {}
 
     fn calculate_automatic_changes(
@@ -1004,8 +1015,10 @@ mod tests {
         let mut changes = CellChanges::new(1);
         layer.calculate_automatic_changes(&env, &mut changes, 0);
 
-        assert_eq!(layer.health(), Health::new(0.75));
         assert_eq!(changes.layers[0].health, HealthDelta::new(-0.25));
+
+        layer.apply_changes(&changes.layers[0]);
+        assert_eq!(layer.health(), Health::new(0.75));
     }
 
     #[test]
@@ -1023,8 +1036,10 @@ mod tests {
         let mut changes = CellChanges::new(1);
         layer.calculate_automatic_changes(&env, &mut changes, 0);
 
-        assert_eq!(layer.health(), Health::new(0.875));
         assert_eq!(changes.layers[0].health, HealthDelta::new(-0.125));
+
+        layer.apply_changes(&changes.layers[0]);
+        assert_eq!(layer.health(), Health::new(0.875));
     }
 
     #[test]
@@ -1035,6 +1050,15 @@ mod tests {
         changes.health = HealthDelta::new(0.25);
         layer.apply_changes(&changes);
         assert_eq!(layer.health(), Health::new(0.75));
+    }
+
+    #[test]
+    fn applying_layer_changes_can_kill_layer() {
+        let mut layer = simple_cell_layer(Area::new(1.0), Density::new(1.0));
+        let mut changes = CellLayerChanges::new();
+        changes.health = HealthDelta::new(-1.0);
+        layer.apply_changes(&changes);
+        assert!(!layer.is_alive());
     }
 
     #[test]

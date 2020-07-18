@@ -156,13 +156,13 @@ impl Cell {
     }
 
     pub fn calculate_requested_changes(&mut self, changes: &mut CellChanges) {
-        let (end_energy, budgeted_control_requests) = self.get_budgeted_control_requests();
-        self._print_selected_cell_status(end_energy, &budgeted_control_requests);
+        let budgeted_control_requests = self.get_budgeted_control_requests();
+        self._print_selected_cell_status(&budgeted_control_requests);
         self.execute_control_requests(&budgeted_control_requests, changes);
         self._print_selected_cell_bond_requests(&changes.bond_requests);
     }
 
-    fn get_budgeted_control_requests(&mut self) -> (BioEnergy, Vec<BudgetedControlRequest>) {
+    fn get_budgeted_control_requests(&mut self) -> Vec<BudgetedControlRequest> {
         let cell_state = self.get_state_snapshot();
         let control_requests = self.control.run(&cell_state);
         let costed_requests = self.cost_control_requests(&control_requests);
@@ -206,12 +206,10 @@ impl Cell {
     fn budget_control_requests(
         start_energy: BioEnergy,
         costed_requests: &[CostedControlRequest],
-    ) -> (BioEnergy, Vec<BudgetedControlRequest>) {
+    ) -> Vec<BudgetedControlRequest> {
         let (income, expense) = Self::summarize_request_energy_deltas(costed_requests);
         let available_energy = start_energy + income;
         let budgeted_fraction = (available_energy.value() / expense.value()).min(1.0);
-        let adjusted_expense = (expense * budgeted_fraction).min(available_energy);
-        let end_energy = available_energy - adjusted_expense;
         let budgeted_requests = costed_requests
             .iter()
             .map(|costed_request| {
@@ -223,7 +221,7 @@ impl Cell {
                 BudgetedControlRequest::new(*costed_request, request_budgeted_fraction)
             })
             .collect();
-        (end_energy, budgeted_requests)
+        budgeted_requests
     }
 
     fn summarize_request_energy_deltas(
@@ -253,14 +251,10 @@ impl Cell {
         }
     }
 
-    fn _print_selected_cell_status(
-        &self,
-        end_energy: BioEnergy,
-        budgeted_control_requests: &[BudgetedControlRequest],
-    ) {
+    fn _print_selected_cell_status(&self, budgeted_control_requests: &[BudgetedControlRequest]) {
         self._print_selected_cell_basics();
         self._print_selected_cell_layers();
-        self._print_selected_cell_energy(end_energy);
+        self._print_selected_cell_energy();
         self._print_selected_cell_control_requests(&budgeted_control_requests);
     }
 
@@ -287,13 +281,9 @@ impl Cell {
         }
     }
 
-    fn _print_selected_cell_energy(&self, end_energy: BioEnergy) {
+    fn _print_selected_cell_energy(&self) {
         if self.is_selected() {
-            println!(
-                "  Energy: {:.4} (start), {:.4} (end)",
-                self.energy.value(),
-                end_energy.value()
-            );
+            println!("  Energy: {:.4}", self.energy.value(),);
         }
     }
 
@@ -571,7 +561,7 @@ mod tests {
         let costed_request =
             CostedControlRequest::unlimited(ControlRequest::NULL_REQUEST, BioEnergyDelta::new(0.0));
 
-        let (_, budgeted_requests) =
+        let budgeted_requests =
             Cell::budget_control_requests(BioEnergy::new(0.0), &vec![costed_request]);
 
         assert_eq!(budgeted_requests[0].budgeted_fraction(), 1.0);
@@ -582,7 +572,7 @@ mod tests {
         let costed_request =
             CostedControlRequest::unlimited(ControlRequest::NULL_REQUEST, BioEnergyDelta::new(1.0));
 
-        let (_, budgeted_requests) =
+        let budgeted_requests =
             Cell::budget_control_requests(BioEnergy::new(0.0), &vec![costed_request]);
 
         assert_eq!(budgeted_requests[0].budgeted_fraction(), 1.0);
@@ -595,7 +585,7 @@ mod tests {
             BioEnergyDelta::new(-1.0),
         );
 
-        let (_, budgeted_requests) =
+        let budgeted_requests =
             Cell::budget_control_requests(BioEnergy::new(1.0), &vec![costed_request]);
 
         assert_eq!(budgeted_requests[0].budgeted_fraction(), 1.0);
@@ -608,22 +598,10 @@ mod tests {
             BioEnergyDelta::new(-2.0),
         );
 
-        let (_, budgeted_requests) =
+        let budgeted_requests =
             Cell::budget_control_requests(BioEnergy::new(1.0), &vec![costed_request]);
 
         assert_eq!(budgeted_requests[0].budgeted_fraction(), 0.5);
-    }
-
-    #[test]
-    fn budgeting_returns_remaining_energy() {
-        let costed_request = CostedControlRequest::unlimited(
-            ControlRequest::NULL_REQUEST,
-            BioEnergyDelta::new(-1.0),
-        );
-
-        let (energy, _) = Cell::budget_control_requests(BioEnergy::new(2.0), &vec![costed_request]);
-
-        assert_eq!(energy, BioEnergy::new(1.0));
     }
 
     #[test]
@@ -636,7 +614,7 @@ mod tests {
             ),
         ];
 
-        let (_, budgeted_requests) =
+        let budgeted_requests =
             Cell::budget_control_requests(BioEnergy::new(0.0), &costed_requests);
 
         assert_eq!(
@@ -658,7 +636,7 @@ mod tests {
             ),
         ];
 
-        let (_, budgeted_requests) =
+        let budgeted_requests =
             Cell::budget_control_requests(BioEnergy::new(0.0), &costed_requests);
 
         assert_eq!(

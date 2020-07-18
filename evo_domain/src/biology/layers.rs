@@ -108,7 +108,7 @@ impl CellLayer {
     }
 
     pub fn dead(mut self) -> Self {
-        self.damage(1.0);
+        self.body.update_health(HealthDelta::new(-1.0));
         self
     }
 
@@ -141,10 +141,6 @@ impl CellLayer {
 
     pub fn mass(&self) -> Mass {
         self.body.mass
-    }
-
-    pub fn damage(&mut self, health_loss: f64) {
-        self.body.brain.damage(&mut self.body, health_loss);
     }
 
     pub fn update_outer_radius(&mut self, inner_radius: Length) {
@@ -258,11 +254,6 @@ impl CellLayerBody {
         self.outer_radius = (self.area / PI).sqrt();
     }
 
-    fn damage(&mut self, health_loss: f64) {
-        assert!(health_loss >= 0.0);
-        self.health += HealthDelta::new(-health_loss);
-    }
-
     fn update_outer_radius(&mut self, inner_radius: Length) {
         self.outer_radius = (inner_radius.sqr() + self.area / PI).sqrt();
     }
@@ -334,8 +325,6 @@ impl CellLayerBody {
 trait CellLayerBrain: Debug {
     fn is_alive(&self) -> bool;
 
-    fn damage(&self, body: &mut CellLayerBody, health_loss: f64);
-
     fn calculate_automatic_changes(
         &self,
         specialty: &dyn CellLayerSpecialty,
@@ -379,13 +368,6 @@ impl LivingCellLayerBrain {
 impl CellLayerBrain for LivingCellLayerBrain {
     fn is_alive(&self) -> bool {
         true
-    }
-
-    fn damage(&self, body: &mut CellLayerBody, health_loss: f64) {
-        body.damage(health_loss);
-        if body.health == Health::ZERO {
-            body.brain = &CellLayer::DEAD_BRAIN;
-        }
     }
 
     fn calculate_automatic_changes(
@@ -448,8 +430,6 @@ impl CellLayerBrain for DeadCellLayerBrain {
     fn is_alive(&self) -> bool {
         false
     }
-
-    fn damage(&self, _body: &mut CellLayerBody, _health_loss: f64) {}
 
     fn calculate_automatic_changes(
         &self,
@@ -766,34 +746,6 @@ mod tests {
             &mut changes,
         );
         assert_eq!(changes.energy, BioEnergyDelta::new(-7.5));
-    }
-
-    #[test]
-    fn layer_damage_reduces_health() {
-        let mut layer = simple_cell_layer(Area::new(1.0), Density::new(1.0));
-        layer.damage(0.25);
-        assert_eq!(layer.health(), Health::new(0.75));
-    }
-
-    #[test]
-    fn layer_damage_cannot_reduce_health_below_zero() {
-        let mut layer = simple_cell_layer(Area::new(1.0), Density::new(1.0));
-        layer.damage(2.0);
-        assert_eq!(layer.health(), Health::ZERO);
-    }
-
-    #[test]
-    fn layer_with_some_health_is_not_dead() {
-        let mut layer = simple_cell_layer(Area::new(1.0), Density::new(1.0));
-        layer.damage(0.99);
-        assert!(layer.is_alive());
-    }
-
-    #[test]
-    fn layer_with_zero_health_is_dead() {
-        let mut layer = simple_cell_layer(Area::new(1.0), Density::new(1.0));
-        layer.damage(1.0);
-        assert!(!layer.is_alive());
     }
 
     #[test]
@@ -1163,32 +1115,6 @@ mod tests {
         layer.calculate_automatic_changes(&env, &mut changes2, 0);
 
         assert_eq!(changes.thrust, Force::new(0.5, -0.5));
-    }
-
-    #[test]
-    fn dead_thruster_layer_adds_no_force() {
-        let mut layer = CellLayer::new(
-            Area::new(1.0),
-            Density::new(1.0),
-            Color::Green,
-            Box::new(ThrusterCellLayerSpecialty::new()),
-        );
-        let mut changes = CellChanges::new(1);
-        layer.execute_control_request(
-            fully_budgeted(ThrusterCellLayerSpecialty::force_x_request(0, 1.0)),
-            &mut changes,
-        );
-        layer.execute_control_request(
-            fully_budgeted(ThrusterCellLayerSpecialty::force_y_request(0, -1.0)),
-            &mut changes,
-        );
-        layer.damage(1.0);
-
-        let env = LocalEnvironment::new();
-        let mut changes2 = CellChanges::new(1);
-        layer.calculate_automatic_changes(&env, &mut changes2, 0);
-
-        assert_eq!(changes2.thrust, Force::new(0.0, 0.0));
     }
 
     #[test]

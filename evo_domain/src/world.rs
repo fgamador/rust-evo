@@ -202,8 +202,6 @@ impl World {
             cell.apply_changes(&changes.cells[index]);
             Self::print_selected_cell_state(cell, "start");
             Self::move_cell(cell);
-            // TODO move this here?
-            //cell.apply_changes(&changes.cells[index]);
             Self::clear_cell_environment(cell);
             Self::print_selected_cell_state(cell, "end");
         }

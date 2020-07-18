@@ -204,6 +204,40 @@ impl World {
         }
     }
 
+    fn tick_cells(&mut self, _changes: &WorldChanges) {
+        for (_index, cell) in self.cell_graph.nodes_mut().iter_mut().enumerate() {
+            Self::print_selected_cell_state(cell, "start");
+            Self::move_cell(cell);
+            // TODO move this here?
+            //cell.apply_changes(&changes.cells[index]);
+            Self::clear_cell_environment(cell);
+            Self::print_selected_cell_state(cell, "end");
+        }
+    }
+
+    fn move_cell(cell: &mut Cell) {
+        cell.exert_forces_for_one_tick();
+        cell.move_for_one_tick();
+    }
+
+    fn clear_cell_environment(cell: &mut Cell) {
+        cell.environment_mut().clear();
+        cell.forces_mut().clear();
+    }
+
+    fn print_selected_cell_state(cell: &Cell, start_end_str: &str) {
+        if cell.is_selected() {
+            println!(
+                "Cell {} {} position: {}, velocity: {}, force: {}",
+                cell.node_handle(),
+                start_end_str,
+                cell.position(),
+                cell.velocity(),
+                cell.forces().net_force()
+            );
+        }
+    }
+
     fn apply_world_changes(&mut self, changes: &WorldChanges) {
         let mut new_children = vec![];
         let mut broken_bond_handles = HashSet::new();
@@ -280,40 +314,6 @@ impl World {
         let mut sorted_bond_handles = Vec::from_iter(bond_handles.iter().cloned());
         sorted_bond_handles.sort_unstable();
         self.cell_graph.remove_edges(&sorted_bond_handles);
-    }
-
-    fn tick_cells(&mut self, _changes: &WorldChanges) {
-        for (_index, cell) in self.cell_graph.nodes_mut().iter_mut().enumerate() {
-            Self::print_selected_cell_state(cell, "start");
-            Self::move_cell(cell);
-            // TODO move this here?
-            //cell.apply_changes(&changes.cells[index]);
-            Self::clear_cell_environment(cell);
-            Self::print_selected_cell_state(cell, "end");
-        }
-    }
-
-    fn move_cell(cell: &mut Cell) {
-        cell.exert_forces_for_one_tick();
-        cell.move_for_one_tick();
-    }
-
-    fn clear_cell_environment(cell: &mut Cell) {
-        cell.environment_mut().clear();
-        cell.forces_mut().clear();
-    }
-
-    fn print_selected_cell_state(cell: &Cell, start_end_str: &str) {
-        if cell.is_selected() {
-            println!(
-                "Cell {} {} position: {}, velocity: {}, force: {}",
-                cell.node_handle(),
-                start_end_str,
-                cell.position(),
-                cell.velocity(),
-                cell.forces().net_force()
-            );
-        }
     }
 }
 

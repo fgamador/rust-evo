@@ -154,9 +154,9 @@ impl World {
     pub fn tick(&mut self) {
         let mut changes = self.new_world_changes();
         self.apply_influences(&mut changes);
-        self.process_cell_bond_energy();
         self.tick_cells(&mut changes);
         self.apply_world_changes(&changes);
+        self.process_cell_bond_energy();
     }
 
     fn new_world_changes(&self) -> WorldChanges {
@@ -532,10 +532,10 @@ mod tests {
         assert!(parent.has_edge(1));
         let child = &world.cells()[1];
         assert!(child.has_edge(0));
-        assert_eq!(parent.energy(), BioEnergy::new(9.0));
-        assert_eq!(child.energy(), BioEnergy::ZERO);
+        assert_eq!(parent.energy(), BioEnergy::new(9.0)); // 10 - 1
+        assert_eq!(child.energy(), BioEnergy::new(1.0)); // 0 + 1
         let bond = &world.bonds()[0];
-        assert_eq!(bond.energy_for_cell2(), BioEnergy::new(1.0));
+        assert_eq!(bond.energy_for_cell2(), BioEnergy::ZERO);
     }
 
     #[test]
@@ -580,22 +580,12 @@ mod tests {
         assert_eq!(world.cells().len(), 2);
         assert_eq!(world.bonds().len(), 1);
         let cell1 = &world.cells()[0];
-        assert_eq!(cell1.energy(), BioEnergy::new(8.0));
+        assert_eq!(cell1.energy(), BioEnergy::new(11.0)); // 10 - 2 + 3
         let cell2 = &world.cells()[1];
-        assert_eq!(cell2.energy(), BioEnergy::new(7.0));
+        assert_eq!(cell2.energy(), BioEnergy::new(9.0)); // 10 - 3 + 2
         let bond = &world.bonds()[0];
-        assert_eq!(bond.energy_for_cell1(), BioEnergy::new(3.0));
-        assert_eq!(bond.energy_for_cell2(), BioEnergy::new(2.0));
-
-        world.tick();
-
-        let cell1 = &world.cells()[0];
-        assert_eq!(cell1.energy(), BioEnergy::new(9.0)); // 8 + 3 - 2
-        let cell2 = &world.cells()[1];
-        assert_eq!(cell2.energy(), BioEnergy::new(6.0)); // 7 + 2 - 3
-        let bond = &world.bonds()[0];
-        assert_eq!(bond.energy_for_cell1(), BioEnergy::new(3.0));
-        assert_eq!(bond.energy_for_cell2(), BioEnergy::new(2.0));
+        assert_eq!(bond.energy_for_cell1(), BioEnergy::ZERO);
+        assert_eq!(bond.energy_for_cell2(), BioEnergy::ZERO);
     }
 
     #[test]

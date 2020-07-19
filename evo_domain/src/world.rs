@@ -280,27 +280,23 @@ impl World {
     fn update_cell_graph(
         &mut self,
         new_children: Vec<NewChildData>,
-        mut donated_energy: Vec<(NodeHandle, BioEnergy)>,
+        donated_energy: Vec<(NodeHandle, BioEnergy)>,
         broken_bond_handles: HashSet<EdgeHandle>,
         dead_cell_handles: Vec<NodeHandle>,
     ) {
-        self.add_children(new_children, &mut donated_energy);
+        self.add_children(new_children);
         self.apply_donated_energy(donated_energy);
         self.remove_bonds(&broken_bond_handles);
         self.cell_graph.remove_nodes(&dead_cell_handles);
     }
 
-    fn add_children(
-        &mut self,
-        new_children: Vec<NewChildData>,
-        donated_energy: &mut Vec<(NodeHandle, BioEnergy)>,
-    ) {
+    fn add_children(&mut self, new_children: Vec<NewChildData>) {
         for new_child_data in new_children {
             let child_handle = self.add_cell(new_child_data.child);
-            let child = self.cell(child_handle);
-            let bond = Bond::new(self.cell(new_child_data.parent), child);
+            let bond = Bond::new(self.cell(new_child_data.parent), self.cell(child_handle));
             self.add_bond(bond, new_child_data.bond_index, 0);
-            donated_energy.push((child_handle, new_child_data.donated_energy));
+            let child = self.cell_mut(child_handle);
+            child.add_energy(new_child_data.donated_energy);
         }
     }
 

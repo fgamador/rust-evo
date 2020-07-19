@@ -148,6 +148,16 @@ impl Cell {
                 <= sqr(self.radius.value())
     }
 
+    pub fn tick(&mut self, changes: &mut CellChanges) {
+        self.calculate_automatic_changes(changes);
+        self.calculate_requested_changes(changes);
+        self.apply_changes(changes);
+        Self::print_selected_cell_physics_state(self, "start");
+        Self::move_cell(self);
+        Self::clear_cell_environment(self);
+        Self::print_selected_cell_physics_state(self, "end");
+    }
+
     pub fn calculate_automatic_changes(&mut self, changes: &mut CellChanges) {
         for (index, layer) in self.layers.iter_mut().enumerate() {
             layer.calculate_automatic_changes(&self.environment, changes, index);
@@ -248,6 +258,29 @@ impl Cell {
         for request in budgeted_control_requests {
             let layer = &mut self.layers[request.layer_index()];
             layer.execute_control_request(*request, changes);
+        }
+    }
+
+    fn move_cell(cell: &mut Cell) {
+        cell.exert_forces_for_one_tick();
+        cell.move_for_one_tick();
+    }
+
+    fn clear_cell_environment(cell: &mut Cell) {
+        cell.environment_mut().clear();
+        cell.forces_mut().clear();
+    }
+
+    fn print_selected_cell_physics_state(cell: &Cell, start_end_str: &str) {
+        if cell.is_selected() {
+            println!(
+                "Cell {} {} position: {}, velocity: {}, force: {}",
+                cell.node_handle(),
+                start_end_str,
+                cell.position(),
+                cell.velocity(),
+                cell.forces().net_force()
+            );
         }
     }
 

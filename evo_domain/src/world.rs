@@ -1,9 +1,7 @@
 use crate::biology::cell::Cell;
 use crate::biology::changes::*;
 use crate::environment::influences::*;
-use crate::environment::local_environment::*;
 use crate::physics::bond::*;
-use crate::physics::newtonian::NewtonianBody;
 use crate::physics::quantities::*;
 use crate::physics::sortable_graph::*;
 use std::collections::HashSet;
@@ -181,37 +179,7 @@ impl World {
 
     fn tick_cells(&mut self, changes: &mut WorldChanges) {
         for (index, cell) in self.cell_graph.nodes_mut().iter_mut().enumerate() {
-            let cell_changes = &mut changes.cells[index];
-            cell.calculate_automatic_changes(cell_changes);
-            cell.calculate_requested_changes(cell_changes);
-            cell.apply_changes(cell_changes);
-            Self::print_selected_cell_physics_state(cell, "start");
-            Self::move_cell(cell);
-            Self::clear_cell_environment(cell);
-            Self::print_selected_cell_physics_state(cell, "end");
-        }
-    }
-
-    fn move_cell(cell: &mut Cell) {
-        cell.exert_forces_for_one_tick();
-        cell.move_for_one_tick();
-    }
-
-    fn clear_cell_environment(cell: &mut Cell) {
-        cell.environment_mut().clear();
-        cell.forces_mut().clear();
-    }
-
-    fn print_selected_cell_physics_state(cell: &Cell, start_end_str: &str) {
-        if cell.is_selected() {
-            println!(
-                "Cell {} {} position: {}, velocity: {}, force: {}",
-                cell.node_handle(),
-                start_end_str,
-                cell.position(),
-                cell.velocity(),
-                cell.forces().net_force()
-            );
+            cell.tick(&mut changes.cells[index]);
         }
     }
 
@@ -319,6 +287,8 @@ mod tests {
     use super::*;
     use crate::biology::control::*;
     use crate::biology::layers::*;
+    use crate::environment::local_environment::*;
+    use crate::physics::newtonian::NewtonianBody;
     use crate::physics::overlap::Overlap;
     use crate::physics::shapes::*;
 

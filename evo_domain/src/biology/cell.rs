@@ -153,8 +153,8 @@ impl Cell {
         self.calculate_requested_changes(changes);
         self.apply_changes(changes);
         Self::print_selected_cell_physics_state(self, "start");
-        Self::move_cell(self);
-        Self::clear_cell_environment(self);
+        self.move_from_forces();
+        self.clear_environment();
         Self::print_selected_cell_physics_state(self, "end");
     }
 
@@ -260,14 +260,14 @@ impl Cell {
         }
     }
 
-    fn move_cell(cell: &mut Cell) {
-        cell.exert_forces_for_one_tick();
-        cell.move_for_one_tick();
+    fn move_from_forces(&mut self) {
+        self.exert_forces_for_one_tick();
+        self.move_for_one_tick();
     }
 
-    fn clear_cell_environment(cell: &mut Cell) {
-        cell.environment_mut().clear();
-        cell.forces_mut().clear();
+    fn clear_environment(&mut self) {
+        self.environment_mut().clear();
+        self.forces_mut().clear();
     }
 
     fn print_selected_cell_physics_state(cell: &Cell, start_end_str: &str) {

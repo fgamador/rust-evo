@@ -160,7 +160,6 @@ impl World {
         self.apply_influences();
         self.tick_cells(&mut changes);
         self.apply_world_changes(&changes);
-        //self.process_cell_bond_energy();
     }
 
     fn new_world_changes(&self) -> WorldChanges {
@@ -182,9 +181,10 @@ impl World {
 
     fn tick_cells(&mut self, changes: &mut WorldChanges) {
         for (index, cell) in self.cell_graph.nodes_mut().iter_mut().enumerate() {
-            cell.calculate_automatic_changes(&mut changes.cells[index]);
-            cell.calculate_requested_changes(&mut changes.cells[index]);
-            cell.apply_changes(&changes.cells[index]);
+            let cell_changes = &mut changes.cells[index];
+            cell.calculate_automatic_changes(cell_changes);
+            cell.calculate_requested_changes(cell_changes);
+            cell.apply_changes(cell_changes);
             Self::print_selected_cell_physics_state(cell, "start");
             Self::move_cell(cell);
             Self::clear_cell_environment(cell);

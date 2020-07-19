@@ -1,21 +1,6 @@
 use crate::physics::quantities::*;
 use std::fmt;
 
-// TODO lose this once we can tick a cell in one pass; move any world-scale changes into CellChanges
-#[derive(Debug, Clone)]
-pub struct WorldChanges {
-    pub cells: Vec<CellChanges>,
-    // TODO bonds, new_cells, dead_cells, new_bonds, broken_bonds
-}
-
-impl WorldChanges {
-    pub fn new(num_cells: usize, num_layers: usize) -> Self {
-        WorldChanges {
-            cells: vec![CellChanges::new(num_layers); num_cells],
-        }
-    }
-}
-
 #[derive(Debug, Clone)]
 pub struct CellChanges {
     pub energy: BioEnergyDelta,

@@ -154,21 +154,9 @@ impl World {
     }
 
     pub fn tick(&mut self) {
-        let mut changes = self.new_world_changes();
         self.apply_influences();
-        let cell_bond_requests = self.tick_cells(&mut changes);
+        let cell_bond_requests = self.tick_cells();
         self.apply_world_changes(&cell_bond_requests);
-    }
-
-    fn new_world_changes(&self) -> WorldChanges {
-        if self.cell_graph.nodes().is_empty() {
-            return WorldChanges::new(0, 0);
-        }
-
-        WorldChanges::new(
-            self.cell_graph.nodes().len(),
-            self.cell_graph.nodes()[0].layers().len(),
-        )
     }
 
     fn apply_influences(&mut self) {
@@ -177,10 +165,10 @@ impl World {
         }
     }
 
-    fn tick_cells(&mut self, changes: &mut WorldChanges) -> Vec<BondRequests> {
+    fn tick_cells(&mut self) -> Vec<BondRequests> {
         let mut cell_bond_requests = vec![];
-        for (index, cell) in self.cell_graph.nodes_mut().iter_mut().enumerate() {
-            cell_bond_requests.push(cell.tick(&mut changes.cells[index]));
+        for cell in self.cell_graph.nodes_mut() {
+            cell_bond_requests.push(cell.tick());
         }
         cell_bond_requests
     }

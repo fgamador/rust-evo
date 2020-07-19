@@ -225,13 +225,12 @@ impl World {
                     } else {
                         let child = cell.create_and_place_child_cell(
                             bond_request.budding_angle,
-                            BioEnergy::ZERO,
+                            bond_request.donation_energy,
                         );
                         new_children.push(NewChildData {
                             parent: cell.node_handle(),
                             bond_index: index,
                             child,
-                            donated_energy: bond_request.donation_energy,
                         });
                     }
                 }
@@ -257,8 +256,6 @@ impl World {
             let child_handle = self.add_cell(new_child_data.child);
             let bond = Bond::new(self.cell(new_child_data.parent), self.cell(child_handle));
             self.add_bond(bond, new_child_data.bond_index, 0);
-            let child = self.cell_mut(child_handle);
-            child.add_energy(new_child_data.donated_energy);
         }
     }
 
@@ -279,7 +276,6 @@ struct NewChildData {
     parent: NodeHandle,
     bond_index: usize,
     child: Cell,
-    donated_energy: BioEnergy,
 }
 
 #[cfg(test)]

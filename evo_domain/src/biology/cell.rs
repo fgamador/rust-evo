@@ -343,13 +343,13 @@ impl Cell {
     pub fn create_and_place_child_cell(
         &mut self,
         budding_angle: Angle,
-        donation_energy: BioEnergy,
+        initial_energy: BioEnergy,
     ) -> Cell {
         let mut child = self.spawn(Area::new(10.0 * PI));
         let offset = Displacement::from_polar(self.radius + child.radius(), budding_angle);
         child.set_initial_position(self.center() + offset);
         child.set_initial_velocity(self.velocity());
-        child.set_initial_energy(donation_energy);
+        child.set_initial_energy(initial_energy);
         child
     }
 

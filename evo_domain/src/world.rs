@@ -179,23 +179,6 @@ impl World {
         }
     }
 
-    fn process_cell_bond_energy(&mut self) {
-        self.cell_graph.for_each_node(|_index, cell, edge_source| {
-            Self::claim_bond_energy(cell, edge_source);
-        });
-    }
-
-    fn claim_bond_energy(cell: &mut Cell, edge_source: &mut EdgeSource<Bond>) {
-        let mut energy = BioEnergy::ZERO;
-        for edge_handle in cell.edge_handles() {
-            if let Some(edge_handle) = edge_handle {
-                let bond = edge_source.edge(*edge_handle);
-                energy += bond.claim_energy_for_cell(cell.node_handle());
-            }
-        }
-        cell.add_energy(energy);
-    }
-
     fn tick_cells(&mut self, changes: &mut WorldChanges) {
         for (index, cell) in self.cell_graph.nodes_mut().iter_mut().enumerate() {
             cell.calculate_requested_changes(&mut changes.cells[index]);
@@ -306,6 +289,23 @@ impl World {
         let mut sorted_bond_handles = Vec::from_iter(bond_handles.iter().cloned());
         sorted_bond_handles.sort_unstable();
         self.cell_graph.remove_edges(&sorted_bond_handles);
+    }
+
+    fn process_cell_bond_energy(&mut self) {
+        self.cell_graph.for_each_node(|_index, cell, edge_source| {
+            Self::claim_bond_energy(cell, edge_source);
+        });
+    }
+
+    fn claim_bond_energy(cell: &mut Cell, edge_source: &mut EdgeSource<Bond>) {
+        let mut energy = BioEnergy::ZERO;
+        for edge_handle in cell.edge_handles() {
+            if let Some(edge_handle) = edge_handle {
+                let bond = edge_source.edge(*edge_handle);
+                energy += bond.claim_energy_for_cell(cell.node_handle());
+            }
+        }
+        cell.add_energy(energy);
     }
 }
 

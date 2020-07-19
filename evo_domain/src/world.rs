@@ -153,7 +153,7 @@ impl World {
 
     pub fn tick(&mut self) {
         let mut changes = self.new_world_changes();
-        self.apply_influences(&mut changes);
+        self.apply_influences();
         self.tick_cells(&mut changes);
         self.apply_world_changes(&changes);
         self.process_cell_bond_energy();
@@ -170,17 +170,15 @@ impl World {
         )
     }
 
-    fn apply_influences(&mut self, changes: &mut WorldChanges) {
+    fn apply_influences(&mut self) {
         for influence in &self.influences {
             influence.apply(&mut self.cell_graph);
-        }
-        for (index, cell) in self.cell_graph.nodes_mut().iter_mut().enumerate() {
-            cell.calculate_automatic_changes(&mut changes.cells[index]);
         }
     }
 
     fn tick_cells(&mut self, changes: &mut WorldChanges) {
         for (index, cell) in self.cell_graph.nodes_mut().iter_mut().enumerate() {
+            cell.calculate_automatic_changes(&mut changes.cells[index]);
             cell.calculate_requested_changes(&mut changes.cells[index]);
             cell.apply_changes(&changes.cells[index]);
             Self::print_selected_cell_state(cell, "start");

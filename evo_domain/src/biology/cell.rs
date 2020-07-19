@@ -148,7 +148,7 @@ impl Cell {
                 <= sqr(self.radius.value())
     }
 
-    pub fn tick(&mut self, changes: &mut CellChanges) {
+    pub fn tick(&mut self, changes: &mut CellChanges) -> BondRequests {
         self.calculate_automatic_changes(changes);
         self.calculate_requested_changes(changes);
         self.apply_changes(changes);
@@ -156,6 +156,7 @@ impl Cell {
         self.move_from_forces();
         self.clear_environment();
         Self::print_selected_cell_physics_state(self, "end");
+        changes.bond_requests
     }
 
     pub fn calculate_automatic_changes(&mut self, changes: &mut CellChanges) {

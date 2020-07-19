@@ -156,8 +156,8 @@ impl World {
     pub fn tick(&mut self) {
         let mut changes = self.new_world_changes();
         self.apply_influences();
-        self.tick_cells(&mut changes);
-        self.apply_world_changes(&changes);
+        let cell_bond_requests = self.tick_cells(&mut changes);
+        self.apply_world_changes(&cell_bond_requests);
     }
 
     fn new_world_changes(&self) -> WorldChanges {
@@ -177,13 +177,15 @@ impl World {
         }
     }
 
-    fn tick_cells(&mut self, changes: &mut WorldChanges) {
+    fn tick_cells(&mut self, changes: &mut WorldChanges) -> Vec<BondRequests> {
+        let mut cell_bond_requests = vec![];
         for (index, cell) in self.cell_graph.nodes_mut().iter_mut().enumerate() {
-            cell.tick(&mut changes.cells[index]);
+            cell_bond_requests.push(cell.tick(&mut changes.cells[index]));
         }
+        cell_bond_requests
     }
 
-    fn apply_world_changes(&mut self, changes: &WorldChanges) {
+    fn apply_world_changes(&mut self, cell_bond_requests: &Vec<BondRequests>) {
         let mut donated_energy = vec![];
         let mut new_children = vec![];
         let mut broken_bond_handles = HashSet::new();
@@ -192,7 +194,7 @@ impl World {
             Self::execute_bond_requests(
                 cell,
                 edge_source,
-                &changes.cells[index].bond_requests,
+                &cell_bond_requests[index],
                 &mut donated_energy,
                 &mut new_children,
                 &mut broken_bond_handles,

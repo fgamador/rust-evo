@@ -216,8 +216,8 @@ impl World {
     }
 
     fn apply_world_changes(&mut self, changes: &WorldChanges) {
-        let mut donated_energy = vec![];
         let mut new_children = vec![];
+        let mut donated_energy = vec![];
         let mut broken_bond_handles = HashSet::new();
         let mut dead_cell_handles = vec![];
         self.cell_graph.for_each_node(|index, cell, edge_source| {
@@ -225,8 +225,8 @@ impl World {
                 cell,
                 edge_source,
                 &changes.cells[index].bond_requests,
-                &mut donated_energy,
                 &mut new_children,
+                &mut donated_energy,
                 &mut broken_bond_handles,
             );
             if !cell.is_alive() {
@@ -235,9 +235,9 @@ impl World {
         });
         self.update_cell_graph(
             new_children,
+            donated_energy,
             broken_bond_handles,
             dead_cell_handles,
-            &mut donated_energy,
         );
     }
 
@@ -245,8 +245,8 @@ impl World {
         cell: &mut Cell,
         edge_source: &mut EdgeSource<Bond>,
         bond_requests: &BondRequests,
-        donated_energy: &mut Vec<(NodeHandle, BioEnergy)>,
         new_children: &mut Vec<NewChildData>,
+        donated_energy: &mut Vec<(NodeHandle, BioEnergy)>,
         broken_bond_handles: &mut HashSet<EdgeHandle>,
     ) {
         for (index, bond_request) in bond_requests.iter().enumerate() {
@@ -280,11 +280,11 @@ impl World {
     fn update_cell_graph(
         &mut self,
         new_children: Vec<NewChildData>,
+        mut donated_energy: Vec<(NodeHandle, BioEnergy)>,
         broken_bond_handles: HashSet<EdgeHandle>,
         dead_cell_handles: Vec<NodeHandle>,
-        donated_energy: &mut Vec<(NodeHandle, BioEnergy)>,
     ) {
-        self.add_children(new_children, donated_energy);
+        self.add_children(new_children, &mut donated_energy);
         self.apply_donated_energy(donated_energy);
         self.remove_bonds(&broken_bond_handles);
         self.cell_graph.remove_nodes(&dead_cell_handles);
@@ -304,9 +304,9 @@ impl World {
         }
     }
 
-    fn apply_donated_energy(&mut self, donated_energy: &Vec<(NodeHandle, BioEnergy)>) {
+    fn apply_donated_energy(&mut self, donated_energy: Vec<(NodeHandle, BioEnergy)>) {
         for (cell_handle, donation) in donated_energy {
-            self.cell_mut(*cell_handle).add_energy(*donation);
+            self.cell_mut(cell_handle).add_energy(donation);
         }
     }
 

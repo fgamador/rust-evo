@@ -473,6 +473,14 @@ impl GraphEdgeData {
         &mut self.node2_handle
     }
 
+    pub fn other_node_handle(&self, node_handle: NodeHandle) -> NodeHandle {
+        if node_handle == self.node1_handle {
+            self.node2_handle
+        } else {
+            self.node1_handle
+        }
+    }
+
     fn joins(&self, node_handle1: NodeHandle, node_handle2: NodeHandle) -> bool {
         (self.node1_handle == node_handle1 && self.node2_handle == node_handle2)
             || (self.node1_handle == node_handle2 && self.node2_handle == node_handle1)

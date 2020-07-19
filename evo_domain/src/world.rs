@@ -181,10 +181,10 @@ impl World {
             cell.calculate_automatic_changes(&mut changes.cells[index]);
             cell.calculate_requested_changes(&mut changes.cells[index]);
             cell.apply_changes(&changes.cells[index]);
-            Self::print_selected_cell_state(cell, "start");
+            Self::print_selected_cell_physics_state(cell, "start");
             Self::move_cell(cell);
             Self::clear_cell_environment(cell);
-            Self::print_selected_cell_state(cell, "end");
+            Self::print_selected_cell_physics_state(cell, "end");
         }
     }
 
@@ -198,7 +198,7 @@ impl World {
         cell.forces_mut().clear();
     }
 
-    fn print_selected_cell_state(cell: &Cell, start_end_str: &str) {
+    fn print_selected_cell_physics_state(cell: &Cell, start_end_str: &str) {
         if cell.is_selected() {
             println!(
                 "Cell {} {} position: {}, velocity: {}, force: {}",

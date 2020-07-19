@@ -216,8 +216,8 @@ impl World {
     }
 
     fn apply_world_changes(&mut self, changes: &WorldChanges) {
-        let mut new_children = vec![];
         let mut donated_energy = vec![];
+        let mut new_children = vec![];
         let mut broken_bond_handles = HashSet::new();
         let mut dead_cell_handles = vec![];
         self.cell_graph.for_each_node(|index, cell, edge_source| {
@@ -225,8 +225,8 @@ impl World {
                 cell,
                 edge_source,
                 &changes.cells[index].bond_requests,
-                &mut new_children,
                 &mut donated_energy,
+                &mut new_children,
                 &mut broken_bond_handles,
             );
             if !cell.is_alive() {
@@ -241,8 +241,8 @@ impl World {
         cell: &mut Cell,
         edge_source: &mut EdgeSource<Bond>,
         bond_requests: &BondRequests,
-        new_children: &mut Vec<NewChildData>,
         donated_energy: &mut Vec<(NodeHandle, BioEnergy)>,
+        new_children: &mut Vec<NewChildData>,
         broken_bond_handles: &mut HashSet<EdgeHandle>,
     ) {
         for (index, bond_request) in bond_requests.iter().enumerate() {

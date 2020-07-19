@@ -10,7 +10,7 @@ pub fn init_and_run(world: World) {
     simple_logger::init().unwrap();
 
     let args: Vec<String> = env::args().collect();
-    let start_paused = args.len() == 2 && args[1] == "-p".to_string();
+    let start_paused = args.len() == 2 && args[1] == "-p";
 
     let view = View::new(world.min_corner(), world.max_corner());
     run(world, view, start_paused);

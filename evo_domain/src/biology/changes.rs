@@ -25,6 +25,7 @@ pub struct CellChanges {
 }
 
 impl CellChanges {
+    #[allow(clippy::new_without_default)]
     pub fn new(num_layers: usize) -> Self {
         CellChanges {
             energy: BioEnergyDelta::ZERO,
@@ -42,6 +43,7 @@ pub struct CellLayerChanges {
 }
 
 impl CellLayerChanges {
+    #[allow(clippy::new_without_default)]
     pub fn new() -> Self {
         CellLayerChanges {
             health: HealthDelta::ZERO,

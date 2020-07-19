@@ -220,7 +220,7 @@ impl Cell {
         let (income, expense) = Self::summarize_request_energy_deltas(costed_requests);
         let available_energy = start_energy + income;
         let budgeted_fraction = (available_energy.value() / expense.value()).min(1.0);
-        let budgeted_requests = costed_requests
+        costed_requests
             .iter()
             .map(|costed_request| {
                 let request_budgeted_fraction = if costed_request.energy_delta().value() < 0.0 {
@@ -230,8 +230,7 @@ impl Cell {
                 };
                 BudgetedControlRequest::new(*costed_request, request_budgeted_fraction)
             })
-            .collect();
-        budgeted_requests
+            .collect()
     }
 
     fn summarize_request_energy_deltas(

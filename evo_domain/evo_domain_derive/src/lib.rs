@@ -22,6 +22,10 @@ pub fn graph_edge_derive(input: TokenStream) -> TokenStream {
                     self.#field_name.node2_handle()
                 }
 
+                fn other_node_handle(&self, node_handle: NodeHandle) -> NodeHandle {
+                    self.#field_name.other_node_handle(node_handle)
+                }
+
                 fn graph_edge_data(&self) -> &GraphEdgeData {
                     &self.#field_name
                 }

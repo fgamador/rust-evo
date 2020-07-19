@@ -255,7 +255,7 @@ impl World {
                     if cell.has_edge(index) {
                         let bond = edge_source.edge(cell.edge_handle(index));
                         donated_energy.push((
-                            bond.other_cell_handle(cell.node_handle()),
+                            bond.other_node_handle(cell.node_handle()),
                             bond_request.donation_energy,
                         ));
                     } else {

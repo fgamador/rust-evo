@@ -19,10 +19,6 @@ impl Bond {
         }
     }
 
-    pub fn other_cell_handle(&self, cell_handle: NodeHandle) -> NodeHandle {
-        self.edge_data.other_node_handle(cell_handle)
-    }
-
     pub fn calc_strain(&self) -> Displacement {
         Displacement::new(0.0, 0.0)
     }

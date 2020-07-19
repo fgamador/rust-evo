@@ -399,6 +399,8 @@ pub trait GraphEdge {
 
     fn node2_handle(&self) -> NodeHandle;
 
+    fn other_node_handle(&self, node_handle: NodeHandle) -> NodeHandle;
+
     fn graph_edge_data(&self) -> &GraphEdgeData;
 
     fn graph_edge_data_mut(&mut self) -> &mut GraphEdgeData;

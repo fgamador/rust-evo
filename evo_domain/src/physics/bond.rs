@@ -9,8 +9,6 @@ use std::f64::consts::PI;
 #[derive(Clone, Debug, GraphEdge, PartialEq)]
 pub struct Bond {
     edge_data: GraphEdgeData,
-    energy_for_cell1: BioEnergy,
-    energy_for_cell2: BioEnergy,
 }
 
 impl Bond {
@@ -18,45 +16,11 @@ impl Bond {
         assert_ne!(circle1.node_handle(), circle2.node_handle());
         Bond {
             edge_data: GraphEdgeData::new(circle1.node_handle(), circle2.node_handle()),
-            energy_for_cell1: BioEnergy::new(0.0),
-            energy_for_cell2: BioEnergy::new(0.0),
         }
     }
 
     pub fn other_cell_handle(&self, cell_handle: NodeHandle) -> NodeHandle {
         self.edge_data.other_node_handle(cell_handle)
-    }
-
-    pub fn energy_for_cell1(&self) -> BioEnergy {
-        self.energy_for_cell1
-    }
-
-    pub fn energy_for_cell2(&self) -> BioEnergy {
-        self.energy_for_cell2
-    }
-
-    pub fn set_energy_from_cell(&mut self, cell_handle: NodeHandle, energy: BioEnergy) {
-        if cell_handle == self.edge_data.node1_handle() {
-            self.energy_for_cell2 = energy;
-        } else if cell_handle == self.edge_data.node2_handle() {
-            self.energy_for_cell1 = energy;
-        } else {
-            panic!("Tried to set bond energy from an unrelated cell");
-        }
-    }
-
-    pub fn claim_energy_for_cell(&mut self, cell_handle: NodeHandle) -> BioEnergy {
-        let ret_energy;
-        if cell_handle == self.edge_data.node1_handle() {
-            ret_energy = self.energy_for_cell1;
-            self.energy_for_cell1 = BioEnergy::ZERO;
-        } else if cell_handle == self.edge_data.node2_handle() {
-            ret_energy = self.energy_for_cell2;
-            self.energy_for_cell2 = BioEnergy::ZERO;
-        } else {
-            panic!("Tried to claim bond energy for an unrelated cell");
-        }
-        ret_energy
     }
 
     pub fn calc_strain(&self) -> Displacement {

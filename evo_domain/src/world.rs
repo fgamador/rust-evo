@@ -254,7 +254,6 @@ impl World {
                 if bond_request.donation_energy != BioEnergy::ZERO {
                     if cell.has_edge(index) {
                         let bond = edge_source.edge(cell.edge_handle(index));
-                        // bond.set_energy_from_cell(cell.node_handle(), bond_request.donation_energy);
                         donated_energy.push((
                             bond.other_cell_handle(cell.node_handle()),
                             bond_request.donation_energy,
@@ -300,7 +299,6 @@ impl World {
             let child_handle = self.add_cell(new_child_data.child);
             let child = self.cell(child_handle);
             let bond = Bond::new(self.cell(new_child_data.parent), child);
-            // bond.set_energy_from_cell(new_child_data.parent, new_child_data.donated_energy);
             self.add_bond(bond, new_child_data.bond_index, 0);
             donated_energy.push((child_handle, new_child_data.donated_energy));
         }
@@ -316,23 +314,6 @@ impl World {
         let mut sorted_bond_handles = Vec::from_iter(bond_handles.iter().cloned());
         sorted_bond_handles.sort_unstable();
         self.cell_graph.remove_edges(&sorted_bond_handles);
-    }
-
-    fn _process_cell_bond_energy(&mut self) {
-        self.cell_graph.for_each_node(|_index, cell, edge_source| {
-            Self::_claim_bond_energy(cell, edge_source);
-        });
-    }
-
-    fn _claim_bond_energy(cell: &mut Cell, edge_source: &mut EdgeSource<Bond>) {
-        let mut energy = BioEnergy::ZERO;
-        for edge_handle in cell.edge_handles() {
-            if let Some(edge_handle) = edge_handle {
-                let bond = edge_source.edge(*edge_handle);
-                energy += bond.claim_energy_for_cell(cell.node_handle());
-            }
-        }
-        cell.add_energy(energy);
     }
 }
 
@@ -561,8 +542,6 @@ mod tests {
         assert!(child.has_edge(0));
         assert_eq!(parent.energy(), BioEnergy::new(9.0)); // 10 - 1
         assert_eq!(child.energy(), BioEnergy::new(1.0)); // 0 + 1
-        let bond = &world.bonds()[0];
-        assert_eq!(bond.energy_for_cell2(), BioEnergy::ZERO);
     }
 
     #[test]
@@ -610,9 +589,6 @@ mod tests {
         assert_eq!(cell1.energy(), BioEnergy::new(11.0)); // 10 - 2 + 3
         let cell2 = &world.cells()[1];
         assert_eq!(cell2.energy(), BioEnergy::new(9.0)); // 10 - 3 + 2
-        let bond = &world.bonds()[0];
-        assert_eq!(bond.energy_for_cell1(), BioEnergy::ZERO);
-        assert_eq!(bond.energy_for_cell2(), BioEnergy::ZERO);
     }
 
     #[test]

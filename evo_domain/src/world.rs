@@ -233,12 +233,8 @@ impl World {
                 dead_cell_handles.push(cell.node_handle());
             }
         });
-        self.update_cell_graph(
-            new_children,
-            donated_energy,
-            broken_bond_handles,
-            dead_cell_handles,
-        );
+        self.apply_donated_energy(donated_energy);
+        self.update_cell_graph(new_children, broken_bond_handles, dead_cell_handles);
     }
 
     fn execute_bond_requests(
@@ -280,12 +276,10 @@ impl World {
     fn update_cell_graph(
         &mut self,
         new_children: Vec<NewChildData>,
-        donated_energy: Vec<(NodeHandle, BioEnergy)>,
         broken_bond_handles: HashSet<EdgeHandle>,
         dead_cell_handles: Vec<NodeHandle>,
     ) {
         self.add_children(new_children);
-        self.apply_donated_energy(donated_energy);
         self.remove_bonds(&broken_bond_handles);
         self.cell_graph.remove_nodes(&dead_cell_handles);
     }

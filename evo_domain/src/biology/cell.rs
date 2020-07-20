@@ -169,9 +169,9 @@ impl Cell {
 
     pub fn calculate_requested_changes(&mut self, changes: &mut CellChanges) {
         let budgeted_control_requests = self.get_budgeted_control_requests();
-        self._print_selected_cell_status(&budgeted_control_requests);
+        // self._print_selected_cell_status(&budgeted_control_requests);
         self.execute_control_requests(&budgeted_control_requests, changes);
-        self._print_selected_cell_bond_requests(&changes.bond_requests);
+        // self._print_selected_cell_bond_requests(&changes.bond_requests);
     }
 
     fn get_budgeted_control_requests(&mut self) -> Vec<BudgetedControlRequest> {
@@ -395,6 +395,40 @@ impl Circle for Cell {
 
     fn center(&self) -> Position {
         self.newtonian_state.position
+    }
+}
+
+struct CellTickRecord {
+    cell_handle: NodeHandle,
+    pub positions: [Position; 2],
+    pub velocities: [Velocity; 2],
+    pub masses: [Mass; 2],
+    pub radii: [Length; 2],
+    pub net_force: Force,
+}
+
+impl CellTickRecord {
+    fn new(cell_handle: NodeHandle) -> Self {
+        CellTickRecord {
+            cell_handle,
+            positions: [Position::ORIGIN; 2],
+            velocities: [Velocity::ZERO; 2],
+            masses: [Mass::ZERO; 2],
+            radii: [Length::ZERO; 2],
+            net_force: Force::ZERO,
+        }
+    }
+
+    fn print(&self) {
+        println!("Cell {}:", self.cell_handle);
+        println!("  net force {}", self.net_force);
+        println!("  position {} -> {}", self.positions[0], self.positions[1]);
+        println!(
+            "  velocity {} -> {}",
+            self.velocities[0], self.velocities[1]
+        );
+        println!("  mass {} -> {}", self.masses[0].value(), self.masses[1]);
+        println!("  radius {} -> {}", self.radii[0].value(), self.radii[1]);
     }
 }
 

@@ -248,6 +248,12 @@ impl Length {
     }
 }
 
+impl fmt::Display for Length {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "{:.4}", self.value)
+    }
+}
+
 impl Add for Length {
     type Output = Length;
 
@@ -1093,6 +1099,12 @@ impl Mass {
     #[allow(dead_code)]
     pub fn value(self) -> f64 {
         self.value
+    }
+}
+
+impl fmt::Display for Mass {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "{:.4}", self.value)
     }
 }
 

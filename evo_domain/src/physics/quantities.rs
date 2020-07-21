@@ -536,6 +536,12 @@ impl BioEnergy {
     }
 }
 
+impl fmt::Display for BioEnergy {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "{:.4}", self.value)
+    }
+}
+
 impl Add<BioEnergy> for BioEnergy {
     type Output = BioEnergy;
 

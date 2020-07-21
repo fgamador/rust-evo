@@ -149,14 +149,14 @@ impl Cell {
     }
 
     pub fn tick(&mut self) -> BondRequests {
+        let start_snapshot = self.get_state_snapshot();
         let mut changes = CellChanges::new(self.layers.len());
         self.calculate_automatic_changes(&mut changes);
         self.calculate_requested_changes(&mut changes);
         self.apply_changes(&changes);
-        Self::print_selected_cell_physics_state(self, "start");
         self.move_from_forces();
+        self.print_debug_info(&start_snapshot);
         self.clear_environment();
-        Self::print_selected_cell_physics_state(self, "end");
         changes.bond_requests
     }
 
@@ -169,9 +169,7 @@ impl Cell {
 
     pub fn calculate_requested_changes(&mut self, changes: &mut CellChanges) {
         let budgeted_control_requests = self.get_budgeted_control_requests();
-        // self._print_selected_cell_status(&budgeted_control_requests);
         self.execute_control_requests(&budgeted_control_requests, changes);
-        // self._print_selected_cell_bond_requests(&changes.bond_requests);
     }
 
     fn get_budgeted_control_requests(&mut self) -> Vec<BudgetedControlRequest> {
@@ -272,33 +270,23 @@ impl Cell {
         self.forces_mut().clear();
     }
 
-    fn print_selected_cell_physics_state(cell: &Cell, start_end_str: &str) {
-        if cell.is_selected() {
-            println!(
-                "Cell {} {} position: {}, velocity: {}, force: {}",
-                cell.node_handle(),
-                start_end_str,
-                cell.position(),
-                cell.velocity(),
-                cell.forces().net_force()
-            );
-        }
-    }
-
-    fn _print_selected_cell_status(&self, budgeted_control_requests: &[BudgetedControlRequest]) {
-        self._print_selected_cell_basics();
-        self._print_selected_cell_layers();
-        self._print_selected_cell_energy();
-        self._print_selected_cell_control_requests(&budgeted_control_requests);
-    }
-
-    fn _print_selected_cell_basics(&self) {
+    fn print_debug_info(&self, start_snapshot: &CellStateSnapshot) {
         if self.is_selected() {
+            println!("Cell {}:", self.node_handle());
+            println!("  net force {}", self.forces().net_force());
             println!(
-                "  Mass: {:.4}, radius: {:.4}",
-                self.mass().value(),
-                self.radius().value()
+                "  position {} -> {}",
+                start_snapshot.center,
+                self.position()
             );
+            println!(
+                "  velocity {} -> {}",
+                start_snapshot.velocity,
+                self.velocity()
+            );
+            println!("  mass {} -> {}", start_snapshot.mass, self.mass());
+            println!("  radius {} -> {}", start_snapshot.radius, self.radius());
+            println!("  energy {} -> {}", start_snapshot.energy, self.energy());
         }
     }
 
@@ -312,12 +300,6 @@ impl Cell {
                     layer.health().value()
                 );
             }
-        }
-    }
-
-    fn _print_selected_cell_energy(&self) {
-        if self.is_selected() {
-            println!("  Energy: {:.4}", self.energy.value(),);
         }
     }
 
@@ -395,40 +377,6 @@ impl Circle for Cell {
 
     fn center(&self) -> Position {
         self.newtonian_state.position
-    }
-}
-
-struct CellTickRecord {
-    cell_handle: NodeHandle,
-    pub positions: [Position; 2],
-    pub velocities: [Velocity; 2],
-    pub masses: [Mass; 2],
-    pub radii: [Length; 2],
-    pub net_force: Force,
-}
-
-impl CellTickRecord {
-    fn new(cell_handle: NodeHandle) -> Self {
-        CellTickRecord {
-            cell_handle,
-            positions: [Position::ORIGIN; 2],
-            velocities: [Velocity::ZERO; 2],
-            masses: [Mass::ZERO; 2],
-            radii: [Length::ZERO; 2],
-            net_force: Force::ZERO,
-        }
-    }
-
-    fn print(&self) {
-        println!("Cell {}:", self.cell_handle);
-        println!("  net force {}", self.net_force);
-        println!("  position {} -> {}", self.positions[0], self.positions[1]);
-        println!(
-            "  velocity {} -> {}",
-            self.velocities[0], self.velocities[1]
-        );
-        println!("  mass {} -> {}", self.masses[0].value(), self.masses[1]);
-        println!("  radius {} -> {}", self.radii[0].value(), self.radii[1]);
     }
 }
 

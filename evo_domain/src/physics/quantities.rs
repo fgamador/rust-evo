@@ -315,6 +315,12 @@ impl Area {
     }
 }
 
+impl fmt::Display for Area {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "{:.4}", self.value)
+    }
+}
+
 impl Add<Area> for Area {
     type Output = Area;
 
@@ -445,6 +451,12 @@ impl Health {
 
     fn bound(value: Value1D) -> Value1D {
         value.max(0.0).min(1.0)
+    }
+}
+
+impl fmt::Display for Health {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "{:.4}", self.value)
     }
 }
 

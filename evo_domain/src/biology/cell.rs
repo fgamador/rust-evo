@@ -287,6 +287,29 @@ impl Cell {
             println!("  mass {} -> {}", start_snapshot.mass, self.mass());
             println!("  radius {} -> {}", start_snapshot.radius, self.radius());
             println!("  energy {} -> {}", start_snapshot.energy, self.energy());
+
+            for (index, layer) in self.layers.iter().enumerate() {
+                println!("  layer {}:", index);
+                println!(
+                    "    area {} -> {}",
+                    start_snapshot.layers[index].area,
+                    layer.area()
+                );
+                println!(
+                    "    mass {} -> {}",
+                    start_snapshot.layers[index].mass,
+                    layer.mass()
+                );
+                println!(
+                    "    health {} -> {}",
+                    start_snapshot.layers[index].health,
+                    layer.health()
+                );
+            }
+
+            if !self.is_alive() {
+                println!("  --- DEAD ---");
+            }
         }
     }
 

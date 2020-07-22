@@ -233,13 +233,17 @@ impl SimpleForceInfluence {
     pub fn new(influence_force: Box<dyn SimpleInfluenceForce>) -> Self {
         SimpleForceInfluence { influence_force }
     }
+
+    fn apply_to(&self, cell: &mut Cell) {
+        let force = self.influence_force.calc_force(cell);
+        cell.forces_mut().add_force(force);
+    }
 }
 
 impl Influence for SimpleForceInfluence {
     fn apply(&self, cell_graph: &mut SortableGraph<Cell, Bond, AngleGusset>) {
         for cell in cell_graph.nodes_mut() {
-            let force = self.influence_force.calc_force(cell);
-            cell.forces_mut().add_force(force);
+            self.apply_to(cell);
         }
     }
 }
@@ -350,12 +354,16 @@ impl UniversalOverlap {
     pub fn new(overlap: Overlap) -> Self {
         UniversalOverlap { overlap }
     }
+
+    fn apply_to(&self, cell: &mut Cell) {
+        cell.environment_mut().add_overlap(self.overlap);
+    }
 }
 
 impl Influence for UniversalOverlap {
     fn apply(&self, cell_graph: &mut SortableGraph<Cell, Bond, AngleGusset>) {
         for cell in cell_graph.nodes_mut() {
-            cell.environment_mut().add_overlap(self.overlap);
+            self.apply_to(cell);
         }
     }
 }
@@ -375,6 +383,12 @@ impl Sunlight {
         }
     }
 
+    fn apply_to(&self, cell: &mut Cell) {
+        let y = cell.center().y();
+        cell.environment_mut()
+            .add_light_intensity(self.calc_light_intensity(y));
+    }
+
     fn calc_light_intensity(&self, y: f64) -> f64 {
         (self.slope * y + self.intercept).max(0.0)
     }
@@ -383,9 +397,7 @@ impl Sunlight {
 impl Influence for Sunlight {
     fn apply(&self, cell_graph: &mut SortableGraph<Cell, Bond, AngleGusset>) {
         for cell in cell_graph.nodes_mut() {
-            let y = cell.center().y();
-            cell.environment_mut()
-                .add_light_intensity(self.calc_light_intensity(y));
+            self.apply_to(cell);
         }
     }
 }

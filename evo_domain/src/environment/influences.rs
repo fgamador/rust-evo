@@ -225,6 +225,10 @@ impl Influence for BondAngleForces {
     }
 }
 
+pub trait PerCellInfluence {
+    fn apply_to(&self, cell: &mut Cell);
+}
+
 pub struct SimpleForceInfluence {
     influence_force: Box<dyn SimpleInfluenceForce>,
 }
@@ -233,7 +237,9 @@ impl SimpleForceInfluence {
     pub fn new(influence_force: Box<dyn SimpleInfluenceForce>) -> Self {
         SimpleForceInfluence { influence_force }
     }
+}
 
+impl PerCellInfluence for SimpleForceInfluence {
     fn apply_to(&self, cell: &mut Cell) {
         let force = self.influence_force.calc_force(cell);
         cell.forces_mut().add_force(force);
@@ -354,7 +360,9 @@ impl UniversalOverlap {
     pub fn new(overlap: Overlap) -> Self {
         UniversalOverlap { overlap }
     }
+}
 
+impl PerCellInfluence for UniversalOverlap {
     fn apply_to(&self, cell: &mut Cell) {
         cell.environment_mut().add_overlap(self.overlap);
     }
@@ -383,14 +391,16 @@ impl Sunlight {
         }
     }
 
+    fn calc_light_intensity(&self, y: f64) -> f64 {
+        (self.slope * y + self.intercept).max(0.0)
+    }
+}
+
+impl PerCellInfluence for Sunlight {
     fn apply_to(&self, cell: &mut Cell) {
         let y = cell.center().y();
         cell.environment_mut()
             .add_light_intensity(self.calc_light_intensity(y));
-    }
-
-    fn calc_light_intensity(&self, y: f64) -> f64 {
-        (self.slope * y + self.intercept).max(0.0)
     }
 }
 

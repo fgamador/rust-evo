@@ -173,7 +173,7 @@ impl World {
         cell_bond_requests
     }
 
-    fn apply_world_changes(&mut self, cell_bond_requests: &Vec<BondRequests>) {
+    fn apply_world_changes(&mut self, cell_bond_requests: &[BondRequests]) {
         let mut donated_energy = vec![];
         let mut new_children = vec![];
         let mut broken_bond_handles = HashSet::new();

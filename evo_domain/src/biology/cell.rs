@@ -274,36 +274,48 @@ impl Cell {
         if self.is_selected() {
             println!("Cell {}:", self.node_handle());
             println!("  net force {}", self.forces().net_force());
-            println!(
-                "  position {} -> {}",
-                start_snapshot.center,
-                self.position()
+            Self::print_value2d_debug_info(
+                "  position",
+                start_snapshot.center.value(),
+                self.position().value(),
             );
-            println!(
-                "  velocity {} -> {}",
-                start_snapshot.velocity,
-                self.velocity()
+            Self::print_value2d_debug_info(
+                "  velocity",
+                start_snapshot.velocity.value(),
+                self.velocity().value(),
             );
-            println!("  mass {} -> {}", start_snapshot.mass, self.mass());
-            println!("  radius {} -> {}", start_snapshot.radius, self.radius());
-            println!("  energy {} -> {}", start_snapshot.energy, self.energy());
+            Self::print_value1d_debug_info(
+                "  mass",
+                start_snapshot.mass.value(),
+                self.mass().value(),
+            );
+            Self::print_value1d_debug_info(
+                "  radius",
+                start_snapshot.radius.value(),
+                self.radius().value(),
+            );
+            Self::print_value1d_debug_info(
+                "  energy",
+                start_snapshot.energy.value(),
+                self.energy().value(),
+            );
 
             for (index, layer) in self.layers.iter().enumerate() {
                 println!("  layer {}:", index);
-                println!(
-                    "    area {} -> {}",
-                    start_snapshot.layers[index].area,
-                    layer.area()
+                Self::print_value1d_debug_info(
+                    "    area",
+                    start_snapshot.layers[index].area.value(),
+                    layer.area().value(),
                 );
-                println!(
-                    "    mass {} -> {}",
-                    start_snapshot.layers[index].mass,
-                    layer.mass()
+                Self::print_value1d_debug_info(
+                    "    mass",
+                    start_snapshot.layers[index].mass.value(),
+                    layer.mass().value(),
                 );
-                println!(
-                    "    health {} -> {}",
-                    start_snapshot.layers[index].health,
-                    layer.health()
+                Self::print_value1d_debug_info(
+                    "    health",
+                    start_snapshot.layers[index].health.value(),
+                    layer.health().value(),
                 );
             }
 
@@ -311,6 +323,27 @@ impl Cell {
                 println!("  --- DEAD ---");
             }
         }
+    }
+
+    fn print_value1d_debug_info(label: &str, value1: Value1D, value2: Value1D) {
+        println!(
+            "{} {:.4} -> {:.4}: {:+.4}",
+            label,
+            value1,
+            value2,
+            value2 - value1
+        );
+    }
+
+    fn print_value2d_debug_info(label: &str, value1: Value2D, value2: Value2D) {
+        println!(
+            "{} {} -> {}: ({:+.4}, {:+.4})",
+            label,
+            value1,
+            value2,
+            value2.x() - value1.x(),
+            value2.y() - value1.y(),
+        );
     }
 
     fn _print_selected_cell_layers(&self) {

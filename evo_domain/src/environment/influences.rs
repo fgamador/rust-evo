@@ -246,14 +246,6 @@ impl PerCellInfluence for SimpleForceInfluence {
     }
 }
 
-impl Influence for SimpleForceInfluence {
-    fn apply(&self, cell_graph: &mut SortableGraph<Cell, Bond, AngleGusset>) {
-        for cell in cell_graph.nodes_mut() {
-            self.apply_to(cell);
-        }
-    }
-}
-
 pub trait SimpleInfluenceForce {
     fn calc_force(&self, cell: &Cell) -> Force;
 }
@@ -368,14 +360,6 @@ impl PerCellInfluence for UniversalOverlap {
     }
 }
 
-impl Influence for UniversalOverlap {
-    fn apply(&self, cell_graph: &mut SortableGraph<Cell, Bond, AngleGusset>) {
-        for cell in cell_graph.nodes_mut() {
-            self.apply_to(cell);
-        }
-    }
-}
-
 #[derive(Debug)]
 pub struct Sunlight {
     slope: f64,
@@ -401,14 +385,6 @@ impl PerCellInfluence for Sunlight {
         let y = cell.center().y();
         cell.environment_mut()
             .add_light_intensity(self.calc_light_intensity(y));
-    }
-}
-
-impl Influence for Sunlight {
-    fn apply(&self, cell_graph: &mut SortableGraph<Cell, Bond, AngleGusset>) {
-        for cell in cell_graph.nodes_mut() {
-            self.apply_to(cell);
-        }
     }
 }
 
@@ -745,19 +721,17 @@ mod tests {
 
     #[test]
     fn simple_force_influence_adds_force() {
-        let mut cell_graph = SortableGraph::new();
         let force = Force::new(2.0, -3.0);
         let influence = SimpleForceInfluence::new(Box::new(ConstantForce::new(force)));
-        let ball_handle = cell_graph.add_node(Cell::ball(
+        let mut ball = Cell::ball(
             Length::new(1.0),
             Mass::new(3.0),
             Position::new(0.0, 0.0),
             Velocity::ZERO,
-        ));
+        );
 
-        influence.apply(&mut cell_graph);
+        influence.apply_to(&mut ball);
 
-        let ball = cell_graph.node(ball_handle);
         assert_eq!(ball.forces().net_force(), force);
     }
 
@@ -814,30 +788,23 @@ mod tests {
     #[test]
     fn sunlight_adds_light() {
         let sunlight = Sunlight::new(-10.0, 10.0, 10.0, 20.0);
-        let mut cell_graph = SortableGraph::new();
-        let cell_handle = cell_graph.add_node(simple_layered_cell(vec![simple_cell_layer(
-            Area::new(PI),
-            Density::new(1.0),
-        )]));
+        let mut cell =
+            simple_layered_cell(vec![simple_cell_layer(Area::new(PI), Density::new(1.0))]);
 
-        sunlight.apply(&mut cell_graph);
+        sunlight.apply_to(&mut cell);
 
-        let cell = cell_graph.node(cell_handle);
         assert_eq!(cell.environment().light_intensity(), 15.0);
     }
 
     #[test]
     fn sunlight_never_negative() {
         let sunlight = Sunlight::new(-10.0, 0.0, 0.0, 10.0);
-        let mut cell_graph = SortableGraph::new();
-        let cell_handle = cell_graph.add_node(
+        let mut cell =
             simple_layered_cell(vec![simple_cell_layer(Area::new(1.0), Density::new(1.0))])
-                .with_initial_position(Position::new(0.0, -11.0)),
-        );
+                .with_initial_position(Position::new(0.0, -11.0));
 
-        sunlight.apply(&mut cell_graph);
+        sunlight.apply_to(&mut cell);
 
-        let cell = cell_graph.node(cell_handle);
         assert_eq!(cell.environment().light_intensity(), 0.0);
     }
 

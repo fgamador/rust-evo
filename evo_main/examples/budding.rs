@@ -16,10 +16,10 @@ fn create_world() -> World {
     World::new(Position::new(0.0, -400.0), Position::new(400.0, 0.0))
         .with_perimeter_walls()
         .with_pair_collisions()
-        .with_influences(vec![
-            Box::new(BondForces::new()),
-            Box::new(SimpleForceInfluence::new(Box::new(DragForce::new(0.0005)))),
-        ])
+        .with_influence(Box::new(BondForces::new()))
+        .with_per_cell_influence(Box::new(SimpleForceInfluence::new(Box::new(
+            DragForce::new(0.0005),
+        ))))
         .with_cell(create_cell().with_initial_position(Position::new(200.0, -100.0)))
 }
 

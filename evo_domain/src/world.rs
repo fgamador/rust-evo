@@ -51,7 +51,7 @@ impl World {
     pub fn with_sunlight(self, min_intensity: f64, max_intensity: f64) -> Self {
         let world_min_corner = self.min_corner();
         let world_max_corner = self.max_corner();
-        self.with_influence(Box::new(Sunlight::new(
+        self.with_per_cell_influence(Box::new(Sunlight::new(
             world_min_corner.y(),
             world_max_corner.y(),
             min_intensity,
@@ -315,7 +315,7 @@ mod tests {
     #[test]
     fn tick_with_force_accelerates_ball() {
         let mut world = World::new(Position::ORIGIN, Position::ORIGIN)
-            .with_influence(Box::new(SimpleForceInfluence::new(Box::new(
+            .with_per_cell_influence(Box::new(SimpleForceInfluence::new(Box::new(
                 ConstantForce::new(Force::new(1.0, 1.0)),
             ))))
             .with_cell(Cell::ball(
@@ -335,7 +335,7 @@ mod tests {
     #[test]
     fn overlaps_do_not_persist() {
         let mut world = World::new(Position::ORIGIN, Position::ORIGIN)
-            .with_influence(Box::new(UniversalOverlap::new(Overlap::new(
+            .with_per_cell_influence(Box::new(UniversalOverlap::new(Overlap::new(
                 Displacement::new(1.0, 1.0),
                 1.0,
             ))))
@@ -355,7 +355,7 @@ mod tests {
     #[test]
     fn forces_do_not_persist() {
         let mut world = World::new(Position::ORIGIN, Position::ORIGIN)
-            .with_influence(Box::new(SimpleForceInfluence::new(Box::new(
+            .with_per_cell_influence(Box::new(SimpleForceInfluence::new(Box::new(
                 ConstantForce::new(Force::new(1.0, 1.0)),
             ))))
             .with_cell(Cell::ball(
@@ -380,7 +380,7 @@ mod tests {
                 Position::ORIGIN,
                 Velocity::new(10.0, 10.0),
             ))
-            .with_influence(Box::new(SimpleForceInfluence::new(Box::new(
+            .with_per_cell_influence(Box::new(SimpleForceInfluence::new(Box::new(
                 DragForce::new(0.01),
             ))));
 
@@ -394,7 +394,7 @@ mod tests {
     #[test]
     fn tick_runs_photo_layer() {
         let mut world = World::new(Position::ORIGIN, Position::ORIGIN)
-            .with_influence(Box::new(Sunlight::new(-10.0, 10.0, 0.0, 10.0)))
+            .with_per_cell_influence(Box::new(Sunlight::new(-10.0, 10.0, 0.0, 10.0)))
             .with_cell(simple_layered_cell(vec![CellLayer::new(
                 Area::new(10.0),
                 Density::new(1.0),

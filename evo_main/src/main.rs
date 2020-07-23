@@ -32,7 +32,7 @@ fn create_world() -> World {
         .with_pair_collisions()
         .with_influence(Box::new(BondForces::new()))
         .with_sunlight(0.0, 1.0)
-        .with_influences(vec![
+        .with_per_cell_influences(vec![
             Box::new(SimpleForceInfluence::new(Box::new(WeightForce::new(
                 GRAVITY,
             )))),

@@ -11,7 +11,7 @@ pub struct World {
     min_corner: Position,
     max_corner: Position,
     cell_graph: SortableGraph<Cell, Bond, AngleGusset>,
-    influences: Vec<Box<dyn Influence>>,
+    influences: Vec<Box<dyn CrossCellInfluence>>,
     per_cell_influences: Vec<Box<dyn PerCellInfluence>>,
 }
 
@@ -59,12 +59,12 @@ impl World {
         )))
     }
 
-    pub fn with_influence(mut self, influence: Box<dyn Influence>) -> Self {
+    pub fn with_influence(mut self, influence: Box<dyn CrossCellInfluence>) -> Self {
         self.influences.push(influence);
         self
     }
 
-    pub fn with_influences(mut self, mut influences: Vec<Box<dyn Influence>>) -> Self {
+    pub fn with_influences(mut self, mut influences: Vec<Box<dyn CrossCellInfluence>>) -> Self {
         self.influences.append(&mut influences);
         self
     }
@@ -176,7 +176,7 @@ impl World {
 
     fn apply_influences(&mut self) {
         for influence in &self.influences {
-            influence.apply(&mut self.cell_graph);
+            influence.apply_to(&mut self.cell_graph);
         }
     }
 

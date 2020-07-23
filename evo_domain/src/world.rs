@@ -12,6 +12,7 @@ pub struct World {
     max_corner: Position,
     cell_graph: SortableGraph<Cell, Bond, AngleGusset>,
     influences: Vec<Box<dyn Influence>>,
+    per_cell_influences: Vec<Box<dyn PerCellInfluence>>,
 }
 
 impl World {
@@ -21,6 +22,7 @@ impl World {
             max_corner,
             cell_graph: SortableGraph::new(),
             influences: vec![],
+            per_cell_influences: vec![],
         }
     }
 
@@ -64,6 +66,19 @@ impl World {
 
     pub fn with_influences(mut self, mut influences: Vec<Box<dyn Influence>>) -> Self {
         self.influences.append(&mut influences);
+        self
+    }
+
+    pub fn with_per_cell_influence(mut self, influence: Box<dyn PerCellInfluence>) -> Self {
+        self.per_cell_influences.push(influence);
+        self
+    }
+
+    pub fn with_per_cell_influences(
+        mut self,
+        mut influences: Vec<Box<dyn PerCellInfluence>>,
+    ) -> Self {
+        self.per_cell_influences.append(&mut influences);
         self
     }
 
@@ -168,6 +183,9 @@ impl World {
     fn tick_cells(&mut self) -> Vec<BondRequests> {
         let mut cell_bond_requests = vec![];
         for cell in self.cell_graph.nodes_mut() {
+            for influence in &self.per_cell_influences {
+                influence.apply_to(cell);
+            }
             cell_bond_requests.push(cell.tick());
         }
         cell_bond_requests

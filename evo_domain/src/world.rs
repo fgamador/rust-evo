@@ -11,7 +11,7 @@ pub struct World {
     min_corner: Position,
     max_corner: Position,
     cell_graph: SortableGraph<Cell, Bond, AngleGusset>,
-    influences: Vec<Box<dyn CrossCellInfluence>>,
+    cross_cell_influences: Vec<Box<dyn CrossCellInfluence>>,
     per_cell_influences: Vec<Box<dyn PerCellInfluence>>,
 }
 
@@ -21,7 +21,7 @@ impl World {
             min_corner,
             max_corner,
             cell_graph: SortableGraph::new(),
-            influences: vec![],
+            cross_cell_influences: vec![],
             per_cell_influences: vec![],
         }
     }
@@ -29,7 +29,7 @@ impl World {
     pub fn with_standard_influences(self) -> Self {
         self.with_perimeter_walls()
             .with_pair_collisions()
-            .with_influences(vec![
+            .with_cross_cell_influences(vec![
                 Box::new(BondForces::new()),
                 Box::new(BondAngleForces::new()),
             ])
@@ -38,14 +38,14 @@ impl World {
     pub fn with_perimeter_walls(self) -> Self {
         let world_min_corner = self.min_corner();
         let world_max_corner = self.max_corner();
-        self.with_influence(Box::new(WallCollisions::new(
+        self.with_cross_cell_influence(Box::new(WallCollisions::new(
             world_min_corner,
             world_max_corner,
         )))
     }
 
     pub fn with_pair_collisions(self) -> Self {
-        self.with_influence(Box::new(PairCollisions::new()))
+        self.with_cross_cell_influence(Box::new(PairCollisions::new()))
     }
 
     pub fn with_sunlight(self, min_intensity: f64, max_intensity: f64) -> Self {
@@ -59,13 +59,16 @@ impl World {
         )))
     }
 
-    pub fn with_influence(mut self, influence: Box<dyn CrossCellInfluence>) -> Self {
-        self.influences.push(influence);
+    pub fn with_cross_cell_influence(mut self, influence: Box<dyn CrossCellInfluence>) -> Self {
+        self.cross_cell_influences.push(influence);
         self
     }
 
-    pub fn with_influences(mut self, mut influences: Vec<Box<dyn CrossCellInfluence>>) -> Self {
-        self.influences.append(&mut influences);
+    pub fn with_cross_cell_influences(
+        mut self,
+        mut influences: Vec<Box<dyn CrossCellInfluence>>,
+    ) -> Self {
+        self.cross_cell_influences.append(&mut influences);
         self
     }
 
@@ -169,13 +172,13 @@ impl World {
     }
 
     pub fn tick(&mut self) {
-        self.apply_influences();
+        self.apply_cross_cell_influences();
         let cell_bond_requests = self.tick_cells();
         self.apply_world_changes(&cell_bond_requests);
     }
 
-    fn apply_influences(&mut self) {
-        for influence in &self.influences {
+    fn apply_cross_cell_influences(&mut self) {
+        for influence in &self.cross_cell_influences {
             influence.apply_to(&mut self.cell_graph);
         }
     }

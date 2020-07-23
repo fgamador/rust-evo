@@ -12,7 +12,7 @@ fn create_world() -> World {
     World::new(Position::new(-200.0, -200.0), Position::new(200.0, 200.0))
         .with_perimeter_walls()
         .with_pair_collisions()
-        .with_influence(Box::new(BondForces::new()))
+        .with_cross_cell_influence(Box::new(BondForces::new()))
         .with_cells(vec![
             Cell::ball(
                 Length::new(20.0),

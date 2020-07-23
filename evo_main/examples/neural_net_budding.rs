@@ -31,7 +31,7 @@ fn create_world() -> World {
         .with_perimeter_walls()
         .with_pair_collisions()
         .with_sunlight(0.0, 1.0)
-        .with_influence(Box::new(BondForces::new()))
+        .with_cross_cell_influence(Box::new(BondForces::new()))
         .with_per_cell_influence(Box::new(SimpleForceInfluence::new(Box::new(
             DragForce::new(0.005),
         ))))

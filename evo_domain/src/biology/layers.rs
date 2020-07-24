@@ -185,10 +185,7 @@ impl CellLayer {
     }
 
     fn update_health(&mut self, delta_health: HealthDelta) {
-        self.body.health += delta_health;
-        if self.body.health == Health::ZERO {
-            self.brain = &CellLayer::DEAD_BRAIN;
-        }
+        self.brain = self.body.update_health(delta_health);
     }
 
     pub fn healing_request(layer_index: usize, delta_health: HealthDelta) -> ControlRequest {
@@ -281,6 +278,15 @@ impl CellLayerBody {
             -self.resize_parameters.shrinkage_energy_delta
         };
         CostedControlRequest::limited(request, delta_area, delta_area * energy_delta_per_area)
+    }
+
+    fn update_health(&mut self, delta_health: HealthDelta) -> &'static dyn CellLayerBrain {
+        self.health += delta_health;
+        if self.health > Health::ZERO {
+            &CellLayer::LIVING_BRAIN
+        } else {
+            &CellLayer::DEAD_BRAIN
+        }
     }
 
     fn actual_delta_health(

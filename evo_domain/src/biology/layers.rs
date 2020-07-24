@@ -322,7 +322,7 @@ trait CellLayerBrain: Debug {
     fn calculate_automatic_changes(
         &self,
         specialty: &dyn CellLayerSpecialty,
-        body: &mut CellLayerBody,
+        body: &CellLayerBody,
         env: &LocalEnvironment,
         changes: &mut CellChanges,
         layer_index: usize,
@@ -348,11 +348,11 @@ trait CellLayerBrain: Debug {
 struct LivingCellLayerBrain {}
 
 impl LivingCellLayerBrain {
-    fn entropic_damage(&self, body: &mut CellLayerBody) -> HealthDelta {
+    fn entropic_damage(&self, body: &CellLayerBody) -> HealthDelta {
         body.health_parameters.entropic_damage_health_delta
     }
 
-    fn overlap_damage(&self, body: &mut CellLayerBody, overlaps: &[Overlap]) -> HealthDelta {
+    fn overlap_damage(&self, body: &CellLayerBody, overlaps: &[Overlap]) -> HealthDelta {
         overlaps.iter().fold(HealthDelta::ZERO, |damage, overlap| {
             damage + body.health_parameters.overlap_damage_health_delta * overlap.magnitude()
         })
@@ -367,7 +367,7 @@ impl CellLayerBrain for LivingCellLayerBrain {
     fn calculate_automatic_changes(
         &self,
         specialty: &dyn CellLayerSpecialty,
-        body: &mut CellLayerBody,
+        body: &CellLayerBody,
         env: &LocalEnvironment,
         changes: &mut CellChanges,
         layer_index: usize,
@@ -428,7 +428,7 @@ impl CellLayerBrain for DeadCellLayerBrain {
     fn calculate_automatic_changes(
         &self,
         _specialty: &dyn CellLayerSpecialty,
-        _body: &mut CellLayerBody,
+        _body: &CellLayerBody,
         _env: &LocalEnvironment,
         _changes: &mut CellChanges,
         _layer_index: usize,

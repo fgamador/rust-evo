@@ -62,8 +62,8 @@ impl LayerResizeParameters {
 
 #[derive(Debug)]
 pub struct CellLayer {
-    body: CellLayerBody,
     brain: &'static dyn CellLayerBrain,
+    body: CellLayerBody,
     specialty: Box<dyn CellLayerSpecialty>,
 }
 
@@ -80,8 +80,8 @@ impl CellLayer {
         specialty: Box<dyn CellLayerSpecialty>,
     ) -> Self {
         CellLayer {
-            body: CellLayerBody::new(area, density, color),
             brain: &CellLayer::LIVING_BRAIN,
+            body: CellLayerBody::new(area, density, color),
             specialty,
         }
     }
@@ -116,8 +116,8 @@ impl CellLayer {
 
     pub fn spawn(&self, area: Area) -> Self {
         Self {
-            body: self.body.spawn(area),
             brain: &CellLayer::LIVING_BRAIN,
+            body: self.body.spawn(area),
             specialty: self.specialty.spawn(),
         }
     }
@@ -208,116 +208,6 @@ impl CellLayer {
             0,
             delta_area.value(),
         )
-    }
-}
-
-// CellLayerBody is separate from CellLayer so it can be passed to CellLayerBrain.
-#[derive(Debug)]
-pub struct CellLayerBody {
-    area: Area,
-    density: Density,
-    mass: Mass,
-    outer_radius: Length,
-    health: Health,
-    color: Color,
-    // TODO move to CellLayerParameters struct?
-    health_parameters: &'static LayerHealthParameters,
-    resize_parameters: &'static LayerResizeParameters,
-}
-
-impl CellLayerBody {
-    fn new(area: Area, density: Density, color: Color) -> Self {
-        let mut body = CellLayerBody {
-            area,
-            density,
-            mass: Mass::ZERO,
-            outer_radius: Length::ZERO,
-            health: Health::FULL,
-            color,
-            health_parameters: &LayerHealthParameters::DEFAULT,
-            resize_parameters: &LayerResizeParameters::UNLIMITED,
-        };
-        body.init_from_area();
-        body
-    }
-
-    fn spawn(&self, area: Area) -> Self {
-        let mut copy = Self {
-            area,
-            health: Health::FULL,
-            ..*self
-        };
-        copy.init_from_area();
-        copy
-    }
-
-    fn init_from_area(&mut self) {
-        self.mass = self.area * self.density;
-        self.outer_radius = (self.area / PI).sqrt();
-    }
-
-    fn update_outer_radius(&mut self, inner_radius: Length) {
-        self.outer_radius = (inner_radius.sqr() + self.area / PI).sqrt();
-    }
-
-    fn cost_restore_health(&self, request: ControlRequest) -> CostedControlRequest {
-        CostedControlRequest::unlimited(
-            request,
-            self.health_parameters.healing_energy_delta
-                * self.area.value()
-                * request.requested_value(),
-        )
-    }
-
-    fn cost_resize(&self, request: ControlRequest) -> CostedControlRequest {
-        let delta_area = self.bound_resize_delta_area(request.requested_value());
-        let energy_delta_per_area = if request.requested_value() >= 0.0 {
-            self.resize_parameters.growth_energy_delta
-        } else {
-            -self.resize_parameters.shrinkage_energy_delta
-        };
-        CostedControlRequest::limited(request, delta_area, delta_area * energy_delta_per_area)
-    }
-
-    fn update_health(&mut self, delta_health: HealthDelta) -> &'static dyn CellLayerBrain {
-        self.health += delta_health;
-        if self.health > Health::ZERO {
-            &CellLayer::LIVING_BRAIN
-        } else {
-            &CellLayer::DEAD_BRAIN
-        }
-    }
-
-    fn actual_delta_health(
-        &self,
-        requested_delta_health: HealthDelta,
-        budgeted_fraction: f64,
-    ) -> HealthDelta {
-        assert!(requested_delta_health.value() >= 0.0);
-        budgeted_fraction * requested_delta_health
-    }
-
-    fn resize(&mut self, delta_area: AreaDelta) {
-        self.area += delta_area;
-        self.mass = self.area * self.density;
-    }
-
-    fn actual_delta_area(&self, requested_delta_area: f64, budgeted_fraction: f64) -> AreaDelta {
-        let delta_area = self.health.value()
-            * budgeted_fraction
-            * self.bound_resize_delta_area(requested_delta_area);
-        AreaDelta::new(delta_area.max(-self.area.value()))
-    }
-
-    fn bound_resize_delta_area(&self, requested_delta_area: f64) -> f64 {
-        if requested_delta_area >= 0.0 {
-            // TODO a layer that starts with area 0.0 cannot grow; add min-area param?
-            let max_delta_area = self.resize_parameters.max_growth_rate * self.area.value();
-            requested_delta_area.min(max_delta_area)
-        } else {
-            let min_delta_area = -self.resize_parameters.max_shrinkage_rate * self.area.value();
-            requested_delta_area.max(min_delta_area)
-        }
     }
 }
 
@@ -456,6 +346,116 @@ impl CellLayerBrain for DeadCellLayerBrain {
         _request: BudgetedControlRequest,
         _changes: &mut CellChanges,
     ) {
+    }
+}
+
+// CellLayerBody is separate from CellLayer so it can be passed to CellLayerBrain.
+#[derive(Debug)]
+pub struct CellLayerBody {
+    area: Area,
+    density: Density,
+    mass: Mass,
+    outer_radius: Length,
+    health: Health,
+    color: Color,
+    // TODO move to CellLayerParameters struct?
+    health_parameters: &'static LayerHealthParameters,
+    resize_parameters: &'static LayerResizeParameters,
+}
+
+impl CellLayerBody {
+    fn new(area: Area, density: Density, color: Color) -> Self {
+        let mut body = CellLayerBody {
+            area,
+            density,
+            mass: Mass::ZERO,
+            outer_radius: Length::ZERO,
+            health: Health::FULL,
+            color,
+            health_parameters: &LayerHealthParameters::DEFAULT,
+            resize_parameters: &LayerResizeParameters::UNLIMITED,
+        };
+        body.init_from_area();
+        body
+    }
+
+    fn spawn(&self, area: Area) -> Self {
+        let mut copy = Self {
+            area,
+            health: Health::FULL,
+            ..*self
+        };
+        copy.init_from_area();
+        copy
+    }
+
+    fn init_from_area(&mut self) {
+        self.mass = self.area * self.density;
+        self.outer_radius = (self.area / PI).sqrt();
+    }
+
+    fn update_outer_radius(&mut self, inner_radius: Length) {
+        self.outer_radius = (inner_radius.sqr() + self.area / PI).sqrt();
+    }
+
+    fn cost_restore_health(&self, request: ControlRequest) -> CostedControlRequest {
+        CostedControlRequest::unlimited(
+            request,
+            self.health_parameters.healing_energy_delta
+                * self.area.value()
+                * request.requested_value(),
+        )
+    }
+
+    fn cost_resize(&self, request: ControlRequest) -> CostedControlRequest {
+        let delta_area = self.bound_resize_delta_area(request.requested_value());
+        let energy_delta_per_area = if request.requested_value() >= 0.0 {
+            self.resize_parameters.growth_energy_delta
+        } else {
+            -self.resize_parameters.shrinkage_energy_delta
+        };
+        CostedControlRequest::limited(request, delta_area, delta_area * energy_delta_per_area)
+    }
+
+    fn update_health(&mut self, delta_health: HealthDelta) -> &'static dyn CellLayerBrain {
+        self.health += delta_health;
+        if self.health > Health::ZERO {
+            &CellLayer::LIVING_BRAIN
+        } else {
+            &CellLayer::DEAD_BRAIN
+        }
+    }
+
+    fn actual_delta_health(
+        &self,
+        requested_delta_health: HealthDelta,
+        budgeted_fraction: f64,
+    ) -> HealthDelta {
+        assert!(requested_delta_health.value() >= 0.0);
+        budgeted_fraction * requested_delta_health
+    }
+
+    fn resize(&mut self, delta_area: AreaDelta) {
+        self.area += delta_area;
+        self.mass = self.area * self.density;
+    }
+
+    fn actual_delta_area(&self, requested_delta_area: f64, budgeted_fraction: f64) -> AreaDelta {
+        let delta_area = self.health.value()
+            * budgeted_fraction
+            * self.bound_resize_delta_area(requested_delta_area);
+        AreaDelta::new(delta_area.max(-self.area.value()))
+    }
+
+    fn bound_resize_delta_area(&self, requested_delta_area: f64) -> f64 {
+        if requested_delta_area >= 0.0 {
+            // TODO a layer that starts with area 0.0 cannot grow; add min-area param?
+            let max_delta_area = self.resize_parameters.max_growth_rate * self.area.value();
+            requested_delta_area.min(max_delta_area)
+        } else {
+            let min_delta_area = -self.resize_parameters.max_shrinkage_rate * self.area.value();
+            requested_delta_area.max(min_delta_area)
+        }
     }
 }
 

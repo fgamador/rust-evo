@@ -211,8 +211,7 @@ impl CellLayer {
     }
 }
 
-// CellLayerBody is separate from CellLayer so it can be mutably passed to CellLayerSpecialty.
-// CellLayerBrain is in CellLayerBody so the brain can change its body to use a new brain.
+// CellLayerBody is separate from CellLayer so it can be passed to CellLayerBrain.
 #[derive(Debug)]
 pub struct CellLayerBody {
     area: Area,

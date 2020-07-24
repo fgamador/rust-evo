@@ -63,6 +63,7 @@ impl LayerResizeParameters {
 #[derive(Debug)]
 pub struct CellLayer {
     body: CellLayerBody,
+    brain: &'static dyn CellLayerBrain,
     specialty: Box<dyn CellLayerSpecialty>,
 }
 
@@ -80,6 +81,7 @@ impl CellLayer {
     ) -> Self {
         CellLayer {
             body: CellLayerBody::new(area, density, color),
+            brain: &CellLayer::LIVING_BRAIN,
             specialty,
         }
     }
@@ -108,19 +110,20 @@ impl CellLayer {
     }
 
     pub fn dead(mut self) -> Self {
-        self.body.update_health(HealthDelta::new(-1.0));
+        self.update_health(HealthDelta::new(-1.0));
         self
     }
 
     pub fn spawn(&self, area: Area) -> Self {
         Self {
             body: self.body.spawn(area),
+            brain: &CellLayer::LIVING_BRAIN,
             specialty: self.specialty.spawn(),
         }
     }
 
     pub fn is_alive(&self) -> bool {
-        self.body.brain.is_alive()
+        self.brain.is_alive()
     }
 
     pub fn outer_radius(&self) -> Length {
@@ -153,7 +156,7 @@ impl CellLayer {
         changes: &mut CellChanges,
         layer_index: usize,
     ) {
-        self.body.brain.calculate_automatic_changes(
+        self.brain.calculate_automatic_changes(
             &*self.specialty,
             &mut self.body,
             env,
@@ -163,8 +166,7 @@ impl CellLayer {
     }
 
     pub fn cost_control_request(&self, request: ControlRequest) -> CostedControlRequest {
-        self.body
-            .brain
+        self.brain
             .cost_control_request(&*self.specialty, &self.body, request)
     }
 
@@ -173,13 +175,20 @@ impl CellLayer {
         request: BudgetedControlRequest,
         changes: &mut CellChanges,
     ) {
-        self.body
-            .brain
+        self.brain
             .execute_control_request(&*self.specialty, &self.body, request, changes);
     }
 
     pub fn apply_changes(&mut self, changes: &CellLayerChanges) {
-        self.body.apply_changes(changes);
+        self.update_health(changes.health);
+        self.body.resize(changes.area);
+    }
+
+    fn update_health(&mut self, delta_health: HealthDelta) {
+        self.body.health += delta_health;
+        if self.body.health == Health::ZERO {
+            self.brain = &CellLayer::DEAD_BRAIN;
+        }
     }
 
     pub fn healing_request(layer_index: usize, delta_health: HealthDelta) -> ControlRequest {
@@ -215,7 +224,6 @@ pub struct CellLayerBody {
     outer_radius: Length,
     health: Health,
     color: Color,
-    brain: &'static dyn CellLayerBrain,
     // TODO move to CellLayerParameters struct?
     health_parameters: &'static LayerHealthParameters,
     resize_parameters: &'static LayerResizeParameters,
@@ -230,7 +238,6 @@ impl CellLayerBody {
             outer_radius: Length::ZERO,
             health: Health::FULL,
             color,
-            brain: &CellLayer::LIVING_BRAIN,
             health_parameters: &LayerHealthParameters::DEFAULT,
             resize_parameters: &LayerResizeParameters::UNLIMITED,
         };
@@ -242,7 +249,6 @@ impl CellLayerBody {
         let mut copy = Self {
             area,
             health: Health::FULL,
-            brain: &CellLayer::LIVING_BRAIN,
             ..*self
         };
         copy.init_from_area();
@@ -277,13 +283,6 @@ impl CellLayerBody {
         CostedControlRequest::limited(request, delta_area, delta_area * energy_delta_per_area)
     }
 
-    fn update_health(&mut self, delta_health: HealthDelta) {
-        self.health += delta_health;
-        if self.health == Health::ZERO {
-            self.brain = &CellLayer::DEAD_BRAIN;
-        }
-    }
-
     fn actual_delta_health(
         &self,
         requested_delta_health: HealthDelta,
@@ -314,11 +313,6 @@ impl CellLayerBody {
             let min_delta_area = -self.resize_parameters.max_shrinkage_rate * self.area.value();
             requested_delta_area.max(min_delta_area)
         }
-    }
-
-    pub fn apply_changes(&mut self, changes: &CellLayerChanges) {
-        self.update_health(changes.health);
-        self.resize(changes.area);
     }
 }
 

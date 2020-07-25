@@ -299,13 +299,21 @@ impl CellLayerBrain for LivingCellLayerBrain {
                     request.budgeted_fraction(),
                 );
                 changes.layers[request.layer_index()].health += delta_health;
-                changes.energy += request.energy_delta() * request.budgeted_fraction();
+                changes.add_energy_change(
+                    request.energy_delta() * request.budgeted_fraction(),
+                    "healing",
+                    request.layer_index(),
+                );
             }
             CellLayer::RESIZE_CHANNEL_INDEX => {
                 let delta_area =
                     body.actual_delta_area(request.requested_value(), request.budgeted_fraction());
                 changes.layers[request.layer_index()].area += delta_area;
-                changes.energy += request.energy_delta() * request.budgeted_fraction();
+                changes.add_energy_change(
+                    request.energy_delta() * request.budgeted_fraction(),
+                    "resize",
+                    request.layer_index(),
+                );
             }
             _ => specialty.execute_control_request(body, request, changes),
         }
@@ -598,7 +606,7 @@ impl CellLayerSpecialty for PhotoCellLayerSpecialty {
         let energy = BioEnergy::new(
             env.light_intensity() * self.efficiency * body.health.value() * body.area.value(),
         );
-        changes.energy += energy.into();
+        changes.add_energy_change(energy.into(), "photo", 0);
     }
 }
 
@@ -690,7 +698,11 @@ impl CellLayerSpecialty for BondingCellLayerSpecialty {
                 bond_request.donation_energy = body.health.value()
                     * request.budgeted_fraction()
                     * BioEnergy::new(request.requested_value());
-                changes.energy += request.energy_delta() * request.budgeted_fraction();
+                changes.add_energy_change(
+                    request.energy_delta() * request.budgeted_fraction(),
+                    "donated",
+                    request.layer_index(),
+                );
             }
             _ => panic!("Invalid control channel index: {}", request.channel_index()),
         }

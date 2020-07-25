@@ -4,21 +4,46 @@ use std::fmt;
 #[derive(Debug, Clone)]
 pub struct CellChanges {
     pub energy: BioEnergyDelta,
+    pub energy_changes: Option<Vec<EnergyChange>>,
     pub thrust: Force,
     pub layers: Vec<CellLayerChanges>,
     pub bond_requests: BondRequests,
 }
 
 impl CellChanges {
-    #[allow(clippy::new_without_default)]
     pub fn new(num_layers: usize) -> Self {
         CellChanges {
             energy: BioEnergyDelta::ZERO,
+            energy_changes: None,
             thrust: Force::ZERO,
             layers: vec![CellLayerChanges::new(); num_layers],
             bond_requests: NONE_BOND_REQUESTS,
         }
     }
+
+    pub fn add_energy_change(
+        &mut self,
+        energy_delta: BioEnergyDelta,
+        label: &'static str,
+        index: usize,
+    ) {
+        self.energy += energy_delta;
+
+        if let Some(energy_changes) = &mut self.energy_changes {
+            energy_changes.push(EnergyChange {
+                energy_delta,
+                label,
+                index,
+            });
+        }
+    }
+}
+
+#[derive(Debug, Clone, Copy)]
+pub struct EnergyChange {
+    pub energy_delta: BioEnergyDelta,
+    pub label: &'static str,
+    pub index: usize,
 }
 
 #[derive(Debug, Clone, Copy)]

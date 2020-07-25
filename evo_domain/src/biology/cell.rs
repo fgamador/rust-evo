@@ -275,7 +275,11 @@ impl Cell {
 
     fn print_debug_info(&self, start_snapshot: &CellStateSnapshot, changes: &CellChanges) {
         if self.is_selected() {
-            println!("Cell {}:", self.node_handle());
+            println!(
+                "Cell {}{}:",
+                self.node_handle(),
+                if self.is_alive() { "" } else { " (DEAD)" }
+            );
             println!("  net force {}", self.forces().net_force());
             Self::print_value2d_debug_info(
                 "  position",
@@ -330,10 +334,6 @@ impl Cell {
                     start_snapshot.layers[index].health.value(),
                     layer.health().value(),
                 );
-            }
-
-            if !self.is_alive() {
-                println!("  --- DEAD ---");
             }
         }
     }

@@ -151,11 +151,14 @@ impl Cell {
     pub fn tick(&mut self) -> BondRequests {
         let start_snapshot = self.get_state_snapshot();
         let mut changes = CellChanges::new(self.layers.len());
+        if self.is_selected() {
+            changes.energy_changes = Some(vec![]);
+        }
         self.calculate_automatic_changes(&mut changes);
         self.calculate_requested_changes(&mut changes);
         self.apply_changes(&changes);
         self.move_from_forces();
-        self.print_debug_info(&start_snapshot);
+        self.print_debug_info(&start_snapshot, &changes);
         self.clear_environment();
         changes.bond_requests
     }
@@ -270,7 +273,7 @@ impl Cell {
         self.forces_mut().clear();
     }
 
-    fn print_debug_info(&self, start_snapshot: &CellStateSnapshot) {
+    fn print_debug_info(&self, start_snapshot: &CellStateSnapshot, changes: &CellChanges) {
         if self.is_selected() {
             println!("Cell {}:", self.node_handle());
             println!("  net force {}", self.forces().net_force());
@@ -299,6 +302,16 @@ impl Cell {
                 start_snapshot.energy.value(),
                 self.energy().value(),
             );
+            if let Some(energy_changes) = &changes.energy_changes {
+                for energy_change in energy_changes {
+                    println!(
+                        "    {}[{}] {:+.4}",
+                        energy_change.label,
+                        energy_change.index,
+                        energy_change.energy_delta.value()
+                    );
+                }
+            }
 
             for (index, layer) in self.layers.iter().enumerate() {
                 println!("  layer {}:", index);

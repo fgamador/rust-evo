@@ -640,6 +640,12 @@ impl BioEnergyDelta {
     }
 }
 
+impl fmt::Display for BioEnergyDelta {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "{:.4}", self.value)
+    }
+}
+
 impl From<BioEnergy> for BioEnergyDelta {
     fn from(value: BioEnergy) -> Self {
         BioEnergyDelta {

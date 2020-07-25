@@ -158,7 +158,7 @@ impl CellLayer {
     ) {
         self.brain.calculate_automatic_changes(
             &*self.specialty,
-            &mut self.body,
+            &self.body,
             env,
             changes,
             layer_index,

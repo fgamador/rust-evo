@@ -209,6 +209,18 @@ impl CellLayer {
             delta_area.value(),
         )
     }
+
+    fn record_request_energy_change(
+        request: &BudgetedControlRequest,
+        label: &'static str,
+        changes: &mut CellChanges,
+    ) {
+        changes.add_energy_change(
+            request.energy_delta() * request.budgeted_fraction(),
+            label,
+            request.layer_index(),
+        );
+    }
 }
 
 trait CellLayerBrain: Debug {
@@ -299,21 +311,13 @@ impl CellLayerBrain for LivingCellLayerBrain {
                     request.budgeted_fraction(),
                 );
                 changes.layers[request.layer_index()].health += delta_health;
-                changes.add_energy_change(
-                    request.energy_delta() * request.budgeted_fraction(),
-                    "healing",
-                    request.layer_index(),
-                );
+                CellLayer::record_request_energy_change(&request, "healing", changes);
             }
             CellLayer::RESIZE_CHANNEL_INDEX => {
                 let delta_area =
                     body.actual_delta_area(request.requested_value(), request.budgeted_fraction());
                 changes.layers[request.layer_index()].area += delta_area;
-                changes.add_energy_change(
-                    request.energy_delta() * request.budgeted_fraction(),
-                    "resize",
-                    request.layer_index(),
-                );
+                CellLayer::record_request_energy_change(&request, "resize", changes);
             }
             _ => specialty.execute_control_request(body, request, changes),
         }
@@ -698,11 +702,7 @@ impl CellLayerSpecialty for BondingCellLayerSpecialty {
                 bond_request.donation_energy = body.health.value()
                     * request.budgeted_fraction()
                     * BioEnergy::new(request.requested_value());
-                changes.add_energy_change(
-                    request.energy_delta() * request.budgeted_fraction(),
-                    "donated",
-                    request.layer_index(),
-                );
+                CellLayer::record_request_energy_change(&request, "donated", changes);
             }
             _ => panic!("Invalid control channel index: {}", request.channel_index()),
         }

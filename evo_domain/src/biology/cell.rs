@@ -256,7 +256,7 @@ impl Cell {
     ) {
         for request in budgeted_control_requests {
             let layer = &mut self.layers[request.layer_index()];
-            layer.execute_control_request(*request, changes);
+            layer.execute_control_request(request, changes);
         }
     }
 

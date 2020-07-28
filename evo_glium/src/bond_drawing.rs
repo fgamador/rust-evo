@@ -104,16 +104,18 @@ impl BondDrawing {
             EmitVertex();
         }
 
-        void emit_quad(in vec2 end1, in vec2 end2, in float radius1, in float radius2, in vec3 color) {
-            emit_corner(corners, 0, 1, color);
-            emit_corner(corners, 0, 3, color);
-            emit_corner(corners, 2, 1, color);
-            emit_corner(corners, 2, 3, color);
-            EndPrimitive();
-        }
-
         void main() {
-            emit_quad(bond_in[0].end1, bond_in[0].end2, bond_in[0].radius1, bond_in[0].radius2, bond_in[0].color);
+            vec2 bond_vec = bond_in[0].end2 - bond_in[0].end1;
+            vec2 bond_vec_unit = bond_vec / length(bond_vec);
+            vec2 bond_vec_unit_perp1 = vec2(bond_vec_unit[1], -bond_vec_unit[0]);
+            vec2 bond_vec_unit_perp2 = vec2(-bond_vec_unit[1], bond_vec_unit[0]);
+
+            emit_corner(bond_in[0].end1 + (bond_in[0].radius1 / 3) * bond_vec_unit_perp1, bond_in[0].color);
+            emit_corner(bond_in[0].end1 + (bond_in[0].radius1 / 3) * bond_vec_unit_perp2, bond_in[0].color);
+            emit_corner(bond_in[0].end2 + (bond_in[0].radius2 / 3) * bond_vec_unit_perp1, bond_in[0].color);
+            emit_corner(bond_in[0].end2 + (bond_in[0].radius2 / 3) * bond_vec_unit_perp2, bond_in[0].color);
+
+            EndPrimitive();
         }
     "#;
 
@@ -127,7 +129,7 @@ impl BondDrawing {
         out vec4 color_out;
 
         void main() {
-            color_out = vec4(bond_point_in.color, 1.0);
+            color_out = vec4(bond_point_in.color, 0.2);
         }
     "#;
 }

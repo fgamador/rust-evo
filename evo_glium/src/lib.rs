@@ -1,15 +1,17 @@
 use glium::{glutin, Surface};
 
 mod background_drawing;
-//mod bond_drawing;
+mod bond_drawing;
 mod cell_drawing;
 
 use background_drawing::*;
-//use bond_drawing::*;
+use bond_drawing::*;
 use cell_drawing::*;
 use evo_domain::biology::cell::Cell;
 use evo_domain::biology::layers;
+use evo_domain::physics::bond::Bond;
 use evo_domain::physics::shapes::Circle;
+use evo_domain::physics::sortable_graph::GraphEdge;
 use evo_domain::UserAction;
 
 type Point = [f32; 2];
@@ -21,6 +23,7 @@ pub struct GliumView {
     world_max_corner: Point,
     background_drawing: BackgroundDrawing,
     cell_drawing: CellDrawing,
+    bond_drawing: BondDrawing,
     world_vb: glium::VertexBuffer<World>,
     mouse_position: glutin::dpi::LogicalPosition,
 }
@@ -36,12 +39,12 @@ impl GliumView {
             Self::get_screen_size(events_loop.get_primary_monitor()),
             0.75,
         ));
-        let context = glutin::ContextBuilder::new()
-            .with_vsync(true)
-            .with_multisampling(4);
+        let context = glutin::ContextBuilder::new().with_vsync(true);
+        // .with_multisampling(4); TODO apparently does nothing
         let display = glium::Display::new(window, context, &events_loop).unwrap();
         let background_drawing = BackgroundDrawing::new(&display);
         let cell_drawing = CellDrawing::new(&display);
+        let bond_drawing = BondDrawing::new(&display);
         let world = vec![World {
             corners: [
                 world_min_corner[0],
@@ -61,6 +64,7 @@ impl GliumView {
             world_max_corner,
             background_drawing,
             cell_drawing,
+            bond_drawing,
             world_vb,
             mouse_position: glutin::dpi::LogicalPosition::new(0.0, 0.0),
         }
@@ -97,6 +101,7 @@ impl GliumView {
         self.draw_frame(
             &Self::world_cells_to_cell_sprites(world),
             Self::get_layer_colors(world),
+            &Self::world_bonds_to_bond_sprites(world),
         );
     }
 
@@ -133,6 +138,26 @@ impl GliumView {
         }
     }
 
+    fn world_bonds_to_bond_sprites(world: &evo_domain::world::World) -> Vec<BondSprite> {
+        world
+            .bonds()
+            .iter()
+            .map(|bond| Self::world_bond_to_bond_sprite(bond, world))
+            .collect()
+    }
+
+    fn world_bond_to_bond_sprite(bond: &Bond, world: &evo_domain::world::World) -> BondSprite {
+        let cell1 = world.cell(bond.node1_handle());
+        let cell2 = world.cell(bond.node2_handle());
+        BondSprite {
+            end1: [cell1.center().x() as f32, cell1.center().y() as f32],
+            end2: [cell2.center().x() as f32, cell2.center().y() as f32],
+            radius1: cell1.radius().value() as f32,
+            radius2: cell2.radius().value() as f32,
+            color: [0.0, 0.1, 0.0],
+        }
+    }
+
     fn get_layer_colors(world: &evo_domain::world::World) -> [[f32; 4]; 8] {
         const SELECTION_HALO_COLOR: [f32; 4] = [1.0, 0.0, 0.2, 1.0];
 
@@ -156,8 +181,14 @@ impl GliumView {
         }
     }
 
-    fn draw_frame(&mut self, cells: &[CellSprite], layer_colors: [[f32; 4]; 8]) {
+    fn draw_frame(
+        &mut self,
+        cells: &[CellSprite],
+        layer_colors: [[f32; 4]; 8],
+        bonds: &[BondSprite],
+    ) {
         let cells_vb = glium::VertexBuffer::new(&self.display, &cells).unwrap();
+        let bonds_vb = glium::VertexBuffer::new(&self.display, &bonds).unwrap();
         let screen_transform = self.current_screen_transform();
         let mut frame = self.display.draw();
         frame.clear_color(0.0, 0.0, 0.0, 1.0);
@@ -165,6 +196,8 @@ impl GliumView {
             .draw(&mut frame, &self.world_vb, screen_transform);
         self.cell_drawing
             .draw(&mut frame, &cells_vb, screen_transform, layer_colors);
+        self.bond_drawing
+            .draw(&mut frame, &bonds_vb, screen_transform);
         frame.finish().unwrap();
     }
 

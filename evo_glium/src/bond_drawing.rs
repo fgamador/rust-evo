@@ -41,13 +41,17 @@ impl BondDrawing {
         let uniforms = uniform! {
             screen_transform: screen_transform,
         };
+        let params = glium::DrawParameters {
+            blend: glium::Blend::alpha_blending(),
+            ..Default::default()
+        };
         frame
             .draw(
                 vertex_buffer,
                 &self.indices,
                 &self.shader_program,
                 &uniforms,
-                &Default::default(),
+                &params,
             )
             .unwrap();
     }

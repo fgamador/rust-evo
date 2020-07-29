@@ -335,6 +335,12 @@ impl Cell {
                     layer.health().value(),
                 );
             }
+
+            for (index, request) in changes.bond_requests.iter().enumerate() {
+                if request.retain_bond {
+                    println!("  bond request {}: {}", index, request);
+                }
+            }
         }
     }
 
@@ -359,19 +365,6 @@ impl Cell {
         );
     }
 
-    fn _print_selected_cell_layers(&self) {
-        if self.is_selected() {
-            for (index, layer) in self.layers.iter().enumerate() {
-                println!(
-                    "  Layer {}: area: {:.4}, health: {:.4}",
-                    index,
-                    layer.area().value(),
-                    layer.health().value()
-                );
-            }
-        }
-    }
-
     fn _print_selected_cell_control_requests(
         &self,
         budgeted_control_requests: &[BudgetedControlRequest],
@@ -379,16 +372,6 @@ impl Cell {
         if self.is_selected() {
             for request in budgeted_control_requests {
                 println!("  Layer request {}", request);
-            }
-        }
-    }
-
-    fn _print_selected_cell_bond_requests(&self, bond_requests: &BondRequests) {
-        if self.is_selected() {
-            for (index, request) in bond_requests.iter().enumerate() {
-                if request.retain_bond {
-                    println!("  Bond request {}: {}", index, request);
-                }
             }
         }
     }

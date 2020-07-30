@@ -199,7 +199,7 @@ impl GliumView {
             &mut frame,
             &bonds_vb,
             screen_transform,
-            [0.0, 0.0, 1.0, 0.3],
+            [1.0, 1.0, 0.0, 1.0],
         );
         frame.finish().unwrap();
     }

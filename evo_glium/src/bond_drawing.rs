@@ -96,10 +96,11 @@ impl BondDrawing {
         } bond_in[];
 
         out BondPoint {
-            vec3 todo;
+            float offset_from_end1;
         } bond_point_out;
 
-        void emit_corner(in vec2 corner) {
+        void emit_corner(in vec2 corner, in float offset_from_end1) {
+            bond_point_out.offset_from_end1 = offset_from_end1;
             gl_Position = screen_transform * vec4(corner[0], corner[1], 0.0, 1.0);
             EmitVertex();
         }
@@ -110,10 +111,10 @@ impl BondDrawing {
             vec2 bond_vec_unit_perp1 = vec2(bond_vec_unit[1], -bond_vec_unit[0]);
             vec2 bond_vec_unit_perp2 = vec2(-bond_vec_unit[1], bond_vec_unit[0]);
 
-            emit_corner(bond_in[0].end1 + (bond_in[0].radius1 / 3) * bond_vec_unit_perp1);
-            emit_corner(bond_in[0].end1 + (bond_in[0].radius1 / 3) * bond_vec_unit_perp2);
-            emit_corner(bond_in[0].end2 + (bond_in[0].radius2 / 3) * bond_vec_unit_perp1);
-            emit_corner(bond_in[0].end2 + (bond_in[0].radius2 / 3) * bond_vec_unit_perp2);
+            emit_corner(bond_in[0].end1 + (bond_in[0].radius1 / 3) * bond_vec_unit_perp1, 0);
+            emit_corner(bond_in[0].end1 + (bond_in[0].radius1 / 3) * bond_vec_unit_perp2, 0);
+            emit_corner(bond_in[0].end2 + (bond_in[0].radius2 / 3) * bond_vec_unit_perp1, 1);
+            emit_corner(bond_in[0].end2 + (bond_in[0].radius2 / 3) * bond_vec_unit_perp2, 1);
 
             EndPrimitive();
         }
@@ -125,13 +126,15 @@ impl BondDrawing {
         uniform vec4 bond_color;
 
         in BondPoint {
-            vec3 todo;
+            float offset_from_end1;
         } bond_point_in;
 
         out vec4 color_out;
 
         void main() {
             color_out = bond_color;
+            float alpha_factor = 2 * min(bond_point_in.offset_from_end1, 1 - bond_point_in.offset_from_end1);
+            color_out.a = color_out.a * alpha_factor;
         }
     "#;
 }

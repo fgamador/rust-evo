@@ -6,10 +6,9 @@ pub struct BondSprite {
     pub end2: [f32; 2],
     pub radius1: f32,
     pub radius2: f32,
-    pub color: [f32; 3],
 }
 
-implement_vertex!(BondSprite, end1, end2, radius1, radius2, color);
+implement_vertex!(BondSprite, end1, end2, radius1, radius2);
 
 pub struct BondDrawing {
     pub shader_program: glium::Program,
@@ -65,14 +64,12 @@ impl BondDrawing {
         in vec2 end2;
         in float radius1;
         in float radius2;
-        in vec3 color;
 
         out BondSprite {
             vec2 end1;
             vec2 end2;
             float radius1;
             float radius2;
-            vec3 color;
         } bond_out;
 
         void main() {
@@ -80,7 +77,6 @@ impl BondDrawing {
             bond_out.end2 = end2;
             bond_out.radius1 = radius1;
             bond_out.radius2 = radius2;
-            bond_out.color = color;
         }
     "#;
 
@@ -97,15 +93,13 @@ impl BondDrawing {
             vec2 end2;
             float radius1;
             float radius2;
-            vec3 color;
         } bond_in[];
 
         out BondPoint {
-            vec3 color;
+            vec3 todo;
         } bond_point_out;
 
-        void emit_corner(in vec2 corner, in vec3 color) {
-            bond_point_out.color = color;
+        void emit_corner(in vec2 corner) {
             gl_Position = screen_transform * vec4(corner[0], corner[1], 0.0, 1.0);
             EmitVertex();
         }
@@ -116,10 +110,10 @@ impl BondDrawing {
             vec2 bond_vec_unit_perp1 = vec2(bond_vec_unit[1], -bond_vec_unit[0]);
             vec2 bond_vec_unit_perp2 = vec2(-bond_vec_unit[1], bond_vec_unit[0]);
 
-            emit_corner(bond_in[0].end1 + (bond_in[0].radius1 / 3) * bond_vec_unit_perp1, bond_in[0].color);
-            emit_corner(bond_in[0].end1 + (bond_in[0].radius1 / 3) * bond_vec_unit_perp2, bond_in[0].color);
-            emit_corner(bond_in[0].end2 + (bond_in[0].radius2 / 3) * bond_vec_unit_perp1, bond_in[0].color);
-            emit_corner(bond_in[0].end2 + (bond_in[0].radius2 / 3) * bond_vec_unit_perp2, bond_in[0].color);
+            emit_corner(bond_in[0].end1 + (bond_in[0].radius1 / 3) * bond_vec_unit_perp1);
+            emit_corner(bond_in[0].end1 + (bond_in[0].radius1 / 3) * bond_vec_unit_perp2);
+            emit_corner(bond_in[0].end2 + (bond_in[0].radius2 / 3) * bond_vec_unit_perp1);
+            emit_corner(bond_in[0].end2 + (bond_in[0].radius2 / 3) * bond_vec_unit_perp2);
 
             EndPrimitive();
         }
@@ -131,7 +125,7 @@ impl BondDrawing {
         uniform vec4 bond_color;
 
         in BondPoint {
-            vec3 color;
+            vec3 todo;
         } bond_point_in;
 
         out vec4 color_out;

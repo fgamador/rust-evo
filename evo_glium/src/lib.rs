@@ -154,7 +154,6 @@ impl GliumView {
             end2: [cell2.center().x() as f32, cell2.center().y() as f32],
             radius1: cell1.radius().value() as f32,
             radius2: cell2.radius().value() as f32,
-            color: [0.0, 0.1, 0.0],
         }
     }
 

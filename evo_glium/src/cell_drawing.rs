@@ -45,13 +45,17 @@ impl CellDrawing {
             layer_colors_0_3: [layer_colors[0], layer_colors[1], layer_colors[2], layer_colors[3]],
             layer_colors_4_7: [layer_colors[4], layer_colors[5], layer_colors[6], layer_colors[7]],
         };
+        let params = glium::DrawParameters {
+            blend: glium::Blend::alpha_blending(),
+            ..Default::default()
+        };
         frame
             .draw(
                 vertex_buffer,
                 &self.indices,
                 &self.shader_program,
                 &uniforms,
-                &Default::default(),
+                &params,
             )
             .unwrap();
     }

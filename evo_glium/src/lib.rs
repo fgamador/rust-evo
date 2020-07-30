@@ -175,9 +175,9 @@ impl GliumView {
 
     fn convert_to_rgb_color(color: layers::Color) -> [f32; 4] {
         match color {
-            layers::Color::Green => [0.1, 0.8, 0.1, 1.0],
-            layers::Color::White => [1.0, 1.0, 1.0, 1.0],
-            layers::Color::Yellow => [0.7, 0.7, 0.0, 1.0],
+            layers::Color::Green => [0.1, 0.8, 0.1, 0.8],
+            layers::Color::White => [1.0, 1.0, 1.0, 0.1],
+            layers::Color::Yellow => [0.7, 0.7, 0.0, 0.8],
         }
     }
 

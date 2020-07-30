@@ -11,12 +11,12 @@ pub struct CellChanges {
 }
 
 impl CellChanges {
-    pub fn new(num_layers: usize) -> Self {
+    pub fn new(num_layers: usize, selected: bool) -> Self {
         CellChanges {
             energy: BioEnergyDelta::ZERO,
-            energy_changes: None,
+            energy_changes: if selected { Some(vec![]) } else { None },
             thrust: Force::ZERO,
-            layers: vec![CellLayerChanges::new(); num_layers],
+            layers: vec![CellLayerChanges::new(selected); num_layers],
             bond_requests: NONE_BOND_REQUESTS,
         }
     }
@@ -46,20 +46,39 @@ pub struct EnergyChange {
     pub index: usize,
 }
 
-#[derive(Debug, Clone, Copy)]
+#[derive(Debug, Clone)]
 pub struct CellLayerChanges {
     pub health: HealthDelta,
+    pub health_changes: Option<Vec<HealthChange>>,
     pub area: AreaDelta,
 }
 
 impl CellLayerChanges {
     #[allow(clippy::new_without_default)]
-    pub fn new() -> Self {
+    pub fn new(selected: bool) -> Self {
         CellLayerChanges {
             health: HealthDelta::ZERO,
+            health_changes: if selected { Some(vec![]) } else { None },
             area: AreaDelta::ZERO,
         }
     }
+
+    pub fn add_health_change(&mut self, health_delta: HealthDelta, label: &'static str) {
+        self.health += health_delta;
+
+        if let Some(health_changes) = &mut self.health_changes {
+            health_changes.push(HealthChange {
+                health_delta,
+                label,
+            });
+        }
+    }
+}
+
+#[derive(Debug, Clone, Copy)]
+pub struct HealthChange {
+    pub health_delta: HealthDelta,
+    pub label: &'static str,
 }
 
 #[derive(Clone, Copy, Debug)]

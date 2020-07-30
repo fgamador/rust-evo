@@ -737,7 +737,7 @@ mod tests {
 
     #[test]
     fn layer_resize_records_area_change() {
-        let mut changes = CellChanges::new(1);
+        let mut changes = CellChanges::new(1, false);
 
         let layer = simple_cell_layer(Area::new(1.0), Density::new(2.0));
         layer.execute_control_request(&fully_budgeted_resize_request(0, 2.0), &mut changes);
@@ -747,7 +747,7 @@ mod tests {
     #[test]
     fn layer_resize_records_energy_change() {
         let layer = simple_cell_layer(Area::new(1.0), Density::new(2.0));
-        let mut changes = CellChanges::new(1);
+        let mut changes = CellChanges::new(1, false);
         layer.execute_control_request(
             &budgeted(
                 CellLayer::resize_request(0, AreaDelta::new(2.0)),
@@ -782,7 +782,7 @@ mod tests {
     #[test]
     fn layer_growth_is_limited_by_budgeted_fraction() {
         let layer = simple_cell_layer(Area::new(2.0), Density::new(1.0));
-        let mut changes = CellChanges::new(1);
+        let mut changes = CellChanges::new(1, false);
         layer.execute_control_request(
             &budgeted(
                 CellLayer::resize_request(0, AreaDelta::new(2.0)),
@@ -803,7 +803,7 @@ mod tests {
 
         let layer = simple_cell_layer(Area::new(2.0), Density::new(1.0))
             .with_resize_parameters(&LAYER_RESIZE_PARAMS);
-        let mut changes = CellChanges::new(1);
+        let mut changes = CellChanges::new(1, false);
         layer.execute_control_request(&fully_budgeted_resize_request(0, 10.0), &mut changes);
         assert_eq!(changes.layers[0].area, AreaDelta::new(1.0));
     }
@@ -835,7 +835,7 @@ mod tests {
 
         let layer = simple_cell_layer(Area::new(2.0), Density::new(1.0))
             .with_resize_parameters(&LAYER_RESIZE_PARAMS);
-        let mut changes = CellChanges::new(1);
+        let mut changes = CellChanges::new(1, false);
         layer.execute_control_request(&fully_budgeted_resize_request(0, -10.0), &mut changes);
         assert_eq!(changes.layers[0].area, AreaDelta::new(-0.5));
     }
@@ -862,7 +862,7 @@ mod tests {
     fn layer_resize_is_reduced_by_reduced_health() {
         let layer =
             simple_cell_layer(Area::new(1.0), Density::new(1.0)).with_health(Health::new(0.5));
-        let mut changes = CellChanges::new(1);
+        let mut changes = CellChanges::new(1, false);
         layer.execute_control_request(&fully_budgeted_resize_request(0, 10.0), &mut changes);
         assert_eq!(changes.layers[0].area, AreaDelta::new(5.0));
     }
@@ -889,7 +889,7 @@ mod tests {
     fn layer_healing_records_health_change() {
         let layer =
             simple_cell_layer(Area::new(1.0), Density::new(1.0)).with_health(Health::new(0.5));
-        let mut changes = CellChanges::new(1);
+        let mut changes = CellChanges::new(1, false);
         layer.execute_control_request(&fully_budgeted_healing_request(0, 0.25), &mut changes);
         assert_eq!(changes.layers[0].health, HealthDelta::new(0.25));
     }
@@ -898,7 +898,7 @@ mod tests {
     fn layer_healing_records_energy_change() {
         let layer =
             simple_cell_layer(Area::new(1.0), Density::new(1.0)).with_health(Health::new(0.5));
-        let mut changes = CellChanges::new(1);
+        let mut changes = CellChanges::new(1, false);
         layer.execute_control_request(
             &budgeted(
                 CellLayer::healing_request(0, HealthDelta::new(0.5)),
@@ -914,7 +914,7 @@ mod tests {
     fn layer_health_restoration_is_limited_by_budgeted_fraction() {
         let layer =
             simple_cell_layer(Area::new(1.0), Density::new(1.0)).with_health(Health::new(0.5));
-        let mut changes = CellChanges::new(1);
+        let mut changes = CellChanges::new(1, false);
         layer.execute_control_request(
             &budgeted(
                 CellLayer::healing_request(0, HealthDelta::new(0.5)),
@@ -961,7 +961,7 @@ mod tests {
             .with_health_parameters(&LAYER_HEALTH_PARAMS);
 
         let env = LocalEnvironment::new();
-        let mut changes = CellChanges::new(1);
+        let mut changes = CellChanges::new(1, false);
         layer.calculate_automatic_changes(&env, &mut changes, 0);
 
         assert_eq!(changes.layers[0].health, HealthDelta::new(-0.25));
@@ -982,7 +982,7 @@ mod tests {
 
         let mut env = LocalEnvironment::new();
         env.add_overlap(Overlap::new(Displacement::new(0.5, 0.0), 1.0));
-        let mut changes = CellChanges::new(1);
+        let mut changes = CellChanges::new(1, false);
         layer.calculate_automatic_changes(&env, &mut changes, 0);
 
         assert_eq!(changes.layers[0].health, HealthDelta::new(-0.125));
@@ -995,7 +995,7 @@ mod tests {
     fn applying_layer_changes_changes_health() {
         let mut layer =
             simple_cell_layer(Area::new(1.0), Density::new(1.0)).with_health(Health::new(0.5));
-        let mut changes = CellLayerChanges::new();
+        let mut changes = CellLayerChanges::new(false);
         changes.health = HealthDelta::new(0.25);
         layer.apply_changes(&changes);
         assert_eq!(layer.health(), Health::new(0.75));
@@ -1004,7 +1004,7 @@ mod tests {
     #[test]
     fn applying_layer_changes_can_kill_layer() {
         let mut layer = simple_cell_layer(Area::new(1.0), Density::new(1.0));
-        let mut changes = CellLayerChanges::new();
+        let mut changes = CellLayerChanges::new(false);
         changes.health = HealthDelta::new(-1.0);
         layer.apply_changes(&changes);
         assert!(!layer.is_alive());
@@ -1013,7 +1013,7 @@ mod tests {
     #[test]
     fn applying_layer_changes_resizes() {
         let mut layer = simple_cell_layer(Area::new(1.0), Density::new(2.0));
-        let mut changes = CellLayerChanges::new();
+        let mut changes = CellLayerChanges::new(false);
         changes.area = AreaDelta::new(2.0);
         layer.apply_changes(&changes);
         assert_eq!(layer.area(), Area::new(3.0));
@@ -1038,7 +1038,7 @@ mod tests {
     #[test]
     fn dead_layer_ignores_control_requests() {
         let layer = simple_cell_layer(Area::new(1.0), Density::new(1.0)).dead();
-        let mut changes = CellChanges::new(1);
+        let mut changes = CellChanges::new(1, false);
         layer.execute_control_request(&fully_budgeted_healing_request(0, 1.0), &mut changes);
         assert_eq!(layer.health(), Health::ZERO);
         assert_eq!(changes.layers[0].health, HealthDelta::ZERO);
@@ -1052,7 +1052,7 @@ mod tests {
             Color::Green,
             Box::new(ThrusterCellLayerSpecialty::new()),
         );
-        let mut changes = CellChanges::new(1);
+        let mut changes = CellChanges::new(1, false);
         layer.execute_control_request(
             &fully_budgeted(ThrusterCellLayerSpecialty::force_x_request(0, 1.0)),
             &mut changes,
@@ -1063,7 +1063,7 @@ mod tests {
         );
 
         let env = LocalEnvironment::new();
-        let mut changes2 = CellChanges::new(1);
+        let mut changes2 = CellChanges::new(1, false);
         layer.calculate_automatic_changes(&env, &mut changes2, 0);
 
         assert_eq!(changes.thrust, Force::new(1.0, -1.0));
@@ -1077,7 +1077,7 @@ mod tests {
             Color::Green,
             Box::new(ThrusterCellLayerSpecialty::new()),
         );
-        let mut changes = CellChanges::new(1);
+        let mut changes = CellChanges::new(1, false);
         layer.execute_control_request(
             &budgeted(
                 ThrusterCellLayerSpecialty::force_x_request(0, 1.0),
@@ -1096,7 +1096,7 @@ mod tests {
         );
 
         let env = LocalEnvironment::new();
-        let mut changes2 = CellChanges::new(1);
+        let mut changes2 = CellChanges::new(1, false);
         layer.calculate_automatic_changes(&env, &mut changes2, 0);
 
         assert_eq!(changes.thrust, Force::new(0.5, -0.25));
@@ -1111,7 +1111,7 @@ mod tests {
             Box::new(ThrusterCellLayerSpecialty::new()),
         )
         .with_health(Health::new(0.5));
-        let mut changes = CellChanges::new(1);
+        let mut changes = CellChanges::new(1, false);
         layer.execute_control_request(
             &fully_budgeted(ThrusterCellLayerSpecialty::force_x_request(0, 1.0)),
             &mut changes,
@@ -1122,7 +1122,7 @@ mod tests {
         );
 
         let env = LocalEnvironment::new();
-        let mut changes2 = CellChanges::new(1);
+        let mut changes2 = CellChanges::new(1, false);
         layer.calculate_automatic_changes(&env, &mut changes2, 0);
 
         assert_eq!(changes.thrust, Force::new(0.5, -0.5));
@@ -1140,7 +1140,7 @@ mod tests {
         let mut env = LocalEnvironment::new();
         env.add_light_intensity(10.0);
 
-        let mut changes = CellChanges::new(1);
+        let mut changes = CellChanges::new(1, false);
         layer.calculate_automatic_changes(&env, &mut changes, 0);
 
         assert_eq!(changes.energy, BioEnergyDelta::new(20.0));
@@ -1159,7 +1159,7 @@ mod tests {
         let mut env = LocalEnvironment::new();
         env.add_light_intensity(1.0);
 
-        let mut changes = CellChanges::new(1);
+        let mut changes = CellChanges::new(1, false);
         layer.calculate_automatic_changes(&env, &mut changes, 0);
 
         assert_eq!(changes.energy, BioEnergyDelta::new(0.75));
@@ -1178,7 +1178,7 @@ mod tests {
         let mut env = LocalEnvironment::new();
         env.add_light_intensity(1.0);
 
-        let mut changes = CellChanges::new(1);
+        let mut changes = CellChanges::new(1, false);
         layer.calculate_automatic_changes(&env, &mut changes, 0);
 
         assert_eq!(changes.energy, BioEnergyDelta::new(0.0));
@@ -1192,7 +1192,7 @@ mod tests {
             Color::Green,
             Box::new(BondingCellLayerSpecialty::new()),
         );
-        let mut changes = CellChanges::new(1);
+        let mut changes = CellChanges::new(1, false);
         layer.execute_control_request(
             &budgeted(
                 BondingCellLayerSpecialty::donation_energy_request(0, 0, BioEnergy::new(1.0)),
@@ -1218,7 +1218,7 @@ mod tests {
             Box::new(BondingCellLayerSpecialty::new()),
         )
         .with_health(Health::new(0.5));
-        let mut changes = CellChanges::new(1);
+        let mut changes = CellChanges::new(1, false);
         layer.execute_control_request(
             &budgeted(
                 BondingCellLayerSpecialty::donation_energy_request(0, 0, BioEnergy::new(1.0)),

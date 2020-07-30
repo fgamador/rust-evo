@@ -150,10 +150,7 @@ impl Cell {
 
     pub fn tick(&mut self) -> BondRequests {
         let start_snapshot = self.get_state_snapshot();
-        let mut changes = CellChanges::new(self.layers.len());
-        if self.is_selected() {
-            changes.energy_changes = Some(vec![]);
-        }
+        let mut changes = CellChanges::new(self.layers.len(), self.is_selected());
         self.calculate_automatic_changes(&mut changes);
         self.calculate_requested_changes(&mut changes);
         self.apply_changes(&changes);
@@ -523,7 +520,7 @@ mod tests {
                     0,
                     AreaDelta::new(3.0 * PI),
                 )));
-        let mut changes = CellChanges::new(cell.layers.len());
+        let mut changes = CellChanges::new(cell.layers.len(), false);
         cell.calculate_requested_changes(&mut changes);
         cell.apply_changes(&changes);
         assert_eq!(cell.radius(), Length::new(2.0));
@@ -537,7 +534,7 @@ mod tests {
                     0,
                     AreaDelta::new(0.5),
                 )));
-        let mut changes = CellChanges::new(cell.layers.len());
+        let mut changes = CellChanges::new(cell.layers.len(), false);
         cell.calculate_requested_changes(&mut changes);
         cell.apply_changes(&changes);
         assert_eq!(cell.mass(), Mass::new(10.5));
@@ -559,7 +556,7 @@ mod tests {
             )))
             .with_initial_energy(BioEnergy::new(10.0));
 
-        let mut changes = CellChanges::new(cell.layers.len());
+        let mut changes = CellChanges::new(cell.layers.len(), false);
         cell.calculate_requested_changes(&mut changes);
         cell.apply_changes(&changes);
 
@@ -578,12 +575,12 @@ mod tests {
             0,
             Force::new(1.0, -1.0),
         )));
-        let mut changes = CellChanges::new(cell.layers.len());
+        let mut changes = CellChanges::new(cell.layers.len(), false);
         cell.calculate_requested_changes(&mut changes);
         cell.apply_changes(&changes);
 
         // next tick
-        let mut changes2 = CellChanges::new(cell.layers.len());
+        let mut changes2 = CellChanges::new(cell.layers.len(), false);
         cell.calculate_automatic_changes(&mut changes2);
         assert_eq!(Force::new(1.0, -1.0), cell.forces().net_force());
     }
@@ -598,7 +595,7 @@ mod tests {
         )]);
         cell.environment_mut().add_light_intensity(10.0);
 
-        let mut changes = CellChanges::new(cell.layers.len());
+        let mut changes = CellChanges::new(cell.layers.len(), false);
         cell.calculate_automatic_changes(&mut changes);
         cell.apply_changes(&changes);
 
@@ -738,7 +735,7 @@ mod tests {
 
         cell.environment_mut()
             .add_overlap(Overlap::new(Displacement::new(1.0, 0.0), 1.0));
-        let mut changes = CellChanges::new(cell.layers.len());
+        let mut changes = CellChanges::new(cell.layers.len(), false);
         cell.calculate_automatic_changes(&mut changes);
         cell.apply_changes(&changes);
 
@@ -770,7 +767,7 @@ mod tests {
             CellLayer::resize_request(1, AreaDelta::new(100.0)),
         ])));
 
-        let mut changes = CellChanges::new(cell.layers.len());
+        let mut changes = CellChanges::new(cell.layers.len(), false);
         cell.calculate_requested_changes(&mut changes);
         cell.apply_changes(&changes);
 

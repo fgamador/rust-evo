@@ -182,7 +182,7 @@ impl CellDrawing {
         }
 
         void main() {
-            float radial_offset = sqrt(dot(cell_point_in.offset, cell_point_in.offset));
+            float radial_offset = length(cell_point_in.offset);
             for (uint i = 0u; i < min(8u, cell_point_in.num_layers); ++i) {
                 if (radial_offset <= cell_point_in.radii[i]) {
                     emit_color(i, cell_point_in.health[i]);

@@ -439,6 +439,12 @@ impl EdgeHandle {
     }
 }
 
+impl fmt::Display for EdgeHandle {
+    fn fmt(&self, f: &mut Formatter<'_>) -> Result<(), Error> {
+        write!(f, "{}", self.index)
+    }
+}
+
 #[derive(Clone, Debug, PartialEq)]
 pub struct GraphEdgeData {
     handle: EdgeHandle,

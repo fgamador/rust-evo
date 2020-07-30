@@ -13,6 +13,7 @@ pub struct World {
     cell_graph: SortableGraph<Cell, Bond, AngleGusset>,
     cross_cell_influences: Vec<Box<dyn CrossCellInfluence>>,
     per_cell_influences: Vec<Box<dyn PerCellInfluence>>,
+    num_selected_cells: u32,
 }
 
 impl World {
@@ -23,6 +24,7 @@ impl World {
             cell_graph: SortableGraph::new(),
             cross_cell_influences: vec![],
             per_cell_influences: vec![],
+            num_selected_cells: 0,
         }
     }
 
@@ -165,8 +167,13 @@ impl World {
     pub fn toggle_select_cell_at(&mut self, pos: Position) {
         for cell in self.cell_graph.nodes_mut() {
             if cell.overlaps(pos) {
-                cell.set_selected(!cell.is_selected());
-                return;
+                if cell.is_selected() {
+                    cell.set_selected(false);
+                    self.num_selected_cells -= 1;
+                } else {
+                    cell.set_selected(true);
+                    self.num_selected_cells += 1;
+                }
             }
         }
     }
@@ -175,6 +182,7 @@ impl World {
         self.apply_cross_cell_influences();
         let cell_bond_requests = self.tick_cells();
         self.apply_world_changes(&cell_bond_requests);
+        self.print_debug_info();
     }
 
     fn apply_cross_cell_influences(&mut self) {
@@ -280,6 +288,26 @@ impl World {
         let mut sorted_bond_handles = Vec::from_iter(bond_handles.iter().cloned());
         sorted_bond_handles.sort_unstable();
         self.cell_graph.remove_edges(&sorted_bond_handles);
+    }
+
+    fn print_debug_info(&self) {
+        if self.num_selected_cells == 0 {
+            return;
+        }
+
+        for bond in self.bonds() {
+            let cell1 = self.cell(bond.node1_handle());
+            let cell2 = self.cell(bond.node2_handle());
+            if cell1.is_selected() || cell2.is_selected() {
+                println!("Bond {}-{}", cell1.node_handle(), cell2.node_handle());
+            }
+        }
+
+        println!(
+            "End of tick: {} cells, {} bonds",
+            self.cells().len(),
+            self.bonds().len()
+        );
     }
 }
 

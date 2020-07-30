@@ -154,7 +154,7 @@ impl BondForces {
             cell1.position() - cell2.position(),
         );
         let strain_force = Self::body1_clear_strain_force(cell1.mass(), cell2.mass(), strain1);
-        Self::print_bond_force(&cell1, &cell2, velocity_force, strain_force);
+        //Self::_print_bond_force(&cell1, &cell2, velocity_force, strain_force);
         velocity_force + strain_force
     }
 
@@ -180,7 +180,7 @@ impl BondForces {
         )
     }
 
-    fn print_bond_force(cell1: &Cell, cell2: &Cell, velocity_force: Force, strain_force: Force) {
+    fn _print_bond_force(cell1: &Cell, cell2: &Cell, velocity_force: Force, strain_force: Force) {
         if cell1.is_selected() {
             println!(
                 "Bond {}-{} velocity force: {}, strain force: {}",

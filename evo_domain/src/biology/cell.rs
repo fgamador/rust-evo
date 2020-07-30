@@ -280,6 +280,7 @@ impl Cell {
                 self.node_handle(),
                 if self.is_alive() { "" } else { " (DEAD)" }
             );
+
             println!("  net force {}", self.forces().net_force());
             Self::print_value2d_debug_info(
                 "  position",
@@ -301,6 +302,7 @@ impl Cell {
                 start_snapshot.radius.value(),
                 self.radius().value(),
             );
+
             Self::print_value1d_debug_info(
                 "  energy",
                 start_snapshot.energy.value(),

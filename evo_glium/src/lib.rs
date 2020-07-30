@@ -196,8 +196,12 @@ impl GliumView {
             .draw(&mut frame, &self.world_vb, screen_transform);
         self.cell_drawing
             .draw(&mut frame, &cells_vb, screen_transform, layer_colors);
-        self.bond_drawing
-            .draw(&mut frame, &bonds_vb, screen_transform);
+        self.bond_drawing.draw(
+            &mut frame,
+            &bonds_vb,
+            screen_transform,
+            [0.0, 0.0, 1.0, 0.3],
+        );
         frame.finish().unwrap();
     }
 

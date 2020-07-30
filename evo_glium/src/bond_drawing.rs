@@ -35,11 +35,13 @@ impl BondDrawing {
         frame: &mut glium::Frame,
         vertex_buffer: &glium::VertexBuffer<T>,
         screen_transform: [[f32; 4]; 4],
+        bond_color: [f32; 4],
     ) where
         T: Copy,
     {
         let uniforms = uniform! {
             screen_transform: screen_transform,
+            bond_color: bond_color,
         };
         let params = glium::DrawParameters {
             blend: glium::Blend::alpha_blending(),
@@ -126,6 +128,8 @@ impl BondDrawing {
     const FRAGMENT_SHADER_SRC: &'static str = r#"
         #version 330 core
 
+        uniform vec4 bond_color;
+
         in BondPoint {
             vec3 color;
         } bond_point_in;
@@ -133,7 +137,7 @@ impl BondDrawing {
         out vec4 color_out;
 
         void main() {
-            color_out = vec4(bond_point_in.color, 0.2);
+            color_out = bond_color;
         }
     "#;
 }

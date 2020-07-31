@@ -6,6 +6,7 @@ use crate::physics::quantities::*;
 use std::f64;
 use std::f64::consts::PI;
 use std::fmt::Debug;
+use std::usize;
 
 // TODO rename as TissueType?
 #[derive(Clone, Copy, Debug, Eq, Hash, PartialEq)]
@@ -611,7 +612,7 @@ impl CellLayerSpecialty for PhotoCellLayerSpecialty {
         let energy = BioEnergy::new(
             env.light_intensity() * self.efficiency * body.health.value() * body.area.value(),
         );
-        changes.add_energy_change(energy.into(), "photo", 0);
+        changes.add_energy_change(energy.into(), "photo", usize::MAX);
     }
 }
 

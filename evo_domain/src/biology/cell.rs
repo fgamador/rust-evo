@@ -11,6 +11,7 @@ use crate::physics::util::*;
 use evo_domain_derive::*;
 use std::f64::consts::PI;
 use std::ptr;
+use std::usize;
 
 #[allow(clippy::vec_box)]
 #[derive(Debug, GraphNode, HasLocalEnvironment, NewtonianBody)]
@@ -308,9 +309,13 @@ impl Cell {
             if let Some(energy_changes) = &changes.energy_changes {
                 for energy_change in energy_changes {
                     println!(
-                        "    {}[{}] {:+.4}",
+                        "    {}{} {:+.4}",
                         energy_change.label,
-                        energy_change.index,
+                        if energy_change.index < usize::MAX {
+                            format!("[{}]", energy_change.index)
+                        } else {
+                            "".to_string()
+                        },
                         energy_change.energy_delta.value()
                     );
                 }

@@ -133,7 +133,7 @@ impl BondDrawing {
 
         void main() {
             color_out = bond_color;
-            float alpha_factor = 2 * min(bond_point_in.offset_from_end1, 1 - bond_point_in.offset_from_end1);
+            float alpha_factor = 4 * max(min(bond_point_in.offset_from_end1, 1 - bond_point_in.offset_from_end1) - 0.25, 0);
             color_out.a = color_out.a * alpha_factor;
         }
     "#;

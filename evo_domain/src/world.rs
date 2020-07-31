@@ -50,6 +50,10 @@ impl World {
         self.with_cross_cell_influence(Box::new(PairCollisions::new()))
     }
 
+    pub fn with_bond_forces(self) -> Self {
+        self.with_cross_cell_influence(Box::new(BondForces::new()))
+    }
+
     pub fn with_sunlight(self, min_intensity: f64, max_intensity: f64) -> Self {
         let world_min_corner = self.min_corner();
         let world_max_corner = self.max_corner();

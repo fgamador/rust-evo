@@ -54,7 +54,6 @@ pub struct CellLayerChanges {
 }
 
 impl CellLayerChanges {
-    #[allow(clippy::new_without_default)]
     pub fn new(selected: bool) -> Self {
         CellLayerChanges {
             health: HealthDelta::ZERO,

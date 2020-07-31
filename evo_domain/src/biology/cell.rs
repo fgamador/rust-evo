@@ -333,6 +333,15 @@ impl Cell {
                     start_snapshot.layers[index].health.value(),
                     layer.health().value(),
                 );
+                if let Some(health_changes) = &changes.layers[index].health_changes {
+                    for health_change in health_changes {
+                        println!(
+                            "      {} {:+.4}",
+                            health_change.label,
+                            health_change.health_delta.value()
+                        );
+                    }
+                }
             }
 
             for (index, request) in changes.bond_requests.iter().enumerate() {

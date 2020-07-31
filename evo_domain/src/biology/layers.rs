@@ -279,8 +279,9 @@ impl CellLayerBrain for LivingCellLayerBrain {
         changes: &mut CellChanges,
         layer_index: usize,
     ) {
-        changes.layers[layer_index].health +=
-            self.entropic_damage(body) + self.overlap_damage(body, env.overlaps());
+        changes.layers[layer_index].add_health_change(self.entropic_damage(body), "entropy");
+        changes.layers[layer_index]
+            .add_health_change(self.overlap_damage(body, env.overlaps()), "overlap");
         specialty.calculate_automatic_changes(body, env, changes)
     }
 
@@ -310,7 +311,7 @@ impl CellLayerBrain for LivingCellLayerBrain {
                     HealthDelta::new(request.requested_value()),
                     request.budgeted_fraction(),
                 );
-                changes.layers[request.layer_index()].health += delta_health;
+                changes.layers[request.layer_index()].add_health_change(delta_health, "healing");
                 CellLayer::record_request_energy_change(&request, "healing", changes);
             }
             CellLayer::RESIZE_CHANNEL_INDEX => {

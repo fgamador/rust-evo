@@ -221,6 +221,11 @@ impl World {
             }
         });
         self.apply_donated_energy(donated_energy);
+        for dead_cell_handle in &dead_cell_handles {
+            if self.cell(*dead_cell_handle).is_selected() {
+                self.num_selected_cells -= 1;
+            }
+        }
         self.update_cell_graph(new_children, broken_bond_handles, dead_cell_handles);
     }
 

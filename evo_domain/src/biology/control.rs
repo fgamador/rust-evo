@@ -2,9 +2,11 @@ use crate::biology::control_requests::*;
 use crate::biology::genome::*;
 use crate::biology::layers::*;
 use crate::physics::quantities::*;
-use std::fmt::Debug;
+use smallvec::alloc::fmt::Formatter;
+use std::fmt;
+use std::rc::Rc;
 
-pub trait CellControl: Debug {
+pub trait CellControl: fmt::Debug {
     fn run(&mut self, cell_state: &CellStateSnapshot) -> Vec<ControlRequest>;
 
     fn spawn(&mut self) -> Box<dyn CellControl>;
@@ -139,66 +141,128 @@ impl CellControl for SimpleThrusterControl {
     }
 }
 
-#[derive(Debug)]
 pub struct NeuralNetControl {
+    get_value_fns: Rc<Vec<(VecIndex, Box<dyn Fn(&CellStateSnapshot) -> NodeValue>)>>,
     nnet: SparseNeuralNet,
+    value_to_request_fns: Rc<Vec<(VecIndex, Box<dyn Fn(NodeValue) -> ControlRequest>)>>,
     randomness: SeededMutationRandomness,
 }
 
 impl NeuralNetControl {
-    fn new(genome: SparseNeuralNetGenome, randomness: SeededMutationRandomness) -> Self {
+    fn new(
+        get_value_fns: Vec<(VecIndex, Box<dyn Fn(&CellStateSnapshot) -> NodeValue>)>,
+        genome: SparseNeuralNetGenome,
+        value_to_request_fns: Vec<(VecIndex, Box<dyn Fn(NodeValue) -> ControlRequest>)>,
+        randomness: SeededMutationRandomness,
+    ) -> Self {
         NeuralNetControl {
+            get_value_fns: Rc::new(get_value_fns),
             nnet: SparseNeuralNet::new(genome),
+            value_to_request_fns: Rc::new(value_to_request_fns),
             randomness,
         }
+    }
+
+    fn set_input_values(&mut self, cell_state: &CellStateSnapshot) {
+        for (node_index, get_value_fn) in &*self.get_value_fns {
+            self.nnet
+                .set_node_value(*node_index, get_value_fn(cell_state));
+        }
+    }
+
+    fn get_requests(&self) -> Vec<ControlRequest> {
+        let mut requests = Vec::with_capacity(self.value_to_request_fns.len());
+        for (node_index, value_to_request_fn) in &*self.value_to_request_fns {
+            requests.push(value_to_request_fn(self.nnet.node_value(*node_index)));
+        }
+        requests
+    }
+}
+
+impl fmt::Debug for NeuralNetControl {
+    fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
+        f.debug_struct("NeuralNetControl")
+            // TODO get_value_fns?
+            .field("nnet", &self.nnet)
+            // TODO value_to_request_fns?
+            .field("randomness", &self.randomness)
+            .finish()
     }
 }
 
 impl CellControl for NeuralNetControl {
-    fn run(&mut self, _cell_state: &CellStateSnapshot) -> Vec<ControlRequest> {
-        vec![CellLayer::resize_request(0, AreaDelta::new(32.0))]
+    fn run(&mut self, cell_state: &CellStateSnapshot) -> Vec<ControlRequest> {
+        self.set_input_values(cell_state);
+        self.nnet.run();
+        self.get_requests()
     }
 
     fn spawn(&mut self) -> Box<dyn CellControl> {
         Box::new(NeuralNetControl {
+            get_value_fns: Rc::clone(&self.get_value_fns),
             nnet: self.nnet.spawn(&mut self.randomness),
+            value_to_request_fns: Rc::clone(&self.value_to_request_fns),
             randomness: self.randomness.clone(),
         })
     }
 }
 
 pub struct NeuralNetControlBuilder {
+    get_value_fns: Vec<(VecIndex, Box<dyn Fn(&CellStateSnapshot) -> NodeValue>)>,
     genome: SparseNeuralNetGenome,
+    value_to_request_fns: Vec<(VecIndex, Box<dyn Fn(NodeValue) -> ControlRequest>)>,
+    next_index: VecIndex,
 }
 
 impl NeuralNetControlBuilder {
     pub fn new(transfer_fn: TransferFn) -> Self {
         NeuralNetControlBuilder {
+            get_value_fns: vec![],
             genome: SparseNeuralNetGenome::new(transfer_fn),
+            value_to_request_fns: vec![],
+            next_index: 0,
         }
     }
 
-    pub fn add_input_node<F>(&mut self, _get_value: F) -> VecIndex
+    pub fn add_input_node<F>(&mut self, get_value: F) -> VecIndex
     where
-        F: Fn(&CellStateSnapshot) -> NodeValue,
+        F: 'static + Fn(&CellStateSnapshot) -> NodeValue,
     {
-        0
+        let node_index = self.next_node_index();
+        self.get_value_fns.push((node_index, Box::new(get_value)));
+        node_index
     }
 
     pub fn add_output_node<F>(
         &mut self,
-        _from_value_weights: &[(VecIndex, Coefficient)],
-        _bias: Coefficient,
-        _to_request: F,
+        from_value_weights: &[(VecIndex, Coefficient)],
+        bias: Coefficient,
+        value_to_request: F,
     ) -> VecIndex
     where
-        F: Fn(NodeValue) -> ControlRequest,
+        F: 'static + Fn(NodeValue) -> ControlRequest,
     {
-        0
+        let node_index = self.next_node_index();
+        self.genome
+            .connect_node(node_index, bias, from_value_weights);
+        self.value_to_request_fns
+            .push((node_index, Box::new(value_to_request)));
+        node_index
+    }
+
+    fn next_node_index(&mut self) -> VecIndex {
+        let node_index = self.next_index;
+        self.next_index += 1;
+        node_index
     }
 
     pub fn build(self, randomness: SeededMutationRandomness) -> NeuralNetControl {
-        NeuralNetControl::new(self.genome, randomness)
+        NeuralNetControl::new(
+            self.get_value_fns,
+            self.genome,
+            self.value_to_request_fns,
+            randomness,
+        )
     }
 }
 

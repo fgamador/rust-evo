@@ -156,7 +156,7 @@ impl NeuralNetControl {
 
 impl CellControl for NeuralNetControl {
     fn run(&mut self, _cell_state: &CellStateSnapshot) -> Vec<ControlRequest> {
-        vec![]
+        vec![CellLayer::resize_request(0, AreaDelta::new(32.0))]
     }
 
     fn spawn(&mut self) -> Box<dyn CellControl> {
@@ -230,7 +230,6 @@ mod tests {
     }
 
     #[test]
-    #[ignore]
     fn can_build_neural_net_control() {
         let mut builder = NeuralNetControlBuilder::new(TransferFn::IDENTITY);
 

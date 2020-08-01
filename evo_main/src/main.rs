@@ -63,10 +63,14 @@ fn create_cell() -> Cell {
             create_bonding_layer(),
         ],
     )
-    .with_control(Box::new(NeuralNetBuddingControl::new(
-        NeuralNetBuddingControl::new_genome(),
-        SeededMutationRandomness::new(0, &SOME_MUTATION),
-    )))
+    .with_control(Box::new(create_control(SeededMutationRandomness::new(
+        0,
+        &SOME_MUTATION,
+    ))))
+    // .with_control(Box::new(NeuralNetBuddingControl::new(
+    //     NeuralNetBuddingControl::new_genome(),
+    //     SeededMutationRandomness::new(0, &SOME_MUTATION),
+    // )))
 }
 
 fn create_float_layer() -> CellLayer {
@@ -138,6 +142,75 @@ fn create_bonding_layer() -> CellLayer {
     .with_health_parameters(&LAYER_HEALTH_PARAMS)
 }
 
+fn create_control(randomness: SeededMutationRandomness) -> NeuralNetControl {
+    let mut builder = NeuralNetControlBuilder::new(TransferFn::IDENTITY);
+
+    let cell_energy_input_index =
+        builder.add_input_node(|cell_state| cell_state.energy.value() as NodeValue);
+    let cell_y_input_index =
+        builder.add_input_node(|cell_state| cell_state.center.y() as NodeValue);
+    // let float_layer_area_input_index = builder.add_input_node(|cell_state| {
+    //     cell_state.layers[FLOAT_LAYER_INDEX].area.value() as NodeValue
+    // });
+    let float_layer_health_input_index = builder.add_input_node(|cell_state| {
+        cell_state.layers[FLOAT_LAYER_INDEX].health.value() as NodeValue
+    });
+    let photo_layer_area_input_index = builder.add_input_node(|cell_state| {
+        cell_state.layers[PHOTO_LAYER_INDEX].area.value() as NodeValue
+    });
+    let photo_layer_health_input_index = builder.add_input_node(|cell_state| {
+        cell_state.layers[PHOTO_LAYER_INDEX].health.value() as NodeValue
+    });
+    let bonding_layer_area_input_index = builder.add_input_node(|cell_state| {
+        cell_state.layers[BONDING_LAYER_INDEX].area.value() as NodeValue
+    });
+    let bonding_layer_health_input_index = builder.add_input_node(|cell_state| {
+        cell_state.layers[BONDING_LAYER_INDEX].health.value() as NodeValue
+    });
+    let bond_0_exists_input_index =
+        builder.add_input_node(|cell_state| if cell_state.bond_0_exists { 1.0 } else { 0.0 });
+
+    builder.add_output_node(&[(float_layer_health_input_index, -1.0)], 1.0, |value| {
+        CellLayer::healing_request(FLOAT_LAYER_INDEX, HealthDelta::new(value.max(0.0) as f64))
+    });
+    builder.add_output_node(&[(cell_y_input_index, -1.0)], -100.0, |value| {
+        CellLayer::resize_request(FLOAT_LAYER_INDEX, AreaDelta::new(value as f64))
+    });
+    builder.add_output_node(&[(photo_layer_health_input_index, -1.0)], 1.0, |value| {
+        CellLayer::healing_request(PHOTO_LAYER_INDEX, HealthDelta::new(value.max(0.0) as f64))
+    });
+    builder.add_output_node(&[(photo_layer_area_input_index, -1.0)], 800.0, |value| {
+        CellLayer::resize_request(PHOTO_LAYER_INDEX, AreaDelta::new(value as f64))
+    });
+    builder.add_output_node(&[(bonding_layer_health_input_index, -1.0)], 1.0, |value| {
+        CellLayer::healing_request(BONDING_LAYER_INDEX, HealthDelta::new(value.max(0.0) as f64))
+    });
+    builder.add_output_node(&[(bonding_layer_area_input_index, -1.0)], 200.0, |value| {
+        CellLayer::resize_request(BONDING_LAYER_INDEX, AreaDelta::new(value as f64))
+    });
+    builder.add_output_node(
+        &[
+            (cell_energy_input_index, -1.0),
+            (bond_0_exists_input_index, 100.0),
+        ],
+        0.0,
+        |value| BondingCellLayerSpecialty::retain_bond_request(BONDING_LAYER_INDEX, 0, value > 0.0),
+    );
+    builder.add_output_node(&[(cell_energy_input_index, 0.1)], -100.0, |value| {
+        BondingCellLayerSpecialty::retain_bond_request(BONDING_LAYER_INDEX, 1, value > 0.0)
+    });
+    // TODO dedup: add hidden node
+    builder.add_output_node(&[(cell_energy_input_index, 0.1)], -100.0, |value| {
+        BondingCellLayerSpecialty::donation_energy_request(
+            BONDING_LAYER_INDEX,
+            1,
+            BioEnergy::new(value.max(0.0) as f64),
+        )
+    });
+
+    builder.build(randomness)
+}
+
 #[derive(Debug)]
 pub struct NeuralNetBuddingControl {
     nnet: SparseNeuralNet,
@@ -164,14 +237,14 @@ impl NeuralNetBuddingControl {
     const BOND_0_RETAIN_OUTPUT_INDEX: VecIndex = 15;
     const BOND_1_DONATION_ENERGY_OUTPUT_INDEX: VecIndex = 16;
 
-    fn new(genome: SparseNeuralNetGenome, randomness: SeededMutationRandomness) -> Self {
+    pub fn new(genome: SparseNeuralNetGenome, randomness: SeededMutationRandomness) -> Self {
         NeuralNetBuddingControl {
             nnet: SparseNeuralNet::new(genome),
             randomness,
         }
     }
 
-    fn new_genome() -> SparseNeuralNetGenome {
+    pub fn new_genome() -> SparseNeuralNetGenome {
         let mut genome = SparseNeuralNetGenome::new(TransferFn::IDENTITY);
         genome.connect_node(
             Self::FLOAT_LAYER_RESIZE_OUTPUT_INDEX,

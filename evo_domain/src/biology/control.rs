@@ -18,6 +18,7 @@ pub struct CellStateSnapshot {
     pub velocity: Velocity,
     pub energy: BioEnergy,
     pub layers: Vec<CellLayerStateSnapshot>,
+    pub bond_0_exists: bool,
 }
 
 impl CellStateSnapshot {
@@ -29,6 +30,7 @@ impl CellStateSnapshot {
         velocity: Velocity::ZERO,
         energy: BioEnergy::ZERO,
         layers: Vec::new(),
+        bond_0_exists: false,
     };
 }
 

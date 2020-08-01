@@ -155,14 +155,16 @@ impl NeuralNetBuddingControl {
     const PHOTO_LAYER_HEALTH_INPUT_INDEX: VecIndex = 5;
     const BONDING_LAYER_AREA_INPUT_INDEX: VecIndex = 6;
     const BONDING_LAYER_HEALTH_INPUT_INDEX: VecIndex = 7;
+    const BOND_0_EXISTS_INPUT_INDEX: VecIndex = 8;
 
-    const FLOAT_LAYER_RESIZE_OUTPUT_INDEX: VecIndex = 8;
-    const FLOAT_LAYER_HEALING_OUTPUT_INDEX: VecIndex = 9;
-    const PHOTO_LAYER_RESIZE_OUTPUT_INDEX: VecIndex = 10;
-    const PHOTO_LAYER_HEALING_OUTPUT_INDEX: VecIndex = 11;
-    const BONDING_LAYER_RESIZE_OUTPUT_INDEX: VecIndex = 12;
-    const BONDING_LAYER_HEALING_OUTPUT_INDEX: VecIndex = 13;
-    const DONATION_ENERGY_OUTPUT_INDEX: VecIndex = 14;
+    const FLOAT_LAYER_RESIZE_OUTPUT_INDEX: VecIndex = 9;
+    const FLOAT_LAYER_HEALING_OUTPUT_INDEX: VecIndex = 10;
+    const PHOTO_LAYER_RESIZE_OUTPUT_INDEX: VecIndex = 11;
+    const PHOTO_LAYER_HEALING_OUTPUT_INDEX: VecIndex = 12;
+    const BONDING_LAYER_RESIZE_OUTPUT_INDEX: VecIndex = 13;
+    const BONDING_LAYER_HEALING_OUTPUT_INDEX: VecIndex = 14;
+    const BOND_0_RETAIN_OUTPUT_INDEX: VecIndex = 15;
+    const BOND_1_DONATION_ENERGY_OUTPUT_INDEX: VecIndex = 16;
 
     fn new(genome: SparseNeuralNetGenome, randomness: SeededMutationRandomness) -> Self {
         NeuralNetBuddingControl {
@@ -204,7 +206,15 @@ impl NeuralNetBuddingControl {
             &[(Self::BONDING_LAYER_HEALTH_INPUT_INDEX, -1.0)],
         );
         genome.connect_node(
-            Self::DONATION_ENERGY_OUTPUT_INDEX,
+            Self::BOND_0_RETAIN_OUTPUT_INDEX,
+            0.0,
+            &[
+                (Self::CELL_ENERGY_INPUT_INDEX, -1.0),
+                (Self::BOND_0_EXISTS_INPUT_INDEX, 100.0),
+            ],
+        );
+        genome.connect_node(
+            Self::BOND_1_DONATION_ENERGY_OUTPUT_INDEX,
             -100.0,
             &[(Self::CELL_ENERGY_INPUT_INDEX, 0.1)],
         );
@@ -222,6 +232,7 @@ impl CellControl for NeuralNetBuddingControl {
         let photo_layer_health = cell_state.layers[PHOTO_LAYER_INDEX].health.value() as f32;
         let bonding_layer_area = cell_state.layers[BONDING_LAYER_INDEX].area.value() as f32;
         let bonding_layer_health = cell_state.layers[BONDING_LAYER_INDEX].health.value() as f32;
+        let bond_0_exists: f32 = if cell_state.bond_0_exists { 1.0 } else { 0.0 };
 
         self.nnet
             .set_node_value(Self::CELL_ENERGY_INPUT_INDEX, cell_energy);
@@ -238,6 +249,8 @@ impl CellControl for NeuralNetBuddingControl {
             .set_node_value(Self::BONDING_LAYER_AREA_INPUT_INDEX, bonding_layer_area);
         self.nnet
             .set_node_value(Self::BONDING_LAYER_HEALTH_INPUT_INDEX, bonding_layer_health);
+        self.nnet
+            .set_node_value(Self::BOND_0_EXISTS_INPUT_INDEX, bond_0_exists);
 
         self.nnet.run();
 
@@ -255,7 +268,10 @@ impl CellControl for NeuralNetBuddingControl {
         let bonding_layer_healing =
             self.nnet
                 .node_value(Self::BONDING_LAYER_HEALING_OUTPUT_INDEX) as f64;
-        let donation_energy = self.nnet.node_value(Self::DONATION_ENERGY_OUTPUT_INDEX) as f64;
+        let retain_bond_0 = self.nnet.node_value(Self::BOND_0_RETAIN_OUTPUT_INDEX) as f64;
+        let donation_energy =
+            self.nnet
+                .node_value(Self::BOND_1_DONATION_ENERGY_OUTPUT_INDEX) as f64;
 
         vec![
             CellLayer::healing_request(
@@ -275,6 +291,11 @@ impl CellControl for NeuralNetBuddingControl {
             CellLayer::resize_request(
                 BONDING_LAYER_INDEX,
                 AreaDelta::new(bonding_layer_area_delta),
+            ),
+            BondingCellLayerSpecialty::retain_bond_request(
+                BONDING_LAYER_INDEX,
+                0,
+                retain_bond_0 > 0.0,
             ),
             BondingCellLayerSpecialty::retain_bond_request(
                 BONDING_LAYER_INDEX,

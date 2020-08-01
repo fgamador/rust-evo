@@ -188,6 +188,7 @@ impl Cell {
             center: self.center(),
             velocity: self.velocity(),
             energy: self.energy(),
+            bond_0_exists: self.has_edge(0),
             layers: self.get_layer_state_snapshots(),
         }
     }

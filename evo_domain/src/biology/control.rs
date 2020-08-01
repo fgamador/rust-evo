@@ -170,7 +170,7 @@ impl NeuralNetControl {
         }
     }
 
-    fn get_requests(&self) -> Vec<ControlRequest> {
+    fn get_output_requests(&self) -> Vec<ControlRequest> {
         let mut requests = Vec::with_capacity(self.value_to_request_fns.len());
         for (node_index, value_to_request_fn) in &*self.value_to_request_fns {
             requests.push(value_to_request_fn(self.nnet.node_value(*node_index)));
@@ -194,7 +194,7 @@ impl CellControl for NeuralNetControl {
     fn run(&mut self, cell_state: &CellStateSnapshot) -> Vec<ControlRequest> {
         self.set_input_values(cell_state);
         self.nnet.run();
-        self.get_requests()
+        self.get_output_requests()
     }
 
     fn spawn(&mut self) -> Box<dyn CellControl> {

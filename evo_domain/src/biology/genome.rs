@@ -9,9 +9,9 @@ use std::f32;
 use std::fmt;
 use std::fmt::{Error, Formatter};
 
-type Coefficient = f32;
-type VecIndex = u16;
-type NodeValue = f32;
+pub type Coefficient = f32;
+pub type VecIndex = u16;
+pub type NodeValue = f32;
 
 #[derive(Clone, Debug, PartialEq)]
 pub struct SparseNeuralNet {

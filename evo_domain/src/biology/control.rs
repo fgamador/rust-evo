@@ -1,5 +1,6 @@
 use crate::biology::control_requests::*;
-use crate::biology::layers::CellLayer;
+use crate::biology::genome::*;
+use crate::biology::layers::*;
 use crate::physics::quantities::*;
 use std::fmt::Debug;
 
@@ -138,6 +139,69 @@ impl CellControl for SimpleThrusterControl {
     }
 }
 
+#[derive(Debug)]
+pub struct NeuralNetControl {
+    nnet: SparseNeuralNet,
+    randomness: SeededMutationRandomness,
+}
+
+impl NeuralNetControl {
+    fn new(genome: SparseNeuralNetGenome, randomness: SeededMutationRandomness) -> Self {
+        NeuralNetControl {
+            nnet: SparseNeuralNet::new(genome),
+            randomness,
+        }
+    }
+}
+
+impl CellControl for NeuralNetControl {
+    fn run(&mut self, _cell_state: &CellStateSnapshot) -> Vec<ControlRequest> {
+        vec![]
+    }
+
+    fn spawn(&mut self) -> Box<dyn CellControl> {
+        Box::new(NeuralNetControl {
+            nnet: self.nnet.spawn(&mut self.randomness),
+            randomness: self.randomness.clone(),
+        })
+    }
+}
+
+pub struct NeuralNetControlBuilder {
+    genome: SparseNeuralNetGenome,
+}
+
+impl NeuralNetControlBuilder {
+    pub fn new(transfer_fn: TransferFn) -> Self {
+        NeuralNetControlBuilder {
+            genome: SparseNeuralNetGenome::new(transfer_fn),
+        }
+    }
+
+    pub fn add_input_node<F>(&mut self, _get_value: F) -> VecIndex
+    where
+        F: Fn(&CellStateSnapshot) -> NodeValue,
+    {
+        0
+    }
+
+    pub fn add_output_node<F>(
+        &mut self,
+        _from_value_weights: &[(VecIndex, Coefficient)],
+        _bias: Coefficient,
+        _to_request: F,
+    ) -> VecIndex
+    where
+        F: Fn(NodeValue) -> ControlRequest,
+    {
+        0
+    }
+
+    pub fn build(self, randomness: SeededMutationRandomness) -> NeuralNetControl {
+        NeuralNetControl::new(self.genome, randomness)
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -162,6 +226,32 @@ mod tests {
                 ControlRequest::new(2, 2, 0, 1.0),
                 ControlRequest::new(2, 3, 0, -1.0)
             ]
+        );
+    }
+
+    #[test]
+    #[ignore]
+    fn can_build_neural_net_control() {
+        let mut builder = NeuralNetControlBuilder::new(TransferFn::IDENTITY);
+
+        let energy_input_index =
+            builder.add_input_node(|cell_state| cell_state.energy.value() as NodeValue);
+        builder.add_output_node(&[(energy_input_index, 10.0)], 2.0, |value| {
+            CellLayer::resize_request(0, AreaDelta::new(value as f64))
+        });
+
+        let mut control = builder.build(SeededMutationRandomness::new(
+            0,
+            &MutationParameters::NO_MUTATION,
+        ));
+        let requests = control.run(&CellStateSnapshot {
+            energy: BioEnergy::new(3.0),
+            ..CellStateSnapshot::ZEROS
+        });
+
+        assert_eq!(
+            requests,
+            vec![CellLayer::resize_request(0, AreaDelta::new(32.0))]
         );
     }
 }

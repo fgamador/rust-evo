@@ -9,8 +9,6 @@ use evo_domain::world::World;
 use evo_main::main_support::init_and_run;
 use std::f64::consts::PI;
 
-type VecIndex = u16;
-
 fn main() {
     init_and_run(create_world());
 }

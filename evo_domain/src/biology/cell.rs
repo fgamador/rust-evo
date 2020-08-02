@@ -126,6 +126,11 @@ impl Cell {
 
     pub fn set_selected(&mut self, is_selected: bool) {
         self.selected = is_selected;
+        if is_selected {
+            self.net_force_mut().start_recording_force_additions();
+        } else {
+            self.net_force_mut().stop_recording_force_additions();
+        }
     }
 
     pub fn set_initial_position(&mut self, position: Position) {
@@ -283,6 +288,12 @@ impl Cell {
             );
 
             println!("  net force {}", self.net_force().net_force());
+            if let Some(force_additions) = &self.net_force().force_additions() {
+                for force_addition in force_additions {
+                    println!("    {} {:+.4}", force_addition.label, force_addition.force,);
+                }
+            }
+
             Self::print_value2d_debug_info(
                 "  position",
                 start_snapshot.center.value(),
@@ -325,7 +336,11 @@ impl Cell {
             }
 
             for (index, layer) in self.layers.iter().enumerate() {
-                println!("  layer {}:", index);
+                println!(
+                    "  layer {}{}:",
+                    index,
+                    if layer.is_alive() { "" } else { " (DEAD)" }
+                );
                 Self::print_value1d_debug_info(
                     "    area",
                     start_snapshot.layers[index].area.value(),

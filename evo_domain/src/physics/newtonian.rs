@@ -84,6 +84,14 @@ impl NetForce {
         }
     }
 
+    pub fn start_recording_force_additions(&mut self) {
+        self.force_additions = Some(vec![]);
+    }
+
+    pub fn stop_recording_force_additions(&mut self) {
+        self.force_additions = None;
+    }
+
     pub fn add_force(&mut self, force: Force, label: &'static str) {
         self.net_force += force;
 
@@ -112,11 +120,19 @@ impl NetForce {
     }
 
     pub fn clear(&mut self) {
-        self.net_force = Force::new(0.0, 0.0);
+        self.net_force = Force::ZERO;
+
+        if let Some(force_additions) = &mut self.force_additions {
+            force_additions.clear();
+        }
     }
 
     pub fn net_force(&self) -> Force {
         self.net_force
+    }
+
+    pub fn force_additions(&self) -> &Option<Vec<ForceAddition>> {
+        &self.force_additions
     }
 }
 

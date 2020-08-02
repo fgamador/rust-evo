@@ -245,12 +245,15 @@ impl SimpleForceInfluence {
 impl PerCellInfluence for SimpleForceInfluence {
     fn apply_to(&self, cell: &mut Cell) {
         let force = self.influence_force.calc_force(cell);
-        cell.net_force_mut().add_force(force, "simple force");
+        cell.net_force_mut()
+            .add_force(force, self.influence_force.label());
     }
 }
 
 pub trait SimpleInfluenceForce {
     fn calc_force(&self, cell: &Cell) -> Force;
+
+    fn label(&self) -> &'static str;
 }
 
 #[derive(Debug)]
@@ -267,6 +270,10 @@ impl ConstantForce {
 impl SimpleInfluenceForce for ConstantForce {
     fn calc_force(&self, _ball: &Cell) -> Force {
         self.force
+    }
+
+    fn label(&self) -> &'static str {
+        "constant"
     }
 }
 
@@ -286,6 +293,10 @@ impl WeightForce {
 impl SimpleInfluenceForce for WeightForce {
     fn calc_force(&self, cell: &Cell) -> Force {
         cell.mass() * self.gravity
+    }
+
+    fn label(&self) -> &'static str {
+        "weight"
     }
 }
 
@@ -308,6 +319,10 @@ impl SimpleInfluenceForce for BuoyancyForce {
     fn calc_force(&self, cell: &Cell) -> Force {
         let displaced_fluid_mass = cell.area() * self.fluid_density;
         -(displaced_fluid_mass * self.gravity)
+    }
+
+    fn label(&self) -> &'static str {
+        "buoyancy"
     }
 }
 
@@ -343,6 +358,10 @@ impl SimpleInfluenceForce for DragForce {
             self.calc_drag(cell.mass(), cell.radius(), cell.velocity().x()),
             self.calc_drag(cell.mass(), cell.radius(), cell.velocity().y()),
         )
+    }
+
+    fn label(&self) -> &'static str {
+        "drag"
     }
 }
 

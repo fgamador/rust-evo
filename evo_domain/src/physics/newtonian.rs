@@ -184,7 +184,7 @@ mod tests {
     }
 
     #[test]
-    fn clear_net_force() {
+    fn clears_dominant_and_non_dominant_forces() {
         let mut subject = NetForce::ZERO;
         subject.add_dominant_force(Force::new(3.5, -1.5), "test");
         subject.add_force(Force::new(1.5, -0.5), "test");

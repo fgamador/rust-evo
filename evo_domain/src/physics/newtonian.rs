@@ -98,7 +98,7 @@ impl NetForce {
         }
     }
 
-    pub fn add_force(&mut self, force: Force, label: &'static str) {
+    pub fn add_non_dominant_force(&mut self, force: Force, label: &'static str) {
         self.non_dominant_forces += force;
 
         if let Some(force_additions) = &mut self.force_additions {
@@ -170,15 +170,15 @@ mod tests {
     #[test]
     fn non_dominant_forces_add() {
         let mut subject = NetForce::ZERO;
-        subject.add_force(Force::new(1.5, -0.5), "test");
-        subject.add_force(Force::new(0.25, -0.5), "test");
+        subject.add_non_dominant_force(Force::new(1.5, -0.5), "test");
+        subject.add_non_dominant_force(Force::new(0.25, -0.5), "test");
         assert_eq!(subject.net_force(), Force::new(1.75, -1.0));
     }
 
     #[test]
     fn non_dominant_forces_add_to_dominant_force() {
         let mut subject = NetForce::ZERO;
-        subject.add_force(Force::new(1.5, -0.5), "test");
+        subject.add_non_dominant_force(Force::new(1.5, -0.5), "test");
         subject.add_dominant_force(Force::new(3.5, -1.5), "test");
         assert_eq!(subject.net_force(), Force::new(5.0, -2.0));
     }
@@ -187,7 +187,7 @@ mod tests {
     fn clears_dominant_and_non_dominant_forces() {
         let mut subject = NetForce::ZERO;
         subject.add_dominant_force(Force::new(3.5, -1.5), "test");
-        subject.add_force(Force::new(1.5, -0.5), "test");
+        subject.add_non_dominant_force(Force::new(1.5, -0.5), "test");
         subject.clear();
         assert_eq!(subject.net_force(), Force::ZERO);
     }
@@ -199,7 +199,9 @@ mod tests {
             Position::new(1.0, 1.0),
             Velocity::new(1.0, 1.0),
         );
-        ball.state.net_force.add_force(Force::new(1.0, 1.0), "test");
+        ball.state
+            .net_force
+            .add_non_dominant_force(Force::new(1.0, 1.0), "test");
         ball.exert_net_force_for_one_tick();
         assert_eq!(ball.velocity(), Velocity::new(2.0, 2.0));
     }

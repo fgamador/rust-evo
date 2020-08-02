@@ -180,7 +180,7 @@ impl Cell {
         }
         self.newtonian_state
             .net_force_mut()
-            .add_force(self.thrust, "thrust");
+            .add_non_dominant_force(self.thrust, "thrust");
     }
 
     pub fn calculate_requested_changes(&mut self, changes: &mut CellChanges) {

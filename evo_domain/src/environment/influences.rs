@@ -222,7 +222,8 @@ impl CrossCellInfluence for BondAngleForces {
         let forces = calc_bond_angle_forces(cell_graph);
         for (handle, force) in forces {
             let cell = cell_graph.node_mut(handle);
-            cell.net_force_mut().add_force(force, "bond angle");
+            cell.net_force_mut()
+                .add_non_dominant_force(force, "bond angle");
         }
     }
 }
@@ -245,7 +246,7 @@ impl PerCellInfluence for SimpleForceInfluence {
     fn apply_to(&self, cell: &mut Cell) {
         let force = self.influence_force.calc_force(cell);
         cell.net_force_mut()
-            .add_force(force, self.influence_force.label());
+            .add_non_dominant_force(force, self.influence_force.label());
     }
 }
 

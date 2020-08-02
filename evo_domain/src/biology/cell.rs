@@ -23,6 +23,7 @@ pub struct Cell {
     layers: Vec<CellLayer>, // TODO array? smallvec?
     control: Box<dyn CellControl>,
     energy: BioEnergy,
+    received_donated_energy: BioEnergy,
     thrust: Force,
     selected: bool,
 }
@@ -42,6 +43,7 @@ impl Cell {
             layers,
             control: Box::new(NullControl::new()),
             energy: BioEnergy::ZERO,
+            received_donated_energy: BioEnergy::ZERO,
             thrust: Force::ZERO,
             selected: false,
         }
@@ -99,6 +101,7 @@ impl Cell {
             layers,
             control: self.control.spawn(),
             energy: BioEnergy::ZERO,
+            received_donated_energy: BioEnergy::ZERO,
             thrust: Force::ZERO,
             selected: false,
         }
@@ -110,6 +113,11 @@ impl Cell {
 
     pub fn energy(&self) -> BioEnergy {
         self.energy
+    }
+
+    pub fn add_received_donated_energy(&mut self, energy: BioEnergy) {
+        self.add_energy(energy);
+        self.received_donated_energy += energy;
     }
 
     pub fn add_energy(&mut self, energy: BioEnergy) {
@@ -277,6 +285,7 @@ impl Cell {
     fn clear_environment(&mut self) {
         self.environment_mut().clear();
         self.net_force_mut().clear();
+        self.received_donated_energy = BioEnergy::ZERO;
     }
 
     fn print_debug_info(&self, start_snapshot: &CellStateSnapshot, changes: &CellChanges) {
@@ -320,6 +329,7 @@ impl Cell {
                 start_snapshot.energy.value(),
                 self.energy().value(),
             );
+            println!("    received {:+.4}", self.received_donated_energy.value());
             if let Some(energy_changes) = &changes.energy_changes {
                 for energy_change in energy_changes {
                     println!(

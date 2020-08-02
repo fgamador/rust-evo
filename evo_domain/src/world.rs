@@ -289,7 +289,8 @@ impl World {
 
     fn apply_donated_energy(&mut self, donated_energy: Vec<(NodeHandle, BioEnergy)>) {
         for (cell_handle, donation) in donated_energy {
-            self.cell_mut(cell_handle).add_energy(donation);
+            self.cell_mut(cell_handle)
+                .add_received_donated_energy(donation);
         }
     }
 

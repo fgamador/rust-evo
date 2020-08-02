@@ -177,7 +177,7 @@ mod tests {
         let mut subject = NetForce::ZERO;
         subject.add_force(Force::new(1.5, -0.5), "test");
         subject.clear();
-        assert_eq!(subject.net_force(), Force::new(0.0, 0.0));
+        assert_eq!(subject.net_force(), Force::ZERO);
     }
 
     #[test]

@@ -172,7 +172,7 @@ mod tests {
     }
 
     #[test]
-    fn net_force() {
+    fn add_non_dominant_force() {
         let mut subject = NetForce::new(1.5, -0.5);
         subject.add_force(Force::new(0.25, -0.5), "test");
         assert_eq!(subject.net_force(), Force::new(1.75, -1.0));

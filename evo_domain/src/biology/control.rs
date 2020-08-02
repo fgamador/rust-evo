@@ -141,18 +141,21 @@ impl CellControl for SimpleThrusterControl {
     }
 }
 
+type GetValueFns = Vec<(VecIndex, Box<dyn Fn(&CellStateSnapshot) -> Value1D>)>;
+type ValueToRequestFns = Vec<(VecIndex, Box<dyn Fn(Value1D) -> ControlRequest>)>;
+
 pub struct NeuralNetControl {
-    get_value_fns: Rc<Vec<(VecIndex, Box<dyn Fn(&CellStateSnapshot) -> Value1D>)>>,
+    get_value_fns: Rc<GetValueFns>,
     nnet: SparseNeuralNet,
-    value_to_request_fns: Rc<Vec<(VecIndex, Box<dyn Fn(Value1D) -> ControlRequest>)>>,
+    value_to_request_fns: Rc<ValueToRequestFns>,
     randomness: SeededMutationRandomness,
 }
 
 impl NeuralNetControl {
     fn new(
-        get_value_fns: Vec<(VecIndex, Box<dyn Fn(&CellStateSnapshot) -> Value1D>)>,
+        get_value_fns: GetValueFns,
         genome: SparseNeuralNetGenome,
-        value_to_request_fns: Vec<(VecIndex, Box<dyn Fn(Value1D) -> ControlRequest>)>,
+        value_to_request_fns: ValueToRequestFns,
         randomness: SeededMutationRandomness,
     ) -> Self {
         NeuralNetControl {
@@ -210,9 +213,9 @@ impl CellControl for NeuralNetControl {
 }
 
 pub struct NeuralNetControlBuilder {
-    get_value_fns: Vec<(VecIndex, Box<dyn Fn(&CellStateSnapshot) -> Value1D>)>,
+    get_value_fns: GetValueFns,
     genome: SparseNeuralNetGenome,
-    value_to_request_fns: Vec<(VecIndex, Box<dyn Fn(Value1D) -> ControlRequest>)>,
+    value_to_request_fns: ValueToRequestFns,
     next_index: VecIndex,
 }
 

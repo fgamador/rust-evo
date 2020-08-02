@@ -68,12 +68,14 @@ impl NewtonianBody for NewtonianState {
 #[derive(Clone, Debug)]
 pub struct NetForce {
     net_force: Force,
+    dominant_force: Force,
     force_additions: Option<Vec<ForceAddition>>,
 }
 
 impl NetForce {
     pub const ZERO: NetForce = NetForce {
         net_force: Force::ZERO,
+        dominant_force: Force::ZERO,
         force_additions: None,
     };
 
@@ -94,9 +96,9 @@ impl NetForce {
     }
 
     pub fn add_dominant_force(&mut self, force: Force, label: &'static str) {
-        self.net_force = Force::new(
-            Self::stronger(force.x(), self.net_force.x()),
-            Self::stronger(force.y(), self.net_force.y()),
+        self.dominant_force = Force::new(
+            Self::stronger(force.x(), self.dominant_force.x()),
+            Self::stronger(force.y(), self.dominant_force.y()),
         );
 
         if let Some(force_additions) = &mut self.force_additions {
@@ -121,7 +123,7 @@ impl NetForce {
     }
 
     pub fn net_force(&self) -> Force {
-        self.net_force
+        self.net_force + self.dominant_force
     }
 
     pub fn force_additions(&self) -> &Option<Vec<ForceAddition>> {
@@ -173,7 +175,6 @@ mod tests {
     }
 
     #[test]
-    #[ignore]
     fn non_dominant_forces_add_to_dominant_force() {
         let mut subject = NetForce::ZERO;
         subject.add_force(Force::new(1.5, -0.5), "test");

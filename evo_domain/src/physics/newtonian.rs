@@ -77,13 +77,6 @@ impl NetForce {
         force_additions: None,
     };
 
-    pub fn new(initial_x: f64, initial_y: f64) -> NetForce {
-        NetForce {
-            net_force: Force::new(initial_x, initial_y),
-            force_additions: None,
-        }
-    }
-
     pub fn start_recording_force_additions(&mut self) {
         self.force_additions = Some(vec![]);
     }
@@ -172,15 +165,17 @@ mod tests {
     }
 
     #[test]
-    fn add_non_dominant_force() {
-        let mut subject = NetForce::new(1.5, -0.5);
+    fn add_non_dominant_forces() {
+        let mut subject = NetForce::ZERO;
+        subject.add_force(Force::new(1.5, -0.5), "test");
         subject.add_force(Force::new(0.25, -0.5), "test");
         assert_eq!(subject.net_force(), Force::new(1.75, -1.0));
     }
 
     #[test]
     fn clear_net_force() {
-        let mut subject = NetForce::new(1.5, -0.5);
+        let mut subject = NetForce::ZERO;
+        subject.add_force(Force::new(1.5, -0.5), "test");
         subject.clear();
         assert_eq!(subject.net_force(), Force::new(0.0, 0.0));
     }

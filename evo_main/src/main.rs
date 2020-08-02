@@ -157,6 +157,8 @@ fn create_control(randomness: SeededMutationRandomness) -> NeuralNetControl {
     let bond_0_exists_input_index =
         builder.add_input_node(|cell_state| if cell_state.bond_0_exists { 1.0 } else { 0.0 });
 
+    let donation_energy_index = builder.add_hidden_node(&[(cell_energy_input_index, 0.1)], -100.0);
+
     builder.add_output_node(&[(float_layer_health_input_index, -1.0)], 1.0, |value| {
         CellLayer::healing_request(FLOAT_LAYER_INDEX, HealthDelta::new(value.max(0.0)))
     });
@@ -183,11 +185,10 @@ fn create_control(randomness: SeededMutationRandomness) -> NeuralNetControl {
         0.0,
         |value| BondingCellLayerSpecialty::retain_bond_request(BONDING_LAYER_INDEX, 0, value > 0.0),
     );
-    builder.add_output_node(&[(cell_energy_input_index, 0.1)], -100.0, |value| {
+    builder.add_output_node(&[(donation_energy_index, 1.0)], 0.0, |value| {
         BondingCellLayerSpecialty::retain_bond_request(BONDING_LAYER_INDEX, 1, value > 0.0)
     });
-    // TODO dedup: add hidden node
-    builder.add_output_node(&[(cell_energy_input_index, 0.1)], -100.0, |value| {
+    builder.add_output_node(&[(donation_energy_index, 1.0)], 0.0, |value| {
         BondingCellLayerSpecialty::donation_energy_request(
             BONDING_LAYER_INDEX,
             1,

@@ -142,17 +142,17 @@ impl CellControl for SimpleThrusterControl {
 }
 
 pub struct NeuralNetControl {
-    get_value_fns: Rc<Vec<(VecIndex, Box<dyn Fn(&CellStateSnapshot) -> NodeValue>)>>,
+    get_value_fns: Rc<Vec<(VecIndex, Box<dyn Fn(&CellStateSnapshot) -> Value1D>)>>,
     nnet: SparseNeuralNet,
-    value_to_request_fns: Rc<Vec<(VecIndex, Box<dyn Fn(NodeValue) -> ControlRequest>)>>,
+    value_to_request_fns: Rc<Vec<(VecIndex, Box<dyn Fn(Value1D) -> ControlRequest>)>>,
     randomness: SeededMutationRandomness,
 }
 
 impl NeuralNetControl {
     fn new(
-        get_value_fns: Vec<(VecIndex, Box<dyn Fn(&CellStateSnapshot) -> NodeValue>)>,
+        get_value_fns: Vec<(VecIndex, Box<dyn Fn(&CellStateSnapshot) -> Value1D>)>,
         genome: SparseNeuralNetGenome,
-        value_to_request_fns: Vec<(VecIndex, Box<dyn Fn(NodeValue) -> ControlRequest>)>,
+        value_to_request_fns: Vec<(VecIndex, Box<dyn Fn(Value1D) -> ControlRequest>)>,
         randomness: SeededMutationRandomness,
     ) -> Self {
         NeuralNetControl {
@@ -166,14 +166,16 @@ impl NeuralNetControl {
     fn set_input_values(&mut self, cell_state: &CellStateSnapshot) {
         for (node_index, get_value_fn) in &*self.get_value_fns {
             self.nnet
-                .set_node_value(*node_index, get_value_fn(cell_state));
+                .set_node_value(*node_index, get_value_fn(cell_state) as NodeValue);
         }
     }
 
     fn get_output_requests(&self) -> Vec<ControlRequest> {
         let mut requests = Vec::with_capacity(self.value_to_request_fns.len());
         for (node_index, value_to_request_fn) in &*self.value_to_request_fns {
-            requests.push(value_to_request_fn(self.nnet.node_value(*node_index)));
+            requests.push(value_to_request_fn(
+                self.nnet.node_value(*node_index) as Value1D
+            ));
         }
         requests
     }
@@ -208,9 +210,9 @@ impl CellControl for NeuralNetControl {
 }
 
 pub struct NeuralNetControlBuilder {
-    get_value_fns: Vec<(VecIndex, Box<dyn Fn(&CellStateSnapshot) -> NodeValue>)>,
+    get_value_fns: Vec<(VecIndex, Box<dyn Fn(&CellStateSnapshot) -> Value1D>)>,
     genome: SparseNeuralNetGenome,
-    value_to_request_fns: Vec<(VecIndex, Box<dyn Fn(NodeValue) -> ControlRequest>)>,
+    value_to_request_fns: Vec<(VecIndex, Box<dyn Fn(Value1D) -> ControlRequest>)>,
     next_index: VecIndex,
 }
 
@@ -226,7 +228,7 @@ impl NeuralNetControlBuilder {
 
     pub fn add_input_node<F>(&mut self, get_value: F) -> VecIndex
     where
-        F: 'static + Fn(&CellStateSnapshot) -> NodeValue,
+        F: 'static + Fn(&CellStateSnapshot) -> Value1D,
     {
         let node_index = self.next_node_index();
         self.get_value_fns.push((node_index, Box::new(get_value)));
@@ -240,7 +242,7 @@ impl NeuralNetControlBuilder {
         value_to_request: F,
     ) -> VecIndex
     where
-        F: 'static + Fn(NodeValue) -> ControlRequest,
+        F: 'static + Fn(Value1D) -> ControlRequest,
     {
         let node_index = self.next_node_index();
         self.genome
@@ -297,8 +299,7 @@ mod tests {
     fn can_build_neural_net_control() {
         let mut builder = NeuralNetControlBuilder::new(TransferFn::IDENTITY);
 
-        let energy_input_index =
-            builder.add_input_node(|cell_state| cell_state.energy.value() as NodeValue);
+        let energy_input_index = builder.add_input_node(|cell_state| cell_state.energy.value());
         builder.add_output_node(&[(energy_input_index, 10.0)], 2.0, |value| {
             CellLayer::resize_request(0, AreaDelta::new(value as f64))
         });

@@ -145,48 +145,41 @@ fn create_bonding_layer() -> CellLayer {
 fn create_control(randomness: SeededMutationRandomness) -> NeuralNetControl {
     let mut builder = NeuralNetControlBuilder::new(TransferFn::IDENTITY);
 
-    let cell_energy_input_index =
-        builder.add_input_node(|cell_state| cell_state.energy.value() as NodeValue);
-    let cell_y_input_index =
-        builder.add_input_node(|cell_state| cell_state.center.y() as NodeValue);
+    let cell_energy_input_index = builder.add_input_node(|cell_state| cell_state.energy.value());
+    let cell_y_input_index = builder.add_input_node(|cell_state| cell_state.center.y());
     // let float_layer_area_input_index = builder.add_input_node(|cell_state| {
-    //     cell_state.layers[FLOAT_LAYER_INDEX].area.value() as NodeValue
+    //     cell_state.layers[FLOAT_LAYER_INDEX].area.value()
     // });
-    let float_layer_health_input_index = builder.add_input_node(|cell_state| {
-        cell_state.layers[FLOAT_LAYER_INDEX].health.value() as NodeValue
-    });
-    let photo_layer_area_input_index = builder.add_input_node(|cell_state| {
-        cell_state.layers[PHOTO_LAYER_INDEX].area.value() as NodeValue
-    });
-    let photo_layer_health_input_index = builder.add_input_node(|cell_state| {
-        cell_state.layers[PHOTO_LAYER_INDEX].health.value() as NodeValue
-    });
-    let bonding_layer_area_input_index = builder.add_input_node(|cell_state| {
-        cell_state.layers[BONDING_LAYER_INDEX].area.value() as NodeValue
-    });
-    let bonding_layer_health_input_index = builder.add_input_node(|cell_state| {
-        cell_state.layers[BONDING_LAYER_INDEX].health.value() as NodeValue
-    });
+    let float_layer_health_input_index =
+        builder.add_input_node(|cell_state| cell_state.layers[FLOAT_LAYER_INDEX].health.value());
+    let photo_layer_area_input_index =
+        builder.add_input_node(|cell_state| cell_state.layers[PHOTO_LAYER_INDEX].area.value());
+    let photo_layer_health_input_index =
+        builder.add_input_node(|cell_state| cell_state.layers[PHOTO_LAYER_INDEX].health.value());
+    let bonding_layer_area_input_index =
+        builder.add_input_node(|cell_state| cell_state.layers[BONDING_LAYER_INDEX].area.value());
+    let bonding_layer_health_input_index =
+        builder.add_input_node(|cell_state| cell_state.layers[BONDING_LAYER_INDEX].health.value());
     let bond_0_exists_input_index =
         builder.add_input_node(|cell_state| if cell_state.bond_0_exists { 1.0 } else { 0.0 });
 
     builder.add_output_node(&[(float_layer_health_input_index, -1.0)], 1.0, |value| {
-        CellLayer::healing_request(FLOAT_LAYER_INDEX, HealthDelta::new(value.max(0.0) as f64))
+        CellLayer::healing_request(FLOAT_LAYER_INDEX, HealthDelta::new(value.max(0.0)))
     });
     builder.add_output_node(&[(cell_y_input_index, -1.0)], -100.0, |value| {
-        CellLayer::resize_request(FLOAT_LAYER_INDEX, AreaDelta::new(value as f64))
+        CellLayer::resize_request(FLOAT_LAYER_INDEX, AreaDelta::new(value))
     });
     builder.add_output_node(&[(photo_layer_health_input_index, -1.0)], 1.0, |value| {
-        CellLayer::healing_request(PHOTO_LAYER_INDEX, HealthDelta::new(value.max(0.0) as f64))
+        CellLayer::healing_request(PHOTO_LAYER_INDEX, HealthDelta::new(value.max(0.0)))
     });
     builder.add_output_node(&[(photo_layer_area_input_index, -1.0)], 800.0, |value| {
-        CellLayer::resize_request(PHOTO_LAYER_INDEX, AreaDelta::new(value as f64))
+        CellLayer::resize_request(PHOTO_LAYER_INDEX, AreaDelta::new(value))
     });
     builder.add_output_node(&[(bonding_layer_health_input_index, -1.0)], 1.0, |value| {
-        CellLayer::healing_request(BONDING_LAYER_INDEX, HealthDelta::new(value.max(0.0) as f64))
+        CellLayer::healing_request(BONDING_LAYER_INDEX, HealthDelta::new(value.max(0.0)))
     });
     builder.add_output_node(&[(bonding_layer_area_input_index, -1.0)], 200.0, |value| {
-        CellLayer::resize_request(BONDING_LAYER_INDEX, AreaDelta::new(value as f64))
+        CellLayer::resize_request(BONDING_LAYER_INDEX, AreaDelta::new(value))
     });
     builder.add_output_node(
         &[
@@ -204,7 +197,7 @@ fn create_control(randomness: SeededMutationRandomness) -> NeuralNetControl {
         BondingCellLayerSpecialty::donation_energy_request(
             BONDING_LAYER_INDEX,
             1,
-            BioEnergy::new(value.max(0.0) as f64),
+            BioEnergy::new(value.max(0.0)),
         )
     });
 

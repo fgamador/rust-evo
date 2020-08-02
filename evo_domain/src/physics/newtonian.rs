@@ -6,9 +6,9 @@ pub trait NewtonianBody {
     fn velocity(&self) -> Velocity;
     fn move_for_one_tick(&mut self);
     fn kick(&mut self, impulse: Impulse);
-    fn forces(&self) -> &Forces;
-    fn forces_mut(&mut self) -> &mut Forces;
-    fn exert_forces_for_one_tick(&mut self);
+    fn net_force(&self) -> &NetForce;
+    fn net_force_mut(&mut self) -> &mut NetForce;
+    fn exert_net_force_for_one_tick(&mut self);
 }
 
 #[derive(Clone, Debug, PartialEq)]
@@ -16,7 +16,7 @@ pub struct NewtonianState {
     pub mass: Mass,
     pub position: Position,
     pub velocity: Velocity,
-    pub forces: Forces,
+    pub net_force: NetForce,
 }
 
 impl NewtonianState {
@@ -25,7 +25,7 @@ impl NewtonianState {
             mass,
             position,
             velocity,
-            forces: Forces::new(0.0, 0.0),
+            net_force: NetForce::new(0.0, 0.0),
         }
     }
 }
@@ -51,28 +51,28 @@ impl NewtonianBody for NewtonianState {
         self.velocity = self.velocity + impulse / self.mass;
     }
 
-    fn forces(&self) -> &Forces {
-        &self.forces
+    fn net_force(&self) -> &NetForce {
+        &self.net_force
     }
 
-    fn forces_mut(&mut self) -> &mut Forces {
-        &mut self.forces
+    fn net_force_mut(&mut self) -> &mut NetForce {
+        &mut self.net_force
     }
 
-    fn exert_forces_for_one_tick(&mut self) {
-        let impulse = self.forces.net_force() * Duration::ONE;
+    fn exert_net_force_for_one_tick(&mut self) {
+        let impulse = self.net_force.net_force() * Duration::ONE;
         self.kick(impulse);
     }
 }
 
 #[derive(Clone, Copy, Debug, PartialEq)]
-pub struct Forces {
+pub struct NetForce {
     net_force: Force,
 }
 
-impl Forces {
-    pub fn new(initial_x: f64, initial_y: f64) -> Forces {
-        Forces {
+impl NetForce {
+    pub fn new(initial_x: f64, initial_y: f64) -> NetForce {
+        NetForce {
             net_force: Force::new(initial_x, initial_y),
         }
     }
@@ -136,27 +136,27 @@ mod tests {
 
     #[test]
     fn net_force() {
-        let mut subject = Forces::new(1.5, -0.5);
+        let mut subject = NetForce::new(1.5, -0.5);
         subject.add_force(Force::new(0.25, -0.5));
         assert_eq!(Force::new(1.75, -1.0), subject.net_force());
     }
 
     #[test]
     fn clear_net_force() {
-        let mut subject = Forces::new(1.5, -0.5);
+        let mut subject = NetForce::new(1.5, -0.5);
         subject.clear();
         assert_eq!(Force::new(0.0, 0.0), subject.net_force());
     }
 
     #[test]
-    fn exert_forces_for_one_tick() {
+    fn exert_net_force_for_one_tick() {
         let mut ball = SimpleBody::new(
             Mass::new(1.0),
             Position::new(1.0, 1.0),
             Velocity::new(1.0, 1.0),
         );
-        ball.state.forces.add_force(Force::new(1.0, 1.0));
-        ball.exert_forces_for_one_tick();
+        ball.state.net_force.add_force(Force::new(1.0, 1.0));
+        ball.exert_net_force_for_one_tick();
         assert_eq!(Velocity::new(2.0, 2.0), ball.velocity());
     }
 

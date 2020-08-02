@@ -165,7 +165,7 @@ impl Cell {
         for (index, layer) in self.layers.iter_mut().enumerate() {
             layer.calculate_automatic_changes(&self.environment, changes, index);
         }
-        self.newtonian_state.forces_mut().add_force(self.thrust);
+        self.newtonian_state.net_force_mut().add_force(self.thrust);
     }
 
     pub fn calculate_requested_changes(&mut self, changes: &mut CellChanges) {
@@ -263,13 +263,13 @@ impl Cell {
     }
 
     fn move_from_forces(&mut self) {
-        self.exert_forces_for_one_tick();
+        self.exert_net_force_for_one_tick();
         self.move_for_one_tick();
     }
 
     fn clear_environment(&mut self) {
         self.environment_mut().clear();
-        self.forces_mut().clear();
+        self.net_force_mut().clear();
     }
 
     fn print_debug_info(&self, start_snapshot: &CellStateSnapshot, changes: &CellChanges) {
@@ -280,7 +280,7 @@ impl Cell {
                 if self.is_alive() { "" } else { " (DEAD)" }
             );
 
-            println!("  net force {}", self.forces().net_force());
+            println!("  net force {}", self.net_force().net_force());
             Self::print_value2d_debug_info(
                 "  position",
                 start_snapshot.center.value(),
@@ -597,7 +597,7 @@ mod tests {
         // next tick
         let mut changes2 = CellChanges::new(cell.layers.len(), false);
         cell.calculate_automatic_changes(&mut changes2);
-        assert_eq!(Force::new(1.0, -1.0), cell.forces().net_force());
+        assert_eq!(Force::new(1.0, -1.0), cell.net_force().net_force());
     }
 
     #[test]

@@ -150,16 +150,16 @@ pub fn newtonian_body_derive(input: TokenStream) -> TokenStream {
                     self.#field_name.kick(impulse);
                 }
 
-                fn forces(&self) -> &Forces {
-                    self.#field_name.forces()
+                fn net_force(&self) -> &NetForce {
+                    self.#field_name.net_force()
                 }
 
-                fn forces_mut(&mut self) -> &mut Forces {
-                    self.#field_name.forces_mut()
+                fn net_force_mut(&mut self) -> &mut NetForce {
+                    self.#field_name.net_force_mut()
                 }
 
-                fn exert_forces_for_one_tick(&mut self) {
-                    self.#field_name.exert_forces_for_one_tick();
+                fn exert_net_force_for_one_tick(&mut self) {
+                    self.#field_name.exert_net_force_for_one_tick();
                 }
             }
         }

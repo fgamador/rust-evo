@@ -408,7 +408,7 @@ mod tests {
         world.tick();
 
         let ball = &world.cells()[0];
-        assert_eq!(ball.forces().net_force(), Force::new(0.0, 0.0));
+        assert_eq!(ball.net_force().net_force(), Force::new(0.0, 0.0));
     }
 
     #[test]

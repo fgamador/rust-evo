@@ -27,7 +27,7 @@ impl WallCollisions {
     fn add_overlap_and_force(&self, cell: &mut Cell, overlap: Overlap) {
         cell.environment_mut().add_overlap(overlap);
         let force = Self::collision_force(cell.mass(), cell.velocity(), -overlap.incursion());
-        cell.forces_mut().set_net_force_if_stronger(force);
+        cell.net_force_mut().set_net_force_if_stronger(force);
     }
 
     fn collision_force(mass: Mass, velocity: Velocity, overlap: Displacement) -> Force {
@@ -69,7 +69,7 @@ impl PairCollisions {
 
     fn add_overlap_and_force(cell: &mut Cell, overlap: Overlap, force: Force) {
         cell.environment_mut().add_overlap(overlap);
-        cell.forces_mut().set_net_force_if_stronger(force);
+        cell.net_force_mut().set_net_force_if_stronger(force);
     }
 
     fn cell1_collision_force(cell1: &Cell, overlap1: Overlap, cell2: &Cell) -> Force {
@@ -142,7 +142,7 @@ impl BondForces {
     }
 
     fn add_force(cell: &mut Cell, force: Force) {
-        cell.forces_mut().set_net_force_if_stronger(force);
+        cell.net_force_mut().set_net_force_if_stronger(force);
     }
 
     fn cell1_bond_force(cell1: &Cell, strain1: BondStrain, cell2: &Cell) -> Force {
@@ -220,7 +220,7 @@ impl CrossCellInfluence for BondAngleForces {
         let forces = calc_bond_angle_forces(cell_graph);
         for (handle, force) in forces {
             let cell = cell_graph.node_mut(handle);
-            cell.forces_mut().add_force(force);
+            cell.net_force_mut().add_force(force);
         }
     }
 }
@@ -242,7 +242,7 @@ impl SimpleForceInfluence {
 impl PerCellInfluence for SimpleForceInfluence {
     fn apply_to(&self, cell: &mut Cell) {
         let force = self.influence_force.calc_force(cell);
-        cell.forces_mut().add_force(force);
+        cell.net_force_mut().add_force(force);
     }
 }
 
@@ -410,8 +410,8 @@ mod tests {
 
         let ball = cell_graph.node(ball_handle);
         assert_eq!(ball.environment().overlaps().len(), 1);
-        assert_ne!(ball.forces().net_force().x(), 0.0);
-        assert_ne!(ball.forces().net_force().y(), 0.0);
+        assert_ne!(ball.net_force().net_force().x(), 0.0);
+        assert_ne!(ball.net_force().net_force().y(), 0.0);
     }
 
     #[test]
@@ -495,13 +495,13 @@ mod tests {
 
         let ball1 = cell_graph.node(ball1_handle);
         assert_eq!(ball1.environment().overlaps().len(), 1);
-        assert_ne!(ball1.forces().net_force().x(), 0.0);
-        assert_ne!(ball1.forces().net_force().y(), 0.0);
+        assert_ne!(ball1.net_force().net_force().x(), 0.0);
+        assert_ne!(ball1.net_force().net_force().y(), 0.0);
 
         let ball2 = cell_graph.node(ball2_handle);
         assert_eq!(ball2.environment().overlaps().len(), 1);
-        assert_ne!(ball2.forces().net_force().x(), 0.0);
-        assert_ne!(ball2.forces().net_force().y(), 0.0);
+        assert_ne!(ball2.net_force().net_force().x(), 0.0);
+        assert_ne!(ball2.net_force().net_force().y(), 0.0);
     }
 
     #[test]
@@ -604,12 +604,12 @@ mod tests {
         bond_forces.apply_to(&mut cell_graph);
 
         let ball1 = cell_graph.node(ball1_handle);
-        assert_ne!(ball1.forces().net_force().x(), 0.0);
-        assert_ne!(ball1.forces().net_force().y(), 0.0);
+        assert_ne!(ball1.net_force().net_force().x(), 0.0);
+        assert_ne!(ball1.net_force().net_force().y(), 0.0);
 
         let ball2 = cell_graph.node(ball2_handle);
-        assert_ne!(ball2.forces().net_force().x(), 0.0);
-        assert_ne!(ball2.forces().net_force().y(), 0.0);
+        assert_ne!(ball2.net_force().net_force().x(), 0.0);
+        assert_ne!(ball2.net_force().net_force().y(), 0.0);
     }
 
     #[test]
@@ -716,7 +716,7 @@ mod tests {
         BondAngleForces::new().apply_to(&mut cell_graph);
 
         let ball3 = cell_graph.node(ball3_handle);
-        assert!(ball3.forces().net_force().x() < 0.0);
+        assert!(ball3.net_force().net_force().x() < 0.0);
     }
 
     #[test]
@@ -732,7 +732,7 @@ mod tests {
 
         influence.apply_to(&mut ball);
 
-        assert_eq!(ball.forces().net_force(), force);
+        assert_eq!(ball.net_force().net_force(), force);
     }
 
     #[test]

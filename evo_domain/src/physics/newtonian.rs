@@ -93,7 +93,7 @@ impl NetForce {
         }
     }
 
-    pub fn set_net_force_if_stronger(&mut self, force: Force, label: &'static str) {
+    pub fn add_dominant_force(&mut self, force: Force, label: &'static str) {
         self.net_force = Force::new(
             Self::stronger(force.x(), self.net_force.x()),
             Self::stronger(force.y(), self.net_force.y()),
@@ -165,11 +165,20 @@ mod tests {
     }
 
     #[test]
-    fn add_non_dominant_forces() {
+    fn non_dominant_forces_add() {
         let mut subject = NetForce::ZERO;
         subject.add_force(Force::new(1.5, -0.5), "test");
         subject.add_force(Force::new(0.25, -0.5), "test");
         assert_eq!(subject.net_force(), Force::new(1.75, -1.0));
+    }
+
+    #[test]
+    #[ignore]
+    fn non_dominant_forces_add_to_dominant_force() {
+        let mut subject = NetForce::ZERO;
+        subject.add_force(Force::new(1.5, -0.5), "test");
+        subject.add_dominant_force(Force::new(3.5, -1.5), "test");
+        assert_eq!(subject.net_force(), Force::new(5.0, -2.0));
     }
 
     #[test]

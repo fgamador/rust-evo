@@ -28,7 +28,7 @@ impl WallCollisions {
         cell.environment_mut().add_overlap(overlap);
         let force = Self::collision_force(cell.mass(), cell.velocity(), -overlap.incursion());
         cell.net_force_mut()
-            .set_net_force_if_stronger(force, "wall collision");
+            .add_dominant_force(force, "wall collision");
     }
 
     fn collision_force(mass: Mass, velocity: Velocity, overlap: Displacement) -> Force {
@@ -71,7 +71,7 @@ impl PairCollisions {
     fn add_overlap_and_force(cell: &mut Cell, overlap: Overlap, force: Force) {
         cell.environment_mut().add_overlap(overlap);
         cell.net_force_mut()
-            .set_net_force_if_stronger(force, "pair collision");
+            .add_dominant_force(force, "pair collision");
     }
 
     fn cell1_collision_force(cell1: &Cell, overlap1: Overlap, cell2: &Cell) -> Force {
@@ -144,8 +144,7 @@ impl BondForces {
     }
 
     fn add_force(cell: &mut Cell, force: Force) {
-        cell.net_force_mut()
-            .set_net_force_if_stronger(force, "bond");
+        cell.net_force_mut().add_dominant_force(force, "bond");
     }
 
     fn cell1_bond_force(cell1: &Cell, strain1: BondStrain, cell2: &Cell) -> Force {

@@ -165,7 +165,9 @@ impl Cell {
         for (index, layer) in self.layers.iter_mut().enumerate() {
             layer.calculate_automatic_changes(&self.environment, changes, index);
         }
-        self.newtonian_state.net_force_mut().add_force(self.thrust);
+        self.newtonian_state
+            .net_force_mut()
+            .add_force(self.thrust, "thrust");
     }
 
     pub fn calculate_requested_changes(&mut self, changes: &mut CellChanges) {

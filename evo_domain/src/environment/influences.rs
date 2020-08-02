@@ -27,7 +27,8 @@ impl WallCollisions {
     fn add_overlap_and_force(&self, cell: &mut Cell, overlap: Overlap) {
         cell.environment_mut().add_overlap(overlap);
         let force = Self::collision_force(cell.mass(), cell.velocity(), -overlap.incursion());
-        cell.net_force_mut().set_net_force_if_stronger(force);
+        cell.net_force_mut()
+            .set_net_force_if_stronger(force, "wall collision");
     }
 
     fn collision_force(mass: Mass, velocity: Velocity, overlap: Displacement) -> Force {
@@ -69,7 +70,8 @@ impl PairCollisions {
 
     fn add_overlap_and_force(cell: &mut Cell, overlap: Overlap, force: Force) {
         cell.environment_mut().add_overlap(overlap);
-        cell.net_force_mut().set_net_force_if_stronger(force);
+        cell.net_force_mut()
+            .set_net_force_if_stronger(force, "pair collision");
     }
 
     fn cell1_collision_force(cell1: &Cell, overlap1: Overlap, cell2: &Cell) -> Force {
@@ -142,7 +144,8 @@ impl BondForces {
     }
 
     fn add_force(cell: &mut Cell, force: Force) {
-        cell.net_force_mut().set_net_force_if_stronger(force);
+        cell.net_force_mut()
+            .set_net_force_if_stronger(force, "bond");
     }
 
     fn cell1_bond_force(cell1: &Cell, strain1: BondStrain, cell2: &Cell) -> Force {
@@ -220,7 +223,7 @@ impl CrossCellInfluence for BondAngleForces {
         let forces = calc_bond_angle_forces(cell_graph);
         for (handle, force) in forces {
             let cell = cell_graph.node_mut(handle);
-            cell.net_force_mut().add_force(force);
+            cell.net_force_mut().add_force(force, "bond angle");
         }
     }
 }
@@ -242,7 +245,7 @@ impl SimpleForceInfluence {
 impl PerCellInfluence for SimpleForceInfluence {
     fn apply_to(&self, cell: &mut Cell) {
         let force = self.influence_force.calc_force(cell);
-        cell.net_force_mut().add_force(force);
+        cell.net_force_mut().add_force(force, "simple force");
     }
 }
 

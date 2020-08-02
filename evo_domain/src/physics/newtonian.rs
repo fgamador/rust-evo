@@ -11,7 +11,7 @@ pub trait NewtonianBody {
     fn exert_net_force_for_one_tick(&mut self);
 }
 
-#[derive(Clone, Debug, PartialEq)]
+#[derive(Clone, Debug)]
 pub struct NewtonianState {
     pub mass: Mass,
     pub position: Position,
@@ -65,27 +65,37 @@ impl NewtonianBody for NewtonianState {
     }
 }
 
-#[derive(Clone, Copy, Debug, PartialEq)]
+#[derive(Clone, Debug)]
 pub struct NetForce {
     net_force: Force,
+    force_additions: Option<Vec<ForceAddition>>,
 }
 
 impl NetForce {
     pub fn new(initial_x: f64, initial_y: f64) -> NetForce {
         NetForce {
             net_force: Force::new(initial_x, initial_y),
+            force_additions: None,
         }
     }
 
-    pub fn add_force(&mut self, f: Force) {
-        self.net_force += f;
+    pub fn add_force(&mut self, force: Force, label: &'static str) {
+        self.net_force += force;
+
+        if let Some(force_additions) = &mut self.force_additions {
+            force_additions.push(ForceAddition { force, label });
+        }
     }
 
-    pub fn set_net_force_if_stronger(&mut self, f: Force) {
+    pub fn set_net_force_if_stronger(&mut self, force: Force, label: &'static str) {
         self.net_force = Force::new(
-            Self::stronger(f.x(), self.net_force.x()),
-            Self::stronger(f.y(), self.net_force.y()),
+            Self::stronger(force.x(), self.net_force.x()),
+            Self::stronger(force.y(), self.net_force.y()),
         );
+
+        if let Some(force_additions) = &mut self.force_additions {
+            force_additions.push(ForceAddition { force, label });
+        }
     }
 
     fn stronger(lhs: f64, rhs: f64) -> f64 {
@@ -103,6 +113,12 @@ impl NetForce {
     pub fn net_force(&self) -> Force {
         self.net_force
     }
+}
+
+#[derive(Debug, Clone, Copy)]
+pub struct ForceAddition {
+    pub force: Force,
+    pub label: &'static str,
 }
 
 #[cfg(test)]
@@ -137,7 +153,7 @@ mod tests {
     #[test]
     fn net_force() {
         let mut subject = NetForce::new(1.5, -0.5);
-        subject.add_force(Force::new(0.25, -0.5));
+        subject.add_force(Force::new(0.25, -0.5), "test");
         assert_eq!(Force::new(1.75, -1.0), subject.net_force());
     }
 
@@ -155,7 +171,7 @@ mod tests {
             Position::new(1.0, 1.0),
             Velocity::new(1.0, 1.0),
         );
-        ball.state.net_force.add_force(Force::new(1.0, 1.0));
+        ball.state.net_force.add_force(Force::new(1.0, 1.0), "test");
         ball.exert_net_force_for_one_tick();
         assert_eq!(Velocity::new(2.0, 2.0), ball.velocity());
     }

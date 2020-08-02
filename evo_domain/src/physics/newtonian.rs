@@ -115,6 +115,7 @@ impl NetForce {
     }
 
     pub fn clear(&mut self) {
+        self.dominant_force = Force::ZERO;
         self.non_dominant_forces = Force::ZERO;
 
         if let Some(force_additions) = &mut self.force_additions {
@@ -185,6 +186,7 @@ mod tests {
     #[test]
     fn clear_net_force() {
         let mut subject = NetForce::ZERO;
+        subject.add_dominant_force(Force::new(3.5, -1.5), "test");
         subject.add_force(Force::new(1.5, -0.5), "test");
         subject.clear();
         assert_eq!(subject.net_force(), Force::ZERO);

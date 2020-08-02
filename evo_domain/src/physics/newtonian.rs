@@ -25,7 +25,7 @@ impl NewtonianState {
             mass,
             position,
             velocity,
-            net_force: NetForce::new(0.0, 0.0),
+            net_force: NetForce::ZERO,
         }
     }
 }
@@ -72,6 +72,11 @@ pub struct NetForce {
 }
 
 impl NetForce {
+    pub const ZERO: NetForce = NetForce {
+        net_force: Force::ZERO,
+        force_additions: None,
+    };
+
     pub fn new(initial_x: f64, initial_y: f64) -> NetForce {
         NetForce {
             net_force: Force::new(initial_x, initial_y),

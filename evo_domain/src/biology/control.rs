@@ -235,6 +235,17 @@ impl NeuralNetControlBuilder {
         node_index
     }
 
+    pub fn add_hidden_node(
+        &mut self,
+        from_value_weights: &[(VecIndex, Coefficient)],
+        bias: Coefficient,
+    ) -> VecIndex {
+        let node_index = self.next_node_index();
+        self.genome
+            .connect_node(node_index, bias, from_value_weights);
+        node_index
+    }
+
     pub fn add_output_node<F>(
         &mut self,
         from_value_weights: &[(VecIndex, Coefficient)],
@@ -300,7 +311,8 @@ mod tests {
         let mut builder = NeuralNetControlBuilder::new(TransferFn::IDENTITY);
 
         let energy_input_index = builder.add_input_node(|cell_state| cell_state.energy.value());
-        builder.add_output_node(&[(energy_input_index, 10.0)], 2.0, |value| {
+        let adjusted_energy_index = builder.add_hidden_node(&[(energy_input_index, -1.0)], -2.0);
+        builder.add_output_node(&[(adjusted_energy_index, 10.0)], 2.0, |value| {
             CellLayer::resize_request(0, AreaDelta::new(value as f64))
         });
 
@@ -315,7 +327,7 @@ mod tests {
 
         assert_eq!(
             requests,
-            vec![CellLayer::resize_request(0, AreaDelta::new(32.0))]
+            vec![CellLayer::resize_request(0, AreaDelta::new(-48.0))]
         );
     }
 }

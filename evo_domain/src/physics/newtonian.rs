@@ -167,22 +167,22 @@ mod tests {
             Velocity::new(1.0, -1.0),
         );
         subject.kick(Impulse::new(0.5, 0.5));
-        assert_eq!(Position::new(-1.0, 2.0), subject.position());
-        assert_eq!(Velocity::new(1.25, -0.75), subject.velocity());
+        assert_eq!(subject.position(), Position::new(-1.0, 2.0));
+        assert_eq!(subject.velocity(), Velocity::new(1.25, -0.75));
     }
 
     #[test]
     fn net_force() {
         let mut subject = NetForce::new(1.5, -0.5);
         subject.add_force(Force::new(0.25, -0.5), "test");
-        assert_eq!(Force::new(1.75, -1.0), subject.net_force());
+        assert_eq!(subject.net_force(), Force::new(1.75, -1.0));
     }
 
     #[test]
     fn clear_net_force() {
         let mut subject = NetForce::new(1.5, -0.5);
         subject.clear();
-        assert_eq!(Force::new(0.0, 0.0), subject.net_force());
+        assert_eq!(subject.net_force(), Force::new(0.0, 0.0));
     }
 
     #[test]
@@ -194,7 +194,7 @@ mod tests {
         );
         ball.state.net_force.add_force(Force::new(1.0, 1.0), "test");
         ball.exert_net_force_for_one_tick();
-        assert_eq!(Velocity::new(2.0, 2.0), ball.velocity());
+        assert_eq!(ball.velocity(), Velocity::new(2.0, 2.0));
     }
 
     #[derive(NewtonianBody)]

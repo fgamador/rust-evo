@@ -109,30 +109,26 @@ impl CrossCellInfluence for PairCollisions {
 
             let cell1 = cell_graph.node(handle1);
             let cell2 = cell_graph.node(handle2);
-            let force1 = {
-                let cell1_collision_force = Self::body1_elastic_collision_force(
-                    cell1.mass(),
-                    cell2.mass(),
-                    cell1.velocity() - cell2.velocity(),
-                    cell1.position() - cell2.position(),
-                );
-                let cell1_overlap_force =
-                    Self::body1_overlap_force(cell1.mass(), cell2.mass(), overlap1);
-
-                if cell1_overlap_force.value().magnitude()
-                    > cell1_collision_force.value().magnitude()
-                {
-                    cell1_overlap_force
-                } else {
-                    cell1_collision_force
-                }
-            };
+            let cell1_collision_force = Self::body1_elastic_collision_force(
+                cell1.mass(),
+                cell2.mass(),
+                cell1.velocity() - cell2.velocity(),
+                cell1.position() - cell2.position(),
+            );
+            let cell1_overlap_force =
+                Self::body1_overlap_force(cell1.mass(), cell2.mass(), overlap1);
 
             let cell1_net_force = cell_graph.node_mut(handle1).net_force_mut();
-            cell1_net_force.add_dominant_force(force1, "pair collision");
+            cell1_net_force
+                .add_dominant_force(cell1_collision_force, "pair collision reflect velocity");
+            cell1_net_force
+                .add_dominant_force(cell1_overlap_force, "pair collision remove overlap");
 
             let cell2_net_force = cell_graph.node_mut(handle2).net_force_mut();
-            cell2_net_force.add_dominant_force(-force1, "pair collision");
+            cell2_net_force
+                .add_dominant_force(-cell1_collision_force, "pair collision reflect velocity");
+            cell2_net_force
+                .add_dominant_force(-cell1_overlap_force, "pair collision remove overlap");
         }
     }
 }

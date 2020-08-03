@@ -68,39 +68,38 @@ impl NewtonianBody for NewtonianState {
 #[derive(Clone, Debug)]
 pub struct NetForce {
     dominant_force: Force,
+    dominant_force_label: &'static str,
     non_dominant_forces: Force,
-    force_additions: Option<Vec<ForceAddition>>,
+    non_dominant_force_additions: Option<Vec<ForceAddition>>,
 }
 
 impl NetForce {
     pub const ZERO: NetForce = NetForce {
         dominant_force: Force::ZERO,
+        dominant_force_label: "",
         non_dominant_forces: Force::ZERO,
-        force_additions: None,
+        non_dominant_force_additions: None,
     };
 
     pub fn start_recording_force_additions(&mut self) {
-        self.force_additions = Some(vec![]);
+        self.non_dominant_force_additions = Some(vec![]);
     }
 
     pub fn stop_recording_force_additions(&mut self) {
-        self.force_additions = None;
+        self.non_dominant_force_additions = None;
     }
 
     pub fn add_dominant_force(&mut self, force: Force, label: &'static str) {
         if force.value().dot_sqr() > self.dominant_force.value().dot_sqr() {
             self.dominant_force = force;
-        }
-
-        if let Some(force_additions) = &mut self.force_additions {
-            force_additions.push(ForceAddition { force, label });
+            self.dominant_force_label = label;
         }
     }
 
     pub fn add_non_dominant_force(&mut self, force: Force, label: &'static str) {
         self.non_dominant_forces += force;
 
-        if let Some(force_additions) = &mut self.force_additions {
+        if let Some(force_additions) = &mut self.non_dominant_force_additions {
             force_additions.push(ForceAddition { force, label });
         }
     }
@@ -109,7 +108,7 @@ impl NetForce {
         self.dominant_force = Force::ZERO;
         self.non_dominant_forces = Force::ZERO;
 
-        if let Some(force_additions) = &mut self.force_additions {
+        if let Some(force_additions) = &mut self.non_dominant_force_additions {
             force_additions.clear();
         }
     }
@@ -118,8 +117,16 @@ impl NetForce {
         self.dominant_force + self.non_dominant_forces
     }
 
-    pub fn force_additions(&self) -> &Option<Vec<ForceAddition>> {
-        &self.force_additions
+    pub fn dominant_force(&self) -> Force {
+        self.dominant_force
+    }
+
+    pub fn dominant_force_label(&self) -> &'static str {
+        self.dominant_force_label
+    }
+
+    pub fn non_dominant_force_additions(&self) -> &Option<Vec<ForceAddition>> {
+        &self.non_dominant_force_additions
     }
 }
 

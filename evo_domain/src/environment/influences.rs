@@ -130,8 +130,10 @@ impl CrossCellInfluence for PairCollisions {
                 }
             };
 
-            Self::add_force(cell_graph.node_mut(handle1), force1);
-            Self::add_force(cell_graph.node_mut(handle2), -force1);
+            let cell1 = cell_graph.node_mut(handle1);
+            Self::add_force(cell1, force1);
+            let cell2 = cell_graph.node_mut(handle2);
+            Self::add_force(cell2, -force1);
         }
     }
 }

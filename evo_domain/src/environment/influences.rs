@@ -72,11 +72,6 @@ impl PairCollisions {
         cell.environment_mut().add_overlap(overlap);
     }
 
-    fn add_force(cell: &mut Cell, force: Force) {
-        cell.net_force_mut()
-            .add_dominant_force(force, "pair collision");
-    }
-
     // Derived from Wikipedia's "Elastic collision" page, the "angle-free representation"
     // at the end of the two-dimensional collision section. This is the force needed to
     // produce Wikipedia's post-elastic-collision velocity.
@@ -131,9 +126,14 @@ impl CrossCellInfluence for PairCollisions {
             };
 
             let cell1 = cell_graph.node_mut(handle1);
-            Self::add_force(cell1, force1);
+            cell1
+                .net_force_mut()
+                .add_dominant_force(force1, "pair collision");
+
             let cell2 = cell_graph.node_mut(handle2);
-            Self::add_force(cell2, -force1);
+            cell2
+                .net_force_mut()
+                .add_dominant_force(-force1, "pair collision");
         }
     }
 }

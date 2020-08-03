@@ -569,11 +569,13 @@ mod tests {
             Velocity::new(-5.0, 6.0),
         );
 
-        let force1 = PairCollisions::cell1_collision_force(
-            &cell1,
-            Overlap::new(Displacement::new(-1.5, 2.0), 2.0),
-            &cell2,
+        let force1 = PairCollisions::body1_elastic_collision_force(
+            cell1.mass(),
+            cell2.mass(),
+            cell1.velocity() - cell2.velocity(),
+            cell1.position() - cell2.position(),
         );
+
         assert_eq!(force1, Force::new(-23.04, 30.72));
     }
 

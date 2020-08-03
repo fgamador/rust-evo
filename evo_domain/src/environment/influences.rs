@@ -125,15 +125,11 @@ impl CrossCellInfluence for PairCollisions {
                 }
             };
 
-            cell_graph
-                .node_mut(handle1)
-                .net_force_mut()
-                .add_dominant_force(force1, "pair collision");
+            let cell1_net_force = cell_graph.node_mut(handle1).net_force_mut();
+            cell1_net_force.add_dominant_force(force1, "pair collision");
 
-            cell_graph
-                .node_mut(handle2)
-                .net_force_mut()
-                .add_dominant_force(-force1, "pair collision");
+            let cell2_net_force = cell_graph.node_mut(handle2).net_force_mut();
+            cell2_net_force.add_dominant_force(-force1, "pair collision");
         }
     }
 }

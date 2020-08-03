@@ -129,11 +129,10 @@ impl CrossCellInfluence for PairCollisions {
             Self::add_overlap(cell_graph.node_mut(handle1), overlap1);
             Self::add_overlap(cell_graph.node_mut(handle2), overlap2);
 
-            let force1 = Self::cell1_collision_force(
-                cell_graph.node(handle1),
-                overlap1,
-                cell_graph.node(handle2),
-            );
+            let cell1 = cell_graph.node(handle1);
+            let cell2 = cell_graph.node(handle2);
+            let force1 = Self::cell1_collision_force(cell1, overlap1, cell2);
+
             Self::add_force(cell_graph.node_mut(handle1), force1);
             Self::add_force(cell_graph.node_mut(handle2), -force1);
         }

@@ -68,8 +68,11 @@ impl PairCollisions {
         PairCollisions {}
     }
 
-    fn add_overlap_and_force(cell: &mut Cell, overlap: Overlap, force: Force) {
+    fn add_overlap(cell: &mut Cell, overlap: Overlap) {
         cell.environment_mut().add_overlap(overlap);
+    }
+
+    fn add_force(cell: &mut Cell, force: Force) {
         cell.net_force_mut()
             .add_dominant_force(force, "pair collision");
     }
@@ -123,13 +126,16 @@ impl CrossCellInfluence for PairCollisions {
     fn apply_to(&self, cell_graph: &mut SortableGraph<Cell, Bond, AngleGusset>) {
         let overlaps = find_pair_overlaps(cell_graph);
         for ((handle1, overlap1), (handle2, overlap2)) in overlaps {
+            Self::add_overlap(cell_graph.node_mut(handle1), overlap1);
+            Self::add_overlap(cell_graph.node_mut(handle2), overlap2);
+
             let force1 = Self::cell1_collision_force(
                 cell_graph.node(handle1),
                 overlap1,
                 cell_graph.node(handle2),
             );
-            Self::add_overlap_and_force(cell_graph.node_mut(handle1), overlap1, force1);
-            Self::add_overlap_and_force(cell_graph.node_mut(handle2), overlap2, -force1);
+            Self::add_force(cell_graph.node_mut(handle1), force1);
+            Self::add_force(cell_graph.node_mut(handle2), -force1);
         }
     }
 }

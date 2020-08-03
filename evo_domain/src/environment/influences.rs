@@ -110,18 +110,21 @@ impl CrossCellInfluence for PairCollisions {
             let cell1 = cell_graph.node(handle1);
             let cell2 = cell_graph.node(handle2);
             let force1 = {
-                let collision_force = Self::body1_elastic_collision_force(
+                let cell1_collision_force = Self::body1_elastic_collision_force(
                     cell1.mass(),
                     cell2.mass(),
                     cell1.velocity() - cell2.velocity(),
                     cell1.position() - cell2.position(),
                 );
-                let overlap_force = Self::body1_overlap_force(cell1.mass(), cell2.mass(), overlap1);
+                let cell1_overlap_force =
+                    Self::body1_overlap_force(cell1.mass(), cell2.mass(), overlap1);
 
-                if overlap_force.value().magnitude() > collision_force.value().magnitude() {
-                    overlap_force
+                if cell1_overlap_force.value().magnitude()
+                    > cell1_collision_force.value().magnitude()
+                {
+                    cell1_overlap_force
                 } else {
-                    collision_force
+                    cell1_collision_force
                 }
             };
 

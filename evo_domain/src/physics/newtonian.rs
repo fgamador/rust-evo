@@ -67,16 +67,20 @@ impl NewtonianBody for NewtonianState {
 
 #[derive(Clone, Debug)]
 pub struct NetForce {
-    dominant_force: Force,
-    dominant_force_label: &'static str,
+    dominant_x_force: Value1D,
+    dominant_y_force: Value1D,
+    dominant_x_force_label: &'static str,
+    dominant_y_force_label: &'static str,
     non_dominant_forces: Force,
     non_dominant_force_additions: Option<Vec<ForceAddition>>,
 }
 
 impl NetForce {
     pub const ZERO: NetForce = NetForce {
-        dominant_force: Force::ZERO,
-        dominant_force_label: "",
+        dominant_x_force: 0.0,
+        dominant_y_force: 0.0,
+        dominant_x_force_label: "",
+        dominant_y_force_label: "",
         non_dominant_forces: Force::ZERO,
         non_dominant_force_additions: None,
     };
@@ -89,23 +93,19 @@ impl NetForce {
         self.non_dominant_force_additions = None;
     }
 
-    pub fn add_dominant_force(&mut self, force: Force, _label: &'static str) {
+    pub fn add_dominant_force(&mut self, force: Force, label: &'static str) {
         // if force.value().dot_sqr() > self.dominant_force.value().dot_sqr() {
         //     self.dominant_force = force;
         //     self.dominant_force_label = label;
         // }
 
-        self.dominant_force = Force::new(
-            Self::stronger(force.x(), self.dominant_force.x()),
-            Self::stronger(force.y(), self.dominant_force.y()),
-        );
-    }
-
-    fn stronger(lhs: f64, rhs: f64) -> f64 {
-        if lhs.abs() > rhs.abs() {
-            lhs
-        } else {
-            rhs
+        if force.x().abs() > self.dominant_x_force.abs() {
+            self.dominant_x_force = force.x();
+            self.dominant_x_force_label = label;
+        }
+        if force.y().abs() > self.dominant_y_force.abs() {
+            self.dominant_y_force = force.y();
+            self.dominant_y_force_label = label;
         }
     }
 
@@ -118,24 +118,35 @@ impl NetForce {
     }
 
     pub fn clear(&mut self) {
-        self.dominant_force = Force::ZERO;
+        self.dominant_x_force = 0.0;
+        self.dominant_y_force = 0.0;
         self.non_dominant_forces = Force::ZERO;
 
+        self.dominant_x_force_label = "";
+        self.dominant_y_force_label = "";
         if let Some(force_additions) = &mut self.non_dominant_force_additions {
             force_additions.clear();
         }
     }
 
     pub fn net_force(&self) -> Force {
-        self.dominant_force + self.non_dominant_forces
+        Force::new(self.dominant_x_force, self.dominant_y_force) + self.non_dominant_forces
     }
 
-    pub fn dominant_force(&self) -> Force {
-        self.dominant_force
+    pub fn dominant_x_force(&self) -> Value1D {
+        self.dominant_x_force
     }
 
-    pub fn dominant_force_label(&self) -> &'static str {
-        self.dominant_force_label
+    pub fn dominant_y_force(&self) -> Value1D {
+        self.dominant_y_force
+    }
+
+    pub fn dominant_x_force_label(&self) -> &'static str {
+        self.dominant_x_force_label
+    }
+
+    pub fn dominant_y_force_label(&self) -> &'static str {
+        self.dominant_y_force_label
     }
 
     pub fn non_dominant_force_additions(&self) -> &Option<Vec<ForceAddition>> {
@@ -195,12 +206,11 @@ mod tests {
     }
 
     #[test]
-    #[ignore]
-    fn longer_dominant_force_is_retained() {
+    fn stronger_dominant_force_component_is_retained() {
         let mut subject = NetForce::ZERO;
         subject.add_dominant_force(Force::new(4.0, -4.0), "test");
-        subject.add_dominant_force(Force::new(4.5, 0.0), "test");
-        assert_eq!(subject.net_force(), Force::new(4.0, -4.0));
+        subject.add_dominant_force(Force::new(4.5, 3.5), "test");
+        assert_eq!(subject.net_force(), Force::new(4.5, -4.0));
     }
 
     #[test]

@@ -298,9 +298,14 @@ impl Cell {
 
             println!("  net force {}", self.net_force().net_force());
             println!(
-                "    {} {:+.4}",
-                self.net_force().dominant_force_label(),
-                self.net_force().dominant_force(),
+                "    {} x {:.4}",
+                self.net_force().dominant_x_force_label(),
+                self.net_force().dominant_x_force(),
+            );
+            println!(
+                "    {} y {:.4}",
+                self.net_force().dominant_y_force_label(),
+                self.net_force().dominant_y_force(),
             );
             if let Some(force_additions) = &self.net_force().non_dominant_force_additions() {
                 for force_addition in force_additions {

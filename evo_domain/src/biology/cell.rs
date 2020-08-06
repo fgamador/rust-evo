@@ -297,19 +297,25 @@ impl Cell {
             );
 
             println!("  net force {}", self.net_force().net_force());
-            println!(
-                "    {} x {:.4}",
-                self.net_force().dominant_x_force_label(),
-                self.net_force().dominant_x_force(),
-            );
-            println!(
-                "    {} y {:.4}",
-                self.net_force().dominant_y_force_label(),
-                self.net_force().dominant_y_force(),
-            );
+            if self.net_force().dominant_x_force() != 0.0 {
+                println!(
+                    "    {} x {:.4}",
+                    self.net_force().dominant_x_force_label(),
+                    self.net_force().dominant_x_force(),
+                );
+            }
+            if self.net_force().dominant_y_force() != 0.0 {
+                println!(
+                    "    {} y {:.4}",
+                    self.net_force().dominant_y_force_label(),
+                    self.net_force().dominant_y_force(),
+                );
+            }
             if let Some(force_additions) = &self.net_force().non_dominant_force_additions() {
                 for force_addition in force_additions {
-                    println!("    {} {:+.4}", force_addition.label, force_addition.force,);
+                    if force_addition.force != Force::ZERO {
+                        println!("    {} {:+.4}", force_addition.label, force_addition.force,);
+                    }
                 }
             }
 

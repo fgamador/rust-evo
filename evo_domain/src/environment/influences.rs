@@ -72,6 +72,24 @@ impl PairCollisions {
         cell.environment_mut().add_overlap(overlap);
     }
 
+    fn calc_forces(
+        cell_graph: &SortableGraph<Cell, Bond, AngleGusset>,
+        handle1: NodeHandle,
+        handle2: NodeHandle,
+        overlap1: Overlap,
+    ) -> (Force, Force) {
+        let cell1 = cell_graph.node(handle1);
+        let cell2 = cell_graph.node(handle2);
+        let cell1_collision_force = Self::body1_elastic_collision_force(
+            cell1.mass(),
+            cell2.mass(),
+            cell1.velocity() - cell2.velocity(),
+            cell1.position() - cell2.position(),
+        );
+        let cell1_overlap_force = Self::body1_overlap_force(cell1.mass(), cell2.mass(), overlap1);
+        (cell1_collision_force, cell1_overlap_force)
+    }
+
     // Derived from Wikipedia's "Elastic collision" page, the "angle-free representation"
     // at the end of the two-dimensional collision section. This is the force needed to
     // produce Wikipedia's post-elastic-collision velocity.
@@ -118,16 +136,8 @@ impl CrossCellInfluence for PairCollisions {
                 continue;
             }
 
-            let cell1 = cell_graph.node(handle1);
-            let cell2 = cell_graph.node(handle2);
-            let cell1_collision_force = Self::body1_elastic_collision_force(
-                cell1.mass(),
-                cell2.mass(),
-                cell1.velocity() - cell2.velocity(),
-                cell1.position() - cell2.position(),
-            );
-            let cell1_overlap_force =
-                Self::body1_overlap_force(cell1.mass(), cell2.mass(), overlap1);
+            let (cell1_collision_force, cell1_overlap_force) =
+                Self::calc_forces(cell_graph, handle1, handle2, overlap1);
 
             Self::add_forces(
                 cell_graph,

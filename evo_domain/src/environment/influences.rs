@@ -95,6 +95,17 @@ impl PairCollisions {
                 * overlap1.incursion().value(),
         )
     }
+
+    fn add_forces(
+        cell_graph: &mut SortableGraph<Cell, Bond, AngleGusset>,
+        handle: NodeHandle,
+        collision_force: Force,
+        overlap_force: Force,
+    ) {
+        let net_force = cell_graph.node_mut(handle).net_force_mut();
+        net_force.add_dominant_force(collision_force, "pair collision reflect velocity");
+        net_force.add_dominant_force(overlap_force, "pair collision remove overlap");
+    }
 }
 
 impl CrossCellInfluence for PairCollisions {
@@ -118,17 +129,18 @@ impl CrossCellInfluence for PairCollisions {
             let cell1_overlap_force =
                 Self::body1_overlap_force(cell1.mass(), cell2.mass(), overlap1);
 
-            let cell1_net_force = cell_graph.node_mut(handle1).net_force_mut();
-            cell1_net_force
-                .add_dominant_force(cell1_collision_force, "pair collision reflect velocity");
-            cell1_net_force
-                .add_dominant_force(cell1_overlap_force, "pair collision remove overlap");
-
-            let cell2_net_force = cell_graph.node_mut(handle2).net_force_mut();
-            cell2_net_force
-                .add_dominant_force(-cell1_collision_force, "pair collision reflect velocity");
-            cell2_net_force
-                .add_dominant_force(-cell1_overlap_force, "pair collision remove overlap");
+            Self::add_forces(
+                cell_graph,
+                handle1,
+                cell1_collision_force,
+                cell1_overlap_force,
+            );
+            Self::add_forces(
+                cell_graph,
+                handle2,
+                -cell1_collision_force,
+                -cell1_overlap_force,
+            );
         }
     }
 }

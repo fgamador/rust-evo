@@ -164,7 +164,7 @@ impl BondForces {
         BondForces {}
     }
 
-    fn cell1_bond_force(cell1: &Cell, strain1: BondStrain, cell2: &Cell) -> Force {
+    fn cell1_bond_force(cell1: &Cell, cell2: &Cell, strain1: BondStrain) -> Force {
         let velocity_force = Self::body1_stop_velocity_force(
             cell1.mass(),
             cell2.mass(),
@@ -208,7 +208,7 @@ impl CrossCellInfluence for BondForces {
         let strains = calc_bond_strains(cell_graph);
         for ((handle1, strain1), (handle2, _strain2)) in strains {
             let force1 =
-                Self::cell1_bond_force(cell_graph.node(handle1), strain1, cell_graph.node(handle2));
+                Self::cell1_bond_force(cell_graph.node(handle1), cell_graph.node(handle2), strain1);
             Self::add_force(cell_graph.node_mut(handle1), force1);
             Self::add_force(cell_graph.node_mut(handle2), -force1);
         }
@@ -641,7 +641,7 @@ mod tests {
         );
 
         assert_eq!(
-            BondForces::cell1_bond_force(&cell1, strain1, &cell2),
+            BondForces::cell1_bond_force(&cell1, &cell2, strain1),
             Force::new(0.0, 0.0)
         );
     }
@@ -663,7 +663,7 @@ mod tests {
         );
 
         assert_eq!(
-            BondForces::cell1_bond_force(&cell1, strain1, &cell2),
+            BondForces::cell1_bond_force(&cell1, &cell2, strain1),
             Force::new(-2.0, 0.0)
         );
     }
@@ -685,7 +685,7 @@ mod tests {
         );
 
         assert_eq!(
-            BondForces::cell1_bond_force(&cell1, strain1, &cell2),
+            BondForces::cell1_bond_force(&cell1, &cell2, strain1),
             Force::new(2.25, 3.0)
         );
     }

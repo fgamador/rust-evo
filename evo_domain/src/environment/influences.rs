@@ -72,7 +72,7 @@ impl PairCollisions {
         cell.environment_mut().add_overlap(overlap);
     }
 
-    fn calc_forces(
+    fn cell1_forces(
         cell_graph: &SortableGraph<Cell, Bond, AngleGusset>,
         handle1: NodeHandle,
         handle2: NodeHandle,
@@ -121,8 +121,8 @@ impl PairCollisions {
         overlap_force: Force,
     ) {
         let net_force = cell_graph.node_mut(handle).net_force_mut();
-        net_force.add_dominant_force(collision_force, "pair collision reflect velocity");
-        net_force.add_dominant_force(overlap_force, "pair collision remove overlap");
+        net_force.add_dominant_force(collision_force, "pair collision velocity");
+        net_force.add_dominant_force(overlap_force, "pair collision overlap");
     }
 }
 
@@ -138,7 +138,7 @@ impl CrossCellInfluence for PairCollisions {
             }
 
             let (cell1_collision_force, cell1_overlap_force) =
-                Self::calc_forces(cell_graph, handle1, handle2, overlap1);
+                Self::cell1_forces(cell_graph, handle1, handle2, overlap1);
             Self::add_forces(
                 cell_graph,
                 handle1,
@@ -164,24 +164,19 @@ impl BondForces {
         BondForces {}
     }
 
-    fn add_force(cell: &mut Cell, force: Force) {
-        cell.net_force_mut().add_dominant_force(force, "bond");
-    }
-
     fn cell1_bond_force(cell1: &Cell, strain1: BondStrain, cell2: &Cell) -> Force {
-        let velocity_force = Self::body1_clear_velocity_force(
+        let velocity_force = Self::body1_stop_velocity_force(
             cell1.mass(),
             cell2.mass(),
             cell1.velocity(),
             cell2.velocity(),
             cell1.position() - cell2.position(),
         );
-        let strain_force = Self::body1_clear_strain_force(cell1.mass(), cell2.mass(), strain1);
-        //Self::_print_bond_force(&cell1, &cell2, velocity_force, strain_force);
+        let strain_force = Self::body1_undo_strain_force(cell1.mass(), cell2.mass(), strain1);
         velocity_force + strain_force
     }
 
-    fn body1_clear_velocity_force(
+    fn body1_stop_velocity_force(
         mass1: Mass,
         mass2: Mass,
         velocity1: Velocity,
@@ -197,22 +192,14 @@ impl BondForces {
         )
     }
 
-    fn body1_clear_strain_force(mass1: Mass, mass2: Mass, strain1: BondStrain) -> Force {
+    fn body1_undo_strain_force(mass1: Mass, mass2: Mass, strain1: BondStrain) -> Force {
         Force::from(
             (mass1.value() * mass2.value() / (mass1 + mass2).value()) * strain1.strain().value(),
         )
     }
 
-    fn _print_bond_force(cell1: &Cell, cell2: &Cell, velocity_force: Force, strain_force: Force) {
-        if cell1.is_selected() {
-            println!(
-                "Bond {}-{} velocity force: {}, strain force: {}",
-                cell1.node_handle(),
-                cell2.node_handle(),
-                velocity_force,
-                strain_force
-            );
-        }
+    fn add_force(cell: &mut Cell, force: Force) {
+        cell.net_force_mut().add_dominant_force(force, "bond");
     }
 }
 

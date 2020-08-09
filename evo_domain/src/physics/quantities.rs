@@ -41,20 +41,20 @@ impl Value2D {
         Self::new(self.x.min(rhs.x), self.y.min(rhs.y))
     }
 
-    pub fn dot(self, rhs: Self) -> Value1D {
-        (self.x * rhs.x) + (self.y * rhs.y)
+    pub fn length(self) -> Value1D {
+        self.x.hypot(self.y)
     }
 
     pub fn length_squared(self) -> Value1D {
         self.dot(self)
     }
 
-    pub fn project_onto(self, rhs: Self) -> Self {
-        (self.dot(rhs) / rhs.length_squared()) * rhs
+    pub fn dot(self, rhs: Self) -> Value1D {
+        (self.x * rhs.x) + (self.y * rhs.y)
     }
 
-    pub fn length(self) -> Value1D {
-        self.x.hypot(self.y)
+    pub fn project_onto(self, rhs: Self) -> Self {
+        (self.dot(rhs) / rhs.length_squared()) * rhs
     }
 }
 

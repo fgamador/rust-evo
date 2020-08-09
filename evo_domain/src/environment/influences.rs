@@ -546,49 +546,50 @@ mod tests {
 
     #[test]
     fn pair_collision_force_reflects_incoming_velocity() {
-        let cell1 = Cell::ball(
+        let mut cell1 = Cell::ball(
             Length::new(2.0),
             Mass::new(2.0),
             Position::new(-1.5, 2.0),
             Velocity::new(3.0, -4.0),
         );
-        let cell2 = Cell::ball(
+        let mut cell2 = Cell::ball(
             Length::new(3.0),
             Mass::new(6.0),
             Position::new(0.0, 0.0),
             Velocity::new(-5.0, 6.0),
         );
 
-        let force1 = PairCollisions::body1_elastic_collision_force(
-            cell1.mass(),
-            cell2.mass(),
-            cell1.velocity() - cell2.velocity(),
-            cell1.position() - cell2.position(),
+        PairCollisions::add_forces(
+            &mut cell1,
+            &mut cell2,
+            Overlap::new(Displacement::new(1.0, 1.0), 1.0),
         );
 
-        assert_eq!(force1, Force::new(-23.04, 30.72));
+        assert_eq!(cell1.net_force().net_force(), Force::new(-23.04, 30.72));
     }
 
     #[test]
     fn pair_collision_force_undoes_overlap() {
-        let cell1 = Cell::ball(
+        let mut cell1 = Cell::ball(
             Length::new(8.0),
             Mass::new(2.0),
             Position::new(-9.0, 12.0),
             Velocity::new(0.0, 0.0),
         );
-        let cell2 = Cell::ball(
+        let mut cell2 = Cell::ball(
             Length::new(12.0),
             Mass::new(6.0),
             Position::new(0.0, 0.0),
             Velocity::new(0.0, 0.0),
         );
 
-        let force1 = PairCollisions::body1_overlap_force(
-            cell1.mass(),
-            cell2.mass(),
+        PairCollisions::add_forces(
+            &mut cell1,
+            &mut cell2,
             Overlap::new(Displacement::new(-3.0, 4.0), 2.0),
         );
+        let force1 = cell1.net_force().net_force();
+
         assert_eq!(force1, Force::new(-4.5, 6.0));
 
         let velocity1_after = cell1.velocity() + (force1 / cell1.mass()) * Duration::ONE;

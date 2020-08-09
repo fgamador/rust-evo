@@ -555,14 +555,16 @@ mod tests {
         let mut cell2 = Cell::ball(
             Length::new(3.0),
             Mass::new(6.0),
-            Position::new(0.0, 0.0),
+            Position::ORIGIN,
             Velocity::new(-5.0, 6.0),
         );
         let overlap = calc_overlap(&cell1, &cell2).unwrap();
 
         PairCollisions::add_forces(&mut cell1, &mut cell2, overlap);
 
-        assert_eq!(cell1.net_force().net_force(), Force::new(-23.04, 30.72));
+        cell1.tick();
+        cell2.tick();
+        assert_eq!(cell1.velocity(), Velocity::new(-8.52, 11.36));
     }
 
     #[test]

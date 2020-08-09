@@ -650,9 +650,14 @@ mod tests {
         cell1.tick();
         cell2.tick();
         assert_eq!(calc_overlap(&cell1, &cell2), None);
+        assert_eq!(
+            (cell1.center() - cell2.center()).length(),
+            cell1.radius() + cell2.radius()
+        );
     }
 
     #[test]
+    #[ignore]
     fn pair_collision_force_undoes_overlap_of_slowly_separating_cells() {
         let mut cell1 = Cell::ball(
             Length::new(1.0),
@@ -673,6 +678,10 @@ mod tests {
         cell1.tick();
         cell2.tick();
         assert_eq!(calc_overlap(&cell1, &cell2), None);
+        assert_eq!(
+            (cell1.center() - cell2.center()).length(),
+            cell1.radius() + cell2.radius()
+        );
     }
 
     #[test]

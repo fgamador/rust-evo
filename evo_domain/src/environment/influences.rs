@@ -558,12 +558,9 @@ mod tests {
             Position::new(0.0, 0.0),
             Velocity::new(-5.0, 6.0),
         );
+        let overlap = calc_overlap(&cell1, &cell2).unwrap();
 
-        PairCollisions::add_forces(
-            &mut cell1,
-            &mut cell2,
-            Overlap::new(Displacement::new(1.0, 1.0), 1.0),
-        );
+        PairCollisions::add_forces(&mut cell1, &mut cell2, overlap);
 
         assert_eq!(cell1.net_force().net_force(), Force::new(-23.04, 30.72));
     }
@@ -582,12 +579,9 @@ mod tests {
             Position::new(0.0, 0.0),
             Velocity::new(0.0, 0.0),
         );
+        let overlap = calc_overlap(&cell1, &cell2).unwrap();
 
-        PairCollisions::add_forces(
-            &mut cell1,
-            &mut cell2,
-            Overlap::new(Displacement::new(-3.0, 4.0), 2.0),
-        );
+        PairCollisions::add_forces(&mut cell1, &mut cell2, overlap);
         let force1 = cell1.net_force().net_force();
 
         assert_eq!(force1, Force::new(-4.5, 6.0));

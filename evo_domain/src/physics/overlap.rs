@@ -3,8 +3,7 @@ use crate::physics::shapes::*;
 use crate::physics::sortable_graph::*;
 use crate::physics::util::*;
 use std::cmp::Ordering;
-
-// TODO add width to Overlap, or maybe make incursion magnitude an Area (incursion * min(diameter))
+use std::ops::Neg;
 
 #[derive(Clone, Copy, Debug, PartialEq)]
 pub struct Overlap {
@@ -23,6 +22,14 @@ impl Overlap {
 
     pub fn magnitude(&self) -> f64 {
         self.incursion.length().value()
+    }
+}
+
+impl Neg for Overlap {
+    type Output = Overlap;
+
+    fn neg(self) -> Self::Output {
+        Overlap::new(-self.incursion, self.width)
     }
 }
 
@@ -109,12 +116,8 @@ where
                 continue;
             }
 
-            if let Some(incursion) = calc_incursion(circle1, circle2) {
-                let width = circle1.radius().value().min(circle2.radius().value());
-                overlaps.push((
-                    (*handle1, Overlap::new(incursion, width)),
-                    (*handle2, Overlap::new(-incursion, width)),
-                ));
+            if let Some(overlap) = calc_overlap(circle1, circle2) {
+                overlaps.push(((*handle1, overlap), (*handle2, -overlap)));
             }
         }
     }
@@ -126,10 +129,11 @@ fn cmp_by_min_x<C: Circle>(c1: &C, c2: &C) -> Ordering {
     c1.min_x().partial_cmp(&c2.min_x()).unwrap()
 }
 
-fn calc_incursion<C: Circle>(circle1: &C, circle2: &C) -> Option<Displacement> {
+pub fn calc_overlap<C: Circle>(circle1: &C, circle2: &C) -> Option<Overlap> {
     let mut pair = PossibleCirclePairOverlap::new(circle1, circle2);
     if pair.bounding_boxes_overlap() && pair.circles_overlap() {
-        Some(pair.get_incursion())
+        let width = circle1.radius().value().min(circle2.radius().value());
+        Some(Overlap::new(pair.get_incursion(), width))
     } else {
         None
     }
@@ -242,10 +246,10 @@ mod tests {
         let circle1 = SimpleCircleNode::new(Position::new(0.0, 0.0), Length::new(7.0));
         let circle2 = SimpleCircleNode::new(Position::new(6.0, 8.0), Length::new(8.0));
 
-        let incursion = calc_incursion(&circle1, &circle2).unwrap();
+        let overlap = calc_overlap(&circle1, &circle2).unwrap();
 
         // overlap/hypotenuse 5 has legs 3 and 4
-        assert_eq!(incursion, Displacement::new(-3.0, -4.0));
+        assert_eq!(overlap.incursion(), Displacement::new(-3.0, -4.0));
     }
 
     #[test]
@@ -253,10 +257,10 @@ mod tests {
         let circle1 = SimpleCircleNode::new(Position::new(0.0, 0.0), Length::new(1.0));
         let circle2 = SimpleCircleNode::new(Position::new(0.0, 0.0), Length::new(1.0));
 
-        let incursion = calc_incursion(&circle1, &circle2);
+        let overlap = calc_overlap(&circle1, &circle2);
 
         // what else could we do?
-        assert_eq!(incursion, None);
+        assert_eq!(overlap, None);
     }
 
     #[test]
@@ -264,9 +268,9 @@ mod tests {
         let circle1 = SimpleCircleNode::new(Position::new(0.0, 0.0), Length::new(1.0));
         let circle2 = SimpleCircleNode::new(Position::new(1.5, 1.5), Length::new(1.0));
 
-        let incursion = calc_incursion(&circle1, &circle2);
+        let overlap = calc_overlap(&circle1, &circle2);
 
-        assert_eq!(incursion, None);
+        assert_eq!(overlap, None);
     }
 
     #[test]

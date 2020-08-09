@@ -89,7 +89,8 @@ impl PairCollisions {
             Force::ZERO
         };
 
-        let cell1_overlap_force = Self::body1_overlap_force(mass_factor, overlap1, closing_speed);
+        let cell1_overlap_force =
+            Self::body1_undo_overlap_force(mass_factor, overlap1, closing_speed);
 
         Self::update_net_force(cell1, cell1_collision_force, cell1_overlap_force);
         Self::update_net_force(cell2, -cell1_collision_force, -cell1_overlap_force);
@@ -114,7 +115,7 @@ impl PairCollisions {
         )
     }
 
-    fn body1_overlap_force(
+    fn body1_undo_overlap_force(
         mass_factor: Value1D,
         overlap1: Overlap,
         closing_speed: Value1D,

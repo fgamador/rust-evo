@@ -73,39 +73,39 @@ impl PairCollisions {
     }
 
     fn add_forces(cell1: &mut Cell, cell2: &mut Cell, overlap1: Overlap) {
+        let mass_factor = Self::mass_factor(cell1.mass(), cell2.mass());
         let cell1_collision_force = Self::body1_elastic_collision_force(
-            cell1.mass(),
-            cell2.mass(),
+            mass_factor,
             cell1.velocity() - cell2.velocity(),
             cell1.position() - cell2.position(),
         );
-        let cell1_overlap_force = Self::body1_overlap_force(cell1.mass(), cell2.mass(), overlap1);
+        let cell1_overlap_force = Self::body1_overlap_force(mass_factor, overlap1);
         Self::update_net_force(cell1, cell1_collision_force, cell1_overlap_force);
         Self::update_net_force(cell2, -cell1_collision_force, -cell1_overlap_force);
+    }
+
+    fn mass_factor(mass1: Mass, mass2: Mass) -> Value1D {
+        mass1.value() * mass2.value() / (mass1 + mass2).value()
     }
 
     // Derived from Wikipedia's "Elastic collision" page, the "angle-free representation"
     // at the end of the two-dimensional collision section. This is the force needed to
     // produce Wikipedia's post-elastic-collision velocity.
     fn body1_elastic_collision_force(
-        mass1: Mass,
-        mass2: Mass,
+        mass_factor: Value1D,
         relative_velocity1: DeltaV,
         relative_position1: Displacement,
     ) -> Force {
         Force::from(
-            -2.0 * (mass1.value() * mass2.value() / (mass1 + mass2).value())
+            -2.0 * mass_factor
                 * relative_velocity1
                     .value()
                     .project_onto(relative_position1.value()),
         )
     }
 
-    fn body1_overlap_force(mass1: Mass, mass2: Mass, overlap1: Overlap) -> Force {
-        Force::from(
-            (mass1.value() * mass2.value() / (mass1 + mass2).value())
-                * overlap1.incursion().value(),
-        )
+    fn body1_overlap_force(mass_factor: Value1D, overlap1: Overlap) -> Force {
+        Force::from(mass_factor * overlap1.incursion().value())
     }
 
     fn update_net_force(cell: &mut Cell, collision_force: Force, overlap_force: Force) {

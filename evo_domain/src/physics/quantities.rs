@@ -49,12 +49,20 @@ impl Value2D {
         self.dot(self)
     }
 
+    pub fn is_longer_than(self, rhs: Self) -> bool {
+        self.length_squared() > rhs.length_squared()
+    }
+
     pub fn dot(self, rhs: Self) -> Value1D {
         (self.x * rhs.x) + (self.y * rhs.y)
     }
 
     pub fn project_onto(self, rhs: Self) -> Self {
         (self.dot(rhs) / rhs.length_squared()) * rhs
+    }
+
+    pub fn to_unit_vector(self) -> Self {
+        self / self.length()
     }
 }
 

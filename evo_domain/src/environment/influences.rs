@@ -72,6 +72,13 @@ impl PairCollisions {
         cell.environment_mut().add_overlap(overlap);
     }
 
+    fn add_forces(cell1: &mut Cell, cell2: &mut Cell, overlap1: Overlap) {
+        let (cell1_collision_force, cell1_overlap_force) =
+            Self::cell1_forces(cell1, cell2, overlap1);
+        Self::update_net_force(cell1, cell1_collision_force, cell1_overlap_force);
+        Self::update_net_force(cell2, -cell1_collision_force, -cell1_overlap_force);
+    }
+
     fn cell1_forces(cell1: &Cell, cell2: &Cell, overlap1: Overlap) -> (Force, Force) {
         let cell1_collision_force = Self::body1_elastic_collision_force(
             cell1.mass(),
@@ -107,7 +114,7 @@ impl PairCollisions {
         )
     }
 
-    fn add_forces(cell: &mut Cell, collision_force: Force, overlap_force: Force) {
+    fn update_net_force(cell: &mut Cell, collision_force: Force, overlap_force: Force) {
         let net_force = cell.net_force_mut();
         net_force.add_dominant_force(collision_force, "pair collision velocity");
         net_force.add_dominant_force(overlap_force, "pair collision overlap");
@@ -125,18 +132,9 @@ impl CrossCellInfluence for PairCollisions {
                 continue;
             }
 
-            let (cell1_collision_force, cell1_overlap_force) =
-                Self::cell1_forces(cell_graph.node(handle1), cell_graph.node(handle2), overlap1);
-            Self::add_forces(
-                cell_graph.node_mut(handle1),
-                cell1_collision_force,
-                cell1_overlap_force,
-            );
-            Self::add_forces(
-                cell_graph.node_mut(handle2),
-                -cell1_collision_force,
-                -cell1_overlap_force,
-            );
+            cell_graph.with_nodes(handle1, handle2, |cell1, cell2| {
+                Self::add_forces(cell1, cell2, overlap1)
+            });
         }
     }
 }

@@ -234,6 +234,25 @@ impl<N: GraphNode, E: GraphEdge, ME: GraphMetaEdge> SortableGraph<N, E, ME> {
         }
     }
 
+    pub fn with_nodes<F>(&mut self, handle1: NodeHandle, handle2: NodeHandle, mut f: F)
+    where
+        F: FnMut(&mut N, &mut N),
+    {
+        let node1;
+        let node2;
+        if handle1.index() < handle2.index() {
+            let slices = self.nodes.split_at_mut(handle2.index());
+            node1 = &mut slices.0[handle1.index()];
+            node2 = &mut slices.1[0];
+        } else {
+            let slices = self.nodes.split_at_mut(handle1.index());
+            node2 = &mut slices.0[handle2.index()];
+            node1 = &mut slices.1[0];
+        }
+
+        f(node1, node2);
+    }
+
     pub fn node_handles(&self) -> &[NodeHandle] {
         &self.node_handles
     }

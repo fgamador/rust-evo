@@ -75,17 +75,16 @@ impl PairCollisions {
     fn add_forces(cell1: &mut Cell, cell2: &mut Cell, overlap1: Overlap) {
         let mass_factor = Self::mass_factor(cell1.mass(), cell2.mass());
         let relative_velocity1 = cell1.velocity() - cell2.velocity();
-        let relative_position1_unit = (cell1.position() - cell2.position())
-            .value()
-            .to_unit_vector();
+        let relative_position1 = cell1.position() - cell2.position();
+        let relative_position1_unit = relative_position1.value().to_unit_vector();
         let closing_speed = -relative_velocity1.value().dot(relative_position1_unit);
 
         let cell1_overlap_force = Self::body1_overlap_force(mass_factor, overlap1, closing_speed);
 
         let cell1_collision_force = Self::body1_elastic_collision_force(
             mass_factor,
-            cell1.velocity() - cell2.velocity(),
-            cell1.position() - cell2.position(),
+            relative_velocity1,
+            relative_position1,
         );
 
         Self::update_net_force(cell1, cell1_collision_force, cell1_overlap_force);

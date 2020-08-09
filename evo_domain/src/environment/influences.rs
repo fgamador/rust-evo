@@ -570,12 +570,12 @@ mod tests {
 
     #[test]
     fn pair_collision_force_reflects_velocity_angle_for_collision_at_tangent() {
-        let initial_velocity = Velocity::new(3.0, -4.0);
+        let initial_velocity1 = Velocity::new(3.0, -4.0);
         let mut cell1 = Cell::ball(
             Length::new(5.0),
             Mass::new(1.0),
             Position::new(-3.95, 4.0),
-            initial_velocity,
+            initial_velocity1,
         );
         let mut cell2 = Cell::ball(
             Length::new(15.0),
@@ -590,16 +590,43 @@ mod tests {
         cell1.tick();
         assert_eq!(
             cell1.velocity().x().signum(),
-            -initial_velocity.x().signum()
+            -initial_velocity1.x().signum()
         );
         assert_eq!(
             cell1.velocity().y().signum(),
-            -initial_velocity.y().signum()
+            -initial_velocity1.y().signum()
         );
         assert_eq!(
             ((cell1.velocity().y() / cell1.velocity().x()).abs() * 100.0).round(),
-            ((initial_velocity.x() / initial_velocity.y()).abs() * 100.0).round()
+            ((initial_velocity1.x() / initial_velocity1.y()).abs() * 100.0).round()
         );
+    }
+
+    #[test]
+    #[ignore]
+    fn pair_collision_force_is_zero_when_pair_is_separating_quickly() {
+        let initial_velocity1 = Velocity::new(-10.0, 10.0);
+        let initial_velocity2 = Velocity::ZERO;
+        let mut cell1 = Cell::ball(
+            Length::new(1.0),
+            Mass::new(1.0),
+            Position::new(-0.5, 0.5),
+            initial_velocity1,
+        );
+        let mut cell2 = Cell::ball(
+            Length::new(1.0),
+            Mass::new(1.0),
+            Position::ORIGIN,
+            initial_velocity2,
+        );
+        let overlap = calc_overlap(&cell1, &cell2).unwrap();
+
+        PairCollisions::add_forces(&mut cell1, &mut cell2, overlap);
+
+        cell1.tick();
+        assert_eq!(cell1.velocity(), initial_velocity1);
+        cell2.tick();
+        assert_eq!(cell2.velocity(), initial_velocity2);
     }
 
     #[test]
@@ -613,6 +640,29 @@ mod tests {
         let mut cell2 = Cell::ball(
             Length::new(12.0),
             Mass::new(6.0),
+            Position::ORIGIN,
+            Velocity::ZERO,
+        );
+        let overlap = calc_overlap(&cell1, &cell2).unwrap();
+
+        PairCollisions::add_forces(&mut cell1, &mut cell2, overlap);
+
+        cell1.tick();
+        cell2.tick();
+        assert_eq!(calc_overlap(&cell1, &cell2), None);
+    }
+
+    #[test]
+    fn pair_collision_force_undoes_overlap_of_slowly_separating_cells() {
+        let mut cell1 = Cell::ball(
+            Length::new(1.0),
+            Mass::new(1.0),
+            Position::new(0.0, 0.5),
+            Velocity::new(0.0, 0.2),
+        );
+        let mut cell2 = Cell::ball(
+            Length::new(1.0),
+            Mass::new(1.0),
             Position::ORIGIN,
             Velocity::ZERO,
         );

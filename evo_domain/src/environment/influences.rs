@@ -79,13 +79,13 @@ impl PairCollisions {
         let relative_position1_unit = relative_position1.value().to_unit_vector();
         let closing_speed = -relative_velocity1.value().dot(relative_position1_unit);
 
-        let cell1_overlap_force = Self::body1_overlap_force(mass_factor, overlap1, closing_speed);
-
         let cell1_collision_force = Self::body1_elastic_collision_force(
             mass_factor,
             relative_velocity1,
-            relative_position1,
+            relative_position1_unit,
         );
+
+        let cell1_overlap_force = Self::body1_overlap_force(mass_factor, overlap1, closing_speed);
 
         Self::update_net_force(cell1, cell1_collision_force, cell1_overlap_force);
         Self::update_net_force(cell2, -cell1_collision_force, -cell1_overlap_force);
@@ -101,13 +101,12 @@ impl PairCollisions {
     fn body1_elastic_collision_force(
         mass_factor: Value1D,
         relative_velocity1: DeltaV,
-        relative_position1: Displacement,
+        relative_position1_unit: Value2D,
     ) -> Force {
         Force::from(
             -2.0 * mass_factor
-                * relative_velocity1
-                    .value()
-                    .project_onto(relative_position1.value()),
+                * relative_velocity1.value().dot(relative_position1_unit)
+                * relative_position1_unit,
         )
     }
 

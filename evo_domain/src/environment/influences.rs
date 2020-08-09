@@ -545,30 +545,31 @@ mod tests {
     // TODO fn pair_not_in_collision_adds_no_force()
 
     #[test]
-    fn pair_collision_force_reflects_incoming_velocity() {
+    fn pair_collision_force_transfers_momentum_of_matched_balls() {
         let mut cell1 = Cell::ball(
-            Length::new(2.0),
+            Length::new(3.5),
             Mass::new(2.0),
-            Position::new(-1.5, 2.0),
-            Velocity::new(3.0, -4.0),
+            Position::new(-3.0, 4.0),
+            Velocity::new(1.5, -2.0),
         );
         let mut cell2 = Cell::ball(
-            Length::new(3.0),
-            Mass::new(6.0),
+            Length::new(2.0),
+            Mass::new(2.0),
             Position::ORIGIN,
-            Velocity::new(-5.0, 6.0),
+            Velocity::new(0.0, 0.0),
         );
         let overlap = calc_overlap(&cell1, &cell2).unwrap();
 
         PairCollisions::add_forces(&mut cell1, &mut cell2, overlap);
 
         cell1.tick();
+        assert_eq!(cell1.velocity(), Velocity::ZERO);
         cell2.tick();
-        assert_eq!(cell1.velocity(), Velocity::new(-8.52, 11.36));
+        assert_eq!(cell2.velocity(), Velocity::new(1.5, -2.0));
     }
 
     #[test]
-    fn pair_collision_force_undoes_overlap() {
+    fn pair_collision_force_undoes_overlap_of_unmoving_balls() {
         let mut cell1 = Cell::ball(
             Length::new(8.0),
             Mass::new(2.0),

@@ -545,7 +545,7 @@ mod tests {
     // TODO fn pair_not_in_collision_adds_no_force()
 
     #[test]
-    fn pair_collision_force_transfers_momentum_of_matched_balls() {
+    fn pair_collision_force_transfers_momentum_of_matched_cells() {
         let mut cell1 = Cell::ball(
             Length::new(3.5),
             Mass::new(2.0),
@@ -556,7 +556,7 @@ mod tests {
             Length::new(2.0),
             Mass::new(2.0),
             Position::ORIGIN,
-            Velocity::new(0.0, 0.0),
+            Velocity::ZERO,
         );
         let overlap = calc_overlap(&cell1, &cell2).unwrap();
 
@@ -569,18 +569,43 @@ mod tests {
     }
 
     #[test]
-    fn pair_collision_force_undoes_overlap_of_unmoving_balls() {
+    #[ignore]
+    fn pair_collision_force_reflects_velocity_direction() {
+        // touches origin
+        let mut cell1 = Cell::ball(
+            Length::new(5.0),
+            Mass::new(1.0),
+            Position::new(-3.0, 4.0),
+            Velocity::new(3.0, -4.0),
+        );
+        // overlaps origin
+        let mut cell2 = Cell::ball(
+            Length::new(14.2),
+            Mass::new(100.0),
+            Position::new(10.0, -10.0),
+            Velocity::ZERO,
+        );
+        let overlap = calc_overlap(&cell1, &cell2).unwrap();
+
+        PairCollisions::add_forces(&mut cell1, &mut cell2, overlap);
+
+        cell1.tick();
+        assert_eq!(cell1.velocity(), Velocity::ZERO);
+    }
+
+    #[test]
+    fn pair_collision_force_undoes_overlap_of_unmoving_cells() {
         let mut cell1 = Cell::ball(
             Length::new(8.0),
             Mass::new(2.0),
             Position::new(-9.0, 12.0),
-            Velocity::new(0.0, 0.0),
+            Velocity::ZERO,
         );
         let mut cell2 = Cell::ball(
             Length::new(12.0),
             Mass::new(6.0),
-            Position::new(0.0, 0.0),
-            Velocity::new(0.0, 0.0),
+            Position::ORIGIN,
+            Velocity::ZERO,
         );
         let overlap = calc_overlap(&cell1, &cell2).unwrap();
 

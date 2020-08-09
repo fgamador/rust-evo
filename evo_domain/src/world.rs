@@ -31,10 +31,7 @@ impl World {
     pub fn with_standard_influences(self) -> Self {
         self.with_perimeter_walls()
             .with_pair_collisions()
-            .with_cross_cell_influences(vec![
-                Box::new(BondForces::new()),
-                Box::new(BondAngleForces::new()),
-            ])
+            .with_bond_forces()
     }
 
     pub fn with_perimeter_walls(self) -> Self {

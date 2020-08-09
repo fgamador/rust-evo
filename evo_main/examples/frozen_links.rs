@@ -5,18 +5,16 @@ use evo_domain::world::World;
 use evo_main::main_support::init_and_run;
 use std::f64::consts::PI;
 
+// TODO doesn't work yet
+
 fn main() {
     init_and_run(create_world());
 }
 
 fn create_world() -> World {
     World::new(Position::new(-200.0, -200.0), Position::new(200.0, 200.0))
-        .with_perimeter_walls()
-        .with_pair_collisions()
-        .with_cross_cell_influences(vec![
-            Box::new(BondForces::new()),
-            Box::new(BondAngleForces::new()),
-        ])
+        .with_standard_influences()
+        .with_cross_cell_influence(Box::new(BondAngleForces::new()))
         .with_cells(vec![
             Cell::ball(
                 Length::new(20.0),

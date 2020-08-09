@@ -24,7 +24,7 @@ fn create_world() -> World {
     };
 
     World::new(Position::new(0.0, -400.0), Position::new(400.0, 0.0))
-        .with_perimeter_walls()
+        .with_standard_influences()
         .with_sunlight(0.0, 10.0)
         .with_cell(
             Cell::new(

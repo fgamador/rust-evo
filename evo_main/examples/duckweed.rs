@@ -22,8 +22,7 @@ const OVERLAP_DAMAGE_HEALTH_DELTA: f64 = -0.1;
 
 fn create_world() -> World {
     World::new(Position::new(0.0, -400.0), Position::new(1000.0, 0.0))
-        .with_perimeter_walls()
-        .with_pair_collisions()
+        .with_standard_influences()
         .with_sunlight(0.0, 1.0)
         .with_per_cell_influences(vec![
             Box::new(SimpleForceInfluence::new(Box::new(WeightForce::new(

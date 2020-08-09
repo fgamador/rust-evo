@@ -14,7 +14,7 @@ fn main() {
 
 fn create_world() -> World {
     World::new(Position::new(0.0, -400.0), Position::new(400.0, 0.0))
-        .with_perimeter_walls()
+        .with_standard_influences()
         .with_per_cell_influences(vec![Box::new(SimpleForceInfluence::new(Box::new(
             DragForce::new(2.0),
         )))])

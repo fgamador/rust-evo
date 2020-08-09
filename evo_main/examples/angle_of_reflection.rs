@@ -12,22 +12,16 @@ fn create_world() -> World {
         .with_standard_influences()
         .with_cells(vec![
             Cell::ball(
-                Length::new(20.0),
+                Length::new(5.0),
                 Mass::new(1.0),
-                Position::new(-22.0, -22.0),
-                Velocity::new(0.0, 0.0),
+                Position::new(-120.0, 160.0),
+                Velocity::new(1.5, -2.0),
             ),
             Cell::ball(
-                Length::new(20.0),
-                Mass::new(1.0),
-                Position::new(0.0, 0.0),
-                Velocity::new(0.0, 0.0),
-            ),
-            Cell::ball(
-                Length::new(20.0),
-                Mass::new(1.0),
-                Position::new(-22.0, 22.0),
-                Velocity::new(0.0, 0.0),
+                Length::new(14.2),
+                Mass::new(100.0),
+                Position::new(10.0, -10.0),
+                Velocity::ZERO,
             ),
         ])
 }

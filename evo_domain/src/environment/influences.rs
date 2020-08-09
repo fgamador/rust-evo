@@ -569,18 +569,16 @@ mod tests {
     }
 
     #[test]
-    #[ignore]
-    fn pair_collision_force_reflects_velocity_direction() {
-        // touches origin
+    fn pair_collision_force_reflects_velocity_angle_for_collision_at_tangent() {
+        let initial_velocity = Velocity::new(3.0, -4.0);
         let mut cell1 = Cell::ball(
             Length::new(5.0),
             Mass::new(1.0),
-            Position::new(-3.0, 4.0),
-            Velocity::new(3.0, -4.0),
+            Position::new(-3.95, 4.0),
+            initial_velocity,
         );
-        // overlaps origin
         let mut cell2 = Cell::ball(
-            Length::new(14.2),
+            Length::new(15.0),
             Mass::new(100.0),
             Position::new(10.0, -10.0),
             Velocity::ZERO,
@@ -590,7 +588,18 @@ mod tests {
         PairCollisions::add_forces(&mut cell1, &mut cell2, overlap);
 
         cell1.tick();
-        assert_eq!(cell1.velocity(), Velocity::ZERO);
+        assert_eq!(
+            cell1.velocity().x().signum(),
+            -initial_velocity.x().signum()
+        );
+        assert_eq!(
+            cell1.velocity().y().signum(),
+            -initial_velocity.y().signum()
+        );
+        assert_eq!(
+            ((cell1.velocity().y() / cell1.velocity().x()).abs() * 100.0).round(),
+            ((initial_velocity.x() / initial_velocity.y()).abs() * 100.0).round()
+        );
     }
 
     #[test]

@@ -45,15 +45,15 @@ impl Value2D {
         (self.x * rhs.x) + (self.y * rhs.y)
     }
 
-    pub fn dot_sqr(self) -> Value1D {
+    pub fn length_squared(self) -> Value1D {
         self.dot(self)
     }
 
     pub fn project_onto(self, rhs: Self) -> Self {
-        (self.dot(rhs) / rhs.dot_sqr()) * rhs
+        (self.dot(rhs) / rhs.length_squared()) * rhs
     }
 
-    pub fn magnitude(self) -> Value1D {
+    pub fn length(self) -> Value1D {
         self.x.hypot(self.y)
     }
 }

@@ -73,13 +73,6 @@ impl PairCollisions {
     }
 
     fn add_forces(cell1: &mut Cell, cell2: &mut Cell, overlap1: Overlap) {
-        let (cell1_collision_force, cell1_overlap_force) =
-            Self::cell1_forces(cell1, cell2, overlap1);
-        Self::update_net_force(cell1, cell1_collision_force, cell1_overlap_force);
-        Self::update_net_force(cell2, -cell1_collision_force, -cell1_overlap_force);
-    }
-
-    fn cell1_forces(cell1: &Cell, cell2: &Cell, overlap1: Overlap) -> (Force, Force) {
         let cell1_collision_force = Self::body1_elastic_collision_force(
             cell1.mass(),
             cell2.mass(),
@@ -87,7 +80,8 @@ impl PairCollisions {
             cell1.position() - cell2.position(),
         );
         let cell1_overlap_force = Self::body1_overlap_force(cell1.mass(), cell2.mass(), overlap1);
-        (cell1_collision_force, cell1_overlap_force)
+        Self::update_net_force(cell1, cell1_collision_force, cell1_overlap_force);
+        Self::update_net_force(cell2, -cell1_collision_force, -cell1_overlap_force);
     }
 
     // Derived from Wikipedia's "Elastic collision" page, the "angle-free representation"

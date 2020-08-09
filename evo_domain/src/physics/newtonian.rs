@@ -94,7 +94,7 @@ impl NetForce {
     }
 
     pub fn add_dominant_force(&mut self, force: Force, label: &'static str) {
-        // if force.value().dot_sqr() > self.dominant_force.value().dot_sqr() {
+        // if force.value().is_longer_than(self.dominant_force.value()) {
         //     self.dominant_force = force;
         //     self.dominant_force_label = label;
         // }

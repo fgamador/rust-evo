@@ -582,19 +582,10 @@ mod tests {
         let overlap = calc_overlap(&cell1, &cell2).unwrap();
 
         PairCollisions::add_forces(&mut cell1, &mut cell2, overlap);
-        let force1 = cell1.net_force().net_force();
 
-        assert_eq!(force1, Force::new(-4.5, 6.0));
-
-        let velocity1_after = cell1.velocity() + (force1 / cell1.mass()) * Duration::ONE;
-        let position1_after = cell1.position() + velocity1_after * Duration::ONE;
-        let velocity2_after = cell2.velocity() + (-force1 / cell2.mass()) * Duration::ONE;
-        let position2_after = cell2.position() + velocity2_after * Duration::ONE;
-        let relative_position1_after = position1_after - position2_after;
-        assert_eq!(
-            relative_position1_after.length(),
-            cell1.radius() + cell2.radius()
-        );
+        cell1.tick();
+        cell2.tick();
+        assert_eq!(calc_overlap(&cell1, &cell2), None);
     }
 
     #[test]

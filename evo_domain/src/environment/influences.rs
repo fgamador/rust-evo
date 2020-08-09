@@ -649,11 +649,7 @@ mod tests {
 
         cell1.tick();
         cell2.tick();
-        assert_eq!(calc_overlap(&cell1, &cell2), None);
-        assert_eq!(
-            (cell1.center() - cell2.center()).length(),
-            cell1.radius() + cell2.radius()
-        );
+        assert_just_touching(&cell1, &cell2);
     }
 
     #[test]
@@ -677,11 +673,7 @@ mod tests {
 
         cell1.tick();
         cell2.tick();
-        assert_eq!(calc_overlap(&cell1, &cell2), None);
-        assert_eq!(
-            (cell1.center() - cell2.center()).length(),
-            cell1.radius() + cell2.radius()
-        );
+        assert_just_touching(&cell1, &cell2);
     }
 
     #[test]
@@ -921,5 +913,12 @@ mod tests {
             Color::Green,
             Box::new(NullCellLayerSpecialty::new()),
         )
+    }
+
+    fn assert_just_touching(cell1: &Cell, cell2: &Cell) {
+        assert_eq!(
+            (cell1.center() - cell2.center()).length(),
+            cell1.radius() + cell2.radius()
+        );
     }
 }

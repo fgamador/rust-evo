@@ -74,12 +74,20 @@ impl PairCollisions {
 
     fn add_forces(cell1: &mut Cell, cell2: &mut Cell, overlap1: Overlap) {
         let mass_factor = Self::mass_factor(cell1.mass(), cell2.mass());
+        let relative_velocity1 = cell1.velocity() - cell2.velocity();
+        let relative_position1_unit = (cell1.position() - cell2.position())
+            .value()
+            .to_unit_vector();
+        let closing_speed = -relative_velocity1.value().dot(relative_position1_unit);
+
+        let cell1_overlap_force = Self::body1_overlap_force(mass_factor, overlap1, closing_speed);
+
         let cell1_collision_force = Self::body1_elastic_collision_force(
             mass_factor,
             cell1.velocity() - cell2.velocity(),
             cell1.position() - cell2.position(),
         );
-        let cell1_overlap_force = Self::body1_overlap_force(mass_factor, overlap1);
+
         Self::update_net_force(cell1, cell1_collision_force, cell1_overlap_force);
         Self::update_net_force(cell2, -cell1_collision_force, -cell1_overlap_force);
     }
@@ -104,8 +112,14 @@ impl PairCollisions {
         )
     }
 
-    fn body1_overlap_force(mass_factor: Value1D, overlap1: Overlap) -> Force {
-        Force::from(mass_factor * overlap1.incursion().value())
+    fn body1_overlap_force(
+        mass_factor: Value1D,
+        overlap1: Overlap,
+        closing_speed: Value1D,
+    ) -> Force {
+        let incursion = overlap1.incursion().value();
+        let needed_velocity = incursion + closing_speed * incursion.to_unit_vector();
+        Force::from(mass_factor * needed_velocity)
     }
 
     fn update_net_force(cell: &mut Cell, collision_force: Force, overlap_force: Force) {
@@ -653,7 +667,6 @@ mod tests {
     }
 
     #[test]
-    #[ignore]
     fn pair_collision_force_undoes_overlap_of_slowly_separating_cells() {
         let mut cell1 = Cell::ball(
             Length::new(1.0),

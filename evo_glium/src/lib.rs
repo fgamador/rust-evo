@@ -37,7 +37,7 @@ impl GliumView {
                 (world_max_corner[1] - world_min_corner[1]) as f64,
             ),
             Self::get_screen_size(events_loop.get_primary_monitor()),
-            0.75,
+            0.9,
         ));
         let context = glutin::ContextBuilder::new().with_vsync(true);
         // .with_multisampling(4); TODO apparently does nothing

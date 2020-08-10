@@ -12,6 +12,8 @@ fn main() {
     init_and_run(create_world());
 }
 
+const SEED: u64 = 0;
+
 const FLUID_DENSITY: f64 = 0.001;
 const FLOAT_LAYER_DENSITY: f64 = 0.0001;
 const PHOTO_LAYER_DENSITY: f64 = 0.002;
@@ -24,7 +26,7 @@ const PHOTO_LAYER_INDEX: usize = 1;
 const BONDING_LAYER_INDEX: usize = 2;
 
 fn create_world() -> World {
-    World::new(Position::new(0.0, -400.0), Position::new(400.0, 0.0))
+    World::new(Position::new(0.0, -400.0), Position::new(1200.0, 0.0))
         .with_standard_influences()
         .with_sunlight(0.0, 1.0)
         .with_per_cell_influences(vec![
@@ -61,7 +63,7 @@ fn create_cell() -> Cell {
         ],
     )
     .with_control(Box::new(create_control(SeededMutationRandomness::new(
-        0,
+        SEED,
         &SOME_MUTATION,
     ))))
 }

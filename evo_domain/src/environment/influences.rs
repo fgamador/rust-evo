@@ -164,25 +164,9 @@ impl BondForces {
     }
 
     fn add_forces(cell1: &mut Cell, cell2: &mut Cell, strain1: BondStrain) {
-        // let force1 =
-        //     Self::_cell1_bond_force(cell_graph.node(handle1), cell_graph.node(handle2), strain1);
-        // Self::add_force(cell_graph.node_mut(handle1), force1);
-        // Self::add_force(cell_graph.node_mut(handle2), -force1);
         let (cell1_velocity_force, cell1_strain_force) = Self::cell1_forces(cell1, cell2, strain1);
         Self::update_net_force(cell1, cell1_velocity_force, cell1_strain_force);
         Self::update_net_force(cell2, -cell1_velocity_force, -cell1_strain_force);
-    }
-
-    fn _cell1_bond_force(cell1: &Cell, cell2: &Cell, strain1: BondStrain) -> Force {
-        let velocity_force = Self::body1_stop_velocity_force(
-            cell1.mass(),
-            cell2.mass(),
-            cell1.velocity(),
-            cell2.velocity(),
-            cell1.position() - cell2.position(),
-        );
-        let strain_force = Self::body1_undo_strain_force(cell1.mass(), cell2.mass(), strain1);
-        velocity_force + strain_force
     }
 
     fn cell1_forces(cell1: &Cell, cell2: &Cell, strain1: BondStrain) -> (Force, Force) {
@@ -724,68 +708,73 @@ mod tests {
 
     #[test]
     fn bond_with_no_velocity_and_no_strain_adds_no_force() {
-        let cell1 = Cell::ball(
+        let mut cell1 = Cell::ball(
             Length::new(1.0),
             Mass::new(1.0),
             Position::new(-0.5, 0.0),
             Velocity::ZERO,
         );
-        let strain1 = BondStrain::new(Displacement::new(0.0, 0.0));
-        let cell2 = Cell::ball(
+        let mut cell2 = Cell::ball(
             Length::new(1.0),
             Mass::new(1.0),
             Position::new(0.5, 0.0),
             Velocity::ZERO,
         );
+        let strain1 = BondStrain::new(Displacement::ZERO);
 
-        assert_eq!(
-            BondForces::_cell1_bond_force(&cell1, &cell2, strain1),
-            Force::new(0.0, 0.0)
-        );
+        BondForces::add_forces(&mut cell1, &mut cell2, strain1);
+
+        cell1.tick();
+        assert_eq!(cell1.velocity(), Velocity::ZERO);
+        cell2.tick();
+        assert_eq!(cell2.velocity(), Velocity::ZERO);
     }
 
     #[test]
     fn bond_clears_velocity_component_aligned_with_bond() {
-        let cell1 = Cell::ball(
+        let mut cell1 = Cell::ball(
             Length::new(1.0),
             Mass::new(2.0),
             Position::new(-0.5, 0.0),
             Velocity::new(1.5, -0.5),
         );
-        let strain1 = BondStrain::new(Displacement::new(0.0, 0.0));
-        let cell2 = Cell::ball(
+        let mut cell2 = Cell::ball(
             Length::new(1.0),
             Mass::new(4.0),
             Position::new(0.5, 0.0),
-            Velocity::new(0.0, 0.0),
+            Velocity::ZERO,
         );
+        let strain1 = BondStrain::new(Displacement::ZERO);
 
-        assert_eq!(
-            BondForces::_cell1_bond_force(&cell1, &cell2, strain1),
-            Force::new(-2.0, 0.0)
-        );
+        BondForces::add_forces(&mut cell1, &mut cell2, strain1);
+
+        cell1.tick();
+        cell2.tick();
+        assert_eq!(cell1.velocity().x() - cell2.velocity().x(), 0.0);
     }
 
     #[test]
+    #[ignore]
     fn bond_clears_strain() {
-        let cell1 = Cell::ball(
+        let mut cell1 = Cell::ball(
             Length::new(1.0),
             Mass::new(2.0),
             Position::new(-0.5, 0.0),
             Velocity::ZERO,
         );
-        let strain1 = BondStrain::new(Displacement::new(1.5, 2.0));
-        let cell2 = Cell::ball(
+        let mut cell2 = Cell::ball(
             Length::new(1.0),
             Mass::new(6.0),
             Position::new(0.5, 0.0),
             Velocity::ZERO,
         );
+        let strain1 = BondStrain::new(Displacement::new(1.5, 2.0));
 
-        assert_eq!(
-            BondForces::_cell1_bond_force(&cell1, &cell2, strain1),
-            Force::new(2.25, 3.0)
-        );
+        BondForces::add_forces(&mut cell1, &mut cell2, strain1);
+
+        cell1.tick();
+        cell2.tick();
+        assert_just_touching(&cell1, &cell2);
     }
 
     #[test]

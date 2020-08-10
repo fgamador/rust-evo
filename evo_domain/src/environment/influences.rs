@@ -203,10 +203,6 @@ impl BondForces {
         )
     }
 
-    fn _add_force(cell: &mut Cell, force: Force) {
-        cell.net_force_mut().add_dominant_force(force, "bond");
-    }
-
     fn update_net_force(cell: &mut Cell, velocity_force: Force, strain_force: Force) {
         let net_force = cell.net_force_mut();
         net_force.add_dominant_force(velocity_force, "pair bond velocity");

@@ -148,7 +148,7 @@ impl CrossCellInfluence for PairCollisions {
             }
 
             cell_graph.with_nodes(handle1, handle2, |cell1, cell2| {
-                Self::add_forces(cell1, cell2, overlap1)
+                Self::add_forces(cell1, cell2, overlap1);
             });
         }
     }
@@ -161,6 +161,16 @@ impl BondForces {
     #[allow(clippy::new_without_default)]
     pub fn new() -> Self {
         BondForces {}
+    }
+
+    fn add_forces(cell1: &mut Cell, cell2: &mut Cell, strain1: BondStrain) {
+        // let force1 =
+        //     Self::_cell1_bond_force(cell_graph.node(handle1), cell_graph.node(handle2), strain1);
+        // Self::add_force(cell_graph.node_mut(handle1), force1);
+        // Self::add_force(cell_graph.node_mut(handle2), -force1);
+        let (cell1_velocity_force, cell1_strain_force) = Self::cell1_forces(cell1, cell2, strain1);
+        Self::update_net_force(cell1, cell1_velocity_force, cell1_strain_force);
+        Self::update_net_force(cell2, -cell1_velocity_force, -cell1_strain_force);
     }
 
     fn _cell1_bond_force(cell1: &Cell, cell2: &Cell, strain1: BondStrain) -> Force {
@@ -213,7 +223,7 @@ impl BondForces {
         cell.net_force_mut().add_dominant_force(force, "bond");
     }
 
-    fn add_forces(cell: &mut Cell, velocity_force: Force, strain_force: Force) {
+    fn update_net_force(cell: &mut Cell, velocity_force: Force, strain_force: Force) {
         let net_force = cell.net_force_mut();
         net_force.add_dominant_force(velocity_force, "pair bond velocity");
         net_force.add_dominant_force(strain_force, "pair bond strain");
@@ -224,22 +234,9 @@ impl CrossCellInfluence for BondForces {
     fn apply_to(&self, cell_graph: &mut SortableGraph<Cell, Bond, AngleGusset>) {
         let strains = calc_bond_strains(cell_graph);
         for ((handle1, strain1), (handle2, _strain2)) in strains {
-            // let force1 =
-            //     Self::cell1_bond_force(cell_graph.node(handle1), cell_graph.node(handle2), strain1);
-            // Self::add_force(cell_graph.node_mut(handle1), force1);
-            // Self::add_force(cell_graph.node_mut(handle2), -force1);
-            let (cell1_velocity_force, cell1_strain_force) =
-                Self::cell1_forces(cell_graph.node(handle1), cell_graph.node(handle2), strain1);
-            Self::add_forces(
-                cell_graph.node_mut(handle1),
-                cell1_velocity_force,
-                cell1_strain_force,
-            );
-            Self::add_forces(
-                cell_graph.node_mut(handle2),
-                -cell1_velocity_force,
-                -cell1_strain_force,
-            );
+            cell_graph.with_nodes(handle1, handle2, |cell1, cell2| {
+                Self::add_forces(cell1, cell2, strain1);
+            });
         }
     }
 }

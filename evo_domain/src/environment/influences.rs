@@ -707,7 +707,7 @@ mod tests {
         let mut cell1 = Cell::ball(
             Length::new(1.0),
             Mass::new(1.0),
-            Position::new(-1.0, 0.0),
+            Position::new(-2.0, 0.0),
             Velocity::ZERO,
         );
         let mut cell2 = Cell::ball(
@@ -761,6 +761,30 @@ mod tests {
         let mut cell2 = Cell::ball(
             Length::new(1.0),
             Mass::new(6.0),
+            Position::ORIGIN,
+            Velocity::ZERO,
+        );
+        let strain1 = BondStrain::new(Displacement::new(1.5, 2.0));
+
+        BondForces::add_forces(&mut cell1, &mut cell2, strain1);
+
+        cell1.tick();
+        cell2.tick();
+        assert_just_touching(&cell1, &cell2);
+    }
+
+    #[test]
+    #[ignore]
+    fn bond_clears_strain_even_with_distant_fast_cell() {
+        let mut cell1 = Cell::ball(
+            Length::new(1.0),
+            Mass::new(1.0),
+            Position::new(-10.0, 0.0),
+            Velocity::new(-10.0, 0.0),
+        );
+        let mut cell2 = Cell::ball(
+            Length::new(5.0),
+            Mass::new(10.0),
             Position::ORIGIN,
             Velocity::ZERO,
         );

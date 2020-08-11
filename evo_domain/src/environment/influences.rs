@@ -755,7 +755,7 @@ mod tests {
         let mut cell1 = Cell::ball(
             Length::new(1.0),
             Mass::new(2.0),
-            Position::new(-1.0, 0.0),
+            Position::new(-3.5, 4.0),
             Velocity::ZERO,
         );
         let mut cell2 = Cell::ball(
@@ -764,8 +764,7 @@ mod tests {
             Position::ORIGIN,
             Velocity::ZERO,
         );
-        // let strain1 = calc_bond_strain(&cell1, &cell2);
-        let strain1 = BondStrain::new(Displacement::new(1.5, 2.0));
+        let strain1 = calc_bond_strain(&cell1, &cell2);
 
         BondForces::add_forces(&mut cell1, &mut cell2, strain1);
 

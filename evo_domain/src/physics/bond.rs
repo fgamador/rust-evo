@@ -5,6 +5,7 @@ use crate::physics::util::*;
 use evo_domain_derive::*;
 use std::f64;
 use std::f64::consts::PI;
+use std::ops::Neg;
 
 #[derive(Clone, Debug, GraphEdge, PartialEq)]
 pub struct Bond {
@@ -39,6 +40,14 @@ impl BondStrain {
     }
 }
 
+impl Neg for BondStrain {
+    type Output = BondStrain;
+
+    fn neg(self) -> Self::Output {
+        BondStrain::new(-self.strain)
+    }
+}
+
 pub fn calc_bond_strains<C>(
     graph: &SortableGraph<C, Bond, AngleGusset>,
 ) -> Vec<((NodeHandle, BondStrain), (NodeHandle, BondStrain))>
@@ -53,14 +62,14 @@ where
 
         let strain = calc_bond_strain(circle1, circle2);
         strains.push((
-            (circle1.node_handle(), BondStrain::new(strain)),
-            (circle2.node_handle(), BondStrain::new(-strain)),
+            (circle1.node_handle(), strain),
+            (circle2.node_handle(), -strain),
         ));
     }
     strains
 }
 
-fn calc_bond_strain<C>(circle1: &C, circle2: &C) -> Displacement
+pub fn calc_bond_strain<C>(circle1: &C, circle2: &C) -> BondStrain
 where
     C: Circle,
 {
@@ -69,13 +78,13 @@ where
     let just_touching_center_sep = circle1.radius().value() + circle2.radius().value();
     let center_sep = (sqr(x_offset) + sqr(y_offset)).sqrt();
     if center_sep == 0.0 {
-        return Displacement::new(0.0, 0.0);
+        return BondStrain::new(Displacement::new(0.0, 0.0));
     }
 
     let overlap_mag = just_touching_center_sep - center_sep;
     let x_strain = (x_offset / center_sep) * overlap_mag;
     let y_strain = (y_offset / center_sep) * overlap_mag;
-    Displacement::new(x_strain, y_strain)
+    BondStrain::new(Displacement::new(x_strain, y_strain))
 }
 
 #[derive(Clone, Debug, GraphMetaEdge, PartialEq)]
@@ -198,7 +207,7 @@ mod tests {
         let strain = calc_bond_strain(&circle1, &circle2);
 
         // strain/hypotenuse 5 has legs 3 and 4
-        assert_eq!(Displacement::new(3.0, 4.0), strain);
+        assert_eq!(Displacement::new(3.0, 4.0), strain.strain());
     }
 
     #[test]
@@ -209,7 +218,7 @@ mod tests {
         let strain = calc_bond_strain(&circle1, &circle2);
 
         // what else could we do?
-        assert_eq!(Displacement::new(0.0, 0.0), strain);
+        assert_eq!(Displacement::new(0.0, 0.0), strain.strain());
     }
 
     #[test]

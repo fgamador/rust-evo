@@ -145,9 +145,9 @@ impl BondDrawing {
 
         float alpha_factor(in float offset_from_end1, in float radius1, in float radius2, in float bond_length) {
             if (offset_from_end1 < radius1) {
-                return offset_from_end1 / radius1;
+                return (offset_from_end1 / radius1) * 2.0 - 1.0;
             } else if (bond_length - offset_from_end1 < radius2) {
-                return (bond_length - offset_from_end1) / radius2;
+                return ((bond_length - offset_from_end1) / radius2) * 2.0 - 1.0;
             } else {
                 return 1.0;
             }

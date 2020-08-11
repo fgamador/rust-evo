@@ -716,7 +716,7 @@ mod tests {
             Position::ORIGIN,
             Velocity::ZERO,
         );
-        let strain1 = BondStrain::new(Displacement::ZERO);
+        let strain1 = calc_bond_strain(&cell1, &cell2);
 
         BondForces::add_forces(&mut cell1, &mut cell2, strain1);
 
@@ -740,7 +740,7 @@ mod tests {
             Position::ORIGIN,
             Velocity::ZERO,
         );
-        let strain1 = BondStrain::new(Displacement::ZERO);
+        let strain1 = calc_bond_strain(&cell1, &cell2);
 
         BondForces::add_forces(&mut cell1, &mut cell2, strain1);
 
@@ -764,6 +764,7 @@ mod tests {
             Position::ORIGIN,
             Velocity::ZERO,
         );
+        // let strain1 = calc_bond_strain(&cell1, &cell2);
         let strain1 = BondStrain::new(Displacement::new(1.5, 2.0));
 
         BondForces::add_forces(&mut cell1, &mut cell2, strain1);
@@ -788,6 +789,7 @@ mod tests {
             Position::ORIGIN,
             Velocity::ZERO,
         );
+        // let strain1 = calc_bond_strain(&cell1, &cell2);
         let strain1 = BondStrain::new(Displacement::new(1.5, 2.0));
 
         BondForces::add_forces(&mut cell1, &mut cell2, strain1);

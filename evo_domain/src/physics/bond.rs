@@ -1,7 +1,6 @@
 use crate::physics::quantities::*;
 use crate::physics::shapes::*;
 use crate::physics::sortable_graph::*;
-use crate::physics::util::*;
 use evo_domain_derive::*;
 use std::f64;
 use std::f64::consts::PI;
@@ -73,18 +72,16 @@ pub fn calc_bond_strain<C>(circle1: &C, circle2: &C) -> BondStrain
 where
     C: Circle,
 {
-    let x_offset = circle1.center().x() - circle2.center().x();
-    let y_offset = circle1.center().y() - circle2.center().y();
-    let just_touching_center_sep = circle1.radius().value() + circle2.radius().value();
-    let center_sep = (sqr(x_offset) + sqr(y_offset)).sqrt();
-    if center_sep == 0.0 {
-        return BondStrain::new(Displacement::new(0.0, 0.0));
+    let center_offset = circle1.center() - circle2.center();
+    let just_touching_center_sep = circle1.radius() + circle2.radius();
+    let center_sep = center_offset.length();
+    if center_sep == Length::ZERO {
+        return BondStrain::new(Displacement::ZERO);
     }
 
-    let overlap_mag = just_touching_center_sep - center_sep;
-    let x_strain = (x_offset / center_sep) * overlap_mag;
-    let y_strain = (y_offset / center_sep) * overlap_mag;
-    BondStrain::new(Displacement::new(x_strain, y_strain))
+    let overlap_mag = just_touching_center_sep.value() - center_sep.value();
+    let strain = (center_offset.value() / center_sep.value()) * overlap_mag;
+    BondStrain::new(strain.into())
 }
 
 #[derive(Clone, Debug, GraphMetaEdge, PartialEq)]

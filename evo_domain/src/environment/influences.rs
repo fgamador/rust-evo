@@ -556,9 +556,9 @@ mod tests {
             Position::ORIGIN,
             Velocity::ZERO,
         );
-        let overlap = calc_overlap(&cell1, &cell2).unwrap();
+        let overlap1 = calc_overlap(&cell1, &cell2).unwrap();
 
-        PairCollisions::add_forces(&mut cell1, &mut cell2, overlap);
+        PairCollisions::add_forces(&mut cell1, &mut cell2, overlap1);
 
         cell1.tick();
         assert_eq!(cell1.velocity(), Velocity::ZERO);
@@ -581,9 +581,9 @@ mod tests {
             Position::new(10.0, -10.0),
             Velocity::ZERO,
         );
-        let overlap = calc_overlap(&cell1, &cell2).unwrap();
+        let overlap1 = calc_overlap(&cell1, &cell2).unwrap();
 
-        PairCollisions::add_forces(&mut cell1, &mut cell2, overlap);
+        PairCollisions::add_forces(&mut cell1, &mut cell2, overlap1);
 
         cell1.tick();
         assert_eq!(
@@ -616,9 +616,9 @@ mod tests {
             Position::ORIGIN,
             initial_velocity2,
         );
-        let overlap = calc_overlap(&cell1, &cell2).unwrap();
+        let overlap1 = calc_overlap(&cell1, &cell2).unwrap();
 
-        PairCollisions::add_forces(&mut cell1, &mut cell2, overlap);
+        PairCollisions::add_forces(&mut cell1, &mut cell2, overlap1);
 
         cell1.tick();
         assert_eq!(cell1.velocity(), initial_velocity1);
@@ -640,9 +640,9 @@ mod tests {
             Position::ORIGIN,
             Velocity::ZERO,
         );
-        let overlap = calc_overlap(&cell1, &cell2).unwrap();
+        let overlap1 = calc_overlap(&cell1, &cell2).unwrap();
 
-        PairCollisions::add_forces(&mut cell1, &mut cell2, overlap);
+        PairCollisions::add_forces(&mut cell1, &mut cell2, overlap1);
 
         cell1.tick();
         cell2.tick();
@@ -663,9 +663,9 @@ mod tests {
             Position::ORIGIN,
             Velocity::ZERO,
         );
-        let overlap = calc_overlap(&cell1, &cell2).unwrap();
+        let overlap1 = calc_overlap(&cell1, &cell2).unwrap();
 
-        PairCollisions::add_forces(&mut cell1, &mut cell2, overlap);
+        PairCollisions::add_forces(&mut cell1, &mut cell2, overlap1);
 
         cell1.tick();
         cell2.tick();
@@ -707,13 +707,13 @@ mod tests {
         let mut cell1 = Cell::ball(
             Length::new(1.0),
             Mass::new(1.0),
-            Position::new(-0.5, 0.0),
+            Position::new(-1.0, 0.0),
             Velocity::ZERO,
         );
         let mut cell2 = Cell::ball(
             Length::new(1.0),
             Mass::new(1.0),
-            Position::new(0.5, 0.0),
+            Position::ORIGIN,
             Velocity::ZERO,
         );
         let strain1 = BondStrain::new(Displacement::ZERO);
@@ -731,13 +731,13 @@ mod tests {
         let mut cell1 = Cell::ball(
             Length::new(1.0),
             Mass::new(2.0),
-            Position::new(-0.5, 0.0),
+            Position::new(-1.0, 0.0),
             Velocity::new(1.5, -0.5),
         );
         let mut cell2 = Cell::ball(
             Length::new(1.0),
             Mass::new(4.0),
-            Position::new(0.5, 0.0),
+            Position::ORIGIN,
             Velocity::ZERO,
         );
         let strain1 = BondStrain::new(Displacement::ZERO);
@@ -746,7 +746,7 @@ mod tests {
 
         cell1.tick();
         cell2.tick();
-        assert_eq!(cell1.velocity().x() - cell2.velocity().x(), 0.0);
+        assert_eq!(cell1.velocity().x(), cell2.velocity().x());
     }
 
     #[test]
@@ -755,13 +755,13 @@ mod tests {
         let mut cell1 = Cell::ball(
             Length::new(1.0),
             Mass::new(2.0),
-            Position::new(-0.5, 0.0),
+            Position::new(-1.0, 0.0),
             Velocity::ZERO,
         );
         let mut cell2 = Cell::ball(
             Length::new(1.0),
             Mass::new(6.0),
-            Position::new(0.5, 0.0),
+            Position::ORIGIN,
             Velocity::ZERO,
         );
         let strain1 = BondStrain::new(Displacement::new(1.5, 2.0));

@@ -7,7 +7,6 @@ use crate::physics::newtonian::*;
 use crate::physics::quantities::*;
 use crate::physics::shapes::*;
 use crate::physics::sortable_graph::*;
-use crate::physics::util::*;
 use evo_domain_derive::*;
 use std::f64::consts::PI;
 use std::ptr;
@@ -154,12 +153,7 @@ impl Cell {
     }
 
     pub fn overlaps(&self, pos: Position) -> bool {
-        self.position().x() - self.radius.value() <= pos.x()
-            && pos.x() <= self.position().x() + self.radius.value()
-            && self.position().y() - self.radius.value() <= pos.y()
-            && pos.y() <= self.position().y() + self.radius.value()
-            && sqr(pos.x() - self.position().x()) + sqr(pos.y() - self.position().y())
-                <= sqr(self.radius.value())
+        (self.position() - pos).length() <= self.radius
     }
 
     pub fn tick(&mut self) -> BondRequests {

@@ -319,28 +319,28 @@ impl Cell {
                 }
             }
 
-            Self::print_value2d_debug_info(
+            Self::println_value2d_debug_info(
                 "  position",
                 start_snapshot.center.value(),
                 self.position().value(),
             );
-            Self::print_value2d_debug_info(
+            Self::println_value2d_debug_info(
                 "  velocity",
                 start_snapshot.velocity.value(),
                 self.velocity().value(),
             );
-            Self::print_value1d_debug_info(
+            Self::println_value1d_debug_info(
                 "  mass",
                 start_snapshot.mass.value(),
                 self.mass().value(),
             );
-            Self::print_value1d_debug_info(
+            Self::println_value1d_debug_info(
                 "  radius",
                 start_snapshot.radius.value(),
                 self.radius().value(),
             );
 
-            Self::print_value1d_debug_info(
+            Self::println_value1d_debug_info(
                 "  energy",
                 start_snapshot.energy.value(),
                 self.energy().value(),
@@ -362,6 +362,7 @@ impl Cell {
             }
 
             for (index, layer) in self.layers.iter().enumerate() {
+                let layer_changes = &changes.layers[index];
                 println!(
                     "  layer {}{}:",
                     index,
@@ -372,7 +373,12 @@ impl Cell {
                     start_snapshot.layers[index].area.value(),
                     layer.area().value(),
                 );
-                Self::print_value1d_debug_info(
+                println!(
+                    " [requested {:+.4}, allowed {:+.4}]",
+                    layer_changes.requested_area.value(),
+                    layer_changes.allowed_area.value()
+                );
+                Self::println_value1d_debug_info(
                     "    mass",
                     start_snapshot.layers[index].mass.value(),
                     layer.mass().value(),
@@ -382,7 +388,12 @@ impl Cell {
                     start_snapshot.layers[index].health.value(),
                     layer.health().value(),
                 );
-                if let Some(health_changes) = &changes.layers[index].health_changes {
+                println!(
+                    " [requested {:+.4}, allowed {:+.4}]",
+                    layer_changes.requested_health.value(),
+                    layer_changes.allowed_health.value()
+                );
+                if let Some(health_changes) = &layer_changes.health_changes {
                     for health_change in health_changes {
                         println!(
                             "      {} {:+.4}",
@@ -401,8 +412,13 @@ impl Cell {
         }
     }
 
+    fn println_value1d_debug_info(label: &str, value1: Value1D, value2: Value1D) {
+        Self::print_value1d_debug_info(label, value1, value2);
+        println!();
+    }
+
     fn print_value1d_debug_info(label: &str, value1: Value1D, value2: Value1D) {
-        println!(
+        print!(
             "{} {:.4} -> {:.4}: {:+.4}",
             label,
             value1,
@@ -411,7 +427,7 @@ impl Cell {
         );
     }
 
-    fn print_value2d_debug_info(label: &str, value1: Value2D, value2: Value2D) {
+    fn println_value2d_debug_info(label: &str, value1: Value2D, value2: Value2D) {
         println!(
             "{} {} -> {}: ({:+.4}, {:+.4})",
             label,

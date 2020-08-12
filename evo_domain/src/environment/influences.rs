@@ -750,7 +750,6 @@ mod tests {
     }
 
     #[test]
-    #[ignore]
     fn bond_clears_strain() {
         let mut cell1 = Cell::ball(
             Length::new(1.0),
@@ -942,9 +941,16 @@ mod tests {
     }
 
     fn assert_just_touching(cell1: &Cell, cell2: &Cell) {
-        assert_eq!(
-            (cell1.center() - cell2.center()).length(),
-            cell1.radius() + cell2.radius()
+        assert_eq_within(
+            (cell1.center() - cell2.center()).length().value(),
+            (cell1.radius() + cell2.radius()).value(),
+            0.0001,
         );
+    }
+
+    fn assert_eq_within(val1: Value1D, val2: Value1D, fraction: Value1D) {
+        let difference = (val1 - val2).abs();
+        let average = (val1.abs() + val2.abs()) / 2.0;
+        assert!(difference <= fraction * average);
     }
 }

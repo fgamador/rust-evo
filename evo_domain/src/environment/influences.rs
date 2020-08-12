@@ -787,8 +787,7 @@ mod tests {
             Position::ORIGIN,
             Velocity::ZERO,
         );
-        // let strain1 = calc_bond_strain(&cell1, &cell2);
-        let strain1 = BondStrain::new(Displacement::new(1.5, 2.0));
+        let strain1 = calc_bond_strain(&cell1, &cell2);
 
         BondForces::add_forces(&mut cell1, &mut cell2, strain1);
 
@@ -951,6 +950,11 @@ mod tests {
     fn assert_eq_within(val1: Value1D, val2: Value1D, fraction: Value1D) {
         let difference = (val1 - val2).abs();
         let average = (val1.abs() + val2.abs()) / 2.0;
-        assert!(difference <= fraction * average);
+        assert!(
+            difference <= fraction * average,
+            "Left:  {}\nRight: {}",
+            val1,
+            val2
+        );
     }
 }

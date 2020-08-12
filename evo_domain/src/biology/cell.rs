@@ -438,17 +438,6 @@ impl Cell {
         );
     }
 
-    fn _print_selected_cell_control_requests(
-        &self,
-        budgeted_control_requests: &[BudgetedControlRequest],
-    ) {
-        if self.is_selected() {
-            for request in budgeted_control_requests {
-                println!("  Layer request {}", request);
-            }
-        }
-    }
-
     pub fn create_and_place_child_cell(
         &mut self,
         budding_angle: Angle,

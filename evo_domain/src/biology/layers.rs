@@ -312,13 +312,13 @@ impl CellLayerBrain for LivingCellLayerBrain {
                     HealthDelta::new(request.requested_value()),
                     request.budgeted_fraction(),
                 );
-                changes.layers[request.layer_index()].add_health_change(delta_health, "healing");
+                changes.layers[request.layer_index()].add_healing(delta_health, request);
                 CellLayer::record_request_energy_change(&request, "healing", changes);
             }
             CellLayer::RESIZE_CHANNEL_INDEX => {
                 let delta_area =
                     body.actual_delta_area(request.requested_value(), request.budgeted_fraction());
-                changes.layers[request.layer_index()].area += delta_area;
+                changes.layers[request.layer_index()].add_resize(delta_area, request);
                 CellLayer::record_request_energy_change(&request, "resize", changes);
             }
             _ => specialty.execute_control_request(body, request, changes),

@@ -1,3 +1,4 @@
+use crate::biology::control_requests::*;
 use crate::physics::quantities::*;
 use std::fmt;
 
@@ -49,17 +50,37 @@ pub struct EnergyChange {
 #[derive(Debug, Clone)]
 pub struct CellLayerChanges {
     pub health: HealthDelta,
+    pub requested_health: HealthDelta,
+    pub allowed_health: HealthDelta,
     pub health_changes: Option<Vec<HealthChange>>,
     pub area: AreaDelta,
+    pub requested_area: AreaDelta,
+    pub allowed_area: AreaDelta,
 }
 
 impl CellLayerChanges {
     pub fn new(selected: bool) -> Self {
         CellLayerChanges {
             health: HealthDelta::ZERO,
+            requested_health: HealthDelta::ZERO,
+            allowed_health: HealthDelta::ZERO,
             health_changes: if selected { Some(vec![]) } else { None },
             area: AreaDelta::ZERO,
+            requested_area: AreaDelta::ZERO,
+            allowed_area: AreaDelta::ZERO,
         }
+    }
+
+    pub fn add_healing(&mut self, health_delta: HealthDelta, request: &BudgetedControlRequest) {
+        self.add_health_change(health_delta, "healing");
+        self.requested_health = HealthDelta::new(request.requested_value());
+        self.allowed_health = HealthDelta::new(request.allowed_value());
+    }
+
+    pub fn add_resize(&mut self, area_delta: AreaDelta, request: &BudgetedControlRequest) {
+        self.area += area_delta;
+        self.requested_area = AreaDelta::new(request.requested_value());
+        self.allowed_area = AreaDelta::new(request.allowed_value());
     }
 
     pub fn add_health_change(&mut self, health_delta: HealthDelta, label: &'static str) {

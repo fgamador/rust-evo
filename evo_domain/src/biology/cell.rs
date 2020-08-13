@@ -355,9 +355,12 @@ impl Cell {
             }
 
             for (index, layer) in self.layers.iter().enumerate() {
-                let layer_start_snapshot = &start_snapshot.layers[index];
-                let layer_changes = &changes.layers[index];
-                Cell::print_layer_debug_info(layer, index, layer_start_snapshot, &layer_changes)
+                Cell::print_layer_debug_info(
+                    layer,
+                    index,
+                    &start_snapshot.layers[index],
+                    &changes.layers[index],
+                );
             }
 
             for (index, request) in changes.bond_requests.iter().enumerate() {
@@ -372,7 +375,7 @@ impl Cell {
         layer: &CellLayer,
         index: usize,
         layer_start_snapshot: &CellLayerStateSnapshot,
-        layer_changes: &&CellLayerChanges,
+        layer_changes: &CellLayerChanges,
     ) {
         println!(
             "  layer {}{}:",

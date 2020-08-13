@@ -355,6 +355,7 @@ impl Cell {
             }
 
             for (index, layer) in self.layers.iter().enumerate() {
+                let layer_start_snapshot = &start_snapshot.layers[index];
                 let layer_changes = &changes.layers[index];
                 println!(
                     "  layer {}{}:",
@@ -363,7 +364,7 @@ impl Cell {
                 );
                 Self::print_value1d_debug_info(
                     "    area",
-                    start_snapshot.layers[index].area.value(),
+                    layer_start_snapshot.area.value(),
                     layer.area().value(),
                 );
                 println!(
@@ -373,12 +374,12 @@ impl Cell {
                 );
                 Self::println_value1d_debug_info(
                     "    mass",
-                    start_snapshot.layers[index].mass.value(),
+                    layer_start_snapshot.mass.value(),
                     layer.mass().value(),
                 );
                 Self::print_value1d_debug_info(
                     "    health",
-                    start_snapshot.layers[index].health.value(),
+                    layer_start_snapshot.health.value(),
                     layer.health().value(),
                 );
                 println!(

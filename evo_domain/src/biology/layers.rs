@@ -1,4 +1,5 @@
 use crate::biology::changes::*;
+use crate::biology::control::*;
 use crate::biology::control_requests::*;
 use crate::environment::local_environment::LocalEnvironment;
 use crate::physics::overlap::Overlap;
@@ -220,6 +221,68 @@ impl CellLayer {
             request.energy_delta() * request.budgeted_fraction(),
             label,
             request.layer_index(),
+        );
+    }
+
+    pub fn print_tick_info(
+        &self,
+        index: usize,
+        layer_start_snapshot: &CellLayerStateSnapshot,
+        layer_changes: &CellLayerChanges,
+    ) {
+        println!(
+            "  layer {}{}:",
+            index,
+            if self.is_alive() { "" } else { " (DEAD)" }
+        );
+        Self::print_value1d_debug_info(
+            "    area",
+            layer_start_snapshot.area.value(),
+            self.area().value(),
+        );
+        println!(
+            " [requested {:+.4}, allowed {:+.4}]",
+            layer_changes.requested_area.value(),
+            layer_changes.allowed_area.value()
+        );
+        Self::println_value1d_debug_info(
+            "    mass",
+            layer_start_snapshot.mass.value(),
+            self.mass().value(),
+        );
+        Self::print_value1d_debug_info(
+            "    health",
+            layer_start_snapshot.health.value(),
+            self.health().value(),
+        );
+        println!(
+            " [requested {:+.4}, allowed {:+.4}]",
+            layer_changes.requested_health.value(),
+            layer_changes.allowed_health.value()
+        );
+        if let Some(health_changes) = &layer_changes.health_changes {
+            for health_change in health_changes {
+                println!(
+                    "      {} {:+.4}",
+                    health_change.label,
+                    health_change.health_delta.value()
+                );
+            }
+        }
+    }
+
+    fn println_value1d_debug_info(label: &str, value1: Value1D, value2: Value1D) {
+        Self::print_value1d_debug_info(label, value1, value2);
+        println!();
+    }
+
+    fn print_value1d_debug_info(label: &str, value1: Value1D, value2: Value1D) {
+        print!(
+            "{} {:.4} -> {:.4}: {:+.4}",
+            label,
+            value1,
+            value2,
+            value2 - value1
         );
     }
 }

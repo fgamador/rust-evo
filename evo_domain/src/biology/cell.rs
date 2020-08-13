@@ -283,18 +283,21 @@ impl Cell {
 
     fn print_tick_info(&self, start_snapshot: &CellStateSnapshot, changes: &CellChanges) {
         if self.is_selected() {
-            println!(
-                "Cell {}{}:",
-                self.node_handle(),
-                if self.is_alive() { "" } else { " (DEAD)" }
-            );
-
+            self.print_id_info();
             self.print_force_info();
             self.print_other_quanties_info(start_snapshot);
             self.print_energy_info(start_snapshot, changes);
             self.print_layers_info(start_snapshot, changes);
             Cell::print_bond_request_info(changes)
         }
+    }
+
+    fn print_id_info(&self) {
+        println!(
+            "Cell {}{}:",
+            self.node_handle(),
+            if self.is_alive() { "" } else { " (DEAD)" }
+        );
     }
 
     fn print_force_info(&self) {

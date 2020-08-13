@@ -161,7 +161,6 @@ impl Cell {
         let mut changes = CellChanges::new(self.layers.len(), self.is_selected());
         self.calculate_automatic_changes(&mut changes);
         self.calculate_requested_changes(&mut changes);
-        self.move_from_forces();
         self.apply_changes(&changes);
         self.print_debug_info(&start_snapshot, &changes);
         self.clear_environment();
@@ -462,6 +461,7 @@ impl Cell {
     }
 
     pub fn apply_changes(&mut self, changes: &CellChanges) {
+        self.move_from_forces();
         self.energy += changes.energy;
         self.thrust = changes.thrust;
         for (index, layer) in self.layers.iter_mut().enumerate() {
@@ -598,7 +598,7 @@ mod tests {
     }
 
     #[test]
-    fn cell_force_applies_to_start_mass() {
+    fn cell_force_applies_to_pretick_mass() {
         let mut cell =
             simple_layered_cell(vec![simple_cell_layer(Area::new(1.0), Density::new(1.0))])
                 .with_control(Box::new(ContinuousResizeControl::new(

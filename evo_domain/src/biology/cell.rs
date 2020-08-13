@@ -357,51 +357,60 @@ impl Cell {
             for (index, layer) in self.layers.iter().enumerate() {
                 let layer_start_snapshot = &start_snapshot.layers[index];
                 let layer_changes = &changes.layers[index];
-                println!(
-                    "  layer {}{}:",
-                    index,
-                    if layer.is_alive() { "" } else { " (DEAD)" }
-                );
-                Self::print_value1d_debug_info(
-                    "    area",
-                    layer_start_snapshot.area.value(),
-                    layer.area().value(),
-                );
-                println!(
-                    " [requested {:+.4}, allowed {:+.4}]",
-                    layer_changes.requested_area.value(),
-                    layer_changes.allowed_area.value()
-                );
-                Self::println_value1d_debug_info(
-                    "    mass",
-                    layer_start_snapshot.mass.value(),
-                    layer.mass().value(),
-                );
-                Self::print_value1d_debug_info(
-                    "    health",
-                    layer_start_snapshot.health.value(),
-                    layer.health().value(),
-                );
-                println!(
-                    " [requested {:+.4}, allowed {:+.4}]",
-                    layer_changes.requested_health.value(),
-                    layer_changes.allowed_health.value()
-                );
-                if let Some(health_changes) = &layer_changes.health_changes {
-                    for health_change in health_changes {
-                        println!(
-                            "      {} {:+.4}",
-                            health_change.label,
-                            health_change.health_delta.value()
-                        );
-                    }
-                }
+                Cell::print_layer_debug_info(layer, index, layer_start_snapshot, &layer_changes)
             }
 
             for (index, request) in changes.bond_requests.iter().enumerate() {
                 if request.retain_bond {
                     println!("  bond request {}: {}", index, request);
                 }
+            }
+        }
+    }
+
+    fn print_layer_debug_info(
+        layer: &CellLayer,
+        index: usize,
+        layer_start_snapshot: &CellLayerStateSnapshot,
+        layer_changes: &&CellLayerChanges,
+    ) {
+        println!(
+            "  layer {}{}:",
+            index,
+            if layer.is_alive() { "" } else { " (DEAD)" }
+        );
+        Self::print_value1d_debug_info(
+            "    area",
+            layer_start_snapshot.area.value(),
+            layer.area().value(),
+        );
+        println!(
+            " [requested {:+.4}, allowed {:+.4}]",
+            layer_changes.requested_area.value(),
+            layer_changes.allowed_area.value()
+        );
+        Self::println_value1d_debug_info(
+            "    mass",
+            layer_start_snapshot.mass.value(),
+            layer.mass().value(),
+        );
+        Self::print_value1d_debug_info(
+            "    health",
+            layer_start_snapshot.health.value(),
+            layer.health().value(),
+        );
+        println!(
+            " [requested {:+.4}, allowed {:+.4}]",
+            layer_changes.requested_health.value(),
+            layer_changes.allowed_health.value()
+        );
+        if let Some(health_changes) = &layer_changes.health_changes {
+            for health_change in health_changes {
+                println!(
+                    "      {} {:+.4}",
+                    health_change.label,
+                    health_change.health_delta.value()
+                );
             }
         }
     }

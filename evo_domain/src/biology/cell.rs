@@ -161,8 +161,8 @@ impl Cell {
         let mut changes = CellChanges::new(self.layers.len(), self.is_selected());
         self.calculate_automatic_changes(&mut changes);
         self.calculate_requested_changes(&mut changes);
-        self.apply_changes(&changes);
         self.move_from_forces();
+        self.apply_changes(&changes);
         self.print_debug_info(&start_snapshot, &changes);
         self.clear_environment();
         changes.bond_requests
@@ -595,6 +595,22 @@ mod tests {
         cell.calculate_requested_changes(&mut changes);
         cell.apply_changes(&changes);
         assert_eq!(cell.mass(), Mass::new(10.5));
+    }
+
+    #[test]
+    fn cell_force_applies_to_start_mass() {
+        let mut cell =
+            simple_layered_cell(vec![simple_cell_layer(Area::new(1.0), Density::new(1.0))])
+                .with_control(Box::new(ContinuousResizeControl::new(
+                    0,
+                    AreaDelta::new(3.0),
+                )));
+        cell.net_force_mut()
+            .add_non_dominant_force(Force::new(1.0, 0.0), "test");
+
+        cell.tick();
+
+        assert_eq!(cell.velocity(), Velocity::new(1.0, 0.0));
     }
 
     #[test]

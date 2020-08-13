@@ -12,12 +12,12 @@ use std::ops::SubAssign;
 
 pub type Value1D = f64;
 
-pub fn println_value1d_debug_info(label: &str, value1: Value1D, value2: Value1D) {
-    print_value1d_debug_info(label, value1, value2);
+pub fn println_value1d_change_info(label: &str, value1: Value1D, value2: Value1D) {
+    print_value1d_change_info(label, value1, value2);
     println!();
 }
 
-pub fn print_value1d_debug_info(label: &str, value1: Value1D, value2: Value1D) {
+pub fn print_value1d_change_info(label: &str, value1: Value1D, value2: Value1D) {
     print!(
         "{} {:.4} -> {:.4}: {:+.4}",
         label,
@@ -87,12 +87,12 @@ impl fmt::Display for Value2D {
     }
 }
 
-pub fn println_value2d_debug_info(label: &str, value1: Value2D, value2: Value2D) {
-    print_value2d_debug_info(label, value1, value2);
+pub fn println_value2d_change_info(label: &str, value1: Value2D, value2: Value2D) {
+    print_value2d_change_info(label, value1, value2);
     println!();
 }
 
-pub fn print_value2d_debug_info(label: &str, value1: Value2D, value2: Value2D) {
+pub fn print_value2d_change_info(label: &str, value1: Value2D, value2: Value2D) {
     print!(
         "{} {} -> {}: ({:+.4}, {:+.4})",
         label,

@@ -326,18 +326,18 @@ impl Cell {
     }
 
     fn print_other_quantities_info(&self, start_snapshot: &CellStateSnapshot) {
-        println_value2d_debug_info(
+        println_value2d_change_info(
             "  position",
             start_snapshot.center.value(),
             self.position().value(),
         );
-        println_value2d_debug_info(
+        println_value2d_change_info(
             "  velocity",
             start_snapshot.velocity.value(),
             self.velocity().value(),
         );
-        println_value1d_debug_info("  mass", start_snapshot.mass.value(), self.mass().value());
-        println_value1d_debug_info(
+        println_value1d_change_info("  mass", start_snapshot.mass.value(), self.mass().value());
+        println_value1d_change_info(
             "  radius",
             start_snapshot.radius.value(),
             self.radius().value(),
@@ -345,7 +345,7 @@ impl Cell {
     }
 
     fn print_energy_info(&self, start_snapshot: &CellStateSnapshot, changes: &CellChanges) {
-        println_value1d_debug_info(
+        println_value1d_change_info(
             "  energy",
             start_snapshot.energy.value(),
             self.energy().value(),

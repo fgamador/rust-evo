@@ -333,29 +333,10 @@ impl Cell {
                 self.radius().value(),
             );
 
-            Self::println_value1d_debug_info(
-                "  energy",
-                start_snapshot.energy.value(),
-                self.energy().value(),
-            );
-            println!("    received {:+.4}", self.received_donated_energy.value());
-            if let Some(energy_changes) = &changes.energy_changes {
-                for energy_change in energy_changes {
-                    println!(
-                        "    {}{} {:+.4}",
-                        energy_change.label,
-                        if energy_change.index < usize::MAX {
-                            format!("[{}]", energy_change.index)
-                        } else {
-                            "".to_string()
-                        },
-                        energy_change.energy_delta.value()
-                    );
-                }
-            }
+            self.print_energy_info(start_snapshot, changes);
 
             for (index, layer) in self.layers.iter().enumerate() {
-                Cell::print_layer_debug_info(
+                Cell::print_layer_info(
                     layer,
                     index,
                     &start_snapshot.layers[index],
@@ -371,7 +352,30 @@ impl Cell {
         }
     }
 
-    fn print_layer_debug_info(
+    fn print_energy_info(&self, start_snapshot: &CellStateSnapshot, changes: &CellChanges) {
+        Self::println_value1d_debug_info(
+            "  energy",
+            start_snapshot.energy.value(),
+            self.energy().value(),
+        );
+        println!("    received {:+.4}", self.received_donated_energy.value());
+        if let Some(energy_changes) = &changes.energy_changes {
+            for energy_change in energy_changes {
+                println!(
+                    "    {}{} {:+.4}",
+                    energy_change.label,
+                    if energy_change.index < usize::MAX {
+                        format!("[{}]", energy_change.index)
+                    } else {
+                        "".to_string()
+                    },
+                    energy_change.energy_delta.value()
+                );
+            }
+        }
+    }
+
+    fn print_layer_info(
         layer: &CellLayer,
         index: usize,
         layer_start_snapshot: &CellLayerStateSnapshot,

@@ -235,7 +235,7 @@ impl CellLayer {
             index,
             if self.is_alive() { "" } else { " (DEAD)" }
         );
-        Self::print_value1d_debug_info(
+        print_value1d_debug_info(
             "    area",
             layer_start_snapshot.area.value(),
             self.area().value(),
@@ -245,12 +245,12 @@ impl CellLayer {
             layer_changes.requested_area.value(),
             layer_changes.allowed_area.value()
         );
-        Self::println_value1d_debug_info(
+        println_value1d_debug_info(
             "    mass",
             layer_start_snapshot.mass.value(),
             self.mass().value(),
         );
-        Self::print_value1d_debug_info(
+        print_value1d_debug_info(
             "    health",
             layer_start_snapshot.health.value(),
             self.health().value(),
@@ -269,21 +269,6 @@ impl CellLayer {
                 );
             }
         }
-    }
-
-    fn println_value1d_debug_info(label: &str, value1: Value1D, value2: Value1D) {
-        Self::print_value1d_debug_info(label, value1, value2);
-        println!();
-    }
-
-    fn print_value1d_debug_info(label: &str, value1: Value1D, value2: Value1D) {
-        print!(
-            "{} {:.4} -> {:.4}: {:+.4}",
-            label,
-            value1,
-            value2,
-            value2 - value1
-        );
     }
 }
 

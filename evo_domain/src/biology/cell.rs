@@ -326,22 +326,18 @@ impl Cell {
     }
 
     fn print_other_quantities_info(&self, start_snapshot: &CellStateSnapshot) {
-        Self::println_value2d_debug_info(
+        println_value2d_debug_info(
             "  position",
             start_snapshot.center.value(),
             self.position().value(),
         );
-        Self::println_value2d_debug_info(
+        println_value2d_debug_info(
             "  velocity",
             start_snapshot.velocity.value(),
             self.velocity().value(),
         );
-        Self::println_value1d_debug_info(
-            "  mass",
-            start_snapshot.mass.value(),
-            self.mass().value(),
-        );
-        Self::println_value1d_debug_info(
+        println_value1d_debug_info("  mass", start_snapshot.mass.value(), self.mass().value());
+        println_value1d_debug_info(
             "  radius",
             start_snapshot.radius.value(),
             self.radius().value(),
@@ -349,7 +345,7 @@ impl Cell {
     }
 
     fn print_energy_info(&self, start_snapshot: &CellStateSnapshot, changes: &CellChanges) {
-        Self::println_value1d_debug_info(
+        println_value1d_debug_info(
             "  energy",
             start_snapshot.energy.value(),
             self.energy().value(),
@@ -383,32 +379,6 @@ impl Cell {
                 println!("  bond request {}: {}", index, request);
             }
         }
-    }
-
-    fn println_value1d_debug_info(label: &str, value1: Value1D, value2: Value1D) {
-        Self::print_value1d_debug_info(label, value1, value2);
-        println!();
-    }
-
-    fn print_value1d_debug_info(label: &str, value1: Value1D, value2: Value1D) {
-        print!(
-            "{} {:.4} -> {:.4}: {:+.4}",
-            label,
-            value1,
-            value2,
-            value2 - value1
-        );
-    }
-
-    fn println_value2d_debug_info(label: &str, value1: Value2D, value2: Value2D) {
-        println!(
-            "{} {} -> {}: ({:+.4}, {:+.4})",
-            label,
-            value1,
-            value2,
-            value2.x() - value1.x(),
-            value2.y() - value1.y(),
-        );
     }
 
     pub fn create_and_place_child_cell(

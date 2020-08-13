@@ -162,7 +162,7 @@ impl Cell {
         self.calculate_automatic_changes(&mut changes);
         self.calculate_requested_changes(&mut changes);
         self.apply_changes(&changes);
-        self.print_debug_info(&start_snapshot, &changes);
+        self.print_tick_info(&start_snapshot, &changes);
         self.clear_environment();
         changes.bond_requests
     }
@@ -281,7 +281,7 @@ impl Cell {
         self.received_donated_energy = BioEnergy::ZERO;
     }
 
-    fn print_debug_info(&self, start_snapshot: &CellStateSnapshot, changes: &CellChanges) {
+    fn print_tick_info(&self, start_snapshot: &CellStateSnapshot, changes: &CellChanges) {
         if self.is_selected() {
             println!(
                 "Cell {}{}:",

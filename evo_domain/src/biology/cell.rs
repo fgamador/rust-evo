@@ -289,54 +289,60 @@ impl Cell {
                 if self.is_alive() { "" } else { " (DEAD)" }
             );
 
-            println!("  net force {}", self.net_force().net_force());
-            if self.net_force().dominant_x_force() != 0.0 {
-                println!(
-                    "    {} x {:.4}",
-                    self.net_force().dominant_x_force_label(),
-                    self.net_force().dominant_x_force(),
-                );
-            }
-            if self.net_force().dominant_y_force() != 0.0 {
-                println!(
-                    "    {} y {:.4}",
-                    self.net_force().dominant_y_force_label(),
-                    self.net_force().dominant_y_force(),
-                );
-            }
-            if let Some(force_additions) = &self.net_force().non_dominant_force_additions() {
-                for force_addition in force_additions {
-                    if force_addition.force != Force::ZERO {
-                        println!("    {} {:+.4}", force_addition.label, force_addition.force,);
-                    }
-                }
-            }
-
-            Self::println_value2d_debug_info(
-                "  position",
-                start_snapshot.center.value(),
-                self.position().value(),
-            );
-            Self::println_value2d_debug_info(
-                "  velocity",
-                start_snapshot.velocity.value(),
-                self.velocity().value(),
-            );
-            Self::println_value1d_debug_info(
-                "  mass",
-                start_snapshot.mass.value(),
-                self.mass().value(),
-            );
-            Self::println_value1d_debug_info(
-                "  radius",
-                start_snapshot.radius.value(),
-                self.radius().value(),
-            );
-
+            self.print_force_info();
+            self.print_other_quanties_info(start_snapshot);
             self.print_energy_info(start_snapshot, changes);
             self.print_layers_info(start_snapshot, changes);
             Cell::print_bond_request_info(changes)
         }
+    }
+
+    fn print_force_info(&self) {
+        println!("  net force {}", self.net_force().net_force());
+        if self.net_force().dominant_x_force() != 0.0 {
+            println!(
+                "    {} x {:.4}",
+                self.net_force().dominant_x_force_label(),
+                self.net_force().dominant_x_force(),
+            );
+        }
+        if self.net_force().dominant_y_force() != 0.0 {
+            println!(
+                "    {} y {:.4}",
+                self.net_force().dominant_y_force_label(),
+                self.net_force().dominant_y_force(),
+            );
+        }
+        if let Some(force_additions) = &self.net_force().non_dominant_force_additions() {
+            for force_addition in force_additions {
+                if force_addition.force != Force::ZERO {
+                    println!("    {} {:+.4}", force_addition.label, force_addition.force,);
+                }
+            }
+        }
+    }
+
+    fn print_other_quanties_info(&self, start_snapshot: &CellStateSnapshot) {
+        Self::println_value2d_debug_info(
+            "  position",
+            start_snapshot.center.value(),
+            self.position().value(),
+        );
+        Self::println_value2d_debug_info(
+            "  velocity",
+            start_snapshot.velocity.value(),
+            self.velocity().value(),
+        );
+        Self::println_value1d_debug_info(
+            "  mass",
+            start_snapshot.mass.value(),
+            self.mass().value(),
+        );
+        Self::println_value1d_debug_info(
+            "  radius",
+            start_snapshot.radius.value(),
+            self.radius().value(),
+        );
     }
 
     fn print_energy_info(&self, start_snapshot: &CellStateSnapshot, changes: &CellChanges) {

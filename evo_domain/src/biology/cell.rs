@@ -285,7 +285,7 @@ impl Cell {
         if self.is_selected() {
             self.print_id_info();
             self.print_force_info();
-            self.print_other_quanties_info(start_snapshot);
+            self.print_other_quantities_info(start_snapshot);
             self.print_energy_info(start_snapshot, changes);
             self.print_layers_info(start_snapshot, changes);
             Cell::print_bond_request_info(changes)
@@ -325,7 +325,7 @@ impl Cell {
         }
     }
 
-    fn print_other_quanties_info(&self, start_snapshot: &CellStateSnapshot) {
+    fn print_other_quantities_info(&self, start_snapshot: &CellStateSnapshot) {
         Self::println_value2d_debug_info(
             "  position",
             start_snapshot.center.value(),

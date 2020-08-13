@@ -334,21 +334,8 @@ impl Cell {
             );
 
             self.print_energy_info(start_snapshot, changes);
-
-            for (index, layer) in self.layers.iter().enumerate() {
-                Cell::print_layer_info(
-                    layer,
-                    index,
-                    &start_snapshot.layers[index],
-                    &changes.layers[index],
-                );
-            }
-
-            for (index, request) in changes.bond_requests.iter().enumerate() {
-                if request.retain_bond {
-                    println!("  bond request {}: {}", index, request);
-                }
-            }
+            self.print_layers_info(start_snapshot, changes);
+            Cell::print_bond_request_info(changes)
         }
     }
 
@@ -372,6 +359,17 @@ impl Cell {
                     energy_change.energy_delta.value()
                 );
             }
+        }
+    }
+
+    fn print_layers_info(&self, start_snapshot: &CellStateSnapshot, changes: &CellChanges) {
+        for (index, layer) in self.layers.iter().enumerate() {
+            Cell::print_layer_info(
+                layer,
+                index,
+                &start_snapshot.layers[index],
+                &changes.layers[index],
+            );
         }
     }
 
@@ -418,6 +416,14 @@ impl Cell {
                     health_change.label,
                     health_change.health_delta.value()
                 );
+            }
+        }
+    }
+
+    fn print_bond_request_info(changes: &CellChanges) {
+        for (index, request) in changes.bond_requests.iter().enumerate() {
+            if request.retain_bond {
+                println!("  bond request {}: {}", index, request);
             }
         }
     }

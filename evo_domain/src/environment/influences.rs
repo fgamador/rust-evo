@@ -38,7 +38,7 @@ impl WallCollisions {
         )
     }
 
-    fn x_or_y_collision_force(mass: Mass, velocity: f64, overlap: f64) -> f64 {
+    fn x_or_y_collision_force(mass: Mass, velocity: Value1D, overlap: Value1D) -> Value1D {
         let v = if overlap > 0.0 {
             velocity.max(overlap)
         } else if overlap < 0.0 {
@@ -297,7 +297,7 @@ pub struct WeightForce {
 }
 
 impl WeightForce {
-    pub fn new(gravity: f64) -> Self {
+    pub fn new(gravity: Value1D) -> Self {
         WeightForce {
             gravity: Acceleration::new(0.0, gravity),
         }
@@ -321,7 +321,7 @@ pub struct BuoyancyForce {
 }
 
 impl BuoyancyForce {
-    pub fn new(gravity: f64, fluid_density: f64) -> Self {
+    pub fn new(gravity: Value1D, fluid_density: Value1D) -> Self {
         BuoyancyForce {
             gravity: Acceleration::new(0.0, gravity),
             fluid_density: Density::new(fluid_density),
@@ -342,26 +342,26 @@ impl SimpleInfluenceForce for BuoyancyForce {
 
 #[derive(Debug)]
 pub struct DragForce {
-    viscosity: f64,
+    viscosity: Value1D,
 }
 
 impl DragForce {
-    pub fn new(viscosity: f64) -> Self {
+    pub fn new(viscosity: Value1D) -> Self {
         DragForce { viscosity }
     }
 
-    fn calc_drag(&self, mass: Mass, radius: Length, velocity: f64) -> f64 {
+    fn calc_drag(&self, mass: Mass, radius: Length, velocity: Value1D) -> Value1D {
         -velocity.signum()
             * self
                 .instantaneous_abs_drag(radius, velocity)
                 .min(Self::abs_drag_that_will_stop_the_cell(mass, velocity))
     }
 
-    fn instantaneous_abs_drag(&self, radius: Length, velocity: f64) -> f64 {
+    fn instantaneous_abs_drag(&self, radius: Length, velocity: Value1D) -> Value1D {
         self.viscosity * radius.value() * sqr(velocity)
     }
 
-    fn abs_drag_that_will_stop_the_cell(mass: Mass, velocity: f64) -> f64 {
+    fn abs_drag_that_will_stop_the_cell(mass: Mass, velocity: Value1D) -> Value1D {
         mass.value() * velocity.abs()
     }
 }
@@ -398,12 +398,17 @@ impl PerCellInfluence for UniversalOverlap {
 
 #[derive(Debug)]
 pub struct Sunlight {
-    slope: f64,
-    intercept: f64,
+    slope: Value1D,
+    intercept: Value1D,
 }
 
 impl Sunlight {
-    pub fn new(min_y: f64, max_y: f64, min_intensity: f64, max_intensity: f64) -> Self {
+    pub fn new(
+        min_y: Value1D,
+        max_y: Value1D,
+        min_intensity: Value1D,
+        max_intensity: Value1D,
+    ) -> Self {
         let slope = (max_intensity - min_intensity) / (max_y - min_y);
         Sunlight {
             slope,
@@ -411,7 +416,7 @@ impl Sunlight {
         }
     }
 
-    fn calc_light_intensity(&self, y: f64) -> f64 {
+    fn calc_light_intensity(&self, y: Value1D) -> Value1D {
         (self.slope * y + self.intercept).max(0.0)
     }
 }

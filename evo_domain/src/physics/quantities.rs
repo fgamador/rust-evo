@@ -180,6 +180,42 @@ impl DivAssign<Value1D> for Value2D {
 }
 
 #[derive(Clone, Copy, Debug, PartialEq, PartialOrd)]
+pub struct Fraction {
+    value: Value1D,
+}
+
+impl Fraction {
+    pub const ZERO: Fraction = Fraction { value: 0.0 };
+    pub const ONE: Fraction = Fraction { value: 1.0 };
+
+    pub fn new(value: Value1D) -> Self {
+        assert!(0.0 <= value && value <= 1.0);
+        Fraction { value }
+    }
+
+    #[allow(dead_code)]
+    pub fn value(self) -> Value1D {
+        self.value
+    }
+}
+
+impl Mul<Value1D> for Fraction {
+    type Output = Value1D;
+
+    fn mul(self, rhs: Value1D) -> Self::Output {
+        self.value * rhs
+    }
+}
+
+impl Mul<Fraction> for Value1D {
+    type Output = Value1D;
+
+    fn mul(self, rhs: Fraction) -> Self::Output {
+        self * rhs.value
+    }
+}
+
+#[derive(Clone, Copy, Debug, PartialEq, PartialOrd)]
 pub struct Angle {
     radians: Value1D,
 }

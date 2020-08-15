@@ -873,22 +873,20 @@ mod tests {
     }
 
     #[test]
-    fn layer_costs_resize_request() {
+    fn layer_bounds_and_costs_resize_request() {
         const LAYER_RESIZE_PARAMS: LayerResizeParameters = LayerResizeParameters {
             growth_energy_delta: BioEnergyDelta::new(-0.5),
             ..LayerResizeParameters::UNLIMITED
         };
-
         let layer = simple_cell_layer(Area::new(1.0), Density::new(1.0))
             .with_resize_parameters(&LAYER_RESIZE_PARAMS);
-        let costed_request =
-            layer.cost_control_request(CellLayer::resize_request(0, AreaDelta::new(3.0)));
+
+        let resize_request = CellLayer::resize_request(0, AreaDelta::new(3.0));
+        let costed_request = layer.cost_control_request(resize_request);
+
         assert_eq!(
             costed_request,
-            CostedControlRequest::unlimited(
-                CellLayer::resize_request(0, AreaDelta::new(3.0)),
-                BioEnergyDelta::new(-1.5),
-            )
+            CostedControlRequest::unlimited(resize_request, BioEnergyDelta::new(-1.5),)
         );
     }
 

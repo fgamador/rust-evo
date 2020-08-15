@@ -501,17 +501,6 @@ impl CellLayerBody {
         CostedControlRequest::limited(request, delta_area, delta_area * energy_delta_per_area)
     }
 
-    fn actual_delta_area(
-        &self,
-        requested_delta_area: Value1D,
-        budgeted_fraction: Fraction,
-    ) -> AreaDelta {
-        let delta_area = self.health.value()
-            * budgeted_fraction
-            * self.bound_resize_delta_area(requested_delta_area);
-        AreaDelta::new(delta_area.max(-self.area.value()))
-    }
-
     fn bound_resize_delta_area(&self, requested_delta_area: Value1D) -> Value1D {
         if requested_delta_area >= 0.0 {
             // TODO a layer that starts with area 0.0 cannot grow; add min-area param?
@@ -521,6 +510,17 @@ impl CellLayerBody {
             let min_delta_area = -self.resize_parameters.max_shrinkage_rate * self.area.value();
             requested_delta_area.max(min_delta_area)
         }
+    }
+
+    fn actual_delta_area(
+        &self,
+        requested_delta_area: Value1D,
+        budgeted_fraction: Fraction,
+    ) -> AreaDelta {
+        let delta_area = self.health.value()
+            * budgeted_fraction
+            * self.bound_resize_delta_area(requested_delta_area);
+        AreaDelta::new(delta_area.max(-self.area.value()))
     }
 
     fn resize(&mut self, delta_area: AreaDelta) {

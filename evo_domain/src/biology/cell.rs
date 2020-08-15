@@ -219,7 +219,7 @@ impl Cell {
     ) -> Vec<CostedControlRequest> {
         control_requests
             .iter()
-            .map(|req| self.layers[req.layer_index()].cost_control_request(*req))
+            .map(|req| self.layers[req.layer_index()].cost_control_request(&*req))
             .collect()
     }
 
@@ -239,7 +239,7 @@ impl Cell {
                 } else {
                     Fraction::ONE
                 };
-                BudgetedControlRequest::new(*costed_request, request_budgeted_fraction)
+                BudgetedControlRequest::new(&*costed_request, request_budgeted_fraction)
             })
             .collect()
     }
@@ -649,8 +649,10 @@ mod tests {
 
     #[test]
     fn zero_cost_request_gets_fully_budgeted() {
-        let costed_request =
-            CostedControlRequest::unlimited(ControlRequest::NULL_REQUEST, BioEnergyDelta::new(0.0));
+        let costed_request = CostedControlRequest::unlimited(
+            &ControlRequest::NULL_REQUEST,
+            BioEnergyDelta::new(0.0),
+        );
 
         let budgeted_requests =
             Cell::budget_control_requests(BioEnergy::new(0.0), &vec![costed_request]);
@@ -660,8 +662,10 @@ mod tests {
 
     #[test]
     fn energy_yielding_request_gets_fully_budgeted() {
-        let costed_request =
-            CostedControlRequest::unlimited(ControlRequest::NULL_REQUEST, BioEnergyDelta::new(1.0));
+        let costed_request = CostedControlRequest::unlimited(
+            &ControlRequest::NULL_REQUEST,
+            BioEnergyDelta::new(1.0),
+        );
 
         let budgeted_requests =
             Cell::budget_control_requests(BioEnergy::new(0.0), &vec![costed_request]);
@@ -672,7 +676,7 @@ mod tests {
     #[test]
     fn request_gets_fully_budgeted_if_cell_has_enough_energy() {
         let costed_request = CostedControlRequest::unlimited(
-            ControlRequest::NULL_REQUEST,
+            &ControlRequest::NULL_REQUEST,
             BioEnergyDelta::new(-1.0),
         );
 
@@ -685,7 +689,7 @@ mod tests {
     #[test]
     fn request_budget_gets_scaled_if_cell_does_not_have_enough_energy() {
         let costed_request = CostedControlRequest::unlimited(
-            ControlRequest::NULL_REQUEST,
+            &ControlRequest::NULL_REQUEST,
             BioEnergyDelta::new(-2.0),
         );
 
@@ -698,9 +702,12 @@ mod tests {
     #[test]
     fn energy_yielding_request_offsets_cost_of_other_request() {
         let costed_requests = vec![
-            CostedControlRequest::unlimited(ControlRequest::NULL_REQUEST, BioEnergyDelta::new(1.0)),
             CostedControlRequest::unlimited(
-                ControlRequest::NULL_REQUEST,
+                &ControlRequest::NULL_REQUEST,
+                BioEnergyDelta::new(1.0),
+            ),
+            CostedControlRequest::unlimited(
+                &ControlRequest::NULL_REQUEST,
                 BioEnergyDelta::new(-1.0),
             ),
         ];
@@ -711,8 +718,8 @@ mod tests {
         assert_eq!(
             budgeted_requests,
             vec![
-                BudgetedControlRequest::new(costed_requests[0], Fraction::ONE),
-                BudgetedControlRequest::new(costed_requests[1], Fraction::ONE),
+                BudgetedControlRequest::new(&costed_requests[0], Fraction::ONE),
+                BudgetedControlRequest::new(&costed_requests[1], Fraction::ONE),
             ]
         );
     }
@@ -720,9 +727,12 @@ mod tests {
     #[test]
     fn energy_yielding_request_offsets_cost_of_other_request_with_scaling() {
         let costed_requests = vec![
-            CostedControlRequest::unlimited(ControlRequest::NULL_REQUEST, BioEnergyDelta::new(1.0)),
             CostedControlRequest::unlimited(
-                ControlRequest::NULL_REQUEST,
+                &ControlRequest::NULL_REQUEST,
+                BioEnergyDelta::new(1.0),
+            ),
+            CostedControlRequest::unlimited(
+                &ControlRequest::NULL_REQUEST,
                 BioEnergyDelta::new(-2.0),
             ),
         ];
@@ -733,8 +743,8 @@ mod tests {
         assert_eq!(
             budgeted_requests,
             vec![
-                BudgetedControlRequest::new(costed_requests[0], Fraction::ONE),
-                BudgetedControlRequest::new(costed_requests[1], Fraction::new(0.5)),
+                BudgetedControlRequest::new(&costed_requests[0], Fraction::ONE),
+                BudgetedControlRequest::new(&costed_requests[1], Fraction::new(0.5)),
             ]
         );
     }

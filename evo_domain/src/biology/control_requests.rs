@@ -1,7 +1,7 @@
 use crate::physics::quantities::*;
 use std::fmt;
 
-#[derive(Clone, Copy, Debug, PartialEq)]
+#[derive(Clone, Debug, PartialEq)]
 pub struct ControlRequest {
     id: ControlRequestId,
     requested_value: Value1D,
@@ -87,7 +87,7 @@ impl fmt::Display for ControlRequestId {
     }
 }
 
-#[derive(Clone, Copy, Debug, PartialEq)]
+#[derive(Clone, Debug, PartialEq)]
 pub struct CostedControlRequest {
     id: ControlRequestId,
     requested_value: Value1D,
@@ -103,11 +103,11 @@ impl CostedControlRequest {
         energy_delta: BioEnergyDelta::ZERO,
     };
 
-    pub fn free(control_request: ControlRequest) -> Self {
+    pub fn free(control_request: &ControlRequest) -> Self {
         Self::unlimited(control_request, BioEnergyDelta::ZERO)
     }
 
-    pub fn unlimited(control_request: ControlRequest, energy_delta: BioEnergyDelta) -> Self {
+    pub fn unlimited(control_request: &ControlRequest, energy_delta: BioEnergyDelta) -> Self {
         CostedControlRequest {
             id: control_request.id,
             requested_value: control_request.requested_value,
@@ -117,7 +117,7 @@ impl CostedControlRequest {
     }
 
     pub fn limited(
-        control_request: ControlRequest,
+        control_request: &ControlRequest,
         allowed_value: Value1D,
         energy_delta: BioEnergyDelta,
     ) -> Self {
@@ -154,7 +154,7 @@ impl CostedControlRequest {
     }
 }
 
-#[derive(Clone, Copy, Debug, PartialEq)]
+#[derive(Clone, Debug, PartialEq)]
 pub struct BudgetedControlRequest {
     id: ControlRequestId,
     requested_value: Value1D,
@@ -172,7 +172,7 @@ impl BudgetedControlRequest {
         budgeted_fraction: Fraction::ONE,
     };
 
-    pub fn new(costed_request: CostedControlRequest, budgeted_fraction: Fraction) -> Self {
+    pub fn new(costed_request: &CostedControlRequest, budgeted_fraction: Fraction) -> Self {
         BudgetedControlRequest {
             id: costed_request.id,
             requested_value: costed_request.requested_value,

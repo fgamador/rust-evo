@@ -167,7 +167,7 @@ impl CellLayer {
         );
     }
 
-    pub fn cost_control_request(&self, request: ControlRequest) -> CostedControlRequest {
+    pub fn cost_control_request(&self, request: &ControlRequest) -> CostedControlRequest {
         self.brain
             .cost_control_request(&*self.specialty, &self.body, request)
     }
@@ -288,7 +288,7 @@ trait CellLayerBrain: Debug {
         &self,
         specialty: &dyn CellLayerSpecialty,
         body: &CellLayerBody,
-        request: ControlRequest,
+        request: &ControlRequest,
     ) -> CostedControlRequest;
 
     fn execute_control_request(
@@ -338,7 +338,7 @@ impl CellLayerBrain for LivingCellLayerBrain {
         &self,
         specialty: &dyn CellLayerSpecialty,
         body: &CellLayerBody,
-        request: ControlRequest,
+        request: &ControlRequest,
     ) -> CostedControlRequest {
         match request.channel_index() {
             CellLayer::HEALING_CHANNEL_INDEX => body.cost_restore_health(request),
@@ -396,7 +396,7 @@ impl CellLayerBrain for DeadCellLayerBrain {
         &self,
         _specialty: &dyn CellLayerSpecialty,
         _body: &CellLayerBody,
-        request: ControlRequest,
+        request: &ControlRequest,
     ) -> CostedControlRequest {
         CostedControlRequest::free(request)
     }
@@ -464,7 +464,7 @@ impl CellLayerBody {
         self.outer_radius = (inner_radius.sqr() + self.area / PI).sqrt();
     }
 
-    fn cost_restore_health(&self, request: ControlRequest) -> CostedControlRequest {
+    fn cost_restore_health(&self, request: &ControlRequest) -> CostedControlRequest {
         CostedControlRequest::unlimited(
             request,
             self.health_parameters.healing_energy_delta
@@ -491,7 +491,7 @@ impl CellLayerBody {
         }
     }
 
-    fn cost_resize(&self, request: ControlRequest) -> CostedControlRequest {
+    fn cost_resize(&self, request: &ControlRequest) -> CostedControlRequest {
         let allowed_delta_area = self.allowed_resize_delta_area(request.requested_value());
         let energy_delta_per_area = if request.requested_value() >= 0.0 {
             self.resize_parameters.growth_energy_delta
@@ -564,7 +564,7 @@ pub trait CellLayerSpecialty: Debug {
 
     fn cost_control_request(
         &self,
-        request: ControlRequest,
+        request: &ControlRequest,
         _body: &CellLayerBody,
     ) -> CostedControlRequest {
         panic!("Invalid control channel index: {}", request.channel_index());
@@ -704,7 +704,7 @@ impl BondingCellLayerSpecialty {
 
     fn cost_donation_request(
         &self,
-        request: ControlRequest,
+        request: &ControlRequest,
         body: &CellLayerBody,
     ) -> CostedControlRequest {
         let allowed_value = request
@@ -727,7 +727,7 @@ impl CellLayerSpecialty for BondingCellLayerSpecialty {
 
     fn cost_control_request(
         &self,
-        request: ControlRequest,
+        request: &ControlRequest,
         body: &CellLayerBody,
     ) -> CostedControlRequest {
         match request.channel_index() {
@@ -791,7 +791,7 @@ impl CellLayerSpecialty for ThrusterCellLayerSpecialty {
 
     fn cost_control_request(
         &self,
-        request: ControlRequest,
+        request: &ControlRequest,
         _body: &CellLayerBody,
     ) -> CostedControlRequest {
         match request.channel_index() {
@@ -866,7 +866,7 @@ mod tests {
         let mut changes = CellChanges::new(1, false);
         layer.execute_control_request(
             &budgeted(
-                CellLayer::resize_request(0, AreaDelta::new(2.0)),
+                &CellLayer::resize_request(0, AreaDelta::new(2.0)),
                 BioEnergyDelta::new(-10.0),
                 Fraction::new(0.75),
             ),
@@ -887,11 +887,11 @@ mod tests {
             .with_health(Health::new(0.75));
 
         let resize_request = CellLayer::resize_request(0, AreaDelta::new(10.0));
-        let costed_request = layer.cost_control_request(resize_request);
+        let costed_request = layer.cost_control_request(&resize_request);
 
         assert_eq!(
             costed_request,
-            CostedControlRequest::limited(resize_request, 1.5, BioEnergyDelta::new(-0.75))
+            CostedControlRequest::limited(&resize_request, 1.5, BioEnergyDelta::new(-0.75))
         );
     }
 
@@ -907,11 +907,11 @@ mod tests {
             .with_health(Health::new(0.5));
 
         let resize_request = CellLayer::resize_request(0, AreaDelta::new(-9.0));
-        let costed_request = layer.cost_control_request(resize_request);
+        let costed_request = layer.cost_control_request(&resize_request);
 
         assert_eq!(
             costed_request,
-            CostedControlRequest::limited(resize_request, -2.5, BioEnergyDelta::new(1.25))
+            CostedControlRequest::limited(&resize_request, -2.5, BioEnergyDelta::new(1.25))
         );
     }
 
@@ -921,7 +921,7 @@ mod tests {
         let mut changes = CellChanges::new(1, false);
         layer.execute_control_request(
             &budgeted(
-                CellLayer::resize_request(0, AreaDelta::new(2.0)),
+                &CellLayer::resize_request(0, AreaDelta::new(2.0)),
                 BioEnergyDelta::ZERO,
                 Fraction::new(0.5),
             ),
@@ -955,10 +955,10 @@ mod tests {
         let layer = simple_cell_layer(Area::new(1.0), Density::new(1.0))
             .with_resize_parameters(&LAYER_RESIZE_PARAMS);
         let control_request = CellLayer::resize_request(0, AreaDelta::new(2.0));
-        let costed_request = layer.cost_control_request(control_request);
+        let costed_request = layer.cost_control_request(&control_request);
         assert_eq!(
             costed_request,
-            CostedControlRequest::limited(control_request, 0.5, BioEnergyDelta::new(-1.5))
+            CostedControlRequest::limited(&control_request, 0.5, BioEnergyDelta::new(-1.5))
         );
     }
 
@@ -987,10 +987,10 @@ mod tests {
         let layer = simple_cell_layer(Area::new(4.0), Density::new(1.0))
             .with_resize_parameters(&LAYER_RESIZE_PARAMS);
         let control_request = CellLayer::resize_request(0, AreaDelta::new(-10.0));
-        let costed_request = layer.cost_control_request(control_request);
+        let costed_request = layer.cost_control_request(&control_request);
         assert_eq!(
             costed_request,
-            CostedControlRequest::limited(control_request, -2.0, BioEnergyDelta::new(6.0))
+            CostedControlRequest::limited(&control_request, -2.0, BioEnergyDelta::new(6.0))
         );
     }
 
@@ -1014,10 +1014,10 @@ mod tests {
             .with_resize_parameters(&LAYER_RESIZE_PARAMS)
             .with_health(Health::new(0.5));
         let control_request = CellLayer::resize_request(0, AreaDelta::new(1.0));
-        let costed_request = layer.cost_control_request(control_request);
+        let costed_request = layer.cost_control_request(&control_request);
         assert_eq!(
             costed_request,
-            CostedControlRequest::unlimited(control_request, BioEnergyDelta::new(-1.0))
+            CostedControlRequest::unlimited(&control_request, BioEnergyDelta::new(-1.0))
         );
     }
 
@@ -1037,7 +1037,7 @@ mod tests {
         let mut changes = CellChanges::new(1, false);
         layer.execute_control_request(
             &budgeted(
-                CellLayer::healing_request(0, HealthDelta::new(0.5)),
+                &CellLayer::healing_request(0, HealthDelta::new(0.5)),
                 BioEnergyDelta::new(-10.0),
                 Fraction::new(0.5),
             ),
@@ -1053,7 +1053,7 @@ mod tests {
         let mut changes = CellChanges::new(1, false);
         layer.execute_control_request(
             &budgeted(
-                CellLayer::healing_request(0, HealthDelta::new(0.5)),
+                &CellLayer::healing_request(0, HealthDelta::new(0.5)),
                 BioEnergyDelta::ZERO,
                 Fraction::new(0.5),
             ),
@@ -1073,10 +1073,10 @@ mod tests {
             .with_health_parameters(&LAYER_HEALTH_PARAMS)
             .with_health(Health::new(0.5));
         let control_request = CellLayer::healing_request(0, HealthDelta::new(0.25));
-        let costed_request = layer.cost_control_request(control_request);
+        let costed_request = layer.cost_control_request(&control_request);
         assert_eq!(
             costed_request,
-            CostedControlRequest::unlimited(control_request, BioEnergyDelta::new(-1.5))
+            CostedControlRequest::unlimited(&control_request, BioEnergyDelta::new(-1.5))
         );
     }
 
@@ -1167,8 +1167,8 @@ mod tests {
             .with_health_parameters(&LAYER_HEALTH_PARAMS)
             .dead();
         let control_request = CellLayer::healing_request(0, HealthDelta::new(1.0));
-        let costed_request = layer.cost_control_request(control_request);
-        assert_eq!(costed_request, CostedControlRequest::free(control_request));
+        let costed_request = layer.cost_control_request(&control_request);
+        assert_eq!(costed_request, CostedControlRequest::free(&control_request));
     }
 
     #[test]
@@ -1247,7 +1247,7 @@ mod tests {
         let mut changes = CellChanges::new(1, false);
         layer.execute_control_request(
             &budgeted(
-                BondingCellLayerSpecialty::donation_energy_request(0, 0, BioEnergy::new(1.0)),
+                &BondingCellLayerSpecialty::donation_energy_request(0, 0, BioEnergy::new(1.0)),
                 BioEnergyDelta::new(-1.0),
                 Fraction::new(0.5),
             ),
@@ -1273,7 +1273,7 @@ mod tests {
         let mut changes = CellChanges::new(1, false);
         layer.execute_control_request(
             &budgeted(
-                BondingCellLayerSpecialty::donation_energy_request(0, 0, BioEnergy::new(1.0)),
+                &BondingCellLayerSpecialty::donation_energy_request(0, 0, BioEnergy::new(1.0)),
                 BioEnergyDelta::new(-1.0),
                 Fraction::ONE,
             ),
@@ -1301,7 +1301,7 @@ mod tests {
         );
 
         let costed_request = layer.cost_control_request(
-            BondingCellLayerSpecialty::donation_energy_request(0, 1, BioEnergy::new(10.0)),
+            &BondingCellLayerSpecialty::donation_energy_request(0, 1, BioEnergy::new(10.0)),
         );
 
         assert_eq!(5.0, costed_request.allowed_value());
@@ -1325,7 +1325,7 @@ mod tests {
         let mut changes = CellChanges::new(1, false);
         layer.execute_control_request(
             &budgeted(
-                BondingCellLayerSpecialty::donation_energy_request(0, 0, BioEnergy::new(10.0)),
+                &BondingCellLayerSpecialty::donation_energy_request(0, 0, BioEnergy::new(10.0)),
                 BioEnergyDelta::new(-1.25),
                 Fraction::ONE,
             ),
@@ -1349,11 +1349,11 @@ mod tests {
         );
         let mut changes = CellChanges::new(1, false);
         layer.execute_control_request(
-            &fully_budgeted(ThrusterCellLayerSpecialty::force_x_request(0, 1.0)),
+            &fully_budgeted(&ThrusterCellLayerSpecialty::force_x_request(0, 1.0)),
             &mut changes,
         );
         layer.execute_control_request(
-            &fully_budgeted(ThrusterCellLayerSpecialty::force_y_request(0, -1.0)),
+            &fully_budgeted(&ThrusterCellLayerSpecialty::force_y_request(0, -1.0)),
             &mut changes,
         );
 
@@ -1375,7 +1375,7 @@ mod tests {
         let mut changes = CellChanges::new(1, false);
         layer.execute_control_request(
             &budgeted(
-                ThrusterCellLayerSpecialty::force_x_request(0, 1.0),
+                &ThrusterCellLayerSpecialty::force_x_request(0, 1.0),
                 BioEnergyDelta::new(1.0),
                 Fraction::new(0.5),
             ),
@@ -1383,7 +1383,7 @@ mod tests {
         );
         layer.execute_control_request(
             &budgeted(
-                ThrusterCellLayerSpecialty::force_y_request(0, -1.0),
+                &ThrusterCellLayerSpecialty::force_y_request(0, -1.0),
                 BioEnergyDelta::new(1.0),
                 Fraction::new(0.25),
             ),
@@ -1408,11 +1408,11 @@ mod tests {
         .with_health(Health::new(0.5));
         let mut changes = CellChanges::new(1, false);
         layer.execute_control_request(
-            &fully_budgeted(ThrusterCellLayerSpecialty::force_x_request(0, 1.0)),
+            &fully_budgeted(&ThrusterCellLayerSpecialty::force_x_request(0, 1.0)),
             &mut changes,
         );
         layer.execute_control_request(
-            &fully_budgeted(ThrusterCellLayerSpecialty::force_y_request(0, -1.0)),
+            &fully_budgeted(&ThrusterCellLayerSpecialty::force_y_request(0, -1.0)),
             &mut changes,
         );
 
@@ -1436,30 +1436,30 @@ mod tests {
         layer_index: usize,
         value: Value1D,
     ) -> BudgetedControlRequest {
-        fully_budgeted(CellLayer::healing_request(
+        fully_budgeted(&CellLayer::healing_request(
             layer_index,
             HealthDelta::new(value),
         ))
     }
 
     fn fully_budgeted_resize_request(layer_index: usize, value: Value1D) -> BudgetedControlRequest {
-        fully_budgeted(CellLayer::resize_request(
+        fully_budgeted(&CellLayer::resize_request(
             layer_index,
             AreaDelta::new(value),
         ))
     }
 
-    fn fully_budgeted(control_request: ControlRequest) -> BudgetedControlRequest {
+    fn fully_budgeted(control_request: &ControlRequest) -> BudgetedControlRequest {
         budgeted(control_request, BioEnergyDelta::ZERO, Fraction::ONE)
     }
 
     fn budgeted(
-        control_request: ControlRequest,
+        control_request: &ControlRequest,
         energy_delta: BioEnergyDelta,
         budgeted_fraction: Fraction,
     ) -> BudgetedControlRequest {
         BudgetedControlRequest::new(
-            CostedControlRequest::unlimited(control_request, energy_delta),
+            &CostedControlRequest::unlimited(control_request, energy_delta),
             budgeted_fraction,
         )
     }

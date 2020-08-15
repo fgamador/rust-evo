@@ -692,10 +692,10 @@ impl CellLayerSpecialty for BondingCellLayerSpecialty {
         let bond_request = &mut changes.bond_requests[request.value_index()];
         match request.channel_index() {
             Self::RETAIN_BOND_CHANNEL_INDEX => {
-                bond_request.retain_bond = request.requested_value() > 0.0
+                bond_request.retain_bond = request.requested_value() > 0.0;
             }
             Self::BUDDING_ANGLE_CHANNEL_INDEX => {
-                bond_request.budding_angle = Angle::from_radians(request.requested_value())
+                bond_request.budding_angle = Angle::from_radians(request.requested_value());
             }
             Self::DONATION_ENERGY_CHANNEL_INDEX => {
                 bond_request.donation_energy = body.health.value()

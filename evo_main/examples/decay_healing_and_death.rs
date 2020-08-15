@@ -34,7 +34,7 @@ fn create_world() -> World {
                     Area::new(200.0 * PI),
                     Density::new(1.0),
                     Color::Green,
-                    Box::new(PhotoCellLayerSpecialty::new(1.0)),
+                    Box::new(PhotoCellLayerSpecialty::new(Fraction::ONE)),
                 )
                 .with_resize_parameters(&LAYER_RESIZE_PARAMS)
                 .with_health_parameters(&LAYER_HEALTH_PARAMS)],

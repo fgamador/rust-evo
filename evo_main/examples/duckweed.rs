@@ -92,7 +92,7 @@ fn create_photo_layer() -> CellLayer {
         Area::new(5.0 * PI),
         Density::new(PHOTO_LAYER_DENSITY),
         Color::Green,
-        Box::new(PhotoCellLayerSpecialty::new(0.5)),
+        Box::new(PhotoCellLayerSpecialty::new(Fraction::new(0.5))),
     )
     .with_resize_parameters(&LAYER_RESIZE_PARAMS)
     .with_health_parameters(&LAYER_HEALTH_PARAMS)

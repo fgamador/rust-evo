@@ -1288,7 +1288,7 @@ mod tests {
     }
 
     #[test]
-    fn bonding_layer_costs_donation_request() {
+    fn bonding_layer_bounds_and_costs_donation_request() {
         const LAYER_PARAMS: BondingLayerParameters = BondingLayerParameters {
             max_donation_energy_per_unit_area: BioEnergy::unchecked(0.5),
             donation_energy_tax_rate: Fraction::unchecked(0.25),

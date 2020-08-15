@@ -615,7 +615,7 @@ mod tests {
             Area::new(4.0),
             Density::new(1.0),
             Color::Green,
-            Box::new(PhotoCellLayerSpecialty::new(0.5)),
+            Box::new(PhotoCellLayerSpecialty::new(Fraction::new(0.5))),
         )]);
         cell.environment_mut().add_light_intensity(10.0);
 

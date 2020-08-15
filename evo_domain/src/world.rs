@@ -440,7 +440,7 @@ mod tests {
                 Area::new(10.0),
                 Density::new(1.0),
                 Color::Green,
-                Box::new(PhotoCellLayerSpecialty::new(1.0)),
+                Box::new(PhotoCellLayerSpecialty::new(Fraction::ONE)),
             )]));
 
         world.tick();

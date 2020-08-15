@@ -641,11 +641,11 @@ impl CellLayerSpecialty for ThrusterCellLayerSpecialty {
 
 #[derive(Clone, Debug)]
 pub struct PhotoCellLayerSpecialty {
-    efficiency: Value1D,
+    efficiency: Fraction,
 }
 
 impl PhotoCellLayerSpecialty {
-    pub fn new(efficiency: Value1D) -> Self {
+    pub fn new(efficiency: Fraction) -> Self {
         PhotoCellLayerSpecialty { efficiency }
     }
 }
@@ -662,7 +662,10 @@ impl CellLayerSpecialty for PhotoCellLayerSpecialty {
         changes: &mut CellChanges,
     ) {
         let energy = BioEnergy::new(
-            env.light_intensity() * self.efficiency * body.health.value() * body.area.value(),
+            env.light_intensity()
+                * self.efficiency.value()
+                * body.health.value()
+                * body.area.value(),
         );
         changes.add_energy_change(energy.into(), "photo", usize::MAX);
     }
@@ -1188,7 +1191,7 @@ mod tests {
             Area::new(4.0),
             Density::new(1.0),
             Color::Green,
-            Box::new(PhotoCellLayerSpecialty::new(0.5)),
+            Box::new(PhotoCellLayerSpecialty::new(Fraction::new(0.5))),
         );
 
         let mut env = LocalEnvironment::new();
@@ -1206,7 +1209,7 @@ mod tests {
             Area::new(1.0),
             Density::new(1.0),
             Color::Green,
-            Box::new(PhotoCellLayerSpecialty::new(1.0)),
+            Box::new(PhotoCellLayerSpecialty::new(Fraction::ONE)),
         )
         .with_health(Health::new(0.75));
 
@@ -1225,7 +1228,7 @@ mod tests {
             Area::new(1.0),
             Density::new(1.0),
             Color::Green,
-            Box::new(PhotoCellLayerSpecialty::new(1.0)),
+            Box::new(PhotoCellLayerSpecialty::new(Fraction::ONE)),
         )
         .dead();
 

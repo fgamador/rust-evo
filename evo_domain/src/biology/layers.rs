@@ -343,7 +343,7 @@ impl CellLayerBrain for LivingCellLayerBrain {
         match request.channel_index() {
             CellLayer::HEALING_CHANNEL_INDEX => body.cost_restore_health(request),
             CellLayer::RESIZE_CHANNEL_INDEX => body.cost_resize(request),
-            _ => specialty.cost_control_request(request),
+            _ => specialty.cost_control_request(request, body),
         }
     }
 
@@ -439,6 +439,10 @@ impl CellLayerBody {
         };
         body.init_from_area();
         body
+    }
+
+    fn area(&self) -> Area {
+        self.area
     }
 
     fn spawn(&self, area: Area) -> Self {
@@ -551,7 +555,11 @@ pub trait CellLayerSpecialty: Debug {
     //        CellLayer::RESIZE_CHANNEL_INDEX
     //    }
 
-    fn cost_control_request(&self, request: ControlRequest) -> CostedControlRequest {
+    fn cost_control_request(
+        &self,
+        request: ControlRequest,
+        _body: &CellLayerBody,
+    ) -> CostedControlRequest {
         panic!("Invalid control channel index: {}", request.channel_index());
     }
 
@@ -622,7 +630,7 @@ pub struct BondingLayerParameters {
 impl BondingLayerParameters {
     pub const DEFAULT: BondingLayerParameters = BondingLayerParameters {
         max_donation_energy_per_unit_area: BioEnergy::MAX,
-        donation_energy_tax_rate: Fraction::ONE,
+        donation_energy_tax_rate: Fraction::ZERO,
     };
 }
 
@@ -686,6 +694,23 @@ impl BondingCellLayerSpecialty {
             energy.value(),
         )
     }
+
+    fn cost_donation_request(
+        &self,
+        request: ControlRequest,
+        body: &CellLayerBody,
+    ) -> CostedControlRequest {
+        let allowed_value = request
+            .requested_value()
+            .min(body.area().value() * self.parameters.max_donation_energy_per_unit_area.value());
+        CostedControlRequest::limited(
+            request,
+            allowed_value,
+            BioEnergyDelta::new(
+                allowed_value * -(1.0 + self.parameters.donation_energy_tax_rate.value()),
+            ),
+        )
+    }
 }
 
 impl CellLayerSpecialty for BondingCellLayerSpecialty {
@@ -693,14 +718,15 @@ impl CellLayerSpecialty for BondingCellLayerSpecialty {
         Box::new(BondingCellLayerSpecialty::new())
     }
 
-    fn cost_control_request(&self, request: ControlRequest) -> CostedControlRequest {
+    fn cost_control_request(
+        &self,
+        request: ControlRequest,
+        body: &CellLayerBody,
+    ) -> CostedControlRequest {
         match request.channel_index() {
             Self::RETAIN_BOND_CHANNEL_INDEX => CostedControlRequest::free(request),
             Self::BUDDING_ANGLE_CHANNEL_INDEX => CostedControlRequest::free(request),
-            Self::DONATION_ENERGY_CHANNEL_INDEX => CostedControlRequest::unlimited(
-                request,
-                BioEnergyDelta::new(-request.requested_value()),
-            ),
+            Self::DONATION_ENERGY_CHANNEL_INDEX => self.cost_donation_request(request, body),
             _ => panic!("Invalid control channel index: {}", request.channel_index()),
         }
     }
@@ -756,7 +782,11 @@ impl CellLayerSpecialty for ThrusterCellLayerSpecialty {
         Box::new(ThrusterCellLayerSpecialty::new())
     }
 
-    fn cost_control_request(&self, request: ControlRequest) -> CostedControlRequest {
+    fn cost_control_request(
+        &self,
+        request: ControlRequest,
+        _body: &CellLayerBody,
+    ) -> CostedControlRequest {
         match request.channel_index() {
             // TODO cost forces based on a parameter struct(?)
             Self::FORCE_X_CHANNEL_INDEX | Self::FORCE_Y_CHANNEL_INDEX => {
@@ -1231,7 +1261,6 @@ mod tests {
     }
 
     #[test]
-    #[ignore]
     fn bonding_layer_costs_donation_request() {
         const LAYER_PARAMS: BondingLayerParameters = BondingLayerParameters {
             max_donation_energy_per_unit_area: BioEnergy::unchecked(0.5),

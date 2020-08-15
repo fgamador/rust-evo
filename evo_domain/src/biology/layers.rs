@@ -613,8 +613,23 @@ impl CellLayerSpecialty for PhotoCellLayerSpecialty {
     }
 }
 
+#[derive(Debug, Clone, Copy)]
+pub struct BondingLayerParameters {
+    pub max_donation_energy_per_unit_area: BioEnergy,
+    pub donation_energy_tax_rate: Fraction,
+}
+
+impl BondingLayerParameters {
+    pub const DEFAULT: BondingLayerParameters = BondingLayerParameters {
+        max_donation_energy_per_unit_area: BioEnergy::MAX,
+        donation_energy_tax_rate: Fraction::ONE,
+    };
+}
+
 #[derive(Debug)]
-pub struct BondingCellLayerSpecialty {}
+pub struct BondingCellLayerSpecialty {
+    parameters: &'static BondingLayerParameters,
+}
 
 impl BondingCellLayerSpecialty {
     const RETAIN_BOND_CHANNEL_INDEX: usize = 2;
@@ -623,7 +638,14 @@ impl BondingCellLayerSpecialty {
 
     #[allow(clippy::new_without_default)]
     pub fn new() -> Self {
-        BondingCellLayerSpecialty {}
+        BondingCellLayerSpecialty {
+            parameters: &BondingLayerParameters::DEFAULT,
+        }
+    }
+
+    pub fn with_parameters(mut self, parameters: &'static BondingLayerParameters) -> Self {
+        self.parameters = parameters;
+        self
     }
 
     pub fn retain_bond_request(
@@ -1162,7 +1184,7 @@ mod tests {
         let layer = CellLayer::new(
             Area::new(1.0),
             Density::new(1.0),
-            Color::Green,
+            Color::Yellow,
             Box::new(BondingCellLayerSpecialty::new()),
         );
         let mut changes = CellChanges::new(1, false);
@@ -1187,7 +1209,7 @@ mod tests {
         let layer = CellLayer::new(
             Area::new(1.0),
             Density::new(1.0),
-            Color::Green,
+            Color::Yellow,
             Box::new(BondingCellLayerSpecialty::new()),
         )
         .with_health(Health::new(0.5));
@@ -1206,6 +1228,59 @@ mod tests {
             BioEnergy::new(0.5)
         );
         assert_eq!(changes.energy, BioEnergyDelta::new(-1.0));
+    }
+
+    #[test]
+    #[ignore]
+    fn bonding_layer_costs_donation_request() {
+        const LAYER_PARAMS: BondingLayerParameters = BondingLayerParameters {
+            max_donation_energy_per_unit_area: BioEnergy::unchecked(0.5),
+            donation_energy_tax_rate: Fraction::unchecked(0.25),
+        };
+        let layer = CellLayer::new(
+            Area::new(10.0),
+            Density::new(1.0),
+            Color::Yellow,
+            Box::new(BondingCellLayerSpecialty::new().with_parameters(&LAYER_PARAMS)),
+        );
+
+        let costed_request = layer.cost_control_request(
+            BondingCellLayerSpecialty::donation_energy_request(0, 1, BioEnergy::new(10.0)),
+        );
+
+        assert_eq!(5.0, costed_request.allowed_value());
+        assert_eq!(BioEnergyDelta::new(-6.25), costed_request.energy_delta());
+    }
+
+    #[test]
+    #[ignore]
+    fn bonding_layer_collects_tax() {
+        const LAYER_PARAMS: BondingLayerParameters = BondingLayerParameters {
+            max_donation_energy_per_unit_area: BioEnergy::unchecked(0.5),
+            donation_energy_tax_rate: Fraction::unchecked(0.25),
+        };
+        let layer = CellLayer::new(
+            Area::new(10.0),
+            Density::new(1.0),
+            Color::Yellow,
+            Box::new(BondingCellLayerSpecialty::new().with_parameters(&LAYER_PARAMS)),
+        );
+
+        let mut changes = CellChanges::new(1, false);
+        layer.execute_control_request(
+            &budgeted(
+                BondingCellLayerSpecialty::donation_energy_request(0, 0, BioEnergy::new(10.0)),
+                BioEnergyDelta::new(-1.25),
+                Fraction::ONE,
+            ),
+            &mut changes,
+        );
+
+        assert_eq!(
+            changes.bond_requests[0].donation_energy,
+            BioEnergy::new(1.0)
+        );
+        assert_eq!(changes.energy, BioEnergyDelta::new(-1.25));
     }
 
     #[test]

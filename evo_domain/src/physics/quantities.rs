@@ -196,6 +196,10 @@ impl Fraction {
         Fraction { value }
     }
 
+    pub const fn unchecked(value: Value1D) -> Self {
+        Fraction { value }
+    }
+
     #[allow(dead_code)]
     pub fn value(self) -> Value1D {
         self.value
@@ -629,12 +633,19 @@ pub struct BioEnergy {
 
 impl BioEnergy {
     pub const ZERO: BioEnergy = BioEnergy { value: 0.0 };
+    pub const MAX: BioEnergy = BioEnergy {
+        value: f64::INFINITY,
+    };
 
     pub fn new(value: Value1D) -> Self {
         if value < 0.0 {
             panic!("Negative energy: {}", value);
         }
 
+        BioEnergy { value }
+    }
+
+    pub const fn unchecked(value: Value1D) -> Self {
         BioEnergy { value }
     }
 
@@ -729,6 +740,9 @@ pub struct BioEnergyDelta {
 
 impl BioEnergyDelta {
     pub const ZERO: BioEnergyDelta = BioEnergyDelta { value: 0.0 };
+    pub const MAX: BioEnergyDelta = BioEnergyDelta {
+        value: f64::INFINITY,
+    };
 
     pub const fn new(value: Value1D) -> Self {
         BioEnergyDelta { value }

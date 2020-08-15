@@ -473,14 +473,13 @@ impl CellLayerBody {
         )
     }
 
-    fn cost_resize(&self, request: ControlRequest) -> CostedControlRequest {
-        let delta_area = self.bound_resize_delta_area(request.requested_value());
-        let energy_delta_per_area = if request.requested_value() >= 0.0 {
-            self.resize_parameters.growth_energy_delta
-        } else {
-            -self.resize_parameters.shrinkage_energy_delta
-        };
-        CostedControlRequest::limited(request, delta_area, delta_area * energy_delta_per_area)
+    fn actual_delta_health(
+        &self,
+        requested_delta_health: HealthDelta,
+        budgeted_fraction: Fraction,
+    ) -> HealthDelta {
+        assert!(requested_delta_health.value() >= 0.0);
+        budgeted_fraction * requested_delta_health
     }
 
     fn update_health(&mut self, delta_health: HealthDelta) -> &'static dyn CellLayerBrain {
@@ -492,18 +491,14 @@ impl CellLayerBody {
         }
     }
 
-    fn actual_delta_health(
-        &self,
-        requested_delta_health: HealthDelta,
-        budgeted_fraction: Fraction,
-    ) -> HealthDelta {
-        assert!(requested_delta_health.value() >= 0.0);
-        budgeted_fraction * requested_delta_health
-    }
-
-    fn resize(&mut self, delta_area: AreaDelta) {
-        self.area += delta_area;
-        self.mass = self.area * self.density;
+    fn cost_resize(&self, request: ControlRequest) -> CostedControlRequest {
+        let delta_area = self.bound_resize_delta_area(request.requested_value());
+        let energy_delta_per_area = if request.requested_value() >= 0.0 {
+            self.resize_parameters.growth_energy_delta
+        } else {
+            -self.resize_parameters.shrinkage_energy_delta
+        };
+        CostedControlRequest::limited(request, delta_area, delta_area * energy_delta_per_area)
     }
 
     fn actual_delta_area(
@@ -526,6 +521,11 @@ impl CellLayerBody {
             let min_delta_area = -self.resize_parameters.max_shrinkage_rate * self.area.value();
             requested_delta_area.max(min_delta_area)
         }
+    }
+
+    fn resize(&mut self, delta_area: AreaDelta) {
+        self.area += delta_area;
+        self.mass = self.area * self.density;
     }
 }
 

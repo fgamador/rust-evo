@@ -1102,90 +1102,6 @@ mod tests {
     }
 
     #[test]
-    fn thruster_layer_adds_force() {
-        let mut layer = CellLayer::new(
-            Area::new(1.0),
-            Density::new(1.0),
-            Color::Green,
-            Box::new(ThrusterCellLayerSpecialty::new()),
-        );
-        let mut changes = CellChanges::new(1, false);
-        layer.execute_control_request(
-            &fully_budgeted(ThrusterCellLayerSpecialty::force_x_request(0, 1.0)),
-            &mut changes,
-        );
-        layer.execute_control_request(
-            &fully_budgeted(ThrusterCellLayerSpecialty::force_y_request(0, -1.0)),
-            &mut changes,
-        );
-
-        let env = LocalEnvironment::new();
-        let mut changes2 = CellChanges::new(1, false);
-        layer.calculate_automatic_changes(&env, &mut changes2, 0);
-
-        assert_eq!(changes.thrust, Force::new(1.0, -1.0));
-    }
-
-    #[test]
-    fn thruster_layer_force_is_limited_by_budget() {
-        let mut layer = CellLayer::new(
-            Area::new(1.0),
-            Density::new(1.0),
-            Color::Green,
-            Box::new(ThrusterCellLayerSpecialty::new()),
-        );
-        let mut changes = CellChanges::new(1, false);
-        layer.execute_control_request(
-            &budgeted(
-                ThrusterCellLayerSpecialty::force_x_request(0, 1.0),
-                BioEnergyDelta::new(1.0),
-                Fraction::new(0.5),
-            ),
-            &mut changes,
-        );
-        layer.execute_control_request(
-            &budgeted(
-                ThrusterCellLayerSpecialty::force_y_request(0, -1.0),
-                BioEnergyDelta::new(1.0),
-                Fraction::new(0.25),
-            ),
-            &mut changes,
-        );
-
-        let env = LocalEnvironment::new();
-        let mut changes2 = CellChanges::new(1, false);
-        layer.calculate_automatic_changes(&env, &mut changes2, 0);
-
-        assert_eq!(changes.thrust, Force::new(0.5, -0.25));
-    }
-
-    #[test]
-    fn thruster_layer_force_is_limited_by_health() {
-        let mut layer = CellLayer::new(
-            Area::new(1.0),
-            Density::new(1.0),
-            Color::Green,
-            Box::new(ThrusterCellLayerSpecialty::new()),
-        )
-        .with_health(Health::new(0.5));
-        let mut changes = CellChanges::new(1, false);
-        layer.execute_control_request(
-            &fully_budgeted(ThrusterCellLayerSpecialty::force_x_request(0, 1.0)),
-            &mut changes,
-        );
-        layer.execute_control_request(
-            &fully_budgeted(ThrusterCellLayerSpecialty::force_y_request(0, -1.0)),
-            &mut changes,
-        );
-
-        let env = LocalEnvironment::new();
-        let mut changes2 = CellChanges::new(1, false);
-        layer.calculate_automatic_changes(&env, &mut changes2, 0);
-
-        assert_eq!(changes.thrust, Force::new(0.5, -0.5));
-    }
-
-    #[test]
     fn photo_layer_adds_energy_based_on_area_and_efficiency_and_duration() {
         let mut layer = CellLayer::new(
             Area::new(4.0),
@@ -1290,6 +1206,90 @@ mod tests {
             BioEnergy::new(0.5)
         );
         assert_eq!(changes.energy, BioEnergyDelta::new(-1.0));
+    }
+
+    #[test]
+    fn thruster_layer_adds_force() {
+        let mut layer = CellLayer::new(
+            Area::new(1.0),
+            Density::new(1.0),
+            Color::Green,
+            Box::new(ThrusterCellLayerSpecialty::new()),
+        );
+        let mut changes = CellChanges::new(1, false);
+        layer.execute_control_request(
+            &fully_budgeted(ThrusterCellLayerSpecialty::force_x_request(0, 1.0)),
+            &mut changes,
+        );
+        layer.execute_control_request(
+            &fully_budgeted(ThrusterCellLayerSpecialty::force_y_request(0, -1.0)),
+            &mut changes,
+        );
+
+        let env = LocalEnvironment::new();
+        let mut changes2 = CellChanges::new(1, false);
+        layer.calculate_automatic_changes(&env, &mut changes2, 0);
+
+        assert_eq!(changes.thrust, Force::new(1.0, -1.0));
+    }
+
+    #[test]
+    fn thruster_layer_force_is_limited_by_budget() {
+        let mut layer = CellLayer::new(
+            Area::new(1.0),
+            Density::new(1.0),
+            Color::Green,
+            Box::new(ThrusterCellLayerSpecialty::new()),
+        );
+        let mut changes = CellChanges::new(1, false);
+        layer.execute_control_request(
+            &budgeted(
+                ThrusterCellLayerSpecialty::force_x_request(0, 1.0),
+                BioEnergyDelta::new(1.0),
+                Fraction::new(0.5),
+            ),
+            &mut changes,
+        );
+        layer.execute_control_request(
+            &budgeted(
+                ThrusterCellLayerSpecialty::force_y_request(0, -1.0),
+                BioEnergyDelta::new(1.0),
+                Fraction::new(0.25),
+            ),
+            &mut changes,
+        );
+
+        let env = LocalEnvironment::new();
+        let mut changes2 = CellChanges::new(1, false);
+        layer.calculate_automatic_changes(&env, &mut changes2, 0);
+
+        assert_eq!(changes.thrust, Force::new(0.5, -0.25));
+    }
+
+    #[test]
+    fn thruster_layer_force_is_limited_by_health() {
+        let mut layer = CellLayer::new(
+            Area::new(1.0),
+            Density::new(1.0),
+            Color::Green,
+            Box::new(ThrusterCellLayerSpecialty::new()),
+        )
+        .with_health(Health::new(0.5));
+        let mut changes = CellChanges::new(1, false);
+        layer.execute_control_request(
+            &fully_budgeted(ThrusterCellLayerSpecialty::force_x_request(0, 1.0)),
+            &mut changes,
+        );
+        layer.execute_control_request(
+            &fully_budgeted(ThrusterCellLayerSpecialty::force_y_request(0, -1.0)),
+            &mut changes,
+        );
+
+        let env = LocalEnvironment::new();
+        let mut changes2 = CellChanges::new(1, false);
+        layer.calculate_automatic_changes(&env, &mut changes2, 0);
+
+        assert_eq!(changes.thrust, Force::new(0.5, -0.5));
     }
 
     fn simple_cell_layer(area: Area, density: Density) -> CellLayer {

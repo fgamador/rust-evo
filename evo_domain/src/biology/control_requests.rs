@@ -4,7 +4,7 @@ use std::fmt;
 #[derive(Clone, Copy, Debug, PartialEq)]
 pub struct ControlRequest {
     id: ControlRequestId,
-    requested_value: f64,
+    requested_value: Value1D,
 }
 
 impl ControlRequest {
@@ -17,7 +17,7 @@ impl ControlRequest {
         layer_index: usize,
         channel_index: usize,
         value_index: usize,
-        requested_value: f64,
+        requested_value: Value1D,
     ) -> Self {
         ControlRequest {
             id: ControlRequestId::new(layer_index, channel_index, value_index),
@@ -37,7 +37,7 @@ impl ControlRequest {
         self.id.value_index()
     }
 
-    pub fn requested_value(&self) -> f64 {
+    pub fn requested_value(&self) -> Value1D {
         self.requested_value
     }
 }
@@ -90,8 +90,8 @@ impl fmt::Display for ControlRequestId {
 #[derive(Clone, Copy, Debug, PartialEq)]
 pub struct CostedControlRequest {
     id: ControlRequestId,
-    requested_value: f64,
-    allowed_value: f64,
+    requested_value: Value1D,
+    allowed_value: Value1D,
     energy_delta: BioEnergyDelta,
 }
 
@@ -118,7 +118,7 @@ impl CostedControlRequest {
 
     pub fn limited(
         control_request: ControlRequest,
-        allowed_value: f64,
+        allowed_value: Value1D,
         energy_delta: BioEnergyDelta,
     ) -> Self {
         CostedControlRequest {
@@ -141,11 +141,11 @@ impl CostedControlRequest {
         self.id.value_index()
     }
 
-    pub fn requested_value(&self) -> f64 {
+    pub fn requested_value(&self) -> Value1D {
         self.requested_value
     }
 
-    pub fn allowed_value(&self) -> f64 {
+    pub fn allowed_value(&self) -> Value1D {
         self.allowed_value
     }
 
@@ -157,8 +157,8 @@ impl CostedControlRequest {
 #[derive(Clone, Copy, Debug, PartialEq)]
 pub struct BudgetedControlRequest {
     id: ControlRequestId,
-    requested_value: f64,
-    allowed_value: f64,
+    requested_value: Value1D,
+    allowed_value: Value1D,
     energy_delta: BioEnergyDelta,
     budgeted_fraction: Fraction,
 }
@@ -194,11 +194,11 @@ impl BudgetedControlRequest {
         self.id.value_index()
     }
 
-    pub fn requested_value(&self) -> f64 {
+    pub fn requested_value(&self) -> Value1D {
         self.requested_value
     }
 
-    pub fn allowed_value(&self) -> f64 {
+    pub fn allowed_value(&self) -> Value1D {
         self.allowed_value
     }
 

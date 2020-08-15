@@ -189,7 +189,10 @@ impl Fraction {
     pub const ONE: Fraction = Fraction { value: 1.0 };
 
     pub fn new(value: Value1D) -> Self {
-        assert!(0.0 <= value && value <= 1.0);
+        if value < 0.0 || 1.0 < value {
+            panic!("Invalid fraction: {}", value);
+        }
+
         Fraction { value }
     }
 
@@ -309,7 +312,10 @@ impl Length {
     pub const ZERO: Length = Length { value: 0.0 };
 
     pub fn new(value: Value1D) -> Self {
-        assert!(value >= 0.0);
+        if value < 0.0 {
+            panic!("Invalid length: {}", value);
+        }
+
         Length { value }
     }
 
@@ -376,7 +382,10 @@ impl Area {
     pub const ZERO: Area = Area { value: 0.0 };
 
     pub fn new(value: Value1D) -> Self {
-        assert!(value >= 0.0);
+        if value < 0.0 {
+            panic!("Invalid area: {}", value);
+        }
+
         Area { value }
     }
 
@@ -508,8 +517,8 @@ pub struct Health {
 }
 
 impl Health {
-    pub const FULL: Health = Health { value: 1.0 };
     pub const ZERO: Health = Health { value: 0.0 };
+    pub const FULL: Health = Health { value: 1.0 };
 
     pub fn new(value: Value1D) -> Self {
         if value < 0.0 || 1.0 < value {
@@ -1294,7 +1303,10 @@ pub struct Density {
 
 impl Density {
     pub fn new(value: Value1D) -> Self {
-        assert!(value >= 0.0);
+        if value < 0.0 {
+            panic!("Invalid density: {}", value);
+        }
+
         Density { value }
     }
 

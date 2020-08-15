@@ -581,64 +581,6 @@ impl CellLayerSpecialty for NullCellLayerSpecialty {
     }
 }
 
-#[derive(Debug)]
-pub struct ThrusterCellLayerSpecialty {}
-
-impl ThrusterCellLayerSpecialty {
-    const FORCE_X_CHANNEL_INDEX: usize = 2;
-    const FORCE_Y_CHANNEL_INDEX: usize = 3;
-
-    #[allow(clippy::new_without_default)]
-    pub fn new() -> Self {
-        ThrusterCellLayerSpecialty {}
-    }
-
-    pub fn force_x_request(layer_index: usize, value: Value1D) -> ControlRequest {
-        ControlRequest::new(layer_index, Self::FORCE_X_CHANNEL_INDEX, 0, value)
-    }
-
-    pub fn force_y_request(layer_index: usize, value: Value1D) -> ControlRequest {
-        ControlRequest::new(layer_index, Self::FORCE_Y_CHANNEL_INDEX, 0, value)
-    }
-}
-
-impl CellLayerSpecialty for ThrusterCellLayerSpecialty {
-    fn box_spawn(&self) -> Box<dyn CellLayerSpecialty> {
-        Box::new(ThrusterCellLayerSpecialty::new())
-    }
-
-    fn cost_control_request(&self, request: ControlRequest) -> CostedControlRequest {
-        match request.channel_index() {
-            // TODO cost forces based on a parameter struct(?)
-            Self::FORCE_X_CHANNEL_INDEX | Self::FORCE_Y_CHANNEL_INDEX => {
-                CostedControlRequest::free(request)
-            }
-            _ => panic!("Invalid control channel index: {}", request.channel_index()),
-        }
-    }
-
-    fn execute_control_request(
-        &self,
-        body: &CellLayerBody,
-        request: &BudgetedControlRequest,
-        changes: &mut CellChanges,
-    ) {
-        match request.channel_index() {
-            Self::FORCE_X_CHANNEL_INDEX => {
-                let force_x =
-                    body.health.value() * request.budgeted_fraction() * request.requested_value();
-                changes.thrust += Force::new(force_x, 0.0);
-            }
-            Self::FORCE_Y_CHANNEL_INDEX => {
-                let force_y =
-                    body.health.value() * request.budgeted_fraction() * request.requested_value();
-                changes.thrust += Force::new(0.0, force_y);
-            }
-            _ => panic!("Invalid control channel index: {}", request.channel_index()),
-        }
-    }
-}
-
 #[derive(Clone, Debug)]
 pub struct PhotoCellLayerSpecialty {
     efficiency: Fraction,
@@ -760,6 +702,64 @@ impl CellLayerSpecialty for BondingCellLayerSpecialty {
                     * request.budgeted_fraction()
                     * BioEnergy::new(request.requested_value());
                 CellLayer::record_request_energy_change(&request, "donated", changes);
+            }
+            _ => panic!("Invalid control channel index: {}", request.channel_index()),
+        }
+    }
+}
+
+#[derive(Debug)]
+pub struct ThrusterCellLayerSpecialty {}
+
+impl ThrusterCellLayerSpecialty {
+    const FORCE_X_CHANNEL_INDEX: usize = 2;
+    const FORCE_Y_CHANNEL_INDEX: usize = 3;
+
+    #[allow(clippy::new_without_default)]
+    pub fn new() -> Self {
+        ThrusterCellLayerSpecialty {}
+    }
+
+    pub fn force_x_request(layer_index: usize, value: Value1D) -> ControlRequest {
+        ControlRequest::new(layer_index, Self::FORCE_X_CHANNEL_INDEX, 0, value)
+    }
+
+    pub fn force_y_request(layer_index: usize, value: Value1D) -> ControlRequest {
+        ControlRequest::new(layer_index, Self::FORCE_Y_CHANNEL_INDEX, 0, value)
+    }
+}
+
+impl CellLayerSpecialty for ThrusterCellLayerSpecialty {
+    fn box_spawn(&self) -> Box<dyn CellLayerSpecialty> {
+        Box::new(ThrusterCellLayerSpecialty::new())
+    }
+
+    fn cost_control_request(&self, request: ControlRequest) -> CostedControlRequest {
+        match request.channel_index() {
+            // TODO cost forces based on a parameter struct(?)
+            Self::FORCE_X_CHANNEL_INDEX | Self::FORCE_Y_CHANNEL_INDEX => {
+                CostedControlRequest::free(request)
+            }
+            _ => panic!("Invalid control channel index: {}", request.channel_index()),
+        }
+    }
+
+    fn execute_control_request(
+        &self,
+        body: &CellLayerBody,
+        request: &BudgetedControlRequest,
+        changes: &mut CellChanges,
+    ) {
+        match request.channel_index() {
+            Self::FORCE_X_CHANNEL_INDEX => {
+                let force_x =
+                    body.health.value() * request.budgeted_fraction() * request.requested_value();
+                changes.thrust += Force::new(force_x, 0.0);
+            }
+            Self::FORCE_Y_CHANNEL_INDEX => {
+                let force_y =
+                    body.health.value() * request.budgeted_fraction() * request.requested_value();
+                changes.thrust += Force::new(0.0, force_y);
             }
             _ => panic!("Invalid control channel index: {}", request.channel_index()),
         }

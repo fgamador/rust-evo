@@ -41,9 +41,9 @@ impl LayerHealthParameters {
 #[derive(Debug, Clone, Copy)]
 pub struct LayerResizeParameters {
     pub growth_energy_delta: BioEnergyDelta,
-    pub max_growth_rate: f64,
+    pub max_growth_rate: Value1D,
     pub shrinkage_energy_delta: BioEnergyDelta,
-    pub max_shrinkage_rate: f64,
+    pub max_shrinkage_rate: Value1D,
 }
 
 impl LayerResizeParameters {
@@ -491,7 +491,7 @@ impl CellLayerBody {
     fn actual_delta_health(
         &self,
         requested_delta_health: HealthDelta,
-        budgeted_fraction: f64,
+        budgeted_fraction: Value1D,
     ) -> HealthDelta {
         assert!(requested_delta_health.value() >= 0.0);
         budgeted_fraction * requested_delta_health
@@ -502,14 +502,18 @@ impl CellLayerBody {
         self.mass = self.area * self.density;
     }
 
-    fn actual_delta_area(&self, requested_delta_area: f64, budgeted_fraction: f64) -> AreaDelta {
+    fn actual_delta_area(
+        &self,
+        requested_delta_area: Value1D,
+        budgeted_fraction: Value1D,
+    ) -> AreaDelta {
         let delta_area = self.health.value()
             * budgeted_fraction
             * self.bound_resize_delta_area(requested_delta_area);
         AreaDelta::new(delta_area.max(-self.area.value()))
     }
 
-    fn bound_resize_delta_area(&self, requested_delta_area: f64) -> f64 {
+    fn bound_resize_delta_area(&self, requested_delta_area: Value1D) -> Value1D {
         if requested_delta_area >= 0.0 {
             // TODO a layer that starts with area 0.0 cannot grow; add min-area param?
             let max_delta_area = self.resize_parameters.max_growth_rate * self.area.value();
@@ -589,11 +593,11 @@ impl ThrusterCellLayerSpecialty {
         ThrusterCellLayerSpecialty {}
     }
 
-    pub fn force_x_request(layer_index: usize, value: f64) -> ControlRequest {
+    pub fn force_x_request(layer_index: usize, value: Value1D) -> ControlRequest {
         ControlRequest::new(layer_index, Self::FORCE_X_CHANNEL_INDEX, 0, value)
     }
 
-    pub fn force_y_request(layer_index: usize, value: f64) -> ControlRequest {
+    pub fn force_y_request(layer_index: usize, value: Value1D) -> ControlRequest {
         ControlRequest::new(layer_index, Self::FORCE_Y_CHANNEL_INDEX, 0, value)
     }
 }
@@ -637,11 +641,11 @@ impl CellLayerSpecialty for ThrusterCellLayerSpecialty {
 
 #[derive(Clone, Debug)]
 pub struct PhotoCellLayerSpecialty {
-    efficiency: f64,
+    efficiency: Value1D,
 }
 
 impl PhotoCellLayerSpecialty {
-    pub fn new(efficiency: f64) -> Self {
+    pub fn new(efficiency: Value1D) -> Self {
         PhotoCellLayerSpecialty { efficiency }
     }
 }
@@ -1294,14 +1298,17 @@ mod tests {
         )
     }
 
-    fn fully_budgeted_healing_request(layer_index: usize, value: f64) -> BudgetedControlRequest {
+    fn fully_budgeted_healing_request(
+        layer_index: usize,
+        value: Value1D,
+    ) -> BudgetedControlRequest {
         fully_budgeted(CellLayer::healing_request(
             layer_index,
             HealthDelta::new(value),
         ))
     }
 
-    fn fully_budgeted_resize_request(layer_index: usize, value: f64) -> BudgetedControlRequest {
+    fn fully_budgeted_resize_request(layer_index: usize, value: Value1D) -> BudgetedControlRequest {
         fully_budgeted(CellLayer::resize_request(
             layer_index,
             AreaDelta::new(value),
@@ -1315,7 +1322,7 @@ mod tests {
     fn budgeted(
         control_request: ControlRequest,
         energy_delta: BioEnergyDelta,
-        budgeted_fraction: f64,
+        budgeted_fraction: Value1D,
     ) -> BudgetedControlRequest {
         BudgetedControlRequest::new(
             CostedControlRequest::unlimited(control_request, energy_delta),

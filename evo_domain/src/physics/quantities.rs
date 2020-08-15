@@ -181,19 +181,19 @@ impl DivAssign<Value1D> for Value2D {
 
 #[derive(Clone, Copy, Debug, PartialEq, PartialOrd)]
 pub struct Angle {
-    radians: f64,
+    radians: Value1D,
 }
 
 impl Angle {
     pub const ZERO: Angle = Angle { radians: 0.0 };
 
-    pub fn from_radians(radians: f64) -> Self {
+    pub fn from_radians(radians: Value1D) -> Self {
         Angle {
             radians: Self::normalize_radians(radians),
         }
     }
 
-    fn normalize_radians(radians: f64) -> f64 {
+    fn normalize_radians(radians: Value1D) -> Value1D {
         let mut normalized_radians = radians;
         while normalized_radians < 0.0 {
             normalized_radians += 2.0 * PI;
@@ -205,15 +205,15 @@ impl Angle {
     }
 
     #[allow(dead_code)]
-    pub fn radians(self) -> f64 {
+    pub fn radians(self) -> Value1D {
         self.radians
     }
 
-    pub fn cos(self) -> f64 {
+    pub fn cos(self) -> Value1D {
         self.radians.cos()
     }
 
-    pub fn sin(self) -> f64 {
+    pub fn sin(self) -> Value1D {
         self.radians.sin()
     }
 }
@@ -242,16 +242,16 @@ impl AddAssign<Deflection> for Angle {
 
 #[derive(Clone, Copy, Debug, PartialEq, PartialOrd)]
 pub struct Deflection {
-    radians: f64,
+    radians: Value1D,
 }
 
 impl Deflection {
-    pub fn from_radians(radians: f64) -> Self {
+    pub fn from_radians(radians: Value1D) -> Self {
         Deflection { radians }
     }
 
     #[allow(dead_code)]
-    pub fn radians(self) -> f64 {
+    pub fn radians(self) -> Value1D {
         self.radians
     }
 }
@@ -266,19 +266,19 @@ impl Add for Deflection {
 
 #[derive(Clone, Copy, Debug, PartialEq, PartialOrd)]
 pub struct Length {
-    value: f64,
+    value: Value1D,
 }
 
 impl Length {
     pub const ZERO: Length = Length { value: 0.0 };
 
-    pub fn new(value: f64) -> Self {
+    pub fn new(value: Value1D) -> Self {
         assert!(value >= 0.0);
         Length { value }
     }
 
     #[allow(dead_code)]
-    pub fn value(self) -> f64 {
+    pub fn value(self) -> Value1D {
         self.value
     }
 
@@ -315,15 +315,15 @@ impl Mul for Length {
     }
 }
 
-impl Mul<f64> for Length {
+impl Mul<Value1D> for Length {
     type Output = Length;
 
-    fn mul(self, rhs: f64) -> Self::Output {
+    fn mul(self, rhs: Value1D) -> Self::Output {
         Length::new(self.value * rhs)
     }
 }
 
-impl Mul<Length> for f64 {
+impl Mul<Length> for Value1D {
     type Output = Length;
 
     fn mul(self, rhs: Length) -> Self::Output {
@@ -333,19 +333,19 @@ impl Mul<Length> for f64 {
 
 #[derive(Clone, Copy, Debug, PartialEq, PartialOrd)]
 pub struct Area {
-    value: f64,
+    value: Value1D,
 }
 
 impl Area {
     pub const ZERO: Area = Area { value: 0.0 };
 
-    pub fn new(value: f64) -> Self {
+    pub fn new(value: Value1D) -> Self {
         assert!(value >= 0.0);
         Area { value }
     }
 
     #[allow(dead_code)]
-    pub fn value(self) -> f64 {
+    pub fn value(self) -> Value1D {
         self.value
     }
 
@@ -388,15 +388,15 @@ impl SubAssign for Area {
     }
 }
 
-impl Mul<f64> for Area {
+impl Mul<Value1D> for Area {
     type Output = Area;
 
-    fn mul(self, rhs: f64) -> Self::Output {
+    fn mul(self, rhs: Value1D) -> Self::Output {
         Area::new(self.value * rhs)
     }
 }
 
-impl Mul<Area> for f64 {
+impl Mul<Area> for Value1D {
     type Output = Area;
 
     fn mul(self, rhs: Area) -> Self::Output {
@@ -404,10 +404,10 @@ impl Mul<Area> for f64 {
     }
 }
 
-impl Div<f64> for Area {
+impl Div<Value1D> for Area {
     type Output = Area;
 
-    fn div(self, rhs: f64) -> Self::Output {
+    fn div(self, rhs: Value1D) -> Self::Output {
         Area::new(self.value / rhs)
     }
 }
@@ -436,18 +436,18 @@ impl AddAssign<AreaDelta> for Area {
 
 #[derive(Clone, Copy, Debug, PartialEq, PartialOrd)]
 pub struct AreaDelta {
-    value: f64,
+    value: Value1D,
 }
 
 impl AreaDelta {
     pub const ZERO: AreaDelta = AreaDelta { value: 0.0 };
 
-    pub fn new(value: f64) -> Self {
+    pub fn new(value: Value1D) -> Self {
         AreaDelta { value }
     }
 
     #[allow(dead_code)]
-    pub fn value(self) -> f64 {
+    pub fn value(self) -> Value1D {
         self.value
     }
 }
@@ -475,7 +475,7 @@ impl Health {
     pub const FULL: Health = Health { value: 1.0 };
     pub const ZERO: Health = Health { value: 0.0 };
 
-    pub fn new(value: f64) -> Self {
+    pub fn new(value: Value1D) -> Self {
         if value < 0.0 || 1.0 < value {
             panic!("Invalid health: {}", value);
         }
@@ -521,7 +521,7 @@ pub struct HealthDelta {
 impl HealthDelta {
     pub const ZERO: HealthDelta = HealthDelta { value: 0.0 };
 
-    pub const fn new(value: f64) -> Self {
+    pub const fn new(value: Value1D) -> Self {
         HealthDelta { value }
     }
 
@@ -545,15 +545,15 @@ impl AddAssign for HealthDelta {
     }
 }
 
-impl Mul<f64> for HealthDelta {
+impl Mul<Value1D> for HealthDelta {
     type Output = HealthDelta;
 
-    fn mul(self, rhs: f64) -> Self::Output {
+    fn mul(self, rhs: Value1D) -> Self::Output {
         HealthDelta::new(self.value * rhs)
     }
 }
 
-impl Mul<HealthDelta> for f64 {
+impl Mul<HealthDelta> for Value1D {
     type Output = HealthDelta;
 
     fn mul(self, rhs: HealthDelta) -> Self::Output {
@@ -563,13 +563,13 @@ impl Mul<HealthDelta> for f64 {
 
 #[derive(Clone, Copy, Debug, PartialEq, PartialOrd)]
 pub struct BioEnergy {
-    value: f64,
+    value: Value1D,
 }
 
 impl BioEnergy {
     pub const ZERO: BioEnergy = BioEnergy { value: 0.0 };
 
-    pub fn new(value: f64) -> Self {
+    pub fn new(value: Value1D) -> Self {
         if value < 0.0 {
             panic!("Negative energy: {}", value);
         }
@@ -578,7 +578,7 @@ impl BioEnergy {
     }
 
     #[allow(dead_code)]
-    pub fn value(self) -> f64 {
+    pub fn value(self) -> Value1D {
         self.value
     }
 
@@ -615,15 +615,15 @@ impl Sub<BioEnergy> for BioEnergy {
     }
 }
 
-impl Mul<f64> for BioEnergy {
+impl Mul<Value1D> for BioEnergy {
     type Output = BioEnergy;
 
-    fn mul(self, rhs: f64) -> Self::Output {
+    fn mul(self, rhs: Value1D) -> Self::Output {
         BioEnergy::new(self.value * rhs)
     }
 }
 
-impl Mul<BioEnergy> for f64 {
+impl Mul<BioEnergy> for Value1D {
     type Output = BioEnergy;
 
     fn mul(self, rhs: BioEnergy) -> Self::Output {
@@ -631,10 +631,10 @@ impl Mul<BioEnergy> for f64 {
     }
 }
 
-impl Div<f64> for BioEnergy {
+impl Div<Value1D> for BioEnergy {
     type Output = BioEnergy;
 
-    fn div(self, rhs: f64) -> Self::Output {
+    fn div(self, rhs: Value1D) -> Self::Output {
         BioEnergy::new(self.value / rhs)
     }
 }
@@ -663,18 +663,18 @@ impl Sub<BioEnergyDelta> for BioEnergy {
 
 #[derive(Clone, Copy, Debug, PartialEq, PartialOrd)]
 pub struct BioEnergyDelta {
-    value: f64,
+    value: Value1D,
 }
 
 impl BioEnergyDelta {
     pub const ZERO: BioEnergyDelta = BioEnergyDelta { value: 0.0 };
 
-    pub const fn new(value: f64) -> Self {
+    pub const fn new(value: Value1D) -> Self {
         BioEnergyDelta { value }
     }
 
     #[allow(dead_code)]
-    pub fn value(self) -> f64 {
+    pub fn value(self) -> Value1D {
         self.value
     }
 }
@@ -707,15 +707,15 @@ impl AddAssign for BioEnergyDelta {
     }
 }
 
-impl Mul<f64> for BioEnergyDelta {
+impl Mul<Value1D> for BioEnergyDelta {
     type Output = BioEnergyDelta;
 
-    fn mul(self, rhs: f64) -> Self::Output {
+    fn mul(self, rhs: Value1D) -> Self::Output {
         BioEnergyDelta::new(self.value * rhs)
     }
 }
 
-impl Mul<BioEnergyDelta> for f64 {
+impl Mul<BioEnergyDelta> for Value1D {
     type Output = BioEnergyDelta;
 
     fn mul(self, rhs: BioEnergyDelta) -> Self::Output {
@@ -723,10 +723,10 @@ impl Mul<BioEnergyDelta> for f64 {
     }
 }
 
-impl Div<f64> for BioEnergyDelta {
+impl Div<Value1D> for BioEnergyDelta {
     type Output = BioEnergyDelta;
 
-    fn div(self, rhs: f64) -> Self::Output {
+    fn div(self, rhs: Value1D) -> Self::Output {
         BioEnergyDelta::new(self.value / rhs)
     }
 }
@@ -741,14 +741,14 @@ impl Neg for BioEnergyDelta {
 
 #[derive(Clone, Copy, Debug, PartialEq)]
 pub struct Position {
-    x: f64,
-    y: f64,
+    x: Value1D,
+    y: Value1D,
 }
 
 impl Position {
     pub const ORIGIN: Position = Position { x: 0.0, y: 0.0 };
 
-    pub fn new(x: f64, y: f64) -> Self {
+    pub fn new(x: Value1D, y: Value1D) -> Self {
         Position { x, y }
     }
 
@@ -757,12 +757,12 @@ impl Position {
     }
 
     #[allow(dead_code)]
-    pub fn x(&self) -> f64 {
+    pub fn x(&self) -> Value1D {
         self.x
     }
 
     #[allow(dead_code)]
-    pub fn y(&self) -> f64 {
+    pub fn y(&self) -> Value1D {
         self.y
     }
 
@@ -811,14 +811,14 @@ impl Sub for Position {
 
 #[derive(Clone, Copy, Debug, PartialEq)]
 pub struct Displacement {
-    x: f64,
-    y: f64,
+    x: Value1D,
+    y: Value1D,
 }
 
 impl Displacement {
     pub const ZERO: Displacement = Displacement { x: 0.0, y: 0.0 };
 
-    pub fn new(x: f64, y: f64) -> Self {
+    pub fn new(x: Value1D, y: Value1D) -> Self {
         Displacement { x, y }
     }
 
@@ -834,12 +834,12 @@ impl Displacement {
     }
 
     #[allow(dead_code)]
-    pub fn x(&self) -> f64 {
+    pub fn x(&self) -> Value1D {
         self.x
     }
 
     #[allow(dead_code)]
-    pub fn y(&self) -> f64 {
+    pub fn y(&self) -> Value1D {
         self.y
     }
 
@@ -880,41 +880,41 @@ impl Neg for Displacement {
 
 #[derive(Clone, Copy, Debug, PartialEq, PartialOrd)]
 pub struct Duration {
-    value: f64,
+    value: Value1D,
 }
 
 impl Duration {
     pub const ZERO: Duration = Duration { value: 0.0 };
     pub const ONE: Duration = Duration { value: 1.0 };
 
-    pub fn new(value: f64) -> Self {
+    pub fn new(value: Value1D) -> Self {
         Duration { value }
     }
 
     #[allow(dead_code)]
-    pub fn value(self) -> f64 {
+    pub fn value(self) -> Value1D {
         self.value
     }
 }
 
-impl Div<f64> for Duration {
+impl Div<Value1D> for Duration {
     type Output = Duration;
 
-    fn div(self, rhs: f64) -> Self::Output {
+    fn div(self, rhs: Value1D) -> Self::Output {
         Duration::new(self.value / rhs)
     }
 }
 
 #[derive(Clone, Copy, Debug, PartialEq)]
 pub struct Velocity {
-    x: f64,
-    y: f64,
+    x: Value1D,
+    y: Value1D,
 }
 
 impl Velocity {
     pub const ZERO: Velocity = Velocity { x: 0.0, y: 0.0 };
 
-    pub fn new(x: f64, y: f64) -> Self {
+    pub fn new(x: Value1D, y: Value1D) -> Self {
         Velocity { x, y }
     }
 
@@ -923,12 +923,12 @@ impl Velocity {
     }
 
     #[allow(dead_code)]
-    pub fn x(&self) -> f64 {
+    pub fn x(&self) -> Value1D {
         self.x
     }
 
     #[allow(dead_code)]
-    pub fn y(&self) -> f64 {
+    pub fn y(&self) -> Value1D {
         self.y
     }
 }
@@ -971,12 +971,12 @@ impl Mul<Duration> for Velocity {
 
 #[derive(Clone, Copy, Debug, PartialEq)]
 pub struct Acceleration {
-    x: f64,
-    y: f64,
+    x: Value1D,
+    y: Value1D,
 }
 
 impl Acceleration {
-    pub fn new(x: f64, y: f64) -> Self {
+    pub fn new(x: Value1D, y: Value1D) -> Self {
         Acceleration { x, y }
     }
 
@@ -985,12 +985,12 @@ impl Acceleration {
     }
 
     #[allow(dead_code)]
-    pub fn x(&self) -> f64 {
+    pub fn x(&self) -> Value1D {
         self.x
     }
 
     #[allow(dead_code)]
-    pub fn y(&self) -> f64 {
+    pub fn y(&self) -> Value1D {
         self.y
     }
 }
@@ -1011,12 +1011,12 @@ impl Mul<Duration> for Acceleration {
 
 #[derive(Clone, Copy, Debug, PartialEq)]
 pub struct DeltaV {
-    x: f64,
-    y: f64,
+    x: Value1D,
+    y: Value1D,
 }
 
 impl DeltaV {
-    pub fn new(x: f64, y: f64) -> Self {
+    pub fn new(x: Value1D, y: Value1D) -> Self {
         DeltaV { x, y }
     }
 
@@ -1025,12 +1025,12 @@ impl DeltaV {
     }
 
     #[allow(dead_code)]
-    pub fn x(&self) -> f64 {
+    pub fn x(&self) -> Value1D {
         self.x
     }
 
     #[allow(dead_code)]
-    pub fn y(&self) -> f64 {
+    pub fn y(&self) -> Value1D {
         self.y
     }
 }
@@ -1059,14 +1059,14 @@ impl Mul<Duration> for DeltaV {
 
 #[derive(Clone, Copy, Debug, PartialEq)]
 pub struct Momentum {
-    x: f64,
-    y: f64,
+    x: Value1D,
+    y: Value1D,
 }
 
 impl Momentum {
     pub const ZERO: Momentum = Momentum { x: 0.0, y: 0.0 };
 
-    pub fn new(x: f64, y: f64) -> Self {
+    pub fn new(x: Value1D, y: Value1D) -> Self {
         Momentum { x, y }
     }
 
@@ -1075,12 +1075,12 @@ impl Momentum {
     }
 
     #[allow(dead_code)]
-    pub fn x(&self) -> f64 {
+    pub fn x(&self) -> Value1D {
         self.x
     }
 
     #[allow(dead_code)]
-    pub fn y(&self) -> f64 {
+    pub fn y(&self) -> Value1D {
         self.y
     }
 }
@@ -1115,12 +1115,12 @@ impl Div<Mass> for Momentum {
 
 #[derive(Clone, Copy, Debug, PartialEq)]
 pub struct Impulse {
-    x: f64,
-    y: f64,
+    x: Value1D,
+    y: Value1D,
 }
 
 impl Impulse {
-    pub fn new(x: f64, y: f64) -> Self {
+    pub fn new(x: Value1D, y: Value1D) -> Self {
         Impulse { x, y }
     }
 
@@ -1129,12 +1129,12 @@ impl Impulse {
     }
 
     #[allow(dead_code)]
-    pub fn x(&self) -> f64 {
+    pub fn x(&self) -> Value1D {
         self.x
     }
 
     #[allow(dead_code)]
-    pub fn y(&self) -> f64 {
+    pub fn y(&self) -> Value1D {
         self.y
     }
 }
@@ -1149,18 +1149,18 @@ impl Div<Mass> for Impulse {
 
 #[derive(Clone, Copy, Debug, PartialEq, PartialOrd)]
 pub struct Mass {
-    value: f64,
+    value: Value1D,
 }
 
 impl Mass {
     pub const ZERO: Mass = Mass { value: 0.0 };
 
-    pub fn new(value: f64) -> Self {
+    pub fn new(value: Value1D) -> Self {
         Mass { value }
     }
 
     #[allow(dead_code)]
-    pub fn value(self) -> f64 {
+    pub fn value(self) -> Value1D {
         self.value
     }
 }
@@ -1195,15 +1195,15 @@ impl Mul<Acceleration> for Mass {
     }
 }
 
-impl Mul<f64> for Mass {
+impl Mul<Value1D> for Mass {
     type Output = Mass;
 
-    fn mul(self, rhs: f64) -> Self::Output {
+    fn mul(self, rhs: Value1D) -> Self::Output {
         Mass::new(self.value * rhs)
     }
 }
 
-impl Mul<Mass> for f64 {
+impl Mul<Mass> for Value1D {
     type Output = Mass;
 
     fn mul(self, rhs: Mass) -> Self::Output {
@@ -1221,31 +1221,31 @@ impl Div<Area> for Mass {
 
 #[derive(Clone, Copy, Debug, PartialEq, PartialOrd)]
 pub struct Density {
-    value: f64,
+    value: Value1D,
 }
 
 impl Density {
-    pub fn new(value: f64) -> Self {
+    pub fn new(value: Value1D) -> Self {
         assert!(value >= 0.0);
         Density { value }
     }
 
     #[allow(dead_code)]
-    pub fn value(self) -> f64 {
+    pub fn value(self) -> Value1D {
         self.value
     }
 }
 
 #[derive(Clone, Copy, Debug, PartialEq)]
 pub struct Force {
-    x: f64,
-    y: f64,
+    x: Value1D,
+    y: Value1D,
 }
 
 impl Force {
     pub const ZERO: Force = Force { x: 0.0, y: 0.0 };
 
-    pub fn new(x: f64, y: f64) -> Self {
+    pub fn new(x: Value1D, y: Value1D) -> Self {
         Force { x, y }
     }
 
@@ -1254,12 +1254,12 @@ impl Force {
     }
 
     #[allow(dead_code)]
-    pub fn x(&self) -> f64 {
+    pub fn x(&self) -> Value1D {
         self.x
     }
 
     #[allow(dead_code)]
-    pub fn y(&self) -> f64 {
+    pub fn y(&self) -> Value1D {
         self.y
     }
 }
@@ -1291,15 +1291,15 @@ impl AddAssign for Force {
     }
 }
 
-impl Mul<f64> for Force {
+impl Mul<Value1D> for Force {
     type Output = Force;
 
-    fn mul(self, rhs: f64) -> Self::Output {
+    fn mul(self, rhs: Value1D) -> Self::Output {
         Force::new(self.x * rhs, self.y * rhs)
     }
 }
 
-impl Mul<Force> for f64 {
+impl Mul<Force> for Value1D {
     type Output = Force;
 
     fn mul(self, rhs: Force) -> Self::Output {
@@ -1333,16 +1333,16 @@ impl Neg for Force {
 
 #[derive(Clone, Copy, Debug, PartialEq, PartialOrd)]
 pub struct Torque {
-    value: f64,
+    value: Value1D,
 }
 
 impl Torque {
-    pub fn new(value: f64) -> Self {
+    pub fn new(value: Value1D) -> Self {
         Torque { value }
     }
 
     #[allow(dead_code)]
-    pub fn value(self) -> f64 {
+    pub fn value(self) -> Value1D {
         self.value
     }
 }

@@ -51,7 +51,7 @@ impl World {
         self.with_cross_cell_influence(Box::new(BondForces::new()))
     }
 
-    pub fn with_sunlight(self, min_intensity: f64, max_intensity: f64) -> Self {
+    pub fn with_sunlight(self, min_intensity: Value1D, max_intensity: Value1D) -> Self {
         let world_min_corner = self.min_corner();
         let world_max_corner = self.max_corner();
         self.with_per_cell_influence(Box::new(Sunlight::new(
@@ -145,7 +145,10 @@ impl World {
         &self.cell_graph.edge(handle)
     }
 
-    pub fn with_angle_gussets(mut self, index_pairs_with_angles: Vec<(usize, usize, f64)>) -> Self {
+    pub fn with_angle_gussets(
+        mut self,
+        index_pairs_with_angles: Vec<(usize, usize, Value1D)>,
+    ) -> Self {
         for tuple in index_pairs_with_angles {
             let gusset = AngleGusset::new(
                 &self.bonds()[tuple.0],

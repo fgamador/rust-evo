@@ -508,7 +508,8 @@ impl CellLayerBody {
     fn allowed_resize_delta_area(&self, requested_delta_area: Value1D) -> Value1D {
         if requested_delta_area >= 0.0 {
             // TODO a layer that starts with area 0.0 cannot grow; add min-area param?
-            let max_delta_area = self.resize_parameters.max_growth_rate * self.area.value();
+            let max_delta_area =
+                self.health.value() * self.resize_parameters.max_growth_rate * self.area.value();
             requested_delta_area.min(max_delta_area)
         } else {
             let min_delta_area = -self.resize_parameters.max_shrinkage_rate * self.area.value();
@@ -876,17 +877,19 @@ mod tests {
     fn layer_bounds_and_costs_resize_request() {
         const LAYER_RESIZE_PARAMS: LayerResizeParameters = LayerResizeParameters {
             growth_energy_delta: BioEnergyDelta::new(-0.5),
+            max_growth_rate: 2.0,
             ..LayerResizeParameters::UNLIMITED
         };
         let layer = simple_cell_layer(Area::new(1.0), Density::new(1.0))
-            .with_resize_parameters(&LAYER_RESIZE_PARAMS);
+            .with_resize_parameters(&LAYER_RESIZE_PARAMS)
+            .with_health(Health::new(0.75));
 
-        let resize_request = CellLayer::resize_request(0, AreaDelta::new(3.0));
+        let resize_request = CellLayer::resize_request(0, AreaDelta::new(10.0));
         let costed_request = layer.cost_control_request(resize_request);
 
         assert_eq!(
             costed_request,
-            CostedControlRequest::unlimited(resize_request, BioEnergyDelta::new(-1.5),)
+            CostedControlRequest::limited(resize_request, 1.5, BioEnergyDelta::new(-0.75))
         );
     }
 

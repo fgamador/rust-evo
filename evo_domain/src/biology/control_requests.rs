@@ -160,7 +160,7 @@ pub struct BudgetedControlRequest {
     requested_value: f64,
     allowed_value: f64,
     energy_delta: BioEnergyDelta,
-    budgeted_fraction: f64,
+    budgeted_fraction: Fraction,
 }
 
 impl BudgetedControlRequest {
@@ -169,10 +169,10 @@ impl BudgetedControlRequest {
         requested_value: 0.0,
         allowed_value: 0.0,
         energy_delta: BioEnergyDelta::ZERO,
-        budgeted_fraction: 1.0,
+        budgeted_fraction: Fraction::ONE,
     };
 
-    pub fn new(costed_request: CostedControlRequest, budgeted_fraction: f64) -> Self {
+    pub fn new(costed_request: CostedControlRequest, budgeted_fraction: Fraction) -> Self {
         BudgetedControlRequest {
             id: costed_request.id,
             requested_value: costed_request.requested_value,
@@ -206,7 +206,7 @@ impl BudgetedControlRequest {
         self.energy_delta
     }
 
-    pub fn budgeted_fraction(&self) -> f64 {
+    pub fn budgeted_fraction(&self) -> Fraction {
         self.budgeted_fraction
     }
 }
@@ -220,7 +220,7 @@ impl fmt::Display for BudgetedControlRequest {
             self.requested_value,
             self.allowed_value,
             -self.energy_delta.value(),
-            self.budgeted_fraction
+            self.budgeted_fraction.value()
         )
     }
 }

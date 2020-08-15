@@ -229,14 +229,15 @@ impl Cell {
     ) -> Vec<BudgetedControlRequest> {
         let (income, expense) = Self::summarize_request_energy_deltas(costed_requests);
         let available_energy = start_energy + income;
-        let budgeted_fraction = (available_energy.value() / expense.value()).min(1.0);
+        let budgeted_fraction =
+            Fraction::new((available_energy.value() / expense.value()).min(1.0));
         costed_requests
             .iter()
             .map(|costed_request| {
                 let request_budgeted_fraction = if costed_request.energy_delta().value() < 0.0 {
                     budgeted_fraction
                 } else {
-                    1.0
+                    Fraction::ONE
                 };
                 BudgetedControlRequest::new(*costed_request, request_budgeted_fraction)
             })
@@ -654,7 +655,7 @@ mod tests {
         let budgeted_requests =
             Cell::budget_control_requests(BioEnergy::new(0.0), &vec![costed_request]);
 
-        assert_eq!(budgeted_requests[0].budgeted_fraction(), 1.0);
+        assert_eq!(budgeted_requests[0].budgeted_fraction(), Fraction::ONE);
     }
 
     #[test]
@@ -665,7 +666,7 @@ mod tests {
         let budgeted_requests =
             Cell::budget_control_requests(BioEnergy::new(0.0), &vec![costed_request]);
 
-        assert_eq!(budgeted_requests[0].budgeted_fraction(), 1.0);
+        assert_eq!(budgeted_requests[0].budgeted_fraction(), Fraction::ONE);
     }
 
     #[test]
@@ -678,7 +679,7 @@ mod tests {
         let budgeted_requests =
             Cell::budget_control_requests(BioEnergy::new(1.0), &vec![costed_request]);
 
-        assert_eq!(budgeted_requests[0].budgeted_fraction(), 1.0);
+        assert_eq!(budgeted_requests[0].budgeted_fraction(), Fraction::ONE);
     }
 
     #[test]
@@ -691,7 +692,7 @@ mod tests {
         let budgeted_requests =
             Cell::budget_control_requests(BioEnergy::new(1.0), &vec![costed_request]);
 
-        assert_eq!(budgeted_requests[0].budgeted_fraction(), 0.5);
+        assert_eq!(budgeted_requests[0].budgeted_fraction(), Fraction::new(0.5));
     }
 
     #[test]
@@ -710,8 +711,8 @@ mod tests {
         assert_eq!(
             budgeted_requests,
             vec![
-                BudgetedControlRequest::new(costed_requests[0], 1.0),
-                BudgetedControlRequest::new(costed_requests[1], 1.0),
+                BudgetedControlRequest::new(costed_requests[0], Fraction::ONE),
+                BudgetedControlRequest::new(costed_requests[1], Fraction::ONE),
             ]
         );
     }
@@ -732,8 +733,8 @@ mod tests {
         assert_eq!(
             budgeted_requests,
             vec![
-                BudgetedControlRequest::new(costed_requests[0], 1.0),
-                BudgetedControlRequest::new(costed_requests[1], 0.5),
+                BudgetedControlRequest::new(costed_requests[0], Fraction::ONE),
+                BudgetedControlRequest::new(costed_requests[1], Fraction::new(0.5)),
             ]
         );
     }

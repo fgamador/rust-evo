@@ -491,7 +491,7 @@ impl CellLayerBody {
     fn actual_delta_health(
         &self,
         requested_delta_health: HealthDelta,
-        budgeted_fraction: Value1D,
+        budgeted_fraction: Fraction,
     ) -> HealthDelta {
         assert!(requested_delta_health.value() >= 0.0);
         budgeted_fraction * requested_delta_health
@@ -505,7 +505,7 @@ impl CellLayerBody {
     fn actual_delta_area(
         &self,
         requested_delta_area: Value1D,
-        budgeted_fraction: Value1D,
+        budgeted_fraction: Fraction,
     ) -> AreaDelta {
         let delta_area = self.health.value()
             * budgeted_fraction
@@ -806,7 +806,7 @@ mod tests {
             &budgeted(
                 CellLayer::resize_request(0, AreaDelta::new(2.0)),
                 BioEnergyDelta::new(-10.0),
-                0.75,
+                Fraction::new(0.75),
             ),
             &mut changes,
         );
@@ -841,7 +841,7 @@ mod tests {
             &budgeted(
                 CellLayer::resize_request(0, AreaDelta::new(2.0)),
                 BioEnergyDelta::ZERO,
-                0.5,
+                Fraction::new(0.5),
             ),
             &mut changes,
         );
@@ -957,7 +957,7 @@ mod tests {
             &budgeted(
                 CellLayer::healing_request(0, HealthDelta::new(0.5)),
                 BioEnergyDelta::new(-10.0),
-                0.5,
+                Fraction::new(0.5),
             ),
             &mut changes,
         );
@@ -973,7 +973,7 @@ mod tests {
             &budgeted(
                 CellLayer::healing_request(0, HealthDelta::new(0.5)),
                 BioEnergyDelta::ZERO,
-                0.5,
+                Fraction::new(0.5),
             ),
             &mut changes,
         );
@@ -1136,7 +1136,7 @@ mod tests {
             &budgeted(
                 ThrusterCellLayerSpecialty::force_x_request(0, 1.0),
                 BioEnergyDelta::new(1.0),
-                0.5,
+                Fraction::new(0.5),
             ),
             &mut changes,
         );
@@ -1144,7 +1144,7 @@ mod tests {
             &budgeted(
                 ThrusterCellLayerSpecialty::force_y_request(0, -1.0),
                 BioEnergyDelta::new(1.0),
-                0.25,
+                Fraction::new(0.25),
             ),
             &mut changes,
         );
@@ -1251,7 +1251,7 @@ mod tests {
             &budgeted(
                 BondingCellLayerSpecialty::donation_energy_request(0, 0, BioEnergy::new(1.0)),
                 BioEnergyDelta::new(-1.0),
-                0.5,
+                Fraction::new(0.5),
             ),
             &mut changes,
         );
@@ -1277,7 +1277,7 @@ mod tests {
             &budgeted(
                 BondingCellLayerSpecialty::donation_energy_request(0, 0, BioEnergy::new(1.0)),
                 BioEnergyDelta::new(-1.0),
-                1.0,
+                Fraction::ONE,
             ),
             &mut changes,
         );
@@ -1316,13 +1316,13 @@ mod tests {
     }
 
     fn fully_budgeted(control_request: ControlRequest) -> BudgetedControlRequest {
-        budgeted(control_request, BioEnergyDelta::ZERO, 1.0)
+        budgeted(control_request, BioEnergyDelta::ZERO, Fraction::ONE)
     }
 
     fn budgeted(
         control_request: ControlRequest,
         energy_delta: BioEnergyDelta,
-        budgeted_fraction: Value1D,
+        budgeted_fraction: Fraction,
     ) -> BudgetedControlRequest {
         BudgetedControlRequest::new(
             CostedControlRequest::unlimited(control_request, energy_delta),

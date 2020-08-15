@@ -597,6 +597,22 @@ impl Mul<HealthDelta> for Value1D {
     }
 }
 
+impl Mul<Fraction> for HealthDelta {
+    type Output = HealthDelta;
+
+    fn mul(self, rhs: Fraction) -> Self::Output {
+        self * rhs.value
+    }
+}
+
+impl Mul<HealthDelta> for Fraction {
+    type Output = HealthDelta;
+
+    fn mul(self, rhs: HealthDelta) -> Self::Output {
+        HealthDelta::new(self.value * rhs.value)
+    }
+}
+
 #[derive(Clone, Copy, Debug, PartialEq, PartialOrd)]
 pub struct BioEnergy {
     value: Value1D,
@@ -756,6 +772,22 @@ impl Mul<BioEnergyDelta> for Value1D {
 
     fn mul(self, rhs: BioEnergyDelta) -> Self::Output {
         BioEnergyDelta::new(self * rhs.value)
+    }
+}
+
+impl Mul<Fraction> for BioEnergyDelta {
+    type Output = BioEnergyDelta;
+
+    fn mul(self, rhs: Fraction) -> Self::Output {
+        self * rhs.value
+    }
+}
+
+impl Mul<BioEnergyDelta> for Fraction {
+    type Output = BioEnergyDelta;
+
+    fn mul(self, rhs: BioEnergyDelta) -> Self::Output {
+        BioEnergyDelta::new(self.value * rhs.value)
     }
 }
 

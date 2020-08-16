@@ -1,17 +1,33 @@
 use crate::view::*;
+use clap::clap_app;
 use evo_domain::physics::quantities::Position;
 use evo_domain::world::World;
 use evo_domain::UserAction;
-use std::env;
 use std::thread;
 use std::time::{Duration, Instant};
 
 pub fn init_and_run(world: World) {
-    let args: Vec<String> = env::args().collect();
-    let start_paused = args.len() == 2 && args[1] == "-p";
-
+    let args = parse_command_line();
     let view = View::new(world.min_corner(), world.max_corner());
-    run(world, view, start_paused);
+    run(world, view, args.start_paused);
+}
+
+struct CommandLineArgs {
+    start_paused: bool,
+}
+
+fn parse_command_line() -> CommandLineArgs {
+    let matches = clap_app!(evo =>
+        (version: "0.1.0")
+        (author: "Franz Amador <franzamador@gmail.com>")
+        (about: "Evolution of simple digital organisms")
+        (@arg paused: -p --paused "Starts with the simulation paused")
+    )
+    .get_matches();
+
+    CommandLineArgs {
+        start_paused: matches.is_present("paused"),
+    }
 }
 
 fn run(mut world: World, mut view: View, start_paused: bool) {

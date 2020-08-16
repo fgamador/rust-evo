@@ -512,11 +512,8 @@ impl CellLayerBody {
     fn allowed_growth_delta_area(&self, requested_delta_area: Value1D) -> Value1D {
         // TODO a layer that starts with area 0.0 cannot grow; add min-area param?
         let max_rate_limited_delta_area =
-            self.health.value() * self.resize_parameters.max_growth_rate * self.area.value();
-        let max_health_limited_delta_area = self.health.value() * requested_delta_area;
-        requested_delta_area
-            .min(max_rate_limited_delta_area)
-            .min(max_health_limited_delta_area)
+            self.resize_parameters.max_growth_rate * self.area.value();
+        self.health.value() * requested_delta_area.min(max_rate_limited_delta_area)
     }
 
     fn allowed_shrinkage_delta_area(&self, requested_delta_area: Value1D) -> Value1D {

@@ -4,6 +4,7 @@ use crate::environment::influences::*;
 use crate::physics::bond::*;
 use crate::physics::quantities::*;
 use crate::physics::sortable_graph::*;
+//use rayon::prelude::*;
 use std::collections::HashSet;
 use std::iter::FromIterator;
 
@@ -196,14 +197,17 @@ impl World {
     }
 
     fn tick_cells(&mut self) -> Vec<BondRequests> {
-        let mut cell_bond_requests = vec![];
-        for cell in self.cell_graph.nodes_mut() {
-            for influence in &self.per_cell_influences {
-                influence.apply_to(cell);
-            }
-            cell_bond_requests.push(cell.tick());
-        }
-        cell_bond_requests
+        let per_cell_influences = &self.per_cell_influences;
+        self.cell_graph
+            .nodes_mut()
+            .iter_mut()
+            .map(|cell| {
+                for influence in per_cell_influences {
+                    influence.apply_to(cell);
+                }
+                cell.tick()
+            })
+            .collect()
     }
 
     fn apply_world_changes(&mut self, cell_bond_requests: &[BondRequests]) {

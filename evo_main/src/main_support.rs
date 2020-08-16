@@ -7,8 +7,6 @@ use std::thread;
 use std::time::{Duration, Instant};
 
 pub fn init_and_run(world: World) {
-    simple_logger::init().unwrap();
-
     let args: Vec<String> = env::args().collect();
     let start_paused = args.len() == 2 && args[1] == "-p";
 

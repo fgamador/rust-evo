@@ -218,7 +218,7 @@ impl CellLayer {
         changes: &mut CellChanges,
     ) {
         changes.add_energy_change(
-            request.energy_delta() * request.budgeted_fraction(),
+            request.budgeted_energy_delta(),
             label,
             request.layer_index(),
         );
@@ -356,10 +356,7 @@ impl CellLayerBrain for LivingCellLayerBrain {
     ) {
         match request.channel_index() {
             CellLayer::HEALING_CHANNEL_INDEX => {
-                let delta_health = body.actual_delta_health(
-                    HealthDelta::new(request.requested_value()),
-                    request.budgeted_fraction(),
-                );
+                let delta_health = body.actual_delta_health(request);
                 changes.layers[request.layer_index()].add_healing(delta_health, request);
                 CellLayer::record_request_energy_change(&request, "healing", changes);
             }
@@ -472,13 +469,9 @@ impl CellLayerBody {
         )
     }
 
-    fn actual_delta_health(
-        &self,
-        requested_delta_health: HealthDelta,
-        budgeted_fraction: Fraction,
-    ) -> HealthDelta {
-        assert!(requested_delta_health.value() >= 0.0);
-        budgeted_fraction * requested_delta_health
+    fn actual_delta_health(&self, request: &BudgetedControlRequest) -> HealthDelta {
+        assert!(request.budgeted_value() >= 0.0);
+        HealthDelta::new(request.budgeted_value())
     }
 
     fn update_health(&mut self, delta_health: HealthDelta) -> &'static dyn CellLayerBrain {

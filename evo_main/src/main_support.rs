@@ -6,18 +6,17 @@ use evo_domain::UserAction;
 use std::thread;
 use std::time::{Duration, Instant};
 
-pub fn init_and_run(world: World) {
-    let args = parse_command_line();
+pub fn init_and_run(world: World, args: CommandLineArgs) {
     let view = View::new(world.min_corner(), world.max_corner());
     run(world, view, args);
 }
 
-struct CommandLineArgs {
-    _seed: u64,
-    start_paused: bool,
+pub struct CommandLineArgs {
+    pub seed: u64,
+    pub start_paused: bool,
 }
 
-fn parse_command_line() -> CommandLineArgs {
+pub fn parse_command_line() -> CommandLineArgs {
     let matches = clap_app!(evo =>
         (version: "0.1.0")
         (author: "Franz Amador <franzamador@gmail.com>")
@@ -28,7 +27,7 @@ fn parse_command_line() -> CommandLineArgs {
     .get_matches();
 
     CommandLineArgs {
-        _seed: get_u64_arg(&matches, "seed", 0),
+        seed: get_u64_arg(&matches, "seed", 0),
         start_paused: matches.is_present("paused"),
     }
 }

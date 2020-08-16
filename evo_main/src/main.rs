@@ -5,13 +5,12 @@ use evo_domain::biology::layers::*;
 use evo_domain::environment::influences::*;
 use evo_domain::physics::quantities::*;
 use evo_domain::world::World;
-use evo_main::main_support::init_and_run;
+use evo_main::main_support::{init_and_run, parse_command_line};
 use std::f64::consts::PI;
 
-const SEED: u64 = 0;
-
 fn main() {
-    init_and_run(create_world(SEED));
+    let args = parse_command_line();
+    init_and_run(create_world(args.seed), args);
 }
 
 const FLUID_DENSITY: f64 = 0.001;

@@ -22,8 +22,8 @@ fn parse_command_line() -> CommandLineArgs {
         (version: "0.1.0")
         (author: "Franz Amador <franzamador@gmail.com>")
         (about: "Evolution of simple digital organisms")
-        (@arg seed: -s --seed +takes_value {is_u64_arg} "Random seed")
-        (@arg paused: -p --paused "Starts with the simulation paused")
+        (@arg seed: -s --seed +takes_value {is_u64_arg} "Random seed; defaults to 0")
+        (@arg paused: -p --paused "Start with the simulation paused; press P to resume, T to run single tick")
     )
     .get_matches();
 

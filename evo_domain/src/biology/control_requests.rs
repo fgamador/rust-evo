@@ -209,6 +209,14 @@ impl BudgetedControlRequest {
     pub fn budgeted_fraction(&self) -> Fraction {
         self.budgeted_fraction
     }
+
+    pub fn budgeted_value(&self) -> Value1D {
+        self.budgeted_fraction * self.allowed_value
+    }
+
+    pub fn budgeted_energy_delta(&self) -> BioEnergyDelta {
+        self.budgeted_fraction * self.energy_delta
+    }
 }
 
 impl fmt::Display for BudgetedControlRequest {

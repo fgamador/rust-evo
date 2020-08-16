@@ -529,8 +529,7 @@ impl CellLayerBody {
     }
 
     fn actual_delta_area(&self, request: &BudgetedControlRequest) -> AreaDelta {
-        let delta_area = request.allowed_value() * request.budgeted_fraction();
-        AreaDelta::new(delta_area.max(-self.area.value()))
+        AreaDelta::new(request.budgeted_value().max(-self.area.value()))
     }
 
     fn resize(&mut self, delta_area: AreaDelta) {

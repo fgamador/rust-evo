@@ -364,8 +364,7 @@ impl CellLayerBrain for LivingCellLayerBrain {
                 CellLayer::record_request_energy_change(&request, "healing", changes);
             }
             CellLayer::RESIZE_CHANNEL_INDEX => {
-                let delta_area =
-                    body.actual_delta_area(request.requested_value(), request.budgeted_fraction());
+                let delta_area = body.actual_delta_area(request);
                 changes.layers[request.layer_index()].add_resize(delta_area, request);
                 CellLayer::record_request_energy_change(&request, "resize", changes);
             }
@@ -508,9 +507,12 @@ impl CellLayerBody {
     fn allowed_resize_delta_area(&self, requested_delta_area: Value1D) -> Value1D {
         if requested_delta_area >= 0.0 {
             // TODO a layer that starts with area 0.0 cannot grow; add min-area param?
-            let max_delta_area =
+            let max_rate_limited_delta_area =
                 self.health.value() * self.resize_parameters.max_growth_rate * self.area.value();
-            requested_delta_area.min(max_delta_area)
+            let max_health_limited_delta_area = self.health.value() * requested_delta_area;
+            requested_delta_area
+                .min(max_rate_limited_delta_area)
+                .min(max_health_limited_delta_area)
         } else {
             let min_delta_area = self.health.value()
                 * -self.resize_parameters.max_shrinkage_rate
@@ -519,14 +521,8 @@ impl CellLayerBody {
         }
     }
 
-    fn actual_delta_area(
-        &self,
-        requested_delta_area: Value1D,
-        budgeted_fraction: Fraction,
-    ) -> AreaDelta {
-        let delta_area = self.health.value()
-            * budgeted_fraction
-            * self.allowed_resize_delta_area(requested_delta_area);
+    fn actual_delta_area(&self, request: &BudgetedControlRequest) -> AreaDelta {
+        let delta_area = request.allowed_value() * request.budgeted_fraction();
         AreaDelta::new(delta_area.max(-self.area.value()))
     }
 
@@ -896,6 +892,17 @@ mod tests {
     }
 
     #[test]
+    fn layer_resize_with_unlimited_growth_rate_is_still_limited_by_health() {
+        let layer =
+            simple_cell_layer(Area::new(1.0), Density::new(1.0)).with_health(Health::new(0.5));
+
+        let resize_request = CellLayer::resize_request(0, AreaDelta::new(10.0));
+        let costed_request = layer.cost_control_request(&resize_request);
+
+        assert_eq!(costed_request.allowed_value(), 5.0);
+    }
+
+    #[test]
     fn layer_bounds_and_costs_shrinkage_request() {
         const LAYER_RESIZE_PARAMS: LayerResizeParameters = LayerResizeParameters {
             shrinkage_energy_delta: BioEnergyDelta::new(0.5),
@@ -916,32 +923,22 @@ mod tests {
     }
 
     #[test]
-    fn layer_growth_is_limited_by_budgeted_fraction() {
-        let layer = simple_cell_layer(Area::new(2.0), Density::new(1.0));
+    fn layer_growth_is_limited_to_budgeted_fraction_of_allowed_value() {
+        let layer = simple_cell_layer(Area::new(1.0), Density::new(1.0));
         let mut changes = CellChanges::new(1, false);
+
         layer.execute_control_request(
-            &budgeted(
-                &CellLayer::resize_request(0, AreaDelta::new(2.0)),
-                BioEnergyDelta::ZERO,
+            &costed_and_budgeted(
+                &CellLayer::resize_request(0, AreaDelta::new(10.0)),
+                4.0,
+                BioEnergyDelta::new(-3.0),
                 Fraction::new(0.5),
             ),
             &mut changes,
         );
-        assert_eq!(changes.layers[0].area, AreaDelta::new(1.0));
-    }
 
-    #[test]
-    fn layer_growth_is_limited_by_max_growth_rate() {
-        const LAYER_RESIZE_PARAMS: LayerResizeParameters = LayerResizeParameters {
-            max_growth_rate: 0.5,
-            ..LayerResizeParameters::UNLIMITED
-        };
-
-        let layer = simple_cell_layer(Area::new(2.0), Density::new(1.0))
-            .with_resize_parameters(&LAYER_RESIZE_PARAMS);
-        let mut changes = CellChanges::new(1, false);
-        layer.execute_control_request(&fully_budgeted_resize_request(0, 10.0), &mut changes);
-        assert_eq!(changes.layers[0].area, AreaDelta::new(1.0));
+        assert_eq!(changes.layers[0].area, AreaDelta::new(2.0));
+        assert_eq!(changes.energy, BioEnergyDelta::new(-1.5));
     }
 
     #[test]
@@ -963,20 +960,6 @@ mod tests {
     }
 
     #[test]
-    fn layer_shrinkage_is_limited_by_max_shrinkage_rate() {
-        const LAYER_RESIZE_PARAMS: LayerResizeParameters = LayerResizeParameters {
-            max_shrinkage_rate: 0.25,
-            ..LayerResizeParameters::UNLIMITED
-        };
-
-        let layer = simple_cell_layer(Area::new(2.0), Density::new(1.0))
-            .with_resize_parameters(&LAYER_RESIZE_PARAMS);
-        let mut changes = CellChanges::new(1, false);
-        layer.execute_control_request(&fully_budgeted_resize_request(0, -10.0), &mut changes);
-        assert_eq!(changes.layers[0].area, AreaDelta::new(-0.5));
-    }
-
-    #[test]
     fn layer_shrinkage_yield_is_limited_by_max_shrinkage_rate() {
         const LAYER_RESIZE_PARAMS: LayerResizeParameters = LayerResizeParameters {
             shrinkage_energy_delta: BioEnergyDelta::new(3.0),
@@ -991,33 +974,6 @@ mod tests {
         assert_eq!(
             costed_request,
             CostedControlRequest::limited(&control_request, -2.0, BioEnergyDelta::new(6.0))
-        );
-    }
-
-    #[test]
-    fn layer_resize_is_reduced_by_reduced_health() {
-        let layer =
-            simple_cell_layer(Area::new(1.0), Density::new(1.0)).with_health(Health::new(0.5));
-        let mut changes = CellChanges::new(1, false);
-        layer.execute_control_request(&fully_budgeted_resize_request(0, 10.0), &mut changes);
-        assert_eq!(changes.layers[0].area, AreaDelta::new(5.0));
-    }
-
-    #[test]
-    fn layer_resize_cost_is_not_reduced_by_reduced_health() {
-        const LAYER_RESIZE_PARAMS: LayerResizeParameters = LayerResizeParameters {
-            growth_energy_delta: BioEnergyDelta::new(-1.0),
-            ..LayerResizeParameters::UNLIMITED
-        };
-
-        let layer = simple_cell_layer(Area::new(1.0), Density::new(1.0))
-            .with_resize_parameters(&LAYER_RESIZE_PARAMS)
-            .with_health(Health::new(0.5));
-        let control_request = CellLayer::resize_request(0, AreaDelta::new(1.0));
-        let costed_request = layer.cost_control_request(&control_request);
-        assert_eq!(
-            costed_request,
-            CostedControlRequest::unlimited(&control_request, BioEnergyDelta::new(-1.0))
         );
     }
 
@@ -1460,6 +1416,18 @@ mod tests {
     ) -> BudgetedControlRequest {
         BudgetedControlRequest::new(
             &CostedControlRequest::unlimited(control_request, energy_delta),
+            budgeted_fraction,
+        )
+    }
+
+    fn costed_and_budgeted(
+        control_request: &ControlRequest,
+        allowed_value: Value1D,
+        energy_delta: BioEnergyDelta,
+        budgeted_fraction: Fraction,
+    ) -> BudgetedControlRequest {
+        BudgetedControlRequest::new(
+            &CostedControlRequest::limited(control_request, allowed_value, energy_delta),
             budgeted_fraction,
         )
     }

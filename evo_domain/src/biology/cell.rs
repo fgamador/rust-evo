@@ -549,6 +549,31 @@ mod tests {
     }
 
     #[test]
+    fn tick_applies_changes_independently() {
+        let mut cell = Cell::new(
+            Position::ORIGIN,
+            Velocity::ZERO,
+            vec![CellLayer::new(
+                Area::new(1.0),
+                Density::new(1.0),
+                Color::Green,
+                Box::new(NullCellLayerSpecialty::new()),
+            )
+            .with_health(Health::new(0.5))],
+        )
+        .with_control(Box::new(ContinuousRequestsControl::new(vec![
+            CellLayer::healing_request(0, HealthDelta::new(0.5)),
+            CellLayer::resize_request(0, AreaDelta::new(4.0)),
+        ])));
+
+        cell.tick();
+
+        let layer = &cell.layers()[0];
+        assert_eq!(layer.health(), Health::FULL);
+        assert_eq!(layer.area(), Area::new(3.0));
+    }
+
+    #[test]
     fn cell_force_applies_to_pretick_mass() {
         let mut cell =
             simple_layered_cell(vec![simple_cell_layer(Area::new(1.0), Density::new(1.0))])

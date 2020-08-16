@@ -892,7 +892,7 @@ mod tests {
     }
 
     #[test]
-    fn layer_resize_with_unlimited_growth_rate_is_still_limited_by_health() {
+    fn layer_growth_with_unlimited_rate_is_still_limited_by_health() {
         let layer =
             simple_cell_layer(Area::new(1.0), Density::new(1.0)).with_health(Health::new(0.5));
 
@@ -920,6 +920,17 @@ mod tests {
             costed_request,
             CostedControlRequest::limited(&resize_request, -2.5, BioEnergyDelta::new(1.25))
         );
+    }
+
+    #[test]
+    fn layer_shrinkage_with_unlimited_rate_is_still_limited_by_health() {
+        let layer =
+            simple_cell_layer(Area::new(10.0), Density::new(1.0)).with_health(Health::new(0.5));
+
+        let resize_request = CellLayer::resize_request(0, AreaDelta::new(-10.0));
+        let costed_request = layer.cost_control_request(&resize_request);
+
+        assert_eq!(costed_request.allowed_value(), -5.0);
     }
 
     #[test]

@@ -4,9 +4,9 @@ use crate::biology::layers::*;
 use crate::physics::quantities::*;
 use smallvec::alloc::fmt::Formatter;
 use std::fmt;
-use std::rc::Rc;
+use std::sync::Arc;
 
-pub trait CellControl: fmt::Debug {
+pub trait CellControl: fmt::Debug + Send + Sync {
     fn run(&mut self, cell_state: &CellStateSnapshot) -> Vec<ControlRequest>;
 
     fn spawn(&mut self) -> Box<dyn CellControl>;
@@ -141,13 +141,19 @@ impl CellControl for SimpleThrusterControl {
     }
 }
 
-type GetValueFns = Vec<(VecIndex, Box<dyn Fn(&CellStateSnapshot) -> Value1D>)>;
-type ValueToRequestFns = Vec<(VecIndex, Box<dyn Fn(Value1D) -> ControlRequest>)>;
+type GetValueFns = Vec<(
+    VecIndex,
+    Box<dyn Fn(&CellStateSnapshot) -> Value1D + Send + Sync>,
+)>;
+type ValueToRequestFns = Vec<(
+    VecIndex,
+    Box<dyn Fn(Value1D) -> ControlRequest + Send + Sync>,
+)>;
 
 pub struct NeuralNetControl {
-    get_value_fns: Rc<GetValueFns>,
+    get_value_fns: Arc<GetValueFns>,
     nnet: SparseNeuralNet,
-    value_to_request_fns: Rc<ValueToRequestFns>,
+    value_to_request_fns: Arc<ValueToRequestFns>,
     randomness: SeededMutationRandomness,
 }
 
@@ -159,9 +165,9 @@ impl NeuralNetControl {
         randomness: SeededMutationRandomness,
     ) -> Self {
         NeuralNetControl {
-            get_value_fns: Rc::new(get_value_fns),
+            get_value_fns: Arc::new(get_value_fns),
             nnet: SparseNeuralNet::new(genome),
-            value_to_request_fns: Rc::new(value_to_request_fns),
+            value_to_request_fns: Arc::new(value_to_request_fns),
             randomness,
         }
     }
@@ -204,9 +210,9 @@ impl CellControl for NeuralNetControl {
 
     fn spawn(&mut self) -> Box<dyn CellControl> {
         Box::new(NeuralNetControl {
-            get_value_fns: Rc::clone(&self.get_value_fns),
+            get_value_fns: Arc::clone(&self.get_value_fns),
             nnet: self.nnet.spawn(&mut self.randomness),
-            value_to_request_fns: Rc::clone(&self.value_to_request_fns),
+            value_to_request_fns: Arc::clone(&self.value_to_request_fns),
             randomness: self.randomness.clone(),
         })
     }
@@ -231,7 +237,7 @@ impl NeuralNetControlBuilder {
 
     pub fn add_input_node<F>(&mut self, get_value: F) -> VecIndex
     where
-        F: 'static + Fn(&CellStateSnapshot) -> Value1D,
+        F: 'static + Fn(&CellStateSnapshot) -> Value1D + Send + Sync,
     {
         let node_index = self.next_node_index();
         self.get_value_fns.push((node_index, Box::new(get_value)));
@@ -256,7 +262,7 @@ impl NeuralNetControlBuilder {
         value_to_request: F,
     ) -> VecIndex
     where
-        F: 'static + Fn(Value1D) -> ControlRequest,
+        F: 'static + Fn(Value1D) -> ControlRequest + Send + Sync,
     {
         let node_index = self.next_node_index();
         self.genome
@@ -285,6 +291,16 @@ impl NeuralNetControlBuilder {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn cell_control_is_sync_and_send() {
+        let control: &dyn CellControl = &NullControl::new();
+        assert!(is_sync_and_send(control));
+    }
+
+    fn is_sync_and_send<T: Sync + Send + ?Sized>(_obj: &T) -> bool {
+        true
+    }
 
     #[test]
     fn continuous_resize_control_returns_request_to_grow_specified_layer() {

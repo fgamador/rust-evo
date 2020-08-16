@@ -200,7 +200,7 @@ impl World {
         let per_cell_influences = &self.per_cell_influences;
         self.cell_graph
             .nodes_mut()
-            .iter_mut()
+            .iter_mut() // .par_iter_mut()
             .map(|cell| {
                 for influence in per_cell_influences {
                     influence.apply_to(cell);

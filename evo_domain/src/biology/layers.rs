@@ -441,6 +441,10 @@ impl CellLayerBody {
         self.area
     }
 
+    fn health(&self) -> Health {
+        self.health
+    }
+
     fn spawn(&self, area: Area) -> Self {
         let mut copy = Self {
             area,
@@ -702,9 +706,7 @@ impl BondingCellLayerSpecialty {
         request: &ControlRequest,
         body: &CellLayerBody,
     ) -> CostedControlRequest {
-        let allowed_value = request
-            .requested_value()
-            .min(body.area().value() * self.parameters.max_donation_energy_per_unit_area.value());
+        let allowed_value = self.allowed_donation_energy(request.requested_value(), body);
         CostedControlRequest::limited(
             request,
             allowed_value,
@@ -712,6 +714,12 @@ impl BondingCellLayerSpecialty {
                 allowed_value * -(1.0 + self.parameters.donation_energy_tax_rate.value()),
             ),
         )
+    }
+
+    fn allowed_donation_energy(&self, requested_value: Value1D, body: &CellLayerBody) -> Value1D {
+        let max_area_limited_donation =
+            self.parameters.max_donation_energy_per_unit_area.value() * body.area().value();
+        body.health().value() * requested_value.min(max_area_limited_donation)
     }
 }
 
@@ -1196,7 +1204,8 @@ mod tests {
             Density::new(1.0),
             Color::Yellow,
             Box::new(BondingCellLayerSpecialty::new().with_parameters(&LAYER_PARAMS)),
-        );
+        )
+        .with_health(Health::new(0.5));
 
         let donation_request =
             BondingCellLayerSpecialty::donation_energy_request(0, 1, BioEnergy::new(10.0));
@@ -1204,7 +1213,27 @@ mod tests {
 
         assert_eq!(
             costed_request,
-            CostedControlRequest::limited(&donation_request, 5.0, BioEnergyDelta::new(-6.25))
+            CostedControlRequest::limited(&donation_request, 2.5, BioEnergyDelta::new(-3.125))
+        );
+    }
+
+    #[test]
+    fn unlimited_donation_energy_is_still_limited_by_health() {
+        let layer = CellLayer::new(
+            Area::new(10.0),
+            Density::new(1.0),
+            Color::Yellow,
+            Box::new(BondingCellLayerSpecialty::new()),
+        )
+        .with_health(Health::new(0.5));
+
+        let donation_request =
+            BondingCellLayerSpecialty::donation_energy_request(0, 1, BioEnergy::new(10.0));
+        let costed_request = layer.cost_control_request(&donation_request);
+
+        assert_eq!(
+            costed_request,
+            CostedControlRequest::limited(&donation_request, 5.0, BioEnergyDelta::new(-5.0))
         );
     }
 

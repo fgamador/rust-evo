@@ -6,7 +6,6 @@ edition = "2018"
 
 [dependencies]
 evo_domain_derive = { path = "evo_domain_derive" }
-log = { version = "0.4", features = ["max_level_debug", "release_max_level_warn"] }
 rand = "0.7"
 rand_distr = "0.2"
 rand_pcg = "0.2"

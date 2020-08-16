@@ -127,8 +127,8 @@ fn create_bonding_layer() -> CellLayer {
         overlap_damage_health_delta: HealthDelta::new(OVERLAP_DAMAGE_HEALTH_DELTA),
     };
     const BONDING_PARAMS: BondingLayerParameters = BondingLayerParameters {
-        max_donation_energy_per_unit_area: BioEnergy::MAX,
-        donation_energy_tax_rate: Fraction::ZERO,
+        max_donation_energy_per_unit_area: BioEnergy::unchecked(0.5),
+        donation_energy_tax_rate: Fraction::unchecked(0.1),
     };
 
     CellLayer::new(

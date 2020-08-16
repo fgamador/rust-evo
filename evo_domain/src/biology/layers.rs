@@ -1198,12 +1198,14 @@ mod tests {
             Box::new(BondingCellLayerSpecialty::new().with_parameters(&LAYER_PARAMS)),
         );
 
-        let costed_request = layer.cost_control_request(
-            &BondingCellLayerSpecialty::donation_energy_request(0, 1, BioEnergy::new(10.0)),
-        );
+        let donation_request =
+            BondingCellLayerSpecialty::donation_energy_request(0, 1, BioEnergy::new(10.0));
+        let costed_request = layer.cost_control_request(&donation_request);
 
-        assert_eq!(5.0, costed_request.allowed_value());
-        assert_eq!(BioEnergyDelta::new(-6.25), costed_request.energy_delta());
+        assert_eq!(
+            costed_request,
+            CostedControlRequest::limited(&donation_request, 5.0, BioEnergyDelta::new(-6.25))
+        );
     }
 
     #[test]

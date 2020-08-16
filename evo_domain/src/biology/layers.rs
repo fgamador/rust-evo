@@ -740,7 +740,7 @@ impl CellLayerSpecialty for BondingCellLayerSpecialty {
 
     fn execute_control_request(
         &self,
-        body: &CellLayerBody,
+        _body: &CellLayerBody,
         request: &BudgetedControlRequest,
         changes: &mut CellChanges,
     ) {
@@ -753,9 +753,8 @@ impl CellLayerSpecialty for BondingCellLayerSpecialty {
                 bond_request.budding_angle = Angle::from_radians(request.requested_value());
             }
             Self::DONATION_ENERGY_CHANNEL_INDEX => {
-                bond_request.donation_energy = body.health.value()
-                    * request.budgeted_fraction()
-                    * BioEnergy::new(request.requested_value());
+                bond_request.donation_energy =
+                    request.budgeted_fraction().value() * BioEnergy::new(request.allowed_value());
                 CellLayer::record_request_energy_change(&request, "donated", changes);
             }
             _ => panic!("Invalid control channel index: {}", request.channel_index()),
@@ -1165,32 +1164,6 @@ mod tests {
     }
 
     #[test]
-    fn budding_energy_is_limited_by_health() {
-        let layer = CellLayer::new(
-            Area::new(1.0),
-            Density::new(1.0),
-            Color::Yellow,
-            Box::new(BondingCellLayerSpecialty::new()),
-        )
-        .with_health(Health::new(0.5));
-        let mut changes = CellChanges::new(1, false);
-        layer.execute_control_request(
-            &budgeted(
-                &BondingCellLayerSpecialty::donation_energy_request(0, 0, BioEnergy::new(1.0)),
-                BioEnergyDelta::new(-1.0),
-                Fraction::ONE,
-            ),
-            &mut changes,
-        );
-
-        assert_eq!(
-            changes.bond_requests[0].donation_energy,
-            BioEnergy::new(0.5)
-        );
-        assert_eq!(changes.energy, BioEnergyDelta::new(-1.0));
-    }
-
-    #[test]
     fn bonding_layer_bounds_and_costs_donation_request() {
         const LAYER_PARAMS: BondingLayerParameters = BondingLayerParameters {
             max_donation_energy_per_unit_area: BioEnergy::unchecked(0.5),
@@ -1235,7 +1208,6 @@ mod tests {
     }
 
     #[test]
-    #[ignore]
     fn bonding_layer_collects_tax() {
         const LAYER_PARAMS: BondingLayerParameters = BondingLayerParameters {
             max_donation_energy_per_unit_area: BioEnergy::unchecked(0.5),
@@ -1250,19 +1222,20 @@ mod tests {
 
         let mut changes = CellChanges::new(1, false);
         layer.execute_control_request(
-            &budgeted(
+            &costed_and_budgeted(
                 &BondingCellLayerSpecialty::donation_energy_request(0, 0, BioEnergy::new(10.0)),
-                BioEnergyDelta::new(-1.25),
-                Fraction::ONE,
+                2.5,
+                BioEnergyDelta::new(-3.125),
+                Fraction::new(1.0),
             ),
             &mut changes,
         );
 
         assert_eq!(
             changes.bond_requests[0].donation_energy,
-            BioEnergy::new(1.0)
+            BioEnergy::new(2.5)
         );
-        assert_eq!(changes.energy, BioEnergyDelta::new(-1.25));
+        assert_eq!(changes.energy, BioEnergyDelta::new(-3.125));
     }
 
     #[test]

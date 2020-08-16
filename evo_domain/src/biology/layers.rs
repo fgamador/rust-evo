@@ -517,9 +517,9 @@ impl CellLayerBody {
     }
 
     fn allowed_shrinkage_delta_area(&self, requested_delta_area: Value1D) -> Value1D {
-        let min_delta_area =
-            self.health.value() * -self.resize_parameters.max_shrinkage_rate * self.area.value();
-        requested_delta_area.max(min_delta_area)
+        let min_rate_limited_delta_area =
+            -self.resize_parameters.max_shrinkage_rate * self.area.value();
+        self.health.value() * requested_delta_area.max(min_rate_limited_delta_area)
     }
 
     fn actual_delta_area(&self, request: &BudgetedControlRequest) -> AreaDelta {

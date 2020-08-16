@@ -454,13 +454,12 @@ mod tests {
 
     #[test]
     fn cells_are_sync_and_send() {
-        // let cell = simple_layered_cell(vec![simple_cell_layer(Area::new(PI), Density::new(1.0))]);
-        // assert!(is_sync_and_send(&cell));
-        let i = 23;
-        assert!(is_sync_and_send(&i));
+        let cell = simple_layered_cell(vec![simple_cell_layer(Area::new(PI), Density::new(1.0))]);
+        // passes if it compiles
+        assert!(is_sync_and_send(&cell));
     }
 
-    fn is_sync_and_send<T: Sync + Send>(_obj: &T) -> bool {
+    fn is_sync_and_send<T: Sync + Send + ?Sized>(_obj: &T) -> bool {
         true
     }
 

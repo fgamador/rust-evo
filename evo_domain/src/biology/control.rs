@@ -293,16 +293,6 @@ mod tests {
     use super::*;
 
     #[test]
-    fn cell_control_is_sync_and_send() {
-        let control: &dyn CellControl = &NullControl::new();
-        assert!(is_sync_and_send(control));
-    }
-
-    fn is_sync_and_send<T: Sync + Send + ?Sized>(_obj: &T) -> bool {
-        true
-    }
-
-    #[test]
     fn continuous_resize_control_returns_request_to_grow_specified_layer() {
         let mut control = ContinuousResizeControl::new(1, AreaDelta::new(0.5));
         let requests = control.run(&CellStateSnapshot::ZEROS);

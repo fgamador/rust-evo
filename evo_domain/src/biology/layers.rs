@@ -272,7 +272,7 @@ impl CellLayer {
     }
 }
 
-trait CellLayerBrain: Debug {
+trait CellLayerBrain: Debug + Send + Sync {
     fn is_alive(&self) -> bool;
 
     fn calculate_automatic_changes(
@@ -542,7 +542,7 @@ impl CellLayerSpecialtySpawn for Box<dyn CellLayerSpecialty> {
     }
 }
 
-pub trait CellLayerSpecialty: Debug {
+pub trait CellLayerSpecialty: Debug + Send + Sync {
     fn box_spawn(&self) -> Box<dyn CellLayerSpecialty>;
 
     fn calculate_automatic_changes(

@@ -847,6 +847,63 @@ mod tests {
     }
 
     #[test]
+    #[should_panic]
+    fn healing_request_cannot_be_negative() {
+        CellLayer::healing_request(0, HealthDelta::new(-0.25));
+    }
+
+    #[test]
+    fn layer_costs_health_restoration() {
+        const LAYER_HEALTH_PARAMS: LayerHealthParameters = LayerHealthParameters {
+            healing_energy_delta: BioEnergyDelta::new(-3.0),
+            ..LayerHealthParameters::DEFAULT
+        };
+        let layer = simple_cell_layer(Area::new(2.0), Density::new(1.0))
+            .with_health_parameters(&LAYER_HEALTH_PARAMS)
+            .with_health(Health::new(0.5));
+
+        let control_request = CellLayer::healing_request(0, HealthDelta::new(0.25));
+        let costed_request = layer.cost_control_request(&control_request);
+
+        assert_eq!(
+            costed_request,
+            CostedControlRequest::unlimited(&control_request, BioEnergyDelta::new(-1.5))
+        );
+    }
+
+    #[test]
+    fn layer_health_restoration_is_limited_by_budgeted_fraction() {
+        let layer =
+            simple_cell_layer(Area::new(1.0), Density::new(1.0)).with_health(Health::new(0.5));
+        let mut changes = CellChanges::new(1, false);
+        layer.execute_control_request(
+            &budgeted(
+                &CellLayer::healing_request(0, HealthDelta::new(0.5)),
+                BioEnergyDelta::ZERO,
+                Fraction::new(0.5),
+            ),
+            &mut changes,
+        );
+        assert_eq!(changes.layers[0].health, HealthDelta::new(0.25));
+    }
+
+    #[test]
+    fn layer_healing_records_energy_change() {
+        let layer =
+            simple_cell_layer(Area::new(1.0), Density::new(1.0)).with_health(Health::new(0.5));
+        let mut changes = CellChanges::new(1, false);
+        layer.execute_control_request(
+            &budgeted(
+                &CellLayer::healing_request(0, HealthDelta::new(0.5)),
+                BioEnergyDelta::new(-10.0),
+                Fraction::new(0.5),
+            ),
+            &mut changes,
+        );
+        assert_eq!(changes.energy, BioEnergyDelta::new(-5.0));
+    }
+
+    #[test]
     fn layer_bounds_and_costs_growth_request() {
         const LAYER_RESIZE_PARAMS: LayerResizeParameters = LayerResizeParameters {
             growth_energy_delta: BioEnergyDelta::new(-0.5),
@@ -925,63 +982,6 @@ mod tests {
 
         assert_eq!(changes.layers[0].area, AreaDelta::new(2.0));
         assert_eq!(changes.energy, BioEnergyDelta::new(-1.5));
-    }
-
-    #[test]
-    fn layer_costs_health_restoration() {
-        const LAYER_HEALTH_PARAMS: LayerHealthParameters = LayerHealthParameters {
-            healing_energy_delta: BioEnergyDelta::new(-3.0),
-            ..LayerHealthParameters::DEFAULT
-        };
-        let layer = simple_cell_layer(Area::new(2.0), Density::new(1.0))
-            .with_health_parameters(&LAYER_HEALTH_PARAMS)
-            .with_health(Health::new(0.5));
-
-        let control_request = CellLayer::healing_request(0, HealthDelta::new(0.25));
-        let costed_request = layer.cost_control_request(&control_request);
-
-        assert_eq!(
-            costed_request,
-            CostedControlRequest::unlimited(&control_request, BioEnergyDelta::new(-1.5))
-        );
-    }
-
-    #[test]
-    fn layer_health_restoration_is_limited_by_budgeted_fraction() {
-        let layer =
-            simple_cell_layer(Area::new(1.0), Density::new(1.0)).with_health(Health::new(0.5));
-        let mut changes = CellChanges::new(1, false);
-        layer.execute_control_request(
-            &budgeted(
-                &CellLayer::healing_request(0, HealthDelta::new(0.5)),
-                BioEnergyDelta::ZERO,
-                Fraction::new(0.5),
-            ),
-            &mut changes,
-        );
-        assert_eq!(changes.layers[0].health, HealthDelta::new(0.25));
-    }
-
-    #[test]
-    fn layer_healing_records_energy_change() {
-        let layer =
-            simple_cell_layer(Area::new(1.0), Density::new(1.0)).with_health(Health::new(0.5));
-        let mut changes = CellChanges::new(1, false);
-        layer.execute_control_request(
-            &budgeted(
-                &CellLayer::healing_request(0, HealthDelta::new(0.5)),
-                BioEnergyDelta::new(-10.0),
-                Fraction::new(0.5),
-            ),
-            &mut changes,
-        );
-        assert_eq!(changes.energy, BioEnergyDelta::new(-5.0));
-    }
-
-    #[test]
-    #[should_panic]
-    fn healing_request_cannot_be_negative() {
-        CellLayer::healing_request(0, HealthDelta::new(-0.25));
     }
 
     #[test]

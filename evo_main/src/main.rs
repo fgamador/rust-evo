@@ -5,7 +5,7 @@ use evo_domain::biology::layers::*;
 use evo_domain::environment::influences::*;
 use evo_domain::physics::quantities::*;
 use evo_domain::world::World;
-use evo_main::main_support::{init_and_run, parse_command_line};
+use evo_main::main_support::*;
 use std::f64::consts::PI;
 
 fn main() {

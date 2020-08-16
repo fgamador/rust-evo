@@ -8,11 +8,11 @@ use evo_domain::world::World;
 use evo_main::main_support::init_and_run;
 use std::f64::consts::PI;
 
-fn main() {
-    init_and_run(create_world());
-}
-
 const SEED: u64 = 0;
+
+fn main() {
+    init_and_run(create_world(SEED));
+}
 
 const FLUID_DENSITY: f64 = 0.001;
 const FLOAT_LAYER_DENSITY: f64 = 0.0001;
@@ -25,7 +25,7 @@ const FLOAT_LAYER_INDEX: usize = 0;
 const PHOTO_LAYER_INDEX: usize = 1;
 const BONDING_LAYER_INDEX: usize = 2;
 
-fn create_world() -> World {
+fn create_world(seed: u64) -> World {
     World::new(Position::new(0.0, -400.0), Position::new(1200.0, 0.0))
         .with_standard_influences()
         .with_sunlight(0.0, 1.0)
@@ -40,13 +40,13 @@ fn create_world() -> World {
             Box::new(SimpleForceInfluence::new(Box::new(DragForce::new(0.005)))),
         ])
         .with_cell(
-            create_cell()
+            create_cell(seed)
                 .with_initial_energy(BioEnergy::new(50.0))
                 .with_initial_position(Position::new(200.0, -50.0)),
         )
 }
 
-fn create_cell() -> Cell {
+fn create_cell(seed: u64) -> Cell {
     const SOME_MUTATION: MutationParameters = MutationParameters {
         weight_mutation_probability: 0.5,
         weight_mutation_stdev: 1.0,
@@ -63,7 +63,7 @@ fn create_cell() -> Cell {
         ],
     )
     .with_control(Box::new(create_control(SeededMutationRandomness::new(
-        SEED,
+        seed,
         &SOME_MUTATION,
     ))))
 }

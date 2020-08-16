@@ -1139,31 +1139,6 @@ mod tests {
     }
 
     #[test]
-    fn budding_energy_is_limited_by_budget() {
-        let layer = CellLayer::new(
-            Area::new(1.0),
-            Density::new(1.0),
-            Color::Yellow,
-            Box::new(BondingCellLayerSpecialty::new()),
-        );
-        let mut changes = CellChanges::new(1, false);
-        layer.execute_control_request(
-            &budgeted(
-                &BondingCellLayerSpecialty::donation_energy_request(0, 0, BioEnergy::new(1.0)),
-                BioEnergyDelta::new(-1.0),
-                Fraction::new(0.5),
-            ),
-            &mut changes,
-        );
-
-        assert_eq!(
-            changes.bond_requests[0].donation_energy,
-            BioEnergy::new(0.5)
-        );
-        assert_eq!(changes.energy, BioEnergyDelta::new(-0.5));
-    }
-
-    #[test]
     fn bonding_layer_bounds_and_costs_donation_request() {
         const LAYER_PARAMS: BondingLayerParameters = BondingLayerParameters {
             max_donation_energy_per_unit_area: BioEnergy::unchecked(0.5),
@@ -1226,16 +1201,16 @@ mod tests {
                 &BondingCellLayerSpecialty::donation_energy_request(0, 0, BioEnergy::new(10.0)),
                 2.5,
                 BioEnergyDelta::new(-3.125),
-                Fraction::new(1.0),
+                Fraction::new(0.5),
             ),
             &mut changes,
         );
 
         assert_eq!(
             changes.bond_requests[0].donation_energy,
-            BioEnergy::new(2.5)
+            BioEnergy::new(1.25)
         );
-        assert_eq!(changes.energy, BioEnergyDelta::new(-3.125));
+        assert_eq!(changes.energy, BioEnergyDelta::new(-1.5625));
     }
 
     #[test]

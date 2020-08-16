@@ -242,7 +242,7 @@ impl CrossCellInfluence for BondAngleForces {
     }
 }
 
-pub trait PerCellInfluence {
+pub trait PerCellInfluence: Send + Sync {
     fn apply_to(&self, cell: &mut Cell);
 }
 
@@ -264,7 +264,7 @@ impl PerCellInfluence for SimpleForceInfluence {
     }
 }
 
-pub trait SimpleInfluenceForce {
+pub trait SimpleInfluenceForce: Send + Sync {
     fn calc_force(&self, cell: &Cell) -> Force;
 
     fn label(&self) -> &'static str;

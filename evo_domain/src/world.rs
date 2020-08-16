@@ -4,7 +4,7 @@ use crate::environment::influences::*;
 use crate::physics::bond::*;
 use crate::physics::quantities::*;
 use crate::physics::sortable_graph::*;
-//use rayon::prelude::*;
+use rayon::prelude::*;
 use std::collections::HashSet;
 use std::iter::FromIterator;
 
@@ -200,7 +200,7 @@ impl World {
         let per_cell_influences = &self.per_cell_influences;
         self.cell_graph
             .nodes_mut()
-            .iter_mut() // .par_iter_mut()
+            .par_iter_mut()
             .map(|cell| {
                 for influence in per_cell_influences {
                     influence.apply_to(cell);

@@ -1,3 +1,4 @@
+use serde::{Deserialize, Serialize};
 use std::f64::consts::PI;
 use std::fmt;
 use std::ops::Add;
@@ -27,7 +28,7 @@ pub fn print_value1d_change_info(label: &str, value1: Value1D, value2: Value1D) 
     );
 }
 
-#[derive(Clone, Copy, Debug, PartialEq, PartialOrd)]
+#[derive(Clone, Copy, Debug, Deserialize, PartialEq, PartialOrd, Serialize)]
 pub struct Value2D {
     x: Value1D,
     y: Value1D,
@@ -179,7 +180,7 @@ impl DivAssign<Value1D> for Value2D {
     }
 }
 
-#[derive(Clone, Copy, Debug, PartialEq, PartialOrd)]
+#[derive(Clone, Copy, Debug, Deserialize, PartialEq, PartialOrd, Serialize)]
 pub struct Fraction {
     value: Value1D,
 }
@@ -222,7 +223,7 @@ impl Mul<Fraction> for Value1D {
     }
 }
 
-#[derive(Clone, Copy, Debug, PartialEq, PartialOrd)]
+#[derive(Clone, Copy, Debug, Deserialize, PartialEq, PartialOrd, Serialize)]
 pub struct Angle {
     radians: Value1D,
 }
@@ -283,7 +284,7 @@ impl AddAssign<Deflection> for Angle {
     }
 }
 
-#[derive(Clone, Copy, Debug, PartialEq, PartialOrd)]
+#[derive(Clone, Copy, Debug, Deserialize, PartialEq, PartialOrd, Serialize)]
 pub struct Deflection {
     radians: Value1D,
 }
@@ -307,7 +308,7 @@ impl Add for Deflection {
     }
 }
 
-#[derive(Clone, Copy, Debug, PartialEq, PartialOrd)]
+#[derive(Clone, Copy, Debug, Deserialize, PartialEq, PartialOrd, Serialize)]
 pub struct Length {
     value: Value1D,
 }
@@ -377,7 +378,7 @@ impl Mul<Length> for Value1D {
     }
 }
 
-#[derive(Clone, Copy, Debug, PartialEq, PartialOrd)]
+#[derive(Clone, Copy, Debug, Deserialize, PartialEq, PartialOrd, Serialize)]
 pub struct Area {
     value: Value1D,
 }
@@ -483,7 +484,7 @@ impl AddAssign<AreaDelta> for Area {
     }
 }
 
-#[derive(Clone, Copy, Debug, PartialEq, PartialOrd)]
+#[derive(Clone, Copy, Debug, Deserialize, PartialEq, PartialOrd, Serialize)]
 pub struct AreaDelta {
     value: Value1D,
 }
@@ -515,7 +516,7 @@ impl AddAssign for AreaDelta {
     }
 }
 
-#[derive(Clone, Copy, Debug, PartialEq, PartialOrd)]
+#[derive(Clone, Copy, Debug, Deserialize, PartialEq, PartialOrd, Serialize)]
 pub struct Health {
     value: Value1D,
 }
@@ -562,7 +563,7 @@ impl AddAssign<HealthDelta> for Health {
     }
 }
 
-#[derive(Clone, Copy, Debug, PartialEq, PartialOrd)]
+#[derive(Clone, Copy, Debug, Deserialize, PartialEq, PartialOrd, Serialize)]
 pub struct HealthDelta {
     value: Value1D,
 }
@@ -626,7 +627,7 @@ impl Mul<HealthDelta> for Fraction {
     }
 }
 
-#[derive(Clone, Copy, Debug, PartialEq, PartialOrd)]
+#[derive(Clone, Copy, Debug, Deserialize, PartialEq, PartialOrd, Serialize)]
 pub struct BioEnergy {
     value: Value1D,
 }
@@ -733,7 +734,7 @@ impl Sub<BioEnergyDelta> for BioEnergy {
     }
 }
 
-#[derive(Clone, Copy, Debug, PartialEq, PartialOrd)]
+#[derive(Clone, Copy, Debug, Deserialize, PartialEq, PartialOrd, Serialize)]
 pub struct BioEnergyDelta {
     value: Value1D,
 }
@@ -830,7 +831,7 @@ impl Neg for BioEnergyDelta {
     }
 }
 
-#[derive(Clone, Copy, Debug, PartialEq)]
+#[derive(Clone, Copy, Debug, Deserialize, PartialEq, Serialize)]
 pub struct Position {
     x: Value1D,
     y: Value1D,
@@ -900,7 +901,7 @@ impl Sub for Position {
     }
 }
 
-#[derive(Clone, Copy, Debug, PartialEq)]
+#[derive(Clone, Copy, Debug, Deserialize, PartialEq, Serialize)]
 pub struct Displacement {
     x: Value1D,
     y: Value1D,
@@ -969,7 +970,7 @@ impl Neg for Displacement {
     }
 }
 
-#[derive(Clone, Copy, Debug, PartialEq, PartialOrd)]
+#[derive(Clone, Copy, Debug, Deserialize, PartialEq, PartialOrd, Serialize)]
 pub struct Duration {
     value: Value1D,
 }
@@ -996,7 +997,7 @@ impl Div<Value1D> for Duration {
     }
 }
 
-#[derive(Clone, Copy, Debug, PartialEq)]
+#[derive(Clone, Copy, Debug, Deserialize, PartialEq, Serialize)]
 pub struct Velocity {
     x: Value1D,
     y: Value1D,
@@ -1060,7 +1061,7 @@ impl Mul<Duration> for Velocity {
     }
 }
 
-#[derive(Clone, Copy, Debug, PartialEq)]
+#[derive(Clone, Copy, Debug, Deserialize, PartialEq, Serialize)]
 pub struct Acceleration {
     x: Value1D,
     y: Value1D,
@@ -1100,7 +1101,7 @@ impl Mul<Duration> for Acceleration {
     }
 }
 
-#[derive(Clone, Copy, Debug, PartialEq)]
+#[derive(Clone, Copy, Debug, Deserialize, PartialEq, Serialize)]
 pub struct DeltaV {
     x: Value1D,
     y: Value1D,
@@ -1148,7 +1149,7 @@ impl Mul<Duration> for DeltaV {
     }
 }
 
-#[derive(Clone, Copy, Debug, PartialEq)]
+#[derive(Clone, Copy, Debug, Deserialize, PartialEq, Serialize)]
 pub struct Momentum {
     x: Value1D,
     y: Value1D,
@@ -1204,7 +1205,7 @@ impl Div<Mass> for Momentum {
     }
 }
 
-#[derive(Clone, Copy, Debug, PartialEq)]
+#[derive(Clone, Copy, Debug, Deserialize, PartialEq, Serialize)]
 pub struct Impulse {
     x: Value1D,
     y: Value1D,
@@ -1238,7 +1239,7 @@ impl Div<Mass> for Impulse {
     }
 }
 
-#[derive(Clone, Copy, Debug, PartialEq, PartialOrd)]
+#[derive(Clone, Copy, Debug, Deserialize, PartialEq, PartialOrd, Serialize)]
 pub struct Mass {
     value: Value1D,
 }
@@ -1310,7 +1311,7 @@ impl Div<Area> for Mass {
     }
 }
 
-#[derive(Clone, Copy, Debug, PartialEq, PartialOrd)]
+#[derive(Clone, Copy, Debug, Deserialize, PartialEq, PartialOrd, Serialize)]
 pub struct Density {
     value: Value1D,
 }
@@ -1330,7 +1331,7 @@ impl Density {
     }
 }
 
-#[derive(Clone, Copy, Debug, PartialEq)]
+#[derive(Clone, Copy, Debug, Deserialize, PartialEq, Serialize)]
 pub struct Force {
     x: Value1D,
     y: Value1D,
@@ -1425,7 +1426,7 @@ impl Neg for Force {
     }
 }
 
-#[derive(Clone, Copy, Debug, PartialEq, PartialOrd)]
+#[derive(Clone, Copy, Debug, Deserialize, PartialEq, PartialOrd, Serialize)]
 pub struct Torque {
     value: Value1D,
 }

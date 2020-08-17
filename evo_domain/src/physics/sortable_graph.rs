@@ -196,10 +196,10 @@ impl<N: GraphNode, E: GraphEdge, ME: GraphMetaEdge> SortableGraph<N, E, ME> {
         });
     }
 
-    fn insertion_sort_by<T, F>(seq: &mut [T], mut is_less: F)
+    fn insertion_sort_by<T, F>(seq: &mut [T], is_less: F)
     where
         T: Copy,
-        F: FnMut(T, T) -> bool,
+        F: Fn(T, T) -> bool,
     {
         for i in 1..seq.len() {
             for j in (1..=i).rev() {

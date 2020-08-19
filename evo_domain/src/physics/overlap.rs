@@ -140,8 +140,7 @@ pub fn calc_overlap<C: Circle>(circle1: &C, circle2: &C) -> Option<Overlap> {
 }
 
 struct PossibleCirclePairOverlap {
-    x_offset: f64,
-    y_offset: f64,
+    center1_offset: Displacement,
     just_touching_center_sep: f64,
     center_sep_sqr: f64,
 }
@@ -149,20 +148,19 @@ struct PossibleCirclePairOverlap {
 impl PossibleCirclePairOverlap {
     fn new<C: Circle>(circle1: &C, circle2: &C) -> Self {
         PossibleCirclePairOverlap {
-            x_offset: circle1.center().x() - circle2.center().x(),
-            y_offset: circle1.center().y() - circle2.center().y(),
+            center1_offset: circle1.center() - circle2.center(),
             just_touching_center_sep: circle1.radius().value() + circle2.radius().value(),
             center_sep_sqr: 0.0,
         }
     }
 
     fn bounding_boxes_overlap(&self) -> bool {
-        self.x_offset.abs() < self.just_touching_center_sep
-            && self.y_offset.abs() < self.just_touching_center_sep
+        self.center1_offset.x().abs() < self.just_touching_center_sep
+            && self.center1_offset.y().abs() < self.just_touching_center_sep
     }
 
     fn circles_overlap(&mut self) -> bool {
-        self.center_sep_sqr = sqr(self.x_offset) + sqr(self.y_offset);
+        self.center_sep_sqr = self.center1_offset.value().length_squared();
         self.center_sep_sqr < sqr(self.just_touching_center_sep) && self.center_sep_sqr != 0.0
     }
 
@@ -170,9 +168,7 @@ impl PossibleCirclePairOverlap {
         assert!(self.center_sep_sqr > 0.0);
         let center_sep = self.center_sep_sqr.sqrt();
         let overlap_mag = self.just_touching_center_sep - center_sep;
-        let x_incursion = (self.x_offset / center_sep) * overlap_mag;
-        let y_incursion = (self.y_offset / center_sep) * overlap_mag;
-        Displacement::new(x_incursion, y_incursion)
+        (self.center1_offset / center_sep) * overlap_mag
     }
 }
 

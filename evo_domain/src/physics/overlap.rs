@@ -161,14 +161,18 @@ impl PossibleCirclePairOverlap {
 
     fn circles_overlap(&mut self) -> bool {
         self.center_sep_sqr = self.center1_offset.value().length_squared();
-        self.center_sep_sqr < sqr(self.just_touching_center_sep) && self.center_sep_sqr != 0.0
+        self.center_sep_sqr < sqr(self.just_touching_center_sep)
     }
 
     fn get_incursion(&self) -> Displacement {
-        assert!(self.center_sep_sqr > 0.0);
         let center_sep = self.center_sep_sqr.sqrt();
-        let overlap_mag = self.just_touching_center_sep - center_sep;
-        (self.center1_offset / center_sep) * overlap_mag
+        let magnitude = self.just_touching_center_sep - center_sep;
+        if self.center_sep_sqr == 0.0 {
+            // TODO random direction?
+            Displacement::new(magnitude, 0.0)
+        } else {
+            (self.center1_offset / center_sep) * magnitude
+        }
     }
 }
 
@@ -253,10 +257,10 @@ mod tests {
         let circle1 = SimpleCircleNode::new(Position::new(0.0, 0.0), Length::new(1.0));
         let circle2 = SimpleCircleNode::new(Position::new(0.0, 0.0), Length::new(1.0));
 
-        let overlap = calc_overlap(&circle1, &circle2);
+        let overlap = calc_overlap(&circle1, &circle2).unwrap();
 
-        // what else could we do?
-        assert_eq!(overlap, None);
+        // just dump the whole incursion into x
+        assert_eq!(overlap.incursion(), Displacement::new(2.0, 0.0));
     }
 
     #[test]

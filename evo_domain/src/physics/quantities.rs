@@ -970,6 +970,22 @@ impl Neg for Displacement {
     }
 }
 
+impl Mul<Value1D> for Displacement {
+    type Output = Displacement;
+
+    fn mul(self, rhs: Value1D) -> Self::Output {
+        Displacement::new(self.x * rhs, self.y * rhs)
+    }
+}
+
+impl Div<Value1D> for Displacement {
+    type Output = Displacement;
+
+    fn div(self, rhs: Value1D) -> Self::Output {
+        Displacement::new(self.x / rhs, self.y / rhs)
+    }
+}
+
 #[derive(Clone, Copy, Debug, Deserialize, PartialEq, PartialOrd, Serialize)]
 pub struct Duration {
     value: Value1D,

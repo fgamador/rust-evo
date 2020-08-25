@@ -4,11 +4,9 @@ use crate::environment::influences::*;
 use crate::physics::bond::*;
 use crate::physics::quantities::*;
 use crate::physics::sortable_graph::*;
-use crate::ElapsedTimeProbe;
 use rayon::prelude::*;
 use std::collections::HashSet;
 use std::iter::FromIterator;
-use std::time;
 
 pub struct World {
     min_corner: Position,
@@ -17,8 +15,6 @@ pub struct World {
     cross_cell_influences: Vec<Box<dyn CrossCellInfluence>>,
     per_cell_influences: Vec<Box<dyn PerCellInfluence>>,
     num_selected_cells: u32,
-    cross_cell_influences_probe: ElapsedTimeProbe,
-    tick_cells_probe: ElapsedTimeProbe,
 }
 
 impl World {
@@ -30,14 +26,6 @@ impl World {
             cross_cell_influences: vec![],
             per_cell_influences: vec![],
             num_selected_cells: 0,
-            cross_cell_influences_probe: ElapsedTimeProbe::new(
-                "Cross-cell influences average time",
-                time::Duration::from_secs(1),
-            ),
-            tick_cells_probe: ElapsedTimeProbe::new(
-                "Tick cells average time",
-                time::Duration::from_secs(1),
-            ),
         }
     }
 
@@ -203,18 +191,14 @@ impl World {
     }
 
     fn apply_cross_cell_influences(&mut self) {
-        self.cross_cell_influences_probe.begin();
         for influence in &self.cross_cell_influences {
             influence.apply_to(&mut self.cell_graph);
         }
-        self.cross_cell_influences_probe.end();
     }
 
     fn tick_cells(&mut self) -> Vec<BondRequests> {
-        self.tick_cells_probe.begin();
         let per_cell_influences = &self.per_cell_influences;
-        let bond_requests = self
-            .cell_graph
+        self.cell_graph
             .nodes_mut()
             .par_iter_mut()
             .map(|cell| {
@@ -223,9 +207,7 @@ impl World {
                 }
                 cell.tick()
             })
-            .collect();
-        self.tick_cells_probe.end();
-        bond_requests
+            .collect()
     }
 
     fn apply_world_changes(&mut self, cell_bond_requests: &[BondRequests]) {

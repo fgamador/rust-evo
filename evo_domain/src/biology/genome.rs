@@ -116,7 +116,7 @@ impl SparseNeuralNetGenome {
     }
 
     pub fn print(&self) {
-        for printable_node in self.get_printable_nodes().values() {
+        for printable_node in self.get_printable_nodes() {
             print!("[{}] <- ", printable_node.index);
             for (coefficient, input_index) in &printable_node.inputs {
                 print!("{:.4}*[{}] + ", coefficient, input_index);
@@ -125,7 +125,7 @@ impl SparseNeuralNetGenome {
         }
     }
 
-    fn get_printable_nodes(&self) -> HashMap<VecIndex, PrintableNode> {
+    fn get_printable_nodes(&self) -> Vec<PrintableNode> {
         let mut printable_nodes = HashMap::new();
         for op in &self.ops {
             match op {
@@ -152,6 +152,12 @@ impl SparseNeuralNetGenome {
                 }
             }
         }
+
+        let mut printable_nodes = printable_nodes
+            .values()
+            .cloned()
+            .collect::<Vec<PrintableNode>>();
+        printable_nodes.sort_unstable_by(|a, b| a.index.partial_cmp(&b.index).unwrap());
         printable_nodes
     }
 
@@ -165,6 +171,7 @@ impl SparseNeuralNetGenome {
     }
 }
 
+#[derive(Clone, Debug, PartialEq)]
 struct PrintableNode {
     index: VecIndex,
     inputs: Vec<(Coefficient, VecIndex)>,

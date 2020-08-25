@@ -10,6 +10,8 @@ pub trait CellControl: fmt::Debug + Send + Sync {
     fn run(&mut self, cell_state: &CellStateSnapshot) -> Vec<ControlRequest>;
 
     fn spawn(&mut self) -> Box<dyn CellControl>;
+
+    fn print(&self) {}
 }
 
 #[derive(Debug)]
@@ -215,6 +217,10 @@ impl CellControl for NeuralNetControl {
             value_to_request_fns: Arc::clone(&self.value_to_request_fns),
             randomness: self.randomness.clone(),
         })
+    }
+
+    fn print(&self) {
+        self.nnet.print();
     }
 }
 

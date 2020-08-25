@@ -134,6 +134,7 @@ impl Cell {
     pub fn set_selected(&mut self, is_selected: bool) {
         self.selected = is_selected;
         if is_selected {
+            self.control.print();
             self.net_force_mut().start_recording_force_additions();
         } else {
             self.net_force_mut().stop_recording_force_additions();

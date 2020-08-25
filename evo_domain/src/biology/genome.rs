@@ -44,6 +44,10 @@ impl SparseNeuralNet {
     pub fn run(&mut self) {
         self.genome.run(&mut self.node_values);
     }
+
+    pub fn print(&self) {
+        self.genome.print();
+    }
 }
 
 #[derive(Clone, Debug, PartialEq)]

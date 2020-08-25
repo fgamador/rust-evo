@@ -5,6 +5,7 @@
 use rand::{Rng, SeedableRng};
 use rand_distr::StandardNormal;
 use rand_pcg::Pcg64Mcg;
+use std::collections::HashMap;
 use std::f32;
 use std::fmt;
 use std::fmt::{Error, Formatter};
@@ -108,6 +109,73 @@ impl SparseNeuralNetGenome {
         ops.iter()
             .map(|op| op.copy_with_mutated_weight(|weight| randomness.mutate_weight(weight)))
             .collect()
+    }
+
+    pub fn print(&self) {
+        for printable_node in self.get_printable_nodes().values() {
+            print!("[{}] <- ", printable_node.index);
+            for (coefficient, input_index) in &printable_node.inputs {
+                print!("{:.4}*[{}] + ", coefficient, input_index);
+            }
+            println!("{}", printable_node.bias);
+        }
+    }
+
+    fn get_printable_nodes(&self) -> HashMap<VecIndex, PrintableNode> {
+        let mut printable_nodes = HashMap::new();
+        for op in &self.ops {
+            match op {
+                Op::Bias { value_index, bias } => {
+                    Self::get_printable_node(&mut printable_nodes, *value_index).bias = *bias;
+                }
+
+                Op::Connection {
+                    from_value_index,
+                    to_value_index,
+                    weight,
+                } => {
+                    Self::get_printable_node(&mut printable_nodes, *to_value_index)
+                        .inputs
+                        .push((*weight, *from_value_index));
+                }
+
+                Op::Transfer {
+                    value_index,
+                    transfer_fn,
+                } => {
+                    Self::get_printable_node(&mut printable_nodes, *value_index).transfer_fn =
+                        *transfer_fn;
+                }
+            }
+        }
+        printable_nodes
+    }
+
+    fn get_printable_node(
+        printable_nodes: &mut HashMap<VecIndex, PrintableNode>,
+        value_index: VecIndex,
+    ) -> &mut PrintableNode {
+        printable_nodes
+            .entry(value_index)
+            .or_insert(PrintableNode::new(value_index))
+    }
+}
+
+struct PrintableNode {
+    index: VecIndex,
+    inputs: Vec<(Coefficient, VecIndex)>,
+    bias: Coefficient,
+    transfer_fn: TransferFn,
+}
+
+impl PrintableNode {
+    fn new(index: VecIndex) -> Self {
+        PrintableNode {
+            index,
+            bias: 0.0,
+            inputs: vec![],
+            transfer_fn: TransferFn::IDENTITY,
+        }
     }
 }
 

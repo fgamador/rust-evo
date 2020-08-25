@@ -161,7 +161,7 @@ impl SparseNeuralNetGenome {
     ) -> &mut PrintableNode {
         printable_nodes
             .entry(value_index)
-            .or_insert(PrintableNode::new(value_index))
+            .or_insert_with(|| PrintableNode::new(value_index))
     }
 }
 

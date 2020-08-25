@@ -189,10 +189,21 @@ impl PrintableNode {
 impl fmt::Display for PrintableNode {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         write!(f, "[{}] <- ", self.index)?;
-        for (coefficient, input_index) in &self.inputs {
-            write!(f, "{:.4}*[{}] + ", coefficient, input_index)?;
+        for (index, (coefficient, input_index)) in self.inputs.iter().enumerate() {
+            if index > 0 {
+                write!(f, " + ")?;
+            }
+            if *coefficient != 1.0 {
+                write!(f, "{:.4}*", *coefficient)?;
+            }
+            write!(f, "[{}]", *input_index)?;
         }
-        write!(f, "{}", self.bias)
+        if self.bias > 0.0 {
+            write!(f, " + {}", self.bias)?;
+        } else if self.bias < 0.0 {
+            write!(f, " - {}", -self.bias)?;
+        }
+        Ok(())
     }
 }
 

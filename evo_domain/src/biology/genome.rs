@@ -117,7 +117,7 @@ impl SparseNeuralNetGenome {
 
     pub fn print(&self) {
         for printable_node in self.get_printable_nodes() {
-            println!("{}", printable_node);
+            printable_node.println();
         }
     }
 
@@ -184,26 +184,24 @@ impl PrintableNode {
             transfer_fn: TransferFn::IDENTITY,
         }
     }
-}
 
-impl fmt::Display for PrintableNode {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "[{}] <- ", self.index)?;
+    fn println(&self) {
+        print!("[{}] <- ", self.index);
         for (index, (coefficient, input_index)) in self.inputs.iter().enumerate() {
             if index > 0 {
-                write!(f, " + ")?;
+                print!(" + ");
             }
             if *coefficient != 1.0 {
-                write!(f, "{:.4}*", *coefficient)?;
+                print!("{:.4}*", *coefficient);
             }
-            write!(f, "[{}]", *input_index)?;
+            print!("[{}]", *input_index);
         }
         if self.bias > 0.0 {
-            write!(f, " + {}", self.bias)?;
+            print!(" + {}", self.bias);
         } else if self.bias < 0.0 {
-            write!(f, " - {}", -self.bias)?;
+            print!(" - {}", -self.bias);
         }
-        Ok(())
+        println!();
     }
 }
 

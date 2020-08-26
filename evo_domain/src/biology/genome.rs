@@ -186,7 +186,7 @@ impl PrintableNode {
     }
 
     fn println(&self, node_labels: &[&str]) {
-        print!("[");
+        print!("  [");
         Self::print_node_index(self.index, node_labels);
         print!("] <- ");
         for (index, (coefficient, input_index)) in self.inputs.iter().enumerate() {

@@ -2,6 +2,7 @@ use crate::biology::control_requests::*;
 use crate::biology::genome::*;
 use crate::biology::layers::*;
 use crate::physics::quantities::*;
+use crate::physics::sortable_graph::NodeHandle;
 use smallvec::alloc::fmt::Formatter;
 use std::fmt;
 use std::sync::Arc;
@@ -11,7 +12,7 @@ pub trait CellControl: fmt::Debug + Send + Sync {
 
     fn spawn(&mut self) -> Box<dyn CellControl>;
 
-    fn print(&self) {}
+    fn print(&self, _cell_handle: NodeHandle) {}
 }
 
 #[derive(Debug)]
@@ -223,7 +224,8 @@ impl CellControl for NeuralNetControl {
         })
     }
 
-    fn print(&self) {
+    fn print(&self, cell_handle: NodeHandle) {
+        println!("Cell {} genome:", cell_handle);
         self.nnet.print(&self.node_labels);
     }
 }

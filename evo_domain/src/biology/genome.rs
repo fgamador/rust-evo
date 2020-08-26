@@ -193,6 +193,7 @@ impl PrintableNode {
             if index > 0 {
                 print!(" + ");
             }
+            #[allow(clippy::float_cmp)]
             if *coefficient != 1.0 {
                 print!("{:.4}*", *coefficient);
             }

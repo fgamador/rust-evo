@@ -172,27 +172,47 @@ fn create_control(randomness: SeededMutationRandomness) -> NeuralNetControl {
         }
     });
 
-    let donation_energy_index = builder.add_hidden_node(&[(cell_energy_input_index, 0.1)], -100.0);
+    let donation_energy_index =
+        builder.add_hidden_node("donation", &[(cell_energy_input_index, 0.1)], -100.0);
 
-    builder.add_output_node(&[(float_layer_health_input_index, -1.0)], 1.0, |value| {
-        CellLayer::healing_request(FLOAT_LAYER_INDEX, HealthDelta::new(value.max(0.0)))
-    });
-    builder.add_output_node(&[(cell_y_input_index, -1.0)], -100.0, |value| {
-        CellLayer::resize_request(FLOAT_LAYER_INDEX, AreaDelta::new(value))
-    });
-    builder.add_output_node(&[(photo_layer_health_input_index, -1.0)], 1.0, |value| {
-        CellLayer::healing_request(PHOTO_LAYER_INDEX, HealthDelta::new(value.max(0.0)))
-    });
-    builder.add_output_node(&[(photo_layer_area_input_index, -1.0)], 800.0, |value| {
-        CellLayer::resize_request(PHOTO_LAYER_INDEX, AreaDelta::new(value))
-    });
-    builder.add_output_node(&[(bonding_layer_health_input_index, -1.0)], 1.0, |value| {
-        CellLayer::healing_request(BONDING_LAYER_INDEX, HealthDelta::new(value.max(0.0)))
-    });
-    builder.add_output_node(&[(bonding_layer_area_input_index, -1.0)], 200.0, |value| {
-        CellLayer::resize_request(BONDING_LAYER_INDEX, AreaDelta::new(value))
-    });
     builder.add_output_node(
+        "float healing",
+        &[(float_layer_health_input_index, -1.0)],
+        1.0,
+        |value| CellLayer::healing_request(FLOAT_LAYER_INDEX, HealthDelta::new(value.max(0.0))),
+    );
+    builder.add_output_node(
+        "float resize",
+        &[(cell_y_input_index, -1.0)],
+        -100.0,
+        |value| CellLayer::resize_request(FLOAT_LAYER_INDEX, AreaDelta::new(value)),
+    );
+    builder.add_output_node(
+        "photo healing",
+        &[(photo_layer_health_input_index, -1.0)],
+        1.0,
+        |value| CellLayer::healing_request(PHOTO_LAYER_INDEX, HealthDelta::new(value.max(0.0))),
+    );
+    builder.add_output_node(
+        "photo resize",
+        &[(photo_layer_area_input_index, -1.0)],
+        800.0,
+        |value| CellLayer::resize_request(PHOTO_LAYER_INDEX, AreaDelta::new(value)),
+    );
+    builder.add_output_node(
+        "bonding healing",
+        &[(bonding_layer_health_input_index, -1.0)],
+        1.0,
+        |value| CellLayer::healing_request(BONDING_LAYER_INDEX, HealthDelta::new(value.max(0.0))),
+    );
+    builder.add_output_node(
+        "bonding resize",
+        &[(bonding_layer_area_input_index, -1.0)],
+        200.0,
+        |value| CellLayer::resize_request(BONDING_LAYER_INDEX, AreaDelta::new(value)),
+    );
+    builder.add_output_node(
+        "retain 0",
         &[
             (cell_energy_input_index, -1.0),
             (bond_0_exists_input_index, 100.0),
@@ -200,10 +220,10 @@ fn create_control(randomness: SeededMutationRandomness) -> NeuralNetControl {
         0.0,
         |value| BondingCellLayerSpecialty::retain_bond_request(BONDING_LAYER_INDEX, 0, value > 0.0),
     );
-    builder.add_output_node(&[(donation_energy_index, 1.0)], 0.0, |value| {
+    builder.add_output_node("retain 1", &[(donation_energy_index, 1.0)], 0.0, |value| {
         BondingCellLayerSpecialty::retain_bond_request(BONDING_LAYER_INDEX, 1, value > 0.0)
     });
-    builder.add_output_node(&[(donation_energy_index, 1.0)], 0.0, |value| {
+    builder.add_output_node("donate 1", &[(donation_energy_index, 1.0)], 0.0, |value| {
         BondingCellLayerSpecialty::donation_energy_request(
             BONDING_LAYER_INDEX,
             1,

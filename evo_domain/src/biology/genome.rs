@@ -186,10 +186,26 @@ impl PrintableNode {
     }
 
     fn println(&self, node_labels: &[&str]) {
-        print!("  [");
+        print!("  ");
+        self.print_output_node(node_labels);
+        print!(" <- ");
+        self.print_inputs(node_labels);
+        self.print_bias();
+        println!();
+    }
+
+    fn print_output_node(&self, node_labels: &[&str]) {
+        print!("[");
         Self::print_node_index(self.index, node_labels);
-        print!("] <- ");
+        print!("]");
+    }
+
+    fn print_inputs(&self, node_labels: &[&str]) {
         for (index, (coefficient, input_index)) in self.inputs.iter().enumerate() {
+            if *coefficient == 0.0 {
+                continue;
+            }
+
             if index > 0 {
                 print!(" + ");
             }
@@ -201,12 +217,14 @@ impl PrintableNode {
             Self::print_node_index(*input_index, node_labels);
             print!("]");
         }
+    }
+
+    fn print_bias(&self) {
         if self.bias > 0.0 {
-            print!(" + {}", self.bias);
+            print!(" + {:.4}", self.bias);
         } else if self.bias < 0.0 {
-            print!(" - {}", -self.bias);
+            print!(" - {:.4}", -self.bias);
         }
-        println!();
     }
 
     fn print_node_index(node_index: VecIndex, node_labels: &[&str]) {

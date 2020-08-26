@@ -424,6 +424,7 @@ impl MutationRandomness for SeededMutationRandomness {
             return weight;
         }
 
+        // TODO cannot mutate away from 0.0
         let gaussian = self.rng.sample::<f32, _>(StandardNormal);
         weight + gaussian * self.mutation_parameters.weight_mutation_stdev * weight
     }

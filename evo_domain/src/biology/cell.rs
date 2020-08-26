@@ -296,7 +296,7 @@ impl Cell {
 
     fn print_id_info(&self) {
         println!(
-            "Cell {}{}:",
+            "Cell {}{} tick:",
             self.node_handle(),
             if self.is_alive() { "" } else { " (DEAD)" }
         );

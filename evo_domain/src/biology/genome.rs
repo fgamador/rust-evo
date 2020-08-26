@@ -116,8 +116,9 @@ impl SparseNeuralNetGenome {
     }
 
     pub fn print(&self) {
+        let node_labels = vec!["energy", "center y"];
         for printable_node in self.get_printable_nodes() {
-            printable_node.println();
+            printable_node.println(&node_labels);
         }
     }
 
@@ -185,8 +186,10 @@ impl PrintableNode {
         }
     }
 
-    fn println(&self) {
-        print!("[{}] <- ", self.index);
+    fn println(&self, node_labels: &[&str]) {
+        print!("[");
+        Self::print_node_index(self.index, node_labels);
+        print!("] <- ");
         for (index, (coefficient, input_index)) in self.inputs.iter().enumerate() {
             if index > 0 {
                 print!(" + ");
@@ -194,7 +197,9 @@ impl PrintableNode {
             if *coefficient != 1.0 {
                 print!("{:.4}*", *coefficient);
             }
-            print!("[{}]", *input_index);
+            print!("[");
+            Self::print_node_index(*input_index, node_labels);
+            print!("]");
         }
         if self.bias > 0.0 {
             print!(" + {}", self.bias);
@@ -202,6 +207,14 @@ impl PrintableNode {
             print!(" - {}", -self.bias);
         }
         println!();
+    }
+
+    fn print_node_index(node_index: VecIndex, node_labels: &[&str]) {
+        if (node_index as usize) < node_labels.len() {
+            print!("{}", node_labels[node_index as usize]);
+        } else {
+            print!("{}", node_index);
+        }
     }
 }
 

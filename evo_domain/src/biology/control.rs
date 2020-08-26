@@ -157,6 +157,7 @@ pub struct NeuralNetControl {
     nnet: SparseNeuralNet,
     value_to_request_fns: Arc<ValueToRequestFns>,
     randomness: SeededMutationRandomness,
+    node_labels: Arc<Vec<&'static str>>,
 }
 
 impl NeuralNetControl {
@@ -171,6 +172,7 @@ impl NeuralNetControl {
             nnet: SparseNeuralNet::new(genome),
             value_to_request_fns: Arc::new(value_to_request_fns),
             randomness,
+            node_labels: Arc::new(vec!["energy", "center y"]),
         }
     }
 
@@ -216,12 +218,12 @@ impl CellControl for NeuralNetControl {
             nnet: self.nnet.spawn(&mut self.randomness),
             value_to_request_fns: Arc::clone(&self.value_to_request_fns),
             randomness: self.randomness.clone(),
+            node_labels: Arc::clone(&self.node_labels),
         })
     }
 
     fn print(&self) {
-        let node_labels = vec!["energy", "center y"];
-        self.nnet.print(&node_labels);
+        self.nnet.print(&self.node_labels);
     }
 }
 

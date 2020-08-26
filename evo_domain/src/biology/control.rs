@@ -166,13 +166,14 @@ impl NeuralNetControl {
         genome: SparseNeuralNetGenome,
         value_to_request_fns: ValueToRequestFns,
         randomness: SeededMutationRandomness,
+        node_labels: Vec<&'static str>,
     ) -> Self {
         NeuralNetControl {
             get_value_fns: Arc::new(get_value_fns),
             nnet: SparseNeuralNet::new(genome),
             value_to_request_fns: Arc::new(value_to_request_fns),
             randomness,
-            node_labels: Arc::new(vec!["energy", "center y"]),
+            node_labels: Arc::new(node_labels),
         }
     }
 
@@ -232,6 +233,7 @@ pub struct NeuralNetControlBuilder {
     genome: SparseNeuralNetGenome,
     value_to_request_fns: ValueToRequestFns,
     next_index: VecIndex,
+    node_labels: Vec<&'static str>,
 }
 
 impl NeuralNetControlBuilder {
@@ -241,15 +243,17 @@ impl NeuralNetControlBuilder {
             genome: SparseNeuralNetGenome::new(transfer_fn),
             value_to_request_fns: vec![],
             next_index: 0,
+            node_labels: vec![],
         }
     }
 
-    pub fn add_input_node<F>(&mut self, get_value: F) -> VecIndex
+    pub fn add_input_node<F>(&mut self, node_label: &'static str, get_value: F) -> VecIndex
     where
         F: 'static + Fn(&CellStateSnapshot) -> Value1D + Send + Sync,
     {
         let node_index = self.next_node_index();
         self.get_value_fns.push((node_index, Box::new(get_value)));
+        self.add_node_label(node_index, node_label);
         node_index
     }
 
@@ -287,12 +291,20 @@ impl NeuralNetControlBuilder {
         node_index
     }
 
+    fn add_node_label(&mut self, node_index: VecIndex, node_label: &'static str) {
+        if self.node_labels.len() <= (node_index as usize) {
+            self.node_labels.resize((node_index + 1) as usize, "");
+        }
+        self.node_labels[node_index as usize] = node_label;
+    }
+
     pub fn build(self, randomness: SeededMutationRandomness) -> NeuralNetControl {
         NeuralNetControl::new(
             self.get_value_fns,
             self.genome,
             self.value_to_request_fns,
             randomness,
+            self.node_labels,
         )
     }
 }
@@ -328,7 +340,8 @@ mod tests {
     fn can_build_neural_net_control() {
         let mut builder = NeuralNetControlBuilder::new(TransferFn::IDENTITY);
 
-        let energy_input_index = builder.add_input_node(|cell_state| cell_state.energy.value());
+        let energy_input_index =
+            builder.add_input_node("energy", |cell_state| cell_state.energy.value());
         let adjusted_energy_index = builder.add_hidden_node(&[(energy_input_index, -1.0)], -2.0);
         builder.add_output_node(&[(adjusted_energy_index, 10.0)], 2.0, |value| {
             CellLayer::resize_request(0, AreaDelta::new(value as f64))

@@ -143,22 +143,34 @@ fn create_bonding_layer() -> CellLayer {
 fn create_control(randomness: SeededMutationRandomness) -> NeuralNetControl {
     let mut builder = NeuralNetControlBuilder::new(TransferFn::IDENTITY);
 
-    let cell_energy_input_index = builder.add_input_node(|cell_state| cell_state.energy.value());
-    let cell_y_input_index = builder.add_input_node(|cell_state| cell_state.center.y());
-    let float_layer_health_input_index =
-        builder.add_input_node(|cell_state| cell_state.layers[FLOAT_LAYER_INDEX].health.value());
-    let _float_layer_area_input_index =
-        builder.add_input_node(|cell_state| cell_state.layers[FLOAT_LAYER_INDEX].area.value());
-    let photo_layer_health_input_index =
-        builder.add_input_node(|cell_state| cell_state.layers[PHOTO_LAYER_INDEX].health.value());
-    let photo_layer_area_input_index =
-        builder.add_input_node(|cell_state| cell_state.layers[PHOTO_LAYER_INDEX].area.value());
-    let bonding_layer_health_input_index =
-        builder.add_input_node(|cell_state| cell_state.layers[BONDING_LAYER_INDEX].health.value());
-    let bonding_layer_area_input_index =
-        builder.add_input_node(|cell_state| cell_state.layers[BONDING_LAYER_INDEX].area.value());
-    let bond_0_exists_input_index =
-        builder.add_input_node(|cell_state| if cell_state.bond_0_exists { 1.0 } else { 0.0 });
+    let cell_energy_input_index =
+        builder.add_input_node("energy", |cell_state| cell_state.energy.value());
+    let cell_y_input_index = builder.add_input_node("center y", |cell_state| cell_state.center.y());
+    let float_layer_health_input_index = builder.add_input_node("float health", |cell_state| {
+        cell_state.layers[FLOAT_LAYER_INDEX].health.value()
+    });
+    let _float_layer_area_input_index = builder.add_input_node("float area", |cell_state| {
+        cell_state.layers[FLOAT_LAYER_INDEX].area.value()
+    });
+    let photo_layer_health_input_index = builder.add_input_node("photo health", |cell_state| {
+        cell_state.layers[PHOTO_LAYER_INDEX].health.value()
+    });
+    let photo_layer_area_input_index = builder.add_input_node("photo area", |cell_state| {
+        cell_state.layers[PHOTO_LAYER_INDEX].area.value()
+    });
+    let bonding_layer_health_input_index = builder.add_input_node("bonding health", |cell_state| {
+        cell_state.layers[BONDING_LAYER_INDEX].health.value()
+    });
+    let bonding_layer_area_input_index = builder.add_input_node("bonding area", |cell_state| {
+        cell_state.layers[BONDING_LAYER_INDEX].area.value()
+    });
+    let bond_0_exists_input_index = builder.add_input_node("bond 0 exists", |cell_state| {
+        if cell_state.bond_0_exists {
+            1.0
+        } else {
+            0.0
+        }
+    });
 
     let donation_energy_index = builder.add_hidden_node(&[(cell_energy_input_index, 0.1)], -100.0);
 

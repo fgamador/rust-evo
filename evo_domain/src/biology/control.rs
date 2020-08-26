@@ -220,7 +220,8 @@ impl CellControl for NeuralNetControl {
     }
 
     fn print(&self) {
-        self.nnet.print();
+        let node_labels = vec!["energy", "center y"];
+        self.nnet.print(&node_labels);
     }
 }
 

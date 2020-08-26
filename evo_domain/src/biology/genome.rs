@@ -45,8 +45,8 @@ impl SparseNeuralNet {
         self.genome.run(&mut self.node_values);
     }
 
-    pub fn print(&self) {
-        self.genome.print();
+    pub fn print(&self, node_labels: &[&str]) {
+        self.genome.print(node_labels);
     }
 }
 
@@ -115,8 +115,7 @@ impl SparseNeuralNetGenome {
             .collect()
     }
 
-    pub fn print(&self) {
-        let node_labels = vec!["energy", "center y"];
+    pub fn print(&self, node_labels: &[&str]) {
         for printable_node in self.get_printable_nodes() {
             printable_node.println(&node_labels);
         }

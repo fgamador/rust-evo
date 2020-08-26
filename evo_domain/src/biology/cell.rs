@@ -349,7 +349,7 @@ impl Cell {
     fn print_energy_info(&self, start_snapshot: &CellStateSnapshot, changes: &CellChanges) {
         println_value1d_change_info(
             "  energy",
-            start_snapshot.energy.value(),
+            start_snapshot.energy.value() - self.received_donated_energy.value(),
             self.energy().value(),
         );
         println!("    received {:+.4}", self.received_donated_energy.value());

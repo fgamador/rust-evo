@@ -2,8 +2,9 @@
 // by Kenneth O. Stanley and Risto Miikkulainen
 // http://nn.cs.utexas.edu/downloads/papers/stanley.ec02.pdf
 
+use rand::distributions::Distribution;
 use rand::{Rng, SeedableRng};
-use rand_distr::StandardNormal;
+use rand_distr::Normal;
 use rand_pcg::Pcg64Mcg;
 use std::collections::HashMap;
 use std::f32;
@@ -424,9 +425,14 @@ impl MutationRandomness for SeededMutationRandomness {
             return weight;
         }
 
-        // TODO cannot mutate away from 0.0
-        let gaussian = self.rng.sample::<f32, _>(StandardNormal);
-        weight + gaussian * self.mutation_parameters.weight_mutation_stdev * weight
+        // TODO weight cannot mutate away from 0.0
+        let normal = Normal::new(
+            weight,
+            // weight.abs().sqrt()
+            self.mutation_parameters.weight_mutation_stdev * weight.abs(),
+        )
+        .unwrap();
+        normal.sample(&mut self.rng)
     }
 }
 
@@ -564,6 +570,23 @@ mod tests {
 
         let mut randomness = SeededMutationRandomness::new(0, &ALWAYS_MUTATE);
         assert_ne!(randomness.mutate_weight(1.0), 1.0);
+    }
+
+    #[test]
+    #[ignore]
+    fn seeded_mutation_randomness_converges_to_zero() {
+        const ALWAYS_MUTATE: MutationParameters = MutationParameters {
+            weight_mutation_probability: 1.0,
+            weight_mutation_stdev: 0.2,
+            ..MutationParameters::NO_MUTATION
+        };
+
+        let mut randomness = SeededMutationRandomness::new(0, &ALWAYS_MUTATE);
+        let mut weight = 100.0;
+        for _i in 0..200 {
+            println!("{}", weight);
+            weight = randomness.mutate_weight(weight);
+        }
     }
 
     fn plus_one(value: &mut NodeValue) {

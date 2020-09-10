@@ -31,6 +31,31 @@ impl SortableGraphNodeHandles {
         self.node_handles
             .sort_unstable_by(|h1, h2| cmp(&nodes[h1.index()], &nodes[h2.index()]));
     }
+
+    pub fn sort_already_mostly_sorted_node_handles<N: GraphNode>(
+        &mut self,
+        nodes: &[N],
+        cmp: fn(&N, &N) -> Ordering,
+    ) {
+        Self::insertion_sort_by(&mut self.node_handles, |h1, h2| {
+            cmp(&nodes[h1.index()], &nodes[h2.index()]) == Ordering::Less
+        });
+    }
+
+    fn insertion_sort_by<T, F>(seq: &mut [T], is_less: F)
+    where
+        T: Copy,
+        F: Fn(T, T) -> bool,
+    {
+        for i in 1..seq.len() {
+            for j in (1..=i).rev() {
+                if is_less(seq[j - 1], seq[j]) {
+                    break;
+                }
+                seq.swap(j - 1, j)
+            }
+        }
+    }
 }
 
 #[derive(Debug)]
@@ -212,24 +237,8 @@ impl<N: GraphNode, E: GraphEdge, ME: GraphMetaEdge> SortableGraph<N, E, ME> {
 
     pub fn sort_already_mostly_sorted_node_handles(&mut self, cmp: fn(&N, &N) -> Ordering) {
         let nodes = &self.nodes;
-        Self::insertion_sort_by(&mut self.node_handles.node_handles, |h1, h2| {
-            cmp(&nodes[h1.index()], &nodes[h2.index()]) == Ordering::Less
-        });
-    }
-
-    fn insertion_sort_by<T, F>(seq: &mut [T], is_less: F)
-    where
-        T: Copy,
-        F: Fn(T, T) -> bool,
-    {
-        for i in 1..seq.len() {
-            for j in (1..=i).rev() {
-                if is_less(seq[j - 1], seq[j]) {
-                    break;
-                }
-                seq.swap(j - 1, j)
-            }
-        }
+        self.node_handles
+            .sort_already_mostly_sorted_node_handles(nodes, cmp);
     }
 
     pub fn have_edge(&self, node1: &N, node2: &N) -> bool {

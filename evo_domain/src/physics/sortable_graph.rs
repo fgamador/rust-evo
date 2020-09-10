@@ -110,7 +110,8 @@ impl<N: GraphNode, E: GraphEdge, ME: GraphMetaEdge> SortableGraph<N, E, ME> {
         for handle in handles.iter().rev() {
             self.remove_node(*handle);
         }
-        self.remove_obsolete_node_handles();
+        self.node_handles
+            .remove_obsolete_node_handles(self.next_node_handle().index);
     }
 
     /// Warning: invalidates handles to the last node in self.nodes.
@@ -142,12 +143,6 @@ impl<N: GraphNode, E: GraphEdge, ME: GraphMetaEdge> SortableGraph<N, E, ME> {
                     .replace_node_handle(old_handle, new_handle);
             }
         }
-    }
-
-    fn remove_obsolete_node_handles(&mut self) {
-        let first_invalid_index = self.next_node_handle().index;
-        self.node_handles
-            .remove_obsolete_node_handles(first_invalid_index);
     }
 
     fn remove_node_edges(&mut self, handles: &[Option<EdgeHandle>]) {

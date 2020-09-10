@@ -18,6 +18,10 @@ impl SortableGraphNodeHandles {
             node_handles: vec![],
         }
     }
+
+    pub fn add_node_handle(&mut self, handle: NodeHandle) {
+        self.node_handles.push(handle);
+    }
 }
 
 #[derive(Debug)]
@@ -43,7 +47,7 @@ impl<N: GraphNode, E: GraphEdge, ME: GraphMetaEdge> SortableGraph<N, E, ME> {
         let handle = self.next_node_handle();
         node.graph_node_data_mut().handle = handle;
         self.nodes.push(node);
-        self.node_handles.node_handles.push(handle);
+        self.node_handles.add_node_handle(handle);
         handle
     }
 

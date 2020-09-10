@@ -19,6 +19,10 @@ impl SortableGraphNodeHandles {
         }
     }
 
+    pub fn node_handles(&self) -> &[NodeHandle] {
+        &self.node_handles
+    }
+
     pub fn add_node_handle(&mut self, handle: NodeHandle) {
         self.node_handles.push(handle);
     }
@@ -284,7 +288,7 @@ impl<N: GraphNode, E: GraphEdge, ME: GraphMetaEdge> SortableGraph<N, E, ME> {
     }
 
     pub fn node_handles(&self) -> &[NodeHandle] {
-        &self.node_handles.node_handles
+        &self.node_handles.node_handles()
     }
 
     pub fn nodes(&self) -> &[N] {
@@ -627,8 +631,8 @@ mod tests {
         let node = &graph.nodes()[0];
         assert_eq!(node.id, 1);
         assert_eq!(node.node_handle().index, 0);
-        assert_eq!(graph.node_handles.node_handles.len(), 1);
-        assert_eq!(graph.node_handles.node_handles[0].index, 0);
+        assert_eq!(graph.node_handles.node_handles().len(), 1);
+        assert_eq!(graph.node_handles.node_handles()[0].index, 0);
     }
 
     #[test]

@@ -8,9 +8,22 @@ use std::u32;
 pub const MAX_NODE_EDGES: usize = 8;
 
 #[derive(Debug)]
+pub struct SortableGraphNodeHandles {
+    pub node_handles: Vec<NodeHandle>,
+}
+
+impl SortableGraphNodeHandles {
+    pub fn new() -> Self {
+        SortableGraphNodeHandles {
+            node_handles: vec![],
+        }
+    }
+}
+
+#[derive(Debug)]
 pub struct SortableGraph<N: GraphNode, E: GraphEdge, ME: GraphMetaEdge> {
     nodes: Vec<N>,
-    node_handles: Vec<NodeHandle>,
+    node_handles: SortableGraphNodeHandles,
     edges: Vec<E>,
     meta_edges: Vec<ME>,
 }
@@ -20,7 +33,7 @@ impl<N: GraphNode, E: GraphEdge, ME: GraphMetaEdge> SortableGraph<N, E, ME> {
     pub fn new() -> Self {
         SortableGraph {
             nodes: vec![],
-            node_handles: vec![],
+            node_handles: SortableGraphNodeHandles::new(),
             edges: vec![],
             meta_edges: vec![],
         }
@@ -30,7 +43,7 @@ impl<N: GraphNode, E: GraphEdge, ME: GraphMetaEdge> SortableGraph<N, E, ME> {
         let handle = self.next_node_handle();
         node.graph_node_data_mut().handle = handle;
         self.nodes.push(node);
-        self.node_handles.push(handle);
+        self.node_handles.node_handles.push(handle);
         handle
     }
 
@@ -125,7 +138,9 @@ impl<N: GraphNode, E: GraphEdge, ME: GraphMetaEdge> SortableGraph<N, E, ME> {
 
     fn remove_obsolete_node_handles(&mut self) {
         let first_invalid_index = self.next_node_handle().index;
-        self.node_handles.retain(|h| h.index < first_invalid_index);
+        self.node_handles
+            .node_handles
+            .retain(|h| h.index < first_invalid_index);
     }
 
     fn remove_node_edges(&mut self, handles: &[Option<EdgeHandle>]) {
@@ -186,12 +201,13 @@ impl<N: GraphNode, E: GraphEdge, ME: GraphMetaEdge> SortableGraph<N, E, ME> {
     pub fn sort_node_handles(&mut self, cmp: fn(&N, &N) -> Ordering) {
         let nodes = &self.nodes;
         self.node_handles
+            .node_handles
             .sort_unstable_by(|h1, h2| cmp(&nodes[h1.index()], &nodes[h2.index()]));
     }
 
     pub fn sort_already_mostly_sorted_node_handles(&mut self, cmp: fn(&N, &N) -> Ordering) {
         let nodes = &self.nodes;
-        Self::insertion_sort_by(&mut self.node_handles, |h1, h2| {
+        Self::insertion_sort_by(&mut self.node_handles.node_handles, |h1, h2| {
             cmp(&nodes[h1.index()], &nodes[h2.index()]) == Ordering::Less
         });
     }
@@ -254,7 +270,7 @@ impl<N: GraphNode, E: GraphEdge, ME: GraphMetaEdge> SortableGraph<N, E, ME> {
     }
 
     pub fn node_handles(&self) -> &[NodeHandle] {
-        &self.node_handles
+        &self.node_handles.node_handles
     }
 
     pub fn nodes(&self) -> &[N] {
@@ -597,8 +613,8 @@ mod tests {
         let node = &graph.nodes()[0];
         assert_eq!(node.id, 1);
         assert_eq!(node.node_handle().index, 0);
-        assert_eq!(graph.node_handles.len(), 1);
-        assert_eq!(graph.node_handles[0].index, 0);
+        assert_eq!(graph.node_handles.node_handles.len(), 1);
+        assert_eq!(graph.node_handles.node_handles[0].index, 0);
     }
 
     #[test]

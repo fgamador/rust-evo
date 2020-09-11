@@ -287,10 +287,6 @@ impl<N: GraphNode, E: GraphEdge, ME: GraphMetaEdge> SortableGraph<N, E, ME> {
         f(node1, node2);
     }
 
-    pub fn node_handles(&self) -> &[NodeHandle] {
-        &self.node_handles.node_handles()
-    }
-
     pub fn nodes(&self) -> &[N] {
         &self.nodes
     }

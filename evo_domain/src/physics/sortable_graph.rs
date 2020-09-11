@@ -63,16 +63,16 @@ impl SortableHandles {
 }
 
 #[derive(Debug)]
-pub struct SortableGraph<N: GraphNode, E: GraphEdge, ME: GraphMetaEdge> {
+pub struct NodeGraph<N: GraphNode, E: GraphEdge, ME: GraphMetaEdge> {
     nodes: Vec<N>,
     edges: Vec<E>,
     meta_edges: Vec<ME>,
 }
 
-impl<N: GraphNode, E: GraphEdge, ME: GraphMetaEdge> SortableGraph<N, E, ME> {
+impl<N: GraphNode, E: GraphEdge, ME: GraphMetaEdge> NodeGraph<N, E, ME> {
     #[allow(clippy::new_without_default)]
     pub fn new() -> Self {
-        SortableGraph {
+        NodeGraph {
             nodes: vec![],
             edges: vec![],
             meta_edges: vec![],
@@ -577,8 +577,8 @@ mod tests {
 
     #[test]
     fn added_node_has_correct_handle() {
-        let mut graph: SortableGraph<SimpleGraphNode, SimpleGraphEdge, SimpleGraphMetaEdge> =
-            SortableGraph::new();
+        let mut graph: NodeGraph<SimpleGraphNode, SimpleGraphEdge, SimpleGraphMetaEdge> =
+            NodeGraph::new();
 
         let node_handle = graph.add_node(SimpleGraphNode::new(0));
 
@@ -588,8 +588,8 @@ mod tests {
 
     #[test]
     fn can_fetch_node_by_handle() {
-        let mut graph: SortableGraph<SimpleGraphNode, SimpleGraphEdge, SimpleGraphMetaEdge> =
-            SortableGraph::new();
+        let mut graph: NodeGraph<SimpleGraphNode, SimpleGraphEdge, SimpleGraphMetaEdge> =
+            NodeGraph::new();
 
         let node_handle = graph.add_node(SimpleGraphNode::new(0));
 
@@ -599,8 +599,8 @@ mod tests {
 
     #[test]
     fn can_remove_last_and_non_last_nodes() {
-        let mut graph: SortableGraph<SimpleGraphNode, SimpleGraphEdge, SimpleGraphMetaEdge> =
-            SortableGraph::new();
+        let mut graph: NodeGraph<SimpleGraphNode, SimpleGraphEdge, SimpleGraphMetaEdge> =
+            NodeGraph::new();
         let mut node_handles = SortableHandles::new();
         let node0_handle = graph.add_node(SimpleGraphNode::new(0));
         let node1_handle = graph.add_node(SimpleGraphNode::new(1));
@@ -622,8 +622,8 @@ mod tests {
 
     #[test]
     fn added_edge_has_correct_handles() {
-        let mut graph: SortableGraph<SimpleGraphNode, SimpleGraphEdge, SimpleGraphMetaEdge> =
-            SortableGraph::new();
+        let mut graph: NodeGraph<SimpleGraphNode, SimpleGraphEdge, SimpleGraphMetaEdge> =
+            NodeGraph::new();
 
         let node0_handle = graph.add_node(SimpleGraphNode::new(0));
         let node1_handle = graph.add_node(SimpleGraphNode::new(1));
@@ -642,8 +642,8 @@ mod tests {
 
     #[test]
     fn removing_edge_updates_graph() {
-        let mut graph: SortableGraph<SimpleGraphNode, SimpleGraphEdge, SimpleGraphMetaEdge> =
-            SortableGraph::new();
+        let mut graph: NodeGraph<SimpleGraphNode, SimpleGraphEdge, SimpleGraphMetaEdge> =
+            NodeGraph::new();
 
         let node0_handle = graph.add_node(SimpleGraphNode::new(0));
         let node1_handle = graph.add_node(SimpleGraphNode::new(1));
@@ -703,8 +703,8 @@ mod tests {
 
     #[test]
     fn removing_node_updates_edges() {
-        let mut graph: SortableGraph<SimpleGraphNode, SimpleGraphEdge, SimpleGraphMetaEdge> =
-            SortableGraph::new();
+        let mut graph: NodeGraph<SimpleGraphNode, SimpleGraphEdge, SimpleGraphMetaEdge> =
+            NodeGraph::new();
 
         let node0_handle = graph.add_node(SimpleGraphNode::new(0));
         let node1_handle = graph.add_node(SimpleGraphNode::new(1));
@@ -740,8 +740,8 @@ mod tests {
 
     #[test]
     fn have_edge() {
-        let mut graph: SortableGraph<SimpleGraphNode, SimpleGraphEdge, SimpleGraphMetaEdge> =
-            SortableGraph::new();
+        let mut graph: NodeGraph<SimpleGraphNode, SimpleGraphEdge, SimpleGraphMetaEdge> =
+            NodeGraph::new();
 
         let node0_handle = graph.add_node(SimpleGraphNode::new(0));
         let node1_handle = graph.add_node(SimpleGraphNode::new(1));
@@ -759,8 +759,8 @@ mod tests {
 
     #[test]
     fn added_meta_edge_has_correct_handles() {
-        let mut graph: SortableGraph<SimpleGraphNode, SimpleGraphEdge, SimpleGraphMetaEdge> =
-            SortableGraph::new();
+        let mut graph: NodeGraph<SimpleGraphNode, SimpleGraphEdge, SimpleGraphMetaEdge> =
+            NodeGraph::new();
 
         let node0_handle = graph.add_node(SimpleGraphNode::new(0));
         let node1_handle = graph.add_node(SimpleGraphNode::new(1));

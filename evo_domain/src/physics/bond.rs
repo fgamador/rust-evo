@@ -48,7 +48,7 @@ impl Neg for BondStrain {
 }
 
 pub fn calc_bond_strains<C>(
-    graph: &SortableGraph<C, Bond, AngleGusset>,
+    graph: &NodeGraph<C, Bond, AngleGusset>,
 ) -> Vec<((NodeHandle, BondStrain), (NodeHandle, BondStrain))>
 where
     C: Circle + GraphNode,
@@ -102,7 +102,7 @@ impl AngleGusset {
 }
 
 pub fn calc_bond_angle_forces<C>(
-    graph: &SortableGraph<C, Bond, AngleGusset>,
+    graph: &NodeGraph<C, Bond, AngleGusset>,
 ) -> Vec<(NodeHandle, Force)>
 where
     C: Circle + GraphNode,
@@ -118,7 +118,7 @@ where
 
 fn calc_bond_angle_force_pair<C>(
     gusset: &AngleGusset,
-    graph: &SortableGraph<C, Bond, AngleGusset>,
+    graph: &NodeGraph<C, Bond, AngleGusset>,
 ) -> ((NodeHandle, Force), (NodeHandle, Force))
 where
     C: Circle + GraphNode,
@@ -190,7 +190,7 @@ mod tests {
     #[test]
     #[should_panic]
     fn cannot_bond_same_ball() {
-        let mut graph: SortableGraph<SimpleCircleNode, Bond, AngleGusset> = SortableGraph::new();
+        let mut graph: NodeGraph<SimpleCircleNode, Bond, AngleGusset> = NodeGraph::new();
         let node = add_simple_circle_node(&mut graph, (0.0, 0.0), 1.0);
         add_bond(&mut graph, node, node);
     }
@@ -221,7 +221,7 @@ mod tests {
     #[test]
     #[should_panic]
     fn cannot_gusset_same_bond() {
-        let mut graph: SortableGraph<SimpleCircleNode, Bond, AngleGusset> = SortableGraph::new();
+        let mut graph: NodeGraph<SimpleCircleNode, Bond, AngleGusset> = NodeGraph::new();
         let node1 = add_simple_circle_node(&mut graph, (0.0, 0.0), 1.0);
         let node2 = add_simple_circle_node(&mut graph, (2.0, 0.0), 1.0);
         let bond = add_bond(&mut graph, node1, node2);
@@ -231,7 +231,7 @@ mod tests {
     #[test]
     #[should_panic]
     fn cannot_gusset_unconnected_bonds() {
-        let mut graph: SortableGraph<SimpleCircleNode, Bond, AngleGusset> = SortableGraph::new();
+        let mut graph: NodeGraph<SimpleCircleNode, Bond, AngleGusset> = NodeGraph::new();
         let node1 = add_simple_circle_node(&mut graph, (0.0, 0.0), 1.0);
         let node2 = add_simple_circle_node(&mut graph, (2.0, 0.0), 1.0);
         let node3 = add_simple_circle_node(&mut graph, (10.0, 0.0), 1.0);
@@ -243,7 +243,7 @@ mod tests {
 
     #[test]
     fn qualitative_gusset_forces() {
-        let mut graph: SortableGraph<SimpleCircleNode, Bond, AngleGusset> = SortableGraph::new();
+        let mut graph: NodeGraph<SimpleCircleNode, Bond, AngleGusset> = NodeGraph::new();
         let node1 = add_simple_circle_node(&mut graph, (0.1, 2.0), 1.0);
         let node2 = add_simple_circle_node(&mut graph, (0.0, 0.0), 1.0);
         let node3 = add_simple_circle_node(&mut graph, (0.1, -2.0), 1.0);
@@ -290,7 +290,7 @@ mod tests {
     }
 
     fn add_simple_circle_node(
-        graph: &mut SortableGraph<SimpleCircleNode, Bond, AngleGusset>,
+        graph: &mut NodeGraph<SimpleCircleNode, Bond, AngleGusset>,
         center: (f64, f64),
         radius: f64,
     ) -> NodeHandle {
@@ -301,7 +301,7 @@ mod tests {
     }
 
     fn add_bond(
-        graph: &mut SortableGraph<SimpleCircleNode, Bond, AngleGusset>,
+        graph: &mut NodeGraph<SimpleCircleNode, Bond, AngleGusset>,
         node1: NodeHandle,
         node2: NodeHandle,
     ) -> EdgeHandle {
@@ -310,7 +310,7 @@ mod tests {
     }
 
     fn add_angle_gusset(
-        graph: &mut SortableGraph<SimpleCircleNode, Bond, AngleGusset>,
+        graph: &mut NodeGraph<SimpleCircleNode, Bond, AngleGusset>,
         bond1: EdgeHandle,
         bond2: EdgeHandle,
         radians: f64,

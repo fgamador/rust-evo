@@ -11,7 +11,7 @@ use crate::physics::util::*;
 pub trait CrossCellInfluence {
     fn apply_to(
         &self,
-        cell_graph: &mut SortableGraph<Cell, Bond, AngleGusset>,
+        cell_graph: &mut NodeGraph<Cell, Bond, AngleGusset>,
         cell_handles: &mut SortableHandles,
     );
 }
@@ -57,7 +57,7 @@ impl WallCollisions {
 impl CrossCellInfluence for WallCollisions {
     fn apply_to(
         &self,
-        cell_graph: &mut SortableGraph<Cell, Bond, AngleGusset>,
+        cell_graph: &mut NodeGraph<Cell, Bond, AngleGusset>,
         _cell_handles: &mut SortableHandles,
     ) {
         let overlaps = self.walls.find_overlaps(cell_graph);
@@ -147,7 +147,7 @@ impl PairCollisions {
 impl CrossCellInfluence for PairCollisions {
     fn apply_to(
         &self,
-        cell_graph: &mut SortableGraph<Cell, Bond, AngleGusset>,
+        cell_graph: &mut NodeGraph<Cell, Bond, AngleGusset>,
         cell_handles: &mut SortableHandles,
     ) {
         let overlaps = find_pair_overlaps(cell_graph, cell_handles);
@@ -225,7 +225,7 @@ impl BondForces {
 impl CrossCellInfluence for BondForces {
     fn apply_to(
         &self,
-        cell_graph: &mut SortableGraph<Cell, Bond, AngleGusset>,
+        cell_graph: &mut NodeGraph<Cell, Bond, AngleGusset>,
         _cell_handles: &mut SortableHandles,
     ) {
         let strains = calc_bond_strains(cell_graph);
@@ -250,7 +250,7 @@ impl BondAngleForces {
 impl CrossCellInfluence for BondAngleForces {
     fn apply_to(
         &self,
-        cell_graph: &mut SortableGraph<Cell, Bond, AngleGusset>,
+        cell_graph: &mut NodeGraph<Cell, Bond, AngleGusset>,
         _cell_handles: &mut SortableHandles,
     ) {
         let forces = calc_bond_angle_forces(cell_graph);
@@ -457,7 +457,7 @@ mod tests {
 
     #[test]
     fn wall_collisions_add_overlap_and_force() {
-        let mut cell_graph = SortableGraph::new();
+        let mut cell_graph = NodeGraph::new();
         let mut cell_handles = SortableHandles::new();
         let wall_collisions =
             WallCollisions::new(Position::new(-10.0, -10.0), Position::new(10.0, 10.0));
@@ -538,7 +538,7 @@ mod tests {
 
     #[test]
     fn pair_collisions_add_overlaps_and_forces() {
-        let mut cell_graph = SortableGraph::new();
+        let mut cell_graph = NodeGraph::new();
         let mut cell_handles = SortableHandles::new();
         let pair_collisions = PairCollisions::new();
         let cell1_handle = cell_graph.add_node(Cell::ball(
@@ -703,7 +703,7 @@ mod tests {
 
     #[test]
     fn bond_forces_add_forces() {
-        let mut cell_graph = SortableGraph::new();
+        let mut cell_graph = NodeGraph::new();
         let mut cell_handles = SortableHandles::new();
         let bond_forces = BondForces::new();
         let ball1_handle = cell_graph.add_node(Cell::ball(
@@ -828,7 +828,7 @@ mod tests {
 
     #[test]
     fn bond_angle_forces_add_forces() {
-        let mut cell_graph = SortableGraph::new();
+        let mut cell_graph = NodeGraph::new();
         let mut cell_handles = SortableHandles::new();
 
         let ball1_handle = cell_graph.add_node(Cell::ball(

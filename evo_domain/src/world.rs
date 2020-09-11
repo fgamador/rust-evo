@@ -11,7 +11,7 @@ use std::iter::FromIterator;
 pub struct World {
     min_corner: Position,
     max_corner: Position,
-    cell_graph: SortableGraph<Cell, Bond, AngleGusset>,
+    cell_graph: NodeGraph<Cell, Bond, AngleGusset>,
     cell_handles: SortableHandles,
     cross_cell_influences: Vec<Box<dyn CrossCellInfluence>>,
     per_cell_influences: Vec<Box<dyn PerCellInfluence>>,
@@ -23,7 +23,7 @@ impl World {
         World {
             min_corner,
             max_corner,
-            cell_graph: SortableGraph::new(),
+            cell_graph: NodeGraph::new(),
             cell_handles: SortableHandles::new(),
             cross_cell_influences: vec![],
             per_cell_influences: vec![],

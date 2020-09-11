@@ -541,30 +541,32 @@ mod tests {
         let mut cell_graph = SortableGraph::new();
         let mut cell_handles = SortableHandles::new();
         let pair_collisions = PairCollisions::new();
-        let ball1_handle = cell_graph.add_node(Cell::ball(
+        let cell1_handle = cell_graph.add_node(Cell::ball(
             Length::new(1.0),
             Mass::new(1.0),
             Position::new(0.0, 0.0),
             Velocity::new(1.0, 1.0),
         ));
-        let ball2_handle = cell_graph.add_node(Cell::ball(
+        let cell2_handle = cell_graph.add_node(Cell::ball(
             Length::new(1.0),
             Mass::new(1.0),
             Position::new(1.4, 1.4),
             Velocity::new(-1.0, -1.0),
         ));
+        cell_handles.add_node_handle(cell1_handle);
+        cell_handles.add_node_handle(cell2_handle);
 
         pair_collisions.apply_to(&mut cell_graph, &mut cell_handles);
 
-        let ball1 = cell_graph.node(ball1_handle);
-        assert_eq!(ball1.environment().overlaps().len(), 1);
-        assert_ne!(ball1.net_force().net_force().x(), 0.0);
-        assert_ne!(ball1.net_force().net_force().y(), 0.0);
+        let cell1 = cell_graph.node(cell1_handle);
+        assert_eq!(cell1.environment().overlaps().len(), 1);
+        assert_ne!(cell1.net_force().net_force().x(), 0.0);
+        assert_ne!(cell1.net_force().net_force().y(), 0.0);
 
-        let ball2 = cell_graph.node(ball2_handle);
-        assert_eq!(ball2.environment().overlaps().len(), 1);
-        assert_ne!(ball2.net_force().net_force().x(), 0.0);
-        assert_ne!(ball2.net_force().net_force().y(), 0.0);
+        let cell2 = cell_graph.node(cell2_handle);
+        assert_eq!(cell2.environment().overlaps().len(), 1);
+        assert_ne!(cell2.net_force().net_force().x(), 0.0);
+        assert_ne!(cell2.net_force().net_force().y(), 0.0);
     }
 
     // TODO fn pair_not_in_collision_adds_no_force()

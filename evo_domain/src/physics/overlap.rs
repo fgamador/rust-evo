@@ -104,8 +104,8 @@ where
     let mut overlaps: Vec<((NodeHandle, Overlap), (NodeHandle, Overlap))> =
         Vec::with_capacity(graph.nodes().len() * 2);
 
-    for (i, handle1) in graph.node_handles().iter().enumerate() {
-        for handle2 in &graph.node_handles()[(i + 1)..] {
+    for (i, handle1) in cell_handles.node_handles().iter().enumerate() {
+        for handle2 in &cell_handles.node_handles()[(i + 1)..] {
             let circle1 = graph.node(*handle1);
             let circle2 = graph.node(*handle2);
 
@@ -280,30 +280,32 @@ mod tests {
     fn graph_pair_overlaps_use_min_radius_as_width() {
         let mut graph: SortableGraph<SimpleCircleNode, SimpleGraphEdge, SimpleGraphMetaEdge> =
             SortableGraph::new();
-        let mut cell_handles = SortableHandles::new();
-        graph.add_node(SimpleCircleNode::new(
+        let mut node_handles = SortableHandles::new();
+        let node_handle0 = graph.add_node(SimpleCircleNode::new(
             Position::new(0.0, 0.0),
             Length::new(1.5),
         ));
-        graph.add_node(SimpleCircleNode::new(
+        let node_handle1 = graph.add_node(SimpleCircleNode::new(
             Position::new(2.0, 0.0),
             Length::new(2.0),
         ));
+        node_handles.add_node_handle(node_handle0);
+        node_handles.add_node_handle(node_handle1);
 
-        let overlaps = find_pair_overlaps(&mut graph, &mut cell_handles);
+        let overlaps = find_pair_overlaps(&mut graph, &mut node_handles);
 
         assert_eq!(overlaps.len(), 1);
         assert_eq!(
             overlaps[0].0,
             (
-                graph.node_handles()[0],
+                node_handles.node_handles()[0],
                 Overlap::new(Displacement::new(-1.5, 0.0), 1.5)
             )
         );
         assert_eq!(
             overlaps[0].1,
             (
-                graph.node_handles()[1],
+                node_handles.node_handles()[1],
                 Overlap::new(Displacement::new(1.5, 0.0), 1.5)
             )
         );
@@ -313,20 +315,22 @@ mod tests {
     fn bonded_graph_pair_overlap_is_ignored() {
         let mut graph: SortableGraph<SimpleCircleNode, SimpleGraphEdge, SimpleGraphMetaEdge> =
             SortableGraph::new();
-        let mut cell_handles = SortableHandles::new();
-        graph.add_node(SimpleCircleNode::new(
+        let mut node_handles = SortableHandles::new();
+        let node_handle0 = graph.add_node(SimpleCircleNode::new(
             Position::new(0.0, 0.0),
             Length::new(1.0),
         ));
-        graph.add_node(SimpleCircleNode::new(
+        let node_handle1 = graph.add_node(SimpleCircleNode::new(
             Position::new(1.5, 0.0),
             Length::new(1.0),
         ));
+        node_handles.add_node_handle(node_handle0);
+        node_handles.add_node_handle(node_handle1);
 
         let edge = SimpleGraphEdge::new(&graph.nodes()[0], &graph.nodes()[1]);
         graph.add_edge(edge, 1, 0);
 
-        let overlaps = find_pair_overlaps(&mut graph, &mut cell_handles);
+        let overlaps = find_pair_overlaps(&mut graph, &mut node_handles);
 
         assert!(overlaps.is_empty());
     }
@@ -335,28 +339,31 @@ mod tests {
     fn graph_pairs_overlap_after_movement() {
         let mut graph: SortableGraph<SimpleCircleNode, SimpleGraphEdge, SimpleGraphMetaEdge> =
             SortableGraph::new();
-        let mut cell_handles = SortableHandles::new();
-        graph.add_node(SimpleCircleNode::new(
+        let mut node_handles = SortableHandles::new();
+        let node_handle0 = graph.add_node(SimpleCircleNode::new(
             Position::new(0.0, 0.0),
             Length::new(1.0),
         ));
-        graph.add_node(SimpleCircleNode::new(
+        let node_handle1 = graph.add_node(SimpleCircleNode::new(
             Position::new(3.0, 0.0),
             Length::new(1.0),
         ));
-        graph.add_node(SimpleCircleNode::new(
+        let node_handle2 = graph.add_node(SimpleCircleNode::new(
             Position::new(6.0, 0.0),
             Length::new(1.0),
         ));
+        node_handles.add_node_handle(node_handle0);
+        node_handles.add_node_handle(node_handle1);
+        node_handles.add_node_handle(node_handle2);
 
         graph.nodes_mut()[2].set_center(Position::new(1.5, 0.0));
 
-        let overlaps = find_pair_overlaps(&mut graph, &mut cell_handles);
+        let overlaps = find_pair_overlaps(&mut graph, &mut node_handles);
 
         assert_eq!(overlaps.len(), 2);
-        assert_eq!((overlaps[0].0).0, graph.node_handles()[0]);
-        assert_eq!((overlaps[0].1).0, graph.node_handles()[1]);
-        assert_eq!((overlaps[1].0).0, graph.node_handles()[1]);
-        assert_eq!((overlaps[1].1).0, graph.node_handles()[2]);
+        assert_eq!((overlaps[0].0).0, node_handles.node_handles()[0]);
+        assert_eq!((overlaps[0].1).0, node_handles.node_handles()[1]);
+        assert_eq!((overlaps[1].0).0, node_handles.node_handles()[1]);
+        assert_eq!((overlaps[1].1).0, node_handles.node_handles()[2]);
     }
 }

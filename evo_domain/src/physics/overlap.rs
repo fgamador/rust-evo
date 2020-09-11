@@ -97,7 +97,6 @@ where
     E: GraphEdge,
     ME: GraphMetaEdge,
 {
-    graph.sort_already_mostly_sorted_node_handles(cmp_by_min_x);
     let nodes = &graph.nodes();
     cell_handles.sort_already_mostly_sorted_node_handles(nodes, cmp_by_min_x);
 

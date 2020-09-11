@@ -65,7 +65,6 @@ impl SortableHandles {
 #[derive(Debug)]
 pub struct SortableGraph<N: GraphNode, E: GraphEdge, ME: GraphMetaEdge> {
     nodes: Vec<N>,
-    node_handles: SortableHandles,
     edges: Vec<E>,
     meta_edges: Vec<ME>,
 }
@@ -75,7 +74,6 @@ impl<N: GraphNode, E: GraphEdge, ME: GraphMetaEdge> SortableGraph<N, E, ME> {
     pub fn new() -> Self {
         SortableGraph {
             nodes: vec![],
-            node_handles: SortableHandles::new(),
             edges: vec![],
             meta_edges: vec![],
         }
@@ -85,7 +83,6 @@ impl<N: GraphNode, E: GraphEdge, ME: GraphMetaEdge> SortableGraph<N, E, ME> {
         let handle = self.next_node_handle();
         node.graph_node_data_mut().handle = handle;
         self.nodes.push(node);
-        self.node_handles.add_node_handle(handle);
         handle
     }
 
@@ -144,8 +141,6 @@ impl<N: GraphNode, E: GraphEdge, ME: GraphMetaEdge> SortableGraph<N, E, ME> {
         for handle in handles.iter().rev() {
             self.remove_node(*handle);
         }
-        self.node_handles
-            .remove_obsolete_node_handles(self.next_node_handle());
     }
 
     /// Warning: invalidates handles to the last node in self.nodes.
@@ -232,17 +227,6 @@ impl<N: GraphNode, E: GraphEdge, ME: GraphMetaEdge> SortableGraph<N, E, ME> {
         self.node_mut(node_handle)
             .graph_node_data_mut()
             .replace_edge_handle(old_handle, new_handle);
-    }
-
-    pub fn sort_node_handles(&mut self, cmp: fn(&N, &N) -> Ordering) {
-        let nodes = &self.nodes;
-        self.node_handles.sort_node_handles(nodes, cmp);
-    }
-
-    pub fn sort_already_mostly_sorted_node_handles(&mut self, cmp: fn(&N, &N) -> Ordering) {
-        let nodes = &self.nodes;
-        self.node_handles
-            .sort_already_mostly_sorted_node_handles(nodes, cmp);
     }
 
     pub fn have_edge(&self, node1: &N, node2: &N) -> bool {
@@ -632,8 +616,6 @@ mod tests {
         let node = &graph.nodes()[0];
         assert_eq!(node.id, 1);
         assert_eq!(node.node_handle().index, 0);
-        assert_eq!(graph.node_handles.node_handles().len(), 1);
-        assert_eq!(graph.node_handles.node_handles()[0].index, 0);
         assert_eq!(node_handles.node_handles().len(), 1);
         assert_eq!(node_handles.node_handles()[0].index, 0);
     }

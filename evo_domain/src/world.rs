@@ -12,6 +12,7 @@ pub struct World {
     min_corner: Position,
     max_corner: Position,
     cell_graph: SortableGraph<Cell, Bond, AngleGusset>,
+    cell_handles: SortableHandles,
     cross_cell_influences: Vec<Box<dyn CrossCellInfluence>>,
     per_cell_influences: Vec<Box<dyn PerCellInfluence>>,
     num_selected_cells: u32,
@@ -23,6 +24,7 @@ impl World {
             min_corner,
             max_corner,
             cell_graph: SortableGraph::new(),
+            cell_handles: SortableHandles::new(),
             cross_cell_influences: vec![],
             per_cell_influences: vec![],
             num_selected_cells: 0,
@@ -110,7 +112,9 @@ impl World {
     }
 
     pub fn add_cell(&mut self, cell: Cell) -> NodeHandle {
-        self.cell_graph.add_node(cell)
+        let handle = self.cell_graph.add_node(cell);
+        self.cell_handles.add_node_handle(handle);
+        handle
     }
 
     pub fn cells(&self) -> &[Cell] {

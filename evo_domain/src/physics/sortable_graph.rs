@@ -27,8 +27,8 @@ impl SortableHandles {
         self.node_handles.push(handle);
     }
 
-    pub fn remove_obsolete_node_handles(&mut self, first_invalid_index: u32) {
-        self.node_handles.retain(|h| h.index < first_invalid_index);
+    pub fn remove_obsolete_node_handles(&mut self, first_invalid_handle: NodeHandle) {
+        self.node_handles.retain(|h| *h < first_invalid_handle);
     }
 
     pub fn sort_node_handles<N: GraphNode>(&mut self, nodes: &[N], cmp: fn(&N, &N) -> Ordering) {
@@ -145,7 +145,7 @@ impl<N: GraphNode, E: GraphEdge, ME: GraphMetaEdge> SortableGraph<N, E, ME> {
             self.remove_node(*handle);
         }
         self.node_handles
-            .remove_obsolete_node_handles(self.next_node_handle().index);
+            .remove_obsolete_node_handles(self.next_node_handle());
     }
 
     /// Warning: invalidates handles to the last node in self.nodes.

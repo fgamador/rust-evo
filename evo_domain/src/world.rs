@@ -196,7 +196,7 @@ impl World {
 
     fn apply_cross_cell_influences(&mut self) {
         for influence in &self.cross_cell_influences {
-            influence.apply_to(&mut self.cell_graph);
+            influence.apply_to(&mut self.cell_graph, &mut self.cell_handles);
         }
     }
 

@@ -90,6 +90,7 @@ impl Walls {
 
 pub fn find_pair_overlaps<C, E, ME>(
     graph: &mut SortableGraph<C, E, ME>,
+    cell_handles: &mut SortableHandles,
 ) -> Vec<((NodeHandle, Overlap), (NodeHandle, Overlap))>
 where
     C: Circle + GraphNode,
@@ -97,6 +98,8 @@ where
     ME: GraphMetaEdge,
 {
     graph.sort_already_mostly_sorted_node_handles(cmp_by_min_x);
+    let nodes = &graph.nodes();
+    cell_handles.sort_already_mostly_sorted_node_handles(nodes, cmp_by_min_x);
 
     let mut overlaps: Vec<((NodeHandle, Overlap), (NodeHandle, Overlap))> =
         Vec::with_capacity(graph.nodes().len() * 2);
@@ -277,6 +280,7 @@ mod tests {
     fn graph_pair_overlaps_use_min_radius_as_width() {
         let mut graph: SortableGraph<SimpleCircleNode, SimpleGraphEdge, SimpleGraphMetaEdge> =
             SortableGraph::new();
+        let mut cell_handles = SortableHandles::new();
         graph.add_node(SimpleCircleNode::new(
             Position::new(0.0, 0.0),
             Length::new(1.5),
@@ -286,7 +290,7 @@ mod tests {
             Length::new(2.0),
         ));
 
-        let overlaps = find_pair_overlaps(&mut graph);
+        let overlaps = find_pair_overlaps(&mut graph, &mut cell_handles);
 
         assert_eq!(overlaps.len(), 1);
         assert_eq!(
@@ -309,6 +313,7 @@ mod tests {
     fn bonded_graph_pair_overlap_is_ignored() {
         let mut graph: SortableGraph<SimpleCircleNode, SimpleGraphEdge, SimpleGraphMetaEdge> =
             SortableGraph::new();
+        let mut cell_handles = SortableHandles::new();
         graph.add_node(SimpleCircleNode::new(
             Position::new(0.0, 0.0),
             Length::new(1.0),
@@ -321,7 +326,7 @@ mod tests {
         let edge = SimpleGraphEdge::new(&graph.nodes()[0], &graph.nodes()[1]);
         graph.add_edge(edge, 1, 0);
 
-        let overlaps = find_pair_overlaps(&mut graph);
+        let overlaps = find_pair_overlaps(&mut graph, &mut cell_handles);
 
         assert!(overlaps.is_empty());
     }
@@ -330,6 +335,7 @@ mod tests {
     fn graph_pairs_overlap_after_movement() {
         let mut graph: SortableGraph<SimpleCircleNode, SimpleGraphEdge, SimpleGraphMetaEdge> =
             SortableGraph::new();
+        let mut cell_handles = SortableHandles::new();
         graph.add_node(SimpleCircleNode::new(
             Position::new(0.0, 0.0),
             Length::new(1.0),
@@ -345,7 +351,7 @@ mod tests {
 
         graph.nodes_mut()[2].set_center(Position::new(1.5, 0.0));
 
-        let overlaps = find_pair_overlaps(&mut graph);
+        let overlaps = find_pair_overlaps(&mut graph, &mut cell_handles);
 
         assert_eq!(overlaps.len(), 2);
         assert_eq!((overlaps[0].0).0, graph.node_handles()[0]);

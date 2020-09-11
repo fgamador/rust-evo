@@ -8,13 +8,13 @@ use std::u32;
 pub const MAX_NODE_EDGES: usize = 8;
 
 #[derive(Debug)]
-pub struct SortableGraphNodeHandles {
+pub struct SortableHandles {
     pub node_handles: Vec<NodeHandle>,
 }
 
-impl SortableGraphNodeHandles {
+impl SortableHandles {
     pub fn new() -> Self {
-        SortableGraphNodeHandles {
+        SortableHandles {
             node_handles: vec![],
         }
     }
@@ -65,7 +65,7 @@ impl SortableGraphNodeHandles {
 #[derive(Debug)]
 pub struct SortableGraph<N: GraphNode, E: GraphEdge, ME: GraphMetaEdge> {
     nodes: Vec<N>,
-    node_handles: SortableGraphNodeHandles,
+    node_handles: SortableHandles,
     edges: Vec<E>,
     meta_edges: Vec<ME>,
 }
@@ -75,7 +75,7 @@ impl<N: GraphNode, E: GraphEdge, ME: GraphMetaEdge> SortableGraph<N, E, ME> {
     pub fn new() -> Self {
         SortableGraph {
             nodes: vec![],
-            node_handles: SortableGraphNodeHandles::new(),
+            node_handles: SortableHandles::new(),
             edges: vec![],
             meta_edges: vec![],
         }

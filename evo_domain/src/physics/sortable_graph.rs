@@ -621,11 +621,16 @@ mod tests {
     fn can_remove_last_and_non_last_nodes() {
         let mut graph: SortableGraph<SimpleGraphNode, SimpleGraphEdge, SimpleGraphMetaEdge> =
             SortableGraph::new();
+        let mut node_handles = SortableHandles::new();
         let node0_handle = graph.add_node(SimpleGraphNode::new(0));
-        graph.add_node(SimpleGraphNode::new(1));
+        let node1_handle = graph.add_node(SimpleGraphNode::new(1));
         let node2_handle = graph.add_node(SimpleGraphNode::new(2));
+        node_handles.add_node_handle(node0_handle);
+        node_handles.add_node_handle(node1_handle);
+        node_handles.add_node_handle(node2_handle);
 
         graph.remove_nodes(&vec![node0_handle, node2_handle]);
+        node_handles.remove_obsolete_node_handles(graph.next_node_handle());
 
         assert_eq!(graph.nodes.len(), 1);
         let node = &graph.nodes()[0];
@@ -633,6 +638,8 @@ mod tests {
         assert_eq!(node.node_handle().index, 0);
         assert_eq!(graph.node_handles.node_handles().len(), 1);
         assert_eq!(graph.node_handles.node_handles()[0].index, 0);
+        assert_eq!(node_handles.node_handles().len(), 1);
+        assert_eq!(node_handles.node_handles()[0].index, 0);
     }
 
     #[test]

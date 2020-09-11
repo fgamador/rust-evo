@@ -215,7 +215,7 @@ mod tests {
         assert_eq!(
             overlaps[0],
             (
-                graph.node_handles()[0],
+                graph.nodes()[0].node_handle(),
                 Overlap::new(Displacement::new(1.5, 1.25), 2.0)
             )
         );
@@ -237,7 +237,7 @@ mod tests {
         assert_eq!(
             overlaps[0],
             (
-                graph.node_handles()[0],
+                graph.nodes()[0].node_handle(),
                 Overlap::new(Displacement::new(-1.5, -1.75), 2.0)
             )
         );

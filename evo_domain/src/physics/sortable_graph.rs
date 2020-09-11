@@ -89,7 +89,7 @@ impl<N: GraphNode, E: GraphEdge, ME: GraphMetaEdge> SortableGraph<N, E, ME> {
         handle
     }
 
-    fn next_node_handle(&self) -> NodeHandle {
+    pub fn next_node_handle(&self) -> NodeHandle {
         NodeHandle::new(self.nodes.len().try_into().unwrap())
     }
 

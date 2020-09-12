@@ -331,15 +331,16 @@ mod tests {
         let mut graph: NodeGraph<SimpleCircleNode, SimpleGraphEdge, SimpleGraphMetaEdge> =
             NodeGraph::new();
         let mut node_handles = SortableHandles::new();
+
         let node_handle0 = graph.add_node(SimpleCircleNode::new(
             Position::new(0.0, 0.0),
             Length::new(1.5),
         ));
+        node_handles.add_handle(node_handle0);
         let node_handle1 = graph.add_node(SimpleCircleNode::new(
             Position::new(2.0, 0.0),
             Length::new(2.0),
         ));
-        node_handles.add_handle(node_handle0);
         node_handles.add_handle(node_handle1);
 
         let overlaps = find_pair_overlaps(&mut graph, &mut node_handles);
@@ -366,15 +367,16 @@ mod tests {
         let mut graph: NodeGraph<SimpleCircleNode, SimpleGraphEdge, SimpleGraphMetaEdge> =
             NodeGraph::new();
         let mut node_handles = SortableHandles::new();
+
         let node_handle0 = graph.add_node(SimpleCircleNode::new(
             Position::new(0.0, 0.0),
             Length::new(1.0),
         ));
+        node_handles.add_handle(node_handle0);
         let node_handle1 = graph.add_node(SimpleCircleNode::new(
             Position::new(1.5, 0.0),
             Length::new(1.0),
         ));
-        node_handles.add_handle(node_handle0);
         node_handles.add_handle(node_handle1);
 
         let edge = SimpleGraphEdge::new(&graph.nodes()[0], &graph.nodes()[1]);
@@ -390,20 +392,21 @@ mod tests {
         let mut graph: NodeGraph<SimpleCircleNode, SimpleGraphEdge, SimpleGraphMetaEdge> =
             NodeGraph::new();
         let mut node_handles = SortableHandles::new();
+
         let node_handle0 = graph.add_node(SimpleCircleNode::new(
             Position::new(0.0, 0.0),
             Length::new(1.0),
         ));
+        node_handles.add_handle(node_handle0);
         let node_handle1 = graph.add_node(SimpleCircleNode::new(
             Position::new(3.0, 0.0),
             Length::new(1.0),
         ));
+        node_handles.add_handle(node_handle1);
         let node_handle2 = graph.add_node(SimpleCircleNode::new(
             Position::new(6.0, 0.0),
             Length::new(1.0),
         ));
-        node_handles.add_handle(node_handle0);
-        node_handles.add_handle(node_handle1);
         node_handles.add_handle(node_handle2);
 
         graph.nodes_mut()[2].set_center(Position::new(1.5, 0.0));

@@ -458,7 +458,6 @@ mod tests {
     #[test]
     fn wall_collisions_add_overlap_and_force() {
         let mut cell_graph = NodeGraph::new();
-        let mut cell_handles = SortableHandles::new();
         let wall_collisions =
             WallCollisions::new(Position::new(-10.0, -10.0), Position::new(10.0, 10.0));
         let ball_handle = cell_graph.add_node(Cell::ball(
@@ -468,7 +467,7 @@ mod tests {
             Velocity::new(1.0, 1.0),
         ));
 
-        wall_collisions.apply_to(&mut cell_graph, &mut cell_handles);
+        wall_collisions.apply_to(&mut cell_graph, &mut SortableHandles::new());
 
         let ball = cell_graph.node(ball_handle);
         assert_eq!(ball.environment().overlaps().len(), 1);
@@ -704,7 +703,6 @@ mod tests {
     #[test]
     fn bond_forces_add_forces() {
         let mut cell_graph = NodeGraph::new();
-        let mut cell_handles = SortableHandles::new();
         let bond_forces = BondForces::new();
         let ball1_handle = cell_graph.add_node(Cell::ball(
             Length::new(1.0),
@@ -721,7 +719,7 @@ mod tests {
         let bond = Bond::new(cell_graph.node(ball1_handle), cell_graph.node(ball2_handle));
         cell_graph.add_edge(bond, 1, 0);
 
-        bond_forces.apply_to(&mut cell_graph, &mut cell_handles);
+        bond_forces.apply_to(&mut cell_graph, &mut SortableHandles::new());
 
         let ball1 = cell_graph.node(ball1_handle);
         assert_ne!(ball1.net_force().net_force().x(), 0.0);
@@ -829,7 +827,6 @@ mod tests {
     #[test]
     fn bond_angle_forces_add_forces() {
         let mut cell_graph = NodeGraph::new();
-        let mut cell_handles = SortableHandles::new();
 
         let ball1_handle = cell_graph.add_node(Cell::ball(
             Length::new(1.0),
@@ -862,7 +859,7 @@ mod tests {
         );
         cell_graph.add_meta_edge(gusset);
 
-        BondAngleForces::new().apply_to(&mut cell_graph, &mut cell_handles);
+        BondAngleForces::new().apply_to(&mut cell_graph, &mut SortableHandles::new());
 
         let ball3 = cell_graph.node(ball3_handle);
         assert!(ball3.net_force().net_force().x() < 0.0);

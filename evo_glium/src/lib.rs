@@ -10,8 +10,8 @@ use cell_drawing::*;
 use evo_domain::biology::cell::Cell;
 use evo_domain::biology::layers;
 use evo_domain::physics::bond::Bond;
+use evo_domain::physics::node_graph::GraphEdge;
 use evo_domain::physics::shapes::Circle;
-use evo_domain::physics::sortable_graph::GraphEdge;
 use evo_domain::UserAction;
 
 type Point = [f32; 2];

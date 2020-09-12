@@ -2,10 +2,10 @@ use crate::biology::cell::Cell;
 use crate::environment::local_environment::*;
 use crate::physics::bond::*;
 use crate::physics::newtonian::*;
+use crate::physics::node_graph::*;
 use crate::physics::overlap::*;
 use crate::physics::quantities::*;
 use crate::physics::shapes::Circle;
-use crate::physics::sortable_graph::*;
 use crate::physics::util::*;
 
 pub trait CrossCellInfluence {

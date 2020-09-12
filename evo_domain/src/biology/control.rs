@@ -1,8 +1,8 @@
 use crate::biology::control_requests::*;
 use crate::biology::genome::*;
 use crate::biology::layers::*;
+use crate::physics::node_graph::NodeHandle;
 use crate::physics::quantities::*;
-use crate::physics::sortable_graph::NodeHandle;
 use smallvec::alloc::fmt::Formatter;
 use std::fmt;
 use std::sync::Arc;

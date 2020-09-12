@@ -1,6 +1,6 @@
+use crate::physics::node_graph::*;
 use crate::physics::quantities::*;
 use crate::physics::shapes::*;
-use crate::physics::sortable_graph::*;
 use evo_domain_derive::*;
 
 #[derive(Clone, Debug, GraphNode, PartialEq)]

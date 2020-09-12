@@ -200,6 +200,7 @@ pub struct SortableHandles {
 }
 
 impl SortableHandles {
+    #[allow(clippy::new_without_default)]
     pub fn new() -> Self {
         SortableHandles { handles: vec![] }
     }

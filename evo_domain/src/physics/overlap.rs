@@ -180,37 +180,35 @@ impl PossibleCirclePairOverlap {
 }
 
 #[derive(Debug)]
-pub struct SortableHandles {
-    pub node_handles: Vec<NodeHandle>,
+pub enum SortableHandle {
+    GraphNode(NodeHandle),
 }
 
 impl SortableHandles {
     pub fn new() -> Self {
-        SortableHandles {
-            node_handles: vec![],
-        }
+        SortableHandles { handles: vec![] }
     }
 
     pub fn handles(&self) -> &[NodeHandle] {
-        &self.node_handles
+        &self.handles
     }
 
     pub fn add_handle(&mut self, handle: NodeHandle) {
-        self.node_handles.push(handle);
+        self.handles.push(handle);
     }
 
     pub fn remove_invalid_handles<F>(&mut self, is_valid_handle: F)
     where
         F: Fn(NodeHandle) -> bool,
     {
-        self.node_handles.retain(|&h| is_valid_handle(h));
+        self.handles.retain(|&h| is_valid_handle(h));
     }
 
     pub fn sort_already_mostly_sorted_handles<F>(&mut self, is_less_than: F)
     where
         F: Fn(NodeHandle, NodeHandle) -> bool,
     {
-        Self::insertion_sort_by(&mut self.node_handles, is_less_than);
+        Self::insertion_sort_by(&mut self.handles, is_less_than);
     }
 
     fn insertion_sort_by<T, F>(seq: &mut [T], is_less_than: F)

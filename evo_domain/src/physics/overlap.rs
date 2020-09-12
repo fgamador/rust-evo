@@ -179,6 +179,56 @@ impl PossibleCirclePairOverlap {
     }
 }
 
+#[derive(Debug)]
+pub struct SortableHandles {
+    pub node_handles: Vec<NodeHandle>,
+}
+
+impl SortableHandles {
+    pub fn new() -> Self {
+        SortableHandles {
+            node_handles: vec![],
+        }
+    }
+
+    pub fn handles(&self) -> &[NodeHandle] {
+        &self.node_handles
+    }
+
+    pub fn add_handle(&mut self, handle: NodeHandle) {
+        self.node_handles.push(handle);
+    }
+
+    pub fn remove_invalid_handles<F>(&mut self, is_valid_handle: F)
+    where
+        F: Fn(NodeHandle) -> bool,
+    {
+        self.node_handles.retain(|&h| is_valid_handle(h));
+    }
+
+    pub fn sort_already_mostly_sorted_handles<F>(&mut self, is_less_than: F)
+    where
+        F: Fn(NodeHandle, NodeHandle) -> bool,
+    {
+        Self::insertion_sort_by(&mut self.node_handles, is_less_than);
+    }
+
+    fn insertion_sort_by<T, F>(seq: &mut [T], is_less_than: F)
+    where
+        T: Copy,
+        F: Fn(T, T) -> bool,
+    {
+        for i in 1..seq.len() {
+            for j in (1..=i).rev() {
+                if is_less_than(seq[j - 1], seq[j]) {
+                    break;
+                }
+                seq.swap(j - 1, j)
+            }
+        }
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -365,5 +415,23 @@ mod tests {
         assert_eq!((overlaps[0].1).0, node_handles.handles()[1]);
         assert_eq!((overlaps[1].0).0, node_handles.handles()[1]);
         assert_eq!((overlaps[1].1).0, node_handles.handles()[2]);
+    }
+
+    #[test]
+    fn can_remove_invalid_handles() {
+        let mut graph: NodeGraph<SimpleGraphNode, SimpleGraphEdge, SimpleGraphMetaEdge> =
+            NodeGraph::new();
+        let mut node_handles = SortableHandles::new();
+
+        let node0_handle = graph.add_node(SimpleGraphNode::new(0));
+        node_handles.add_handle(node0_handle);
+        let node1_handle = graph.add_node(SimpleGraphNode::new(1));
+        node_handles.add_handle(node1_handle);
+
+        graph.remove_nodes(&vec![node0_handle]);
+        node_handles.remove_invalid_handles(|h| graph.is_valid_handle(h));
+
+        assert_eq!(node_handles.handles().len(), 1);
+        assert_eq!(node_handles.handles()[0], node0_handle);
     }
 }

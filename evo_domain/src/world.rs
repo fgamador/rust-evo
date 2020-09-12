@@ -3,6 +3,7 @@ use crate::biology::changes::*;
 use crate::environment::influences::*;
 use crate::physics::bond::*;
 use crate::physics::node_graph::*;
+use crate::physics::overlap::SortableHandles;
 use crate::physics::quantities::*;
 use rayon::prelude::*;
 use std::collections::HashSet;

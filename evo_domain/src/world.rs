@@ -285,8 +285,9 @@ impl World {
         self.add_children(new_children);
         self.remove_bonds(&broken_bond_handles);
         self.cell_graph.remove_nodes(&dead_cell_handles);
+        let cell_graph = &self.cell_graph;
         self.cell_handles
-            .remove_obsolete_node_handles(self.cell_graph.next_node_handle());
+            .remove_obsolete_node_handles(|h| cell_graph.is_valid_handle(h));
     }
 
     fn add_children(&mut self, new_children: Vec<NewChildData>) {

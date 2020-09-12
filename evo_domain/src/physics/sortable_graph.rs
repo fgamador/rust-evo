@@ -27,8 +27,11 @@ impl SortableHandles {
         self.node_handles.push(handle);
     }
 
-    pub fn remove_obsolete_node_handles(&mut self, first_invalid_handle: NodeHandle) {
-        self.node_handles.retain(|h| *h < first_invalid_handle);
+    pub fn remove_obsolete_node_handles<F>(&mut self, is_valid_handle: F)
+    where
+        F: Fn(NodeHandle) -> bool,
+    {
+        self.node_handles.retain(|&h| is_valid_handle(h));
     }
 
     pub fn sort_node_handles<N: GraphNode>(&mut self, nodes: &[N], cmp: fn(&N, &N) -> Ordering) {
@@ -86,7 +89,11 @@ impl<N: GraphNode, E: GraphEdge, ME: GraphMetaEdge> NodeGraph<N, E, ME> {
         handle
     }
 
-    pub fn next_node_handle(&self) -> NodeHandle {
+    pub fn is_valid_handle(&self, handle: NodeHandle) -> bool {
+        (handle.index as usize) < self.nodes.len()
+    }
+
+    fn next_node_handle(&self) -> NodeHandle {
         NodeHandle::new(self.nodes.len().try_into().unwrap())
     }
 
@@ -610,7 +617,7 @@ mod tests {
         node_handles.add_node_handle(node2_handle);
 
         graph.remove_nodes(&vec![node0_handle, node2_handle]);
-        node_handles.remove_obsolete_node_handles(graph.next_node_handle());
+        node_handles.remove_obsolete_node_handles(|h| graph.is_valid_handle(h));
 
         assert_eq!(graph.nodes.len(), 1);
         let node = &graph.nodes()[0];

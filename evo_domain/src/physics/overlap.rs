@@ -98,13 +98,13 @@ where
     ME: GraphMetaEdge,
 {
     let nodes = &graph.nodes();
-    cell_handles.sort_already_mostly_sorted_node_handles(nodes, cmp_by_min_x);
+    cell_handles.sort_already_mostly_sorted_handles(nodes, cmp_by_min_x);
 
     let mut overlaps: Vec<((NodeHandle, Overlap), (NodeHandle, Overlap))> =
         Vec::with_capacity(graph.nodes().len() * 2);
 
-    for (i, handle1) in cell_handles.node_handles().iter().enumerate() {
-        for handle2 in &cell_handles.node_handles()[(i + 1)..] {
+    for (i, handle1) in cell_handles.handles().iter().enumerate() {
+        for handle2 in &cell_handles.handles()[(i + 1)..] {
             let circle1 = graph.node(*handle1);
             let circle2 = graph.node(*handle2);
 
@@ -288,8 +288,8 @@ mod tests {
             Position::new(2.0, 0.0),
             Length::new(2.0),
         ));
-        node_handles.add_node_handle(node_handle0);
-        node_handles.add_node_handle(node_handle1);
+        node_handles.add_handle(node_handle0);
+        node_handles.add_handle(node_handle1);
 
         let overlaps = find_pair_overlaps(&mut graph, &mut node_handles);
 
@@ -297,14 +297,14 @@ mod tests {
         assert_eq!(
             overlaps[0].0,
             (
-                node_handles.node_handles()[0],
+                node_handles.handles()[0],
                 Overlap::new(Displacement::new(-1.5, 0.0), 1.5)
             )
         );
         assert_eq!(
             overlaps[0].1,
             (
-                node_handles.node_handles()[1],
+                node_handles.handles()[1],
                 Overlap::new(Displacement::new(1.5, 0.0), 1.5)
             )
         );
@@ -323,8 +323,8 @@ mod tests {
             Position::new(1.5, 0.0),
             Length::new(1.0),
         ));
-        node_handles.add_node_handle(node_handle0);
-        node_handles.add_node_handle(node_handle1);
+        node_handles.add_handle(node_handle0);
+        node_handles.add_handle(node_handle1);
 
         let edge = SimpleGraphEdge::new(&graph.nodes()[0], &graph.nodes()[1]);
         graph.add_edge(edge, 1, 0);
@@ -351,18 +351,18 @@ mod tests {
             Position::new(6.0, 0.0),
             Length::new(1.0),
         ));
-        node_handles.add_node_handle(node_handle0);
-        node_handles.add_node_handle(node_handle1);
-        node_handles.add_node_handle(node_handle2);
+        node_handles.add_handle(node_handle0);
+        node_handles.add_handle(node_handle1);
+        node_handles.add_handle(node_handle2);
 
         graph.nodes_mut()[2].set_center(Position::new(1.5, 0.0));
 
         let overlaps = find_pair_overlaps(&mut graph, &mut node_handles);
 
         assert_eq!(overlaps.len(), 2);
-        assert_eq!((overlaps[0].0).0, node_handles.node_handles()[0]);
-        assert_eq!((overlaps[0].1).0, node_handles.node_handles()[1]);
-        assert_eq!((overlaps[1].0).0, node_handles.node_handles()[1]);
-        assert_eq!((overlaps[1].1).0, node_handles.node_handles()[2]);
+        assert_eq!((overlaps[0].0).0, node_handles.handles()[0]);
+        assert_eq!((overlaps[0].1).0, node_handles.handles()[1]);
+        assert_eq!((overlaps[1].0).0, node_handles.handles()[1]);
+        assert_eq!((overlaps[1].1).0, node_handles.handles()[2]);
     }
 }

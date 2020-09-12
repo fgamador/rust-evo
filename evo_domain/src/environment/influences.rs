@@ -553,8 +553,8 @@ mod tests {
             Position::new(1.4, 1.4),
             Velocity::new(-1.0, -1.0),
         ));
-        cell_handles.add_node_handle(cell1_handle);
-        cell_handles.add_node_handle(cell2_handle);
+        cell_handles.add_handle(cell1_handle);
+        cell_handles.add_handle(cell2_handle);
 
         pair_collisions.apply_to(&mut cell_graph, &mut cell_handles);
 

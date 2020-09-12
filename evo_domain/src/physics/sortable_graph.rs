@@ -19,27 +19,27 @@ impl SortableHandles {
         }
     }
 
-    pub fn node_handles(&self) -> &[NodeHandle] {
+    pub fn handles(&self) -> &[NodeHandle] {
         &self.node_handles
     }
 
-    pub fn add_node_handle(&mut self, handle: NodeHandle) {
+    pub fn add_handle(&mut self, handle: NodeHandle) {
         self.node_handles.push(handle);
     }
 
-    pub fn remove_obsolete_node_handles<F>(&mut self, is_valid_handle: F)
+    pub fn remove_invalid_handles<F>(&mut self, is_valid_handle: F)
     where
         F: Fn(NodeHandle) -> bool,
     {
         self.node_handles.retain(|&h| is_valid_handle(h));
     }
 
-    pub fn sort_node_handles<N: GraphNode>(&mut self, nodes: &[N], cmp: fn(&N, &N) -> Ordering) {
+    pub fn sort_handles<N: GraphNode>(&mut self, nodes: &[N], cmp: fn(&N, &N) -> Ordering) {
         self.node_handles
             .sort_unstable_by(|h1, h2| cmp(&nodes[h1.index()], &nodes[h2.index()]));
     }
 
-    pub fn sort_already_mostly_sorted_node_handles<N: GraphNode>(
+    pub fn sort_already_mostly_sorted_handles<N: GraphNode>(
         &mut self,
         nodes: &[N],
         cmp: fn(&N, &N) -> Ordering,
@@ -612,19 +612,19 @@ mod tests {
         let node0_handle = graph.add_node(SimpleGraphNode::new(0));
         let node1_handle = graph.add_node(SimpleGraphNode::new(1));
         let node2_handle = graph.add_node(SimpleGraphNode::new(2));
-        node_handles.add_node_handle(node0_handle);
-        node_handles.add_node_handle(node1_handle);
-        node_handles.add_node_handle(node2_handle);
+        node_handles.add_handle(node0_handle);
+        node_handles.add_handle(node1_handle);
+        node_handles.add_handle(node2_handle);
 
         graph.remove_nodes(&vec![node0_handle, node2_handle]);
-        node_handles.remove_obsolete_node_handles(|h| graph.is_valid_handle(h));
+        node_handles.remove_invalid_handles(|h| graph.is_valid_handle(h));
 
         assert_eq!(graph.nodes.len(), 1);
         let node = &graph.nodes()[0];
         assert_eq!(node.id, 1);
         assert_eq!(node.node_handle().index, 0);
-        assert_eq!(node_handles.node_handles().len(), 1);
-        assert_eq!(node_handles.node_handles()[0].index, 0);
+        assert_eq!(node_handles.handles().len(), 1);
+        assert_eq!(node_handles.handles()[0].index, 0);
     }
 
     #[test]

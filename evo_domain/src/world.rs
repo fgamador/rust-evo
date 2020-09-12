@@ -113,7 +113,7 @@ impl World {
 
     pub fn add_cell(&mut self, cell: Cell) -> NodeHandle {
         let handle = self.cell_graph.add_node(cell);
-        self.cell_handles.add_node_handle(handle);
+        self.cell_handles.add_handle(handle);
         handle
     }
 
@@ -287,7 +287,7 @@ impl World {
         self.cell_graph.remove_nodes(&dead_cell_handles);
         let cell_graph = &self.cell_graph;
         self.cell_handles
-            .remove_obsolete_node_handles(|h| cell_graph.is_valid_handle(h));
+            .remove_invalid_handles(|h| cell_graph.is_valid_handle(h));
     }
 
     fn add_children(&mut self, new_children: Vec<NewChildData>) {

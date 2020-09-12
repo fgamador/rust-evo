@@ -599,21 +599,32 @@ mod tests {
     fn can_remove_last_and_non_last_nodes() {
         let mut graph: NodeGraph<SimpleGraphNode, SimpleGraphEdge, SimpleGraphMetaEdge> =
             NodeGraph::new();
-        let mut node_handles = SortableHandles::new();
         let node0_handle = graph.add_node(SimpleGraphNode::new(0));
-        let node1_handle = graph.add_node(SimpleGraphNode::new(1));
+        let _node1_handle = graph.add_node(SimpleGraphNode::new(1));
         let node2_handle = graph.add_node(SimpleGraphNode::new(2));
-        node_handles.add_handle(node0_handle);
-        node_handles.add_handle(node1_handle);
-        node_handles.add_handle(node2_handle);
 
         graph.remove_nodes(&vec![node0_handle, node2_handle]);
-        node_handles.remove_invalid_handles(|h| graph.is_valid_handle(h));
 
         assert_eq!(graph.nodes.len(), 1);
         let node = &graph.nodes()[0];
         assert_eq!(node.id, 1);
         assert_eq!(node.node_handle().index, 0);
+    }
+
+    #[test]
+    fn can_remove_invalid_handles() {
+        let mut graph: NodeGraph<SimpleGraphNode, SimpleGraphEdge, SimpleGraphMetaEdge> =
+            NodeGraph::new();
+        let mut node_handles = SortableHandles::new();
+
+        let node0_handle = graph.add_node(SimpleGraphNode::new(0));
+        node_handles.add_handle(node0_handle);
+        let node1_handle = graph.add_node(SimpleGraphNode::new(1));
+        node_handles.add_handle(node1_handle);
+
+        graph.remove_nodes(&vec![node0_handle]);
+        node_handles.remove_invalid_handles(|h| graph.is_valid_handle(h));
+
         assert_eq!(node_handles.handles().len(), 1);
         assert_eq!(node_handles.handles()[0].index, 0);
     }

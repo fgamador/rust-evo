@@ -97,8 +97,9 @@ where
     E: GraphEdge,
     ME: GraphMetaEdge,
 {
-    let nodes = &graph.nodes();
-    cell_handles.sort_already_mostly_sorted_handles(nodes, cmp_by_min_x);
+    cell_handles.sort_already_mostly_sorted_handles(|h1, h2| {
+        cmp_by_min_x(graph.node(h1), graph.node(h2)) == Ordering::Less
+    });
 
     let mut overlaps: Vec<((NodeHandle, Overlap), (NodeHandle, Overlap))> =
         Vec::with_capacity(graph.nodes().len() * 2);

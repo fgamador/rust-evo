@@ -39,24 +39,21 @@ impl SortableHandles {
             .sort_unstable_by(|h1, h2| cmp(&nodes[h1.index()], &nodes[h2.index()]));
     }
 
-    pub fn sort_already_mostly_sorted_handles<N: GraphNode>(
-        &mut self,
-        nodes: &[N],
-        cmp: fn(&N, &N) -> Ordering,
-    ) {
-        Self::insertion_sort_by(&mut self.node_handles, |h1, h2| {
-            cmp(&nodes[h1.index()], &nodes[h2.index()]) == Ordering::Less
-        });
+    pub fn sort_already_mostly_sorted_handles<F>(&mut self, is_less_than: F)
+    where
+        F: Fn(NodeHandle, NodeHandle) -> bool,
+    {
+        Self::insertion_sort_by(&mut self.node_handles, is_less_than);
     }
 
-    fn insertion_sort_by<T, F>(seq: &mut [T], is_less: F)
+    fn insertion_sort_by<T, F>(seq: &mut [T], is_less_than: F)
     where
         T: Copy,
         F: Fn(T, T) -> bool,
     {
         for i in 1..seq.len() {
             for j in (1..=i).rev() {
-                if is_less(seq[j - 1], seq[j]) {
+                if is_less_than(seq[j - 1], seq[j]) {
                     break;
                 }
                 seq.swap(j - 1, j)

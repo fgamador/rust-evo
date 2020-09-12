@@ -97,30 +97,40 @@ where
     E: GraphEdge,
     ME: GraphMetaEdge,
 {
-    cell_handles.sort_already_mostly_sorted_handles(|h1, h2| {
-        cmp_by_min_x(graph.node(h1), graph.node(h2)) == Ordering::Less
+    cell_handles.sort_already_mostly_sorted_handles(|h1, h2| match h1 {
+        SortableHandle::GraphNode(h1) => match h2 {
+            SortableHandle::GraphNode(h2) => {
+                cmp_by_min_x(graph.node(h1), graph.node(h2)) == Ordering::Less
+            }
+        },
     });
 
     let mut overlaps: Vec<((NodeHandle, Overlap), (NodeHandle, Overlap))> =
         Vec::with_capacity(graph.nodes().len() * 2);
 
-    for (i, handle1) in cell_handles.handles().iter().enumerate() {
-        for handle2 in &cell_handles.handles()[(i + 1)..] {
-            let circle1 = graph.node(*handle1);
-            let circle2 = graph.node(*handle2);
+    for (i, &handle1) in cell_handles.handles().iter().enumerate() {
+        for &handle2 in &cell_handles.handles()[(i + 1)..] {
+            match handle1 {
+                SortableHandle::GraphNode(handle1) => match handle2 {
+                    SortableHandle::GraphNode(handle2) => {
+                        let circle1 = graph.node(handle1);
+                        let circle2 = graph.node(handle2);
 
-            // crucial optimization that works only if we are iterating through circles in min_x order
-            assert!(circle2.min_x() >= circle1.min_x());
-            if (circle2.min_x()) >= circle1.max_x() {
-                break;
-            }
+                        // crucial optimization that works only if we are iterating through circles in min_x order
+                        assert!(circle2.min_x() >= circle1.min_x());
+                        if (circle2.min_x()) >= circle1.max_x() {
+                            break;
+                        }
 
-            if graph.have_edge(circle1, circle2) {
-                continue;
-            }
+                        if graph.have_edge(circle1, circle2) {
+                            continue;
+                        }
 
-            if let Some(overlap) = calc_overlap(circle1, circle2) {
-                overlaps.push(((*handle1, overlap), (*handle2, -overlap)));
+                        if let Some(overlap) = calc_overlap(circle1, circle2) {
+                            overlaps.push(((handle1, overlap), (handle2, -overlap)));
+                        }
+                    }
+                },
             }
         }
     }
@@ -179,9 +189,14 @@ impl PossibleCirclePairOverlap {
     }
 }
 
-#[derive(Debug)]
+#[derive(Clone, Copy, Debug)]
 pub enum SortableHandle {
     GraphNode(NodeHandle),
+}
+
+#[derive(Debug)]
+pub struct SortableHandles {
+    pub handles: Vec<SortableHandle>,
 }
 
 impl SortableHandles {
@@ -189,24 +204,24 @@ impl SortableHandles {
         SortableHandles { handles: vec![] }
     }
 
-    pub fn handles(&self) -> &[NodeHandle] {
+    pub fn handles(&self) -> &[SortableHandle] {
         &self.handles
     }
 
-    pub fn add_handle(&mut self, handle: NodeHandle) {
+    pub fn add_handle(&mut self, handle: SortableHandle) {
         self.handles.push(handle);
     }
 
     pub fn remove_invalid_handles<F>(&mut self, is_valid_handle: F)
     where
-        F: Fn(NodeHandle) -> bool,
+        F: Fn(SortableHandle) -> bool,
     {
         self.handles.retain(|&h| is_valid_handle(h));
     }
 
     pub fn sort_already_mostly_sorted_handles<F>(&mut self, is_less_than: F)
     where
-        F: Fn(NodeHandle, NodeHandle) -> bool,
+        F: Fn(SortableHandle, SortableHandle) -> bool,
     {
         Self::insertion_sort_by(&mut self.handles, is_less_than);
     }
@@ -334,30 +349,28 @@ mod tests {
             Position::new(0.0, 0.0),
             Length::new(1.5),
         ));
-        node_handles.add_handle(node_handle0);
+        node_handles.add_handle(SortableHandle::GraphNode(node_handle0));
         let node_handle1 = graph.add_node(SimpleCircleNode::new(
             Position::new(2.0, 0.0),
             Length::new(2.0),
         ));
-        node_handles.add_handle(node_handle1);
+        node_handles.add_handle(SortableHandle::GraphNode(node_handle1));
 
         let overlaps = find_pair_overlaps(&mut graph, &mut node_handles);
 
         assert_eq!(overlaps.len(), 1);
-        assert_eq!(
-            overlaps[0].0,
-            (
-                node_handles.handles()[0],
-                Overlap::new(Displacement::new(-1.5, 0.0), 1.5)
-            )
-        );
-        assert_eq!(
-            overlaps[0].1,
-            (
-                node_handles.handles()[1],
-                Overlap::new(Displacement::new(1.5, 0.0), 1.5)
-            )
-        );
+        match node_handles.handles()[0] {
+            SortableHandle::GraphNode(handle0) => assert_eq!(
+                overlaps[0].0,
+                (handle0, Overlap::new(Displacement::new(-1.5, 0.0), 1.5))
+            ),
+        }
+        match node_handles.handles()[1] {
+            SortableHandle::GraphNode(handle1) => assert_eq!(
+                overlaps[0].1,
+                (handle1, Overlap::new(Displacement::new(1.5, 0.0), 1.5))
+            ),
+        }
     }
 
     #[test]
@@ -370,12 +383,12 @@ mod tests {
             Position::new(0.0, 0.0),
             Length::new(1.0),
         ));
-        node_handles.add_handle(node_handle0);
+        node_handles.add_handle(SortableHandle::GraphNode(node_handle0));
         let node_handle1 = graph.add_node(SimpleCircleNode::new(
             Position::new(1.5, 0.0),
             Length::new(1.0),
         ));
-        node_handles.add_handle(node_handle1);
+        node_handles.add_handle(SortableHandle::GraphNode(node_handle1));
 
         let edge = SimpleGraphEdge::new(&graph.nodes()[0], &graph.nodes()[1]);
         graph.add_edge(edge, 1, 0);
@@ -395,27 +408,35 @@ mod tests {
             Position::new(0.0, 0.0),
             Length::new(1.0),
         ));
-        node_handles.add_handle(node_handle0);
+        node_handles.add_handle(SortableHandle::GraphNode(node_handle0));
         let node_handle1 = graph.add_node(SimpleCircleNode::new(
             Position::new(3.0, 0.0),
             Length::new(1.0),
         ));
-        node_handles.add_handle(node_handle1);
+        node_handles.add_handle(SortableHandle::GraphNode(node_handle1));
         let node_handle2 = graph.add_node(SimpleCircleNode::new(
             Position::new(6.0, 0.0),
             Length::new(1.0),
         ));
-        node_handles.add_handle(node_handle2);
+        node_handles.add_handle(SortableHandle::GraphNode(node_handle2));
 
         graph.nodes_mut()[2].set_center(Position::new(1.5, 0.0));
 
         let overlaps = find_pair_overlaps(&mut graph, &mut node_handles);
 
         assert_eq!(overlaps.len(), 2);
-        assert_eq!((overlaps[0].0).0, node_handles.handles()[0]);
-        assert_eq!((overlaps[0].1).0, node_handles.handles()[1]);
-        assert_eq!((overlaps[1].0).0, node_handles.handles()[1]);
-        assert_eq!((overlaps[1].1).0, node_handles.handles()[2]);
+        match node_handles.handles()[0] {
+            SortableHandle::GraphNode(handle0) => assert_eq!((overlaps[0].0).0, handle0),
+        }
+        match node_handles.handles()[1] {
+            SortableHandle::GraphNode(handle1) => {
+                assert_eq!((overlaps[0].1).0, handle1);
+                assert_eq!((overlaps[1].0).0, handle1);
+            }
+        }
+        match node_handles.handles()[2] {
+            SortableHandle::GraphNode(handle2) => assert_eq!((overlaps[1].1).0, handle2),
+        }
     }
 
     #[test]
@@ -425,14 +446,18 @@ mod tests {
         let mut node_handles = SortableHandles::new();
 
         let node0_handle = graph.add_node(SimpleGraphNode::new(0));
-        node_handles.add_handle(node0_handle);
+        node_handles.add_handle(SortableHandle::GraphNode(node0_handle));
         let node1_handle = graph.add_node(SimpleGraphNode::new(1));
-        node_handles.add_handle(node1_handle);
+        node_handles.add_handle(SortableHandle::GraphNode(node1_handle));
 
         graph.remove_nodes(&vec![node0_handle]);
-        node_handles.remove_invalid_handles(|h| graph.is_valid_handle(h));
+        node_handles.remove_invalid_handles(|h| match h {
+            SortableHandle::GraphNode(h) => graph.is_valid_handle(h),
+        });
 
         assert_eq!(node_handles.handles().len(), 1);
-        assert_eq!(node_handles.handles()[0], node0_handle);
+        match node_handles.handles()[0] {
+            SortableHandle::GraphNode(handle0) => assert_eq!(handle0, node0_handle),
+        }
     }
 }

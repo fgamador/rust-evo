@@ -3,7 +3,7 @@ use crate::biology::changes::*;
 use crate::environment::influences::*;
 use crate::physics::bond::*;
 use crate::physics::node_graph::*;
-use crate::physics::overlap::SortableHandles;
+use crate::physics::overlap::{SortableHandle, SortableHandles};
 use crate::physics::quantities::*;
 use rayon::prelude::*;
 use std::collections::HashSet;
@@ -114,7 +114,8 @@ impl World {
 
     pub fn add_cell(&mut self, cell: Cell) -> NodeHandle {
         let handle = self.cell_graph.add_node(cell);
-        self.cell_handles.add_handle(handle);
+        self.cell_handles
+            .add_handle(SortableHandle::GraphNode(handle));
         handle
     }
 
@@ -287,8 +288,9 @@ impl World {
         self.remove_bonds(&broken_bond_handles);
         self.cell_graph.remove_nodes(&dead_cell_handles);
         let cell_graph = &self.cell_graph;
-        self.cell_handles
-            .remove_invalid_handles(|h| cell_graph.is_valid_handle(h));
+        self.cell_handles.remove_invalid_handles(|h| match h {
+            SortableHandle::GraphNode(h) => cell_graph.is_valid_handle(h),
+        });
     }
 
     fn add_children(&mut self, new_children: Vec<NewChildData>) {

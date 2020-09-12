@@ -1,5 +1,4 @@
 use smallvec::SmallVec;
-use std::cmp::Ordering;
 use std::convert::TryInto;
 use std::fmt;
 use std::fmt::{Error, Formatter};
@@ -32,11 +31,6 @@ impl SortableHandles {
         F: Fn(NodeHandle) -> bool,
     {
         self.node_handles.retain(|&h| is_valid_handle(h));
-    }
-
-    pub fn sort_handles<N: GraphNode>(&mut self, nodes: &[N], cmp: fn(&N, &N) -> Ordering) {
-        self.node_handles
-            .sort_unstable_by(|h1, h2| cmp(&nodes[h1.index()], &nodes[h2.index()]));
     }
 
     pub fn sort_already_mostly_sorted_handles<F>(&mut self, is_less_than: F)

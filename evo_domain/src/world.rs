@@ -290,6 +290,7 @@ impl World {
         let cell_graph = &self.cell_graph;
         self.cell_handles.remove_invalid_handles(|h| match h {
             SortableHandle::GraphNode(h) => cell_graph.is_valid_handle(h),
+            SortableHandle::Cloud => false,
         });
     }
 

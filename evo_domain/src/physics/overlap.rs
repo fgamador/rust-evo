@@ -102,7 +102,9 @@ where
             SortableHandle::GraphNode(h2) => {
                 cmp_by_min_x(graph.node(h1), graph.node(h2)) == Ordering::Less
             }
+            SortableHandle::Cloud => true,
         },
+        SortableHandle::Cloud => false,
     });
 
     let mut overlaps: Vec<((NodeHandle, Overlap), (NodeHandle, Overlap))> =
@@ -130,7 +132,9 @@ where
                             overlaps.push(((handle1, overlap), (handle2, -overlap)));
                         }
                     }
+                    SortableHandle::Cloud => {}
                 },
+                SortableHandle::Cloud => {}
             }
         }
     }
@@ -191,6 +195,7 @@ impl PossibleCirclePairOverlap {
 
 #[derive(Clone, Copy, Debug)]
 pub enum SortableHandle {
+    Cloud,
     GraphNode(NodeHandle),
 }
 
@@ -360,17 +365,17 @@ mod tests {
         let overlaps = find_pair_overlaps(&mut graph, &mut node_handles);
 
         assert_eq!(overlaps.len(), 1);
-        match node_handles.handles()[0] {
-            SortableHandle::GraphNode(handle0) => assert_eq!(
+        if let SortableHandle::GraphNode(handle0) = node_handles.handles()[0] {
+            assert_eq!(
                 overlaps[0].0,
                 (handle0, Overlap::new(Displacement::new(-1.5, 0.0), 1.5))
-            ),
+            );
         }
-        match node_handles.handles()[1] {
-            SortableHandle::GraphNode(handle1) => assert_eq!(
+        if let SortableHandle::GraphNode(handle1) = node_handles.handles()[1] {
+            assert_eq!(
                 overlaps[0].1,
                 (handle1, Overlap::new(Displacement::new(1.5, 0.0), 1.5))
-            ),
+            );
         }
     }
 
@@ -426,17 +431,15 @@ mod tests {
         let overlaps = find_pair_overlaps(&mut graph, &mut node_handles);
 
         assert_eq!(overlaps.len(), 2);
-        match node_handles.handles()[0] {
-            SortableHandle::GraphNode(handle0) => assert_eq!((overlaps[0].0).0, handle0),
+        if let SortableHandle::GraphNode(handle0) = node_handles.handles()[0] {
+            assert_eq!((overlaps[0].0).0, handle0);
         }
-        match node_handles.handles()[1] {
-            SortableHandle::GraphNode(handle1) => {
-                assert_eq!((overlaps[0].1).0, handle1);
-                assert_eq!((overlaps[1].0).0, handle1);
-            }
+        if let SortableHandle::GraphNode(handle1) = node_handles.handles()[1] {
+            assert_eq!((overlaps[0].1).0, handle1);
+            assert_eq!((overlaps[1].0).0, handle1);
         }
-        match node_handles.handles()[2] {
-            SortableHandle::GraphNode(handle2) => assert_eq!((overlaps[1].1).0, handle2),
+        if let SortableHandle::GraphNode(handle2) = node_handles.handles()[2] {
+            assert_eq!((overlaps[1].1).0, handle2);
         }
     }
 
@@ -454,11 +457,12 @@ mod tests {
         graph.remove_nodes(&vec![node0_handle]);
         node_handles.remove_invalid_handles(|h| match h {
             SortableHandle::GraphNode(h) => graph.is_valid_handle(h),
+            SortableHandle::Cloud => false,
         });
 
         assert_eq!(node_handles.handles().len(), 1);
-        match node_handles.handles()[0] {
-            SortableHandle::GraphNode(handle0) => assert_eq!(handle0, node0_handle),
+        if let SortableHandle::GraphNode(handle0) = node_handles.handles()[0] {
+            assert_eq!(handle0, node0_handle);
         }
     }
 }

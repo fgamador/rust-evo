@@ -49,7 +49,7 @@ impl<N: NodeWithHandle<N>> NodesWithHandles<N> {
         }
     }
 
-    /// Warning: invalidates handle to the last node in self.nodes.
+    /// Warning: invalidates handles to the last node in self.nodes.
     fn remove_node<F>(&mut self, handle: NodeHandle<N>, on_handle_change: &F)
     where
         F: Fn(&mut N, NodeHandle<N>),

@@ -40,17 +40,25 @@ impl<N: NodeWithHandle<N>> NodesWithHandles<N> {
     ///
     /// 2) Worse, this function changes the nodes referenced by some of the remaining handles.
     /// Never retain handles across a call to this function.
-    pub fn remove_nodes(&mut self, handles: &[NodeHandle<N>]) {
+    pub fn remove_nodes<F>(&mut self, handles: &[NodeHandle<N>], on_handle_change: F)
+    where
+        F: Fn(&mut N, NodeHandle<N>),
+    {
         for handle in handles.iter().rev() {
-            self.remove_node(*handle);
+            self.remove_node(*handle, &on_handle_change);
         }
     }
 
     /// Warning: invalidates handle to the last node in self.nodes.
-    fn remove_node(&mut self, handle: NodeHandle<N>) {
+    fn remove_node<F>(&mut self, handle: NodeHandle<N>, on_handle_change: &F)
+    where
+        F: Fn(&mut N, NodeHandle<N>),
+    {
         self.nodes.swap_remove(handle.index());
         if self.is_valid_handle(handle) {
             *self.node_mut(handle).handle_mut() = handle;
+            let prev_handle = self.next_handle();
+            on_handle_change(self.node_mut(handle), prev_handle);
         }
     }
 
@@ -176,12 +184,27 @@ mod tests {
         let _node1_handle = nodes.add_node(SimpleNodeWithHandle::new(1));
         let node2_handle = nodes.add_node(SimpleNodeWithHandle::new(2));
 
-        nodes.remove_nodes(&vec![node0_handle, node2_handle]);
+        nodes.remove_nodes(&vec![node0_handle, node2_handle], |_, _| {});
 
         assert_eq!(nodes.nodes.len(), 1);
         let node = &nodes.nodes()[0];
         assert_eq!(node.id, 1);
         assert_eq!(node.handle().index, 0);
+    }
+
+    #[test]
+    fn can_modify_swapped_node() {
+        let mut nodes = NodesWithHandles::new();
+        let node0_handle = nodes.add_node(SimpleNodeWithHandle::new(0));
+        nodes.add_node(SimpleNodeWithHandle::new(1));
+
+        nodes.remove_nodes(&vec![node0_handle], |node, prev_handle| {
+            assert_eq!(prev_handle.index, 1);
+            node.id = 42;
+        });
+
+        let node = &nodes.nodes()[0];
+        assert_eq!(node.id, 42);
     }
 
     #[derive(Clone, Debug, PartialEq)]

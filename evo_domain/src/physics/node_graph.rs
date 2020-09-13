@@ -100,8 +100,8 @@ impl<N: GraphNode, E: GraphEdge, ME: GraphMetaEdge> NodeGraph<N, E, ME> {
         F: Fn(&mut N, NodeHandle),
     {
         self.nodes.nodes.swap_remove(handle.index());
-        if self.is_valid_handle(handle) {
-            self.node_mut(handle).graph_node_data_mut().handle = handle;
+        if self.nodes.is_valid_handle(handle) {
+            self.nodes.node_mut(handle).graph_node_data_mut().handle = handle;
             let prev_handle = self.nodes.next_node_handle();
             self.fix_swapped_node_edges(prev_handle, handle);
         }
@@ -196,7 +196,7 @@ impl<N: GraphNode, E: GraphEdge, ME: GraphMetaEdge> NodeGraph<N, E, ME> {
         F: FnMut(usize, &mut N, &mut EdgeSource<E>),
     {
         let mut edge_source = EdgeSource::new(&mut self.edges);
-        for (index, node) in self.nodes.nodes.iter_mut().enumerate() {
+        for (index, node) in self.nodes.nodes_mut().iter_mut().enumerate() {
             f(index, node, &mut edge_source);
         }
     }
@@ -208,11 +208,11 @@ impl<N: GraphNode, E: GraphEdge, ME: GraphMetaEdge> NodeGraph<N, E, ME> {
         let node1;
         let node2;
         if handle1.index() < handle2.index() {
-            let slices = self.nodes.nodes.split_at_mut(handle2.index());
+            let slices = self.nodes.nodes_mut().split_at_mut(handle2.index());
             node1 = &mut slices.0[handle1.index()];
             node2 = &mut slices.1[0];
         } else {
-            let slices = self.nodes.nodes.split_at_mut(handle1.index());
+            let slices = self.nodes.nodes_mut().split_at_mut(handle1.index());
             node2 = &mut slices.0[handle2.index()];
             node1 = &mut slices.1[0];
         }

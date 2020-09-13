@@ -107,10 +107,6 @@ impl<N: GraphNode, E: GraphEdge, ME: GraphMetaEdge> NodeGraph<N, E, ME> {
         F: Fn(&mut N, NodeHandle),
     {
         self.nodes.swap_remove(handle.index());
-        self.fix_swapped_node_if_needed(handle);
-    }
-
-    fn fix_swapped_node_if_needed(&mut self, handle: NodeHandle) {
         if self.is_valid_handle(handle) {
             self.node_mut(handle).graph_node_data_mut().handle = handle;
             let prev_handle = self.next_node_handle();

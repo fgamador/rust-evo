@@ -221,19 +221,19 @@ impl<N: GraphNode, E: GraphEdge, ME: GraphMetaEdge> NodeGraph<N, E, ME> {
     }
 
     pub fn nodes(&self) -> &[N] {
-        &self.nodes.nodes
+        self.nodes.nodes()
     }
 
     pub fn nodes_mut(&mut self) -> &mut [N] {
-        &mut self.nodes.nodes
+        self.nodes.nodes_mut()
     }
 
     pub fn node(&self, handle: NodeHandle) -> &N {
-        &self.nodes.nodes[handle.index()]
+        self.nodes.node(handle)
     }
 
     pub fn node_mut(&mut self, handle: NodeHandle) -> &mut N {
-        &mut self.nodes.nodes[handle.index()]
+        self.nodes.node_mut(handle)
     }
 
     pub fn edges(&self) -> &[E] {
@@ -277,6 +277,22 @@ impl<N: GraphNode> Nodes<N> {
 
     fn next_node_handle(&self) -> NodeHandle {
         NodeHandle::new(self.nodes.len().try_into().unwrap())
+    }
+
+    pub fn nodes(&self) -> &[N] {
+        &self.nodes
+    }
+
+    pub fn nodes_mut(&mut self) -> &mut [N] {
+        &mut self.nodes
+    }
+
+    pub fn node(&self, handle: NodeHandle) -> &N {
+        &self.nodes[handle.index()]
+    }
+
+    pub fn node_mut(&mut self, handle: NodeHandle) -> &mut N {
+        &mut self.nodes[handle.index()]
     }
 }
 

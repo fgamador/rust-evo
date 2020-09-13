@@ -44,15 +44,10 @@ impl<N: Node> NodeVec<N> {
         }
     }
 
-    /// Warning: invalidates handles to the last node in self.nodes.
+    /// Warning: invalidates handle to the last node in self.nodes.
     fn remove_node(&mut self, handle: NodeHandle) {
         self.nodes.swap_remove(handle.index());
-        self.fix_swapped_node_if_needed(handle);
-    }
-
-    fn fix_swapped_node_if_needed(&mut self, handle: NodeHandle) {
-        let old_last_handle = self.next_handle();
-        if handle != old_last_handle {
+        if handle != self.next_handle() {
             self.node_mut(handle).node_data_mut().handle = handle;
         }
     }

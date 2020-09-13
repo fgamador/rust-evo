@@ -16,7 +16,7 @@ impl<N: NodeWithHandle> NodesWithHandles<N> {
 
     pub fn add_node(&mut self, mut node: N) -> NodeHandle {
         let handle = self.next_handle();
-        node.node_data_mut().handle = handle;
+        node.handle_mut().index = handle.index;
         self.nodes.push(node);
         handle
     }
@@ -48,7 +48,7 @@ impl<N: NodeWithHandle> NodesWithHandles<N> {
     fn remove_node(&mut self, handle: NodeHandle) {
         self.nodes.swap_remove(handle.index());
         if handle != self.next_handle() {
-            self.node_mut(handle).node_data_mut().handle = handle;
+            self.node_mut(handle).handle_mut().index = handle.index;
         }
     }
 
@@ -70,11 +70,9 @@ impl<N: NodeWithHandle> NodesWithHandles<N> {
 }
 
 pub trait NodeWithHandle {
-    fn node_handle(&self) -> NodeHandle;
+    fn handle(&self) -> NodeHandle;
 
-    fn node_data(&self) -> &NodeData;
-
-    fn node_data_mut(&mut self) -> &mut NodeData;
+    fn handle_mut(&mut self) -> &mut NodeHandle;
 }
 
 #[derive(Clone, Copy, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
@@ -116,24 +114,6 @@ impl fmt::Display for NodeHandle {
     }
 }
 
-#[derive(Clone, Debug, PartialEq)]
-pub struct NodeData {
-    handle: NodeHandle,
-}
-
-impl NodeData {
-    #[allow(clippy::new_without_default)]
-    pub fn new() -> Self {
-        NodeData {
-            handle: NodeHandle::unset(),
-        }
-    }
-
-    pub fn handle(&self) -> NodeHandle {
-        self.handle
-    }
-}
-
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -145,7 +125,7 @@ mod tests {
         let handle = nodes.add_node(SimpleNode::new(0));
 
         let node = &nodes.nodes()[0];
-        assert_eq!(node.node_handle(), handle);
+        assert_eq!(node.handle(), handle);
     }
 
     #[test]
@@ -170,35 +150,31 @@ mod tests {
         assert_eq!(nodes.nodes.len(), 1);
         let node = &nodes.nodes()[0];
         assert_eq!(node.id, 1);
-        assert_eq!(node.node_handle().index, 0);
+        assert_eq!(node.handle().index, 0);
     }
 
     #[derive(Clone, Debug, PartialEq)]
     pub struct SimpleNode {
-        node_data: NodeData,
+        handle: NodeHandle,
         pub id: i32,
     }
 
     impl SimpleNode {
         pub fn new(id: i32) -> Self {
             SimpleNode {
-                node_data: NodeData::new(),
+                handle: NodeHandle::unset(),
                 id,
             }
         }
     }
 
     impl NodeWithHandle for SimpleNode {
-        fn node_handle(&self) -> NodeHandle {
-            self.node_data.handle
+        fn handle(&self) -> NodeHandle {
+            self.handle
         }
 
-        fn node_data(&self) -> &NodeData {
-            &self.node_data
-        }
-
-        fn node_data_mut(&mut self) -> &mut NodeData {
-            &mut self.node_data
+        fn handle_mut(&mut self) -> &mut NodeHandle {
+            &mut self.handle
         }
     }
 }

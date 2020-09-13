@@ -8,7 +8,7 @@ pub const MAX_NODE_EDGES: usize = 8;
 
 #[derive(Debug)]
 pub struct NodeGraph<N: GraphNode, E: GraphEdge, ME: GraphMetaEdge> {
-    nodes: Vec<N>,
+    nodes: Nodes<N>,
     edges: Vec<E>,
     meta_edges: Vec<ME>,
 }
@@ -17,25 +17,18 @@ impl<N: GraphNode, E: GraphEdge, ME: GraphMetaEdge> NodeGraph<N, E, ME> {
     #[allow(clippy::new_without_default)]
     pub fn new() -> Self {
         NodeGraph {
-            nodes: vec![],
+            nodes: Nodes::new(),
             edges: vec![],
             meta_edges: vec![],
         }
     }
 
-    pub fn add_node(&mut self, mut node: N) -> NodeHandle {
-        let handle = self.next_node_handle();
-        node.graph_node_data_mut().handle = handle;
-        self.nodes.push(node);
-        handle
+    pub fn add_node(&mut self, node: N) -> NodeHandle {
+        self.nodes.add_node(node)
     }
 
     pub fn is_valid_handle(&self, handle: NodeHandle) -> bool {
-        (handle.index as usize) < self.nodes.len()
-    }
-
-    fn next_node_handle(&self) -> NodeHandle {
-        NodeHandle::new(self.nodes.len().try_into().unwrap())
+        self.nodes.is_valid_handle(handle)
     }
 
     pub fn add_edge(
@@ -106,10 +99,10 @@ impl<N: GraphNode, E: GraphEdge, ME: GraphMetaEdge> NodeGraph<N, E, ME> {
     where
         F: Fn(&mut N, NodeHandle),
     {
-        self.nodes.swap_remove(handle.index());
+        self.nodes.nodes.swap_remove(handle.index());
         if self.is_valid_handle(handle) {
             self.node_mut(handle).graph_node_data_mut().handle = handle;
-            let prev_handle = self.next_node_handle();
+            let prev_handle = self.nodes.next_node_handle();
             self.fix_swapped_node_edges(prev_handle, handle);
         }
     }
@@ -203,7 +196,7 @@ impl<N: GraphNode, E: GraphEdge, ME: GraphMetaEdge> NodeGraph<N, E, ME> {
         F: FnMut(usize, &mut N, &mut EdgeSource<E>),
     {
         let mut edge_source = EdgeSource::new(&mut self.edges);
-        for (index, node) in self.nodes.iter_mut().enumerate() {
+        for (index, node) in self.nodes.nodes.iter_mut().enumerate() {
             f(index, node, &mut edge_source);
         }
     }
@@ -215,11 +208,11 @@ impl<N: GraphNode, E: GraphEdge, ME: GraphMetaEdge> NodeGraph<N, E, ME> {
         let node1;
         let node2;
         if handle1.index() < handle2.index() {
-            let slices = self.nodes.split_at_mut(handle2.index());
+            let slices = self.nodes.nodes.split_at_mut(handle2.index());
             node1 = &mut slices.0[handle1.index()];
             node2 = &mut slices.1[0];
         } else {
-            let slices = self.nodes.split_at_mut(handle1.index());
+            let slices = self.nodes.nodes.split_at_mut(handle1.index());
             node2 = &mut slices.0[handle2.index()];
             node1 = &mut slices.1[0];
         }
@@ -228,19 +221,19 @@ impl<N: GraphNode, E: GraphEdge, ME: GraphMetaEdge> NodeGraph<N, E, ME> {
     }
 
     pub fn nodes(&self) -> &[N] {
-        &self.nodes
+        &self.nodes.nodes
     }
 
     pub fn nodes_mut(&mut self) -> &mut [N] {
-        &mut self.nodes
+        &mut self.nodes.nodes
     }
 
     pub fn node(&self, handle: NodeHandle) -> &N {
-        &self.nodes[handle.index()]
+        &self.nodes.nodes[handle.index()]
     }
 
     pub fn node_mut(&mut self, handle: NodeHandle) -> &mut N {
-        &mut self.nodes[handle.index()]
+        &mut self.nodes.nodes[handle.index()]
     }
 
     pub fn edges(&self) -> &[E] {
@@ -257,6 +250,33 @@ impl<N: GraphNode, E: GraphEdge, ME: GraphMetaEdge> NodeGraph<N, E, ME> {
 
     pub fn meta_edges(&self) -> &[ME] {
         &self.meta_edges
+    }
+}
+
+#[derive(Debug)]
+pub struct Nodes<N: GraphNode> {
+    nodes: Vec<N>,
+}
+
+impl<N: GraphNode> Nodes<N> {
+    #[allow(clippy::new_without_default)]
+    pub fn new() -> Self {
+        Nodes { nodes: vec![] }
+    }
+
+    pub fn add_node(&mut self, mut node: N) -> NodeHandle {
+        let handle = self.next_node_handle();
+        node.graph_node_data_mut().handle = handle;
+        self.nodes.push(node);
+        handle
+    }
+
+    pub fn is_valid_handle(&self, handle: NodeHandle) -> bool {
+        (handle.index as usize) < self.nodes.len()
+    }
+
+    fn next_node_handle(&self) -> NodeHandle {
+        NodeHandle::new(self.nodes.len().try_into().unwrap())
     }
 }
 
@@ -535,7 +555,7 @@ mod tests {
 
         graph.remove_nodes(&vec![node0_handle, node2_handle]);
 
-        assert_eq!(graph.nodes.len(), 1);
+        assert_eq!(graph.nodes.nodes.len(), 1);
         let node = &graph.nodes()[0];
         assert_eq!(node.id, 1);
         assert_eq!(node.node_handle().index, 0);

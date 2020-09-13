@@ -4,110 +4,110 @@ use std::fmt::{Error, Formatter};
 use std::u32;
 
 #[derive(Debug)]
-pub struct Clouds<C: Cloud> {
-    clouds: Vec<C>,
+pub struct NodeVec<N: Node> {
+    nodes: Vec<N>,
 }
 
-impl<C: Cloud> Clouds<C> {
+impl<N: Node> NodeVec<N> {
     #[allow(clippy::new_without_default)]
     pub fn new() -> Self {
-        Clouds { clouds: vec![] }
+        NodeVec { nodes: vec![] }
     }
 
-    pub fn add_cloud(&mut self, mut cloud: C) -> CloudHandle {
+    pub fn add_node(&mut self, mut node: N) -> NodeHandle {
         let handle = self.next_handle();
-        cloud.cloud_data_mut().handle = handle;
-        self.clouds.push(cloud);
+        node.node_data_mut().handle = handle;
+        self.nodes.push(node);
         handle
     }
 
-    fn next_handle(&self) -> CloudHandle {
-        CloudHandle::new(self.clouds.len().try_into().unwrap())
+    fn next_handle(&self) -> NodeHandle {
+        NodeHandle::new(self.nodes.len().try_into().unwrap())
     }
 
-    pub fn is_valid_handle(&self, handle: CloudHandle) -> bool {
-        (handle.index as usize) < self.clouds.len()
+    pub fn is_valid_handle(&self, handle: NodeHandle) -> bool {
+        (handle.index as usize) < self.nodes.len()
     }
 
-    /// Removes the clouds referenced by `handles`.
+    /// Removes the nodes referenced by `handles`.
     ///
     /// Warning: this function has two big gotchas:
     ///
     /// 1) `handles` should be in ascending order of `index`. If not, the function will
-    /// panic on index out-of-bounds if we're removing clouds at the end of self.clouds.
+    /// panic on index out-of-bounds if we're removing nodes at the end of self.nodes.
     ///
-    /// 2) Worse, this function changes the clouds referenced by some of the remaining handles.
+    /// 2) Worse, this function changes the nodes referenced by some of the remaining handles.
     /// Never retain handles across a call to this function.
-    pub fn remove_clouds(&mut self, handles: &[CloudHandle]) {
+    pub fn remove_nodes(&mut self, handles: &[NodeHandle]) {
         for handle in handles.iter().rev() {
-            self.remove_cloud(*handle);
+            self.remove_node(*handle);
         }
     }
 
-    /// Warning: invalidates handles to the last cloud in self.clouds.
-    fn remove_cloud(&mut self, handle: CloudHandle) {
-        self.clouds.swap_remove(handle.index());
-        self.fix_swapped_cloud_if_needed(handle);
+    /// Warning: invalidates handles to the last node in self.nodes.
+    fn remove_node(&mut self, handle: NodeHandle) {
+        self.nodes.swap_remove(handle.index());
+        self.fix_swapped_node_if_needed(handle);
     }
 
-    fn fix_swapped_cloud_if_needed(&mut self, handle: CloudHandle) {
+    fn fix_swapped_node_if_needed(&mut self, handle: NodeHandle) {
         let old_last_handle = self.next_handle();
         if handle != old_last_handle {
-            self.cloud_mut(handle).cloud_data_mut().handle = handle;
+            self.node_mut(handle).node_data_mut().handle = handle;
         }
     }
 
-    pub fn clouds(&self) -> &[C] {
-        &self.clouds
+    pub fn nodes(&self) -> &[N] {
+        &self.nodes
     }
 
-    pub fn clouds_mut(&mut self) -> &mut [C] {
-        &mut self.clouds
+    pub fn nodes_mut(&mut self) -> &mut [N] {
+        &mut self.nodes
     }
 
-    pub fn cloud(&self, handle: CloudHandle) -> &C {
-        &self.clouds[handle.index()]
+    pub fn node(&self, handle: NodeHandle) -> &N {
+        &self.nodes[handle.index()]
     }
 
-    pub fn cloud_mut(&mut self, handle: CloudHandle) -> &mut C {
-        &mut self.clouds[handle.index()]
+    pub fn node_mut(&mut self, handle: NodeHandle) -> &mut N {
+        &mut self.nodes[handle.index()]
     }
 }
 
-pub trait Cloud {
-    fn cloud_handle(&self) -> CloudHandle;
+pub trait Node {
+    fn node_handle(&self) -> NodeHandle;
 
-    fn cloud_data(&self) -> &CloudData;
+    fn node_data(&self) -> &NodeData;
 
-    fn cloud_data_mut(&mut self) -> &mut CloudData;
+    fn node_data_mut(&mut self) -> &mut NodeData;
 }
 
 #[derive(Clone, Copy, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
-pub struct CloudHandle {
+pub struct NodeHandle {
     index: u32,
 }
 
-impl CloudHandle {
+impl NodeHandle {
     fn new(index: u32) -> Self {
-        CloudHandle { index }
+        NodeHandle { index }
     }
 
     pub fn unset() -> Self {
-        CloudHandle { index: u32::MAX }
+        NodeHandle { index: u32::MAX }
     }
 
-    pub fn resolve<'a, C>(&self, clouds: &'a mut [C]) -> &'a C
+    pub fn resolve<'a, N>(&self, nodes: &'a mut [N]) -> &'a N
     where
-        C: Cloud,
+        N: Node,
     {
-        &clouds[self.index()]
+        &nodes[self.index()]
     }
 
-    pub fn resolve_mut<'a, C>(&self, clouds: &'a mut [C]) -> &'a mut C
+    pub fn resolve_mut<'a, N>(&self, nodes: &'a mut [N]) -> &'a mut N
     where
-        C: Cloud,
+        N: Node,
     {
-        &mut clouds[self.index()]
+        &mut nodes[self.index()]
     }
 
     fn index(self) -> usize {
@@ -115,26 +115,26 @@ impl CloudHandle {
     }
 }
 
-impl fmt::Display for CloudHandle {
+impl fmt::Display for NodeHandle {
     fn fmt(&self, f: &mut Formatter<'_>) -> Result<(), Error> {
         write!(f, "{}", self.index)
     }
 }
 
 #[derive(Clone, Debug, PartialEq)]
-pub struct CloudData {
-    handle: CloudHandle,
+pub struct NodeData {
+    handle: NodeHandle,
 }
 
-impl CloudData {
+impl NodeData {
     #[allow(clippy::new_without_default)]
     pub fn new() -> Self {
-        CloudData {
-            handle: CloudHandle::unset(),
+        NodeData {
+            handle: NodeHandle::unset(),
         }
     }
 
-    pub fn handle(&self) -> CloudHandle {
+    pub fn handle(&self) -> NodeHandle {
         self.handle
     }
 }
@@ -144,66 +144,66 @@ mod tests {
     use super::*;
 
     #[test]
-    fn added_cloud_has_correct_handle() {
-        let mut clouds = Clouds::new();
+    fn added_node_has_correct_handle() {
+        let mut nodes = NodeVec::new();
 
-        let handle = clouds.add_cloud(SimpleCloud::new(0));
+        let handle = nodes.add_node(SimpleNode::new(0));
 
-        let cloud = &clouds.clouds()[0];
-        assert_eq!(cloud.cloud_handle(), handle);
+        let node = &nodes.nodes()[0];
+        assert_eq!(node.node_handle(), handle);
     }
 
     #[test]
-    fn can_fetch_cloud_by_handle() {
-        let mut clouds = Clouds::new();
+    fn can_fetch_node_by_handle() {
+        let mut nodes = NodeVec::new();
 
-        let cloud_handle = clouds.add_cloud(SimpleCloud::new(0));
+        let node_handle = nodes.add_node(SimpleNode::new(0));
 
-        let cloud = &clouds.clouds()[0];
-        assert_eq!(*clouds.cloud(cloud_handle), *cloud);
+        let node = &nodes.nodes()[0];
+        assert_eq!(*nodes.node(node_handle), *node);
     }
 
     #[test]
-    fn can_remove_last_and_non_last_clouds() {
-        let mut clouds = Clouds::new();
-        let cloud0_handle = clouds.add_cloud(SimpleCloud::new(0));
-        let _cloud1_handle = clouds.add_cloud(SimpleCloud::new(1));
-        let cloud2_handle = clouds.add_cloud(SimpleCloud::new(2));
+    fn can_remove_last_and_non_last_nodes() {
+        let mut nodes = NodeVec::new();
+        let node0_handle = nodes.add_node(SimpleNode::new(0));
+        let _node1_handle = nodes.add_node(SimpleNode::new(1));
+        let node2_handle = nodes.add_node(SimpleNode::new(2));
 
-        clouds.remove_clouds(&vec![cloud0_handle, cloud2_handle]);
+        nodes.remove_nodes(&vec![node0_handle, node2_handle]);
 
-        assert_eq!(clouds.clouds.len(), 1);
-        let cloud = &clouds.clouds()[0];
-        assert_eq!(cloud.id, 1);
-        assert_eq!(cloud.cloud_handle().index, 0);
+        assert_eq!(nodes.nodes.len(), 1);
+        let node = &nodes.nodes()[0];
+        assert_eq!(node.id, 1);
+        assert_eq!(node.node_handle().index, 0);
     }
 
     #[derive(Clone, Debug, PartialEq)]
-    pub struct SimpleCloud {
-        cloud_data: CloudData,
+    pub struct SimpleNode {
+        node_data: NodeData,
         pub id: i32,
     }
 
-    impl SimpleCloud {
+    impl SimpleNode {
         pub fn new(id: i32) -> Self {
-            SimpleCloud {
-                cloud_data: CloudData::new(),
+            SimpleNode {
+                node_data: NodeData::new(),
                 id,
             }
         }
     }
 
-    impl Cloud for SimpleCloud {
-        fn cloud_handle(&self) -> CloudHandle {
-            self.cloud_data.handle
+    impl Node for SimpleNode {
+        fn node_handle(&self) -> NodeHandle {
+            self.node_data.handle
         }
 
-        fn cloud_data(&self) -> &CloudData {
-            &self.cloud_data
+        fn node_data(&self) -> &NodeData {
+            &self.node_data
         }
 
-        fn cloud_data_mut(&mut self) -> &mut CloudData {
-            &mut self.cloud_data
+        fn node_data_mut(&mut self) -> &mut NodeData {
+            &mut self.node_data
         }
     }
 }

@@ -1,31 +1,32 @@
 use std::convert::TryInto;
 use std::fmt;
 use std::fmt::{Error, Formatter};
+use std::marker::PhantomData;
 use std::u32;
 
 #[derive(Debug)]
-pub struct NodesWithHandles<N: NodeWithHandle> {
+pub struct NodesWithHandles<N: NodeWithHandle<N>> {
     nodes: Vec<N>,
 }
 
-impl<N: NodeWithHandle> NodesWithHandles<N> {
+impl<N: NodeWithHandle<N>> NodesWithHandles<N> {
     #[allow(clippy::new_without_default)]
     pub fn new() -> Self {
         NodesWithHandles { nodes: vec![] }
     }
 
-    pub fn add_node(&mut self, mut node: N) -> NodeHandle {
+    pub fn add_node(&mut self, mut node: N) -> NodeHandle<N> {
         let handle = self.next_handle();
         node.handle_mut().index = handle.index;
         self.nodes.push(node);
         handle
     }
 
-    fn next_handle(&self) -> NodeHandle {
+    fn next_handle(&self) -> NodeHandle<N> {
         NodeHandle::new(self.nodes.len().try_into().unwrap())
     }
 
-    pub fn is_valid_handle(&self, handle: NodeHandle) -> bool {
+    pub fn is_valid_handle(&self, handle: NodeHandle<N>) -> bool {
         (handle.index as usize) < self.nodes.len()
     }
 
@@ -38,16 +39,16 @@ impl<N: NodeWithHandle> NodesWithHandles<N> {
     ///
     /// 2) Worse, this function changes the nodes referenced by some of the remaining handles.
     /// Never retain handles across a call to this function.
-    pub fn remove_nodes(&mut self, handles: &[NodeHandle]) {
+    pub fn remove_nodes(&mut self, handles: &[NodeHandle<N>]) {
         for handle in handles.iter().rev() {
             self.remove_node(*handle);
         }
     }
 
     /// Warning: invalidates handle to the last node in self.nodes.
-    fn remove_node(&mut self, handle: NodeHandle) {
+    fn remove_node(&mut self, handle: NodeHandle<N>) {
         self.nodes.swap_remove(handle.index());
-        if handle != self.next_handle() {
+        if handle.index != self.next_handle().index {
             self.node_mut(handle).handle_mut().index = handle.index;
         }
     }
@@ -60,33 +61,40 @@ impl<N: NodeWithHandle> NodesWithHandles<N> {
         &mut self.nodes
     }
 
-    pub fn node(&self, handle: NodeHandle) -> &N {
+    pub fn node(&self, handle: NodeHandle<N>) -> &N {
         &self.nodes[handle.index()]
     }
 
-    pub fn node_mut(&mut self, handle: NodeHandle) -> &mut N {
+    pub fn node_mut(&mut self, handle: NodeHandle<N>) -> &mut N {
         &mut self.nodes[handle.index()]
     }
 }
 
-pub trait NodeWithHandle {
-    fn handle(&self) -> NodeHandle;
+pub trait NodeWithHandle<N: NodeWithHandle<N>> {
+    fn handle(&self) -> NodeHandle<N>;
 
-    fn handle_mut(&mut self) -> &mut NodeHandle;
+    fn handle_mut(&mut self) -> &mut NodeHandle<N>;
 }
 
-#[derive(Clone, Copy, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
-pub struct NodeHandle {
+#[derive(Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
+pub struct NodeHandle<N: NodeWithHandle<N>> {
     index: u32,
+    _phantom: PhantomData<N>,
 }
 
-impl NodeHandle {
+impl<N: NodeWithHandle<N>> NodeHandle<N> {
     fn new(index: u32) -> Self {
-        NodeHandle { index }
+        NodeHandle {
+            index,
+            _phantom: PhantomData,
+        }
     }
 
     pub fn unset() -> Self {
-        NodeHandle { index: u32::MAX }
+        NodeHandle {
+            index: u32::MAX,
+            _phantom: PhantomData,
+        }
     }
 
     fn index(self) -> usize {
@@ -94,7 +102,15 @@ impl NodeHandle {
     }
 }
 
-impl fmt::Display for NodeHandle {
+impl<N: NodeWithHandle<N>> Copy for NodeHandle<N> {}
+
+impl<N: NodeWithHandle<N>> Clone for NodeHandle<N> {
+    fn clone(&self) -> Self {
+        *self
+    }
+}
+
+impl<N: NodeWithHandle<N>> fmt::Display for NodeHandle<N> {
     fn fmt(&self, f: &mut Formatter<'_>) -> Result<(), Error> {
         write!(f, "{}", self.index)
     }
@@ -141,7 +157,7 @@ mod tests {
 
     #[derive(Clone, Debug, PartialEq)]
     pub struct SimpleNodeWithHandle {
-        handle: NodeHandle,
+        handle: NodeHandle<SimpleNodeWithHandle>,
         pub id: i32,
     }
 
@@ -154,12 +170,12 @@ mod tests {
         }
     }
 
-    impl NodeWithHandle for SimpleNodeWithHandle {
-        fn handle(&self) -> NodeHandle {
+    impl NodeWithHandle<SimpleNodeWithHandle> for SimpleNodeWithHandle {
+        fn handle(&self) -> NodeHandle<SimpleNodeWithHandle> {
             self.handle
         }
 
-        fn handle_mut(&mut self) -> &mut NodeHandle {
+        fn handle_mut(&mut self) -> &mut NodeHandle<SimpleNodeWithHandle> {
             &mut self.handle
         }
     }

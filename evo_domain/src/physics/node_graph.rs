@@ -86,6 +86,9 @@ impl<N: GraphNode, E: GraphEdge, ME: GraphMetaEdge> NodeGraph<N, E, ME> {
     /// 2) Worse, this function changes the nodes referenced by some of the remaining handles.
     /// Never retain handles across a call to this function.
     pub fn remove_nodes(&mut self, handles: &[NodeHandle]) {
+        for handle in handles {
+            self.remove_node_edges(&self.node(*handle).graph_node_data().edge_handles.clone());
+        }
         for handle in handles.iter().rev() {
             self.remove_node(*handle);
         }
@@ -93,7 +96,6 @@ impl<N: GraphNode, E: GraphEdge, ME: GraphMetaEdge> NodeGraph<N, E, ME> {
 
     /// Warning: invalidates handles to the last node in self.nodes.
     fn remove_node(&mut self, handle: NodeHandle) {
-        self.remove_node_edges(&self.node(handle).graph_node_data().edge_handles.clone());
         self.nodes.swap_remove(handle.index());
         self.fix_swapped_node_if_needed(handle);
     }

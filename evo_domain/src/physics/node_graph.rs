@@ -102,22 +102,22 @@ impl<N: GraphNode, E: GraphEdge, ME: GraphMetaEdge> NodeGraph<N, E, ME> {
         self.nodes.nodes.swap_remove(handle.index());
         if self.nodes.is_valid_handle(handle) {
             self.nodes.node_mut(handle).graph_node_data_mut().handle = handle;
+            let node = self.nodes.node(handle);
             let prev_handle = self.nodes.next_node_handle();
-            self.fix_swapped_node_edges(prev_handle, handle);
+            Self::fix_swapped_node_edges(node, prev_handle, handle, &mut self.edges);
         }
     }
 
-    fn fix_swapped_node_edges(&mut self, old_handle: NodeHandle, new_handle: NodeHandle) {
-        for edge_handle in self
-            .node(new_handle)
-            .graph_node_data()
-            .edge_handles
-            .clone()
-            .iter()
-        {
+    fn fix_swapped_node_edges(
+        node: &N,
+        old_handle: NodeHandle,
+        new_handle: NodeHandle,
+        edges: &mut [E],
+    ) {
+        for edge_handle in node.graph_node_data().edge_handles.clone().iter() {
             if let Some(edge_handle) = edge_handle {
-                self.edge_mut(*edge_handle)
-                    .graph_edge_data_mut()
+                let edge = &mut edges[edge_handle.index()];
+                edge.graph_edge_data_mut()
                     .replace_node_handle(old_handle, new_handle);
             }
         }

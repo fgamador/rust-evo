@@ -201,23 +201,11 @@ impl<N: GraphNode, E: GraphEdge, ME: GraphMetaEdge> NodeGraph<N, E, ME> {
         }
     }
 
-    pub fn with_nodes<F>(&mut self, handle1: NodeHandle, handle2: NodeHandle, mut f: F)
+    pub fn with_nodes<F>(&mut self, handle1: NodeHandle, handle2: NodeHandle, f: F)
     where
         F: FnMut(&mut N, &mut N),
     {
-        let node1;
-        let node2;
-        if handle1.index() < handle2.index() {
-            let slices = self.nodes.nodes_mut().split_at_mut(handle2.index());
-            node1 = &mut slices.0[handle1.index()];
-            node2 = &mut slices.1[0];
-        } else {
-            let slices = self.nodes.nodes_mut().split_at_mut(handle1.index());
-            node2 = &mut slices.0[handle2.index()];
-            node1 = &mut slices.1[0];
-        }
-
-        f(node1, node2);
+        self.nodes.with_nodes(handle1, handle2, f);
     }
 
     pub fn nodes(&self) -> &[N] {
@@ -277,6 +265,25 @@ impl<N: GraphNode> Nodes<N> {
 
     fn next_node_handle(&self) -> NodeHandle {
         NodeHandle::new(self.nodes.len().try_into().unwrap())
+    }
+
+    pub fn with_nodes<F>(&mut self, handle1: NodeHandle, handle2: NodeHandle, mut f: F)
+    where
+        F: FnMut(&mut N, &mut N),
+    {
+        let node1;
+        let node2;
+        if handle1.index() < handle2.index() {
+            let slices = self.nodes.split_at_mut(handle2.index());
+            node1 = &mut slices.0[handle1.index()];
+            node2 = &mut slices.1[0];
+        } else {
+            let slices = self.nodes.split_at_mut(handle1.index());
+            node2 = &mut slices.0[handle2.index()];
+            node1 = &mut slices.1[0];
+        }
+
+        f(node1, node2);
     }
 
     pub fn nodes(&self) -> &[N] {

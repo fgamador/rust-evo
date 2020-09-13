@@ -77,7 +77,6 @@ pub trait NodeWithHandle<N: NodeWithHandle<N>> {
     fn handle_mut(&mut self) -> &mut NodeHandle<N>;
 }
 
-#[derive(Debug)]
 pub struct NodeHandle<N: NodeWithHandle<N>> {
     index: u32,
     _phantom: PhantomData<N>,
@@ -110,6 +109,14 @@ impl<N: NodeWithHandle<N>> Clone for NodeHandle<N> {
 }
 
 impl<N: NodeWithHandle<N>> Copy for NodeHandle<N> {}
+
+impl<N: NodeWithHandle<N>> fmt::Debug for NodeHandle<N> {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        f.debug_struct("NodeHandle")
+            .field("index", &self.index)
+            .finish()
+    }
+}
 
 impl<N: NodeWithHandle<N>> fmt::Display for NodeHandle<N> {
     fn fmt(&self, f: &mut Formatter<'_>) -> Result<(), Error> {
@@ -146,6 +153,7 @@ mod tests {
         let mut nodes = NodesWithHandles::new();
 
         let handle = nodes.add_node(SimpleNodeWithHandle::new(0));
+        println!("{:?}", handle);
 
         let node = &nodes.nodes()[0];
         assert_eq!(node.handle(), handle);

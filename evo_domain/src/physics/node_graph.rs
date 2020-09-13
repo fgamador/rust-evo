@@ -85,29 +85,15 @@ impl<N: GraphNode, E: GraphEdge, ME: GraphMetaEdge> NodeGraph<N, E, ME> {
         self.nwh_remove_nodes(handles, |_, _| {});
     }
 
-    fn nwh_remove_nodes<F>(&mut self, handles: &[NodeHandle], on_handle_change: F)
+    fn nwh_remove_nodes<F>(&mut self, handles: &[NodeHandle], _on_handle_change: F)
     where
-        F: Fn(&mut N, NodeHandle),
+        F: FnMut(&N, NodeHandle),
     {
-        for handle in handles.iter().rev() {
-            self.remove_node(*handle, &on_handle_change);
-        }
-    }
-
-    /// Warning: invalidates handles to the last node in self.nodes.
-    fn remove_node<F>(&mut self, handle: NodeHandle, _on_handle_change: &F)
-    where
-        F: Fn(&mut N, NodeHandle),
-    {
-        self.nodes.nodes.swap_remove(handle.index());
-        if self.nodes.is_valid_handle(handle) {
-            self.nodes.node_mut(handle).graph_node_data_mut().handle = handle;
-            Self::fix_swapped_node_edges(
-                self.nodes.node(handle),
-                self.nodes.next_node_handle(),
-                handle,
-                &mut self.edges,
-            );
+        let edges = &mut self.edges;
+        for &handle in handles.iter().rev() {
+            self.nodes.remove_node(handle, &mut |node, prev_handle| {
+                Self::fix_swapped_node_edges(node, prev_handle, handle, edges);
+            });
         }
     }
 
@@ -303,6 +289,18 @@ impl<N: GraphNode> Nodes<N> {
 
     pub fn node_mut(&mut self, handle: NodeHandle) -> &mut N {
         &mut self.nodes[handle.index()]
+    }
+
+    /// Warning: invalidates handles to the last node in self.nodes.
+    pub fn remove_node<F>(&mut self, handle: NodeHandle, on_handle_change: &mut F)
+    where
+        F: FnMut(&N, NodeHandle),
+    {
+        self.nodes.swap_remove(handle.index());
+        if self.is_valid_handle(handle) {
+            self.node_mut(handle).graph_node_data_mut().handle = handle;
+            on_handle_change(self.node(handle), self.next_node_handle());
+        }
     }
 }
 

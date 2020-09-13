@@ -122,7 +122,7 @@ mod tests {
     fn added_node_has_correct_handle() {
         let mut nodes = NodesWithHandles::new();
 
-        let handle = nodes.add_node(SimpleNode::new(0));
+        let handle = nodes.add_node(SimpleNodeWithHandle::new(0));
 
         let node = &nodes.nodes()[0];
         assert_eq!(node.handle(), handle);
@@ -132,7 +132,7 @@ mod tests {
     fn can_fetch_node_by_handle() {
         let mut nodes = NodesWithHandles::new();
 
-        let node_handle = nodes.add_node(SimpleNode::new(0));
+        let node_handle = nodes.add_node(SimpleNodeWithHandle::new(0));
 
         let node = &nodes.nodes()[0];
         assert_eq!(*nodes.node(node_handle), *node);
@@ -141,9 +141,9 @@ mod tests {
     #[test]
     fn can_remove_last_and_non_last_nodes() {
         let mut nodes = NodesWithHandles::new();
-        let node0_handle = nodes.add_node(SimpleNode::new(0));
-        let _node1_handle = nodes.add_node(SimpleNode::new(1));
-        let node2_handle = nodes.add_node(SimpleNode::new(2));
+        let node0_handle = nodes.add_node(SimpleNodeWithHandle::new(0));
+        let _node1_handle = nodes.add_node(SimpleNodeWithHandle::new(1));
+        let node2_handle = nodes.add_node(SimpleNodeWithHandle::new(2));
 
         nodes.remove_nodes(&vec![node0_handle, node2_handle]);
 
@@ -154,21 +154,21 @@ mod tests {
     }
 
     #[derive(Clone, Debug, PartialEq)]
-    pub struct SimpleNode {
+    pub struct SimpleNodeWithHandle {
         handle: NodeHandle,
         pub id: i32,
     }
 
-    impl SimpleNode {
+    impl SimpleNodeWithHandle {
         pub fn new(id: i32) -> Self {
-            SimpleNode {
+            SimpleNodeWithHandle {
                 handle: NodeHandle::unset(),
                 id,
             }
         }
     }
 
-    impl NodeWithHandle for SimpleNode {
+    impl NodeWithHandle for SimpleNodeWithHandle {
         fn handle(&self) -> NodeHandle {
             self.handle
         }

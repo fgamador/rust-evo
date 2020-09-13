@@ -101,12 +101,12 @@ impl<N: GraphNode, E: GraphEdge, ME: GraphMetaEdge> NodeGraph<N, E, ME> {
     fn fix_swapped_node_if_needed(&mut self, handle: NodeHandle) {
         let old_last_handle = self.next_node_handle();
         if handle != old_last_handle {
-            self.fix_swapped_node_and_its_edges(old_last_handle, handle);
+            self.node_mut(handle).graph_node_data_mut().handle = handle;
+            self.fix_swapped_node_edges(old_last_handle, handle);
         }
     }
 
-    fn fix_swapped_node_and_its_edges(&mut self, old_handle: NodeHandle, new_handle: NodeHandle) {
-        self.node_mut(new_handle).graph_node_data_mut().handle = new_handle;
+    fn fix_swapped_node_edges(&mut self, old_handle: NodeHandle, new_handle: NodeHandle) {
         for edge_handle in self
             .node(new_handle)
             .graph_node_data()

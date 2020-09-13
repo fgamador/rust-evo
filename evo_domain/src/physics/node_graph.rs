@@ -89,17 +89,23 @@ impl<N: GraphNode, E: GraphEdge, ME: GraphMetaEdge> NodeGraph<N, E, ME> {
         for handle in handles {
             self.remove_node_edges(&self.node(*handle).graph_node_data().edge_handles.clone());
         }
-        self.nwh_remove_nodes(handles);
+        self.nwh_remove_nodes(handles, |_, _| {});
     }
 
-    fn nwh_remove_nodes(&mut self, handles: &[NodeHandle]) {
+    fn nwh_remove_nodes<F>(&mut self, handles: &[NodeHandle], on_handle_change: F)
+    where
+        F: Fn(&mut N, NodeHandle),
+    {
         for handle in handles.iter().rev() {
-            self.remove_node(*handle);
+            self.remove_node(*handle, &on_handle_change);
         }
     }
 
     /// Warning: invalidates handles to the last node in self.nodes.
-    fn remove_node(&mut self, handle: NodeHandle) {
+    fn remove_node<F>(&mut self, handle: NodeHandle, _on_handle_change: &F)
+    where
+        F: Fn(&mut N, NodeHandle),
+    {
         self.nodes.swap_remove(handle.index());
         self.fix_swapped_node_if_needed(handle);
     }

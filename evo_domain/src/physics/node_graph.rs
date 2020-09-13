@@ -294,20 +294,6 @@ impl NodeHandle {
         NodeHandle { index: u32::MAX }
     }
 
-    pub fn resolve<'a, N>(&self, nodes: &'a mut [N]) -> &'a N
-    where
-        N: GraphNode,
-    {
-        &nodes[self.index()]
-    }
-
-    pub fn resolve_mut<'a, N>(&self, nodes: &'a mut [N]) -> &'a mut N
-    where
-        N: GraphNode,
-    {
-        &mut nodes[self.index()]
-    }
-
     fn index(self) -> usize {
         self.index.try_into().unwrap()
     }

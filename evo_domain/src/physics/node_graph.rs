@@ -247,6 +247,36 @@ impl<N: GraphNode> Nodes<N> {
         NodeHandle::new(self.nodes.len().try_into().unwrap())
     }
 
+    /// Removes the nodes referenced by `handles`.
+    ///
+    /// Warning: this function has two big gotchas:
+    ///
+    /// 1) `handles` should be in ascending order of `index`. If not, the function will
+    /// panic on index out-of-bounds if we're removing nodes at the end of self.nodes.
+    ///
+    /// 2) Worse, this function changes the nodes referenced by some of the remaining handles.
+    /// Never retain handles across a call to this function.
+    pub fn remove_nodes<F>(&mut self, handles: &[NodeHandle], mut on_handle_change: F)
+    where
+        F: FnMut(&N, NodeHandle),
+    {
+        for &handle in handles.iter().rev() {
+            self.remove_node(handle, &mut on_handle_change);
+        }
+    }
+
+    /// Warning: invalidates handles to the last node in self.nodes.
+    fn remove_node<F>(&mut self, handle: NodeHandle, on_handle_change: &mut F)
+    where
+        F: FnMut(&N, NodeHandle),
+    {
+        self.nodes.swap_remove(handle.index());
+        if self.is_valid_handle(handle) {
+            self.node_mut(handle).graph_node_data_mut().handle = handle;
+            on_handle_change(self.node(handle), self.next_node_handle());
+        }
+    }
+
     pub fn with_nodes<F>(&mut self, handle1: NodeHandle, handle2: NodeHandle, mut f: F)
     where
         F: FnMut(&mut N, &mut N),
@@ -280,36 +310,6 @@ impl<N: GraphNode> Nodes<N> {
 
     pub fn node_mut(&mut self, handle: NodeHandle) -> &mut N {
         &mut self.nodes[handle.index()]
-    }
-
-    /// Removes the nodes referenced by `handles`.
-    ///
-    /// Warning: this function has two big gotchas:
-    ///
-    /// 1) `handles` should be in ascending order of `index`. If not, the function will
-    /// panic on index out-of-bounds if we're removing nodes at the end of self.nodes.
-    ///
-    /// 2) Worse, this function changes the nodes referenced by some of the remaining handles.
-    /// Never retain handles across a call to this function.
-    pub fn remove_nodes<F>(&mut self, handles: &[NodeHandle], mut on_handle_change: F)
-    where
-        F: FnMut(&N, NodeHandle),
-    {
-        for &handle in handles.iter().rev() {
-            self.remove_node(handle, &mut on_handle_change);
-        }
-    }
-
-    /// Warning: invalidates handles to the last node in self.nodes.
-    fn remove_node<F>(&mut self, handle: NodeHandle, on_handle_change: &mut F)
-    where
-        F: FnMut(&N, NodeHandle),
-    {
-        self.nodes.swap_remove(handle.index());
-        if self.is_valid_handle(handle) {
-            self.node_mut(handle).graph_node_data_mut().handle = handle;
-            on_handle_change(self.node(handle), self.next_node_handle());
-        }
     }
 }
 

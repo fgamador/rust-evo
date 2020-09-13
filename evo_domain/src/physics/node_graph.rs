@@ -82,19 +82,10 @@ impl<N: GraphNode, E: GraphEdge, ME: GraphMetaEdge> NodeGraph<N, E, ME> {
         for handle in handles {
             self.remove_node_edges(&self.node(*handle).graph_node_data().edge_handles.clone());
         }
-        self.nwh_remove_nodes(handles, |_, _| {});
-    }
-
-    fn nwh_remove_nodes<F>(&mut self, handles: &[NodeHandle], _on_handle_change: F)
-    where
-        F: FnMut(&N, NodeHandle),
-    {
         let edges = &mut self.edges;
-        for &handle in handles.iter().rev() {
-            self.nodes.remove_node(handle, &mut |node, prev_handle| {
-                Self::fix_swapped_node_edges(node, prev_handle, handle, edges);
-            });
-        }
+        self.nodes.remove_nodes(handles, |node, prev_handle| {
+            Self::fix_swapped_node_edges(node, prev_handle, node.node_handle(), edges);
+        });
     }
 
     fn fix_swapped_node_edges(
@@ -291,8 +282,26 @@ impl<N: GraphNode> Nodes<N> {
         &mut self.nodes[handle.index()]
     }
 
+    /// Removes the nodes referenced by `handles`.
+    ///
+    /// Warning: this function has two big gotchas:
+    ///
+    /// 1) `handles` should be in ascending order of `index`. If not, the function will
+    /// panic on index out-of-bounds if we're removing nodes at the end of self.nodes.
+    ///
+    /// 2) Worse, this function changes the nodes referenced by some of the remaining handles.
+    /// Never retain handles across a call to this function.
+    pub fn remove_nodes<F>(&mut self, handles: &[NodeHandle], mut on_handle_change: F)
+    where
+        F: FnMut(&N, NodeHandle),
+    {
+        for &handle in handles.iter().rev() {
+            self.remove_node(handle, &mut on_handle_change);
+        }
+    }
+
     /// Warning: invalidates handles to the last node in self.nodes.
-    pub fn remove_node<F>(&mut self, handle: NodeHandle, on_handle_change: &mut F)
+    fn remove_node<F>(&mut self, handle: NodeHandle, on_handle_change: &mut F)
     where
         F: FnMut(&N, NodeHandle),
     {

@@ -1,7 +1,7 @@
 pub mod bond;
 pub mod newtonian;
 pub mod node_graph;
-pub mod node_vec;
+pub mod nodes_with_handles;
 pub mod overlap;
 pub mod quantities;
 pub mod shapes;

@@ -89,6 +89,10 @@ impl<N: GraphNode, E: GraphEdge, ME: GraphMetaEdge> NodeGraph<N, E, ME> {
         for handle in handles {
             self.remove_node_edges(&self.node(*handle).graph_node_data().edge_handles.clone());
         }
+        self.nwh_remove_nodes(handles);
+    }
+
+    fn nwh_remove_nodes(&mut self, handles: &[NodeHandle]) {
         for handle in handles.iter().rev() {
             self.remove_node(*handle);
         }

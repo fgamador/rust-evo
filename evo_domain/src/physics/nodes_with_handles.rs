@@ -1,3 +1,4 @@
+use std::cmp::Ordering;
 use std::convert::TryInto;
 use std::fmt;
 use std::fmt::{Error, Formatter};
@@ -48,7 +49,7 @@ impl<N: NodeWithHandle<N>> NodesWithHandles<N> {
     /// Warning: invalidates handle to the last node in self.nodes.
     fn remove_node(&mut self, handle: NodeHandle<N>) {
         self.nodes.swap_remove(handle.index());
-        if handle.index != self.next_handle().index {
+        if handle != self.next_handle() {
             self.node_mut(handle).handle_mut().index = handle.index;
         }
     }
@@ -76,7 +77,7 @@ pub trait NodeWithHandle<N: NodeWithHandle<N>> {
     fn handle_mut(&mut self) -> &mut NodeHandle<N>;
 }
 
-#[derive(Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
+#[derive(Debug)]
 pub struct NodeHandle<N: NodeWithHandle<N>> {
     index: u32,
     _phantom: PhantomData<N>,
@@ -102,17 +103,37 @@ impl<N: NodeWithHandle<N>> NodeHandle<N> {
     }
 }
 
-impl<N: NodeWithHandle<N>> Copy for NodeHandle<N> {}
-
 impl<N: NodeWithHandle<N>> Clone for NodeHandle<N> {
     fn clone(&self) -> Self {
         *self
     }
 }
 
+impl<N: NodeWithHandle<N>> Copy for NodeHandle<N> {}
+
 impl<N: NodeWithHandle<N>> fmt::Display for NodeHandle<N> {
     fn fmt(&self, f: &mut Formatter<'_>) -> Result<(), Error> {
         write!(f, "{}", self.index)
+    }
+}
+
+impl<N: NodeWithHandle<N>> Eq for NodeHandle<N> {}
+
+impl<N: NodeWithHandle<N>> Ord for NodeHandle<N> {
+    fn cmp(&self, other: &Self) -> Ordering {
+        self.index.cmp(&other.index)
+    }
+}
+
+impl<N: NodeWithHandle<N>> PartialEq for NodeHandle<N> {
+    fn eq(&self, other: &Self) -> bool {
+        self.index == other.index
+    }
+}
+
+impl<N: NodeWithHandle<N>> PartialOrd for NodeHandle<N> {
+    fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
+        Some(self.cmp(other))
     }
 }
 

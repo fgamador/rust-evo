@@ -387,20 +387,6 @@ impl EdgeHandle {
         EdgeHandle { index: u32::MAX }
     }
 
-    pub fn resolve<'a, E>(&self, edges: &'a mut [E]) -> &'a E
-    where
-        E: GraphEdge,
-    {
-        &edges[self.index()]
-    }
-
-    pub fn resolve_mut<'a, E>(&self, edges: &'a mut [E]) -> &'a mut E
-    where
-        E: GraphEdge,
-    {
-        &mut edges[self.index()]
-    }
-
     fn index(self) -> usize {
         self.index.try_into().unwrap()
     }

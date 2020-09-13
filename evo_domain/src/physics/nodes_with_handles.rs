@@ -49,7 +49,7 @@ impl<N: NodeWithHandle<N>> NodesWithHandles<N> {
     /// Warning: invalidates handle to the last node in self.nodes.
     fn remove_node(&mut self, handle: NodeHandle<N>) {
         self.nodes.swap_remove(handle.index());
-        if handle != self.next_handle() {
+        if self.is_valid_handle(handle) {
             *self.node_mut(handle).handle_mut() = handle;
         }
     }

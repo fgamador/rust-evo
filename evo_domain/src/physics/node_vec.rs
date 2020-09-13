@@ -4,14 +4,14 @@ use std::fmt::{Error, Formatter};
 use std::u32;
 
 #[derive(Debug)]
-pub struct NodeVec<N: Node> {
+pub struct NodesWithHandles<N: NodeWithHandle> {
     nodes: Vec<N>,
 }
 
-impl<N: Node> NodeVec<N> {
+impl<N: NodeWithHandle> NodesWithHandles<N> {
     #[allow(clippy::new_without_default)]
     pub fn new() -> Self {
-        NodeVec { nodes: vec![] }
+        NodesWithHandles { nodes: vec![] }
     }
 
     pub fn add_node(&mut self, mut node: N) -> NodeHandle {
@@ -69,7 +69,7 @@ impl<N: Node> NodeVec<N> {
     }
 }
 
-pub trait Node {
+pub trait NodeWithHandle {
     fn node_handle(&self) -> NodeHandle;
 
     fn node_data(&self) -> &NodeData;
@@ -93,14 +93,14 @@ impl NodeHandle {
 
     pub fn resolve<'a, N>(&self, nodes: &'a mut [N]) -> &'a N
     where
-        N: Node,
+        N: NodeWithHandle,
     {
         &nodes[self.index()]
     }
 
     pub fn resolve_mut<'a, N>(&self, nodes: &'a mut [N]) -> &'a mut N
     where
-        N: Node,
+        N: NodeWithHandle,
     {
         &mut nodes[self.index()]
     }
@@ -140,7 +140,7 @@ mod tests {
 
     #[test]
     fn added_node_has_correct_handle() {
-        let mut nodes = NodeVec::new();
+        let mut nodes = NodesWithHandles::new();
 
         let handle = nodes.add_node(SimpleNode::new(0));
 
@@ -150,7 +150,7 @@ mod tests {
 
     #[test]
     fn can_fetch_node_by_handle() {
-        let mut nodes = NodeVec::new();
+        let mut nodes = NodesWithHandles::new();
 
         let node_handle = nodes.add_node(SimpleNode::new(0));
 
@@ -160,7 +160,7 @@ mod tests {
 
     #[test]
     fn can_remove_last_and_non_last_nodes() {
-        let mut nodes = NodeVec::new();
+        let mut nodes = NodesWithHandles::new();
         let node0_handle = nodes.add_node(SimpleNode::new(0));
         let _node1_handle = nodes.add_node(SimpleNode::new(1));
         let node2_handle = nodes.add_node(SimpleNode::new(2));
@@ -188,7 +188,7 @@ mod tests {
         }
     }
 
-    impl Node for SimpleNode {
+    impl NodeWithHandle for SimpleNode {
         fn node_handle(&self) -> NodeHandle {
             self.node_data.handle
         }

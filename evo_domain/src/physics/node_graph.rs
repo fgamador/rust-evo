@@ -8,7 +8,7 @@ pub const MAX_NODE_EDGES: usize = 8;
 
 #[derive(Debug)]
 pub struct NodeGraph<N: GraphNode, E: GraphEdge, ME: GraphMetaEdge> {
-    nodes: Nodes<N>,
+    nodes: NodesWithHandles<N>,
     edges: Vec<E>,
     meta_edges: Vec<ME>,
 }
@@ -17,7 +17,7 @@ impl<N: GraphNode, E: GraphEdge, ME: GraphMetaEdge> NodeGraph<N, E, ME> {
     #[allow(clippy::new_without_default)]
     pub fn new() -> Self {
         NodeGraph {
-            nodes: Nodes::new(),
+            nodes: NodesWithHandles::new(),
             edges: vec![],
             meta_edges: vec![],
         }
@@ -222,14 +222,14 @@ impl<N: GraphNode, E: GraphEdge, ME: GraphMetaEdge> NodeGraph<N, E, ME> {
 }
 
 #[derive(Debug)]
-pub struct Nodes<N: GraphNode> {
+pub struct NodesWithHandles<N: GraphNode> {
     nodes: Vec<N>,
 }
 
-impl<N: GraphNode> Nodes<N> {
+impl<N: GraphNode> NodesWithHandles<N> {
     #[allow(clippy::new_without_default)]
     pub fn new() -> Self {
-        Nodes { nodes: vec![] }
+        NodesWithHandles { nodes: vec![] }
     }
 
     pub fn add_node(&mut self, mut node: N) -> NodeHandle {

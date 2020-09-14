@@ -250,7 +250,7 @@ impl World {
 
     fn execute_bond_requests(
         cell: &mut Cell,
-        edge_source: &mut EdgeSource<Bond<Cell>>,
+        edge_source: &mut EdgeSource<Cell, Bond<Cell>>,
         bond_requests: &BondRequests,
         donated_energy: &mut Vec<(NodeHandle, BioEnergy)>,
         new_children: &mut Vec<NewChildData>,

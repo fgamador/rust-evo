@@ -2,6 +2,7 @@ use crate::physics::node_graph::*;
 use crate::physics::quantities::*;
 use crate::physics::shapes::*;
 use evo_domain_derive::*;
+use std::marker::PhantomData;
 
 #[derive(Clone, Debug, PartialEq)]
 pub struct SimpleGraphNode {
@@ -121,16 +122,44 @@ impl GraphNode<SimpleCircleNode> for SimpleCircleNode {
     }
 }
 
-#[derive(Debug, GraphEdge, PartialEq)]
-pub struct SimpleGraphEdge {
+#[derive(Debug, PartialEq)]
+pub struct SimpleGraphEdge<N: NodeWithHandle<N>> {
     edge_data: GraphEdgeData,
+    _phantom: PhantomData<N>, // TODO lose this
 }
 
-impl SimpleGraphEdge {
-    pub fn new<N: NodeWithHandle<N>>(node1: &dyn GraphNode<N>, node2: &dyn GraphNode<N>) -> Self {
+impl<N: NodeWithHandle<N>> SimpleGraphEdge<N> {
+    pub fn new(node1: &dyn GraphNode<N>, node2: &dyn GraphNode<N>) -> Self {
         SimpleGraphEdge {
             edge_data: GraphEdgeData::new(node1.node_handle(), node2.node_handle()),
+            _phantom: PhantomData,
         }
+    }
+}
+
+impl<N: NodeWithHandle<N>> GraphEdge<N> for SimpleGraphEdge<N> {
+    fn edge_handle(&self) -> EdgeHandle {
+        self.edge_data.handle()
+    }
+
+    fn node1_handle(&self) -> NodeHandle {
+        self.edge_data.node1_handle()
+    }
+
+    fn node2_handle(&self) -> NodeHandle {
+        self.edge_data.node2_handle()
+    }
+
+    fn other_node_handle(&self, node_handle: NodeHandle) -> NodeHandle {
+        self.edge_data.other_node_handle(node_handle)
+    }
+
+    fn graph_edge_data(&self) -> &GraphEdgeData {
+        &self.edge_data
+    }
+
+    fn graph_edge_data_mut(&mut self) -> &mut GraphEdgeData {
+        &mut self.edge_data
     }
 }
 
@@ -140,7 +169,7 @@ pub struct SimpleGraphMetaEdge {
 }
 
 impl SimpleGraphMetaEdge {
-    pub fn new(edge1: &dyn GraphEdge, edge2: &dyn GraphEdge) -> Self {
+    pub fn new<N: NodeWithHandle<N>>(edge1: &dyn GraphEdge<N>, edge2: &dyn GraphEdge<N>) -> Self {
         SimpleGraphMetaEdge {
             meta_edge_data: GraphMetaEdgeData::new(edge1.edge_handle(), edge2.edge_handle()),
         }

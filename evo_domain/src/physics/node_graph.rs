@@ -8,13 +8,13 @@ use std::u32;
 pub const MAX_NODE_EDGES: usize = 8;
 
 #[derive(Debug)]
-pub struct NodeGraph<N: GraphNode<N>, E: GraphEdge, ME: GraphMetaEdge> {
+pub struct NodeGraph<N: GraphNode<N>, E: GraphEdge<N>, ME: GraphMetaEdge> {
     nodes: NodesWithHandles<N>,
     edges: Vec<E>,
     meta_edges: Vec<ME>,
 }
 
-impl<N: GraphNode<N>, E: GraphEdge, ME: GraphMetaEdge> NodeGraph<N, E, ME> {
+impl<N: GraphNode<N>, E: GraphEdge<N>, ME: GraphMetaEdge> NodeGraph<N, E, ME> {
     #[allow(clippy::new_without_default)]
     pub fn new() -> Self {
         NodeGraph {
@@ -174,7 +174,7 @@ impl<N: GraphNode<N>, E: GraphEdge, ME: GraphMetaEdge> NodeGraph<N, E, ME> {
 
     pub fn for_each_node<F>(&mut self, mut f: F)
     where
-        F: FnMut(usize, &mut N, &mut EdgeSource<E>),
+        F: FnMut(usize, &mut N, &mut EdgeSource<N, E>),
     {
         let mut edge_source = EdgeSource::new(&mut self.edges);
         for (index, node) in self.nodes.nodes_mut().iter_mut().enumerate() {
@@ -320,13 +320,17 @@ pub trait NodeWithHandle<N: NodeWithHandle<N>> {
     fn handle_mut(&mut self) -> &mut NodeHandle;
 }
 
-pub struct EdgeSource<'a, E: GraphEdge> {
+pub struct EdgeSource<'a, N: NodeWithHandle<N>, E: GraphEdge<N>> {
     edges: &'a mut [E],
+    _phantom: PhantomData<N>,
 }
 
-impl<'a, E: GraphEdge> EdgeSource<'a, E> {
+impl<'a, N: NodeWithHandle<N>, E: GraphEdge<N>> EdgeSource<'a, N, E> {
     fn new(edges: &'a mut [E]) -> Self {
-        EdgeSource { edges }
+        EdgeSource {
+            edges,
+            _phantom: PhantomData,
+        }
     }
 
     pub fn edge(&mut self, handle: EdgeHandle) -> &mut E {
@@ -433,7 +437,7 @@ impl<N: NodeWithHandle<N>> GraphNodeData<N> {
     }
 }
 
-pub trait GraphEdge {
+pub trait GraphEdge<N: NodeWithHandle<N>> {
     fn edge_handle(&self) -> EdgeHandle;
 
     fn node1_handle(&self) -> NodeHandle;
@@ -571,8 +575,11 @@ mod tests {
 
     #[test]
     fn added_node_has_correct_handle() {
-        let mut graph: NodeGraph<SimpleGraphNode, SimpleGraphEdge, SimpleGraphMetaEdge> =
-            NodeGraph::new();
+        let mut graph: NodeGraph<
+            SimpleGraphNode,
+            SimpleGraphEdge<SimpleGraphNode>,
+            SimpleGraphMetaEdge,
+        > = NodeGraph::new();
 
         let node_handle = graph.add_node(SimpleGraphNode::new(0));
 
@@ -582,8 +589,11 @@ mod tests {
 
     #[test]
     fn can_fetch_node_by_handle() {
-        let mut graph: NodeGraph<SimpleGraphNode, SimpleGraphEdge, SimpleGraphMetaEdge> =
-            NodeGraph::new();
+        let mut graph: NodeGraph<
+            SimpleGraphNode,
+            SimpleGraphEdge<SimpleGraphNode>,
+            SimpleGraphMetaEdge,
+        > = NodeGraph::new();
 
         let node_handle = graph.add_node(SimpleGraphNode::new(0));
 
@@ -593,8 +603,11 @@ mod tests {
 
     #[test]
     fn can_remove_last_and_non_last_nodes() {
-        let mut graph: NodeGraph<SimpleGraphNode, SimpleGraphEdge, SimpleGraphMetaEdge> =
-            NodeGraph::new();
+        let mut graph: NodeGraph<
+            SimpleGraphNode,
+            SimpleGraphEdge<SimpleGraphNode>,
+            SimpleGraphMetaEdge,
+        > = NodeGraph::new();
         let node0_handle = graph.add_node(SimpleGraphNode::new(0));
         let _node1_handle = graph.add_node(SimpleGraphNode::new(1));
         let node2_handle = graph.add_node(SimpleGraphNode::new(2));
@@ -609,8 +622,11 @@ mod tests {
 
     #[test]
     fn added_edge_has_correct_handles() {
-        let mut graph: NodeGraph<SimpleGraphNode, SimpleGraphEdge, SimpleGraphMetaEdge> =
-            NodeGraph::new();
+        let mut graph: NodeGraph<
+            SimpleGraphNode,
+            SimpleGraphEdge<SimpleGraphNode>,
+            SimpleGraphMetaEdge,
+        > = NodeGraph::new();
 
         let node0_handle = graph.add_node(SimpleGraphNode::new(0));
         let node1_handle = graph.add_node(SimpleGraphNode::new(1));
@@ -629,8 +645,11 @@ mod tests {
 
     #[test]
     fn removing_edge_updates_graph() {
-        let mut graph: NodeGraph<SimpleGraphNode, SimpleGraphEdge, SimpleGraphMetaEdge> =
-            NodeGraph::new();
+        let mut graph: NodeGraph<
+            SimpleGraphNode,
+            SimpleGraphEdge<SimpleGraphNode>,
+            SimpleGraphMetaEdge,
+        > = NodeGraph::new();
 
         let node0_handle = graph.add_node(SimpleGraphNode::new(0));
         let node1_handle = graph.add_node(SimpleGraphNode::new(1));
@@ -693,8 +712,11 @@ mod tests {
 
     #[test]
     fn removing_node_updates_edges() {
-        let mut graph: NodeGraph<SimpleGraphNode, SimpleGraphEdge, SimpleGraphMetaEdge> =
-            NodeGraph::new();
+        let mut graph: NodeGraph<
+            SimpleGraphNode,
+            SimpleGraphEdge<SimpleGraphNode>,
+            SimpleGraphMetaEdge,
+        > = NodeGraph::new();
 
         let node0_handle = graph.add_node(SimpleGraphNode::new(0));
         let node1_handle = graph.add_node(SimpleGraphNode::new(1));
@@ -730,8 +752,11 @@ mod tests {
 
     #[test]
     fn have_edge() {
-        let mut graph: NodeGraph<SimpleGraphNode, SimpleGraphEdge, SimpleGraphMetaEdge> =
-            NodeGraph::new();
+        let mut graph: NodeGraph<
+            SimpleGraphNode,
+            SimpleGraphEdge<SimpleGraphNode>,
+            SimpleGraphMetaEdge,
+        > = NodeGraph::new();
 
         let node0_handle = graph.add_node(SimpleGraphNode::new(0));
         let node1_handle = graph.add_node(SimpleGraphNode::new(1));
@@ -749,8 +774,11 @@ mod tests {
 
     #[test]
     fn added_meta_edge_has_correct_handles() {
-        let mut graph: NodeGraph<SimpleGraphNode, SimpleGraphEdge, SimpleGraphMetaEdge> =
-            NodeGraph::new();
+        let mut graph: NodeGraph<
+            SimpleGraphNode,
+            SimpleGraphEdge<SimpleGraphNode>,
+            SimpleGraphMetaEdge,
+        > = NodeGraph::new();
 
         let node0_handle = graph.add_node(SimpleGraphNode::new(0));
         let node1_handle = graph.add_node(SimpleGraphNode::new(1));

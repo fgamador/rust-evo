@@ -27,7 +27,7 @@ impl<N: NodeWithHandle<N>> Bond<N> {
     }
 }
 
-impl<N: NodeWithHandle<N>> GraphEdge for Bond<N> {
+impl<N: NodeWithHandle<N>> GraphEdge<N> for Bond<N> {
     fn edge_handle(&self) -> EdgeHandle {
         self.edge_data.handle()
     }

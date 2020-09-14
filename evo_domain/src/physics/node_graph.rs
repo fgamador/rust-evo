@@ -2,6 +2,7 @@ use smallvec::SmallVec;
 use std::convert::TryInto;
 use std::fmt;
 use std::fmt::{Error, Formatter};
+use std::marker::PhantomData;
 use std::u32;
 
 pub const MAX_NODE_EDGES: usize = 8;
@@ -336,9 +337,9 @@ impl<'a, E: GraphEdge> EdgeSource<'a, E> {
 pub trait GraphNode<N: NodeWithHandle<N>>: NodeWithHandle<N> {
     fn node_handle(&self) -> NodeHandle;
 
-    fn graph_node_data(&self) -> &GraphNodeData;
+    fn graph_node_data(&self) -> &GraphNodeData<N>;
 
-    fn graph_node_data_mut(&mut self) -> &mut GraphNodeData;
+    fn graph_node_data_mut(&mut self) -> &mut GraphNodeData<N>;
 
     fn has_edge(&self, node_edge_index: usize) -> bool;
 
@@ -373,17 +374,19 @@ impl fmt::Display for NodeHandle {
 }
 
 #[derive(Clone, Debug, PartialEq)]
-pub struct GraphNodeData {
+pub struct GraphNodeData<N: NodeWithHandle<N>> {
     handle: NodeHandle,
     edge_handles: [Option<EdgeHandle>; MAX_NODE_EDGES],
+    _phantom: PhantomData<N>, // TODO lose this
 }
 
-impl GraphNodeData {
+impl<N: NodeWithHandle<N>> GraphNodeData<N> {
     #[allow(clippy::new_without_default)]
     pub fn new() -> Self {
         GraphNodeData {
             handle: NodeHandle::unset(),
             edge_handles: [None; MAX_NODE_EDGES],
+            _phantom: PhantomData,
         }
     }
 
@@ -658,7 +661,8 @@ mod tests {
             *graph.node(node0_handle).graph_node_data(),
             GraphNodeData {
                 handle: NodeHandle { index: 0 },
-                edge_handles: [None; MAX_NODE_EDGES]
+                edge_handles: [None; MAX_NODE_EDGES],
+                _phantom: PhantomData,
             }
         );
         assert_eq!(
@@ -669,7 +673,8 @@ mod tests {
                     let mut handles = [None; MAX_NODE_EDGES];
                     handles[1] = Some(EdgeHandle { index: 0 });
                     handles
-                }
+                },
+                _phantom: PhantomData,
             }
         );
         assert_eq!(
@@ -680,7 +685,8 @@ mod tests {
                     let mut handles = [None; MAX_NODE_EDGES];
                     handles[0] = Some(EdgeHandle { index: 0 });
                     handles
-                }
+                },
+                _phantom: PhantomData,
             }
         );
     }

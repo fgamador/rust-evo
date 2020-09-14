@@ -5,7 +5,7 @@ use evo_domain_derive::*;
 
 #[derive(Clone, Debug, PartialEq)]
 pub struct SimpleGraphNode {
-    graph_node_data: GraphNodeData,
+    graph_node_data: GraphNodeData<SimpleGraphNode>,
     pub id: i32,
 }
 
@@ -33,11 +33,11 @@ impl GraphNode<SimpleGraphNode> for SimpleGraphNode {
         self.graph_node_data.handle()
     }
 
-    fn graph_node_data(&self) -> &GraphNodeData {
+    fn graph_node_data(&self) -> &GraphNodeData<SimpleGraphNode> {
         &self.graph_node_data
     }
 
-    fn graph_node_data_mut(&mut self) -> &mut GraphNodeData {
+    fn graph_node_data_mut(&mut self) -> &mut GraphNodeData<SimpleGraphNode> {
         &mut self.graph_node_data
     }
 
@@ -56,7 +56,7 @@ impl GraphNode<SimpleGraphNode> for SimpleGraphNode {
 
 #[derive(Clone, Debug, PartialEq)]
 pub struct SimpleCircleNode {
-    graph_node_data: GraphNodeData,
+    graph_node_data: GraphNodeData<SimpleCircleNode>,
     center: Position,
     radius: Length,
 }
@@ -100,11 +100,11 @@ impl GraphNode<SimpleCircleNode> for SimpleCircleNode {
         self.graph_node_data.handle()
     }
 
-    fn graph_node_data(&self) -> &GraphNodeData {
+    fn graph_node_data(&self) -> &GraphNodeData<SimpleCircleNode> {
         &self.graph_node_data
     }
 
-    fn graph_node_data_mut(&mut self) -> &mut GraphNodeData {
+    fn graph_node_data_mut(&mut self) -> &mut GraphNodeData<SimpleCircleNode> {
         &mut self.graph_node_data
     }
 

@@ -15,7 +15,7 @@ use std::usize;
 #[allow(clippy::vec_box)]
 #[derive(Debug, HasLocalEnvironment, NewtonianBody)]
 pub struct Cell {
-    graph_node_data: GraphNodeData,
+    graph_node_data: GraphNodeData<Cell>,
     radius: Length,
     newtonian_state: NewtonianState,
     environment: LocalEnvironment,
@@ -456,11 +456,11 @@ impl GraphNode<Cell> for Cell {
         self.graph_node_data.handle()
     }
 
-    fn graph_node_data(&self) -> &GraphNodeData {
+    fn graph_node_data(&self) -> &GraphNodeData<Cell> {
         &self.graph_node_data
     }
 
-    fn graph_node_data_mut(&mut self) -> &mut GraphNodeData {
+    fn graph_node_data_mut(&mut self) -> &mut GraphNodeData<Cell> {
         &mut self.graph_node_data
     }
 

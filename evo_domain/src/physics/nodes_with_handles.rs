@@ -18,7 +18,7 @@ impl<N: NodeWithHandle<N>> NodesWithHandles<N> {
 
     pub fn add_node(&mut self, mut node: N) -> NodeHandle<N> {
         let handle = self.next_handle();
-        node.handle_mut().index = handle.index;
+        *node.handle_mut() = handle;
         self.nodes.push(node);
         handle
     }
@@ -40,25 +40,24 @@ impl<N: NodeWithHandle<N>> NodesWithHandles<N> {
     ///
     /// 2) Worse, this function changes the nodes referenced by some of the remaining handles.
     /// Never retain handles across a call to this function.
-    pub fn remove_nodes<F>(&mut self, handles: &[NodeHandle<N>], on_handle_change: F)
+    pub fn remove_nodes<F>(&mut self, handles: &[NodeHandle<N>], mut on_handle_change: F)
     where
-        F: Fn(&mut N, NodeHandle<N>),
+        F: FnMut(&N, NodeHandle<N>),
     {
         for handle in handles.iter().rev() {
-            self.remove_node(*handle, &on_handle_change);
+            self.remove_node(*handle, &mut on_handle_change);
         }
     }
 
     /// Warning: invalidates handles to the last node in self.nodes.
-    fn remove_node<F>(&mut self, handle: NodeHandle<N>, on_handle_change: &F)
+    fn remove_node<F>(&mut self, handle: NodeHandle<N>, on_handle_change: &mut F)
     where
-        F: Fn(&mut N, NodeHandle<N>),
+        F: FnMut(&N, NodeHandle<N>),
     {
         self.nodes.swap_remove(handle.index());
         if self.is_valid_handle(handle) {
             *self.node_mut(handle).handle_mut() = handle;
-            let prev_handle = self.next_handle();
-            on_handle_change(self.node_mut(handle), prev_handle);
+            on_handle_change(self.node(handle), self.next_handle());
         }
     }
 
@@ -193,18 +192,19 @@ mod tests {
     }
 
     #[test]
-    fn can_modify_swapped_node() {
+    fn gets_callback_for_swapped_node() {
         let mut nodes = NodesWithHandles::new();
         let node0_handle = nodes.add_node(SimpleNodeWithHandle::new(0));
         nodes.add_node(SimpleNodeWithHandle::new(1));
+        let mut num = 0;
 
         nodes.remove_nodes(&vec![node0_handle], |node, prev_handle| {
+            assert_eq!(node.handle.index, 0);
             assert_eq!(prev_handle.index, 1);
-            node.id = 42;
+            num = 42;
         });
 
-        let node = &nodes.nodes()[0];
-        assert_eq!(node.id, 42);
+        assert_eq!(num, 42);
     }
 
     #[derive(Clone, Debug, PartialEq)]

@@ -222,11 +222,11 @@ impl<N: GraphNode, E: GraphEdge, ME: GraphMetaEdge> NodeGraph<N, E, ME> {
 }
 
 #[derive(Debug)]
-pub struct NodesWithHandles<N: GraphNode> {
+pub struct NodesWithHandles<N: NodeWithHandle> {
     nodes: Vec<N>,
 }
 
-impl<N: GraphNode> NodesWithHandles<N> {
+impl<N: NodeWithHandle> NodesWithHandles<N> {
     #[allow(clippy::new_without_default)]
     pub fn new() -> Self {
         NodesWithHandles { nodes: vec![] }
@@ -272,7 +272,7 @@ impl<N: GraphNode> NodesWithHandles<N> {
     {
         self.nodes.swap_remove(handle.index());
         if self.is_valid_handle(handle) {
-            self.node_mut(handle).graph_node_data_mut().handle = handle;
+            *self.node_mut(handle).handle_mut() = handle;
             on_handle_change(self.node(handle), self.next_node_handle());
         }
     }

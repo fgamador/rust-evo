@@ -146,7 +146,10 @@ impl GliumView {
             .collect()
     }
 
-    fn world_bond_to_bond_sprite(bond: &Bond, world: &evo_domain::world::World) -> BondSprite {
+    fn world_bond_to_bond_sprite(
+        bond: &Bond<Cell>,
+        world: &evo_domain::world::World,
+    ) -> BondSprite {
         let cell1 = world.cell(bond.node1_handle());
         let cell2 = world.cell(bond.node2_handle());
         BondSprite {

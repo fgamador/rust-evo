@@ -4,26 +4,52 @@ use crate::physics::shapes::*;
 use evo_domain_derive::*;
 use std::f64;
 use std::f64::consts::PI;
+use std::marker::PhantomData;
 use std::ops::Neg;
 
-#[derive(Clone, Debug, GraphEdge, PartialEq)]
-pub struct Bond {
+#[derive(Clone, Debug, PartialEq)]
+pub struct Bond<N: NodeWithHandle<N>> {
     edge_data: GraphEdgeData,
+    _phantom: PhantomData<N>, // TODO lose this
 }
 
-impl Bond {
-    pub fn new<C: NodeWithHandle<C>>(
-        circle1: &dyn GraphNode<C>,
-        circle2: &dyn GraphNode<C>,
-    ) -> Self {
+impl<N: NodeWithHandle<N>> Bond<N> {
+    pub fn new(circle1: &dyn GraphNode<N>, circle2: &dyn GraphNode<N>) -> Self {
         assert_ne!(circle1.node_handle(), circle2.node_handle());
         Bond {
             edge_data: GraphEdgeData::new(circle1.node_handle(), circle2.node_handle()),
+            _phantom: PhantomData,
         }
     }
 
     pub fn calc_strain(&self) -> Displacement {
         Displacement::new(0.0, 0.0)
+    }
+}
+
+impl<N: NodeWithHandle<N>> GraphEdge for Bond<N> {
+    fn edge_handle(&self) -> EdgeHandle {
+        self.edge_data.handle()
+    }
+
+    fn node1_handle(&self) -> NodeHandle {
+        self.edge_data.node1_handle()
+    }
+
+    fn node2_handle(&self) -> NodeHandle {
+        self.edge_data.node2_handle()
+    }
+
+    fn other_node_handle(&self, node_handle: NodeHandle) -> NodeHandle {
+        self.edge_data.other_node_handle(node_handle)
+    }
+
+    fn graph_edge_data(&self) -> &GraphEdgeData {
+        &self.edge_data
+    }
+
+    fn graph_edge_data_mut(&mut self) -> &mut GraphEdgeData {
+        &mut self.edge_data
     }
 }
 
@@ -51,7 +77,7 @@ impl Neg for BondStrain {
 }
 
 pub fn calc_bond_strains<C>(
-    graph: &NodeGraph<C, Bond, AngleGusset>,
+    graph: &NodeGraph<C, Bond<C>, AngleGusset>,
 ) -> Vec<((NodeHandle, BondStrain), (NodeHandle, BondStrain))>
 where
     C: Circle + GraphNode<C>,
@@ -94,7 +120,7 @@ pub struct AngleGusset {
 }
 
 impl AngleGusset {
-    pub fn new(bond1: &Bond, bond2: &Bond, angle: Angle) -> Self {
+    pub fn new<N: NodeWithHandle<N>>(bond1: &Bond<N>, bond2: &Bond<N>, angle: Angle) -> Self {
         assert_ne!(bond1.edge_handle(), bond2.edge_handle());
         assert_eq!(bond1.node2_handle(), bond2.node1_handle());
         AngleGusset {
@@ -105,7 +131,7 @@ impl AngleGusset {
 }
 
 pub fn calc_bond_angle_forces<C>(
-    graph: &NodeGraph<C, Bond, AngleGusset>,
+    graph: &NodeGraph<C, Bond<C>, AngleGusset>,
 ) -> Vec<(NodeHandle, Force)>
 where
     C: Circle + GraphNode<C>,
@@ -121,7 +147,7 @@ where
 
 fn calc_bond_angle_force_pair<C>(
     gusset: &AngleGusset,
-    graph: &NodeGraph<C, Bond, AngleGusset>,
+    graph: &NodeGraph<C, Bond<C>, AngleGusset>,
 ) -> ((NodeHandle, Force), (NodeHandle, Force))
 where
     C: Circle + GraphNode<C>,
@@ -193,7 +219,8 @@ mod tests {
     #[test]
     #[should_panic]
     fn cannot_bond_same_ball() {
-        let mut graph: NodeGraph<SimpleCircleNode, Bond, AngleGusset> = NodeGraph::new();
+        let mut graph: NodeGraph<SimpleCircleNode, Bond<SimpleCircleNode>, AngleGusset> =
+            NodeGraph::new();
         let node = add_simple_circle_node(&mut graph, (0.0, 0.0), 1.0);
         add_bond(&mut graph, node, node);
     }
@@ -224,7 +251,8 @@ mod tests {
     #[test]
     #[should_panic]
     fn cannot_gusset_same_bond() {
-        let mut graph: NodeGraph<SimpleCircleNode, Bond, AngleGusset> = NodeGraph::new();
+        let mut graph: NodeGraph<SimpleCircleNode, Bond<SimpleCircleNode>, AngleGusset> =
+            NodeGraph::new();
         let node1 = add_simple_circle_node(&mut graph, (0.0, 0.0), 1.0);
         let node2 = add_simple_circle_node(&mut graph, (2.0, 0.0), 1.0);
         let bond = add_bond(&mut graph, node1, node2);
@@ -234,7 +262,8 @@ mod tests {
     #[test]
     #[should_panic]
     fn cannot_gusset_unconnected_bonds() {
-        let mut graph: NodeGraph<SimpleCircleNode, Bond, AngleGusset> = NodeGraph::new();
+        let mut graph: NodeGraph<SimpleCircleNode, Bond<SimpleCircleNode>, AngleGusset> =
+            NodeGraph::new();
         let node1 = add_simple_circle_node(&mut graph, (0.0, 0.0), 1.0);
         let node2 = add_simple_circle_node(&mut graph, (2.0, 0.0), 1.0);
         let node3 = add_simple_circle_node(&mut graph, (10.0, 0.0), 1.0);
@@ -246,7 +275,8 @@ mod tests {
 
     #[test]
     fn qualitative_gusset_forces() {
-        let mut graph: NodeGraph<SimpleCircleNode, Bond, AngleGusset> = NodeGraph::new();
+        let mut graph: NodeGraph<SimpleCircleNode, Bond<SimpleCircleNode>, AngleGusset> =
+            NodeGraph::new();
         let node1 = add_simple_circle_node(&mut graph, (0.1, 2.0), 1.0);
         let node2 = add_simple_circle_node(&mut graph, (0.0, 0.0), 1.0);
         let node3 = add_simple_circle_node(&mut graph, (0.1, -2.0), 1.0);
@@ -293,7 +323,7 @@ mod tests {
     }
 
     fn add_simple_circle_node(
-        graph: &mut NodeGraph<SimpleCircleNode, Bond, AngleGusset>,
+        graph: &mut NodeGraph<SimpleCircleNode, Bond<SimpleCircleNode>, AngleGusset>,
         center: (f64, f64),
         radius: f64,
     ) -> NodeHandle {
@@ -304,7 +334,7 @@ mod tests {
     }
 
     fn add_bond(
-        graph: &mut NodeGraph<SimpleCircleNode, Bond, AngleGusset>,
+        graph: &mut NodeGraph<SimpleCircleNode, Bond<SimpleCircleNode>, AngleGusset>,
         node1: NodeHandle,
         node2: NodeHandle,
     ) -> EdgeHandle {
@@ -313,7 +343,7 @@ mod tests {
     }
 
     fn add_angle_gusset(
-        graph: &mut NodeGraph<SimpleCircleNode, Bond, AngleGusset>,
+        graph: &mut NodeGraph<SimpleCircleNode, Bond<SimpleCircleNode>, AngleGusset>,
         bond1: EdgeHandle,
         bond2: EdgeHandle,
         radians: f64,

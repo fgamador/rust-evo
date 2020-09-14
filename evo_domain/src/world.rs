@@ -12,7 +12,7 @@ use std::iter::FromIterator;
 pub struct World {
     min_corner: Position,
     max_corner: Position,
-    cell_graph: NodeGraph<Cell, Bond, AngleGusset>,
+    cell_graph: NodeGraph<Cell, Bond<Cell>, AngleGusset>,
     cell_handles: SortableHandles,
     cross_cell_influences: Vec<Box<dyn CrossCellInfluence>>,
     per_cell_influences: Vec<Box<dyn PerCellInfluence>>,
@@ -139,16 +139,21 @@ impl World {
         self
     }
 
-    pub fn add_bond(&mut self, bond: Bond, bond_index_on_cell1: usize, bond_index_on_cell2: usize) {
+    pub fn add_bond(
+        &mut self,
+        bond: Bond<Cell>,
+        bond_index_on_cell1: usize,
+        bond_index_on_cell2: usize,
+    ) {
         self.cell_graph
             .add_edge(bond, bond_index_on_cell1, bond_index_on_cell2);
     }
 
-    pub fn bonds(&self) -> &[Bond] {
+    pub fn bonds(&self) -> &[Bond<Cell>] {
         &self.cell_graph.edges()
     }
 
-    pub fn bond(&self, handle: EdgeHandle) -> &Bond {
+    pub fn bond(&self, handle: EdgeHandle) -> &Bond<Cell> {
         &self.cell_graph.edge(handle)
     }
 
@@ -245,7 +250,7 @@ impl World {
 
     fn execute_bond_requests(
         cell: &mut Cell,
-        edge_source: &mut EdgeSource<Bond>,
+        edge_source: &mut EdgeSource<Bond<Cell>>,
         bond_requests: &BondRequests,
         donated_energy: &mut Vec<(NodeHandle, BioEnergy)>,
         new_children: &mut Vec<NewChildData>,

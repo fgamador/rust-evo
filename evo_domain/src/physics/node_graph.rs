@@ -7,13 +7,13 @@ use std::u32;
 pub const MAX_NODE_EDGES: usize = 8;
 
 #[derive(Debug)]
-pub struct NodeGraph<N: GraphNode, E: GraphEdge, ME: GraphMetaEdge> {
+pub struct NodeGraph<N: GraphNode<N>, E: GraphEdge, ME: GraphMetaEdge> {
     nodes: NodesWithHandles<N>,
     edges: Vec<E>,
     meta_edges: Vec<ME>,
 }
 
-impl<N: GraphNode, E: GraphEdge, ME: GraphMetaEdge> NodeGraph<N, E, ME> {
+impl<N: GraphNode<N>, E: GraphEdge, ME: GraphMetaEdge> NodeGraph<N, E, ME> {
     #[allow(clippy::new_without_default)]
     pub fn new() -> Self {
         NodeGraph {
@@ -222,11 +222,11 @@ impl<N: GraphNode, E: GraphEdge, ME: GraphMetaEdge> NodeGraph<N, E, ME> {
 }
 
 #[derive(Debug)]
-pub struct NodesWithHandles<N: NodeWithHandle> {
+pub struct NodesWithHandles<N: NodeWithHandle<N>> {
     nodes: Vec<N>,
 }
 
-impl<N: NodeWithHandle> NodesWithHandles<N> {
+impl<N: NodeWithHandle<N>> NodesWithHandles<N> {
     #[allow(clippy::new_without_default)]
     pub fn new() -> Self {
         NodesWithHandles { nodes: vec![] }
@@ -313,7 +313,7 @@ impl<N: NodeWithHandle> NodesWithHandles<N> {
     }
 }
 
-pub trait NodeWithHandle {
+pub trait NodeWithHandle<N: NodeWithHandle<N>> {
     fn handle(&self) -> NodeHandle;
 
     fn handle_mut(&mut self) -> &mut NodeHandle;
@@ -333,7 +333,7 @@ impl<'a, E: GraphEdge> EdgeSource<'a, E> {
     }
 }
 
-pub trait GraphNode: NodeWithHandle {
+pub trait GraphNode<N: NodeWithHandle<N>>: NodeWithHandle<N> {
     fn node_handle(&self) -> NodeHandle;
 
     fn graph_node_data(&self) -> &GraphNodeData;

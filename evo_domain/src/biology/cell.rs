@@ -13,7 +13,7 @@ use std::ptr;
 use std::usize;
 
 #[allow(clippy::vec_box)]
-#[derive(Debug, GraphNode, HasLocalEnvironment, NewtonianBody)]
+#[derive(Debug, HasLocalEnvironment, NewtonianBody)]
 pub struct Cell {
     graph_node_data: GraphNodeData,
     radius: Length,
@@ -441,13 +441,39 @@ impl Circle for Cell {
     }
 }
 
-impl NodeWithHandle for Cell {
+impl NodeWithHandle<Cell> for Cell {
     fn handle(&self) -> NodeHandle {
         self.graph_node_data().handle()
     }
 
     fn handle_mut(&mut self) -> &mut NodeHandle {
         self.graph_node_data_mut().handle_mut()
+    }
+}
+
+impl GraphNode<Cell> for Cell {
+    fn node_handle(&self) -> NodeHandle {
+        self.graph_node_data.handle()
+    }
+
+    fn graph_node_data(&self) -> &GraphNodeData {
+        &self.graph_node_data
+    }
+
+    fn graph_node_data_mut(&mut self) -> &mut GraphNodeData {
+        &mut self.graph_node_data
+    }
+
+    fn has_edge(&self, node_edge_index: usize) -> bool {
+        self.graph_node_data.has_edge_handle(node_edge_index)
+    }
+
+    fn edge_handle(&self, node_edge_index: usize) -> EdgeHandle {
+        self.graph_node_data.edge_handle(node_edge_index)
+    }
+
+    fn edge_handles(&self) -> &[Option<EdgeHandle>] {
+        self.graph_node_data.edge_handles()
     }
 }
 

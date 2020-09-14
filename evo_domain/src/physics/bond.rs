@@ -12,7 +12,10 @@ pub struct Bond {
 }
 
 impl Bond {
-    pub fn new(circle1: &dyn GraphNode, circle2: &dyn GraphNode) -> Self {
+    pub fn new<C: NodeWithHandle<C>>(
+        circle1: &dyn GraphNode<C>,
+        circle2: &dyn GraphNode<C>,
+    ) -> Self {
         assert_ne!(circle1.node_handle(), circle2.node_handle());
         Bond {
             edge_data: GraphEdgeData::new(circle1.node_handle(), circle2.node_handle()),
@@ -51,7 +54,7 @@ pub fn calc_bond_strains<C>(
     graph: &NodeGraph<C, Bond, AngleGusset>,
 ) -> Vec<((NodeHandle, BondStrain), (NodeHandle, BondStrain))>
 where
-    C: Circle + GraphNode,
+    C: Circle + GraphNode<C>,
 {
     let mut strains: Vec<((NodeHandle, BondStrain), (NodeHandle, BondStrain))> =
         Vec::with_capacity(graph.edges().len() * 2);
@@ -105,7 +108,7 @@ pub fn calc_bond_angle_forces<C>(
     graph: &NodeGraph<C, Bond, AngleGusset>,
 ) -> Vec<(NodeHandle, Force)>
 where
-    C: Circle + GraphNode,
+    C: Circle + GraphNode<C>,
 {
     let mut forces: Vec<(NodeHandle, Force)> = Vec::with_capacity(graph.meta_edges().len() * 2);
     for gusset in graph.meta_edges() {
@@ -121,7 +124,7 @@ fn calc_bond_angle_force_pair<C>(
     graph: &NodeGraph<C, Bond, AngleGusset>,
 ) -> ((NodeHandle, Force), (NodeHandle, Force))
 where
-    C: Circle + GraphNode,
+    C: Circle + GraphNode<C>,
 {
     let bond1 = graph.edge(gusset.edge1_handle());
     let bond2 = graph.edge(gusset.edge2_handle());

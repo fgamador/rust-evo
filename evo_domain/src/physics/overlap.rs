@@ -52,7 +52,7 @@ impl Walls {
         graph: &mut NodeGraph<C, E, ME>,
     ) -> Vec<(NodeHandle, Overlap)>
     where
-        C: Circle + GraphNode,
+        C: Circle + GraphNode<C>,
         E: GraphEdge,
         ME: GraphMetaEdge,
     {
@@ -72,7 +72,7 @@ impl Walls {
 
     fn calc_incursion<C>(&self, circle: &C) -> Option<Displacement>
     where
-        C: Circle + GraphNode,
+        C: Circle + GraphNode<C>,
     {
         let circle_box = circle.to_bounding_box();
         let min_corner_incursion =
@@ -93,7 +93,7 @@ pub fn find_pair_overlaps<C, E, ME>(
     cell_handles: &mut SortableHandles,
 ) -> Vec<((NodeHandle, Overlap), (NodeHandle, Overlap))>
 where
-    C: Circle + GraphNode,
+    C: Circle + GraphNode<C>,
     E: GraphEdge,
     ME: GraphMetaEdge,
 {

@@ -3,7 +3,7 @@ use crate::physics::quantities::*;
 use crate::physics::shapes::*;
 use evo_domain_derive::*;
 
-#[derive(Clone, Debug, GraphNode, PartialEq)]
+#[derive(Clone, Debug, PartialEq)]
 pub struct SimpleGraphNode {
     graph_node_data: GraphNodeData,
     pub id: i32,
@@ -18,7 +18,7 @@ impl SimpleGraphNode {
     }
 }
 
-impl NodeWithHandle for SimpleGraphNode {
+impl NodeWithHandle<SimpleGraphNode> for SimpleGraphNode {
     fn handle(&self) -> NodeHandle {
         self.graph_node_data.handle()
     }
@@ -28,7 +28,33 @@ impl NodeWithHandle for SimpleGraphNode {
     }
 }
 
-#[derive(Clone, Debug, GraphNode, PartialEq)]
+impl GraphNode<SimpleGraphNode> for SimpleGraphNode {
+    fn node_handle(&self) -> NodeHandle {
+        self.graph_node_data.handle()
+    }
+
+    fn graph_node_data(&self) -> &GraphNodeData {
+        &self.graph_node_data
+    }
+
+    fn graph_node_data_mut(&mut self) -> &mut GraphNodeData {
+        &mut self.graph_node_data
+    }
+
+    fn has_edge(&self, node_edge_index: usize) -> bool {
+        self.graph_node_data.has_edge_handle(node_edge_index)
+    }
+
+    fn edge_handle(&self, node_edge_index: usize) -> EdgeHandle {
+        self.graph_node_data.edge_handle(node_edge_index)
+    }
+
+    fn edge_handles(&self) -> &[Option<EdgeHandle>] {
+        self.graph_node_data.edge_handles()
+    }
+}
+
+#[derive(Clone, Debug, PartialEq)]
 pub struct SimpleCircleNode {
     graph_node_data: GraphNodeData,
     center: Position,
@@ -59,7 +85,7 @@ impl Circle for SimpleCircleNode {
     }
 }
 
-impl NodeWithHandle for SimpleCircleNode {
+impl NodeWithHandle<SimpleCircleNode> for SimpleCircleNode {
     fn handle(&self) -> NodeHandle {
         self.graph_node_data.handle()
     }
@@ -69,13 +95,39 @@ impl NodeWithHandle for SimpleCircleNode {
     }
 }
 
+impl GraphNode<SimpleCircleNode> for SimpleCircleNode {
+    fn node_handle(&self) -> NodeHandle {
+        self.graph_node_data.handle()
+    }
+
+    fn graph_node_data(&self) -> &GraphNodeData {
+        &self.graph_node_data
+    }
+
+    fn graph_node_data_mut(&mut self) -> &mut GraphNodeData {
+        &mut self.graph_node_data
+    }
+
+    fn has_edge(&self, node_edge_index: usize) -> bool {
+        self.graph_node_data.has_edge_handle(node_edge_index)
+    }
+
+    fn edge_handle(&self, node_edge_index: usize) -> EdgeHandle {
+        self.graph_node_data.edge_handle(node_edge_index)
+    }
+
+    fn edge_handles(&self) -> &[Option<EdgeHandle>] {
+        self.graph_node_data.edge_handles()
+    }
+}
+
 #[derive(Debug, GraphEdge, PartialEq)]
 pub struct SimpleGraphEdge {
     edge_data: GraphEdgeData,
 }
 
 impl SimpleGraphEdge {
-    pub fn new(node1: &dyn GraphNode, node2: &dyn GraphNode) -> Self {
+    pub fn new<N: NodeWithHandle<N>>(node1: &dyn GraphNode<N>, node2: &dyn GraphNode<N>) -> Self {
         SimpleGraphEdge {
             edge_data: GraphEdgeData::new(node1.node_handle(), node2.node_handle()),
         }

@@ -234,7 +234,7 @@ impl<N: GraphNode> NodesWithHandles<N> {
 
     pub fn add_node(&mut self, mut node: N) -> NodeHandle {
         let handle = self.next_node_handle();
-        node.graph_node_data_mut().handle = handle;
+        *node.handle_mut() = handle;
         self.nodes.push(node);
         handle
     }

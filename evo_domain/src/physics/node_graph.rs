@@ -313,6 +313,12 @@ impl<N: GraphNode> NodesWithHandles<N> {
     }
 }
 
+pub trait NodeWithHandle {
+    fn handle(&self) -> NodeHandle;
+
+    fn handle_mut(&mut self) -> &mut NodeHandle;
+}
+
 pub struct EdgeSource<'a, E: GraphEdge> {
     edges: &'a mut [E],
 }
@@ -327,7 +333,7 @@ impl<'a, E: GraphEdge> EdgeSource<'a, E> {
     }
 }
 
-pub trait GraphNode {
+pub trait GraphNode: NodeWithHandle {
     fn node_handle(&self) -> NodeHandle;
 
     fn graph_node_data(&self) -> &GraphNodeData;
@@ -383,6 +389,10 @@ impl GraphNodeData {
 
     pub fn handle(&self) -> NodeHandle {
         self.handle
+    }
+
+    pub fn handle_mut(&mut self) -> &mut NodeHandle {
+        &mut self.handle
     }
 
     pub fn has_edge_handle(&self, node_edge_index: usize) -> bool {

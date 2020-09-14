@@ -441,6 +441,16 @@ impl Circle for Cell {
     }
 }
 
+impl NodeWithHandle for Cell {
+    fn handle(&self) -> NodeHandle {
+        self.graph_node_data().handle()
+    }
+
+    fn handle_mut(&mut self) -> &mut NodeHandle {
+        self.graph_node_data_mut().handle_mut()
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;

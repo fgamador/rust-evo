@@ -18,6 +18,16 @@ impl SimpleGraphNode {
     }
 }
 
+impl NodeWithHandle for SimpleGraphNode {
+    fn handle(&self) -> NodeHandle {
+        self.graph_node_data.handle()
+    }
+
+    fn handle_mut(&mut self) -> &mut NodeHandle {
+        self.graph_node_data.handle_mut()
+    }
+}
+
 #[derive(Clone, Debug, GraphNode, PartialEq)]
 pub struct SimpleCircleNode {
     graph_node_data: GraphNodeData,
@@ -46,6 +56,16 @@ impl Circle for SimpleCircleNode {
 
     fn center(&self) -> Position {
         self.center
+    }
+}
+
+impl NodeWithHandle for SimpleCircleNode {
+    fn handle(&self) -> NodeHandle {
+        self.graph_node_data.handle()
+    }
+
+    fn handle_mut(&mut self) -> &mut NodeHandle {
+        self.graph_node_data.handle_mut()
     }
 }
 

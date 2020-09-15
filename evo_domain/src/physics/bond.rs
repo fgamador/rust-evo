@@ -9,7 +9,7 @@ use std::ops::Neg;
 
 #[derive(Clone, Debug, PartialEq)]
 pub struct Bond<N: NodeWithHandle<N>> {
-    edge_data: GraphEdgeData,
+    edge_data: GraphEdgeData<N>,
     _phantom: PhantomData<N>, // TODO lose this
 }
 
@@ -44,11 +44,11 @@ impl<N: NodeWithHandle<N>> GraphEdge<N> for Bond<N> {
         self.edge_data.other_node_handle(node_handle)
     }
 
-    fn graph_edge_data(&self) -> &GraphEdgeData {
+    fn graph_edge_data(&self) -> &GraphEdgeData<N> {
         &self.edge_data
     }
 
-    fn graph_edge_data_mut(&mut self) -> &mut GraphEdgeData {
+    fn graph_edge_data_mut(&mut self) -> &mut GraphEdgeData<N> {
         &mut self.edge_data
     }
 }

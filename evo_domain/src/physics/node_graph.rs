@@ -142,9 +142,11 @@ impl<N: GraphNode<N>, E: GraphEdge<N>, ME: GraphMetaEdge> NodeGraph<N, E, ME> {
 
     fn fix_swapped_edge(&mut self, old_handle: EdgeHandle, new_handle: EdgeHandle) {
         self.edge_mut(new_handle).graph_edge_data_mut().handle = new_handle;
-        let edge_data = self.edge(new_handle).graph_edge_data().clone();
-        self.replace_edge_handle(edge_data.node1_handle, old_handle, new_handle);
-        self.replace_edge_handle(edge_data.node2_handle, old_handle, new_handle);
+        let edge_data = self.edge(new_handle).graph_edge_data();
+        let node1_handle = edge_data.node1_handle;
+        let node2_handle = edge_data.node2_handle;
+        self.replace_edge_handle(node1_handle, old_handle, new_handle);
+        self.replace_edge_handle(node2_handle, old_handle, new_handle);
         // TODO update handles to swapped edges in remaining meta-edges
     }
 
@@ -446,9 +448,9 @@ pub trait GraphEdge<N: NodeWithHandle<N>> {
 
     fn other_node_handle(&self, node_handle: NodeHandle) -> NodeHandle;
 
-    fn graph_edge_data(&self) -> &GraphEdgeData;
+    fn graph_edge_data(&self) -> &GraphEdgeData<N>;
 
-    fn graph_edge_data_mut(&mut self) -> &mut GraphEdgeData;
+    fn graph_edge_data_mut(&mut self) -> &mut GraphEdgeData<N>;
 }
 
 #[derive(Clone, Copy, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
@@ -477,18 +479,20 @@ impl fmt::Display for EdgeHandle {
 }
 
 #[derive(Clone, Debug, PartialEq)]
-pub struct GraphEdgeData {
+pub struct GraphEdgeData<N: NodeWithHandle<N>> {
     handle: EdgeHandle,
     node1_handle: NodeHandle,
     node2_handle: NodeHandle,
+    _phantom: PhantomData<N>, // TODO lose this
 }
 
-impl GraphEdgeData {
+impl<N: NodeWithHandle<N>> GraphEdgeData<N> {
     pub fn new(node1_handle: NodeHandle, node2_handle: NodeHandle) -> Self {
         GraphEdgeData {
             handle: EdgeHandle::unset(),
             node1_handle,
             node2_handle,
+            _phantom: PhantomData,
         }
     }
 
@@ -673,7 +677,8 @@ mod tests {
             GraphEdgeData {
                 handle: EdgeHandle { index: 0 },
                 node1_handle: NodeHandle { index: 1 },
-                node2_handle: NodeHandle { index: 2 }
+                node2_handle: NodeHandle { index: 2 },
+                _phantom: PhantomData,
             }
         );
         assert_eq!(
@@ -745,7 +750,8 @@ mod tests {
             GraphEdgeData {
                 handle: EdgeHandle { index: 0 },
                 node1_handle: NodeHandle { index: 1 },
-                node2_handle: NodeHandle { index: 0 }
+                node2_handle: NodeHandle { index: 0 },
+                _phantom: PhantomData,
             }
         );
     }

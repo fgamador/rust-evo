@@ -76,14 +76,13 @@ impl Neg for BondStrain {
     }
 }
 
-pub fn calc_bond_strains<C>(
-    graph: &NodeGraph<C, Bond<C>, AngleGusset>,
-) -> Vec<((NodeHandle<C>, BondStrain), (NodeHandle<C>, BondStrain))>
+type PairStrain<C> = ((NodeHandle<C>, BondStrain), (NodeHandle<C>, BondStrain));
+
+pub fn calc_bond_strains<C>(graph: &NodeGraph<C, Bond<C>, AngleGusset>) -> Vec<PairStrain<C>>
 where
     C: Circle + GraphNode<C>,
 {
-    let mut strains: Vec<((NodeHandle<C>, BondStrain), (NodeHandle<C>, BondStrain))> =
-        Vec::with_capacity(graph.edges().len() * 2);
+    let mut strains: Vec<PairStrain<C>> = Vec::with_capacity(graph.edges().len() * 2);
     for bond in graph.edges() {
         let circle1 = graph.node(bond.node1_handle());
         let circle2 = graph.node(bond.node2_handle());

@@ -89,10 +89,12 @@ impl Walls {
     }
 }
 
+type PairOverlap<C> = ((NodeHandle<C>, Overlap), (NodeHandle<C>, Overlap));
+
 pub fn find_pair_overlaps<C, E, ME>(
     graph: &mut NodeGraph<C, E, ME>,
     cell_handles: &mut SortableHandles<C>,
-) -> Vec<((NodeHandle<C>, Overlap), (NodeHandle<C>, Overlap))>
+) -> Vec<PairOverlap<C>>
 where
     C: Circle + GraphNode<C>,
     E: GraphEdge<C>,
@@ -108,8 +110,7 @@ where
         SortableHandle::Cloud => false,
     });
 
-    let mut overlaps: Vec<((NodeHandle<C>, Overlap), (NodeHandle<C>, Overlap))> =
-        Vec::with_capacity(graph.nodes().len() * 2);
+    let mut overlaps: Vec<PairOverlap<C>> = Vec::with_capacity(graph.nodes().len() * 2);
 
     for (i, &handle1) in cell_handles.handles().iter().enumerate() {
         for &handle2 in &cell_handles.handles()[(i + 1)..] {

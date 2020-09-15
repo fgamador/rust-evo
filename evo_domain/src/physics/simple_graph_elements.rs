@@ -20,17 +20,17 @@ impl SimpleGraphNode {
 }
 
 impl NodeWithHandle<SimpleGraphNode> for SimpleGraphNode {
-    fn handle(&self) -> NodeHandle {
+    fn handle(&self) -> NodeHandle<SimpleGraphNode> {
         self.graph_node_data.handle()
     }
 
-    fn handle_mut(&mut self) -> &mut NodeHandle {
+    fn handle_mut(&mut self) -> &mut NodeHandle<SimpleGraphNode> {
         self.graph_node_data.handle_mut()
     }
 }
 
 impl GraphNode<SimpleGraphNode> for SimpleGraphNode {
-    fn node_handle(&self) -> NodeHandle {
+    fn node_handle(&self) -> NodeHandle<SimpleGraphNode> {
         self.graph_node_data.handle()
     }
 
@@ -87,17 +87,17 @@ impl Circle for SimpleCircleNode {
 }
 
 impl NodeWithHandle<SimpleCircleNode> for SimpleCircleNode {
-    fn handle(&self) -> NodeHandle {
+    fn handle(&self) -> NodeHandle<SimpleCircleNode> {
         self.graph_node_data.handle()
     }
 
-    fn handle_mut(&mut self) -> &mut NodeHandle {
+    fn handle_mut(&mut self) -> &mut NodeHandle<SimpleCircleNode> {
         self.graph_node_data.handle_mut()
     }
 }
 
 impl GraphNode<SimpleCircleNode> for SimpleCircleNode {
-    fn node_handle(&self) -> NodeHandle {
+    fn node_handle(&self) -> NodeHandle<SimpleCircleNode> {
         self.graph_node_data.handle()
     }
 
@@ -142,15 +142,15 @@ impl<N: NodeWithHandle<N>> GraphEdge<N> for SimpleGraphEdge<N> {
         self.edge_data.handle()
     }
 
-    fn node1_handle(&self) -> NodeHandle {
+    fn node1_handle(&self) -> NodeHandle<N> {
         self.edge_data.node1_handle()
     }
 
-    fn node2_handle(&self) -> NodeHandle {
+    fn node2_handle(&self) -> NodeHandle<N> {
         self.edge_data.node2_handle()
     }
 
-    fn other_node_handle(&self, node_handle: NodeHandle) -> NodeHandle {
+    fn other_node_handle(&self, node_handle: NodeHandle<N>) -> NodeHandle<N> {
         self.edge_data.other_node_handle(node_handle)
     }
 

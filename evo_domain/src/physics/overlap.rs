@@ -50,13 +50,14 @@ impl Walls {
     pub fn find_overlaps<C, E, ME>(
         &self,
         graph: &mut NodeGraph<C, E, ME>,
-    ) -> Vec<(NodeHandle, Overlap)>
+    ) -> Vec<(NodeHandle<C>, Overlap)>
     where
         C: Circle + GraphNode<C>,
         E: GraphEdge<C>,
         ME: GraphMetaEdge,
     {
-        let mut overlaps: Vec<(NodeHandle, Overlap)> = Vec::with_capacity(graph.nodes().len() / 2);
+        let mut overlaps: Vec<(NodeHandle<C>, Overlap)> =
+            Vec::with_capacity(graph.nodes().len() / 2);
 
         for circle in graph.nodes() {
             if let Some(incursion) = self.calc_incursion(circle) {
@@ -90,8 +91,8 @@ impl Walls {
 
 pub fn find_pair_overlaps<C, E, ME>(
     graph: &mut NodeGraph<C, E, ME>,
-    cell_handles: &mut SortableHandles,
-) -> Vec<((NodeHandle, Overlap), (NodeHandle, Overlap))>
+    cell_handles: &mut SortableHandles<C>,
+) -> Vec<((NodeHandle<C>, Overlap), (NodeHandle<C>, Overlap))>
 where
     C: Circle + GraphNode<C>,
     E: GraphEdge<C>,
@@ -107,7 +108,7 @@ where
         SortableHandle::Cloud => false,
     });
 
-    let mut overlaps: Vec<((NodeHandle, Overlap), (NodeHandle, Overlap))> =
+    let mut overlaps: Vec<((NodeHandle<C>, Overlap), (NodeHandle<C>, Overlap))> =
         Vec::with_capacity(graph.nodes().len() * 2);
 
     for (i, &handle1) in cell_handles.handles().iter().enumerate() {
@@ -193,41 +194,49 @@ impl PossibleCirclePairOverlap {
     }
 }
 
-#[derive(Clone, Copy, Debug)]
-pub enum SortableHandle {
+#[derive(Debug)]
+pub enum SortableHandle<N: NodeWithHandle<N>> {
     Cloud,
-    GraphNode(NodeHandle),
+    GraphNode(NodeHandle<N>),
 }
+
+impl<N: NodeWithHandle<N>> Clone for SortableHandle<N> {
+    fn clone(&self) -> Self {
+        *self
+    }
+}
+
+impl<N: NodeWithHandle<N>> Copy for SortableHandle<N> {}
 
 #[derive(Debug)]
-pub struct SortableHandles {
-    pub handles: Vec<SortableHandle>,
+pub struct SortableHandles<N: NodeWithHandle<N>> {
+    pub handles: Vec<SortableHandle<N>>,
 }
 
-impl SortableHandles {
+impl<N: NodeWithHandle<N>> SortableHandles<N> {
     #[allow(clippy::new_without_default)]
     pub fn new() -> Self {
         SortableHandles { handles: vec![] }
     }
 
-    pub fn handles(&self) -> &[SortableHandle] {
+    pub fn handles(&self) -> &[SortableHandle<N>] {
         &self.handles
     }
 
-    pub fn add_handle(&mut self, handle: SortableHandle) {
+    pub fn add_handle(&mut self, handle: SortableHandle<N>) {
         self.handles.push(handle);
     }
 
     pub fn remove_invalid_handles<F>(&mut self, is_valid_handle: F)
     where
-        F: Fn(SortableHandle) -> bool,
+        F: Fn(SortableHandle<N>) -> bool,
     {
         self.handles.retain(|&h| is_valid_handle(h));
     }
 
     pub fn sort_already_mostly_sorted_handles<F>(&mut self, is_less_than: F)
     where
-        F: Fn(SortableHandle, SortableHandle) -> bool,
+        F: Fn(SortableHandle<N>, SortableHandle<N>) -> bool,
     {
         Self::insertion_sort_by(&mut self.handles, is_less_than);
     }

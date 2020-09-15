@@ -32,15 +32,15 @@ impl<N: NodeWithHandle<N>> GraphEdge<N> for Bond<N> {
         self.edge_data.handle()
     }
 
-    fn node1_handle(&self) -> NodeHandle {
+    fn node1_handle(&self) -> NodeHandle<N> {
         self.edge_data.node1_handle()
     }
 
-    fn node2_handle(&self) -> NodeHandle {
+    fn node2_handle(&self) -> NodeHandle<N> {
         self.edge_data.node2_handle()
     }
 
-    fn other_node_handle(&self, node_handle: NodeHandle) -> NodeHandle {
+    fn other_node_handle(&self, node_handle: NodeHandle<N>) -> NodeHandle<N> {
         self.edge_data.other_node_handle(node_handle)
     }
 
@@ -78,11 +78,11 @@ impl Neg for BondStrain {
 
 pub fn calc_bond_strains<C>(
     graph: &NodeGraph<C, Bond<C>, AngleGusset>,
-) -> Vec<((NodeHandle, BondStrain), (NodeHandle, BondStrain))>
+) -> Vec<((NodeHandle<C>, BondStrain), (NodeHandle<C>, BondStrain))>
 where
     C: Circle + GraphNode<C>,
 {
-    let mut strains: Vec<((NodeHandle, BondStrain), (NodeHandle, BondStrain))> =
+    let mut strains: Vec<((NodeHandle<C>, BondStrain), (NodeHandle<C>, BondStrain))> =
         Vec::with_capacity(graph.edges().len() * 2);
     for bond in graph.edges() {
         let circle1 = graph.node(bond.node1_handle());
@@ -132,11 +132,11 @@ impl AngleGusset {
 
 pub fn calc_bond_angle_forces<C>(
     graph: &NodeGraph<C, Bond<C>, AngleGusset>,
-) -> Vec<(NodeHandle, Force)>
+) -> Vec<(NodeHandle<C>, Force)>
 where
     C: Circle + GraphNode<C>,
 {
-    let mut forces: Vec<(NodeHandle, Force)> = Vec::with_capacity(graph.meta_edges().len() * 2);
+    let mut forces: Vec<(NodeHandle<C>, Force)> = Vec::with_capacity(graph.meta_edges().len() * 2);
     for gusset in graph.meta_edges() {
         let force_pair = calc_bond_angle_force_pair(gusset, graph);
         forces.push(force_pair.0);
@@ -148,7 +148,7 @@ where
 fn calc_bond_angle_force_pair<C>(
     gusset: &AngleGusset,
     graph: &NodeGraph<C, Bond<C>, AngleGusset>,
-) -> ((NodeHandle, Force), (NodeHandle, Force))
+) -> ((NodeHandle<C>, Force), (NodeHandle<C>, Force))
 where
     C: Circle + GraphNode<C>,
 {
@@ -326,7 +326,7 @@ mod tests {
         graph: &mut NodeGraph<SimpleCircleNode, Bond<SimpleCircleNode>, AngleGusset>,
         center: (f64, f64),
         radius: f64,
-    ) -> NodeHandle {
+    ) -> NodeHandle<SimpleCircleNode> {
         graph.add_node(SimpleCircleNode::new(
             Position::new(center.0, center.1),
             Length::new(radius),
@@ -335,8 +335,8 @@ mod tests {
 
     fn add_bond(
         graph: &mut NodeGraph<SimpleCircleNode, Bond<SimpleCircleNode>, AngleGusset>,
-        node1: NodeHandle,
-        node2: NodeHandle,
+        node1: NodeHandle<SimpleCircleNode>,
+        node2: NodeHandle<SimpleCircleNode>,
     ) -> EdgeHandle {
         let bond = Bond::new(graph.node(node1), graph.node(node2));
         graph.add_edge(bond, 1, 0)

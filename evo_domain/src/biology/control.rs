@@ -1,3 +1,4 @@
+use crate::biology::cell::Cell;
 use crate::biology::control_requests::*;
 use crate::biology::genome::*;
 use crate::biology::layers::*;
@@ -12,7 +13,7 @@ pub trait CellControl: fmt::Debug + Send + Sync {
 
     fn spawn(&mut self) -> Box<dyn CellControl>;
 
-    fn print(&self, _cell_handle: NodeHandle) {}
+    fn print(&self, _cell_handle: NodeHandle<Cell>) {}
 }
 
 #[derive(Debug)]
@@ -224,7 +225,7 @@ impl CellControl for NeuralNetControl {
         })
     }
 
-    fn print(&self, cell_handle: NodeHandle) {
+    fn print(&self, cell_handle: NodeHandle<Cell>) {
         println!("Cell {} genome:", cell_handle);
         self.nnet.print(&self.node_labels);
     }

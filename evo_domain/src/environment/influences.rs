@@ -12,7 +12,7 @@ pub trait CrossCellInfluence {
     fn apply_to(
         &self,
         cell_graph: &mut NodeGraph<Cell, Bond<Cell>, AngleGusset>,
-        cell_handles: &mut SortableHandles,
+        cell_handles: &mut SortableHandles<Cell>,
     );
 }
 
@@ -58,7 +58,7 @@ impl CrossCellInfluence for WallCollisions {
     fn apply_to(
         &self,
         cell_graph: &mut NodeGraph<Cell, Bond<Cell>, AngleGusset>,
-        _cell_handles: &mut SortableHandles,
+        _cell_handles: &mut SortableHandles<Cell>,
     ) {
         let overlaps = self.walls.find_overlaps(cell_graph);
         for (handle, overlap) in overlaps {
@@ -148,7 +148,7 @@ impl CrossCellInfluence for PairCollisions {
     fn apply_to(
         &self,
         cell_graph: &mut NodeGraph<Cell, Bond<Cell>, AngleGusset>,
-        cell_handles: &mut SortableHandles,
+        cell_handles: &mut SortableHandles<Cell>,
     ) {
         let overlaps = find_pair_overlaps(cell_graph, cell_handles);
         for ((handle1, overlap1), (handle2, overlap2)) in overlaps {
@@ -226,7 +226,7 @@ impl CrossCellInfluence for BondForces {
     fn apply_to(
         &self,
         cell_graph: &mut NodeGraph<Cell, Bond<Cell>, AngleGusset>,
-        _cell_handles: &mut SortableHandles,
+        _cell_handles: &mut SortableHandles<Cell>,
     ) {
         let strains = calc_bond_strains(cell_graph);
         for ((handle1, strain1), (handle2, _strain2)) in strains {
@@ -251,7 +251,7 @@ impl CrossCellInfluence for BondAngleForces {
     fn apply_to(
         &self,
         cell_graph: &mut NodeGraph<Cell, Bond<Cell>, AngleGusset>,
-        _cell_handles: &mut SortableHandles,
+        _cell_handles: &mut SortableHandles<Cell>,
     ) {
         let forces = calc_bond_angle_forces(cell_graph);
         for (handle, force) in forces {

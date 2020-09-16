@@ -3,6 +3,7 @@ use crate::biology::changes::*;
 use crate::environment::influences::*;
 use crate::physics::bond::*;
 use crate::physics::node_graph::*;
+use crate::physics::nodes_with_handles::*;
 use crate::physics::overlap::{SortableHandle, SortableHandles};
 use crate::physics::quantities::*;
 use rayon::prelude::*;

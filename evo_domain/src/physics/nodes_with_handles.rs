@@ -109,7 +109,7 @@ pub struct NodeHandle<N: NodeWithHandle<N>> {
 }
 
 impl<N: NodeWithHandle<N>> NodeHandle<N> {
-    fn new(index: u32) -> Self {
+    pub fn new(index: u32) -> Self {
         NodeHandle {
             index,
             _phantom: PhantomData,

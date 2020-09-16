@@ -5,6 +5,7 @@ use crate::biology::layers::*;
 use crate::environment::local_environment::*;
 use crate::physics::newtonian::*;
 use crate::physics::node_graph::*;
+use crate::physics::nodes_with_handles::*;
 use crate::physics::quantities::*;
 use crate::physics::shapes::*;
 use evo_domain_derive::*;

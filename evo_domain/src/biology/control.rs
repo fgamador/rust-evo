@@ -2,7 +2,7 @@ use crate::biology::cell::Cell;
 use crate::biology::control_requests::*;
 use crate::biology::genome::*;
 use crate::biology::layers::*;
-use crate::physics::node_graph::NodeHandle;
+use crate::physics::nodes_with_handles::*;
 use crate::physics::quantities::*;
 use smallvec::alloc::fmt::Formatter;
 use std::fmt;

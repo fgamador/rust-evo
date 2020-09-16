@@ -1,4 +1,5 @@
 use crate::physics::node_graph::*;
+use crate::physics::nodes_with_handles::*;
 use crate::physics::quantities::*;
 use crate::physics::shapes::*;
 use crate::physics::util::*;

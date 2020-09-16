@@ -443,17 +443,17 @@ impl Circle for Cell {
 }
 
 impl WithHandle<Cell> for Cell {
-    fn handle(&self) -> NodeHandle<Cell> {
+    fn handle(&self) -> Handle<Cell> {
         self.graph_node_data().handle()
     }
 
-    fn handle_mut(&mut self) -> &mut NodeHandle<Cell> {
+    fn handle_mut(&mut self) -> &mut Handle<Cell> {
         self.graph_node_data_mut().handle_mut()
     }
 }
 
 impl GraphNode<Cell> for Cell {
-    fn node_handle(&self) -> NodeHandle<Cell> {
+    fn node_handle(&self) -> Handle<Cell> {
         self.graph_node_data.handle()
     }
 

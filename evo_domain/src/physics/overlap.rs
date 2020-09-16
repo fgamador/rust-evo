@@ -51,14 +51,13 @@ impl Walls {
     pub fn find_overlaps<C, E, ME>(
         &self,
         graph: &mut NodeGraph<C, E, ME>,
-    ) -> Vec<(NodeHandle<C>, Overlap)>
+    ) -> Vec<(Handle<C>, Overlap)>
     where
         C: Circle + GraphNode<C>,
         E: GraphEdge<C>,
         ME: GraphMetaEdge,
     {
-        let mut overlaps: Vec<(NodeHandle<C>, Overlap)> =
-            Vec::with_capacity(graph.nodes().len() / 2);
+        let mut overlaps: Vec<(Handle<C>, Overlap)> = Vec::with_capacity(graph.nodes().len() / 2);
 
         for circle in graph.nodes() {
             if let Some(incursion) = self.calc_incursion(circle) {
@@ -90,7 +89,7 @@ impl Walls {
     }
 }
 
-type PairOverlap<C> = ((NodeHandle<C>, Overlap), (NodeHandle<C>, Overlap));
+type PairOverlap<C> = ((Handle<C>, Overlap), (Handle<C>, Overlap));
 
 pub fn find_pair_overlaps<C, E, ME>(
     graph: &mut NodeGraph<C, E, ME>,
@@ -199,7 +198,7 @@ impl PossibleCirclePairOverlap {
 #[derive(Debug)]
 pub enum SortableHandle<N: WithHandle<N>> {
     Cloud,
-    GraphNode(NodeHandle<N>),
+    GraphNode(Handle<N>),
 }
 
 impl<N: WithHandle<N>> Clone for SortableHandle<N> {

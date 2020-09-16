@@ -13,7 +13,7 @@ pub trait CellControl: fmt::Debug + Send + Sync {
 
     fn spawn(&mut self) -> Box<dyn CellControl>;
 
-    fn print(&self, _cell_handle: NodeHandle<Cell>) {}
+    fn print(&self, _cell_handle: Handle<Cell>) {}
 }
 
 #[derive(Debug)]
@@ -225,7 +225,7 @@ impl CellControl for NeuralNetControl {
         })
     }
 
-    fn print(&self, cell_handle: NodeHandle<Cell>) {
+    fn print(&self, cell_handle: Handle<Cell>) {
         println!("Cell {} genome:", cell_handle);
         self.nnet.print(&self.node_labels);
     }

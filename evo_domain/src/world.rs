@@ -113,7 +113,7 @@ impl World {
         self
     }
 
-    pub fn add_cell(&mut self, cell: Cell) -> NodeHandle<Cell> {
+    pub fn add_cell(&mut self, cell: Cell) -> Handle<Cell> {
         let handle = self.cell_graph.add_node(cell);
         self.cell_handles
             .add_handle(SortableHandle::GraphNode(handle));
@@ -124,11 +124,11 @@ impl World {
         &self.cell_graph.nodes()
     }
 
-    pub fn cell(&self, handle: NodeHandle<Cell>) -> &Cell {
+    pub fn cell(&self, handle: Handle<Cell>) -> &Cell {
         self.cell_graph.node(handle)
     }
 
-    fn cell_mut(&mut self, handle: NodeHandle<Cell>) -> &mut Cell {
+    fn cell_mut(&mut self, handle: Handle<Cell>) -> &mut Cell {
         self.cell_graph.node_mut(handle)
     }
 
@@ -253,7 +253,7 @@ impl World {
         cell: &mut Cell,
         edge_source: &mut EdgeSource<Cell, Bond<Cell>>,
         bond_requests: &BondRequests,
-        donated_energy: &mut Vec<(NodeHandle<Cell>, BioEnergy)>,
+        donated_energy: &mut Vec<(Handle<Cell>, BioEnergy)>,
         new_children: &mut Vec<NewChildData>,
         broken_bond_handles: &mut HashSet<EdgeHandle>,
     ) {
@@ -288,7 +288,7 @@ impl World {
         &mut self,
         new_children: Vec<NewChildData>,
         broken_bond_handles: HashSet<EdgeHandle>,
-        dead_cell_handles: Vec<NodeHandle<Cell>>,
+        dead_cell_handles: Vec<Handle<Cell>>,
     ) {
         self.add_children(new_children);
         self.remove_bonds(&broken_bond_handles);
@@ -308,7 +308,7 @@ impl World {
         }
     }
 
-    fn apply_donated_energy(&mut self, donated_energy: Vec<(NodeHandle<Cell>, BioEnergy)>) {
+    fn apply_donated_energy(&mut self, donated_energy: Vec<(Handle<Cell>, BioEnergy)>) {
         for (cell_handle, donation) in donated_energy {
             self.cell_mut(cell_handle)
                 .add_received_donated_energy(donation);
@@ -343,7 +343,7 @@ impl World {
 }
 
 struct NewChildData {
-    parent: NodeHandle<Cell>,
+    parent: Handle<Cell>,
     bond_index: usize,
     child: Cell,
 }

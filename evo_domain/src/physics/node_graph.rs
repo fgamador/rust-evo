@@ -25,11 +25,11 @@ impl<N: GraphNode<N>, E: GraphEdge<N>, ME: GraphMetaEdge> NodeGraph<N, E, ME> {
         }
     }
 
-    pub fn add_node(&mut self, node: N) -> NodeHandle<N> {
+    pub fn add_node(&mut self, node: N) -> Handle<N> {
         self.nodes.add_node(node)
     }
 
-    pub fn is_valid_handle(&self, handle: NodeHandle<N>) -> bool {
+    pub fn is_valid_handle(&self, handle: Handle<N>) -> bool {
         self.nodes.is_valid_handle(handle)
     }
 
@@ -53,7 +53,7 @@ impl<N: GraphNode<N>, E: GraphEdge<N>, ME: GraphMetaEdge> NodeGraph<N, E, ME> {
 
     fn add_edge_to_node(
         &mut self,
-        node_handle: NodeHandle<N>,
+        node_handle: Handle<N>,
         edge_handle: EdgeHandle,
         edge_index: usize,
     ) {
@@ -80,7 +80,7 @@ impl<N: GraphNode<N>, E: GraphEdge<N>, ME: GraphMetaEdge> NodeGraph<N, E, ME> {
     ///
     /// 2) Worse, this function changes the nodes referenced by some of the remaining handles.
     /// Never retain handles across a call to this function.
-    pub fn remove_nodes(&mut self, handles: &[NodeHandle<N>]) {
+    pub fn remove_nodes(&mut self, handles: &[Handle<N>]) {
         for handle in handles {
             self.remove_node_edges(&self.node(*handle).graph_node_data().edge_handles.clone());
         }
@@ -92,8 +92,8 @@ impl<N: GraphNode<N>, E: GraphEdge<N>, ME: GraphMetaEdge> NodeGraph<N, E, ME> {
 
     fn fix_swapped_node_edges(
         node: &N,
-        old_handle: NodeHandle<N>,
-        new_handle: NodeHandle<N>,
+        old_handle: Handle<N>,
+        new_handle: Handle<N>,
         edges: &mut [E],
     ) {
         for edge_handle in node.graph_node_data().edge_handles.clone().iter() {
@@ -128,7 +128,7 @@ impl<N: GraphNode<N>, E: GraphEdge<N>, ME: GraphMetaEdge> NodeGraph<N, E, ME> {
         self.fix_swapped_edge_if_needed(handle);
     }
 
-    fn remove_edge_from_node(&mut self, node_handle: NodeHandle<N>, edge_handle: EdgeHandle) {
+    fn remove_edge_from_node(&mut self, node_handle: Handle<N>, edge_handle: EdgeHandle) {
         self.node_mut(node_handle)
             .graph_node_data_mut()
             .remove_edge_handle(edge_handle);
@@ -153,7 +153,7 @@ impl<N: GraphNode<N>, E: GraphEdge<N>, ME: GraphMetaEdge> NodeGraph<N, E, ME> {
 
     fn replace_edge_handle(
         &mut self,
-        node_handle: NodeHandle<N>,
+        node_handle: Handle<N>,
         old_handle: EdgeHandle,
         new_handle: EdgeHandle,
     ) {
@@ -185,7 +185,7 @@ impl<N: GraphNode<N>, E: GraphEdge<N>, ME: GraphMetaEdge> NodeGraph<N, E, ME> {
         }
     }
 
-    pub fn with_nodes<F>(&mut self, handle1: NodeHandle<N>, handle2: NodeHandle<N>, f: F)
+    pub fn with_nodes<F>(&mut self, handle1: Handle<N>, handle2: Handle<N>, f: F)
     where
         F: FnMut(&mut N, &mut N),
     {
@@ -200,11 +200,11 @@ impl<N: GraphNode<N>, E: GraphEdge<N>, ME: GraphMetaEdge> NodeGraph<N, E, ME> {
         self.nodes.nodes_mut()
     }
 
-    pub fn node(&self, handle: NodeHandle<N>) -> &N {
+    pub fn node(&self, handle: Handle<N>) -> &N {
         self.nodes.node(handle)
     }
 
-    pub fn node_mut(&mut self, handle: NodeHandle<N>) -> &mut N {
+    pub fn node_mut(&mut self, handle: Handle<N>) -> &mut N {
         self.nodes.node_mut(handle)
     }
 
@@ -244,7 +244,7 @@ impl<'a, N: WithHandle<N>, E: GraphEdge<N>> EdgeSource<'a, N, E> {
 }
 
 pub trait GraphNode<N: WithHandle<N>>: WithHandle<N> {
-    fn node_handle(&self) -> NodeHandle<N>;
+    fn node_handle(&self) -> Handle<N>;
 
     fn graph_node_data(&self) -> &GraphNodeData<N>;
 
@@ -259,7 +259,7 @@ pub trait GraphNode<N: WithHandle<N>>: WithHandle<N> {
 
 #[derive(Clone, Debug, PartialEq)]
 pub struct GraphNodeData<N: WithHandle<N>> {
-    handle: NodeHandle<N>,
+    handle: Handle<N>,
     edge_handles: [Option<EdgeHandle>; MAX_NODE_EDGES],
     _phantom: PhantomData<N>, // TODO lose this
 }
@@ -268,17 +268,17 @@ impl<N: WithHandle<N>> GraphNodeData<N> {
     #[allow(clippy::new_without_default)]
     pub fn new() -> Self {
         GraphNodeData {
-            handle: NodeHandle::unset(),
+            handle: Handle::unset(),
             edge_handles: [None; MAX_NODE_EDGES],
             _phantom: PhantomData,
         }
     }
 
-    pub fn handle(&self) -> NodeHandle<N> {
+    pub fn handle(&self) -> Handle<N> {
         self.handle
     }
 
-    pub fn handle_mut(&mut self) -> &mut NodeHandle<N> {
+    pub fn handle_mut(&mut self) -> &mut Handle<N> {
         &mut self.handle
     }
 
@@ -320,11 +320,11 @@ impl<N: WithHandle<N>> GraphNodeData<N> {
 pub trait GraphEdge<N: WithHandle<N>> {
     fn edge_handle(&self) -> EdgeHandle;
 
-    fn node1_handle(&self) -> NodeHandle<N>;
+    fn node1_handle(&self) -> Handle<N>;
 
-    fn node2_handle(&self) -> NodeHandle<N>;
+    fn node2_handle(&self) -> Handle<N>;
 
-    fn other_node_handle(&self, node_handle: NodeHandle<N>) -> NodeHandle<N>;
+    fn other_node_handle(&self, node_handle: Handle<N>) -> Handle<N>;
 
     fn graph_edge_data(&self) -> &GraphEdgeData<N>;
 
@@ -359,13 +359,13 @@ impl fmt::Display for EdgeHandle {
 #[derive(Clone, Debug, PartialEq)]
 pub struct GraphEdgeData<N: WithHandle<N>> {
     handle: EdgeHandle,
-    node1_handle: NodeHandle<N>,
-    node2_handle: NodeHandle<N>,
+    node1_handle: Handle<N>,
+    node2_handle: Handle<N>,
     _phantom: PhantomData<N>, // TODO lose this
 }
 
 impl<N: WithHandle<N>> GraphEdgeData<N> {
-    pub fn new(node1_handle: NodeHandle<N>, node2_handle: NodeHandle<N>) -> Self {
+    pub fn new(node1_handle: Handle<N>, node2_handle: Handle<N>) -> Self {
         GraphEdgeData {
             handle: EdgeHandle::unset(),
             node1_handle,
@@ -378,23 +378,23 @@ impl<N: WithHandle<N>> GraphEdgeData<N> {
         self.handle
     }
 
-    pub fn node1_handle(&self) -> NodeHandle<N> {
+    pub fn node1_handle(&self) -> Handle<N> {
         self.node1_handle
     }
 
-    pub fn node1_handle_mut(&mut self) -> &mut NodeHandle<N> {
+    pub fn node1_handle_mut(&mut self) -> &mut Handle<N> {
         &mut self.node1_handle
     }
 
-    pub fn node2_handle(&self) -> NodeHandle<N> {
+    pub fn node2_handle(&self) -> Handle<N> {
         self.node2_handle
     }
 
-    pub fn node2_handle_mut(&mut self) -> &mut NodeHandle<N> {
+    pub fn node2_handle_mut(&mut self) -> &mut Handle<N> {
         &mut self.node2_handle
     }
 
-    pub fn other_node_handle(&self, node_handle: NodeHandle<N>) -> NodeHandle<N> {
+    pub fn other_node_handle(&self, node_handle: Handle<N>) -> Handle<N> {
         if node_handle == self.node1_handle {
             self.node2_handle
         } else {
@@ -402,12 +402,12 @@ impl<N: WithHandle<N>> GraphEdgeData<N> {
         }
     }
 
-    fn joins(&self, node_handle1: NodeHandle<N>, node_handle2: NodeHandle<N>) -> bool {
+    fn joins(&self, node_handle1: Handle<N>, node_handle2: Handle<N>) -> bool {
         (self.node1_handle == node_handle1 && self.node2_handle == node_handle2)
             || (self.node1_handle == node_handle2 && self.node2_handle == node_handle1)
     }
 
-    fn replace_node_handle(&mut self, old_handle: NodeHandle<N>, new_handle: NodeHandle<N>) {
+    fn replace_node_handle(&mut self, old_handle: Handle<N>, new_handle: Handle<N>) {
         if self.node1_handle == old_handle {
             self.node1_handle = new_handle;
         }
@@ -507,15 +507,15 @@ mod tests {
             *graph.edge(EdgeHandle { index: 0 }).graph_edge_data(),
             GraphEdgeData {
                 handle: EdgeHandle { index: 0 },
-                node1_handle: NodeHandle::new(1),
-                node2_handle: NodeHandle::new(2),
+                node1_handle: Handle::new(1),
+                node2_handle: Handle::new(2),
                 _phantom: PhantomData,
             }
         );
         assert_eq!(
             *graph.node(node0_handle).graph_node_data(),
             GraphNodeData {
-                handle: NodeHandle::new(0),
+                handle: Handle::new(0),
                 edge_handles: [None; MAX_NODE_EDGES],
                 _phantom: PhantomData,
             }
@@ -523,7 +523,7 @@ mod tests {
         assert_eq!(
             *graph.node(node1_handle).graph_node_data(),
             GraphNodeData {
-                handle: NodeHandle::new(1),
+                handle: Handle::new(1),
                 edge_handles: {
                     let mut handles = [None; MAX_NODE_EDGES];
                     handles[1] = Some(EdgeHandle { index: 0 });
@@ -535,7 +535,7 @@ mod tests {
         assert_eq!(
             *graph.node(node2_handle).graph_node_data(),
             GraphNodeData {
-                handle: NodeHandle::new(2),
+                handle: Handle::new(2),
                 edge_handles: {
                     let mut handles = [None; MAX_NODE_EDGES];
                     handles[0] = Some(EdgeHandle { index: 0 });
@@ -580,8 +580,8 @@ mod tests {
             *graph.edge(EdgeHandle { index: 0 }).graph_edge_data(),
             GraphEdgeData {
                 handle: EdgeHandle { index: 0 },
-                node1_handle: NodeHandle::new(1),
-                node2_handle: NodeHandle::new(0),
+                node1_handle: Handle::new(1),
+                node2_handle: Handle::new(0),
                 _phantom: PhantomData,
             }
         );

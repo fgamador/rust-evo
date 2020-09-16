@@ -44,8 +44,8 @@ impl<N: NodeWithHandle<N>> NodesWithHandles<N> {
     where
         F: FnMut(&N, NodeHandle<N>),
     {
-        for handle in handles.iter().rev() {
-            self.remove_node(*handle, &mut on_handle_change);
+        for &handle in handles.iter().rev() {
+            self.remove_node(handle, &mut on_handle_change);
         }
     }
 
@@ -59,6 +59,25 @@ impl<N: NodeWithHandle<N>> NodesWithHandles<N> {
             *self.node_mut(handle).handle_mut() = handle;
             on_handle_change(self.node(handle), self.next_handle());
         }
+    }
+
+    pub fn with_nodes<F>(&mut self, handle1: NodeHandle<N>, handle2: NodeHandle<N>, mut f: F)
+    where
+        F: FnMut(&mut N, &mut N),
+    {
+        let node1;
+        let node2;
+        if handle1.index() < handle2.index() {
+            let slices = self.nodes.split_at_mut(handle2.index());
+            node1 = &mut slices.0[handle1.index()];
+            node2 = &mut slices.1[0];
+        } else {
+            let slices = self.nodes.split_at_mut(handle1.index());
+            node2 = &mut slices.0[handle2.index()];
+            node1 = &mut slices.1[0];
+        }
+
+        f(node1, node2);
     }
 
     pub fn nodes(&self) -> &[N] {

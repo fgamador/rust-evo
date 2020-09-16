@@ -237,18 +237,18 @@ impl<N: NodeWithHandle<N>> NodesWithHandles<N> {
     }
 
     pub fn add_node(&mut self, mut node: N) -> NodeHandle<N> {
-        let handle = self.next_node_handle();
+        let handle = self.next_handle();
         *node.handle_mut() = handle;
         self.nodes.push(node);
         handle
     }
 
-    pub fn is_valid_handle(&self, handle: NodeHandle<N>) -> bool {
-        (handle.index as usize) < self.nodes.len()
+    fn next_handle(&self) -> NodeHandle<N> {
+        NodeHandle::new(self.nodes.len().try_into().unwrap())
     }
 
-    fn next_node_handle(&self) -> NodeHandle<N> {
-        NodeHandle::new(self.nodes.len().try_into().unwrap())
+    pub fn is_valid_handle(&self, handle: NodeHandle<N>) -> bool {
+        (handle.index as usize) < self.nodes.len()
     }
 
     /// Removes the nodes referenced by `handles`.
@@ -277,7 +277,7 @@ impl<N: NodeWithHandle<N>> NodesWithHandles<N> {
         self.nodes.swap_remove(handle.index());
         if self.is_valid_handle(handle) {
             *self.node_mut(handle).handle_mut() = handle;
-            on_handle_change(self.node(handle), self.next_node_handle());
+            on_handle_change(self.node(handle), self.next_handle());
         }
     }
 

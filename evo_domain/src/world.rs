@@ -1,5 +1,6 @@
 use crate::biology::cell::Cell;
 use crate::biology::changes::*;
+use crate::biology::cloud::Cloud;
 use crate::environment::influences::*;
 use crate::physics::bond::*;
 use crate::physics::handles::*;
@@ -14,6 +15,7 @@ pub struct World {
     min_corner: Position,
     max_corner: Position,
     cell_graph: NodeGraph<Cell, Bond<Cell>, AngleGusset>,
+    clouds: ObjectsWithHandles<Cloud>,
     circle_handles: SortableHandles<Cell>,
     cross_cell_influences: Vec<Box<dyn CrossCellInfluence>>,
     per_cell_influences: Vec<Box<dyn PerCellInfluence>>,
@@ -26,6 +28,7 @@ impl World {
             min_corner,
             max_corner,
             cell_graph: NodeGraph::new(),
+            clouds: ObjectsWithHandles::new(),
             circle_handles: SortableHandles::new(),
             cross_cell_influences: vec![],
             per_cell_influences: vec![],

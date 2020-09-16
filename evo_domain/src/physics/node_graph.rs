@@ -225,12 +225,12 @@ impl<N: GraphNode<N>, E: GraphEdge<N>, ME: GraphMetaEdge> NodeGraph<N, E, ME> {
     }
 }
 
-pub struct EdgeSource<'a, N: NodeWithHandle<N>, E: GraphEdge<N>> {
+pub struct EdgeSource<'a, N: WithHandle<N>, E: GraphEdge<N>> {
     edges: &'a mut [E],
     _phantom: PhantomData<N>,
 }
 
-impl<'a, N: NodeWithHandle<N>, E: GraphEdge<N>> EdgeSource<'a, N, E> {
+impl<'a, N: WithHandle<N>, E: GraphEdge<N>> EdgeSource<'a, N, E> {
     fn new(edges: &'a mut [E]) -> Self {
         EdgeSource {
             edges,
@@ -243,7 +243,7 @@ impl<'a, N: NodeWithHandle<N>, E: GraphEdge<N>> EdgeSource<'a, N, E> {
     }
 }
 
-pub trait GraphNode<N: NodeWithHandle<N>>: NodeWithHandle<N> {
+pub trait GraphNode<N: WithHandle<N>>: WithHandle<N> {
     fn node_handle(&self) -> NodeHandle<N>;
 
     fn graph_node_data(&self) -> &GraphNodeData<N>;
@@ -258,13 +258,13 @@ pub trait GraphNode<N: NodeWithHandle<N>>: NodeWithHandle<N> {
 }
 
 #[derive(Clone, Debug, PartialEq)]
-pub struct GraphNodeData<N: NodeWithHandle<N>> {
+pub struct GraphNodeData<N: WithHandle<N>> {
     handle: NodeHandle<N>,
     edge_handles: [Option<EdgeHandle>; MAX_NODE_EDGES],
     _phantom: PhantomData<N>, // TODO lose this
 }
 
-impl<N: NodeWithHandle<N>> GraphNodeData<N> {
+impl<N: WithHandle<N>> GraphNodeData<N> {
     #[allow(clippy::new_without_default)]
     pub fn new() -> Self {
         GraphNodeData {
@@ -317,7 +317,7 @@ impl<N: NodeWithHandle<N>> GraphNodeData<N> {
     }
 }
 
-pub trait GraphEdge<N: NodeWithHandle<N>> {
+pub trait GraphEdge<N: WithHandle<N>> {
     fn edge_handle(&self) -> EdgeHandle;
 
     fn node1_handle(&self) -> NodeHandle<N>;
@@ -357,14 +357,14 @@ impl fmt::Display for EdgeHandle {
 }
 
 #[derive(Clone, Debug, PartialEq)]
-pub struct GraphEdgeData<N: NodeWithHandle<N>> {
+pub struct GraphEdgeData<N: WithHandle<N>> {
     handle: EdgeHandle,
     node1_handle: NodeHandle<N>,
     node2_handle: NodeHandle<N>,
     _phantom: PhantomData<N>, // TODO lose this
 }
 
-impl<N: NodeWithHandle<N>> GraphEdgeData<N> {
+impl<N: WithHandle<N>> GraphEdgeData<N> {
     pub fn new(node1_handle: NodeHandle<N>, node2_handle: NodeHandle<N>) -> Self {
         GraphEdgeData {
             handle: EdgeHandle::unset(),

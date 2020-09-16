@@ -442,7 +442,7 @@ impl Circle for Cell {
     }
 }
 
-impl NodeWithHandle<Cell> for Cell {
+impl WithHandle<Cell> for Cell {
     fn handle(&self) -> NodeHandle<Cell> {
         self.graph_node_data().handle()
     }

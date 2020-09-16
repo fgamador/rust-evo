@@ -6,11 +6,11 @@ use std::marker::PhantomData;
 use std::u32;
 
 #[derive(Debug)]
-pub struct NodesWithHandles<N: NodeWithHandle<N>> {
+pub struct NodesWithHandles<N: WithHandle<N>> {
     nodes: Vec<N>,
 }
 
-impl<N: NodeWithHandle<N>> NodesWithHandles<N> {
+impl<N: WithHandle<N>> NodesWithHandles<N> {
     #[allow(clippy::new_without_default)]
     pub fn new() -> Self {
         NodesWithHandles { nodes: vec![] }
@@ -97,18 +97,18 @@ impl<N: NodeWithHandle<N>> NodesWithHandles<N> {
     }
 }
 
-pub trait NodeWithHandle<N: NodeWithHandle<N>> {
+pub trait WithHandle<N: WithHandle<N>> {
     fn handle(&self) -> NodeHandle<N>;
 
     fn handle_mut(&mut self) -> &mut NodeHandle<N>;
 }
 
-pub struct NodeHandle<N: NodeWithHandle<N>> {
+pub struct NodeHandle<N: WithHandle<N>> {
     index: u32,
     _phantom: PhantomData<N>,
 }
 
-impl<N: NodeWithHandle<N>> NodeHandle<N> {
+impl<N: WithHandle<N>> NodeHandle<N> {
     pub fn new(index: u32) -> Self {
         NodeHandle {
             index,
@@ -128,15 +128,15 @@ impl<N: NodeWithHandle<N>> NodeHandle<N> {
     }
 }
 
-impl<N: NodeWithHandle<N>> Clone for NodeHandle<N> {
+impl<N: WithHandle<N>> Clone for NodeHandle<N> {
     fn clone(&self) -> Self {
         *self
     }
 }
 
-impl<N: NodeWithHandle<N>> Copy for NodeHandle<N> {}
+impl<N: WithHandle<N>> Copy for NodeHandle<N> {}
 
-impl<N: NodeWithHandle<N>> fmt::Debug for NodeHandle<N> {
+impl<N: WithHandle<N>> fmt::Debug for NodeHandle<N> {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         f.debug_struct("NodeHandle")
             .field("index", &self.index)
@@ -144,27 +144,27 @@ impl<N: NodeWithHandle<N>> fmt::Debug for NodeHandle<N> {
     }
 }
 
-impl<N: NodeWithHandle<N>> fmt::Display for NodeHandle<N> {
+impl<N: WithHandle<N>> fmt::Display for NodeHandle<N> {
     fn fmt(&self, f: &mut Formatter<'_>) -> Result<(), Error> {
         write!(f, "{}", self.index)
     }
 }
 
-impl<N: NodeWithHandle<N>> Eq for NodeHandle<N> {}
+impl<N: WithHandle<N>> Eq for NodeHandle<N> {}
 
-impl<N: NodeWithHandle<N>> Ord for NodeHandle<N> {
+impl<N: WithHandle<N>> Ord for NodeHandle<N> {
     fn cmp(&self, other: &Self) -> Ordering {
         self.index.cmp(&other.index)
     }
 }
 
-impl<N: NodeWithHandle<N>> PartialEq for NodeHandle<N> {
+impl<N: WithHandle<N>> PartialEq for NodeHandle<N> {
     fn eq(&self, other: &Self) -> bool {
         self.index == other.index
     }
 }
 
-impl<N: NodeWithHandle<N>> PartialOrd for NodeHandle<N> {
+impl<N: WithHandle<N>> PartialOrd for NodeHandle<N> {
     fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
         Some(self.cmp(other))
     }
@@ -241,7 +241,7 @@ mod tests {
         }
     }
 
-    impl NodeWithHandle<SimpleNodeWithHandle> for SimpleNodeWithHandle {
+    impl WithHandle<SimpleNodeWithHandle> for SimpleNodeWithHandle {
         fn handle(&self) -> NodeHandle<SimpleNodeWithHandle> {
             self.handle
         }

@@ -6,28 +6,28 @@ use std::marker::PhantomData;
 use std::u32;
 
 #[derive(Debug)]
-pub struct ObjectsWithHandles<N: ObjectWithHandle<N>> {
-    objects: Vec<N>,
+pub struct ObjectsWithHandles<T: ObjectWithHandle<T>> {
+    objects: Vec<T>,
 }
 
-impl<N: ObjectWithHandle<N>> ObjectsWithHandles<N> {
+impl<T: ObjectWithHandle<T>> ObjectsWithHandles<T> {
     #[allow(clippy::new_without_default)]
     pub fn new() -> Self {
         ObjectsWithHandles { objects: vec![] }
     }
 
-    pub fn add(&mut self, mut obj: N) -> Handle<N> {
+    pub fn add(&mut self, mut obj: T) -> Handle<T> {
         let handle = self.next_handle();
         *obj.handle_mut() = handle;
         self.objects.push(obj);
         handle
     }
 
-    fn next_handle(&self) -> Handle<N> {
+    fn next_handle(&self) -> Handle<T> {
         Handle::new(self.objects.len().try_into().unwrap())
     }
 
-    pub fn is_valid_handle(&self, handle: Handle<N>) -> bool {
+    pub fn is_valid_handle(&self, handle: Handle<T>) -> bool {
         (handle.index as usize) < self.objects.len()
     }
 
@@ -40,9 +40,9 @@ impl<N: ObjectWithHandle<N>> ObjectsWithHandles<N> {
     ///
     /// 2) Worse, this function changes the objects referenced by some of the remaining handles.
     /// Never retain handles across a call to this function.
-    pub fn remove_all<F>(&mut self, handles: &[Handle<N>], mut on_handle_change: F)
+    pub fn remove_all<F>(&mut self, handles: &[Handle<T>], mut on_handle_change: F)
     where
-        F: FnMut(&N, Handle<N>),
+        F: FnMut(&T, Handle<T>),
     {
         for &handle in handles.iter().rev() {
             self.remove(handle, &mut on_handle_change);
@@ -50,9 +50,9 @@ impl<N: ObjectWithHandle<N>> ObjectsWithHandles<N> {
     }
 
     /// Warning: invalidates handles to the last object in self.objects.
-    fn remove<F>(&mut self, handle: Handle<N>, on_handle_change: &mut F)
+    fn remove<F>(&mut self, handle: Handle<T>, on_handle_change: &mut F)
     where
-        F: FnMut(&N, Handle<N>),
+        F: FnMut(&T, Handle<T>),
     {
         self.objects.swap_remove(handle.index());
         if self.is_valid_handle(handle) {
@@ -61,9 +61,9 @@ impl<N: ObjectWithHandle<N>> ObjectsWithHandles<N> {
         }
     }
 
-    pub fn with_objects<F>(&mut self, handle1: Handle<N>, handle2: Handle<N>, mut f: F)
+    pub fn with_objects<F>(&mut self, handle1: Handle<T>, handle2: Handle<T>, mut f: F)
     where
-        F: FnMut(&mut N, &mut N),
+        F: FnMut(&mut T, &mut T),
     {
         let obj1;
         let obj2;
@@ -80,35 +80,35 @@ impl<N: ObjectWithHandle<N>> ObjectsWithHandles<N> {
         f(obj1, obj2);
     }
 
-    pub fn objects(&self) -> &[N] {
+    pub fn objects(&self) -> &[T] {
         &self.objects
     }
 
-    pub fn objects_mut(&mut self) -> &mut [N] {
+    pub fn objects_mut(&mut self) -> &mut [T] {
         &mut self.objects
     }
 
-    pub fn object(&self, handle: Handle<N>) -> &N {
+    pub fn object(&self, handle: Handle<T>) -> &T {
         &self.objects[handle.index()]
     }
 
-    pub fn object_mut(&mut self, handle: Handle<N>) -> &mut N {
+    pub fn object_mut(&mut self, handle: Handle<T>) -> &mut T {
         &mut self.objects[handle.index()]
     }
 }
 
-pub trait ObjectWithHandle<N: ObjectWithHandle<N>> {
-    fn handle(&self) -> Handle<N>;
+pub trait ObjectWithHandle<T: ObjectWithHandle<T>> {
+    fn handle(&self) -> Handle<T>;
 
-    fn handle_mut(&mut self) -> &mut Handle<N>;
+    fn handle_mut(&mut self) -> &mut Handle<T>;
 }
 
-pub struct Handle<N: ObjectWithHandle<N>> {
+pub struct Handle<T: ObjectWithHandle<T>> {
     index: u32,
-    _phantom: PhantomData<N>,
+    _phantom: PhantomData<T>,
 }
 
-impl<N: ObjectWithHandle<N>> Handle<N> {
+impl<T: ObjectWithHandle<T>> Handle<T> {
     pub fn new(index: u32) -> Self {
         Handle {
             index,
@@ -128,15 +128,15 @@ impl<N: ObjectWithHandle<N>> Handle<N> {
     }
 }
 
-impl<N: ObjectWithHandle<N>> Clone for Handle<N> {
+impl<T: ObjectWithHandle<T>> Clone for Handle<T> {
     fn clone(&self) -> Self {
         *self
     }
 }
 
-impl<N: ObjectWithHandle<N>> Copy for Handle<N> {}
+impl<T: ObjectWithHandle<T>> Copy for Handle<T> {}
 
-impl<N: ObjectWithHandle<N>> fmt::Debug for Handle<N> {
+impl<T: ObjectWithHandle<T>> fmt::Debug for Handle<T> {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         f.debug_struct("Handle")
             .field("index", &self.index)
@@ -144,27 +144,27 @@ impl<N: ObjectWithHandle<N>> fmt::Debug for Handle<N> {
     }
 }
 
-impl<N: ObjectWithHandle<N>> fmt::Display for Handle<N> {
+impl<T: ObjectWithHandle<T>> fmt::Display for Handle<T> {
     fn fmt(&self, f: &mut Formatter<'_>) -> Result<(), Error> {
         write!(f, "{}", self.index)
     }
 }
 
-impl<N: ObjectWithHandle<N>> Eq for Handle<N> {}
+impl<T: ObjectWithHandle<T>> Eq for Handle<T> {}
 
-impl<N: ObjectWithHandle<N>> Ord for Handle<N> {
+impl<T: ObjectWithHandle<T>> Ord for Handle<T> {
     fn cmp(&self, other: &Self) -> Ordering {
         self.index.cmp(&other.index)
     }
 }
 
-impl<N: ObjectWithHandle<N>> PartialEq for Handle<N> {
+impl<T: ObjectWithHandle<T>> PartialEq for Handle<T> {
     fn eq(&self, other: &Self) -> bool {
         self.index == other.index
     }
 }
 
-impl<N: ObjectWithHandle<N>> PartialOrd for Handle<N> {
+impl<T: ObjectWithHandle<T>> PartialOrd for Handle<T> {
     fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
         Some(self.cmp(other))
     }

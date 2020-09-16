@@ -14,7 +14,7 @@ pub struct World {
     min_corner: Position,
     max_corner: Position,
     cell_graph: NodeGraph<Cell, Bond<Cell>, AngleGusset>,
-    cell_handles: SortableHandles<Cell>,
+    circle_handles: SortableHandles<Cell>,
     cross_cell_influences: Vec<Box<dyn CrossCellInfluence>>,
     per_cell_influences: Vec<Box<dyn PerCellInfluence>>,
     num_selected_cells: u32,
@@ -26,7 +26,7 @@ impl World {
             min_corner,
             max_corner,
             cell_graph: NodeGraph::new(),
-            cell_handles: SortableHandles::new(),
+            circle_handles: SortableHandles::new(),
             cross_cell_influences: vec![],
             per_cell_influences: vec![],
             num_selected_cells: 0,
@@ -115,7 +115,7 @@ impl World {
 
     pub fn add_cell(&mut self, cell: Cell) -> Handle<Cell> {
         let handle = self.cell_graph.add_node(cell);
-        self.cell_handles
+        self.circle_handles
             .add_handle(SortableHandle::GraphNode(handle));
         handle
     }
@@ -204,7 +204,7 @@ impl World {
 
     fn apply_cross_cell_influences(&mut self) {
         for influence in &self.cross_cell_influences {
-            influence.apply_to(&mut self.cell_graph, &mut self.cell_handles);
+            influence.apply_to(&mut self.cell_graph, &mut self.circle_handles);
         }
     }
 
@@ -294,7 +294,7 @@ impl World {
         self.remove_bonds(&broken_bond_handles);
         self.cell_graph.remove_nodes(&dead_cell_handles);
         let cell_graph = &self.cell_graph;
-        self.cell_handles.remove_invalid_handles(|h| match h {
+        self.circle_handles.remove_invalid_handles(|h| match h {
             SortableHandle::GraphNode(h) => cell_graph.is_valid_handle(h),
             SortableHandle::Cloud => false,
         });

@@ -12,7 +12,7 @@ pub trait CrossCellInfluence {
     fn apply_to(
         &self,
         cell_graph: &mut NodeGraph<Cell, Bond<Cell>, AngleGusset>,
-        cell_handles: &mut SortableHandles<Cell>,
+        circle_handles: &mut SortableHandles<Cell>,
     );
 }
 
@@ -148,9 +148,9 @@ impl CrossCellInfluence for PairCollisions {
     fn apply_to(
         &self,
         cell_graph: &mut NodeGraph<Cell, Bond<Cell>, AngleGusset>,
-        cell_handles: &mut SortableHandles<Cell>,
+        circle_handles: &mut SortableHandles<Cell>,
     ) {
-        let overlaps = find_pair_overlaps(cell_graph, cell_handles);
+        let overlaps = find_pair_overlaps(cell_graph, circle_handles);
         for ((handle1, overlap1), (handle2, overlap2)) in overlaps {
             Self::add_overlap(cell_graph.node_mut(handle1), overlap1);
             Self::add_overlap(cell_graph.node_mut(handle2), overlap2);
@@ -538,7 +538,7 @@ mod tests {
     #[test]
     fn pair_collisions_add_overlaps_and_forces() {
         let mut cell_graph = NodeGraph::new();
-        let mut cell_handles = SortableHandles::new();
+        let mut circle_handles = SortableHandles::new();
         let pair_collisions = PairCollisions::new();
         let cell1_handle = cell_graph.add_node(Cell::ball(
             Length::new(1.0),
@@ -552,10 +552,10 @@ mod tests {
             Position::new(1.4, 1.4),
             Velocity::new(-1.0, -1.0),
         ));
-        cell_handles.add_handle(SortableHandle::GraphNode(cell1_handle));
-        cell_handles.add_handle(SortableHandle::GraphNode(cell2_handle));
+        circle_handles.add_handle(SortableHandle::GraphNode(cell1_handle));
+        circle_handles.add_handle(SortableHandle::GraphNode(cell2_handle));
 
-        pair_collisions.apply_to(&mut cell_graph, &mut cell_handles);
+        pair_collisions.apply_to(&mut cell_graph, &mut circle_handles);
 
         let cell1 = cell_graph.node(cell1_handle);
         assert_eq!(cell1.environment().overlaps().len(), 1);

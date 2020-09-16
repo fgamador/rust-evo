@@ -10,7 +10,7 @@ pub const MAX_NODE_EDGES: usize = 8;
 
 #[derive(Debug)]
 pub struct NodeGraph<N: GraphNode<N>, E: GraphEdge<N>, ME: GraphMetaEdge> {
-    nodes: NodesWithHandles<N>,
+    nodes: ObjectsWithHandles<N>,
     edges: Vec<E>,
     meta_edges: Vec<ME>,
 }
@@ -19,14 +19,14 @@ impl<N: GraphNode<N>, E: GraphEdge<N>, ME: GraphMetaEdge> NodeGraph<N, E, ME> {
     #[allow(clippy::new_without_default)]
     pub fn new() -> Self {
         NodeGraph {
-            nodes: NodesWithHandles::new(),
+            nodes: ObjectsWithHandles::new(),
             edges: vec![],
             meta_edges: vec![],
         }
     }
 
     pub fn add_node(&mut self, node: N) -> Handle<N> {
-        self.nodes.add_node(node)
+        self.nodes.add(node)
     }
 
     pub fn is_valid_handle(&self, handle: Handle<N>) -> bool {
@@ -85,7 +85,7 @@ impl<N: GraphNode<N>, E: GraphEdge<N>, ME: GraphMetaEdge> NodeGraph<N, E, ME> {
             self.remove_node_edges(&self.node(*handle).graph_node_data().edge_handles.clone());
         }
         let edges = &mut self.edges;
-        self.nodes.remove_nodes(handles, |node, prev_handle| {
+        self.nodes.remove_all(handles, |node, prev_handle| {
             Self::fix_swapped_node_edges(node, prev_handle, node.node_handle(), edges);
         });
     }
@@ -180,7 +180,7 @@ impl<N: GraphNode<N>, E: GraphEdge<N>, ME: GraphMetaEdge> NodeGraph<N, E, ME> {
         F: FnMut(usize, &mut N, &mut EdgeSource<N, E>),
     {
         let mut edge_source = EdgeSource::new(&mut self.edges);
-        for (index, node) in self.nodes.nodes_mut().iter_mut().enumerate() {
+        for (index, node) in self.nodes.objects_mut().iter_mut().enumerate() {
             f(index, node, &mut edge_source);
         }
     }
@@ -189,23 +189,23 @@ impl<N: GraphNode<N>, E: GraphEdge<N>, ME: GraphMetaEdge> NodeGraph<N, E, ME> {
     where
         F: FnMut(&mut N, &mut N),
     {
-        self.nodes.with_nodes(handle1, handle2, f);
+        self.nodes.with_objects(handle1, handle2, f);
     }
 
     pub fn nodes(&self) -> &[N] {
-        self.nodes.nodes()
+        self.nodes.objects()
     }
 
     pub fn nodes_mut(&mut self) -> &mut [N] {
-        self.nodes.nodes_mut()
+        self.nodes.objects_mut()
     }
 
     pub fn node(&self, handle: Handle<N>) -> &N {
-        self.nodes.node(handle)
+        self.nodes.object(handle)
     }
 
     pub fn node_mut(&mut self, handle: Handle<N>) -> &mut N {
-        self.nodes.node_mut(handle)
+        self.nodes.object_mut(handle)
     }
 
     pub fn edges(&self) -> &[E] {
@@ -225,12 +225,12 @@ impl<N: GraphNode<N>, E: GraphEdge<N>, ME: GraphMetaEdge> NodeGraph<N, E, ME> {
     }
 }
 
-pub struct EdgeSource<'a, N: WithHandle<N>, E: GraphEdge<N>> {
+pub struct EdgeSource<'a, N: ObjectWithHandle<N>, E: GraphEdge<N>> {
     edges: &'a mut [E],
     _phantom: PhantomData<N>,
 }
 
-impl<'a, N: WithHandle<N>, E: GraphEdge<N>> EdgeSource<'a, N, E> {
+impl<'a, N: ObjectWithHandle<N>, E: GraphEdge<N>> EdgeSource<'a, N, E> {
     fn new(edges: &'a mut [E]) -> Self {
         EdgeSource {
             edges,
@@ -243,7 +243,7 @@ impl<'a, N: WithHandle<N>, E: GraphEdge<N>> EdgeSource<'a, N, E> {
     }
 }
 
-pub trait GraphNode<N: WithHandle<N>>: WithHandle<N> {
+pub trait GraphNode<N: ObjectWithHandle<N>>: ObjectWithHandle<N> {
     fn node_handle(&self) -> Handle<N>;
 
     fn graph_node_data(&self) -> &GraphNodeData<N>;
@@ -258,13 +258,13 @@ pub trait GraphNode<N: WithHandle<N>>: WithHandle<N> {
 }
 
 #[derive(Clone, Debug, PartialEq)]
-pub struct GraphNodeData<N: WithHandle<N>> {
+pub struct GraphNodeData<N: ObjectWithHandle<N>> {
     handle: Handle<N>,
     edge_handles: [Option<EdgeHandle>; MAX_NODE_EDGES],
     _phantom: PhantomData<N>, // TODO lose this
 }
 
-impl<N: WithHandle<N>> GraphNodeData<N> {
+impl<N: ObjectWithHandle<N>> GraphNodeData<N> {
     #[allow(clippy::new_without_default)]
     pub fn new() -> Self {
         GraphNodeData {
@@ -317,7 +317,7 @@ impl<N: WithHandle<N>> GraphNodeData<N> {
     }
 }
 
-pub trait GraphEdge<N: WithHandle<N>> {
+pub trait GraphEdge<N: ObjectWithHandle<N>> {
     fn edge_handle(&self) -> EdgeHandle;
 
     fn node1_handle(&self) -> Handle<N>;
@@ -357,14 +357,14 @@ impl fmt::Display for EdgeHandle {
 }
 
 #[derive(Clone, Debug, PartialEq)]
-pub struct GraphEdgeData<N: WithHandle<N>> {
+pub struct GraphEdgeData<N: ObjectWithHandle<N>> {
     handle: EdgeHandle,
     node1_handle: Handle<N>,
     node2_handle: Handle<N>,
     _phantom: PhantomData<N>, // TODO lose this
 }
 
-impl<N: WithHandle<N>> GraphEdgeData<N> {
+impl<N: ObjectWithHandle<N>> GraphEdgeData<N> {
     pub fn new(node1_handle: Handle<N>, node2_handle: Handle<N>) -> Self {
         GraphEdgeData {
             handle: EdgeHandle::unset(),

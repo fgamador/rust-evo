@@ -20,7 +20,7 @@ impl SimpleGraphNode {
     }
 }
 
-impl WithHandle<SimpleGraphNode> for SimpleGraphNode {
+impl ObjectWithHandle<SimpleGraphNode> for SimpleGraphNode {
     fn handle(&self) -> Handle<SimpleGraphNode> {
         self.graph_node_data.handle()
     }
@@ -87,7 +87,7 @@ impl Circle for SimpleCircleNode {
     }
 }
 
-impl WithHandle<SimpleCircleNode> for SimpleCircleNode {
+impl ObjectWithHandle<SimpleCircleNode> for SimpleCircleNode {
     fn handle(&self) -> Handle<SimpleCircleNode> {
         self.graph_node_data.handle()
     }
@@ -124,12 +124,12 @@ impl GraphNode<SimpleCircleNode> for SimpleCircleNode {
 }
 
 #[derive(Debug, PartialEq)]
-pub struct SimpleGraphEdge<N: WithHandle<N>> {
+pub struct SimpleGraphEdge<N: ObjectWithHandle<N>> {
     edge_data: GraphEdgeData<N>,
     _phantom: PhantomData<N>, // TODO lose this
 }
 
-impl<N: WithHandle<N>> SimpleGraphEdge<N> {
+impl<N: ObjectWithHandle<N>> SimpleGraphEdge<N> {
     pub fn new(node1: &dyn GraphNode<N>, node2: &dyn GraphNode<N>) -> Self {
         SimpleGraphEdge {
             edge_data: GraphEdgeData::new(node1.node_handle(), node2.node_handle()),
@@ -138,7 +138,7 @@ impl<N: WithHandle<N>> SimpleGraphEdge<N> {
     }
 }
 
-impl<N: WithHandle<N>> GraphEdge<N> for SimpleGraphEdge<N> {
+impl<N: ObjectWithHandle<N>> GraphEdge<N> for SimpleGraphEdge<N> {
     fn edge_handle(&self) -> EdgeHandle {
         self.edge_data.handle()
     }
@@ -170,7 +170,7 @@ pub struct SimpleGraphMetaEdge {
 }
 
 impl SimpleGraphMetaEdge {
-    pub fn new<N: WithHandle<N>>(edge1: &dyn GraphEdge<N>, edge2: &dyn GraphEdge<N>) -> Self {
+    pub fn new<N: ObjectWithHandle<N>>(edge1: &dyn GraphEdge<N>, edge2: &dyn GraphEdge<N>) -> Self {
         SimpleGraphMetaEdge {
             meta_edge_data: GraphMetaEdgeData::new(edge1.edge_handle(), edge2.edge_handle()),
         }

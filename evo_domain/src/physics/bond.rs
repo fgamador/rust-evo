@@ -9,12 +9,12 @@ use std::marker::PhantomData;
 use std::ops::Neg;
 
 #[derive(Clone, Debug, PartialEq)]
-pub struct Bond<N: WithHandle<N>> {
+pub struct Bond<N: ObjectWithHandle<N>> {
     edge_data: GraphEdgeData<N>,
     _phantom: PhantomData<N>, // TODO lose this
 }
 
-impl<N: WithHandle<N>> Bond<N> {
+impl<N: ObjectWithHandle<N>> Bond<N> {
     pub fn new(circle1: &dyn GraphNode<N>, circle2: &dyn GraphNode<N>) -> Self {
         assert_ne!(circle1.node_handle(), circle2.node_handle());
         Bond {
@@ -28,7 +28,7 @@ impl<N: WithHandle<N>> Bond<N> {
     }
 }
 
-impl<N: WithHandle<N>> GraphEdge<N> for Bond<N> {
+impl<N: ObjectWithHandle<N>> GraphEdge<N> for Bond<N> {
     fn edge_handle(&self) -> EdgeHandle {
         self.edge_data.handle()
     }
@@ -120,7 +120,7 @@ pub struct AngleGusset {
 }
 
 impl AngleGusset {
-    pub fn new<N: WithHandle<N>>(bond1: &Bond<N>, bond2: &Bond<N>, angle: Angle) -> Self {
+    pub fn new<N: ObjectWithHandle<N>>(bond1: &Bond<N>, bond2: &Bond<N>, angle: Angle) -> Self {
         assert_ne!(bond1.edge_handle(), bond2.edge_handle());
         assert_eq!(bond1.node2_handle(), bond2.node1_handle());
         AngleGusset {

@@ -196,25 +196,25 @@ impl PossibleCirclePairOverlap {
 }
 
 #[derive(Debug)]
-pub enum SortableHandle<N: WithHandle<N>> {
+pub enum SortableHandle<N: ObjectWithHandle<N>> {
     Cloud,
     GraphNode(Handle<N>),
 }
 
-impl<N: WithHandle<N>> Clone for SortableHandle<N> {
+impl<N: ObjectWithHandle<N>> Clone for SortableHandle<N> {
     fn clone(&self) -> Self {
         *self
     }
 }
 
-impl<N: WithHandle<N>> Copy for SortableHandle<N> {}
+impl<N: ObjectWithHandle<N>> Copy for SortableHandle<N> {}
 
 #[derive(Debug)]
-pub struct SortableHandles<N: WithHandle<N>> {
+pub struct SortableHandles<N: ObjectWithHandle<N>> {
     pub handles: Vec<SortableHandle<N>>,
 }
 
-impl<N: WithHandle<N>> SortableHandles<N> {
+impl<N: ObjectWithHandle<N>> SortableHandles<N> {
     #[allow(clippy::new_without_default)]
     pub fn new() -> Self {
         SortableHandles { handles: vec![] }

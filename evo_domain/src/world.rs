@@ -96,14 +96,6 @@ impl World {
         self
     }
 
-    pub fn min_corner(&self) -> Position {
-        self.min_corner
-    }
-
-    pub fn max_corner(&self) -> Position {
-        self.max_corner
-    }
-
     pub fn with_cell(mut self, cell: Cell) -> Self {
         self.add_cell(cell);
         self
@@ -114,6 +106,44 @@ impl World {
             self.add_cell(cell);
         }
         self
+    }
+
+    pub fn with_bonds(mut self, index_pairs: Vec<(usize, usize)>) -> Self {
+        for pair in index_pairs {
+            let bond = Bond::new(&self.cells()[pair.0], &self.cells()[pair.1]);
+            self.add_bond(bond, 1, 0);
+        }
+        self
+    }
+
+    pub fn with_angle_gussets(
+        mut self,
+        index_pairs_with_angles: Vec<(usize, usize, Value1D)>,
+    ) -> Self {
+        for tuple in index_pairs_with_angles {
+            let gusset = AngleGusset::new(
+                &self.bonds()[tuple.0],
+                &self.bonds()[tuple.1],
+                Angle::from_radians(tuple.2),
+            );
+            self.add_angle_gusset(gusset);
+        }
+        self
+    }
+
+    pub fn with_clouds(mut self, clouds: Vec<Cloud>) -> Self {
+        for cloud in clouds {
+            self.add_cloud(cloud);
+        }
+        self
+    }
+
+    pub fn min_corner(&self) -> Position {
+        self.min_corner
+    }
+
+    pub fn max_corner(&self) -> Position {
+        self.max_corner
     }
 
     pub fn add_cell(&mut self, cell: Cell) -> Handle<Cell> {
@@ -135,14 +165,6 @@ impl World {
         self.cell_graph.node_mut(handle)
     }
 
-    pub fn with_bonds(mut self, index_pairs: Vec<(usize, usize)>) -> Self {
-        for pair in index_pairs {
-            let bond = Bond::new(&self.cells()[pair.0], &self.cells()[pair.1]);
-            self.add_bond(bond, 1, 0);
-        }
-        self
-    }
-
     pub fn add_bond(
         &mut self,
         bond: Bond<Cell>,
@@ -161,23 +183,19 @@ impl World {
         &self.cell_graph.edge(handle)
     }
 
-    pub fn with_angle_gussets(
-        mut self,
-        index_pairs_with_angles: Vec<(usize, usize, Value1D)>,
-    ) -> Self {
-        for tuple in index_pairs_with_angles {
-            let gusset = AngleGusset::new(
-                &self.bonds()[tuple.0],
-                &self.bonds()[tuple.1],
-                Angle::from_radians(tuple.2),
-            );
-            self.add_angle_gusset(gusset);
-        }
-        self
-    }
-
     pub fn add_angle_gusset(&mut self, gusset: AngleGusset) {
         self.cell_graph.add_meta_edge(gusset);
+    }
+
+    pub fn add_cloud(&mut self, cloud: Cloud) -> Handle<Cloud> {
+        let handle = self.clouds.add(cloud);
+        // TODO self.circle_handles
+        //     .add_handle(SortableHandle::Cloud(handle));
+        handle
+    }
+
+    pub fn clouds(&self) -> &[Cloud] {
+        &self.clouds.objects()
     }
 
     pub fn debug_print_cells(&self) {

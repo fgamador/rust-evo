@@ -1,6 +1,6 @@
 use crate::biology::cell::Cell;
 use crate::biology::changes::*;
-use crate::biology::cloud::Cloud;
+use crate::biology::cloud::{Cloud, CloudParameters};
 use crate::environment::influences::*;
 use crate::physics::bond::*;
 use crate::physics::handles::*;
@@ -12,6 +12,7 @@ use std::collections::HashSet;
 use std::iter::FromIterator;
 
 pub struct World {
+    parameters: Parameters,
     min_corner: Position,
     max_corner: Position,
     cell_graph: NodeGraph<Cell, Bond<Cell>, AngleGusset>,
@@ -25,6 +26,7 @@ pub struct World {
 impl World {
     pub fn new(min_corner: Position, max_corner: Position) -> Self {
         World {
+            parameters: Parameters::DEFAULT,
             min_corner,
             max_corner,
             cell_graph: NodeGraph::new(),
@@ -34,6 +36,11 @@ impl World {
             per_cell_influences: vec![],
             num_selected_cells: 0,
         }
+    }
+
+    pub fn with_parameters(mut self, parameters: Parameters) -> Self {
+        self.parameters = parameters;
+        self
     }
 
     pub fn with_standard_influences(self) -> Self {
@@ -219,6 +226,7 @@ impl World {
     pub fn tick(&mut self) {
         self.apply_cross_cell_influences();
         let cell_bond_requests = self.tick_cells();
+        self.tick_clouds();
         self.apply_world_changes(&cell_bond_requests);
         self.print_debug_info();
     }
@@ -241,6 +249,12 @@ impl World {
                 cell.tick()
             })
             .collect()
+    }
+
+    fn tick_clouds(&mut self) {
+        for cloud in self.clouds.objects_mut() {
+            cloud.tick(&self.parameters.cloud_params);
+        }
     }
 
     fn apply_world_changes(&mut self, cell_bond_requests: &[BondRequests]) {
@@ -360,6 +374,21 @@ impl World {
             self.cells().len(),
             self.bonds().len()
         );
+    }
+}
+
+#[derive(Debug, Clone, Copy)]
+pub struct Parameters {
+    pub cloud_params: CloudParameters,
+}
+
+impl Parameters {
+    pub const DEFAULT: Parameters = Parameters {
+        cloud_params: CloudParameters::DEFAULT,
+    };
+
+    pub fn validate(&self) {
+        self.cloud_params.validate();
     }
 }
 
@@ -670,6 +699,21 @@ mod tests {
         world.tick();
 
         assert_eq!(world.cells().len(), 0);
+    }
+
+    #[test]
+    fn tick_resizes_cloud() {
+        let parameters = Parameters {
+            cloud_params: CloudParameters { resize_factor: 1.5 },
+        };
+        let mut world = World::new(Position::ORIGIN, Position::ORIGIN)
+            .with_parameters(parameters)
+            .with_clouds(vec![Cloud::new(Position::ORIGIN, Length::new(1.0))]);
+
+        world.tick();
+
+        let cloud = &world.clouds()[0];
+        assert_eq!(cloud.radius(), Length::new(1.5));
     }
 
     fn simple_layered_cell(layers: Vec<CellLayer>) -> Cell {

@@ -133,16 +133,21 @@ impl CloudDrawing {
 
         out vec4 color_out;
 
-        void emit_color(in uint color_index) {
+        float alpha_factor(in float radial_offset, in float cloud_radius) {
+            return 1.0 - (radial_offset / cloud_radius);
+        }
+
+        void emit_color(in uint color_index, in float radial_offset, in float cloud_radius) {
             color_out = (color_index < 4u)
                 ? cloud_colors_0_3[color_index]
                 : cloud_colors_4_7[color_index - 4u];
+            color_out.a = color_out.a * alpha_factor(radial_offset, cloud_radius);
         }
 
         void main() {
             float radial_offset = length(cloud_point_in.offset);
             if (radial_offset <= cloud_point_in.radius) {
-                emit_color(cloud_point_in.color_index);
+                emit_color(cloud_point_in.color_index, radial_offset, cloud_point_in.radius);
                 return;
             }
             discard;

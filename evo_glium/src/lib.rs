@@ -3,11 +3,14 @@ use glium::{glutin, Surface};
 mod background_drawing;
 mod bond_drawing;
 mod cell_drawing;
+mod cloud_drawing;
 
 use background_drawing::*;
 use bond_drawing::*;
 use cell_drawing::*;
+use cloud_drawing::*;
 use evo_domain::biology::cell::Cell;
+use evo_domain::biology::cloud::Cloud;
 use evo_domain::biology::layers;
 use evo_domain::physics::bond::Bond;
 use evo_domain::physics::node_graph::GraphEdge;
@@ -24,6 +27,7 @@ pub struct GliumView {
     background_drawing: BackgroundDrawing,
     cell_drawing: CellDrawing,
     bond_drawing: BondDrawing,
+    cloud_drawing: CloudDrawing,
     world_vb: glium::VertexBuffer<World>,
     mouse_position: glutin::dpi::LogicalPosition,
 }
@@ -45,6 +49,7 @@ impl GliumView {
         let background_drawing = BackgroundDrawing::new(&display);
         let cell_drawing = CellDrawing::new(&display);
         let bond_drawing = BondDrawing::new(&display);
+        let cloud_drawing = CloudDrawing::new(&display);
         let world = vec![World {
             corners: [
                 world_min_corner[0],
@@ -65,6 +70,7 @@ impl GliumView {
             background_drawing,
             cell_drawing,
             bond_drawing,
+            cloud_drawing,
             world_vb,
             mouse_position: glutin::dpi::LogicalPosition::new(0.0, 0.0),
         }
@@ -99,10 +105,34 @@ impl GliumView {
 
     pub fn render(&mut self, world: &evo_domain::world::World) {
         self.draw_frame(
+            &Self::world_clouds_to_cloud_sprites(world),
+            Self::get_cloud_colors(),
             &Self::world_cells_to_cell_sprites(world),
             Self::get_layer_colors(world),
             &Self::world_bonds_to_bond_sprites(world),
         );
+    }
+
+    fn world_clouds_to_cloud_sprites(world: &evo_domain::world::World) -> Vec<CloudSprite> {
+        world
+            .clouds()
+            .iter()
+            .map(Self::world_cloud_to_cloud_sprite)
+            .collect()
+    }
+
+    fn world_cloud_to_cloud_sprite(cloud: &Cloud) -> CloudSprite {
+        CloudSprite {
+            center: [cloud.center().x() as f32, cloud.center().y() as f32],
+            radius: cloud.radius().value() as f32,
+            color_index: 0,
+        }
+    }
+
+    fn get_cloud_colors() -> [[f32; 4]; 8] {
+        let mut cloud_colors: [[f32; 4]; 8] = [[0.0, 0.0, 0.0, 1.0]; 8];
+        cloud_colors[0] = [1.0, 0.5, 0.5, 0.8];
+        cloud_colors
     }
 
     fn world_cells_to_cell_sprites(world: &evo_domain::world::World) -> Vec<CellSprite> {
@@ -138,6 +168,29 @@ impl GliumView {
         }
     }
 
+    fn get_layer_colors(world: &evo_domain::world::World) -> [[f32; 4]; 8] {
+        const SELECTION_HALO_COLOR: [f32; 4] = [1.0, 0.0, 0.2, 1.0];
+
+        let mut layer_colors: [[f32; 4]; 8] = [[0.0, 0.0, 0.0, 1.0]; 8];
+        if !world.cells().is_empty() {
+            let sample_cell = &world.cells()[0];
+            assert!(sample_cell.layers().len() < layer_colors.len());
+            for (i, layer) in sample_cell.layers().iter().enumerate() {
+                layer_colors[i] = Self::convert_layer_color_to_rgb_color(layer.color());
+            }
+            layer_colors[sample_cell.layers().len()] = SELECTION_HALO_COLOR;
+        }
+        layer_colors
+    }
+
+    fn convert_layer_color_to_rgb_color(color: layers::Color) -> [f32; 4] {
+        match color {
+            layers::Color::Green => [0.1, 0.8, 0.1, 0.8],
+            layers::Color::White => [1.0, 1.0, 1.0, 0.1],
+            layers::Color::Yellow => [0.7, 0.7, 0.0, 0.8],
+        }
+    }
+
     fn world_bonds_to_bond_sprites(world: &evo_domain::world::World) -> Vec<BondSprite> {
         world
             .bonds()
@@ -160,35 +213,15 @@ impl GliumView {
         }
     }
 
-    fn get_layer_colors(world: &evo_domain::world::World) -> [[f32; 4]; 8] {
-        const SELECTION_HALO_COLOR: [f32; 4] = [1.0, 0.0, 0.2, 1.0];
-
-        let mut layer_colors: [[f32; 4]; 8] = [[0.0, 0.0, 0.0, 1.0]; 8];
-        if !world.cells().is_empty() {
-            let sample_cell = &world.cells()[0];
-            assert!(sample_cell.layers().len() < layer_colors.len());
-            for (i, layer) in sample_cell.layers().iter().enumerate() {
-                layer_colors[i] = Self::convert_to_rgb_color(layer.color());
-            }
-            layer_colors[sample_cell.layers().len()] = SELECTION_HALO_COLOR;
-        }
-        layer_colors
-    }
-
-    fn convert_to_rgb_color(color: layers::Color) -> [f32; 4] {
-        match color {
-            layers::Color::Green => [0.1, 0.8, 0.1, 0.8],
-            layers::Color::White => [1.0, 1.0, 1.0, 0.1],
-            layers::Color::Yellow => [0.7, 0.7, 0.0, 0.8],
-        }
-    }
-
     fn draw_frame(
         &mut self,
+        clouds: &[CloudSprite],
+        cloud_colors: [[f32; 4]; 8],
         cells: &[CellSprite],
         layer_colors: [[f32; 4]; 8],
         bonds: &[BondSprite],
     ) {
+        let clouds_vb = glium::VertexBuffer::new(&self.display, &clouds).unwrap();
         let cells_vb = glium::VertexBuffer::new(&self.display, &cells).unwrap();
         let bonds_vb = glium::VertexBuffer::new(&self.display, &bonds).unwrap();
         let screen_transform = self.current_screen_transform();
@@ -196,6 +229,8 @@ impl GliumView {
         frame.clear_color(0.0, 0.0, 0.0, 1.0);
         self.background_drawing
             .draw(&mut frame, &self.world_vb, screen_transform);
+        self.cloud_drawing
+            .draw(&mut frame, &clouds_vb, screen_transform, cloud_colors);
         self.cell_drawing
             .draw(&mut frame, &cells_vb, screen_transform, layer_colors);
         self.bond_drawing.draw(

@@ -378,6 +378,12 @@ impl Mul<Length> for Value1D {
     }
 }
 
+impl MulAssign<Value1D> for Length {
+    fn mul_assign(&mut self, rhs: Value1D) {
+        self.value *= rhs;
+    }
+}
+
 #[derive(Clone, Copy, Debug, Deserialize, PartialEq, PartialOrd, Serialize)]
 pub struct Area {
     value: Value1D,

@@ -2,6 +2,21 @@ use crate::physics::handles::*;
 use crate::physics::quantities::*;
 use crate::physics::shapes::Circle;
 
+#[derive(Debug, Clone, Copy)]
+pub struct CloudParameters {
+    pub expansion_factor: Value1D,
+}
+
+impl CloudParameters {
+    pub const DEFAULT: CloudParameters = CloudParameters {
+        expansion_factor: 1.0,
+    };
+
+    pub fn validate(&self) {
+        assert!(self.expansion_factor > 0.0);
+    }
+}
+
 #[derive(Clone, Debug, PartialEq)]
 pub struct Cloud {
     handle: Handle<Cloud>,
@@ -16,6 +31,10 @@ impl Cloud {
             position,
             radius,
         }
+    }
+
+    pub fn tick(&mut self, parameters: &CloudParameters) {
+        self.radius *= parameters.expansion_factor;
     }
 }
 
@@ -36,5 +55,22 @@ impl Circle for Cloud {
 
     fn center(&self) -> Position {
         self.position
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn tick_expands_cloud() {
+        let parameters = CloudParameters {
+            expansion_factor: 1.25,
+        };
+        let mut cloud = Cloud::new(Position::ORIGIN, Length::new(2.0));
+
+        cloud.tick(&parameters);
+
+        assert_eq!(cloud.radius(), Length::new(2.5));
     }
 }

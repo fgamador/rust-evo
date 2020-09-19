@@ -4,16 +4,14 @@ use crate::physics::shapes::Circle;
 
 #[derive(Debug, Clone, Copy)]
 pub struct CloudParameters {
-    pub expansion_factor: Value1D,
+    pub resize_factor: Value1D,
 }
 
 impl CloudParameters {
-    pub const DEFAULT: CloudParameters = CloudParameters {
-        expansion_factor: 1.0,
-    };
+    pub const DEFAULT: CloudParameters = CloudParameters { resize_factor: 1.0 };
 
     pub fn validate(&self) {
-        assert!(self.expansion_factor > 0.0);
+        assert!(self.resize_factor > 0.0);
     }
 }
 
@@ -34,7 +32,7 @@ impl Cloud {
     }
 
     pub fn tick(&mut self, parameters: &CloudParameters) {
-        self.radius *= parameters.expansion_factor;
+        self.radius *= parameters.resize_factor;
     }
 }
 
@@ -65,7 +63,7 @@ mod tests {
     #[test]
     fn tick_expands_cloud() {
         let parameters = CloudParameters {
-            expansion_factor: 1.25,
+            resize_factor: 1.25,
         };
         let mut cloud = Cloud::new(Position::ORIGIN, Length::new(2.0));
 

@@ -229,8 +229,6 @@ impl GliumView {
         frame.clear_color(0.0, 0.0, 0.0, 1.0);
         self.background_drawing
             .draw(&mut frame, &self.world_vb, screen_transform);
-        self.cloud_drawing
-            .draw(&mut frame, &clouds_vb, screen_transform, cloud_colors);
         self.cell_drawing
             .draw(&mut frame, &cells_vb, screen_transform, layer_colors);
         self.bond_drawing.draw(
@@ -239,6 +237,8 @@ impl GliumView {
             screen_transform,
             [1.0, 1.0, 0.0, 1.0],
         );
+        self.cloud_drawing
+            .draw(&mut frame, &clouds_vb, screen_transform, cloud_colors);
         frame.finish().unwrap();
     }
 

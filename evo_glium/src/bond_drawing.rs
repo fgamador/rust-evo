@@ -155,7 +155,7 @@ impl BondDrawing {
 
         void main() {
             color_out = bond_color;
-            color_out.a = color_out.a * alpha_factor(
+            color_out.a *= alpha_factor(
                 bond_point_in.offset_from_end1, bond_point_in.radius1, bond_point_in.radius2, bond_point_in.bond_length);
         }
     "#;

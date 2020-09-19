@@ -141,7 +141,7 @@ impl CloudDrawing {
             color_out = (color_index < 4u)
                 ? cloud_colors_0_3[color_index]
                 : cloud_colors_4_7[color_index - 4u];
-            color_out.a = color_out.a * alpha_factor(radial_offset, cloud_radius);
+            color_out.a *= alpha_factor(radial_offset, cloud_radius);
         }
 
         void main() {

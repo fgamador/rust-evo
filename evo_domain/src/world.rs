@@ -188,10 +188,10 @@ impl World {
     }
 
     pub fn add_cloud(&mut self, cloud: Cloud) -> Handle<Cloud> {
-        let handle = self.clouds.add(cloud);
+        self.clouds.add(cloud)
         // TODO self.circle_handles
         //     .add_handle(SortableHandle::Cloud(handle));
-        handle
+        // handle
     }
 
     pub fn clouds(&self) -> &[Cloud] {

@@ -359,9 +359,8 @@ impl World {
     }
 
     fn remove_nonexistent_clouds(&mut self) {
-        let handles: Vec<Handle<Cloud>> = self
+        let non_existent_cloud_handles: Vec<Handle<Cloud>> = self
             .clouds
-            .objects()
             .iter()
             .filter_map(|cloud| {
                 if cloud.exists(&self.parameters.cloud_params) {
@@ -371,7 +370,8 @@ impl World {
                 }
             })
             .collect();
-        self.clouds.remove_all(&handles, |_, _| {});
+        self.clouds
+            .remove_all(&non_existent_cloud_handles, |_, _| {});
     }
 
     fn print_debug_info(&self) {

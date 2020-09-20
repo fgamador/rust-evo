@@ -1,3 +1,4 @@
+use smallvec::alloc::slice::{Iter, IterMut};
 use std::cmp::Ordering;
 use std::convert::TryInto;
 use std::fmt;
@@ -94,6 +95,14 @@ impl<T: ObjectWithHandle<T>> ObjectsWithHandles<T> {
 
     pub fn object_mut(&mut self, handle: Handle<T>) -> &mut T {
         &mut self.objects[handle.index()]
+    }
+
+    pub fn iter(&self) -> Iter<'_, T> {
+        self.objects.iter()
+    }
+
+    pub fn iter_mut(&mut self) -> IterMut<'_, T> {
+        self.objects.iter_mut()
     }
 }
 

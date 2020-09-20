@@ -1,12 +1,13 @@
 use crate::biology::cell::Cell;
 use crate::biology::changes::*;
-use crate::biology::cloud::{Cloud, CloudParameters};
+use crate::biology::cloud::Cloud;
 use crate::environment::influences::*;
 use crate::physics::bond::*;
 use crate::physics::handles::*;
 use crate::physics::node_graph::*;
 use crate::physics::overlap::{SortableHandle, SortableHandles};
 use crate::physics::quantities::*;
+use crate::Parameters;
 use rayon::prelude::*;
 use std::collections::HashSet;
 use std::iter::FromIterator;
@@ -377,21 +378,6 @@ impl World {
     }
 }
 
-#[derive(Debug, Clone, Copy)]
-pub struct Parameters {
-    pub cloud_params: CloudParameters,
-}
-
-impl Parameters {
-    pub const DEFAULT: Parameters = Parameters {
-        cloud_params: CloudParameters::DEFAULT,
-    };
-
-    pub fn validate(&self) {
-        self.cloud_params.validate();
-    }
-}
-
 struct NewChildData {
     parent: Handle<Cell>,
     bond_index: usize,
@@ -401,6 +387,7 @@ struct NewChildData {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::biology::cloud::CloudParameters;
     use crate::biology::control::*;
     use crate::biology::layers::*;
     use crate::environment::local_environment::*;

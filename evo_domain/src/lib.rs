@@ -3,7 +3,23 @@ pub mod environment;
 pub mod physics;
 pub mod world;
 
+use crate::biology::cloud::CloudParameters;
 use std::time;
+
+#[derive(Debug, Clone, Copy)]
+pub struct Parameters {
+    pub cloud_params: CloudParameters,
+}
+
+impl Parameters {
+    pub const DEFAULT: Parameters = Parameters {
+        cloud_params: CloudParameters::DEFAULT,
+    };
+
+    pub fn validate(&self) {
+        self.cloud_params.validate();
+    }
+}
 
 #[derive(Clone, Copy, Debug, PartialEq)]
 pub enum UserAction {

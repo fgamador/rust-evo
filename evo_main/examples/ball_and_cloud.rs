@@ -1,7 +1,8 @@
 use evo_domain::biology::cell::Cell;
 use evo_domain::biology::cloud::{Cloud, CloudParameters};
 use evo_domain::physics::quantities::*;
-use evo_domain::world::{Parameters, World};
+use evo_domain::world::World;
+use evo_domain::Parameters;
 use evo_main::main_support::*;
 
 fn main() {

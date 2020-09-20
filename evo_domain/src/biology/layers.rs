@@ -112,8 +112,12 @@ impl CellLayer {
     }
 
     pub fn dead(mut self) -> Self {
-        self.update_health(HealthDelta::new(-1.0));
+        self.die();
         self
+    }
+
+    pub fn die(&mut self) {
+        self.update_health(HealthDelta::new(-1.0));
     }
 
     pub fn spawn(&self, area: Area) -> Self {

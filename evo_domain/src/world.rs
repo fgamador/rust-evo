@@ -7,6 +7,7 @@ use crate::physics::handles::*;
 use crate::physics::node_graph::*;
 use crate::physics::overlap::{SortableHandle, SortableHandles};
 use crate::physics::quantities::*;
+use crate::physics::shapes::Circle;
 use crate::Parameters;
 use rayon::prelude::*;
 use std::collections::HashSet;
@@ -282,8 +283,10 @@ impl World {
                 self.num_selected_cells -= 1;
             }
         }
+        self.add_clouds_for_dead_cells(&dead_cell_handles);
         self.update_cell_graph(new_children, broken_bond_handles, dead_cell_handles);
         self.remove_nonexistent_clouds();
+        self.update_circle_handles();
     }
 
     fn execute_bond_requests(
@@ -321,6 +324,17 @@ impl World {
         }
     }
 
+    fn add_clouds_for_dead_cells(&mut self, dead_cell_handles: &[Handle<Cell>]) {
+        for handle in dead_cell_handles {
+            self.clouds
+                .add(Self::cloud_for_dead_cell(self.cell(*handle)));
+        }
+    }
+
+    fn cloud_for_dead_cell(cell: &Cell) -> Cloud {
+        Cloud::new(cell.center(), cell.radius())
+    }
+
     fn update_cell_graph(
         &mut self,
         new_children: Vec<NewChildData>,
@@ -330,11 +344,6 @@ impl World {
         self.add_children(new_children);
         self.remove_bonds(&broken_bond_handles);
         self.cell_graph.remove_nodes(&dead_cell_handles);
-        let cell_graph = &self.cell_graph;
-        self.circle_handles.remove_invalid_handles(|h| match h {
-            SortableHandle::GraphNode(h) => cell_graph.is_valid_handle(h),
-            SortableHandle::Cloud => false,
-        });
     }
 
     fn add_children(&mut self, new_children: Vec<NewChildData>) {
@@ -374,6 +383,14 @@ impl World {
             .remove_all(&non_existent_cloud_handles, |_, _| {});
     }
 
+    fn update_circle_handles(&mut self) {
+        let cell_graph = &self.cell_graph;
+        self.circle_handles.remove_invalid_handles(|h| match h {
+            SortableHandle::GraphNode(h) => cell_graph.is_valid_handle(h),
+            SortableHandle::Cloud => false,
+        });
+    }
+
     fn print_debug_info(&self) {
         if self.num_selected_cells == 0 {
             return;
@@ -410,7 +427,6 @@ mod tests {
     use crate::environment::local_environment::*;
     use crate::physics::newtonian::NewtonianBody;
     use crate::physics::overlap::Overlap;
-    use crate::physics::shapes::*;
 
     #[test]
     fn tick_moves_ball() {
@@ -703,6 +719,26 @@ mod tests {
         world.tick();
 
         assert_eq!(world.cells().len(), 0);
+    }
+
+    #[test]
+    fn world_replaces_dead_cell_with_cloud() {
+        let mut world = World::new(Position::ORIGIN, Position::ORIGIN).with_cell(
+            Cell::ball(
+                Length::new(2.0),
+                Mass::new(1.0),
+                Position::new(3.5, -1.5),
+                Velocity::ZERO,
+            )
+            .dead(),
+        );
+
+        world.tick();
+
+        assert_eq!(world.clouds().len(), 1);
+        let cloud = &world.clouds()[0];
+        assert_eq!(cloud.center(), Position::new(3.5, -1.5));
+        assert_eq!(cloud.radius(), Length::new(2.0));
     }
 
     #[test]

@@ -82,6 +82,13 @@ impl Cell {
         self
     }
 
+    pub fn dead(mut self) -> Self {
+        for layer in &mut self.layers {
+            layer.die();
+        }
+        self
+    }
+
     pub fn spawn(&mut self, layer_area: Area) -> Self {
         let mut layers = self
             .layers

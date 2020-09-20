@@ -125,6 +125,7 @@ impl GliumView {
         CloudSprite {
             center: [cloud.center().x() as f32, cloud.center().y() as f32],
             radius: cloud.radius().value() as f32,
+            concentration: cloud.concentration().value() as f32,
             color_index: 0,
         }
     }

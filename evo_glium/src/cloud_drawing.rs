@@ -4,10 +4,11 @@ use glium::{implement_vertex, uniform, Surface};
 pub struct CloudSprite {
     pub center: [f32; 2],
     pub radius: f32,
+    pub concentration: f32,
     pub color_index: u32,
 }
 
-implement_vertex!(CloudSprite, center, radius, color_index);
+implement_vertex!(CloudSprite, center, radius, concentration, color_index);
 
 pub struct CloudDrawing {
     pub shader_program: glium::Program,
@@ -62,17 +63,20 @@ impl CloudDrawing {
 
         in vec2 center;
         in float radius;
+        in float concentration;
         in uint color_index;
 
         out CloudSprite {
             vec2 center;
             float radius;
+            float concentration;
             uint color_index;
         } cloud_out;
 
         void main() {
             cloud_out.center = center;
             cloud_out.radius = radius;
+            cloud_out.concentration = concentration;
             cloud_out.color_index = color_index;
         }
     "#;
@@ -88,12 +92,14 @@ impl CloudDrawing {
         in CloudSprite {
             vec2 center;
             float radius;
+            float concentration;
             uint color_index;
         } cloud_in[];
 
         out CloudPoint {
             vec2 offset;
             flat float radius;
+            flat float concentration;
             flat uint color_index;
         } cloud_point_out;
 
@@ -101,6 +107,7 @@ impl CloudDrawing {
             vec2 offset = vec2(radius, radius) * corner;
             cloud_point_out.offset = offset;
             cloud_point_out.radius = radius;
+            cloud_point_out.concentration = cloud_in[0].concentration;
             cloud_point_out.color_index = cloud_in[0].color_index;
             gl_Position = screen_transform * vec4(center + offset, 0.0, 1.0);
             EmitVertex();
@@ -128,26 +135,27 @@ impl CloudDrawing {
         in CloudPoint {
             vec2 offset;
             flat float radius;
+            flat float concentration;
             flat uint color_index;
         } cloud_point_in;
 
         out vec4 color_out;
 
-        float alpha_factor(in float radial_offset, in float cloud_radius) {
-            return 1.0 - (radial_offset / cloud_radius);
+        float alpha_factor(in float radial_offset, in float cloud_radius, in float concentration) {
+            return concentration * (1.0 - (radial_offset / cloud_radius));
         }
 
-        void emit_color(in uint color_index, in float radial_offset, in float cloud_radius) {
+        void emit_color(in uint color_index, in float radial_offset, in float cloud_radius, in float concentration) {
             color_out = (color_index < 4u)
                 ? cloud_colors_0_3[color_index]
                 : cloud_colors_4_7[color_index - 4u];
-            color_out.a *= alpha_factor(radial_offset, cloud_radius);
+            color_out.a *= alpha_factor(radial_offset, cloud_radius, concentration);
         }
 
         void main() {
             float radial_offset = length(cloud_point_in.offset);
             if (radial_offset <= cloud_point_in.radius) {
-                emit_color(cloud_point_in.color_index, radial_offset, cloud_point_in.radius);
+                emit_color(cloud_point_in.color_index, radial_offset, cloud_point_in.radius, cloud_point_in.concentration);
                 return;
             }
             discard;

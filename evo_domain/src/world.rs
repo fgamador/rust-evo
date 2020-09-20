@@ -283,6 +283,7 @@ impl World {
             }
         }
         self.update_cell_graph(new_children, broken_bond_handles, dead_cell_handles);
+        self.remove_nonexistent_clouds();
     }
 
     fn execute_bond_requests(
@@ -355,6 +356,22 @@ impl World {
         let mut sorted_bond_handles = Vec::from_iter(bond_handles.iter().cloned());
         sorted_bond_handles.sort_unstable();
         self.cell_graph.remove_edges(&sorted_bond_handles);
+    }
+
+    fn remove_nonexistent_clouds(&mut self) {
+        let handles: Vec<Handle<Cloud>> = self
+            .clouds
+            .objects()
+            .iter()
+            .filter_map(|cloud| {
+                if cloud.exists(&self.parameters.cloud_params) {
+                    None
+                } else {
+                    Some(cloud.handle())
+                }
+            })
+            .collect();
+        self.clouds.remove_all(&handles, |_, _| {});
     }
 
     fn print_debug_info(&self) {
@@ -704,6 +721,23 @@ mod tests {
 
         let cloud = &world.clouds()[0];
         assert_eq!(cloud.radius(), Length::new(1.5));
+    }
+
+    #[test]
+    fn world_removes_nonexistent_clouds() {
+        let parameters = Parameters {
+            cloud_params: CloudParameters {
+                resize_factor: Positive::new(10.0),
+                minimum_concentration: Fraction::new(0.1),
+            },
+        };
+        let mut world = World::new(Position::ORIGIN, Position::ORIGIN)
+            .with_parameters(parameters)
+            .with_clouds(vec![Cloud::new(Position::ORIGIN, Length::new(1.0))]);
+
+        world.tick();
+
+        assert_eq!(world.clouds().len(), 0);
     }
 
     fn simple_layered_cell(layers: Vec<CellLayer>) -> Cell {

@@ -693,6 +693,7 @@ mod tests {
         let parameters = Parameters {
             cloud_params: CloudParameters {
                 resize_factor: Positive::new(1.5),
+                ..CloudParameters::DEFAULT
             },
         };
         let mut world = World::new(Position::ORIGIN, Position::ORIGIN)

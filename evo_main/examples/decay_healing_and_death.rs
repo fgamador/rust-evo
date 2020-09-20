@@ -1,9 +1,11 @@
 use evo_domain::biology::cell::Cell;
+use evo_domain::biology::cloud::CloudParameters;
 use evo_domain::biology::control::*;
 use evo_domain::biology::control_requests::*;
 use evo_domain::biology::layers::*;
 use evo_domain::physics::quantities::*;
 use evo_domain::world::World;
+use evo_domain::Parameters;
 use evo_main::main_support::*;
 use std::f64;
 use std::f64::consts::PI;
@@ -14,6 +16,12 @@ fn main() {
 }
 
 fn create_world() -> World {
+    let parameters = Parameters {
+        cloud_params: CloudParameters {
+            resize_factor: Positive::new(1.01),
+            minimum_concentration: Fraction::new(0.1),
+        },
+    };
     const LAYER_RESIZE_PARAMS: LayerResizeParameters = LayerResizeParameters {
         growth_energy_delta: BioEnergyDelta::new(-1.0),
         ..LayerResizeParameters::UNLIMITED
@@ -25,6 +33,7 @@ fn create_world() -> World {
     };
 
     World::new(Position::new(0.0, -400.0), Position::new(400.0, 0.0))
+        .with_parameters(parameters)
         .with_standard_influences()
         .with_sunlight(0.0, 10.0)
         .with_cell(

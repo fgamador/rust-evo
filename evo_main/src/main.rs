@@ -1,10 +1,12 @@
 use evo_domain::biology::cell::Cell;
+use evo_domain::biology::cloud::CloudParameters;
 use evo_domain::biology::control::*;
 use evo_domain::biology::genome::*;
 use evo_domain::biology::layers::*;
 use evo_domain::environment::influences::*;
 use evo_domain::physics::quantities::*;
 use evo_domain::world::World;
+use evo_domain::Parameters;
 use evo_main::main_support::*;
 use std::f64::consts::PI;
 
@@ -25,7 +27,14 @@ const PHOTO_LAYER_INDEX: usize = 1;
 const BONDING_LAYER_INDEX: usize = 2;
 
 fn create_world(seed: u64) -> World {
+    let parameters = Parameters {
+        cloud_params: CloudParameters {
+            resize_factor: Positive::new(1.01),
+            minimum_concentration: Fraction::new(0.1),
+        },
+    };
     World::new(Position::new(0.0, -400.0), Position::new(1200.0, 0.0))
+        .with_parameters(parameters)
         .with_standard_influences()
         .with_sunlight(0.0, 1.0)
         .with_per_cell_influences(vec![

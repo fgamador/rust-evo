@@ -691,7 +691,9 @@ mod tests {
     #[test]
     fn tick_resizes_cloud() {
         let parameters = Parameters {
-            cloud_params: CloudParameters { resize_factor: 1.5 },
+            cloud_params: CloudParameters {
+                resize_factor: Positive::new(1.5),
+            },
         };
         let mut world = World::new(Position::ORIGIN, Position::ORIGIN)
             .with_parameters(parameters)

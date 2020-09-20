@@ -16,9 +16,9 @@ impl Parameters {
         cloud_params: CloudParameters::DEFAULT,
     };
 
-    pub fn validate(&self) {
-        self.cloud_params.validate();
-    }
+    // pub fn validate(&self) {
+    //     self.cloud_params.validate();
+    // }
 }
 
 #[derive(Clone, Copy, Debug, PartialEq)]

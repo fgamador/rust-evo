@@ -181,6 +181,52 @@ impl DivAssign<Value1D> for Value2D {
 }
 
 #[derive(Clone, Copy, Debug, Deserialize, PartialEq, PartialOrd, Serialize)]
+pub struct Positive {
+    value: Value1D,
+}
+
+impl Positive {
+    pub const ZERO: Positive = Positive { value: 0.0 };
+
+    pub fn new(value: Value1D) -> Self {
+        if value < 0.0 {
+            panic!("Invalid positive number: {}", value);
+        }
+
+        Positive { value }
+    }
+
+    pub const fn unchecked(value: Value1D) -> Self {
+        Positive { value }
+    }
+
+    #[allow(dead_code)]
+    pub fn value(self) -> Value1D {
+        self.value
+    }
+
+    pub fn sqr(self) -> Positive {
+        Positive::new(self.value * self.value)
+    }
+}
+
+impl Mul<Value1D> for Positive {
+    type Output = Value1D;
+
+    fn mul(self, rhs: Value1D) -> Self::Output {
+        self.value * rhs
+    }
+}
+
+impl Mul<Positive> for Value1D {
+    type Output = Value1D;
+
+    fn mul(self, rhs: Positive) -> Self::Output {
+        self * rhs.value
+    }
+}
+
+#[derive(Clone, Copy, Debug, Deserialize, PartialEq, PartialOrd, Serialize)]
 pub struct Fraction {
     value: Value1D,
 }
@@ -205,6 +251,10 @@ impl Fraction {
     pub fn value(self) -> Value1D {
         self.value
     }
+
+    pub fn sqr(self) -> Fraction {
+        Fraction::new(self.value * self.value)
+    }
 }
 
 impl Mul<Value1D> for Fraction {
@@ -220,6 +270,12 @@ impl Mul<Fraction> for Value1D {
 
     fn mul(self, rhs: Fraction) -> Self::Output {
         self * rhs.value
+    }
+}
+
+impl DivAssign<Value1D> for Fraction {
+    fn div_assign(&mut self, rhs: Value1D) {
+        self.value /= rhs;
     }
 }
 

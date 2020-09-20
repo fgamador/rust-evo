@@ -106,6 +106,15 @@ impl<T: ObjectWithHandle<T>> ObjectsWithHandles<T> {
     }
 }
 
+impl<T: ObjectWithHandle<T>> IntoIterator for ObjectsWithHandles<T> {
+    type Item = T;
+    type IntoIter = std::vec::IntoIter<Self::Item>;
+
+    fn into_iter(self) -> Self::IntoIter {
+        self.objects.into_iter()
+    }
+}
+
 pub trait ObjectWithHandle<T: ObjectWithHandle<T>> {
     fn handle(&self) -> Handle<T>;
 

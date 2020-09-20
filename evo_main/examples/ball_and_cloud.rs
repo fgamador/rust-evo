@@ -13,7 +13,8 @@ fn main() {
 fn create_world() -> World {
     let parameters = Parameters {
         cloud_params: CloudParameters {
-            resize_factor: 1.01,
+            resize_factor: Positive::new(1.01),
+            minimum_concentration: Fraction::new(0.1),
         },
     };
     World::new(Position::new(-100.0, -100.0), Position::new(100.0, 100.0))

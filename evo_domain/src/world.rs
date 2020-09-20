@@ -677,7 +677,7 @@ mod tests {
     }
 
     #[test]
-    fn dead_cells_get_removed_from_world() {
+    fn world_removes_dead_cells() {
         let mut world =
             World::new(Position::ORIGIN, Position::ORIGIN).with_cell(simple_layered_cell(vec![
                 simple_cell_layer(Area::new(1.0), Density::new(1.0)).dead(),

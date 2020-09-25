@@ -11,6 +11,10 @@ fn main() {
 }
 
 fn create_world() -> World {
+    const LAYER_PARAMS: LayerParameters = LayerParameters {
+        overlap_damage_health_delta: HealthDelta::new(-2.0),
+        ..LayerParameters::DEFAULT
+    };
     const LAYER_HEALTH_PARAMS: LayerHealthParameters = LayerHealthParameters {
         overlap_damage_health_delta: HealthDelta::new(-2.0),
         ..LayerHealthParameters::DEFAULT
@@ -27,6 +31,7 @@ fn create_world() -> World {
                 Color::Green,
                 Box::new(NullCellLayerSpecialty::new()),
             )
+            .with_parameters(&LAYER_PARAMS)
             .with_health_parameters(&LAYER_HEALTH_PARAMS)],
         ))
 }

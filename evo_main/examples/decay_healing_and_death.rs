@@ -22,6 +22,11 @@ fn create_world() -> World {
             minimum_concentration: Fraction::new(0.1),
         },
     };
+    const LAYER_PARAMS: LayerParameters = LayerParameters {
+        healing_energy_delta: BioEnergyDelta::ZERO,
+        entropic_damage_health_delta: HealthDelta::new(-0.006),
+        ..LayerParameters::DEFAULT
+    };
     const LAYER_RESIZE_PARAMS: LayerResizeParameters = LayerResizeParameters {
         growth_energy_delta: BioEnergyDelta::new(-1.0),
         ..LayerResizeParameters::UNLIMITED
@@ -46,6 +51,7 @@ fn create_world() -> World {
                     Color::Green,
                     Box::new(PhotoCellLayerSpecialty::new(Fraction::ONE)),
                 )
+                .with_parameters(&LAYER_PARAMS)
                 .with_resize_parameters(&LAYER_RESIZE_PARAMS)
                 .with_health_parameters(&LAYER_HEALTH_PARAMS)],
             )

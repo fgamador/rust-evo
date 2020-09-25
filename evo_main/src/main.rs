@@ -77,6 +77,12 @@ fn create_cell(seed: u64) -> Cell {
 }
 
 fn create_float_layer() -> CellLayer {
+    const PARAMS: LayerParameters = LayerParameters {
+        healing_energy_delta: BioEnergyDelta::new(-1.0),
+        entropic_damage_health_delta: HealthDelta::new(-0.01),
+        overlap_damage_health_delta: HealthDelta::new(OVERLAP_DAMAGE_HEALTH_DELTA),
+        ..LayerParameters::DEFAULT
+    };
     const RESIZE_PARAMS: LayerResizeParameters = LayerResizeParameters {
         growth_energy_delta: BioEnergyDelta::new(-0.1),
         max_growth_rate: 10.0,
@@ -95,11 +101,18 @@ fn create_float_layer() -> CellLayer {
         Color::White,
         Box::new(NullCellLayerSpecialty::new()),
     )
+    .with_parameters(&PARAMS)
     .with_resize_parameters(&RESIZE_PARAMS)
     .with_health_parameters(&HEALTH_PARAMS)
 }
 
 fn create_photo_layer() -> CellLayer {
+    const PARAMS: LayerParameters = LayerParameters {
+        healing_energy_delta: BioEnergyDelta::new(-1.0),
+        entropic_damage_health_delta: HealthDelta::new(-0.01),
+        overlap_damage_health_delta: HealthDelta::new(OVERLAP_DAMAGE_HEALTH_DELTA),
+        ..LayerParameters::DEFAULT
+    };
     const RESIZE_PARAMS: LayerResizeParameters = LayerResizeParameters {
         growth_energy_delta: BioEnergyDelta::new(-1.0),
         max_growth_rate: 10.0,
@@ -118,11 +131,18 @@ fn create_photo_layer() -> CellLayer {
         Color::Green,
         Box::new(PhotoCellLayerSpecialty::new(Fraction::new(0.1))), // 0.02
     )
+    .with_parameters(&PARAMS)
     .with_resize_parameters(&RESIZE_PARAMS)
     .with_health_parameters(&HEALTH_PARAMS)
 }
 
 fn create_bonding_layer() -> CellLayer {
+    const PARAMS: LayerParameters = LayerParameters {
+        healing_energy_delta: BioEnergyDelta::new(-1.0),
+        entropic_damage_health_delta: HealthDelta::new(-0.01),
+        overlap_damage_health_delta: HealthDelta::new(OVERLAP_DAMAGE_HEALTH_DELTA),
+        ..LayerParameters::DEFAULT
+    };
     const RESIZE_PARAMS: LayerResizeParameters = LayerResizeParameters {
         growth_energy_delta: BioEnergyDelta::new(-1.0),
         max_growth_rate: 10.0,
@@ -145,6 +165,7 @@ fn create_bonding_layer() -> CellLayer {
         Color::Yellow,
         Box::new(BondingCellLayerSpecialty::new().with_parameters(&BONDING_PARAMS)),
     )
+    .with_parameters(&PARAMS)
     .with_resize_parameters(&RESIZE_PARAMS)
     .with_health_parameters(&HEALTH_PARAMS)
 }

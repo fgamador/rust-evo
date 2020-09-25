@@ -54,6 +54,12 @@ fn create_cell() -> Cell {
 }
 
 fn create_float_layer() -> CellLayer {
+    const LAYER_PARAMS: LayerParameters = LayerParameters {
+        healing_energy_delta: BioEnergyDelta::new(-1.0),
+        entropic_damage_health_delta: HealthDelta::new(-0.01),
+        overlap_damage_health_delta: HealthDelta::new(OVERLAP_DAMAGE_HEALTH_DELTA),
+        ..LayerParameters::DEFAULT
+    };
     const LAYER_RESIZE_PARAMS: LayerResizeParameters = LayerResizeParameters {
         growth_energy_delta: BioEnergyDelta::new(-0.1),
         max_growth_rate: 10.0,
@@ -72,11 +78,18 @@ fn create_float_layer() -> CellLayer {
         Color::White,
         Box::new(NullCellLayerSpecialty::new()),
     )
+    .with_parameters(&LAYER_PARAMS)
     .with_resize_parameters(&LAYER_RESIZE_PARAMS)
     .with_health_parameters(&LAYER_HEALTH_PARAMS)
 }
 
 fn create_photo_layer() -> CellLayer {
+    const LAYER_PARAMS: LayerParameters = LayerParameters {
+        healing_energy_delta: BioEnergyDelta::new(-1.0),
+        entropic_damage_health_delta: HealthDelta::new(-0.01),
+        overlap_damage_health_delta: HealthDelta::new(OVERLAP_DAMAGE_HEALTH_DELTA),
+        ..LayerParameters::DEFAULT
+    };
     const LAYER_RESIZE_PARAMS: LayerResizeParameters = LayerResizeParameters {
         growth_energy_delta: BioEnergyDelta::new(-1.0),
         max_growth_rate: 10.0,
@@ -95,11 +108,18 @@ fn create_photo_layer() -> CellLayer {
         Color::Green,
         Box::new(PhotoCellLayerSpecialty::new(Fraction::new(0.5))),
     )
+    .with_parameters(&LAYER_PARAMS)
     .with_resize_parameters(&LAYER_RESIZE_PARAMS)
     .with_health_parameters(&LAYER_HEALTH_PARAMS)
 }
 
 fn create_budding_layer() -> CellLayer {
+    const LAYER_PARAMS: LayerParameters = LayerParameters {
+        healing_energy_delta: BioEnergyDelta::new(-1.0),
+        entropic_damage_health_delta: HealthDelta::new(-0.01),
+        overlap_damage_health_delta: HealthDelta::new(OVERLAP_DAMAGE_HEALTH_DELTA),
+        ..LayerParameters::DEFAULT
+    };
     const LAYER_RESIZE_PARAMS: LayerResizeParameters = LayerResizeParameters {
         growth_energy_delta: BioEnergyDelta::new(0.0),
         max_growth_rate: f64::INFINITY,
@@ -118,6 +138,7 @@ fn create_budding_layer() -> CellLayer {
         Color::Yellow,
         Box::new(BondingCellLayerSpecialty::new()),
     )
+    .with_parameters(&LAYER_PARAMS)
     .with_resize_parameters(&LAYER_RESIZE_PARAMS)
     .with_health_parameters(&LAYER_HEALTH_PARAMS)
 }

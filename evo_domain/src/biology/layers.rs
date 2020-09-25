@@ -166,7 +166,7 @@ impl CellLayer {
     }
 
     pub fn is_intact(&self) -> bool {
-        true
+        self.body.is_intact()
     }
 
     pub fn outer_radius(&self) -> Length {
@@ -509,12 +509,17 @@ impl CellLayerBody {
         self.area
     }
 
-    pub fn inner_radius(&self) -> Length {
+    fn inner_radius(&self) -> Length {
         (self.outer_radius.sqr() - self.area / PI).sqrt()
     }
 
     fn health(&self) -> Health {
         self.health
+    }
+
+    fn is_intact(&self) -> bool {
+        let thickness = self.outer_radius.value() - self.inner_radius().value();
+        thickness / self.outer_radius.value() >= self.parameters.minimum_intact_thickness.value()
     }
 
     fn spawn(&self, area: Area) -> Self {
@@ -1181,19 +1186,19 @@ mod tests {
         assert!(layer.is_intact());
     }
 
-    // #[test]
-    // fn layer_below_minimum_thickness_is_not_intact() {
-    //     const LAYER_PARAMS: LayerParameters = LayerParameters {
-    //         minimum_intact_thickness: Fraction::unchecked(0.1),
-    //         ..LayerParameters::DEFAULT
-    //     };
-    //
-    //     let mut layer =
-    //         simple_cell_layer_with_radii(Length::new(1.0), Length::new(0.99), Density::new(1.0))
-    //             .with_parameters(&LAYER_PARAMS);
-    //
-    //     assert!(!layer.is_intact());
-    // }
+    #[test]
+    fn layer_below_minimum_thickness_is_not_intact() {
+        const LAYER_PARAMS: LayerParameters = LayerParameters {
+            minimum_intact_thickness: Fraction::unchecked(0.1),
+            ..LayerParameters::DEFAULT
+        };
+
+        let layer =
+            simple_cell_layer_with_radii(Length::new(1.0), Length::new(0.99), Density::new(1.0))
+                .with_parameters(&LAYER_PARAMS);
+
+        assert!(!layer.is_intact());
+    }
 
     #[test]
     fn photo_layer_adds_energy_based_on_area_and_efficiency_and_duration() {

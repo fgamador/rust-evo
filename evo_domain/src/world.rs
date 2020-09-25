@@ -273,7 +273,7 @@ impl World {
                 &mut new_children,
                 &mut broken_bond_handles,
             );
-            if !cell.is_alive() {
+            if !cell.is_intact() {
                 dead_cell_handles.push(cell.node_handle());
             }
         });

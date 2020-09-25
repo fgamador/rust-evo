@@ -131,7 +131,7 @@ impl Cell {
         self.energy += energy;
     }
 
-    pub fn is_alive(&self) -> bool {
+    pub fn is_intact(&self) -> bool {
         self.layers.iter().any(|layer| layer.is_alive())
     }
 
@@ -306,7 +306,7 @@ impl Cell {
         println!(
             "Cell {}{} tick:",
             self.node_handle(),
-            if self.is_alive() { "" } else { " (DEAD)" }
+            if self.is_intact() { "" } else { " (DEAD)" }
         );
     }
 
@@ -539,16 +539,16 @@ mod tests {
             simple_cell_layer(Area::new(1.0), Density::new(1.0)).dead(),
             simple_cell_layer(Area::new(1.0), Density::new(1.0)).dead(),
         ]);
-        assert!(!cell.is_alive());
+        assert!(!cell.is_intact());
     }
 
     #[test]
-    fn cell_with_one_live_layer_is_alive() {
+    fn cell_with_one_live_layer_is_intact() {
         let cell = simple_layered_cell(vec![
             simple_cell_layer(Area::new(1.0), Density::new(1.0)),
             simple_cell_layer(Area::new(1.0), Density::new(1.0)).dead(),
         ]);
-        assert!(cell.is_alive());
+        assert!(cell.is_intact());
     }
 
     #[test]

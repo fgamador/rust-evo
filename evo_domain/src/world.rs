@@ -263,7 +263,7 @@ impl World {
         let mut donated_energy = vec![];
         let mut new_children = vec![];
         let mut broken_bond_handles = HashSet::new();
-        let mut dead_cell_handles = vec![];
+        let mut burst_cell_handles = vec![];
         self.cell_graph.for_each_node(|index, cell, edge_source| {
             Self::execute_bond_requests(
                 cell,
@@ -274,17 +274,17 @@ impl World {
                 &mut broken_bond_handles,
             );
             if !cell.is_intact() {
-                dead_cell_handles.push(cell.node_handle());
+                burst_cell_handles.push(cell.node_handle());
             }
         });
         self.apply_donated_energy(donated_energy);
-        for dead_cell_handle in &dead_cell_handles {
-            if self.cell(*dead_cell_handle).is_selected() {
+        for burst_cell_handle in &burst_cell_handles {
+            if self.cell(*burst_cell_handle).is_selected() {
                 self.num_selected_cells -= 1;
             }
         }
-        self.add_clouds_for_dead_cells(&dead_cell_handles);
-        self.update_cell_graph(new_children, broken_bond_handles, dead_cell_handles);
+        self.add_clouds_for_burst_cells(&burst_cell_handles);
+        self.update_cell_graph(new_children, broken_bond_handles, burst_cell_handles);
         self.remove_nonexistent_clouds();
         self.update_circle_handles();
     }
@@ -324,14 +324,14 @@ impl World {
         }
     }
 
-    fn add_clouds_for_dead_cells(&mut self, dead_cell_handles: &[Handle<Cell>]) {
-        for handle in dead_cell_handles {
+    fn add_clouds_for_burst_cells(&mut self, burst_cell_handles: &[Handle<Cell>]) {
+        for handle in burst_cell_handles {
             self.clouds
-                .add(Self::cloud_for_dead_cell(self.cell(*handle)));
+                .add(Self::cloud_for_burst_cell(self.cell(*handle)));
         }
     }
 
-    fn cloud_for_dead_cell(cell: &Cell) -> Cloud {
+    fn cloud_for_burst_cell(cell: &Cell) -> Cloud {
         Cloud::new(cell.center(), cell.radius())
     }
 
@@ -339,11 +339,11 @@ impl World {
         &mut self,
         new_children: Vec<NewChildData>,
         broken_bond_handles: HashSet<EdgeHandle>,
-        dead_cell_handles: Vec<Handle<Cell>>,
+        burst_cell_handles: Vec<Handle<Cell>>,
     ) {
         self.add_children(new_children);
         self.remove_bonds(&broken_bond_handles);
-        self.cell_graph.remove_nodes(&dead_cell_handles);
+        self.cell_graph.remove_nodes(&burst_cell_handles);
     }
 
     fn add_children(&mut self, new_children: Vec<NewChildData>) {
@@ -710,7 +710,7 @@ mod tests {
     }
 
     #[test]
-    fn world_removes_dead_cells() {
+    fn world_removes_burst_cells() {
         let mut world =
             World::new(Position::ORIGIN, Position::ORIGIN).with_cell(simple_layered_cell(vec![
                 simple_cell_layer(Area::new(1.0), Density::new(1.0)).dead(),
@@ -722,7 +722,7 @@ mod tests {
     }
 
     #[test]
-    fn world_replaces_dead_cell_with_cloud() {
+    fn world_replaces_burst_cell_with_cloud() {
         let mut world = World::new(Position::ORIGIN, Position::ORIGIN).with_cell(
             Cell::ball(
                 Length::new(2.0),
@@ -730,7 +730,7 @@ mod tests {
                 Position::new(3.5, -1.5),
                 Velocity::ZERO,
             )
-            .dead(),
+            .burst(),
         );
 
         world.tick();

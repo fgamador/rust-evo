@@ -82,7 +82,7 @@ impl Cell {
         self
     }
 
-    pub fn dead(mut self) -> Self {
+    pub fn burst(mut self) -> Self {
         for layer in &mut self.layers {
             layer.die();
         }
@@ -534,7 +534,7 @@ mod tests {
     }
 
     #[test]
-    fn cell_with_all_dead_layers_is_dead() {
+    fn cell_with_all_dead_layers_is_burst() {
         let cell = simple_layered_cell(vec![
             simple_cell_layer(Area::new(1.0), Density::new(1.0)).dead(),
             simple_cell_layer(Area::new(1.0), Density::new(1.0)).dead(),

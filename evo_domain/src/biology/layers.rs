@@ -132,6 +132,10 @@ impl CellLayer {
         self.brain.is_alive()
     }
 
+    pub fn is_intact(&self) -> bool {
+        true
+    }
+
     pub fn outer_radius(&self) -> Length {
         self.body.outer_radius
     }
@@ -1084,6 +1088,12 @@ mod tests {
         layer.execute_control_request(&fully_budgeted_healing_request(0, 1.0), &mut changes);
         assert_eq!(layer.health(), Health::ZERO);
         assert_eq!(changes.layers[0].health, HealthDelta::ZERO);
+    }
+
+    #[test]
+    fn layer_with_minimum_thickness_is_intact() {
+        let layer = simple_cell_layer(Area::new(1.0), Density::new(1.0));
+        assert!(layer.is_intact());
     }
 
     #[test]

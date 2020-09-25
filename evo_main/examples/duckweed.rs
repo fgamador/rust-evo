@@ -68,7 +68,7 @@ fn create_float_layer() -> CellLayer {
     CellLayer::new(
         Area::new(5.0 * PI),
         Density::new(FLOAT_LAYER_DENSITY),
-        Color::White,
+        Tissue::AirBubble,
         Box::new(NullCellLayerSpecialty::new()),
     )
     .with_parameters(&LAYER_PARAMS)
@@ -89,7 +89,7 @@ fn create_photo_layer() -> CellLayer {
     CellLayer::new(
         Area::new(5.0 * PI),
         Density::new(PHOTO_LAYER_DENSITY),
-        Color::Green,
+        Tissue::Photosynthetic,
         Box::new(PhotoCellLayerSpecialty::new(Fraction::new(0.5))),
     )
     .with_parameters(&LAYER_PARAMS)
@@ -110,7 +110,7 @@ fn create_budding_layer() -> CellLayer {
     CellLayer::new(
         Area::new(5.0 * PI),
         Density::new(BUDDING_LAYER_DENSITY),
-        Color::Yellow,
+        Tissue::Bonding,
         Box::new(BondingCellLayerSpecialty::new()),
     )
     .with_parameters(&LAYER_PARAMS)

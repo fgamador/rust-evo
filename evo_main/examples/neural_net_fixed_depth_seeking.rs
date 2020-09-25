@@ -31,14 +31,22 @@ fn create_world() -> World {
             Position::new(200.0, -200.0),
             Velocity::new(0.0, 0.0),
             vec![
-                simple_cell_layer(Area::new(100.0 * PI), Density::new(0.0004), Color::White),
-                simple_cell_layer(Area::new(300.0 * PI), Density::new(0.00075), Color::Green),
+                simple_cell_layer(
+                    Area::new(100.0 * PI),
+                    Density::new(0.0004),
+                    Tissue::AirBubble,
+                ),
+                simple_cell_layer(
+                    Area::new(300.0 * PI),
+                    Density::new(0.00075),
+                    Tissue::Photosynthetic,
+                ),
             ],
         )
         .with_control(Box::new(NeuralNetControl::new(genome)))])
 }
 
-fn simple_cell_layer(area: Area, density: Density, color: Color) -> CellLayer {
+fn simple_cell_layer(area: Area, density: Density, color: Tissue) -> CellLayer {
     CellLayer::new(
         area,
         density,

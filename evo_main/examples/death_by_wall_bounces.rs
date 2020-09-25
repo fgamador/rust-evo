@@ -24,7 +24,7 @@ fn create_world() -> World {
             vec![CellLayer::new(
                 Area::new(200.0 * PI),
                 Density::new(0.001),
-                Color::Green,
+                Tissue::Photosynthetic,
                 Box::new(NullCellLayerSpecialty::new()),
             )
             .with_parameters(&LAYER_PARAMS)],

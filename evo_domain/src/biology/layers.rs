@@ -9,12 +9,11 @@ use std::f64::consts::PI;
 use std::fmt::Debug;
 use std::usize;
 
-// TODO rename as TissueType?
 #[derive(Clone, Copy, Debug, Eq, Hash, PartialEq)]
-pub enum Color {
-    Green,
-    White,
-    Yellow,
+pub enum Tissue {
+    AirBubble,
+    Bonding,
+    Photosynthetic,
 }
 
 #[derive(Debug, Clone, Copy)]
@@ -70,12 +69,12 @@ impl CellLayer {
     pub fn new(
         area: Area,
         density: Density,
-        color: Color,
+        tissue: Tissue,
         specialty: Box<dyn CellLayerSpecialty>,
     ) -> Self {
         CellLayer {
             brain: &CellLayer::LIVING_BRAIN,
-            body: CellLayerBody::new(area, density, color),
+            body: CellLayerBody::new(area, density, tissue),
             specialty,
         }
     }
@@ -84,12 +83,12 @@ impl CellLayer {
         outer_radius: Length,
         inner_radius: Length,
         density: Density,
-        color: Color,
+        tissue: Tissue,
         specialty: Box<dyn CellLayerSpecialty>,
     ) -> Self {
         CellLayer {
             brain: &CellLayer::LIVING_BRAIN,
-            body: CellLayerBody::new_with_radii(outer_radius, inner_radius, density, color),
+            body: CellLayerBody::new_with_radii(outer_radius, inner_radius, density, tissue),
             specialty,
         }
     }
@@ -138,8 +137,8 @@ impl CellLayer {
         self.body.inner_radius()
     }
 
-    pub fn color(&self) -> Color {
-        self.body.color
+    pub fn tissue(&self) -> Tissue {
+        self.body.tissue
     }
 
     pub fn health(&self) -> Health {
@@ -434,20 +433,20 @@ pub struct CellLayerBody {
     mass: Mass,
     outer_radius: Length,
     health: Health,
-    color: Color,
+    tissue: Tissue,
     // TODO move to CellLayerParameters struct?
     parameters: &'static LayerParameters,
 }
 
 impl CellLayerBody {
-    fn new(area: Area, density: Density, color: Color) -> Self {
+    fn new(area: Area, density: Density, tissue: Tissue) -> Self {
         let mut body = CellLayerBody {
             area,
             density,
             mass: Mass::ZERO,
             outer_radius: Length::ZERO,
             health: Health::FULL,
-            color,
+            tissue,
             parameters: &LayerParameters::DEFAULT,
         };
         body.init_from_area();
@@ -458,7 +457,7 @@ impl CellLayerBody {
         outer_radius: Length,
         inner_radius: Length,
         density: Density,
-        color: Color,
+        tissue: Tissue,
     ) -> Self {
         let mut body = CellLayerBody {
             area: Area::ZERO,
@@ -466,7 +465,7 @@ impl CellLayerBody {
             mass: Mass::ZERO,
             outer_radius,
             health: Health::FULL,
-            color,
+            tissue,
             parameters: &LayerParameters::DEFAULT,
         };
         body.init_from_radii(inner_radius);
@@ -1206,7 +1205,7 @@ mod tests {
         let mut layer = CellLayer::new(
             Area::new(4.0),
             Density::new(1.0),
-            Color::Green,
+            Tissue::Photosynthetic,
             Box::new(PhotoCellLayerSpecialty::new(Fraction::new(0.5))),
         );
 
@@ -1224,7 +1223,7 @@ mod tests {
         let mut layer = CellLayer::new(
             Area::new(1.0),
             Density::new(1.0),
-            Color::Green,
+            Tissue::Photosynthetic,
             Box::new(PhotoCellLayerSpecialty::new(Fraction::ONE)),
         )
         .with_health(Health::new(0.75));
@@ -1243,7 +1242,7 @@ mod tests {
         let mut layer = CellLayer::new(
             Area::new(1.0),
             Density::new(1.0),
-            Color::Green,
+            Tissue::Photosynthetic,
             Box::new(PhotoCellLayerSpecialty::new(Fraction::ONE)),
         )
         .dead();
@@ -1266,7 +1265,7 @@ mod tests {
         let layer = CellLayer::new(
             Area::new(10.0),
             Density::new(1.0),
-            Color::Yellow,
+            Tissue::Bonding,
             Box::new(BondingCellLayerSpecialty::new().with_parameters(&LAYER_PARAMS)),
         )
         .with_health(Health::new(0.5));
@@ -1286,7 +1285,7 @@ mod tests {
         let layer = CellLayer::new(
             Area::new(10.0),
             Density::new(1.0),
-            Color::Yellow,
+            Tissue::Bonding,
             Box::new(BondingCellLayerSpecialty::new()),
         )
         .with_health(Health::new(0.5));
@@ -1310,7 +1309,7 @@ mod tests {
         let layer = CellLayer::new(
             Area::new(10.0),
             Density::new(1.0),
-            Color::Yellow,
+            Tissue::Bonding,
             Box::new(BondingCellLayerSpecialty::new().with_parameters(&LAYER_PARAMS)),
         );
 
@@ -1337,7 +1336,7 @@ mod tests {
         let mut layer = CellLayer::new(
             Area::new(1.0),
             Density::new(1.0),
-            Color::Green,
+            Tissue::Photosynthetic,
             Box::new(ThrusterCellLayerSpecialty::new()),
         );
         let mut changes = CellChanges::new(1, false);
@@ -1362,7 +1361,7 @@ mod tests {
         let mut layer = CellLayer::new(
             Area::new(1.0),
             Density::new(1.0),
-            Color::Green,
+            Tissue::Photosynthetic,
             Box::new(ThrusterCellLayerSpecialty::new()),
         );
         let mut changes = CellChanges::new(1, false);
@@ -1395,7 +1394,7 @@ mod tests {
         let mut layer = CellLayer::new(
             Area::new(1.0),
             Density::new(1.0),
-            Color::Green,
+            Tissue::Photosynthetic,
             Box::new(ThrusterCellLayerSpecialty::new()),
         )
         .with_health(Health::new(0.5));
@@ -1420,7 +1419,7 @@ mod tests {
         CellLayer::new(
             area,
             density,
-            Color::Green,
+            Tissue::Photosynthetic,
             Box::new(NullCellLayerSpecialty::new()),
         )
     }
@@ -1434,7 +1433,7 @@ mod tests {
             outer_radius,
             inner_radius,
             density,
-            Color::Green,
+            Tissue::Photosynthetic,
             Box::new(NullCellLayerSpecialty::new()),
         )
     }

@@ -177,18 +177,18 @@ impl GliumView {
             let sample_cell = &world.cells()[0];
             assert!(sample_cell.layers().len() < layer_colors.len());
             for (i, layer) in sample_cell.layers().iter().enumerate() {
-                layer_colors[i] = Self::convert_layer_color_to_rgb_color(layer.color());
+                layer_colors[i] = Self::convert_layer_tissue_to_rgb_color(layer.tissue());
             }
             layer_colors[sample_cell.layers().len()] = SELECTION_HALO_COLOR;
         }
         layer_colors
     }
 
-    fn convert_layer_color_to_rgb_color(color: layers::Color) -> [f32; 4] {
+    fn convert_layer_tissue_to_rgb_color(color: layers::Tissue) -> [f32; 4] {
         match color {
-            layers::Color::Green => [0.1, 0.8, 0.1, 0.8],
-            layers::Color::White => [1.0, 1.0, 1.0, 0.1],
-            layers::Color::Yellow => [0.7, 0.7, 0.0, 0.8],
+            layers::Tissue::AirBubble => [1.0, 1.0, 1.0, 0.1],
+            layers::Tissue::Bonding => [0.7, 0.7, 0.0, 0.8],
+            layers::Tissue::Photosynthetic => [0.1, 0.8, 0.1, 0.8],
         }
     }
 

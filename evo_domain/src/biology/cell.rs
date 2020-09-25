@@ -57,7 +57,7 @@ impl Cell {
             vec![CellLayer::new(
                 area,
                 mass / area,
-                Color::Green,
+                Tissue::Photosynthetic,
                 Box::new(BondingCellLayerSpecialty::new()),
             )],
         )
@@ -613,7 +613,7 @@ mod tests {
             vec![CellLayer::new(
                 Area::new(1.0),
                 Density::new(1.0),
-                Color::Green,
+                Tissue::Photosynthetic,
                 Box::new(NullCellLayerSpecialty::new()),
             )
             .with_health(Health::new(0.5))],
@@ -675,7 +675,7 @@ mod tests {
         let mut cell = simple_layered_cell(vec![CellLayer::new(
             Area::new(1.0),
             Density::new(1.0),
-            Color::Green,
+            Tissue::Photosynthetic,
             Box::new(ThrusterCellLayerSpecialty::new()),
         )])
         .with_control(Box::new(SimpleThrusterControl::new(
@@ -697,7 +697,7 @@ mod tests {
         let mut cell = simple_layered_cell(vec![CellLayer::new(
             Area::new(4.0),
             Density::new(1.0),
-            Color::Green,
+            Tissue::Photosynthetic,
             Box::new(PhotoCellLayerSpecialty::new(Fraction::new(0.5))),
         )]);
         cell.environment_mut().add_light_intensity(10.0);
@@ -897,7 +897,7 @@ mod tests {
         CellLayer::new(
             area,
             density,
-            Color::Green,
+            Tissue::Photosynthetic,
             Box::new(NullCellLayerSpecialty::new()),
         )
     }

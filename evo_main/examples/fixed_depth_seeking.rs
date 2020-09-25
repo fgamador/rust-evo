@@ -39,12 +39,12 @@ fn create_world() -> World {
                     simple_cell_layer(
                         Area::new(100.0 * PI),
                         Density::new(FLOAT_LAYER_DENSITY),
-                        Color::White,
+                        Tissue::AirBubble,
                     ),
                     simple_cell_layer(
                         Area::new(300.0 * PI),
                         Density::new(OTHER_LAYER_DENSITY),
-                        Color::Green,
+                        Tissue::Photosynthetic,
                     ),
                 ],
             )
@@ -56,12 +56,12 @@ fn create_world() -> World {
                     simple_cell_layer(
                         Area::new(50.0 * PI),
                         Density::new(FLOAT_LAYER_DENSITY),
-                        Color::White,
+                        Tissue::AirBubble,
                     ),
                     simple_cell_layer(
                         Area::new(150.0 * PI),
                         Density::new(OTHER_LAYER_DENSITY),
-                        Color::Green,
+                        Tissue::Photosynthetic,
                     ),
                 ],
             )
@@ -69,7 +69,7 @@ fn create_world() -> World {
         ])
 }
 
-fn simple_cell_layer(area: Area, density: Density, color: Color) -> CellLayer {
+fn simple_cell_layer(area: Area, density: Density, color: Tissue) -> CellLayer {
     CellLayer::new(
         area,
         density,

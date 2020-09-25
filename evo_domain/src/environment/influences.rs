@@ -962,7 +962,7 @@ mod tests {
         CellLayer::new(
             area,
             density,
-            Color::Green,
+            Tissue::Photosynthetic,
             Box::new(NullCellLayerSpecialty::new()),
         )
     }

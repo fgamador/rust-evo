@@ -30,13 +30,13 @@ fn create_cell() -> Cell {
             CellLayer::new(
                 Area::new(5.0 * PI),
                 Density::new(0.002),
-                Color::Green,
+                Tissue::Photosynthetic,
                 Box::new(NullCellLayerSpecialty::new()),
             ),
             CellLayer::new(
                 Area::new(5.0 * PI),
                 Density::new(0.002),
-                Color::Yellow,
+                Tissue::Bonding,
                 Box::new(BondingCellLayerSpecialty::new()),
             ),
         ],

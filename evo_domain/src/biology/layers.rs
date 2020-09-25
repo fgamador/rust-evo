@@ -13,6 +13,7 @@ use std::usize;
 pub enum Tissue {
     AirBubble,
     Bonding,
+    CellWall,
     Photosynthetic,
 }
 

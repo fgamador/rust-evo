@@ -88,6 +88,20 @@ impl CellLayer {
         }
     }
 
+    pub fn new_with_radii(
+        outer_radius: Length,
+        inner_radius: Length,
+        density: Density,
+        color: Color,
+        specialty: Box<dyn CellLayerSpecialty>,
+    ) -> Self {
+        CellLayer {
+            brain: &CellLayer::LIVING_BRAIN,
+            body: CellLayerBody::new_with_radii(outer_radius, inner_radius, density, color),
+            specialty,
+        }
+    }
+
     pub fn with_health_parameters(
         mut self,
         health_parameters: &'static LayerHealthParameters,
@@ -138,6 +152,10 @@ impl CellLayer {
 
     pub fn outer_radius(&self) -> Length {
         self.body.outer_radius
+    }
+
+    pub fn inner_radius(&self) -> Length {
+        self.body.inner_radius()
     }
 
     pub fn color(&self) -> Color {
@@ -445,8 +463,32 @@ impl CellLayerBody {
         body
     }
 
+    pub fn new_with_radii(
+        outer_radius: Length,
+        inner_radius: Length,
+        density: Density,
+        color: Color,
+    ) -> Self {
+        let mut body = CellLayerBody {
+            area: Area::ZERO,
+            density,
+            mass: Mass::ZERO,
+            outer_radius,
+            health: Health::FULL,
+            color,
+            health_parameters: &LayerHealthParameters::DEFAULT,
+            resize_parameters: &LayerResizeParameters::UNLIMITED,
+        };
+        body.init_from_radii(inner_radius);
+        body
+    }
+
     fn area(&self) -> Area {
         self.area
+    }
+
+    pub fn inner_radius(&self) -> Length {
+        (self.outer_radius.sqr() - self.area / PI).sqrt()
     }
 
     fn health(&self) -> Health {
@@ -464,8 +506,13 @@ impl CellLayerBody {
     }
 
     fn init_from_area(&mut self) {
-        self.mass = self.area * self.density;
         self.outer_radius = (self.area / PI).sqrt();
+        self.mass = self.area * self.density;
+    }
+
+    fn init_from_radii(&mut self, inner_radius: Length) {
+        self.area = PI * (self.outer_radius.sqr() - inner_radius.sqr());
+        self.mass = self.area * self.density;
     }
 
     fn update_outer_radius(&mut self, inner_radius: Length) {
@@ -852,6 +899,14 @@ mod tests {
     }
 
     #[test]
+    fn can_create_layer_from_radii() {
+        let layer =
+            simple_cell_layer_with_radii(Length::new(3.0), Length::new(2.0), Density::new(1.0));
+        assert_eq!(layer.outer_radius(), Length::new(3.0));
+        assert_eq!(layer.inner_radius(), Length::new(2.0));
+    }
+
+    #[test]
     fn layer_updates_outer_radius_based_on_inner_radius() {
         let mut layer = simple_cell_layer(Area::new(3.0 * PI), Density::new(1.0));
         layer.update_outer_radius(Length::new(1.0));
@@ -1090,11 +1145,33 @@ mod tests {
         assert_eq!(changes.layers[0].health, HealthDelta::ZERO);
     }
 
-    #[test]
-    fn layer_with_minimum_thickness_is_intact() {
-        let layer = simple_cell_layer(Area::new(1.0), Density::new(1.0));
-        assert!(layer.is_intact());
-    }
+    // #[test]
+    // fn layer_above_minimum_thickness_is_intact() {
+    //     const LAYER_PARAMS: LayerParameters = LayerParameters {
+    //         minimum_intact_thickness: Fraction::new(0.1),
+    //         ..LayerParameters::DEFAULT
+    //     };
+    //
+    //     let mut layer =
+    //         simple_cell_layer_with_radii(Length::new(1.0), Length::new(0.8), Density::new(1.0))
+    //             .with_parameters(&LAYER_PARAMS);
+    //
+    //     assert!(layer.is_intact());
+    // }
+
+    // #[test]
+    // fn layer_below_minimum_thickness_is_not_intact() {
+    //     const LAYER_PARAMS: LayerParameters = LayerParameters {
+    //         minimum_intact_thickness: Fraction::new(0.1),
+    //         ..LayerParameters::DEFAULT
+    //     };
+    //
+    //     let mut layer =
+    //         simple_cell_layer_with_radii(Length::new(1.0), Length::new(0.99), Density::new(1.0))
+    //             .with_parameters(&LAYER_PARAMS);
+    //
+    //     assert!(!layer.is_intact());
+    // }
 
     #[test]
     fn photo_layer_adds_energy_based_on_area_and_efficiency_and_duration() {
@@ -1314,6 +1391,20 @@ mod tests {
     fn simple_cell_layer(area: Area, density: Density) -> CellLayer {
         CellLayer::new(
             area,
+            density,
+            Color::Green,
+            Box::new(NullCellLayerSpecialty::new()),
+        )
+    }
+
+    fn simple_cell_layer_with_radii(
+        outer_radius: Length,
+        inner_radius: Length,
+        density: Density,
+    ) -> CellLayer {
+        CellLayer::new_with_radii(
+            outer_radius,
+            inner_radius,
             density,
             Color::Green,
             Box::new(NullCellLayerSpecialty::new()),

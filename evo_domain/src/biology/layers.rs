@@ -127,7 +127,7 @@ impl CellLayer {
     }
 
     pub fn is_intact(&self) -> bool {
-        self.body.is_intact()
+        self.brain.is_intact(&self.body)
     }
 
     pub fn outer_radius(&self) -> Length {
@@ -281,6 +281,8 @@ impl CellLayer {
 trait CellLayerBrain: Debug + Send + Sync {
     fn is_alive(&self) -> bool;
 
+    fn is_intact(&self, body: &CellLayerBody) -> bool;
+
     fn calculate_automatic_changes(
         &self,
         specialty: &dyn CellLayerSpecialty,
@@ -323,6 +325,10 @@ impl LivingCellLayerBrain {
 
 impl CellLayerBrain for LivingCellLayerBrain {
     fn is_alive(&self) -> bool {
+        true
+    }
+
+    fn is_intact(&self, _body: &CellLayerBody) -> bool {
         true
     }
 
@@ -382,6 +388,10 @@ struct DeadCellLayerBrain {}
 impl CellLayerBrain for DeadCellLayerBrain {
     fn is_alive(&self) -> bool {
         false
+    }
+
+    fn is_intact(&self, body: &CellLayerBody) -> bool {
+        body.is_intact()
     }
 
     fn calculate_automatic_changes(
@@ -1162,7 +1172,7 @@ mod tests {
     }
 
     #[test]
-    fn layer_above_minimum_thickness_is_intact() {
+    fn dead_layer_above_minimum_thickness_is_intact() {
         const LAYER_PARAMS: LayerParameters = LayerParameters {
             minimum_intact_thickness: Fraction::unchecked(0.1),
             ..LayerParameters::DEFAULT
@@ -1170,13 +1180,14 @@ mod tests {
 
         let layer =
             simple_cell_layer_with_radii(Length::new(1.0), Length::new(0.8), Density::new(1.0))
-                .with_parameters(&LAYER_PARAMS);
+                .with_parameters(&LAYER_PARAMS)
+                .dead();
 
         assert!(layer.is_intact());
     }
 
     #[test]
-    fn layer_below_minimum_thickness_is_not_intact() {
+    fn dead_layer_below_minimum_thickness_is_not_intact() {
         const LAYER_PARAMS: LayerParameters = LayerParameters {
             minimum_intact_thickness: Fraction::unchecked(0.1),
             ..LayerParameters::DEFAULT
@@ -1184,7 +1195,8 @@ mod tests {
 
         let layer =
             simple_cell_layer_with_radii(Length::new(1.0), Length::new(0.99), Density::new(1.0))
-                .with_parameters(&LAYER_PARAMS);
+                .with_parameters(&LAYER_PARAMS)
+                .dead();
 
         assert!(!layer.is_intact());
     }

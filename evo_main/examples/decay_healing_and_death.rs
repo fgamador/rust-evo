@@ -25,6 +25,7 @@ fn create_world() -> World {
     const LAYER_PARAMS: LayerParameters = LayerParameters {
         healing_energy_delta: BioEnergyDelta::ZERO,
         entropic_damage_health_delta: HealthDelta::new(-0.006),
+        growth_energy_delta: BioEnergyDelta::new(-1.0),
         ..LayerParameters::DEFAULT
     };
     const LAYER_RESIZE_PARAMS: LayerResizeParameters = LayerResizeParameters {

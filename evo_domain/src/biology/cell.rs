@@ -648,6 +648,10 @@ mod tests {
 
     #[test]
     fn layer_growth_cost_reduces_cell_energy() {
+        const LAYER_PARAMS: LayerParameters = LayerParameters {
+            growth_energy_delta: BioEnergyDelta::new(-1.0),
+            ..LayerParameters::DEFAULT
+        };
         const LAYER_RESIZE_PARAMS: LayerResizeParameters = LayerResizeParameters {
             growth_energy_delta: BioEnergyDelta::new(-1.0),
             ..LayerResizeParameters::UNLIMITED
@@ -655,6 +659,7 @@ mod tests {
 
         let mut cell =
             simple_layered_cell(vec![simple_cell_layer(Area::new(1.0), Density::new(1.0))
+                .with_parameters(&LAYER_PARAMS)
                 .with_resize_parameters(&LAYER_RESIZE_PARAMS)])
             .with_control(Box::new(ContinuousResizeControl::new(
                 0,
@@ -859,6 +864,16 @@ mod tests {
 
     #[test]
     fn layer_shrinkage_allows_layer_growth_within_limits() {
+        const LAYER0_PARAMS: LayerParameters = LayerParameters {
+            shrinkage_energy_delta: BioEnergyDelta::new(2.0),
+            max_shrinkage_rate: 0.5,
+            ..LayerParameters::DEFAULT
+        };
+        const LAYER1_PARAMS: LayerParameters = LayerParameters {
+            growth_energy_delta: BioEnergyDelta::new(-1.0),
+            max_growth_rate: 1.0,
+            ..LayerParameters::DEFAULT
+        };
         const LAYER0_RESIZE_PARAMS: LayerResizeParameters = LayerResizeParameters {
             shrinkage_energy_delta: BioEnergyDelta::new(2.0),
             max_shrinkage_rate: 0.5,
@@ -872,8 +887,10 @@ mod tests {
 
         let mut cell = simple_layered_cell(vec![
             simple_cell_layer(Area::new(10.0), Density::new(1.0))
+                .with_parameters(&LAYER0_PARAMS)
                 .with_resize_parameters(&LAYER0_RESIZE_PARAMS),
             simple_cell_layer(Area::new(5.0), Density::new(1.0))
+                .with_parameters(&LAYER1_PARAMS)
                 .with_resize_parameters(&LAYER1_RESIZE_PARAMS),
         ])
         .with_control(Box::new(ContinuousRequestsControl::new(vec![

@@ -23,6 +23,10 @@ pub struct LayerParameters {
     pub healing_energy_delta: BioEnergyDelta,
     pub entropic_damage_health_delta: HealthDelta,
     pub overlap_damage_health_delta: HealthDelta,
+    pub growth_energy_delta: BioEnergyDelta,
+    pub max_growth_rate: Value1D,
+    pub shrinkage_energy_delta: BioEnergyDelta,
+    pub max_shrinkage_rate: Value1D,
 }
 
 impl LayerParameters {
@@ -31,12 +35,20 @@ impl LayerParameters {
         healing_energy_delta: BioEnergyDelta::ZERO,
         entropic_damage_health_delta: HealthDelta::ZERO,
         overlap_damage_health_delta: HealthDelta::ZERO,
+        growth_energy_delta: BioEnergyDelta::ZERO,
+        max_growth_rate: f64::INFINITY,
+        shrinkage_energy_delta: BioEnergyDelta::ZERO,
+        max_shrinkage_rate: 1.0,
     };
 
     fn validate(&self) {
         assert!(self.healing_energy_delta <= BioEnergyDelta::ZERO);
         assert!(self.entropic_damage_health_delta <= HealthDelta::ZERO);
         assert!(self.overlap_damage_health_delta <= HealthDelta::ZERO);
+        assert!(self.growth_energy_delta.value() <= 0.0);
+        assert!(self.max_growth_rate >= 0.0);
+        // self.shrinkage_energy_delta can be negative or positive
+        assert!(self.max_shrinkage_rate >= 0.0);
     }
 }
 
@@ -974,12 +986,18 @@ mod tests {
 
     #[test]
     fn layer_bounds_and_costs_growth_request() {
+        const LAYER_PARAMS: LayerParameters = LayerParameters {
+            growth_energy_delta: BioEnergyDelta::new(-0.5),
+            max_growth_rate: 2.0,
+            ..LayerParameters::DEFAULT
+        };
         const LAYER_RESIZE_PARAMS: LayerResizeParameters = LayerResizeParameters {
             growth_energy_delta: BioEnergyDelta::new(-0.5),
             max_growth_rate: 2.0,
             ..LayerResizeParameters::UNLIMITED
         };
         let layer = simple_cell_layer(Area::new(1.0), Density::new(1.0))
+            .with_parameters(&LAYER_PARAMS)
             .with_resize_parameters(&LAYER_RESIZE_PARAMS)
             .with_health(Health::new(0.75));
 
@@ -1005,12 +1023,18 @@ mod tests {
 
     #[test]
     fn layer_bounds_and_costs_shrinkage_request() {
+        const LAYER_PARAMS: LayerParameters = LayerParameters {
+            shrinkage_energy_delta: BioEnergyDelta::new(0.5),
+            max_shrinkage_rate: 0.5,
+            ..LayerParameters::DEFAULT
+        };
         const LAYER_RESIZE_PARAMS: LayerResizeParameters = LayerResizeParameters {
             shrinkage_energy_delta: BioEnergyDelta::new(0.5),
             max_shrinkage_rate: 0.5,
             ..LayerResizeParameters::UNLIMITED
         };
         let layer = simple_cell_layer(Area::new(10.0), Density::new(1.0))
+            .with_parameters(&LAYER_PARAMS)
             .with_resize_parameters(&LAYER_RESIZE_PARAMS)
             .with_health(Health::new(0.5));
 

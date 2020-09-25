@@ -52,30 +52,6 @@ impl LayerParameters {
     }
 }
 
-#[derive(Debug, Clone, Copy)]
-pub struct LayerResizeParameters {
-    pub growth_energy_delta: BioEnergyDelta,
-    pub max_growth_rate: Value1D,
-    pub shrinkage_energy_delta: BioEnergyDelta,
-    pub max_shrinkage_rate: Value1D,
-}
-
-impl LayerResizeParameters {
-    pub const UNLIMITED: LayerResizeParameters = LayerResizeParameters {
-        growth_energy_delta: BioEnergyDelta::ZERO,
-        max_growth_rate: f64::INFINITY,
-        shrinkage_energy_delta: BioEnergyDelta::ZERO,
-        max_shrinkage_rate: 1.0,
-    };
-
-    fn validate(&self) {
-        assert!(self.growth_energy_delta.value() <= 0.0);
-        assert!(self.max_growth_rate >= 0.0);
-        // self.shrinkage_energy_delta can be negative or positive
-        assert!(self.max_shrinkage_rate >= 0.0);
-    }
-}
-
 #[derive(Debug)]
 pub struct CellLayer {
     brain: &'static dyn CellLayerBrain,
@@ -119,15 +95,6 @@ impl CellLayer {
     pub fn with_parameters(mut self, parameters: &'static LayerParameters) -> Self {
         parameters.validate();
         self.body.parameters = parameters;
-        self
-    }
-
-    pub fn with_resize_parameters(
-        mut self,
-        resize_parameters: &'static LayerResizeParameters,
-    ) -> Self {
-        resize_parameters.validate();
-        self.body.resize_parameters = resize_parameters;
         self
     }
 
@@ -455,7 +422,6 @@ pub struct CellLayerBody {
     color: Color,
     // TODO move to CellLayerParameters struct?
     parameters: &'static LayerParameters,
-    resize_parameters: &'static LayerResizeParameters,
 }
 
 impl CellLayerBody {
@@ -468,7 +434,6 @@ impl CellLayerBody {
             health: Health::FULL,
             color,
             parameters: &LayerParameters::DEFAULT,
-            resize_parameters: &LayerResizeParameters::UNLIMITED,
         };
         body.init_from_area();
         body
@@ -488,7 +453,6 @@ impl CellLayerBody {
             health: Health::FULL,
             color,
             parameters: &LayerParameters::DEFAULT,
-            resize_parameters: &LayerResizeParameters::UNLIMITED,
         };
         body.init_from_radii(inner_radius);
         body
@@ -559,9 +523,9 @@ impl CellLayerBody {
     fn cost_resize(&self, request: &ControlRequest) -> CostedControlRequest {
         let allowed_delta_area = self.allowed_resize_delta_area(request.requested_value());
         let energy_delta_per_area = if request.requested_value() >= 0.0 {
-            self.resize_parameters.growth_energy_delta
+            self.parameters.growth_energy_delta
         } else {
-            -self.resize_parameters.shrinkage_energy_delta
+            -self.parameters.shrinkage_energy_delta
         };
         CostedControlRequest::limited(
             request,
@@ -580,14 +544,12 @@ impl CellLayerBody {
 
     fn allowed_growth_delta_area(&self, requested_delta_area: Value1D) -> Value1D {
         // TODO a layer that starts with area 0.0 cannot grow; add min-area param?
-        let max_rate_limited_delta_area =
-            self.resize_parameters.max_growth_rate * self.area.value();
+        let max_rate_limited_delta_area = self.parameters.max_growth_rate * self.area.value();
         self.health.value() * requested_delta_area.min(max_rate_limited_delta_area)
     }
 
     fn allowed_shrinkage_delta_area(&self, requested_delta_area: Value1D) -> Value1D {
-        let min_rate_limited_delta_area =
-            -self.resize_parameters.max_shrinkage_rate * self.area.value();
+        let min_rate_limited_delta_area = -self.parameters.max_shrinkage_rate * self.area.value();
         self.health.value() * requested_delta_area.max(min_rate_limited_delta_area)
     }
 
@@ -991,14 +953,8 @@ mod tests {
             max_growth_rate: 2.0,
             ..LayerParameters::DEFAULT
         };
-        const LAYER_RESIZE_PARAMS: LayerResizeParameters = LayerResizeParameters {
-            growth_energy_delta: BioEnergyDelta::new(-0.5),
-            max_growth_rate: 2.0,
-            ..LayerResizeParameters::UNLIMITED
-        };
         let layer = simple_cell_layer(Area::new(1.0), Density::new(1.0))
             .with_parameters(&LAYER_PARAMS)
-            .with_resize_parameters(&LAYER_RESIZE_PARAMS)
             .with_health(Health::new(0.75));
 
         let resize_request = CellLayer::resize_request(0, AreaDelta::new(10.0));
@@ -1028,14 +984,8 @@ mod tests {
             max_shrinkage_rate: 0.5,
             ..LayerParameters::DEFAULT
         };
-        const LAYER_RESIZE_PARAMS: LayerResizeParameters = LayerResizeParameters {
-            shrinkage_energy_delta: BioEnergyDelta::new(0.5),
-            max_shrinkage_rate: 0.5,
-            ..LayerResizeParameters::UNLIMITED
-        };
         let layer = simple_cell_layer(Area::new(10.0), Density::new(1.0))
             .with_parameters(&LAYER_PARAMS)
-            .with_resize_parameters(&LAYER_RESIZE_PARAMS)
             .with_health(Health::new(0.5));
 
         let resize_request = CellLayer::resize_request(0, AreaDelta::new(-9.0));

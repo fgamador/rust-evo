@@ -64,12 +64,6 @@ fn create_float_layer() -> CellLayer {
         max_shrinkage_rate: 0.5,
         ..LayerParameters::DEFAULT
     };
-    const LAYER_RESIZE_PARAMS: LayerResizeParameters = LayerResizeParameters {
-        growth_energy_delta: BioEnergyDelta::new(-0.1),
-        max_growth_rate: 10.0,
-        shrinkage_energy_delta: BioEnergyDelta::new(-0.01),
-        max_shrinkage_rate: 0.5,
-    };
 
     CellLayer::new(
         Area::new(5.0 * PI),
@@ -78,7 +72,6 @@ fn create_float_layer() -> CellLayer {
         Box::new(NullCellLayerSpecialty::new()),
     )
     .with_parameters(&LAYER_PARAMS)
-    .with_resize_parameters(&LAYER_RESIZE_PARAMS)
 }
 
 fn create_photo_layer() -> CellLayer {
@@ -92,12 +85,6 @@ fn create_photo_layer() -> CellLayer {
         max_shrinkage_rate: 0.1,
         ..LayerParameters::DEFAULT
     };
-    const LAYER_RESIZE_PARAMS: LayerResizeParameters = LayerResizeParameters {
-        growth_energy_delta: BioEnergyDelta::new(-1.0),
-        max_growth_rate: 10.0,
-        shrinkage_energy_delta: BioEnergyDelta::new(0.0),
-        max_shrinkage_rate: 0.1,
-    };
 
     CellLayer::new(
         Area::new(5.0 * PI),
@@ -106,7 +93,6 @@ fn create_photo_layer() -> CellLayer {
         Box::new(PhotoCellLayerSpecialty::new(Fraction::new(0.5))),
     )
     .with_parameters(&LAYER_PARAMS)
-    .with_resize_parameters(&LAYER_RESIZE_PARAMS)
 }
 
 fn create_budding_layer() -> CellLayer {
@@ -120,12 +106,6 @@ fn create_budding_layer() -> CellLayer {
         max_shrinkage_rate: 1.0,
         ..LayerParameters::DEFAULT
     };
-    const LAYER_RESIZE_PARAMS: LayerResizeParameters = LayerResizeParameters {
-        growth_energy_delta: BioEnergyDelta::new(0.0),
-        max_growth_rate: f64::INFINITY,
-        shrinkage_energy_delta: BioEnergyDelta::new(0.0),
-        max_shrinkage_rate: 1.0,
-    };
 
     CellLayer::new(
         Area::new(5.0 * PI),
@@ -134,7 +114,6 @@ fn create_budding_layer() -> CellLayer {
         Box::new(BondingCellLayerSpecialty::new()),
     )
     .with_parameters(&LAYER_PARAMS)
-    .with_resize_parameters(&LAYER_RESIZE_PARAMS)
 }
 
 #[derive(Clone, Debug)]

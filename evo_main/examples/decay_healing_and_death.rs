@@ -28,10 +28,6 @@ fn create_world() -> World {
         growth_energy_delta: BioEnergyDelta::new(-1.0),
         ..LayerParameters::DEFAULT
     };
-    const LAYER_RESIZE_PARAMS: LayerResizeParameters = LayerResizeParameters {
-        growth_energy_delta: BioEnergyDelta::new(-1.0),
-        ..LayerResizeParameters::UNLIMITED
-    };
 
     World::new(Position::new(0.0, -400.0), Position::new(400.0, 0.0))
         .with_parameters(parameters)
@@ -47,8 +43,7 @@ fn create_world() -> World {
                     Color::Green,
                     Box::new(PhotoCellLayerSpecialty::new(Fraction::ONE)),
                 )
-                .with_parameters(&LAYER_PARAMS)
-                .with_resize_parameters(&LAYER_RESIZE_PARAMS)],
+                .with_parameters(&LAYER_PARAMS)],
             )
             .with_control(Box::new(GrowThenHealControl::new(
                 0,

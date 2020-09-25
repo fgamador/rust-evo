@@ -87,12 +87,6 @@ fn create_float_layer() -> CellLayer {
         max_shrinkage_rate: 0.5,
         ..LayerParameters::DEFAULT
     };
-    const RESIZE_PARAMS: LayerResizeParameters = LayerResizeParameters {
-        growth_energy_delta: BioEnergyDelta::new(-0.1),
-        max_growth_rate: 10.0,
-        shrinkage_energy_delta: BioEnergyDelta::new(-0.01),
-        max_shrinkage_rate: 0.5,
-    };
 
     CellLayer::new(
         Area::new(5.0 * PI),
@@ -101,7 +95,6 @@ fn create_float_layer() -> CellLayer {
         Box::new(NullCellLayerSpecialty::new()),
     )
     .with_parameters(&PARAMS)
-    .with_resize_parameters(&RESIZE_PARAMS)
 }
 
 fn create_photo_layer() -> CellLayer {
@@ -115,12 +108,6 @@ fn create_photo_layer() -> CellLayer {
         max_shrinkage_rate: 0.1,
         ..LayerParameters::DEFAULT
     };
-    const RESIZE_PARAMS: LayerResizeParameters = LayerResizeParameters {
-        growth_energy_delta: BioEnergyDelta::new(-1.0),
-        max_growth_rate: 10.0,
-        shrinkage_energy_delta: BioEnergyDelta::new(0.0),
-        max_shrinkage_rate: 0.1,
-    };
 
     CellLayer::new(
         Area::new(5.0 * PI),
@@ -129,7 +116,6 @@ fn create_photo_layer() -> CellLayer {
         Box::new(PhotoCellLayerSpecialty::new(Fraction::new(0.1))), // 0.02
     )
     .with_parameters(&PARAMS)
-    .with_resize_parameters(&RESIZE_PARAMS)
 }
 
 fn create_bonding_layer() -> CellLayer {
@@ -143,12 +129,6 @@ fn create_bonding_layer() -> CellLayer {
         max_shrinkage_rate: 0.1,
         ..LayerParameters::DEFAULT
     };
-    const RESIZE_PARAMS: LayerResizeParameters = LayerResizeParameters {
-        growth_energy_delta: BioEnergyDelta::new(-1.0),
-        max_growth_rate: 10.0,
-        shrinkage_energy_delta: BioEnergyDelta::new(0.0),
-        max_shrinkage_rate: 0.1,
-    };
     const BONDING_PARAMS: BondingLayerParameters = BondingLayerParameters {
         max_donation_energy_per_unit_area: BioEnergy::unchecked(0.5),
         donation_energy_tax_rate: Fraction::unchecked(0.1),
@@ -161,7 +141,6 @@ fn create_bonding_layer() -> CellLayer {
         Box::new(BondingCellLayerSpecialty::new().with_parameters(&BONDING_PARAMS)),
     )
     .with_parameters(&PARAMS)
-    .with_resize_parameters(&RESIZE_PARAMS)
 }
 
 fn create_control(randomness: SeededMutationRandomness) -> NeuralNetControl {

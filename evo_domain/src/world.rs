@@ -591,15 +591,10 @@ mod tests {
             growth_energy_delta: BioEnergyDelta::new(-10.0),
             ..LayerParameters::DEFAULT
         };
-        const LAYER_RESIZE_PARAMS: LayerResizeParameters = LayerResizeParameters {
-            growth_energy_delta: BioEnergyDelta::new(-10.0),
-            ..LayerResizeParameters::UNLIMITED
-        };
 
         let mut world = World::new(Position::ORIGIN, Position::ORIGIN).with_cell(
             simple_layered_cell(vec![simple_cell_layer(Area::new(10.0), Density::new(1.0))
-                .with_parameters(&LAYER_PARAMS)
-                .with_resize_parameters(&LAYER_RESIZE_PARAMS)])
+                .with_parameters(&LAYER_PARAMS)])
             .with_control(Box::new(ContinuousResizeControl::new(
                 0,
                 AreaDelta::new(100.0),

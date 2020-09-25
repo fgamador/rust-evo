@@ -89,11 +89,6 @@ fn create_float_layer() -> CellLayer {
         shrinkage_energy_delta: BioEnergyDelta::new(-0.01),
         max_shrinkage_rate: 0.5,
     };
-    const HEALTH_PARAMS: LayerHealthParameters = LayerHealthParameters {
-        healing_energy_delta: BioEnergyDelta::new(-1.0),
-        entropic_damage_health_delta: HealthDelta::new(-0.01),
-        overlap_damage_health_delta: HealthDelta::new(OVERLAP_DAMAGE_HEALTH_DELTA),
-    };
 
     CellLayer::new(
         Area::new(5.0 * PI),
@@ -103,7 +98,6 @@ fn create_float_layer() -> CellLayer {
     )
     .with_parameters(&PARAMS)
     .with_resize_parameters(&RESIZE_PARAMS)
-    .with_health_parameters(&HEALTH_PARAMS)
 }
 
 fn create_photo_layer() -> CellLayer {
@@ -119,11 +113,6 @@ fn create_photo_layer() -> CellLayer {
         shrinkage_energy_delta: BioEnergyDelta::new(0.0),
         max_shrinkage_rate: 0.1,
     };
-    const HEALTH_PARAMS: LayerHealthParameters = LayerHealthParameters {
-        healing_energy_delta: BioEnergyDelta::new(-1.0),
-        entropic_damage_health_delta: HealthDelta::new(-0.01),
-        overlap_damage_health_delta: HealthDelta::new(OVERLAP_DAMAGE_HEALTH_DELTA),
-    };
 
     CellLayer::new(
         Area::new(5.0 * PI),
@@ -133,7 +122,6 @@ fn create_photo_layer() -> CellLayer {
     )
     .with_parameters(&PARAMS)
     .with_resize_parameters(&RESIZE_PARAMS)
-    .with_health_parameters(&HEALTH_PARAMS)
 }
 
 fn create_bonding_layer() -> CellLayer {
@@ -149,11 +137,6 @@ fn create_bonding_layer() -> CellLayer {
         shrinkage_energy_delta: BioEnergyDelta::new(0.0),
         max_shrinkage_rate: 0.1,
     };
-    const HEALTH_PARAMS: LayerHealthParameters = LayerHealthParameters {
-        healing_energy_delta: BioEnergyDelta::new(-1.0),
-        entropic_damage_health_delta: HealthDelta::new(-0.01),
-        overlap_damage_health_delta: HealthDelta::new(OVERLAP_DAMAGE_HEALTH_DELTA),
-    };
     const BONDING_PARAMS: BondingLayerParameters = BondingLayerParameters {
         max_donation_energy_per_unit_area: BioEnergy::unchecked(0.5),
         donation_energy_tax_rate: Fraction::unchecked(0.1),
@@ -167,7 +150,6 @@ fn create_bonding_layer() -> CellLayer {
     )
     .with_parameters(&PARAMS)
     .with_resize_parameters(&RESIZE_PARAMS)
-    .with_health_parameters(&HEALTH_PARAMS)
 }
 
 fn create_control(randomness: SeededMutationRandomness) -> NeuralNetControl {

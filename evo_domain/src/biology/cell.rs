@@ -841,22 +841,10 @@ mod tests {
             overlap_damage_health_delta: HealthDelta::new(-1.0),
             ..LayerParameters::DEFAULT
         };
-        const LAYER0_HEALTH_PARAMS: LayerHealthParameters = LayerHealthParameters {
-            overlap_damage_health_delta: HealthDelta::new(-1.0),
-            ..LayerHealthParameters::DEFAULT
-        };
-        const LAYER1_HEALTH_PARAMS: LayerHealthParameters = LayerHealthParameters {
-            overlap_damage_health_delta: HealthDelta::new(-1.0),
-            ..LayerHealthParameters::DEFAULT
-        };
 
         let mut cell = simple_layered_cell(vec![
-            simple_cell_layer(Area::new(1.0), Density::new(1.0))
-                .with_parameters(&LAYER0_PARAMS)
-                .with_health_parameters(&LAYER0_HEALTH_PARAMS),
-            simple_cell_layer(Area::new(1.0), Density::new(1.0))
-                .with_parameters(&LAYER1_PARAMS)
-                .with_health_parameters(&LAYER1_HEALTH_PARAMS),
+            simple_cell_layer(Area::new(1.0), Density::new(1.0)).with_parameters(&LAYER0_PARAMS),
+            simple_cell_layer(Area::new(1.0), Density::new(1.0)).with_parameters(&LAYER1_PARAMS),
         ]);
 
         cell.environment_mut()

@@ -76,11 +76,6 @@ fn create_float_layer() -> CellLayer {
         shrinkage_energy_delta: BioEnergyDelta::new(-0.01),
         max_shrinkage_rate: 0.5,
     };
-    const LAYER_HEALTH_PARAMS: LayerHealthParameters = LayerHealthParameters {
-        healing_energy_delta: BioEnergyDelta::new(-1.0),
-        entropic_damage_health_delta: HealthDelta::new(-0.01),
-        overlap_damage_health_delta: HealthDelta::new(OVERLAP_DAMAGE_HEALTH_DELTA),
-    };
 
     CellLayer::new(
         Area::new(5.0 * PI),
@@ -90,7 +85,6 @@ fn create_float_layer() -> CellLayer {
     )
     .with_parameters(&LAYER_PARAMS)
     .with_resize_parameters(&LAYER_RESIZE_PARAMS)
-    .with_health_parameters(&LAYER_HEALTH_PARAMS)
 }
 
 fn create_photo_layer() -> CellLayer {
@@ -106,11 +100,6 @@ fn create_photo_layer() -> CellLayer {
         shrinkage_energy_delta: BioEnergyDelta::new(0.0),
         max_shrinkage_rate: 0.1,
     };
-    const LAYER_HEALTH_PARAMS: LayerHealthParameters = LayerHealthParameters {
-        healing_energy_delta: BioEnergyDelta::new(-1.0),
-        entropic_damage_health_delta: HealthDelta::new(-0.01),
-        overlap_damage_health_delta: HealthDelta::new(OVERLAP_DAMAGE_HEALTH_DELTA),
-    };
 
     CellLayer::new(
         Area::new(5.0 * PI),
@@ -120,7 +109,6 @@ fn create_photo_layer() -> CellLayer {
     )
     .with_parameters(&LAYER_PARAMS)
     .with_resize_parameters(&LAYER_RESIZE_PARAMS)
-    .with_health_parameters(&LAYER_HEALTH_PARAMS)
 }
 
 fn create_budding_layer() -> CellLayer {
@@ -136,11 +124,6 @@ fn create_budding_layer() -> CellLayer {
         shrinkage_energy_delta: BioEnergyDelta::new(0.0),
         max_shrinkage_rate: 0.1,
     };
-    const LAYER_HEALTH_PARAMS: LayerHealthParameters = LayerHealthParameters {
-        healing_energy_delta: BioEnergyDelta::new(-1.0),
-        entropic_damage_health_delta: HealthDelta::new(-0.01),
-        overlap_damage_health_delta: HealthDelta::new(OVERLAP_DAMAGE_HEALTH_DELTA),
-    };
 
     CellLayer::new(
         Area::new(5.0 * PI),
@@ -150,7 +133,6 @@ fn create_budding_layer() -> CellLayer {
     )
     .with_parameters(&LAYER_PARAMS)
     .with_resize_parameters(&LAYER_RESIZE_PARAMS)
-    .with_health_parameters(&LAYER_HEALTH_PARAMS)
 }
 
 #[derive(Debug)]

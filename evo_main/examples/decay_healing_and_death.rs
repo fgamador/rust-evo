@@ -31,11 +31,6 @@ fn create_world() -> World {
         growth_energy_delta: BioEnergyDelta::new(-1.0),
         ..LayerResizeParameters::UNLIMITED
     };
-    const LAYER_HEALTH_PARAMS: LayerHealthParameters = LayerHealthParameters {
-        healing_energy_delta: BioEnergyDelta::ZERO,
-        entropic_damage_health_delta: HealthDelta::new(-0.006),
-        ..LayerHealthParameters::DEFAULT
-    };
 
     World::new(Position::new(0.0, -400.0), Position::new(400.0, 0.0))
         .with_parameters(parameters)
@@ -52,8 +47,7 @@ fn create_world() -> World {
                     Box::new(PhotoCellLayerSpecialty::new(Fraction::ONE)),
                 )
                 .with_parameters(&LAYER_PARAMS)
-                .with_resize_parameters(&LAYER_RESIZE_PARAMS)
-                .with_health_parameters(&LAYER_HEALTH_PARAMS)],
+                .with_resize_parameters(&LAYER_RESIZE_PARAMS)],
             )
             .with_control(Box::new(GrowThenHealControl::new(
                 0,

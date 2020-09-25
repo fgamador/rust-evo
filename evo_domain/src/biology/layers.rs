@@ -41,27 +41,6 @@ impl LayerParameters {
 }
 
 #[derive(Debug, Clone, Copy)]
-pub struct LayerHealthParameters {
-    pub healing_energy_delta: BioEnergyDelta,
-    pub entropic_damage_health_delta: HealthDelta,
-    pub overlap_damage_health_delta: HealthDelta,
-}
-
-impl LayerHealthParameters {
-    pub const DEFAULT: LayerHealthParameters = LayerHealthParameters {
-        healing_energy_delta: BioEnergyDelta::ZERO,
-        entropic_damage_health_delta: HealthDelta::ZERO,
-        overlap_damage_health_delta: HealthDelta::ZERO,
-    };
-
-    fn validate(&self) {
-        assert!(self.healing_energy_delta <= BioEnergyDelta::ZERO);
-        assert!(self.entropic_damage_health_delta <= HealthDelta::ZERO);
-        assert!(self.overlap_damage_health_delta <= HealthDelta::ZERO);
-    }
-}
-
-#[derive(Debug, Clone, Copy)]
 pub struct LayerResizeParameters {
     pub growth_energy_delta: BioEnergyDelta,
     pub max_growth_rate: Value1D,
@@ -128,15 +107,6 @@ impl CellLayer {
     pub fn with_parameters(mut self, parameters: &'static LayerParameters) -> Self {
         parameters.validate();
         self.body.parameters = parameters;
-        self
-    }
-
-    pub fn with_health_parameters(
-        mut self,
-        health_parameters: &'static LayerHealthParameters,
-    ) -> Self {
-        health_parameters.validate();
-        self.body.health_parameters = health_parameters;
         self
     }
 
@@ -360,12 +330,12 @@ struct LivingCellLayerBrain {}
 
 impl LivingCellLayerBrain {
     fn entropic_damage(&self, body: &CellLayerBody) -> HealthDelta {
-        body.health_parameters.entropic_damage_health_delta
+        body.parameters.entropic_damage_health_delta
     }
 
     fn overlap_damage(&self, body: &CellLayerBody, overlaps: &[Overlap]) -> HealthDelta {
         overlaps.iter().fold(HealthDelta::ZERO, |damage, overlap| {
-            damage + body.health_parameters.overlap_damage_health_delta * overlap.magnitude()
+            damage + body.parameters.overlap_damage_health_delta * overlap.magnitude()
         })
     }
 }
@@ -473,7 +443,6 @@ pub struct CellLayerBody {
     color: Color,
     // TODO move to CellLayerParameters struct?
     parameters: &'static LayerParameters,
-    health_parameters: &'static LayerHealthParameters,
     resize_parameters: &'static LayerResizeParameters,
 }
 
@@ -487,7 +456,6 @@ impl CellLayerBody {
             health: Health::FULL,
             color,
             parameters: &LayerParameters::DEFAULT,
-            health_parameters: &LayerHealthParameters::DEFAULT,
             resize_parameters: &LayerResizeParameters::UNLIMITED,
         };
         body.init_from_area();
@@ -508,7 +476,6 @@ impl CellLayerBody {
             health: Health::FULL,
             color,
             parameters: &LayerParameters::DEFAULT,
-            health_parameters: &LayerHealthParameters::DEFAULT,
             resize_parameters: &LayerResizeParameters::UNLIMITED,
         };
         body.init_from_radii(inner_radius);
@@ -559,9 +526,7 @@ impl CellLayerBody {
     fn cost_restore_health(&self, request: &ControlRequest) -> CostedControlRequest {
         CostedControlRequest::unlimited(
             request,
-            self.health_parameters.healing_energy_delta
-                * self.area.value()
-                * request.requested_value(),
+            self.parameters.healing_energy_delta * self.area.value() * request.requested_value(),
         )
     }
 
@@ -962,13 +927,8 @@ mod tests {
             healing_energy_delta: BioEnergyDelta::new(-3.0),
             ..LayerParameters::DEFAULT
         };
-        const LAYER_HEALTH_PARAMS: LayerHealthParameters = LayerHealthParameters {
-            healing_energy_delta: BioEnergyDelta::new(-3.0),
-            ..LayerHealthParameters::DEFAULT
-        };
         let layer = simple_cell_layer(Area::new(2.0), Density::new(1.0))
             .with_parameters(&LAYER_PARAMS)
-            .with_health_parameters(&LAYER_HEALTH_PARAMS)
             .with_health(Health::new(0.5));
 
         let control_request = CellLayer::healing_request(0, HealthDelta::new(0.25));
@@ -1099,14 +1059,9 @@ mod tests {
             entropic_damage_health_delta: HealthDelta::new(-0.25),
             ..LayerParameters::DEFAULT
         };
-        const LAYER_HEALTH_PARAMS: LayerHealthParameters = LayerHealthParameters {
-            entropic_damage_health_delta: HealthDelta::new(-0.25),
-            ..LayerHealthParameters::DEFAULT
-        };
 
-        let mut layer = simple_cell_layer(Area::new(1.0), Density::new(1.0))
-            .with_parameters(&LAYER_PARAMS)
-            .with_health_parameters(&LAYER_HEALTH_PARAMS);
+        let mut layer =
+            simple_cell_layer(Area::new(1.0), Density::new(1.0)).with_parameters(&LAYER_PARAMS);
 
         let env = LocalEnvironment::new();
         let mut changes = CellChanges::new(1, false);
@@ -1124,14 +1079,9 @@ mod tests {
             overlap_damage_health_delta: HealthDelta::new(-0.25),
             ..LayerParameters::DEFAULT
         };
-        const LAYER_HEALTH_PARAMS: LayerHealthParameters = LayerHealthParameters {
-            overlap_damage_health_delta: HealthDelta::new(-0.25),
-            ..LayerHealthParameters::DEFAULT
-        };
 
-        let mut layer = simple_cell_layer(Area::new(1.0), Density::new(1.0))
-            .with_parameters(&LAYER_PARAMS)
-            .with_health_parameters(&LAYER_HEALTH_PARAMS);
+        let mut layer =
+            simple_cell_layer(Area::new(1.0), Density::new(1.0)).with_parameters(&LAYER_PARAMS);
 
         let mut env = LocalEnvironment::new();
         env.add_overlap(Overlap::new(Displacement::new(0.5, 0.0), 1.0));
@@ -1179,14 +1129,9 @@ mod tests {
             healing_energy_delta: BioEnergyDelta::new(-1.0),
             ..LayerParameters::DEFAULT
         };
-        const LAYER_HEALTH_PARAMS: LayerHealthParameters = LayerHealthParameters {
-            healing_energy_delta: BioEnergyDelta::new(-1.0),
-            ..LayerHealthParameters::DEFAULT
-        };
 
         let layer = simple_cell_layer(Area::new(1.0), Density::new(1.0))
             .with_parameters(&LAYER_PARAMS)
-            .with_health_parameters(&LAYER_HEALTH_PARAMS)
             .dead();
         let control_request = CellLayer::healing_request(0, HealthDelta::new(1.0));
         let costed_request = layer.cost_control_request(&control_request);

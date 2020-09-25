@@ -18,6 +18,19 @@ pub enum Color {
 }
 
 #[derive(Debug, Clone, Copy)]
+pub struct LayerParameters {
+    pub minimum_intact_thickness: Fraction,
+}
+
+impl LayerParameters {
+    pub const DEFAULT: LayerParameters = LayerParameters {
+        minimum_intact_thickness: Fraction::ZERO,
+    };
+
+    fn validate(&self) {}
+}
+
+#[derive(Debug, Clone, Copy)]
 pub struct LayerHealthParameters {
     pub healing_energy_delta: BioEnergyDelta,
     pub entropic_damage_health_delta: HealthDelta,
@@ -88,7 +101,7 @@ impl CellLayer {
         }
     }
 
-    pub fn new_with_radii(
+    fn new_with_radii(
         outer_radius: Length,
         inner_radius: Length,
         density: Density,
@@ -100,6 +113,12 @@ impl CellLayer {
             body: CellLayerBody::new_with_radii(outer_radius, inner_radius, density, color),
             specialty,
         }
+    }
+
+    pub fn with_parameters(mut self, parameters: &'static LayerParameters) -> Self {
+        parameters.validate();
+        self.body.parameters = parameters;
+        self
     }
 
     pub fn with_health_parameters(
@@ -443,6 +462,7 @@ pub struct CellLayerBody {
     health: Health,
     color: Color,
     // TODO move to CellLayerParameters struct?
+    parameters: &'static LayerParameters,
     health_parameters: &'static LayerHealthParameters,
     resize_parameters: &'static LayerResizeParameters,
 }
@@ -456,6 +476,7 @@ impl CellLayerBody {
             outer_radius: Length::ZERO,
             health: Health::FULL,
             color,
+            parameters: &LayerParameters::DEFAULT,
             health_parameters: &LayerHealthParameters::DEFAULT,
             resize_parameters: &LayerResizeParameters::UNLIMITED,
         };
@@ -476,6 +497,7 @@ impl CellLayerBody {
             outer_radius,
             health: Health::FULL,
             color,
+            parameters: &LayerParameters::DEFAULT,
             health_parameters: &LayerHealthParameters::DEFAULT,
             resize_parameters: &LayerResizeParameters::UNLIMITED,
         };
@@ -1145,24 +1167,24 @@ mod tests {
         assert_eq!(changes.layers[0].health, HealthDelta::ZERO);
     }
 
-    // #[test]
-    // fn layer_above_minimum_thickness_is_intact() {
-    //     const LAYER_PARAMS: LayerParameters = LayerParameters {
-    //         minimum_intact_thickness: Fraction::new(0.1),
-    //         ..LayerParameters::DEFAULT
-    //     };
-    //
-    //     let mut layer =
-    //         simple_cell_layer_with_radii(Length::new(1.0), Length::new(0.8), Density::new(1.0))
-    //             .with_parameters(&LAYER_PARAMS);
-    //
-    //     assert!(layer.is_intact());
-    // }
+    #[test]
+    fn layer_above_minimum_thickness_is_intact() {
+        const LAYER_PARAMS: LayerParameters = LayerParameters {
+            minimum_intact_thickness: Fraction::unchecked(0.1),
+            ..LayerParameters::DEFAULT
+        };
+
+        let layer =
+            simple_cell_layer_with_radii(Length::new(1.0), Length::new(0.8), Density::new(1.0))
+                .with_parameters(&LAYER_PARAMS);
+
+        assert!(layer.is_intact());
+    }
 
     // #[test]
     // fn layer_below_minimum_thickness_is_not_intact() {
     //     const LAYER_PARAMS: LayerParameters = LayerParameters {
-    //         minimum_intact_thickness: Fraction::new(0.1),
+    //         minimum_intact_thickness: Fraction::unchecked(0.1),
     //         ..LayerParameters::DEFAULT
     //     };
     //

@@ -27,6 +27,7 @@ pub struct LayerParameters {
     pub max_growth_rate: Value1D,
     pub shrinkage_energy_delta: BioEnergyDelta,
     pub max_shrinkage_rate: Value1D,
+    pub decay_rate: Value1D,
 }
 
 impl LayerParameters {
@@ -39,6 +40,7 @@ impl LayerParameters {
         max_growth_rate: f64::INFINITY,
         shrinkage_energy_delta: BioEnergyDelta::ZERO,
         max_shrinkage_rate: 1.0,
+        decay_rate: 0.0,
     };
 
     fn validate(&self) {
@@ -385,11 +387,14 @@ impl CellLayerBrain for DeadCellLayerBrain {
     fn calculate_automatic_changes(
         &self,
         _specialty: &dyn CellLayerSpecialty,
-        _body: &CellLayerBody,
+        body: &CellLayerBody,
         _env: &LocalEnvironment,
-        _changes: &mut CellChanges,
-        _layer_index: usize,
+        changes: &mut CellChanges,
+        layer_index: usize,
     ) {
+        changes.layers[layer_index].add_decay_resize(AreaDelta::new(
+            -body.parameters.decay_rate * body.area.value(),
+        ));
     }
 
     fn cost_control_request(
@@ -1119,6 +1124,41 @@ mod tests {
         layer.execute_control_request(&fully_budgeted_healing_request(0, 1.0), &mut changes);
         assert_eq!(layer.health(), Health::ZERO);
         assert_eq!(changes.layers[0].health, HealthDelta::ZERO);
+    }
+
+    #[test]
+    fn live_layer_does_not_decay() {
+        const LAYER_PARAMS: LayerParameters = LayerParameters {
+            decay_rate: 0.25,
+            ..LayerParameters::DEFAULT
+        };
+
+        let mut layer =
+            simple_cell_layer(Area::new(1.0), Density::new(1.0)).with_parameters(&LAYER_PARAMS);
+
+        let env = LocalEnvironment::new();
+        let mut changes = CellChanges::new(1, false);
+        layer.calculate_automatic_changes(&env, &mut changes, 0);
+
+        assert_eq!(changes.layers[0].area, AreaDelta::new(0.0));
+    }
+
+    #[test]
+    fn dead_layer_decays() {
+        const LAYER_PARAMS: LayerParameters = LayerParameters {
+            decay_rate: 0.25,
+            ..LayerParameters::DEFAULT
+        };
+
+        let mut layer = simple_cell_layer(Area::new(2.0), Density::new(1.0))
+            .with_parameters(&LAYER_PARAMS)
+            .dead();
+
+        let env = LocalEnvironment::new();
+        let mut changes = CellChanges::new(1, false);
+        layer.calculate_automatic_changes(&env, &mut changes, 0);
+
+        assert_eq!(changes.layers[0].area, AreaDelta::new(-0.5));
     }
 
     #[test]

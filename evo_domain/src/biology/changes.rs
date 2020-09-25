@@ -83,6 +83,10 @@ impl CellLayerChanges {
         self.allowed_area = AreaDelta::new(request.allowed_value());
     }
 
+    pub fn add_decay_resize(&mut self, area_delta: AreaDelta) {
+        self.area += area_delta;
+    }
+
     pub fn add_health_change(&mut self, health_delta: HealthDelta, label: &'static str) {
         self.health += health_delta;
 

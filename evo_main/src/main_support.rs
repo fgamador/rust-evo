@@ -110,7 +110,6 @@ fn await_next_tick(next_tick: Instant) {
     }
 }
 
-// TODO doesn't work right with glutin's `with_vsync`
 fn fast_forward(world: &mut World, view: &mut View) -> UserAction {
     let mut next_render = Instant::now();
     loop {
@@ -123,6 +122,7 @@ fn fast_forward(world: &mut World, view: &mut View) -> UserAction {
         world.tick();
 
         if Instant::now() >= next_render {
+            // TODO blocks because of glutin's `with_vsync`
             view.render(world);
             next_render += Duration::from_millis(16);
         }

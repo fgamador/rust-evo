@@ -196,15 +196,11 @@ fn create_control(randomness: SeededMutationRandomness) -> NeuralNetControl {
     let bonding_layer_area_input_index = builder.add_input_node("<bonding area", |cell_state| {
         cell_state.layers[BONDING_LAYER_INDEX].area.value()
     });
-    let cell_wall_health_input_index = builder.add_input_node("<wall health", |cell_state| {
+    let cell_wall_health_input_index = builder.add_input_node("<cell-wall health", |cell_state| {
         cell_state.layers[CELL_WALL_INDEX].health.value()
     });
     let bond_0_exists_input_index = builder.add_input_node("<bond 0 exists", |cell_state| {
-        if cell_state.bond_0_exists {
-            1.0
-        } else {
-            0.0
-        }
+        bool_to_value1d(cell_state.bond_0_exists)
     });
 
     let donation_energy_index =
@@ -247,7 +243,7 @@ fn create_control(randomness: SeededMutationRandomness) -> NeuralNetControl {
         |value| CellLayer::resize_request(BONDING_LAYER_INDEX, AreaDelta::new(value)),
     );
     builder.add_output_node(
-        ">wall healing",
+        ">cell-wall healing",
         &[(cell_wall_health_input_index, -1.0)],
         1.0,
         |value| CellLayer::healing_request(CELL_WALL_INDEX, HealthDelta::new(value.max(0.0))),

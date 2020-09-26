@@ -316,6 +316,14 @@ impl NeuralNetControlBuilder {
     }
 }
 
+pub fn bool_to_value1d(val: bool) -> Value1D {
+    if val {
+        1.0
+    } else {
+        0.0
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;

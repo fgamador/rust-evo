@@ -25,6 +25,7 @@ impl Parameters {
 pub enum UserAction {
     DebugPrint,
     Exit,
+    FastForwardToggle,
     None,
     PlayToggle,
     SelectCellToggle { x: f64, y: f64 },

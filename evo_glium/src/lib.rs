@@ -380,6 +380,7 @@ impl GliumView {
             glutin::VirtualKeyCode::Escape
             | glutin::VirtualKeyCode::Q
             | glutin::VirtualKeyCode::X => Some(UserAction::Exit),
+            glutin::VirtualKeyCode::F => Some(UserAction::FastForwardToggle),
             glutin::VirtualKeyCode::P => Some(UserAction::PlayToggle),
             glutin::VirtualKeyCode::T => Some(UserAction::SingleTick),
             _ => None,

@@ -61,9 +61,14 @@ fn run(mut world: World, mut view: View, args: CommandLineArgs) {
         match user_action {
             UserAction::DebugPrint => world.debug_print_cells(),
             UserAction::Exit => return,
+            UserAction::FastForwardToggle => {
+                if fast_forward(&mut world, &mut view) == UserAction::Exit {
+                    return;
+                }
+            }
             UserAction::None => (),
             UserAction::PlayToggle => {
-                if normal_speed(&mut world, &mut view) == UserAction::Exit {
+                if play(&mut world, &mut view) == UserAction::Exit {
                     return;
                 }
             }
@@ -77,7 +82,7 @@ fn run(mut world: World, mut view: View, args: CommandLineArgs) {
     }
 }
 
-fn normal_speed(world: &mut World, view: &mut View) -> UserAction {
+fn play(world: &mut World, view: &mut View) -> UserAction {
     let mut next_tick = Instant::now();
     loop {
         next_tick += Duration::from_millis(16);
@@ -102,5 +107,24 @@ fn await_next_tick(next_tick: Instant) {
     let now = Instant::now();
     if now < next_tick {
         thread::sleep(next_tick - now);
+    }
+}
+
+// TODO doesn't work right with glutin's `with_vsync`
+fn fast_forward(world: &mut World, view: &mut View) -> UserAction {
+    let mut next_render = Instant::now();
+    loop {
+        if let Some(user_action) = view.check_for_user_action() {
+            if let UserAction::Exit | UserAction::FastForwardToggle = user_action {
+                return user_action;
+            }
+        }
+
+        world.tick();
+
+        if Instant::now() >= next_render {
+            view.render(world);
+            next_render += Duration::from_millis(16);
+        }
     }
 }

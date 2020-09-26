@@ -866,7 +866,7 @@ mod tests {
         };
         const LAYER1_PARAMS: LayerParameters = LayerParameters {
             growth_energy_delta: BioEnergyDelta::new(-1.0),
-            max_growth_rate: 1.0,
+            max_growth_rate: Positive::unchecked(1.0),
             ..LayerParameters::DEFAULT
         };
 

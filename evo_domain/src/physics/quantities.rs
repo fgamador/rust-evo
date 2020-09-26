@@ -187,17 +187,24 @@ pub struct Positive {
 
 impl Positive {
     pub const ZERO: Positive = Positive { value: 0.0 };
+    pub const MAX: Positive = Positive {
+        value: f64::INFINITY,
+    };
 
     pub fn new(value: Value1D) -> Self {
-        if value < 0.0 {
-            panic!("Invalid positive number: {}", value);
-        }
-
-        Positive { value }
+        let val = Positive { value };
+        val.validate();
+        val
     }
 
     pub const fn unchecked(value: Value1D) -> Self {
         Positive { value }
+    }
+
+    pub fn validate(self) {
+        if self.value < 0.0 {
+            panic!("Invalid positive number: {}", self.value);
+        }
     }
 
     #[allow(dead_code)]

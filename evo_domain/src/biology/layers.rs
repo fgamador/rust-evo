@@ -4,7 +4,6 @@ use crate::biology::control_requests::*;
 use crate::environment::local_environment::LocalEnvironment;
 use crate::physics::overlap::Overlap;
 use crate::physics::quantities::*;
-use std::f64;
 use std::f64::consts::PI;
 use std::fmt::Debug;
 use std::usize;
@@ -24,7 +23,7 @@ pub struct LayerParameters {
     pub entropic_damage_health_delta: HealthDelta,
     pub overlap_damage_health_delta: HealthDelta,
     pub growth_energy_delta: BioEnergyDelta,
-    pub max_growth_rate: Value1D,
+    pub max_growth_rate: Positive,
     pub shrinkage_energy_delta: BioEnergyDelta,
     pub max_shrinkage_rate: Value1D,
     pub decay_rate: Fraction,
@@ -37,7 +36,7 @@ impl LayerParameters {
         entropic_damage_health_delta: HealthDelta::ZERO,
         overlap_damage_health_delta: HealthDelta::ZERO,
         growth_energy_delta: BioEnergyDelta::ZERO,
-        max_growth_rate: f64::INFINITY,
+        max_growth_rate: Positive::MAX,
         shrinkage_energy_delta: BioEnergyDelta::ZERO,
         max_shrinkage_rate: 1.0,
         decay_rate: Fraction::ZERO,
@@ -48,7 +47,7 @@ impl LayerParameters {
         assert!(self.entropic_damage_health_delta <= HealthDelta::ZERO);
         assert!(self.overlap_damage_health_delta <= HealthDelta::ZERO);
         assert!(self.growth_energy_delta.value() <= 0.0);
-        assert!(self.max_growth_rate >= 0.0);
+        self.max_growth_rate.validate();
         // self.shrinkage_energy_delta can be negative or positive
         assert!(self.max_shrinkage_rate >= 0.0);
     }
@@ -975,7 +974,7 @@ mod tests {
     fn layer_bounds_and_costs_growth_request() {
         const LAYER_PARAMS: LayerParameters = LayerParameters {
             growth_energy_delta: BioEnergyDelta::new(-0.5),
-            max_growth_rate: 2.0,
+            max_growth_rate: Positive::unchecked(2.0),
             ..LayerParameters::DEFAULT
         };
         let layer = simple_cell_layer(Area::new(1.0), Density::new(1.0))

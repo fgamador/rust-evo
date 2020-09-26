@@ -188,7 +188,7 @@ impl GliumView {
         match color {
             layers::Tissue::AirBubble => [1.0, 1.0, 1.0, 0.1],
             layers::Tissue::Bonding => [0.7, 0.7, 0.0, 0.8],
-            layers::Tissue::CellWall => [0.2, 0.2, 0.2, 0.8],
+            layers::Tissue::CellWall => [0.05, 0.05, 0.05, 0.8],
             layers::Tissue::Photosynthetic => [0.1, 0.8, 0.1, 0.8],
         }
     }

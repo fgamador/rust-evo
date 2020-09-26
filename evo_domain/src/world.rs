@@ -427,6 +427,7 @@ mod tests {
     use crate::environment::local_environment::*;
     use crate::physics::newtonian::NewtonianBody;
     use crate::physics::overlap::Overlap;
+    use std::f64::consts::PI;
 
     #[test]
     fn tick_moves_ball() {
@@ -711,9 +712,17 @@ mod tests {
 
     #[test]
     fn world_removes_burst_cells() {
+        const LAYER_PARAMS: LayerParameters = LayerParameters {
+            minimum_intact_thickness: Fraction::unchecked(0.5),
+            ..LayerParameters::DEFAULT
+        };
+
         let mut world =
             World::new(Position::ORIGIN, Position::ORIGIN).with_cell(simple_layered_cell(vec![
-                simple_cell_layer(Area::new(1.0), Density::new(1.0)).dead(),
+                simple_cell_layer(Area::new(1.0), Density::new(1.0)),
+                simple_cell_layer(Area::new(0.1), Density::new(1.0))
+                    .with_parameters(&LAYER_PARAMS)
+                    .dead(),
             ]));
 
         world.tick();
@@ -723,22 +732,28 @@ mod tests {
 
     #[test]
     fn world_replaces_burst_cell_with_cloud() {
-        let mut world = World::new(Position::ORIGIN, Position::ORIGIN).with_cell(
-            Cell::ball(
-                Length::new(2.0),
-                Mass::new(1.0),
-                Position::new(3.5, -1.5),
-                Velocity::ZERO,
-            )
-            .burst(),
-        );
+        const LAYER_PARAMS: LayerParameters = LayerParameters {
+            minimum_intact_thickness: Fraction::unchecked(0.5),
+            ..LayerParameters::DEFAULT
+        };
+
+        let mut world = World::new(Position::ORIGIN, Position::ORIGIN).with_cell(Cell::new(
+            Position::new(3.5, -1.5),
+            Velocity::ZERO,
+            vec![
+                simple_cell_layer(Area::new(4.0 * PI), Density::new(1.0)),
+                simple_cell_layer(Area::new(0.1), Density::new(1.0))
+                    .with_parameters(&LAYER_PARAMS)
+                    .dead(),
+            ],
+        ));
 
         world.tick();
 
         assert_eq!(world.clouds().len(), 1);
         let cloud = &world.clouds()[0];
         assert_eq!(cloud.center(), Position::new(3.5, -1.5));
-        assert_eq!(cloud.radius(), Length::new(2.0));
+        assert_eq!((cloud.radius() * 10.0).value().round(), 20.0);
     }
 
     #[test]

@@ -27,7 +27,7 @@ pub struct LayerParameters {
     pub max_growth_rate: Value1D,
     pub shrinkage_energy_delta: BioEnergyDelta,
     pub max_shrinkage_rate: Value1D,
-    pub decay_rate: Value1D,
+    pub decay_rate: Fraction,
 }
 
 impl LayerParameters {
@@ -40,7 +40,7 @@ impl LayerParameters {
         max_growth_rate: f64::INFINITY,
         shrinkage_energy_delta: BioEnergyDelta::ZERO,
         max_shrinkage_rate: 1.0,
-        decay_rate: 0.0,
+        decay_rate: Fraction::ZERO,
     };
 
     fn validate(&self) {
@@ -403,7 +403,7 @@ impl CellLayerBrain for DeadCellLayerBrain {
         layer_index: usize,
     ) {
         changes.layers[layer_index].add_decay_resize(AreaDelta::new(
-            -body.parameters.decay_rate * body.area.value(),
+            -body.parameters.decay_rate.value() * body.area.value(),
         ));
     }
 
@@ -478,7 +478,11 @@ impl CellLayerBody {
     }
 
     fn inner_radius(&self) -> Length {
-        (self.outer_radius.sqr() - self.area / PI).sqrt()
+        Length::new(
+            (self.outer_radius.sqr().value() - self.area.value() / PI)
+                .max(0.0)
+                .sqrt(),
+        )
     }
 
     fn health(&self) -> Health {
@@ -890,6 +894,12 @@ mod tests {
     }
 
     #[test]
+    fn single_layer_calculates_inner_radius_as_zero() {
+        let layer = simple_cell_layer(Area::new(1.0), Density::new(1.0));
+        assert_eq!(layer.inner_radius(), Length::ZERO);
+    }
+
+    #[test]
     fn can_create_layer_from_radii() {
         let layer =
             simple_cell_layer_with_radii(Length::new(3.0), Length::new(2.0), Density::new(1.0));
@@ -1139,7 +1149,7 @@ mod tests {
     #[test]
     fn live_layer_does_not_decay() {
         const LAYER_PARAMS: LayerParameters = LayerParameters {
-            decay_rate: 0.25,
+            decay_rate: Fraction::unchecked(0.25),
             ..LayerParameters::DEFAULT
         };
 
@@ -1156,7 +1166,7 @@ mod tests {
     #[test]
     fn dead_layer_decays() {
         const LAYER_PARAMS: LayerParameters = LayerParameters {
-            decay_rate: 0.25,
+            decay_rate: Fraction::unchecked(0.25),
             ..LayerParameters::DEFAULT
         };
 

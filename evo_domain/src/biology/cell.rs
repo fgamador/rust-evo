@@ -82,13 +82,6 @@ impl Cell {
         self
     }
 
-    pub fn burst(mut self) -> Self {
-        for layer in &mut self.layers {
-            layer.die();
-        }
-        self
-    }
-
     pub fn spawn(&mut self, layer_area: Area) -> Self {
         let mut layers = self
             .layers
@@ -132,7 +125,7 @@ impl Cell {
     }
 
     pub fn is_intact(&self) -> bool {
-        self.layers.iter().any(|layer| layer.is_alive())
+        self.layers.last().unwrap().is_intact()
     }
 
     pub fn is_selected(&self) -> bool {
@@ -534,10 +527,16 @@ mod tests {
     }
 
     #[test]
-    fn cell_with_all_dead_layers_is_burst() {
+    fn cell_with_non_intact_outer_layer_is_burst() {
+        const LAYER_PARAMS: LayerParameters = LayerParameters {
+            minimum_intact_thickness: Fraction::unchecked(0.5),
+            ..LayerParameters::DEFAULT
+        };
         let cell = simple_layered_cell(vec![
-            simple_cell_layer(Area::new(1.0), Density::new(1.0)).dead(),
-            simple_cell_layer(Area::new(1.0), Density::new(1.0)).dead(),
+            simple_cell_layer(Area::new(1.0), Density::new(1.0)),
+            simple_cell_layer(Area::new(0.1), Density::new(1.0))
+                .with_parameters(&LAYER_PARAMS)
+                .dead(),
         ]);
         assert!(!cell.is_intact());
     }

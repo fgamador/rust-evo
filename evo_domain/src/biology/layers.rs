@@ -43,13 +43,15 @@ impl LayerParameters {
     };
 
     fn validate(&self) {
+        self.minimum_intact_thickness.validate();
         assert!(self.healing_energy_delta <= BioEnergyDelta::ZERO);
         assert!(self.entropic_damage_health_delta <= HealthDelta::ZERO);
         assert!(self.overlap_damage_health_delta <= HealthDelta::ZERO);
-        assert!(self.growth_energy_delta.value() <= 0.0);
+        assert!(self.growth_energy_delta <= BioEnergyDelta::ZERO);
         self.max_growth_rate.validate();
         // self.shrinkage_energy_delta can be negative or positive
         assert!(self.max_shrinkage_rate >= 0.0);
+        self.decay_rate.validate();
     }
 }
 

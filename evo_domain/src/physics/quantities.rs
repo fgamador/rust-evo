@@ -243,15 +243,19 @@ impl Fraction {
     pub const ONE: Fraction = Fraction { value: 1.0 };
 
     pub fn new(value: Value1D) -> Self {
-        if value < 0.0 || 1.0 < value {
-            panic!("Invalid fraction: {}", value);
-        }
-
-        Fraction { value }
+        let val = Fraction { value };
+        val.validate();
+        val
     }
 
     pub const fn unchecked(value: Value1D) -> Self {
         Fraction { value }
+    }
+
+    pub fn validate(self) {
+        if self.value < 0.0 || 1.0 < self.value {
+            panic!("Invalid fraction: {}", self.value);
+        }
     }
 
     #[allow(dead_code)]
@@ -708,15 +712,19 @@ impl BioEnergy {
     };
 
     pub fn new(value: Value1D) -> Self {
-        if value < 0.0 {
-            panic!("Negative energy: {}", value);
-        }
-
-        BioEnergy { value }
+        let val = BioEnergy { value };
+        val.validate();
+        val
     }
 
     pub const fn unchecked(value: Value1D) -> Self {
         BioEnergy { value }
+    }
+
+    pub fn validate(self) {
+        if self.value < 0.0 {
+            panic!("Negative energy: {}", self.value);
+        }
     }
 
     #[allow(dead_code)]

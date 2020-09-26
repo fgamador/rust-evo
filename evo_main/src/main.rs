@@ -19,12 +19,14 @@ const FLUID_DENSITY: f64 = 0.001;
 const FLOAT_LAYER_DENSITY: f64 = 0.0001;
 const PHOTO_LAYER_DENSITY: f64 = 0.002;
 const BONDING_LAYER_DENSITY: f64 = 0.002;
+const CELL_WALL_DENSITY: f64 = 0.002;
 const GRAVITY: f64 = -0.05;
 const OVERLAP_DAMAGE_HEALTH_DELTA: f64 = -0.1;
 
 const FLOAT_LAYER_INDEX: usize = 0;
 const PHOTO_LAYER_INDEX: usize = 1;
 const BONDING_LAYER_INDEX: usize = 2;
+const CELL_WALL_INDEX: usize = 3;
 
 fn create_world(seed: u64) -> World {
     let parameters = Parameters {
@@ -68,6 +70,7 @@ fn create_cell(seed: u64) -> Cell {
             create_float_layer(),
             create_photo_layer(),
             create_bonding_layer(),
+            create_cell_wall(),
         ],
     )
     .with_control(Box::new(create_control(SeededMutationRandomness::new(
@@ -85,6 +88,7 @@ fn create_float_layer() -> CellLayer {
         max_growth_rate: 10.0,
         shrinkage_energy_delta: BioEnergyDelta::new(-0.01),
         max_shrinkage_rate: 0.5,
+        decay_rate: Fraction::unchecked(0.05),
         ..LayerParameters::DEFAULT
     };
 
@@ -143,6 +147,29 @@ fn create_bonding_layer() -> CellLayer {
     .with_parameters(&PARAMS)
 }
 
+fn create_cell_wall() -> CellLayer {
+    const PARAMS: LayerParameters = LayerParameters {
+        healing_energy_delta: BioEnergyDelta::new(-1.0),
+        entropic_damage_health_delta: HealthDelta::new(-0.01),
+        overlap_damage_health_delta: HealthDelta::new(OVERLAP_DAMAGE_HEALTH_DELTA),
+        growth_energy_delta: BioEnergyDelta::new(-0.1),
+        max_growth_rate: 10.0,
+        shrinkage_energy_delta: BioEnergyDelta::new(-0.01),
+        max_shrinkage_rate: 0.5,
+        decay_rate: Fraction::unchecked(0.005),
+        minimum_intact_thickness: Fraction::unchecked(0.01),
+        ..LayerParameters::DEFAULT
+    };
+
+    CellLayer::new(
+        Area::new(2.0 * PI),
+        Density::new(CELL_WALL_DENSITY),
+        Tissue::CellWall,
+        Box::new(NullCellLayerSpecialty::new()),
+    )
+    .with_parameters(&PARAMS)
+}
+
 fn create_control(randomness: SeededMutationRandomness) -> NeuralNetControl {
     let mut builder = NeuralNetControlBuilder::new(TransferFn::IDENTITY);
 
@@ -168,6 +195,9 @@ fn create_control(randomness: SeededMutationRandomness) -> NeuralNetControl {
         });
     let bonding_layer_area_input_index = builder.add_input_node("<bonding area", |cell_state| {
         cell_state.layers[BONDING_LAYER_INDEX].area.value()
+    });
+    let cell_wall_health_input_index = builder.add_input_node("<wall health", |cell_state| {
+        cell_state.layers[CELL_WALL_INDEX].health.value()
     });
     let bond_0_exists_input_index = builder.add_input_node("<bond 0 exists", |cell_state| {
         if cell_state.bond_0_exists {
@@ -215,6 +245,12 @@ fn create_control(randomness: SeededMutationRandomness) -> NeuralNetControl {
         &[(bonding_layer_area_input_index, -1.0)],
         200.0,
         |value| CellLayer::resize_request(BONDING_LAYER_INDEX, AreaDelta::new(value)),
+    );
+    builder.add_output_node(
+        ">wall healing",
+        &[(cell_wall_health_input_index, -1.0)],
+        1.0,
+        |value| CellLayer::healing_request(CELL_WALL_INDEX, HealthDelta::new(value.max(0.0))),
     );
     builder.add_output_node(
         ">retain 0",

@@ -13,7 +13,7 @@ where
     let args = parse_command_line();
     let world = create_world(args.seed);
     let view = View::new(world.min_corner(), world.max_corner());
-    run(world, view, args);
+    run(world, view, args.start_paused);
 }
 
 pub struct CommandLineArgs {
@@ -53,10 +53,10 @@ fn get_u64_arg(matches: &ArgMatches, name: &str, default_value: u64) -> u64 {
     }
 }
 
-fn run(mut world: World, mut view: View, args: CommandLineArgs) {
+fn run(mut world: World, mut view: View, start_paused: bool) {
     view.render(&world);
 
-    let mut user_action = if args.start_paused {
+    let mut user_action = if start_paused {
         view.wait_for_user_action()
     } else {
         UserAction::PlayToggle

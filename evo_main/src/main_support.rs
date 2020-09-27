@@ -111,7 +111,6 @@ fn await_next_tick(next_tick: Instant) {
 }
 
 fn fast_forward(world: &mut World, view: &mut View) -> UserAction {
-    let mut next_render = Instant::now();
     loop {
         if let Some(user_action) = view.check_for_user_action() {
             if let UserAction::Exit | UserAction::FastForwardToggle = user_action {
@@ -119,12 +118,14 @@ fn fast_forward(world: &mut World, view: &mut View) -> UserAction {
             }
         }
 
-        world.tick();
+        tick_for(world, Duration::from_millis(16));
+        view.render(world);
+    }
+}
 
-        if Instant::now() >= next_render {
-            // TODO blocks because of glutin's `with_vsync`
-            view.render(world);
-            next_render += Duration::from_millis(16);
-        }
+fn tick_for(world: &mut World, duration: Duration) {
+    let end_time = Instant::now() + duration;
+    while Instant::now() < end_time {
+        world.tick();
     }
 }

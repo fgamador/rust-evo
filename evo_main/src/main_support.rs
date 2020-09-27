@@ -106,14 +106,14 @@ fn run(mut world: World, mut view: View, args: CommandLineArgs) {
 fn play(world: &mut World, view: &mut View) -> UserAction {
     let mut next_tick = Instant::now();
     loop {
-        next_tick += Duration::from_millis(16);
-        await_next_tick(next_tick);
-
         if let Some(user_action) = view.check_for_user_action() {
             return user_action;
         }
 
         single_tick(world, view);
+
+        next_tick += Duration::from_millis(16);
+        await_next_tick(next_tick);
     }
 }
 
@@ -122,11 +122,6 @@ fn await_next_tick(next_tick: Instant) {
     if now < next_tick {
         thread::sleep(next_tick - now);
     }
-}
-
-fn single_tick(world: &mut World, view: &mut View) {
-    world.tick();
-    view.render(world);
 }
 
 fn fast_forward(world: &mut World, view: &mut View) -> UserAction {
@@ -145,4 +140,9 @@ fn tick_for(world: &mut World, duration: Duration) {
     while Instant::now() < end_time {
         world.tick();
     }
+}
+
+fn single_tick(world: &mut World, view: &mut View) {
+    world.tick();
+    view.render(world);
 }

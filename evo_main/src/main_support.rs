@@ -56,48 +56,48 @@ fn get_u64_arg(matches: &ArgMatches, name: &str, default_value: u64) -> u64 {
 fn run(mut world: World, mut view: View, start_paused: bool) {
     view.render(&world);
 
-    let mut user_action = if start_paused {
-        view.wait_for_user_action()
+    let mut next_action = if start_paused {
+        Some(view.wait_for_user_action())
     } else {
-        UserAction::PlayToggle
+        Some(UserAction::PlayToggle)
     };
 
-    loop {
-        user_action = match user_action {
+    while let Some(this_action) = next_action {
+        next_action = match this_action {
             UserAction::DebugPrint => {
                 world.debug_print_cells();
-                view.wait_for_user_action()
+                Some(view.wait_for_user_action())
             }
 
-            UserAction::Exit => return,
+            UserAction::Exit => None,
 
             UserAction::FastForwardToggle => {
                 let action = fast_forward(&mut world, &mut view);
                 if action == UserAction::FastForwardToggle {
-                    view.wait_for_user_action()
+                    Some(view.wait_for_user_action())
                 } else {
-                    action
+                    Some(action)
                 }
             }
 
             UserAction::PlayToggle => {
                 let action = play(&mut world, &mut view);
                 if action == UserAction::PlayToggle {
-                    view.wait_for_user_action()
+                    Some(view.wait_for_user_action())
                 } else {
-                    action
+                    Some(action)
                 }
             }
 
             UserAction::SelectCellToggle { x, y } => {
                 world.toggle_select_cell_at(Position::new(x, y));
                 view.render(&world);
-                view.wait_for_user_action()
+                Some(view.wait_for_user_action())
             }
 
             UserAction::SingleTick => {
                 single_tick(&mut world, &mut view);
-                view.wait_for_user_action()
+                Some(view.wait_for_user_action())
             }
         };
     }

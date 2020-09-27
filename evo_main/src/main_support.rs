@@ -63,26 +63,43 @@ fn run(mut world: World, mut view: View, args: CommandLineArgs) {
     };
 
     loop {
-        match user_action {
-            UserAction::DebugPrint => world.debug_print_cells(),
+        user_action = match user_action {
+            UserAction::DebugPrint => {
+                world.debug_print_cells();
+                view.wait_for_user_action()
+            }
+
             UserAction::Exit => return,
+
             UserAction::FastForwardToggle => {
-                if fast_forward(&mut world, &mut view) == UserAction::Exit {
-                    return;
+                let action = fast_forward(&mut world, &mut view);
+                if action == UserAction::FastForwardToggle {
+                    view.wait_for_user_action()
+                } else {
+                    action
                 }
             }
+
             UserAction::PlayToggle => {
-                if play(&mut world, &mut view) == UserAction::Exit {
-                    return;
+                let action = play(&mut world, &mut view);
+                if action == UserAction::PlayToggle {
+                    view.wait_for_user_action()
+                } else {
+                    action
                 }
             }
+
             UserAction::SelectCellToggle { x, y } => {
                 world.toggle_select_cell_at(Position::new(x, y));
                 view.render(&world);
+                view.wait_for_user_action()
             }
-            UserAction::SingleTick => single_tick(&mut world, &mut view),
-        }
-        user_action = view.wait_for_user_action();
+
+            UserAction::SingleTick => {
+                single_tick(&mut world, &mut view);
+                view.wait_for_user_action()
+            }
+        };
     }
 }
 
@@ -93,18 +110,11 @@ fn play(world: &mut World, view: &mut View) -> UserAction {
         await_next_tick(next_tick);
 
         if let Some(user_action) = view.check_for_user_action() {
-            if let UserAction::Exit | UserAction::PlayToggle = user_action {
-                return user_action;
-            }
+            return user_action;
         }
 
         single_tick(world, view);
     }
-}
-
-fn single_tick(world: &mut World, view: &mut View) {
-    world.tick();
-    view.render(world);
 }
 
 fn await_next_tick(next_tick: Instant) {
@@ -114,12 +124,15 @@ fn await_next_tick(next_tick: Instant) {
     }
 }
 
+fn single_tick(world: &mut World, view: &mut View) {
+    world.tick();
+    view.render(world);
+}
+
 fn fast_forward(world: &mut World, view: &mut View) -> UserAction {
     loop {
         if let Some(user_action) = view.check_for_user_action() {
-            if let UserAction::Exit | UserAction::FastForwardToggle = user_action {
-                return user_action;
-            }
+            return user_action;
         }
 
         tick_for(world, Duration::from_millis(16));

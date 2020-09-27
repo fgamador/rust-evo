@@ -57,7 +57,7 @@ fn run(mut world: World, mut view: View, args: CommandLineArgs) {
     view.render(&world);
 
     let mut user_action = if args.start_paused {
-        UserAction::None
+        view.wait_for_user_action()
     } else {
         UserAction::PlayToggle
     };
@@ -71,7 +71,6 @@ fn run(mut world: World, mut view: View, args: CommandLineArgs) {
                     return;
                 }
             }
-            UserAction::None => (),
             UserAction::PlayToggle => {
                 if play(&mut world, &mut view) == UserAction::Exit {
                     return;

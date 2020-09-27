@@ -16,11 +16,6 @@ where
     run(world, view, args);
 }
 
-pub fn init_and_run_old(world: World, args: CommandLineArgs) {
-    let view = View::new(world.min_corner(), world.max_corner());
-    run(world, view, args);
-}
-
 pub struct CommandLineArgs {
     pub seed: u64,
     pub start_paused: bool,

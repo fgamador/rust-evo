@@ -157,7 +157,6 @@ fn create_cell_wall() -> CellLayer {
         max_shrinkage_rate: 0.5,
         decay_rate: Fraction::unchecked(0.005),
         minimum_intact_thickness: Fraction::unchecked(0.01),
-        ..LayerParameters::DEFAULT
     };
 
     CellLayer::new(

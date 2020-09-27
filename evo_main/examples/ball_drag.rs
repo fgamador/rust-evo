@@ -5,8 +5,7 @@ use evo_domain::world::World;
 use evo_main::main_support::*;
 
 fn main() {
-    let args = parse_command_line();
-    init_and_run_old(create_world(), args);
+    init_and_run(|_seed| create_world());
 }
 
 fn create_world() -> World {

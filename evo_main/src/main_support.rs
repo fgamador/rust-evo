@@ -6,7 +6,17 @@ use evo_domain::UserAction;
 use std::thread;
 use std::time::{Duration, Instant};
 
-pub fn init_and_run(world: World, args: CommandLineArgs) {
+pub fn init_and_run<F>(create_world: F)
+where
+    F: Fn(u64) -> World,
+{
+    let args = parse_command_line();
+    let world = create_world(args.seed);
+    let view = View::new(world.min_corner(), world.max_corner());
+    run(world, view, args);
+}
+
+pub fn init_and_run_old(world: World, args: CommandLineArgs) {
     let view = View::new(world.min_corner(), world.max_corner());
     run(world, view, args);
 }

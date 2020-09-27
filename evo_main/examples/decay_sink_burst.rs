@@ -19,7 +19,7 @@ const GRAVITY: f64 = -0.05;
 
 fn main() {
     let args = parse_command_line();
-    init_and_run(create_world(), args);
+    init_and_run_old(create_world(), args);
 }
 
 fn create_world() -> World {

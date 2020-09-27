@@ -10,8 +10,7 @@ use std::f64;
 use std::f64::consts::PI;
 
 fn main() {
-    let args = parse_command_line();
-    init_and_run(create_world(), args);
+    init_and_run(|_seed| create_world());
 }
 
 const FLUID_DENSITY: f64 = 0.001;
@@ -59,7 +58,7 @@ fn create_float_layer() -> CellLayer {
         entropic_damage_health_delta: HealthDelta::new(-0.01),
         overlap_damage_health_delta: HealthDelta::new(OVERLAP_DAMAGE_HEALTH_DELTA),
         growth_energy_delta: BioEnergyDelta::new(-0.1),
-        max_growth_rate: 10.0,
+        max_growth_rate: Positive::unchecked(10.0),
         shrinkage_energy_delta: BioEnergyDelta::new(-0.01),
         max_shrinkage_rate: 0.5,
         ..LayerParameters::DEFAULT
@@ -80,7 +79,7 @@ fn create_photo_layer() -> CellLayer {
         entropic_damage_health_delta: HealthDelta::new(-0.01),
         overlap_damage_health_delta: HealthDelta::new(OVERLAP_DAMAGE_HEALTH_DELTA),
         growth_energy_delta: BioEnergyDelta::new(-1.0),
-        max_growth_rate: 10.0,
+        max_growth_rate: Positive::unchecked(10.0),
         shrinkage_energy_delta: BioEnergyDelta::new(0.0),
         max_shrinkage_rate: 0.1,
         ..LayerParameters::DEFAULT
@@ -101,7 +100,7 @@ fn create_budding_layer() -> CellLayer {
         entropic_damage_health_delta: HealthDelta::new(-0.01),
         overlap_damage_health_delta: HealthDelta::new(OVERLAP_DAMAGE_HEALTH_DELTA),
         growth_energy_delta: BioEnergyDelta::new(0.0),
-        max_growth_rate: f64::INFINITY,
+        max_growth_rate: Positive::MAX,
         shrinkage_energy_delta: BioEnergyDelta::new(0.0),
         max_shrinkage_rate: 1.0,
         ..LayerParameters::DEFAULT

@@ -6,6 +6,7 @@ use crate::environment::local_environment::*;
 use crate::physics::handles::*;
 use crate::physics::newtonian::*;
 use crate::physics::node_graph::*;
+use crate::physics::overlap::Overlap;
 use crate::physics::quantities::*;
 use crate::physics::shapes::*;
 use evo_domain_derive::*;
@@ -478,6 +479,18 @@ impl GraphNode<Cell> for Cell {
     }
 }
 
+pub const MAX_TOUCHES: usize = 8;
+
+pub type Touches = [Value1D; MAX_TOUCHES];
+
+pub const NONE_TOUCHES: Touches = [0.0; MAX_TOUCHES];
+
+pub fn sense_touches(overlaps: &Vec<Overlap>) -> Touches {
+    let mut touches = NONE_TOUCHES;
+    touches[0] = overlaps[0].area();
+    touches
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -886,6 +899,15 @@ mod tests {
         assert_eq!(5.0, cell.layers()[0].area().value());
         assert_eq!(10.0, cell.layers()[1].area().value());
         assert_eq!(BioEnergy::new(5.0), cell.energy());
+    }
+
+    #[test]
+    fn touch_is_overlap_area() {
+        let overlaps = vec![Overlap::new(Displacement::new(-1.5, 0.0), 2.0)];
+        let touches = sense_touches(&overlaps);
+        let mut expected = NONE_TOUCHES;
+        expected[0] = 3.0;
+        assert_eq!(touches, expected);
     }
 
     fn simple_layered_cell(layers: Vec<CellLayer>) -> Cell {

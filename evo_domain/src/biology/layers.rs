@@ -319,7 +319,7 @@ impl LivingCellLayerBrain {
 
     fn overlap_damage(&self, body: &CellLayerBody, overlaps: &[Overlap]) -> HealthDelta {
         overlaps.iter().fold(HealthDelta::ZERO, |damage, overlap| {
-            damage + body.parameters.overlap_damage_health_delta * overlap.magnitude()
+            damage + body.parameters.overlap_damage_health_delta * overlap.depth()
         })
     }
 }

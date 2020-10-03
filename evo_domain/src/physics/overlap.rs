@@ -9,11 +9,11 @@ use std::ops::Neg;
 #[derive(Clone, Copy, Debug, PartialEq)]
 pub struct Overlap {
     incursion: Displacement,
-    width: f64,
+    width: Value1D,
 }
 
 impl Overlap {
-    pub fn new(incursion: Displacement, width: f64) -> Self {
+    pub fn new(incursion: Displacement, width: Value1D) -> Self {
         Overlap { incursion, width }
     }
 
@@ -21,7 +21,11 @@ impl Overlap {
         self.incursion
     }
 
-    pub fn magnitude(&self) -> f64 {
+    pub fn area(&self) -> Value1D {
+        self.depth() * self.width
+    }
+
+    pub fn depth(&self) -> Value1D {
         self.incursion.length().value()
     }
 }
@@ -160,8 +164,8 @@ pub fn calc_overlap<C: Circle>(circle1: &C, circle2: &C) -> Option<Overlap> {
 
 struct PossibleCirclePairOverlap {
     center1_offset: Displacement,
-    just_touching_center_sep: f64,
-    center_sep_sqr: f64,
+    just_touching_center_sep: Value1D,
+    center_sep_sqr: Value1D,
 }
 
 impl PossibleCirclePairOverlap {

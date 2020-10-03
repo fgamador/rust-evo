@@ -479,23 +479,26 @@ impl GraphNode<Cell> for Cell {
     }
 }
 
-pub const MAX_TOUCHES: usize = 8;
+pub const NUM_TOUCH_POINTS: usize = 8;
 
-pub type Touches = [Value1D; MAX_TOUCHES];
+pub type TouchPoints = [Value1D; NUM_TOUCH_POINTS];
 
-pub const ZERO_TOUCHES: Touches = [0.0; MAX_TOUCHES];
+pub const NO_TOUCHES: TouchPoints = [0.0; NUM_TOUCH_POINTS];
 
-pub fn sense_touches(overlaps: &Vec<Overlap>) -> Touches {
-    let mut touches = ZERO_TOUCHES;
+pub fn sense_touches(overlaps: &Vec<Overlap>) -> TouchPoints {
+    let mut touches = NO_TOUCHES;
     for overlap in overlaps {
-        add_touch(overlap, &mut touches);
+        sense_touch(overlap, &mut touches);
     }
     touches
 }
 
-fn add_touch(overlap: &Overlap, touches: &mut Touches) {
-    overlap.incursion();
-    touches[0] = overlap.area();
+fn sense_touch(overlap: &Overlap, touches: &mut TouchPoints) {
+    let touch_angle_in_octants = (-overlap.incursion()).to_polar_angle().radians() / (PI / 4.0);
+    let min_touch_point = touch_angle_in_octants.floor() as usize;
+    let max_touch_point = (touch_angle_in_octants.ceil() as usize) % NUM_TOUCH_POINTS;
+    touches[min_touch_point] += (1.0 - touch_angle_in_octants.fract()) * overlap.area();
+    touches[max_touch_point] += touch_angle_in_octants.fract() * overlap.area();
 }
 
 #[cfg(test)]
@@ -911,7 +914,7 @@ mod tests {
     #[test]
     fn touch_is_overlap_area() {
         let overlaps = vec![Overlap::new(Displacement::new(-1.5, 0.0), 2.0)];
-        let mut expected = ZERO_TOUCHES;
+        let mut expected = NO_TOUCHES;
         expected[0] = 3.0;
         assert_eq!(sense_touches(&overlaps), expected);
     }
@@ -919,10 +922,10 @@ mod tests {
     #[test]
     #[ignore]
     fn touch_registers_at_closest_sensors() {
-        let overlaps = vec![Overlap::new(Displacement::new(3.0, -4.0), 2.0)];
-        let mut expected = ZERO_TOUCHES;
-        expected[2] = 3.0;
-        expected[3] = 3.0;
+        let overlaps = vec![Overlap::new(Displacement::new(-4.0, 3.0), 2.0)];
+        let mut expected = NO_TOUCHES;
+        expected[7] = 8.2;
+        expected[0] = 1.8;
         assert_eq!(sense_touches(&overlaps), expected);
     }
 

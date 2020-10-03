@@ -483,12 +483,19 @@ pub const MAX_TOUCHES: usize = 8;
 
 pub type Touches = [Value1D; MAX_TOUCHES];
 
-pub const NONE_TOUCHES: Touches = [0.0; MAX_TOUCHES];
+pub const ZERO_TOUCHES: Touches = [0.0; MAX_TOUCHES];
 
 pub fn sense_touches(overlaps: &Vec<Overlap>) -> Touches {
-    let mut touches = NONE_TOUCHES;
-    touches[0] = overlaps[0].area();
+    let mut touches = ZERO_TOUCHES;
+    for overlap in overlaps {
+        add_touch(overlap, &mut touches);
+    }
     touches
+}
+
+fn add_touch(overlap: &Overlap, touches: &mut Touches) {
+    overlap.incursion();
+    touches[0] = overlap.area();
 }
 
 #[cfg(test)]
@@ -904,10 +911,19 @@ mod tests {
     #[test]
     fn touch_is_overlap_area() {
         let overlaps = vec![Overlap::new(Displacement::new(-1.5, 0.0), 2.0)];
-        let touches = sense_touches(&overlaps);
-        let mut expected = NONE_TOUCHES;
+        let mut expected = ZERO_TOUCHES;
         expected[0] = 3.0;
-        assert_eq!(touches, expected);
+        assert_eq!(sense_touches(&overlaps), expected);
+    }
+
+    #[test]
+    #[ignore]
+    fn touch_registers_at_closest_sensors() {
+        let overlaps = vec![Overlap::new(Displacement::new(3.0, -4.0), 2.0)];
+        let mut expected = ZERO_TOUCHES;
+        expected[2] = 3.0;
+        expected[3] = 3.0;
+        assert_eq!(sense_touches(&overlaps), expected);
     }
 
     fn simple_layered_cell(layers: Vec<CellLayer>) -> Cell {

@@ -936,17 +936,11 @@ impl Position {
     }
 
     pub fn to_polar_radius(&self, origin: Position) -> Length {
-        (*self - origin).length()
+        (*self - origin).to_polar_radius()
     }
 
     pub fn to_polar_angle(&self, origin: Position) -> Angle {
-        let displacement = *self - origin;
-        let radians = displacement.y.atan2(displacement.x);
-        Angle::from_radians(if radians >= 0.0 {
-            radians
-        } else {
-            radians + 2.0 * PI
-        })
+        (*self - origin).to_polar_angle()
     }
 }
 
@@ -996,6 +990,19 @@ impl Displacement {
             x: radius.value() * angle.cos(),
             y: radius.value() * angle.sin(),
         }
+    }
+
+    pub fn to_polar_radius(&self) -> Length {
+        self.length()
+    }
+
+    pub fn to_polar_angle(&self) -> Angle {
+        let radians = self.y.atan2(self.x);
+        Angle::from_radians(if radians >= 0.0 {
+            radians
+        } else {
+            radians + 2.0 * PI
+        })
     }
 
     pub fn value(&self) -> Value2D {

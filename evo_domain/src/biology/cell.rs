@@ -200,6 +200,7 @@ impl Cell {
             velocity: self.velocity(),
             energy: self.energy(),
             bond_0_exists: self.has_edge(0),
+            touches: sense_touches(self.environment.overlaps()),
             layers: self.get_layer_state_snapshots(),
         }
     }
@@ -479,13 +480,7 @@ impl GraphNode<Cell> for Cell {
     }
 }
 
-pub const NUM_TOUCH_POINTS: usize = 8;
-
-pub type TouchPoints = [Value1D; NUM_TOUCH_POINTS];
-
-pub const NO_TOUCHES: TouchPoints = [0.0; NUM_TOUCH_POINTS];
-
-pub fn sense_touches(overlaps: &Vec<Overlap>) -> TouchPoints {
+pub fn sense_touches(overlaps: &[Overlap]) -> TouchPoints {
     let mut touches = NO_TOUCHES;
     for overlap in overlaps {
         sense_touch(overlap, &mut touches);
@@ -912,7 +907,7 @@ mod tests {
     }
 
     #[test]
-    fn touch_is_overlap_area() {
+    fn touch_value_is_overlap_area() {
         let overlaps = vec![Overlap::new(Displacement::new(-1.5, 0.0), 2.0)];
         let mut expected = NO_TOUCHES;
         expected[0] = 3.0;

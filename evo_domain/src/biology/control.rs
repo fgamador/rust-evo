@@ -26,6 +26,7 @@ pub struct CellStateSnapshot {
     pub energy: BioEnergy,
     pub layers: Vec<CellLayerStateSnapshot>,
     pub bond_0_exists: bool,
+    pub touches: TouchPoints,
 }
 
 impl CellStateSnapshot {
@@ -38,6 +39,7 @@ impl CellStateSnapshot {
         energy: BioEnergy::ZERO,
         layers: Vec::new(),
         bond_0_exists: false,
+        touches: NO_TOUCHES,
     };
 }
 
@@ -47,6 +49,12 @@ pub struct CellLayerStateSnapshot {
     pub mass: Mass,
     pub health: Health,
 }
+
+pub const NUM_TOUCH_POINTS: usize = 8;
+
+pub type TouchPoints = [Value1D; NUM_TOUCH_POINTS];
+
+pub const NO_TOUCHES: TouchPoints = [0.0; NUM_TOUCH_POINTS];
 
 #[derive(Debug)]
 pub struct NullControl {}

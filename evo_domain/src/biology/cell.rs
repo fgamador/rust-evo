@@ -920,6 +920,17 @@ mod tests {
     }
 
     #[test]
+    fn touches_add() {
+        let overlaps = vec![
+            Overlap::new(Displacement::new(0.0, -2.0), 1.0),
+            Overlap::new(Displacement::new(0.0, -1.0), 1.0),
+        ];
+        let mut expected = NO_TOUCHES;
+        expected[2] = 3.0;
+        assert_eq!(sense_touches(&overlaps), expected);
+    }
+
+    #[test]
     #[ignore]
     fn touch_registers_at_closest_sensors() {
         let overlaps = vec![Overlap::new(Displacement::new(-4.0, 3.0), 2.0)];

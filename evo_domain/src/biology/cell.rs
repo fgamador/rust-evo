@@ -931,13 +931,15 @@ mod tests {
     }
 
     #[test]
-    #[ignore]
     fn touch_registers_at_closest_sensors() {
         let overlaps = vec![Overlap::new(Displacement::new(-4.0, 3.0), 2.0)];
-        let mut expected = NO_TOUCHES;
-        expected[7] = 8.2;
-        expected[0] = 1.8;
-        assert_eq!(sense_touches(&overlaps), expected);
+        let touches = sense_touches(&overlaps);
+
+        for i in 1..=6 {
+            assert_eq!(touches[i], 0.0);
+        }
+        assert_eq!((touches[7] * 10.0).round(), 82.0);
+        assert_eq!((touches[0] * 10.0).round(), 18.0);
     }
 
     fn simple_layered_cell(layers: Vec<CellLayer>) -> Cell {

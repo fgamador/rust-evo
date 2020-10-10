@@ -39,7 +39,10 @@ fn create_world() -> World {
                 ),
             ],
         )
-        .with_control(Box::new(create_control()))])
+        .with_control(Box::new(create_control(SeededMutationRandomness::new(
+            0,
+            &MutationParameters::NO_MUTATION,
+        ))))])
 }
 
 fn simple_cell_layer(area: Area, density: Density, color: Tissue) -> CellLayer {
@@ -51,7 +54,7 @@ fn simple_cell_layer(area: Area, density: Density, color: Tissue) -> CellLayer {
     )
 }
 
-fn create_control() -> NeuralNetControl {
+fn create_control(_randomness: SeededMutationRandomness) -> NeuralNetControl {
     let mut genome = SparseNeuralNetGenome::new(TransferFn::IDENTITY);
     genome.connect_node(1, -100.0, &[(0, -1.0)]);
     NeuralNetControl::new(genome)

@@ -197,20 +197,33 @@ impl PrintableNode {
 
     fn format_inputs(&self, node_labels: &[&str]) -> String {
         let mut result = "".to_string();
-        for (index, (coefficient, input_index)) in self.inputs.iter().enumerate() {
-            if *coefficient == 0.0 {
-                continue;
-            }
-
-            if index > 0 {
-                result += " + ";
-            }
-            #[allow(clippy::float_cmp)]
-            if *coefficient != 1.0 {
-                result += &format!("{:.4}*", *coefficient);
-            }
-            result += &format!("{}", Self::format_node_index(*input_index, node_labels));
+        for (index, (coefficient, input_node_index)) in self.inputs.iter().enumerate() {
+            result += &self.format_input(index, *coefficient, *input_node_index, node_labels);
         }
+        result
+    }
+
+    fn format_input(
+        &self,
+        index: usize,
+        coefficient: Coefficient,
+        input_node_index: VecIndex,
+        node_labels: &[&str],
+    ) -> String {
+        let mut result = "".to_string();
+        if coefficient == 0.0 {
+            return "".to_string();
+        }
+
+        if index > 0 {
+            result += " + ";
+        }
+        #[allow(clippy::float_cmp)]
+        if coefficient != 1.0 {
+            result += &format!("{:.4}*", coefficient);
+        }
+        result += &format!("{}", Self::format_node_index(input_node_index, node_labels));
+
         result
     }
 

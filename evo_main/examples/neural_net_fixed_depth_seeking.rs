@@ -12,10 +12,10 @@ const FLOAT_LAYER_INDEX: usize = 0;
 //const PHOTO_LAYER_INDEX: usize = 1;
 
 fn main() {
-    init_and_run(|_seed| create_world());
+    init_and_run(create_world);
 }
 
-fn create_world() -> World {
+fn create_world(seed: u64) -> World {
     World::new(Position::new(0.0, -400.0), Position::new(400.0, 0.0))
         .with_standard_influences()
         .with_per_cell_influences(vec![
@@ -42,7 +42,7 @@ fn create_world() -> World {
             ],
         )
         .with_control(Box::new(create_control(SeededMutationRandomness::new(
-            0,
+            seed,
             &MutationParameters::NO_MUTATION,
         ))))])
 }

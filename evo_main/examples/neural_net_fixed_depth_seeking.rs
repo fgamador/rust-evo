@@ -16,7 +16,7 @@ fn main() {
 }
 
 fn create_world(seed: u64) -> World {
-    World::new(Position::new(0.0, -400.0), Position::new(400.0, 0.0))
+    World::new(Position::new(-200.0, -400.0), Position::new(200.0, 0.0))
         .with_standard_influences()
         .with_per_cell_influences(vec![
             Box::new(SimpleForceInfluence::new(Box::new(WeightForce::new(-0.05)))),
@@ -26,7 +26,7 @@ fn create_world(seed: u64) -> World {
             Box::new(SimpleForceInfluence::new(Box::new(DragForce::new(0.005)))),
         ])
         .with_cells(vec![Cell::new(
-            Position::new(200.0, -200.0),
+            Position::new(0.0, -150.0),
             Velocity::new(0.0, 0.0),
             vec![
                 simple_cell_layer(
@@ -80,7 +80,7 @@ fn create_control(randomness: SeededMutationRandomness) -> NeuralNetControl {
 
     builder.add_output_node(
         ">float resize",
-        &[(y_velocity_delta_index, 1.0)],
+        &[(y_velocity_delta_index, 3.0)],
         0.0,
         |value| CellLayer::resize_request(FLOAT_LAYER_INDEX, AreaDelta::new(value)),
     );

@@ -196,9 +196,11 @@ impl PrintableNode {
     }
 
     fn print_output_node(&self, node_labels: &[&str]) {
-        print!("[");
-        Self::print_node_index(self.index, node_labels);
-        print!("]");
+        print!("{}", self.format_output_node(node_labels));
+    }
+
+    fn format_output_node(&self, node_labels: &[&str]) -> String {
+        format!("[{}]", Self::format_node_index(self.index, node_labels))
     }
 
     fn print_inputs(&self, node_labels: &[&str]) {
@@ -221,18 +223,28 @@ impl PrintableNode {
     }
 
     fn print_bias(&self) {
+        print!("{}", self.format_bias());
+    }
+
+    fn format_bias(&self) -> String {
         if self.bias > 0.0 {
-            print!(" + {:.4}", self.bias);
+            format!(" + {:.4}", self.bias)
         } else if self.bias < 0.0 {
-            print!(" - {:.4}", -self.bias);
+            format!(" - {:.4}", -self.bias)
+        } else {
+            "".to_string()
         }
     }
 
     fn print_node_index(node_index: VecIndex, node_labels: &[&str]) {
+        print!("{}", Self::format_node_index(node_index, node_labels));
+    }
+
+    fn format_node_index(node_index: VecIndex, node_labels: &[&str]) -> String {
         if (node_index as usize) < node_labels.len() {
-            print!("{}", node_labels[node_index as usize]);
+            format!("{}", node_labels[node_index as usize])
         } else {
-            print!("{}", node_index);
+            format!("{}", node_index)
         }
     }
 }

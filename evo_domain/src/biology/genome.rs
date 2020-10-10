@@ -218,17 +218,7 @@ impl PrintableNode {
             return "".to_string();
         }
 
-        let mut result = "".to_string();
-
-        if is_first_visible {
-            if coefficient < 0.0 {
-                result += "-";
-            }
-        } else if coefficient < 0.0 {
-            result += " - ";
-        } else {
-            result += " + ";
-        }
+        let mut result = Self::get_sign_str(coefficient, is_first_visible).to_string();
 
         #[allow(clippy::float_cmp)]
         if coefficient.abs() != 1.0 {
@@ -237,6 +227,22 @@ impl PrintableNode {
 
         result += &Self::format_node_index(input_node_index, node_labels);
         result
+    }
+
+    fn get_sign_str(coefficient: Coefficient, is_first_visible: bool) -> &'static str {
+        if is_first_visible {
+            if coefficient < 0.0 {
+                "-"
+            } else {
+                ""
+            }
+        } else {
+            if coefficient < 0.0 {
+                " - "
+            } else {
+                " + "
+            }
+        }
     }
 
     fn format_node_index(node_index: VecIndex, node_labels: &[&str]) -> String {

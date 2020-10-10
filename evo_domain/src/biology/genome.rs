@@ -187,13 +187,12 @@ impl PrintableNode {
     }
 
     fn println(&self, node_labels: &[&str]) {
-        print!("  {} <- ", Self::format_node_index(self.index, node_labels));
-        self.print_inputs(node_labels);
-        println!("{}", self.format_bias());
-    }
-
-    fn print_inputs(&self, node_labels: &[&str]) {
-        print!("{}", self.format_inputs(node_labels));
+        println!(
+            "  {} <- {}{}",
+            Self::format_node_index(self.index, node_labels),
+            self.format_inputs(node_labels),
+            self.format_bias()
+        );
     }
 
     fn format_inputs(&self, node_labels: &[&str]) -> String {

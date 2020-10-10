@@ -59,12 +59,29 @@ fn simple_cell_layer(area: Area, density: Density, color: Tissue) -> CellLayer {
 fn create_control(randomness: SeededMutationRandomness) -> NeuralNetControl {
     let mut builder = NeuralNetControlBuilder::new(TransferFn::IDENTITY);
 
-    let cell_y_input_index =
+    let center_y_input_index =
         builder.add_input_node("<center y", |cell_state| cell_state.center.y());
+    let y_velocity_input_index =
+        builder.add_input_node("<y velocity", |cell_state| cell_state.velocity.y());
+
+    let desired_y_velocity_index = builder.add_hidden_node(
+        "desired y velocity",
+        &[(center_y_input_index, -1.0)],
+        -100.0,
+    );
+    let y_velocity_delta_index = builder.add_hidden_node(
+        "y velocity delta",
+        &[
+            (desired_y_velocity_index, 1.0),
+            (y_velocity_input_index, -1.0),
+        ],
+        0.0,
+    );
+
     builder.add_output_node(
         ">float resize",
-        &[(cell_y_input_index, -1.0)],
-        -100.0,
+        &[(y_velocity_delta_index, 1.0)],
+        0.0,
         |value| CellLayer::resize_request(FLOAT_LAYER_INDEX, AreaDelta::new(value)),
     );
 

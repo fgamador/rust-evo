@@ -193,7 +193,7 @@ impl PrintableNode {
     }
 
     fn format_output_node(&self, node_labels: &[&str]) -> String {
-        format!("[{}]", Self::format_node_index(self.index, node_labels))
+        format!("{}", Self::format_node_index(self.index, node_labels))
     }
 
     fn print_inputs(&self, node_labels: &[&str]) {
@@ -209,15 +209,15 @@ impl PrintableNode {
             if *coefficient != 1.0 {
                 print!("{:.4}*", *coefficient);
             }
-            print!("[{}]", Self::format_node_index(*input_index, node_labels));
+            print!("{}", Self::format_node_index(*input_index, node_labels));
         }
     }
 
     fn format_node_index(node_index: VecIndex, node_labels: &[&str]) -> String {
         if (node_index as usize) < node_labels.len() {
-            format!("{}", node_labels[node_index as usize])
+            format!("[{}]", node_labels[node_index as usize])
         } else {
-            format!("{}", node_index)
+            format!("[{}]", node_index)
         }
     }
 

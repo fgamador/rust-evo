@@ -230,15 +230,15 @@ impl PrintableNode {
     }
 
     fn get_sign_str(coefficient: Coefficient, is_first_visible: bool) -> &'static str {
-        if is_first_visible {
-            if coefficient < 0.0 {
+        if coefficient < 0.0 {
+            if is_first_visible {
                 "-"
             } else {
-                ""
+                " - "
             }
         } else {
-            if coefficient < 0.0 {
-                " - "
+            if is_first_visible {
+                ""
             } else {
                 " + "
             }

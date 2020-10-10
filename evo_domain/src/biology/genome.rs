@@ -198,13 +198,12 @@ impl PrintableNode {
     fn format_inputs(&self, node_labels: &[&str]) -> String {
         let mut result = "".to_string();
         for (index, (coefficient, input_node_index)) in self.inputs.iter().enumerate() {
-            result += &self.format_input(index, *coefficient, *input_node_index, node_labels);
+            result += &Self::format_input(index, *coefficient, *input_node_index, node_labels);
         }
         result
     }
 
     fn format_input(
-        &self,
         index: usize,
         coefficient: Coefficient,
         input_node_index: VecIndex,

@@ -199,9 +199,9 @@ impl PrintableNode {
         let mut result = "".to_string();
         for (coefficient, input_node_index) in &self.inputs {
             result += &Self::format_input(
-                result.is_empty(),
                 *coefficient,
                 *input_node_index,
+                result.is_empty(),
                 node_labels,
             );
         }
@@ -209,9 +209,9 @@ impl PrintableNode {
     }
 
     fn format_input(
-        is_first_visible: bool,
         coefficient: Coefficient,
         input_node_index: VecIndex,
+        is_first_visible: bool,
         node_labels: &[&str],
     ) -> String {
         if coefficient == 0.0 {

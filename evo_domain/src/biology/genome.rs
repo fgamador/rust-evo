@@ -224,10 +224,10 @@ impl PrintableNode {
             if coefficient < 0.0 {
                 result += "-";
             }
-        } else if coefficient >= 0.0 {
-            result += " + ";
-        } else {
+        } else if coefficient < 0.0 {
             result += " - ";
+        } else {
+            result += " + ";
         }
 
         #[allow(clippy::float_cmp)]

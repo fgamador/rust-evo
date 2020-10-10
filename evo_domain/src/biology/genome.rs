@@ -221,7 +221,7 @@ impl PrintableNode {
         if coefficient != 1.0 {
             result += &format!("{:.4}*", coefficient);
         }
-        result += &format!("{}", Self::format_node_index(input_node_index, node_labels));
+        result += &Self::format_node_index(input_node_index, node_labels);
         result
     }
 

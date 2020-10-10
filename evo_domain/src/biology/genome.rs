@@ -197,14 +197,19 @@ impl PrintableNode {
 
     fn format_inputs(&self, node_labels: &[&str]) -> String {
         let mut result = "".to_string();
-        for (index, (coefficient, input_node_index)) in self.inputs.iter().enumerate() {
-            result += &Self::format_input(index, *coefficient, *input_node_index, node_labels);
+        for (coefficient, input_node_index) in &self.inputs {
+            result += &Self::format_input(
+                result.is_empty(),
+                *coefficient,
+                *input_node_index,
+                node_labels,
+            );
         }
         result
     }
 
     fn format_input(
-        index: usize,
+        is_first_visible: bool,
         coefficient: Coefficient,
         input_node_index: VecIndex,
         node_labels: &[&str],
@@ -214,7 +219,7 @@ impl PrintableNode {
         }
 
         let mut result = "".to_string();
-        if index > 0 {
+        if !is_first_visible {
             result += " + ";
         }
         #[allow(clippy::float_cmp)]
@@ -601,6 +606,13 @@ mod tests {
         let mut node = PrintableNode::new(0);
         node.inputs = vec![(2.5, 2), (1.25, 1)];
         assert_eq!(node.format_inputs(&vec![]), "2.5000*[2] + 1.2500*[1]");
+    }
+
+    #[test]
+    fn formatting_excludes_input_with_zero_coefficient() {
+        let mut node = PrintableNode::new(0);
+        node.inputs = vec![(0.0, 2), (1.25, 1)];
+        assert_eq!(node.format_inputs(&vec![]), "1.2500*[1]");
     }
 
     fn plus_one(value: &mut NodeValue) {

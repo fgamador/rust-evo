@@ -213,6 +213,14 @@ impl PrintableNode {
         }
     }
 
+    fn format_node_index(node_index: VecIndex, node_labels: &[&str]) -> String {
+        if (node_index as usize) < node_labels.len() {
+            format!("{}", node_labels[node_index as usize])
+        } else {
+            format!("{}", node_index)
+        }
+    }
+
     fn format_bias(&self) -> String {
         if self.bias > 0.0 {
             format!(" + {:.4}", self.bias)
@@ -220,14 +228,6 @@ impl PrintableNode {
             format!(" - {:.4}", -self.bias)
         } else {
             "".to_string()
-        }
-    }
-
-    fn format_node_index(node_index: VecIndex, node_labels: &[&str]) -> String {
-        if (node_index as usize) < node_labels.len() {
-            format!("{}", node_labels[node_index as usize])
-        } else {
-            format!("{}", node_index)
         }
     }
 }

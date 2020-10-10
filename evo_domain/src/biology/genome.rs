@@ -236,7 +236,9 @@ impl PrintableNode {
                 result += &format!("{:.4}*", coefficient);
             }
         } else {
-            result += &format!("{:.4}*", -coefficient);
+            if coefficient != -1.0 {
+                result += &format!("{:.4}*", -coefficient);
+            }
         }
 
         result += &Self::format_node_index(input_node_index, node_labels);
@@ -633,6 +635,13 @@ mod tests {
         let mut node = PrintableNode::new(0);
         node.inputs = vec![(-2.5, 2), (-1.25, 1)];
         assert_eq!(node.format_inputs(&vec![]), "-2.5000*[2] - 1.2500*[1]");
+    }
+
+    #[test]
+    fn format_node_inputs_with_coefficients_of_minus_one() {
+        let mut node = PrintableNode::new(0);
+        node.inputs = vec![(-1.0, 2), (-1.0, 1)];
+        assert_eq!(node.format_inputs(&vec![]), "-[2] - [1]");
     }
 
     #[test]

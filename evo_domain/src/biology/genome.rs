@@ -231,14 +231,8 @@ impl PrintableNode {
         }
 
         #[allow(clippy::float_cmp)]
-        if coefficient >= 0.0 {
-            if coefficient != 1.0 {
-                result += &format!("{:.4}*", coefficient);
-            }
-        } else {
-            if coefficient != -1.0 {
-                result += &format!("{:.4}*", -coefficient);
-            }
+        if coefficient.abs() != 1.0 {
+            result += &format!("{:.4}*", coefficient.abs());
         }
 
         result += &Self::format_node_index(input_node_index, node_labels);

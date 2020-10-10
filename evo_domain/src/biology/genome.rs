@@ -210,11 +210,11 @@ impl PrintableNode {
         input_node_index: VecIndex,
         node_labels: &[&str],
     ) -> String {
-        let mut result = "".to_string();
         if coefficient == 0.0 {
             return "".to_string();
         }
 
+        let mut result = "".to_string();
         if index > 0 {
             result += " + ";
         }
@@ -223,7 +223,6 @@ impl PrintableNode {
             result += &format!("{:.4}*", coefficient);
         }
         result += &format!("{}", Self::format_node_index(input_node_index, node_labels));
-
         result
     }
 

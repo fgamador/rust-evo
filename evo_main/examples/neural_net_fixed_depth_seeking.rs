@@ -1,6 +1,5 @@
 use evo_domain::biology::cell::Cell;
 use evo_domain::biology::control::*;
-use evo_domain::biology::control_requests::*;
 use evo_domain::biology::genome::*;
 use evo_domain::biology::layers::*;
 use evo_domain::environment::influences::*;
@@ -8,6 +7,9 @@ use evo_domain::physics::quantities::*;
 use evo_domain::world::World;
 use evo_main::main_support::*;
 use std::f64::consts::PI;
+
+const FLOAT_LAYER_INDEX: usize = 0;
+//const PHOTO_LAYER_INDEX: usize = 1;
 
 fn main() {
     init_and_run(|_seed| create_world());
@@ -54,36 +56,17 @@ fn simple_cell_layer(area: Area, density: Density, color: Tissue) -> CellLayer {
     )
 }
 
-fn create_control(_randomness: SeededMutationRandomness) -> NeuralNetControl {
-    let mut genome = SparseNeuralNetGenome::new(TransferFn::IDENTITY);
-    genome.connect_node(1, -100.0, &[(0, -1.0)]);
-    NeuralNetControl::new(genome)
-}
+fn create_control(randomness: SeededMutationRandomness) -> NeuralNetControl {
+    let mut builder = NeuralNetControlBuilder::new(TransferFn::IDENTITY);
 
-#[derive(Clone, Debug)]
-pub struct NeuralNetControl {
-    nnet: SparseNeuralNet,
-}
+    let cell_y_input_index =
+        builder.add_input_node("<center y", |cell_state| cell_state.center.y());
+    builder.add_output_node(
+        ">float resize",
+        &[(cell_y_input_index, -1.0)],
+        -100.0,
+        |value| CellLayer::resize_request(FLOAT_LAYER_INDEX, AreaDelta::new(value)),
+    );
 
-impl NeuralNetControl {
-    pub fn new(genome: SparseNeuralNetGenome) -> Self {
-        NeuralNetControl {
-            nnet: SparseNeuralNet::new(genome),
-        }
-    }
-}
-
-impl CellControl for NeuralNetControl {
-    fn run(&mut self, cell_state: &CellStateSnapshot) -> Vec<ControlRequest> {
-        self.nnet.set_node_value(0, cell_state.center.y() as f32);
-        self.nnet.run();
-        vec![CellLayer::resize_request(
-            0,
-            AreaDelta::new(self.nnet.node_value(1) as f64),
-        )]
-    }
-
-    fn spawn(&mut self) -> Box<dyn CellControl> {
-        Box::new(self.clone())
-    }
+    builder.build(randomness)
 }

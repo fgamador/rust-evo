@@ -596,6 +596,13 @@ mod tests {
         }
     }
 
+    #[test]
+    fn format_positive_node_inputs() {
+        let mut node = PrintableNode::new(0);
+        node.inputs = vec![(2.5, 2), (1.25, 1)];
+        assert_eq!(node.format_inputs(&vec![]), "2.5000*[2] + 1.2500*[1]");
+    }
+
     fn plus_one(value: &mut NodeValue) {
         *value += 1.0;
     }

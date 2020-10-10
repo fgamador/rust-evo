@@ -220,14 +220,14 @@ impl PrintableNode {
 
         let mut result = "".to_string();
 
-        if !is_first_visible {
-            if coefficient >= 0.0 {
-                result += " + ";
-            } else {
-                result += " - ";
+        if is_first_visible {
+            if coefficient < 0.0 {
+                result += "-";
             }
-        } else if coefficient < 0.0 {
-            result += "-";
+        } else if coefficient >= 0.0 {
+            result += " + ";
+        } else {
+            result += " - ";
         }
 
         #[allow(clippy::float_cmp)]

@@ -230,6 +230,7 @@ impl PrintableNode {
     }
 
     fn get_sign_str(coefficient: Coefficient, is_first_visible: bool) -> &'static str {
+        #[allow(clippy::collapsible_if)]
         if coefficient < 0.0 {
             if is_first_visible {
                 "-"

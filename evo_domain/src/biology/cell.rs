@@ -198,6 +198,7 @@ impl Cell {
             mass: self.mass(),
             center: self.center(),
             velocity: self.velocity(),
+            net_force: self.newtonian_state.net_force.net_force(),
             energy: self.energy(),
             bond_0_exists: self.has_edge(0),
             touches: sense_touches(self.environment.overlaps()),

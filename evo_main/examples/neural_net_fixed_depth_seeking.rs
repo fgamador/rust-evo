@@ -63,31 +63,19 @@ fn create_control(randomness: SeededMutationRandomness) -> NeuralNetControl {
         builder.add_input_node("<center y", |cell_state| cell_state.center.y());
     let y_velocity_input_index =
         builder.add_input_node("<y velocity", |cell_state| cell_state.velocity.y());
-    let y_force_input_index =
-        builder.add_input_node("<y force", |cell_state| cell_state.net_force.y());
 
     let desired_y_velocity_index = builder.add_hidden_node(
         "desired y velocity",
         &[(center_y_input_index, -1.0)],
         -100.0,
     );
-    let y_velocity_delta_index = builder.add_hidden_node(
-        "y velocity delta",
-        &[
-            (desired_y_velocity_index, 1.0),
-            (y_velocity_input_index, -1.0),
-        ],
-        0.0,
-    );
-    let y_force_delta_index = builder.add_hidden_node(
-        "y force delta",
-        &[(y_velocity_delta_index, 1.0), (y_force_input_index, -1.0)],
-        0.0,
-    );
 
     builder.add_output_node(
         ">float resize",
-        &[(y_force_delta_index, 1.0)],
+        &[
+            (desired_y_velocity_index, 5.0),
+            (y_velocity_input_index, -1.0),
+        ],
         0.0,
         |value| CellLayer::resize_request(FLOAT_LAYER_INDEX, AreaDelta::new(value)),
     );

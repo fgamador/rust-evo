@@ -175,6 +175,8 @@ fn create_control(randomness: SeededMutationRandomness) -> NeuralNetControl {
         builder.add_input_node("<energy", |cell_state| cell_state.energy.value());
     let cell_y_input_index =
         builder.add_input_node("<center y", |cell_state| cell_state.center.y());
+    let y_velocity_input_index =
+        builder.add_input_node("<y velocity", |cell_state| cell_state.velocity.y());
     let float_layer_health_input_index = builder.add_input_node("<float health", |cell_state| {
         cell_state.layers[FLOAT_LAYER_INDEX].health.value()
     });
@@ -201,6 +203,8 @@ fn create_control(randomness: SeededMutationRandomness) -> NeuralNetControl {
         bool_to_value1d(cell_state.bond_0_exists)
     });
 
+    let desired_y_velocity_index =
+        builder.add_hidden_node("desired y velocity", &[(cell_y_input_index, -1.0)], -100.0);
     let donation_energy_index =
         builder.add_hidden_node("donation", &[(cell_energy_input_index, 0.1)], -100.0);
 
@@ -212,8 +216,11 @@ fn create_control(randomness: SeededMutationRandomness) -> NeuralNetControl {
     );
     builder.add_output_node(
         ">float resize",
-        &[(cell_y_input_index, -1.0)],
-        -100.0,
+        &[
+            (desired_y_velocity_index, 5.0),
+            (y_velocity_input_index, -1.0),
+        ],
+        0.0,
         |value| CellLayer::resize_request(FLOAT_LAYER_INDEX, AreaDelta::new(value)),
     );
     builder.add_output_node(

@@ -169,7 +169,7 @@ pub struct NeuralNetControl {
     nnet: SparseNeuralNet,
     value_to_request_fns: Arc<ValueToRequestFns>,
     randomness: SeededMutationRandomness,
-    node_labels: Arc<Vec<&'static str>>,
+    node_labels: Arc<Box<[&'static str]>>,
 }
 
 impl NeuralNetControl {
@@ -185,7 +185,7 @@ impl NeuralNetControl {
             nnet: SparseNeuralNet::new(genome),
             value_to_request_fns: Arc::new(value_to_request_fns),
             randomness,
-            node_labels: Arc::new(node_labels),
+            node_labels: Arc::new(node_labels.into()),
         }
     }
 

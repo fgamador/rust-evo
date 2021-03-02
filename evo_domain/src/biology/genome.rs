@@ -418,7 +418,7 @@ impl MutationParameters {
     }
 
     fn _is_probability(num: f32) -> bool {
-        0.0 <= num && num <= 1.0
+        (0.0..=1.0).contains(&num)
     }
 }
 

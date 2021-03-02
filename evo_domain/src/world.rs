@@ -11,7 +11,6 @@ use crate::physics::shapes::Circle;
 use crate::Parameters;
 use rayon::prelude::*;
 use std::collections::HashSet;
-use std::iter::FromIterator;
 
 pub struct World {
     parameters: Parameters,
@@ -362,7 +361,7 @@ impl World {
     }
 
     fn remove_bonds(&mut self, bond_handles: &HashSet<EdgeHandle>) {
-        let mut sorted_bond_handles = Vec::from_iter(bond_handles.iter().cloned());
+        let mut sorted_bond_handles: Vec<EdgeHandle> = bond_handles.iter().cloned().collect();
         sorted_bond_handles.sort_unstable();
         self.cell_graph.remove_edges(&sorted_bond_handles);
     }

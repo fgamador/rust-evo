@@ -599,7 +599,7 @@ impl Health {
     pub const FULL: Health = Health { value: 1.0 };
 
     pub fn new(value: Value1D) -> Self {
-        if value < 0.0 || 1.0 < value {
+        if !(0.0..=1.0).contains(&value) {
             panic!("Invalid health: {}", value);
         }
 

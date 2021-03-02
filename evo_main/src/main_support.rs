@@ -64,34 +64,34 @@ fn run(mut world: World, mut view: View, start_paused: bool) {
 
     while let Some(this_action) = next_action {
         next_action = match this_action {
-            UserAction::DebugPrint => debug_print_action(&mut world, &mut view),
+            UserAction::DebugPrint => Some(debug_print_action(&mut world, &mut view)),
 
             UserAction::Exit => None,
 
-            UserAction::FastForwardToggle => fast_forward_action(&mut world, &mut view),
+            UserAction::FastForwardToggle => Some(fast_forward_action(&mut world, &mut view)),
 
-            UserAction::PlayToggle => play_action(&mut world, &mut view),
+            UserAction::PlayToggle => Some(play_action(&mut world, &mut view)),
 
             UserAction::SelectCellToggle { x, y } => {
-                toggle_select_cell_action(&mut world, &mut view, x, y)
+                Some(toggle_select_cell_action(&mut world, &mut view, x, y))
             }
 
-            UserAction::SingleTick => single_tick_action(&mut world, &mut view),
+            UserAction::SingleTick => Some(single_tick_action(&mut world, &mut view)),
         };
     }
 }
 
-fn debug_print_action(world: &mut World, view: &mut View) -> Option<UserAction> {
+fn debug_print_action(world: &mut World, view: &mut View) -> UserAction {
     world.debug_print_cells();
-    Some(view.wait_for_user_action())
+    view.wait_for_user_action()
 }
 
-fn fast_forward_action(world: &mut World, view: &mut View) -> Option<UserAction> {
+fn fast_forward_action(world: &mut World, view: &mut View) -> UserAction {
     let action = fast_forward(world, view);
     if action == UserAction::FastForwardToggle {
-        Some(view.wait_for_user_action())
+        view.wait_for_user_action()
     } else {
-        Some(action)
+        action
     }
 }
 
@@ -113,12 +113,12 @@ fn tick_for(world: &mut World, duration: Duration) {
     }
 }
 
-fn play_action(world: &mut World, view: &mut View) -> Option<UserAction> {
+fn play_action(world: &mut World, view: &mut View) -> UserAction {
     let action = play(world, view);
     if action == UserAction::PlayToggle {
-        Some(view.wait_for_user_action())
+        view.wait_for_user_action()
     } else {
-        Some(action)
+        action
     }
 }
 
@@ -143,20 +143,15 @@ fn await_next_tick(next_tick: Instant) {
     }
 }
 
-fn toggle_select_cell_action(
-    world: &mut World,
-    view: &mut View,
-    x: f64,
-    y: f64,
-) -> Option<UserAction> {
+fn toggle_select_cell_action(world: &mut World, view: &mut View, x: f64, y: f64) -> UserAction {
     world.toggle_select_cell_at(Position::new(x, y));
     view.render(&world);
-    Some(view.wait_for_user_action())
+    view.wait_for_user_action()
 }
 
-fn single_tick_action(world: &mut World, view: &mut View) -> Option<UserAction> {
+fn single_tick_action(world: &mut World, view: &mut View) -> UserAction {
     single_tick(world, view);
-    Some(view.wait_for_user_action())
+    view.wait_for_user_action()
 }
 
 fn single_tick(world: &mut World, view: &mut View) {

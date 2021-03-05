@@ -63,8 +63,9 @@ pub struct CellLayer {
 }
 
 impl CellLayer {
-    const HEALING_CHANNEL_INDEX: usize = 0;
-    const RESIZE_CHANNEL_INDEX: usize = 1;
+    pub const HEALING_CHANNEL_INDEX: usize = 0;
+    pub const RESIZE_CHANNEL_INDEX: usize = 1;
+
     const LIVING_BRAIN: LivingCellLayerBrain = LivingCellLayerBrain {};
     const DEAD_BRAIN: DeadCellLayerBrain = DeadCellLayerBrain {};
 

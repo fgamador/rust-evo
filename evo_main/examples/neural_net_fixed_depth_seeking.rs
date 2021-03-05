@@ -111,7 +111,10 @@ mod tests {
 
         let float_layer_resize_request = &control_requests[0];
         assert_eq!(float_layer_resize_request.layer_index(), FLOAT_LAYER_INDEX);
-        // assert_eq!(float_layer_resize_request.channel_index(), CellLayer::RESIZE_CHANNEL_INDEX);
+        assert_eq!(
+            float_layer_resize_request.channel_index(),
+            CellLayer::RESIZE_CHANNEL_INDEX
+        );
 
         float_layer_resize_request.requested_value()
     }

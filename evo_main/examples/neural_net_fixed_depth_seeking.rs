@@ -106,6 +106,16 @@ mod tests {
         );
     }
 
+    #[test]
+    fn positive_resize_when_falling_at_goal_depth() {
+        assert!(
+            calc_requested_float_layer_resize(
+                Position::new(0.0, GOAL_DEPTH),
+                Velocity::new(0.0, -1.0)
+            ) > 0.0
+        );
+    }
+
     fn calc_requested_float_layer_resize(position: Position, velocity: Velocity) -> Value1D {
         let mut subject = create_control(SeededMutationRandomness::new(
             0,

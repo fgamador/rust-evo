@@ -8,6 +8,7 @@ use evo_domain::world::World;
 use evo_main::main_support::*;
 use std::f64::consts::PI;
 
+const GOAL_DEPTH: Value1D = -100.0;
 const FLOAT_LAYER_INDEX: usize = 0;
 //const PHOTO_LAYER_INDEX: usize = 1;
 
@@ -67,7 +68,7 @@ fn create_control(randomness: SeededMutationRandomness) -> NeuralNetControl {
     let desired_y_velocity_index = builder.add_hidden_node(
         "desired y velocity",
         &[(center_y_input_index, -1.0)],
-        -100.0,
+        GOAL_DEPTH as f32,
     );
 
     builder.add_output_node(
@@ -89,14 +90,22 @@ mod tests {
 
     #[test]
     fn zero_resize_when_at_rest_at_goal_depth() {
+        assert_resize_request_when_at(Position::new(0.0, GOAL_DEPTH), Velocity::ZERO, 0.0);
+    }
+
+    fn assert_resize_request_when_at(
+        position: Position,
+        velocity: Velocity,
+        requested_resize: Value1D,
+    ) {
         let mut subject = create_control(SeededMutationRandomness::new(
             0,
             &MutationParameters::NO_MUTATION,
         ));
 
         let mut cell_state = CellStateSnapshot::ZEROS;
-        cell_state.center = Position::new(0.0, -100.0);
-        cell_state.velocity = Velocity::ZERO;
+        cell_state.center = position;
+        cell_state.velocity = velocity;
 
         let control_requests = subject.run(&cell_state);
         assert_eq!(control_requests.len(), 1);
@@ -104,6 +113,9 @@ mod tests {
         let float_layer_resize_request = &control_requests[0];
         assert_eq!(float_layer_resize_request.layer_index(), FLOAT_LAYER_INDEX);
         // assert_eq!(float_layer_resize_request.channel_index(), CellLayer::RESIZE_CHANNEL_INDEX);
-        assert_eq!(float_layer_resize_request.requested_value(), 0.0);
+        assert_eq!(
+            float_layer_resize_request.requested_value(),
+            requested_resize
+        );
     }
 }

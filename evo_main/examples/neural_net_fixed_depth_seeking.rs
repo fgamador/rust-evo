@@ -82,3 +82,28 @@ fn create_control(randomness: SeededMutationRandomness) -> NeuralNetControl {
 
     builder.build(randomness)
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn zero_resize_when_at_rest_at_goal_depth() {
+        let mut subject = create_control(SeededMutationRandomness::new(
+            0,
+            &MutationParameters::NO_MUTATION,
+        ));
+
+        let mut cell_state = CellStateSnapshot::ZEROS;
+        cell_state.center = Position::new(0.0, -100.0);
+        cell_state.velocity = Velocity::ZERO;
+
+        let control_requests = subject.run(&cell_state);
+        assert_eq!(control_requests.len(), 1);
+
+        let float_layer_resize_request = &control_requests[0];
+        assert_eq!(float_layer_resize_request.layer_index(), FLOAT_LAYER_INDEX);
+        // assert_eq!(float_layer_resize_request.channel_index(), CellLayer::RESIZE_CHANNEL_INDEX);
+        assert_eq!(float_layer_resize_request.requested_value(), 0.0);
+    }
+}

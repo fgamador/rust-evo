@@ -90,14 +90,13 @@ mod tests {
 
     #[test]
     fn zero_resize_when_at_rest_at_goal_depth() {
-        assert_resize_request_when_at(Position::new(0.0, GOAL_DEPTH), Velocity::ZERO, 0.0);
+        assert_eq!(
+            calc_requested_float_layer_resize(Position::new(0.0, GOAL_DEPTH), Velocity::ZERO),
+            0.0
+        );
     }
 
-    fn assert_resize_request_when_at(
-        position: Position,
-        velocity: Velocity,
-        requested_resize: Value1D,
-    ) {
+    fn calc_requested_float_layer_resize(position: Position, velocity: Velocity) -> Value1D {
         let mut subject = create_control(SeededMutationRandomness::new(
             0,
             &MutationParameters::NO_MUTATION,
@@ -113,9 +112,7 @@ mod tests {
         let float_layer_resize_request = &control_requests[0];
         assert_eq!(float_layer_resize_request.layer_index(), FLOAT_LAYER_INDEX);
         // assert_eq!(float_layer_resize_request.channel_index(), CellLayer::RESIZE_CHANNEL_INDEX);
-        assert_eq!(
-            float_layer_resize_request.requested_value(),
-            requested_resize
-        );
+
+        float_layer_resize_request.requested_value()
     }
 }

@@ -86,7 +86,7 @@ fn create_control(randomness: SeededMutationRandomness) -> NeuralNetControl {
         GOAL_DEPTH as f32,
     );
 
-    builder.add_output_node2(
+    builder.add_output_node(
         ">float resize",
         &[
             (
@@ -97,7 +97,7 @@ fn create_control(randomness: SeededMutationRandomness) -> NeuralNetControl {
             (float_layer_area_input_index, -1.0),
         ],
         0.0,
-        &[|value| CellLayer::resize_request(FLOAT_LAYER_INDEX, AreaDelta::new(value))],
+        |value| CellLayer::resize_request(FLOAT_LAYER_INDEX, AreaDelta::new(value)),
     );
 
     builder.build(randomness)

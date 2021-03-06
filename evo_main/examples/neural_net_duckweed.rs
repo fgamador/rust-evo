@@ -166,69 +166,61 @@ fn create_control(randomness: SeededMutationRandomness) -> NeuralNetControl {
     //     0.0,
     //     |value| CellLayer::resize_request(FLOAT_LAYER_INDEX, AreaDelta::new(value)),
     // );
-    builder.add_output_node2(
+    builder.add_output_node(
         ">float health",
         &[(float_layer_health_input_index, -1.0)],
         1.0,
-        &[|value| CellLayer::healing_request(FLOAT_LAYER_INDEX, HealthDelta::new(value.max(0.0)))],
+        |value| CellLayer::healing_request(FLOAT_LAYER_INDEX, HealthDelta::new(value.max(0.0))),
     );
-    builder.add_output_node2(
+    builder.add_output_node(
         ">photo resize",
         &[(photo_layer_area_input_index, -1.0)],
         800.0,
-        &[|value| CellLayer::resize_request(PHOTO_LAYER_INDEX, AreaDelta::new(value))],
+        |value| CellLayer::resize_request(PHOTO_LAYER_INDEX, AreaDelta::new(value)),
     );
-    builder.add_output_node2(
+    builder.add_output_node(
         ">photo health",
         &[(photo_layer_health_input_index, -1.0)],
         1.0,
-        &[|value| CellLayer::healing_request(PHOTO_LAYER_INDEX, HealthDelta::new(value.max(0.0)))],
+        |value| CellLayer::healing_request(PHOTO_LAYER_INDEX, HealthDelta::new(value.max(0.0))),
     );
-    builder.add_output_node2(
+    builder.add_output_node(
         ">budding resize",
         &[(budding_layer_area_input_index, -1.0)],
         200.0,
-        &[|value| CellLayer::resize_request(BUDDING_LAYER_INDEX, AreaDelta::new(value))],
+        |value| CellLayer::resize_request(BUDDING_LAYER_INDEX, AreaDelta::new(value)),
     );
-    builder.add_output_node2(
+    builder.add_output_node(
         ">budding health",
         &[(budding_layer_health_input_index, -1.0)],
         1.0,
-        &[|value| {
-            CellLayer::healing_request(BUDDING_LAYER_INDEX, HealthDelta::new(value.max(0.0)))
-        }],
+        |value| CellLayer::healing_request(BUDDING_LAYER_INDEX, HealthDelta::new(value.max(0.0))),
     );
-    builder.add_output_node2(
+
+    builder.add_output_node(
         ">retain bond",
         &[(cell_energy_input_index, 0.1)],
         -100.0,
-        &[|value| {
-            BondingCellLayerSpecialty::retain_bond_request(BUDDING_LAYER_INDEX, 0, value > 0.0)
-        }],
+        |value| BondingCellLayerSpecialty::retain_bond_request(BUDDING_LAYER_INDEX, 0, value > 0.0),
     );
-    builder.add_output_node2(
-        ">budding angle",
-        &[],
-        0.0,
-        &[|_value| {
-            BondingCellLayerSpecialty::budding_angle_request(
-                BUDDING_LAYER_INDEX,
-                0,
-                Angle::from_radians(0.0),
-            )
-        }],
-    );
-    builder.add_output_node2(
+    builder.add_output_node(">budding angle", &[], 0.0, |_value| {
+        BondingCellLayerSpecialty::budding_angle_request(
+            BUDDING_LAYER_INDEX,
+            0,
+            Angle::from_radians(0.0),
+        )
+    });
+    builder.add_output_node(
         ">donation energy",
         &[(cell_energy_input_index, 0.1)],
         -100.0,
-        &[|value| {
+        |value| {
             BondingCellLayerSpecialty::donation_energy_request(
                 BUDDING_LAYER_INDEX,
                 0,
                 BioEnergy::new(value.max(0.0)),
             )
-        }],
+        },
     );
 
     builder.build(randomness)

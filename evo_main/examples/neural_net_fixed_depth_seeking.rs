@@ -9,7 +9,12 @@ use evo_main::main_support::*;
 use std::f64::consts::PI;
 
 const GOAL_DEPTH: Value1D = -100.0;
+
 const GRAVITY: Value1D = -0.05;
+const FLUID_DENSITY: Value1D = 0.0005;
+const FLOAT_LAYER_DENSITY: Value1D = 0.0004;
+const PHOTO_LAYER_DENSITY: Value1D = 0.00075;
+
 const FLOAT_LAYER_INDEX: usize = 0;
 //const PHOTO_LAYER_INDEX: usize = 1;
 
@@ -25,7 +30,8 @@ fn create_world(seed: u64) -> World {
                 GRAVITY,
             )))),
             Box::new(SimpleForceInfluence::new(Box::new(BuoyancyForce::new(
-                GRAVITY, 0.0005,
+                GRAVITY,
+                FLUID_DENSITY,
             )))),
             Box::new(SimpleForceInfluence::new(Box::new(DragForce::new(0.005)))),
         ])
@@ -35,12 +41,12 @@ fn create_world(seed: u64) -> World {
             vec![
                 simple_cell_layer(
                     Area::new(100.0 * PI),
-                    Density::new(0.0004),
+                    Density::new(FLOAT_LAYER_DENSITY),
                     Tissue::AirBubble,
                 ),
                 simple_cell_layer(
                     Area::new(300.0 * PI),
-                    Density::new(0.00075),
+                    Density::new(PHOTO_LAYER_DENSITY),
                     Tissue::Photosynthetic,
                 ),
             ],

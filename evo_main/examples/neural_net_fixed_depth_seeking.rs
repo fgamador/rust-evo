@@ -77,25 +77,8 @@ fn create_control(randomness: SeededMutationRandomness) -> NeuralNetControl {
         cell_state.layers[PHOTO_LAYER_INDEX].area.value()
     });
 
-    // let y_velocity_input_index =
-    //     builder.add_input_node("<y velocity", |cell_state| cell_state.velocity.y());
-    // let desired_y_velocity_index = builder.add_hidden_node(
-    //     "desired y velocity",
-    //     &[(center_y_input_index, -1.0)],
-    //     GOAL_DEPTH as f32,
-    // );
-
     const NEUTRALLY_BUOYANT_AREA_RATIO: Value1D =
         (FLUID_DENSITY - PHOTO_LAYER_DENSITY) / (FLOAT_LAYER_DENSITY - FLUID_DENSITY);
-
-    let neutrally_buoyant_float_layer_area_index = builder.add_hidden_node(
-        "neutral float area",
-        &[(
-            photo_layer_area_input_index,
-            NEUTRALLY_BUOYANT_AREA_RATIO as f32,
-        )],
-        0.0,
-    );
 
     let desired_y_delta_index = builder.add_hidden_node(
         "desired y delta",
@@ -103,19 +86,14 @@ fn create_control(randomness: SeededMutationRandomness) -> NeuralNetControl {
         GOAL_DEPTH as f32,
     );
 
-    let desired_float_layer_area_index = builder.add_hidden_node(
-        "desired float area",
-        &[
-            (neutrally_buoyant_float_layer_area_index, 1.0),
-            (desired_y_delta_index, 100.0),
-        ],
-        0.0,
-    );
-
     builder.add_output_node(
         ">float resize",
         &[
-            (desired_float_layer_area_index, 1.0),
+            (
+                photo_layer_area_input_index,
+                NEUTRALLY_BUOYANT_AREA_RATIO as f32,
+            ),
+            (desired_y_delta_index, 100.0),
             (float_layer_area_input_index, -1.0),
         ],
         0.0,

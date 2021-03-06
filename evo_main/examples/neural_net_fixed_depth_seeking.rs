@@ -48,11 +48,11 @@ fn create_world(seed: u64) -> World {
         ))))])
 }
 
-fn simple_cell_layer(area: Area, density: Density, color: Tissue) -> CellLayer {
+fn simple_cell_layer(area: Area, density: Density, tissue: Tissue) -> CellLayer {
     CellLayer::new(
         area,
         density,
-        color,
+        tissue,
         Box::new(NullCellLayerSpecialty::new()),
     )
 }

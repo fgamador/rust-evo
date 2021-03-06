@@ -166,31 +166,31 @@ fn create_control(randomness: SeededMutationRandomness) -> NeuralNetControl {
     //     0.0,
     //     |value| CellLayer::resize_request(FLOAT_LAYER_INDEX, AreaDelta::new(value)),
     // );
-    builder.add_output_node(
+    builder.add_output_node2(
         ">float health",
         &[(float_layer_health_input_index, -1.0)],
         1.0,
         &[|value| CellLayer::healing_request(FLOAT_LAYER_INDEX, HealthDelta::new(value.max(0.0)))],
     );
-    builder.add_output_node(
+    builder.add_output_node2(
         ">photo resize",
         &[(photo_layer_area_input_index, -1.0)],
         800.0,
         &[|value| CellLayer::resize_request(PHOTO_LAYER_INDEX, AreaDelta::new(value))],
     );
-    builder.add_output_node(
+    builder.add_output_node2(
         ">photo health",
         &[(photo_layer_health_input_index, -1.0)],
         1.0,
         &[|value| CellLayer::healing_request(PHOTO_LAYER_INDEX, HealthDelta::new(value.max(0.0)))],
     );
-    builder.add_output_node(
+    builder.add_output_node2(
         ">budding resize",
         &[(budding_layer_area_input_index, -1.0)],
         200.0,
         &[|value| CellLayer::resize_request(BUDDING_LAYER_INDEX, AreaDelta::new(value))],
     );
-    builder.add_output_node(
+    builder.add_output_node2(
         ">budding health",
         &[(budding_layer_health_input_index, -1.0)],
         1.0,
@@ -198,7 +198,7 @@ fn create_control(randomness: SeededMutationRandomness) -> NeuralNetControl {
             CellLayer::healing_request(BUDDING_LAYER_INDEX, HealthDelta::new(value.max(0.0)))
         }],
     );
-    builder.add_output_node(
+    builder.add_output_node2(
         ">retain bond",
         &[(cell_energy_input_index, 0.1)],
         -100.0,
@@ -206,7 +206,7 @@ fn create_control(randomness: SeededMutationRandomness) -> NeuralNetControl {
             BondingCellLayerSpecialty::retain_bond_request(BUDDING_LAYER_INDEX, 0, value > 0.0)
         }],
     );
-    builder.add_output_node(
+    builder.add_output_node2(
         ">budding angle",
         &[],
         0.0,
@@ -218,7 +218,7 @@ fn create_control(randomness: SeededMutationRandomness) -> NeuralNetControl {
             )
         }],
     );
-    builder.add_output_node(
+    builder.add_output_node2(
         ">donation energy",
         &[(cell_energy_input_index, 0.1)],
         -100.0,

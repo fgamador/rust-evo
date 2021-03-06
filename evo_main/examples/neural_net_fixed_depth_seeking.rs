@@ -9,6 +9,7 @@ use evo_main::main_support::*;
 use std::f64::consts::PI;
 
 const GOAL_DEPTH: Value1D = -100.0;
+const GRAVITY: Value1D = -0.05;
 const FLOAT_LAYER_INDEX: usize = 0;
 //const PHOTO_LAYER_INDEX: usize = 1;
 
@@ -20,9 +21,11 @@ fn create_world(seed: u64) -> World {
     World::new(Position::new(-200.0, -400.0), Position::new(200.0, 0.0))
         .with_standard_influences()
         .with_per_cell_influences(vec![
-            Box::new(SimpleForceInfluence::new(Box::new(WeightForce::new(-0.05)))),
+            Box::new(SimpleForceInfluence::new(Box::new(WeightForce::new(
+                GRAVITY,
+            )))),
             Box::new(SimpleForceInfluence::new(Box::new(BuoyancyForce::new(
-                -0.03, 0.001,
+                GRAVITY, 0.0005,
             )))),
             Box::new(SimpleForceInfluence::new(Box::new(DragForce::new(0.005)))),
         ])

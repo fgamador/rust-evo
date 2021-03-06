@@ -14,6 +14,7 @@ const GRAVITY: Value1D = -0.05;
 const FLUID_DENSITY: Value1D = 0.0005;
 const FLOAT_LAYER_DENSITY: Value1D = 0.0004;
 const PHOTO_LAYER_DENSITY: Value1D = 0.00075;
+const PHOTO_LAYER_AREA: Value1D = 300.0 * PI;
 
 const FLOAT_LAYER_INDEX: usize = 0;
 //const PHOTO_LAYER_INDEX: usize = 1;
@@ -45,7 +46,7 @@ fn create_world(seed: u64) -> World {
                     Tissue::AirBubble,
                 ),
                 simple_cell_layer(
-                    Area::new(300.0 * PI),
+                    Area::new(PHOTO_LAYER_AREA),
                     Density::new(PHOTO_LAYER_DENSITY),
                     Tissue::Photosynthetic,
                 ),

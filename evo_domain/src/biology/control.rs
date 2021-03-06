@@ -288,25 +288,6 @@ impl NeuralNetControlBuilder {
         node_label: &'static str,
         from_value_weights: &[(VecIndex, Coefficient)],
         bias: Coefficient,
-        value_to_request: F,
-    ) -> VecIndex
-    where
-        F: 'static + Fn(Value1D) -> ControlRequest + Send + Sync,
-    {
-        let node_index = self.next_node_index();
-        self.genome
-            .connect_node(node_index, bias, from_value_weights);
-        self.value_to_request_fns
-            .push((node_index, Box::new(value_to_request)));
-        self.add_node_label(node_index, node_label);
-        node_index
-    }
-
-    pub fn add_output_node2<F>(
-        &mut self,
-        node_label: &'static str,
-        from_value_weights: &[(VecIndex, Coefficient)],
-        bias: Coefficient,
         value_to_requests: &'static [F],
     ) -> VecIndex
     where
@@ -390,7 +371,7 @@ mod tests {
             builder.add_input_node("energy", |cell_state| cell_state.energy.value());
         let adjusted_energy_index =
             builder.add_hidden_node("adj energy", &[(energy_input_index, -1.0)], -2.0);
-        builder.add_output_node2(
+        builder.add_output_node(
             "resize",
             &[(adjusted_energy_index, 10.0)],
             2.0,

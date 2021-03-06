@@ -86,7 +86,7 @@ fn create_control(randomness: SeededMutationRandomness) -> NeuralNetControl {
         GOAL_DEPTH as f32,
     );
 
-    builder.add_output_node2(
+    builder.add_output_node(
         ">float resize",
         &[
             (

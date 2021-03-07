@@ -11,6 +11,8 @@ use crate::physics::quantities::*;
 use crate::physics::shapes::*;
 use evo_domain_derive::*;
 use std::f64::consts::PI;
+use std::io;
+use std::io::{Result, StdoutLock, Write};
 use std::ptr;
 use std::usize;
 
@@ -165,7 +167,7 @@ impl Cell {
         self.calculate_automatic_changes(&mut changes);
         self.calculate_requested_changes(&mut changes);
         self.apply_changes(&changes);
-        self.print_tick_info(&start_snapshot, &changes);
+        self.print_tick_info(&start_snapshot, &changes).ok();
         self.clear_environment();
         changes.bond_requests
     }
@@ -287,48 +289,64 @@ impl Cell {
         self.received_donated_energy = BioEnergy::ZERO;
     }
 
-    fn print_tick_info(&self, start_snapshot: &CellStateSnapshot, changes: &CellChanges) {
+    fn print_tick_info(
+        &self,
+        start_snapshot: &CellStateSnapshot,
+        changes: &CellChanges,
+    ) -> Result<()> {
         if self.is_selected() {
-            self.print_id_info();
-            self.print_force_info();
+            let stdout = io::stdout();
+            let mut out = stdout.lock();
+
+            self.print_id_info(&mut out)?;
+            self.print_force_info(&mut out)?;
             self.print_other_quantities_info(start_snapshot);
             self.print_energy_info(start_snapshot, changes);
             self.print_layers_info(start_snapshot, changes);
-            Cell::print_bond_request_info(changes)
+            Cell::print_bond_request_info(&mut out, changes)?;
         }
+        Ok(())
     }
 
-    fn print_id_info(&self) {
-        println!(
+    fn print_id_info(&self, out: &mut StdoutLock) -> Result<()> {
+        writeln!(
+            out,
             "Cell {}{} tick:",
             self.node_handle(),
             if self.is_intact() { "" } else { " (DEAD)" }
-        );
+        )
     }
 
-    fn print_force_info(&self) {
-        println!("  net force {}", self.net_force().net_force());
+    fn print_force_info(&self, out: &mut StdoutLock) -> Result<()> {
+        writeln!(out, "  net force {}", self.net_force().net_force())?;
         if self.net_force().dominant_x_force() != 0.0 {
-            println!(
+            writeln!(
+                out,
                 "    {} x {:.4}",
                 self.net_force().dominant_x_force_label(),
                 self.net_force().dominant_x_force(),
-            );
+            )?;
         }
         if self.net_force().dominant_y_force() != 0.0 {
-            println!(
+            writeln!(
+                out,
                 "    {} y {:.4}",
                 self.net_force().dominant_y_force_label(),
                 self.net_force().dominant_y_force(),
-            );
+            )?;
         }
         if let Some(force_additions) = &self.net_force().non_dominant_force_additions() {
             for force_addition in force_additions {
                 if force_addition.force != Force::ZERO {
-                    println!("    {} {:+.4}", force_addition.label, force_addition.force,);
+                    writeln!(
+                        out,
+                        "    {} {:+.4}",
+                        force_addition.label, force_addition.force,
+                    )?;
                 }
             }
         }
+        Ok(())
     }
 
     fn print_other_quantities_info(&self, start_snapshot: &CellStateSnapshot) {
@@ -379,12 +397,13 @@ impl Cell {
         }
     }
 
-    fn print_bond_request_info(changes: &CellChanges) {
+    fn print_bond_request_info(out: &mut StdoutLock, changes: &CellChanges) -> Result<()> {
         for (index, request) in changes.bond_requests.iter().enumerate() {
             if request.retain_bond {
-                println!("  bond request {}: {}", index, request);
+                writeln!(out, "  bond request {}: {}", index, request)?;
             }
         }
+        Ok(())
     }
 
     pub fn create_and_place_child_cell(

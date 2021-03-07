@@ -11,6 +11,8 @@ use crate::physics::shapes::Circle;
 use crate::Parameters;
 use rayon::prelude::*;
 use std::collections::HashSet;
+use std::io;
+use std::io::{Result, StdoutLock, Write};
 
 pub struct World {
     parameters: Parameters,
@@ -229,7 +231,7 @@ impl World {
         let cell_bond_requests = self.tick_cells();
         self.tick_clouds();
         self.apply_world_changes(&cell_bond_requests);
-        self.print_debug_info();
+        self.print_debug_info().ok();
     }
 
     fn apply_cross_cell_influences(&mut self) {
@@ -390,26 +392,35 @@ impl World {
         });
     }
 
-    fn print_debug_info(&self) {
+    fn print_debug_info(&self) -> Result<()> {
         if self.num_selected_cells == 0 {
-            return;
+            return Ok(());
         }
 
-        self.print_bonds_info();
-        self.print_end_tick_info();
+        let stdout = io::stdout();
+        let mut out = stdout.lock();
+
+        self.print_bonds_info(&mut out)?;
+        self.print_end_tick_info(&mut out)
     }
 
-    fn print_bonds_info(&self) {
+    fn print_bonds_info(&self, out: &mut StdoutLock) -> Result<()> {
         for bond in self.bonds() {
             let cell1 = self.cell(bond.node1_handle());
             let cell2 = self.cell(bond.node2_handle());
             if cell1.is_selected() || cell2.is_selected() {
-                Self::print_bond_info(cell1, cell2, bond);
+                Self::print_bond_info(out, cell1, cell2, bond)?;
             }
         }
+        Ok(())
     }
 
-    fn print_bond_info(cell1: &Cell, cell2: &Cell, bond: &Bond<Cell>) {
+    fn print_bond_info(
+        out: &mut StdoutLock,
+        cell1: &Cell,
+        cell2: &Cell,
+        bond: &Bond<Cell>,
+    ) -> Result<()> {
         let bond_index1 = cell1
             .graph_node_data()
             .index_of_edge_handle(bond.edge_handle())
@@ -418,21 +429,23 @@ impl World {
             .graph_node_data()
             .index_of_edge_handle(bond.edge_handle())
             .unwrap();
-        println!(
+        writeln!(
+            out,
             "Bond: Cell {} bond {} - Cell {} bond {}",
             cell1.node_handle(),
             bond_index1,
             cell2.node_handle(),
             bond_index2
-        );
+        )
     }
 
-    fn print_end_tick_info(&self) {
-        println!(
+    fn print_end_tick_info(&self, out: &mut StdoutLock) -> Result<()> {
+        writeln!(
+            out,
             "End of tick: {} cells, {} bonds",
             self.cells().len(),
             self.bonds().len()
-        );
+        )
     }
 }
 

@@ -1,6 +1,7 @@
 use serde::{Deserialize, Serialize};
 use std::f64::consts::PI;
 use std::fmt;
+use std::io::{Result, StdoutLock, Write};
 use std::ops::Add;
 use std::ops::AddAssign;
 use std::ops::Div;
@@ -13,19 +14,30 @@ use std::ops::SubAssign;
 
 pub type Value1D = f64;
 
-pub fn println_value1d_change_info(label: &str, value1: Value1D, value2: Value1D) {
-    print_value1d_change_info(label, value1, value2);
-    println!();
+pub fn writeln_value1d_change_info(
+    out: &mut StdoutLock,
+    label: &str,
+    value1: Value1D,
+    value2: Value1D,
+) -> Result<()> {
+    write_value1d_change_info(out, label, value1, value2)?;
+    writeln!(out)
 }
 
-pub fn print_value1d_change_info(label: &str, value1: Value1D, value2: Value1D) {
-    print!(
+pub fn write_value1d_change_info(
+    out: &mut StdoutLock,
+    label: &str,
+    value1: Value1D,
+    value2: Value1D,
+) -> Result<()> {
+    write!(
+        out,
         "{} {:.4} -> {:.4}: {:+.4}",
         label,
         value1,
         value2,
         value2 - value1
-    );
+    )
 }
 
 #[derive(Clone, Copy, Debug, Deserialize, PartialEq, PartialOrd, Serialize)]
@@ -88,20 +100,31 @@ impl fmt::Display for Value2D {
     }
 }
 
-pub fn println_value2d_change_info(label: &str, value1: Value2D, value2: Value2D) {
-    print_value2d_change_info(label, value1, value2);
-    println!();
+pub fn writeln_value2d_change_info(
+    out: &mut StdoutLock,
+    label: &str,
+    value1: Value2D,
+    value2: Value2D,
+) -> Result<()> {
+    write_value2d_change_info(out, label, value1, value2)?;
+    writeln!(out)
 }
 
-pub fn print_value2d_change_info(label: &str, value1: Value2D, value2: Value2D) {
-    print!(
+pub fn write_value2d_change_info(
+    out: &mut StdoutLock,
+    label: &str,
+    value1: Value2D,
+    value2: Value2D,
+) -> Result<()> {
+    write!(
+        out,
         "{} {} -> {}: ({:+.4}, {:+.4})",
         label,
         value1,
         value2,
         value2.x() - value1.x(),
         value2.y() - value1.y(),
-    );
+    )
 }
 
 impl Neg for Value2D {

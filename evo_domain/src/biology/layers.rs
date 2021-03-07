@@ -6,6 +6,7 @@ use crate::physics::overlap::Overlap;
 use crate::physics::quantities::*;
 use std::f64::consts::PI;
 use std::fmt::Debug;
+use std::io::{Result, StdoutLock, Write};
 use std::usize;
 
 #[derive(Clone, Copy, Debug, Eq, Hash, PartialEq)]
@@ -234,49 +235,58 @@ impl CellLayer {
 
     pub fn print_tick_info(
         &self,
+        out: &mut StdoutLock,
         index: usize,
         layer_start_snapshot: &CellLayerStateSnapshot,
         layer_changes: &CellLayerChanges,
-    ) {
-        println!(
+    ) -> Result<()> {
+        writeln!(
+            out,
             "  layer {}{}:",
             index,
             if self.is_alive() { "" } else { " (DEAD)" }
-        );
-        print_value1d_change_info(
+        )?;
+        write_value1d_change_info(
+            out,
             "    area",
             layer_start_snapshot.area.value(),
             self.area().value(),
-        );
-        println!(
+        )?;
+        writeln!(
+            out,
             " [requested {:+.4}, allowed {:+.4}]",
             layer_changes.requested_area.value(),
             layer_changes.allowed_area.value()
-        );
-        println_value1d_change_info(
+        )?;
+        writeln_value1d_change_info(
+            out,
             "    mass",
             layer_start_snapshot.mass.value(),
             self.mass().value(),
-        );
-        print_value1d_change_info(
+        )?;
+        write_value1d_change_info(
+            out,
             "    health",
             layer_start_snapshot.health.value(),
             self.health().value(),
-        );
-        println!(
+        )?;
+        writeln!(
+            out,
             " [requested {:+.4}, allowed {:+.4}]",
             layer_changes.requested_health.value(),
             layer_changes.allowed_health.value()
-        );
+        )?;
         if let Some(health_changes) = &layer_changes.health_changes {
             for health_change in health_changes {
-                println!(
+                writeln!(
+                    out,
                     "      {} {:+.4}",
                     health_change.label,
                     health_change.health_delta.value()
-                );
+                )?;
             }
         }
+        Ok(())
     }
 }
 

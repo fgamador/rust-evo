@@ -300,9 +300,9 @@ impl Cell {
 
             self.print_id_info(&mut out)?;
             self.print_force_info(&mut out)?;
-            self.print_other_quantities_info(start_snapshot);
-            self.print_energy_info(start_snapshot, changes);
-            self.print_layers_info(start_snapshot, changes);
+            self.print_other_quantities_info(&mut out, start_snapshot)?;
+            self.print_energy_info(&mut out, start_snapshot, changes)?;
+            self.print_layers_info(&mut out, start_snapshot, changes)?;
             Cell::print_bond_request_info(&mut out, changes)?;
         }
         Ok(())
@@ -349,35 +349,59 @@ impl Cell {
         Ok(())
     }
 
-    fn print_other_quantities_info(&self, start_snapshot: &CellStateSnapshot) {
-        println_value2d_change_info(
+    fn print_other_quantities_info(
+        &self,
+        out: &mut StdoutLock,
+        start_snapshot: &CellStateSnapshot,
+    ) -> Result<()> {
+        writeln_value2d_change_info(
+            out,
             "  position",
             start_snapshot.center.value(),
             self.position().value(),
-        );
-        println_value2d_change_info(
+        )?;
+        writeln_value2d_change_info(
+            out,
             "  velocity",
             start_snapshot.velocity.value(),
             self.velocity().value(),
-        );
-        println_value1d_change_info("  mass", start_snapshot.mass.value(), self.mass().value());
-        println_value1d_change_info(
+        )?;
+        writeln_value1d_change_info(
+            out,
+            "  mass",
+            start_snapshot.mass.value(),
+            self.mass().value(),
+        )?;
+        writeln_value1d_change_info(
+            out,
             "  radius",
             start_snapshot.radius.value(),
             self.radius().value(),
-        );
+        )?;
+        Ok(())
     }
 
-    fn print_energy_info(&self, start_snapshot: &CellStateSnapshot, changes: &CellChanges) {
-        println_value1d_change_info(
+    fn print_energy_info(
+        &self,
+        out: &mut StdoutLock,
+        start_snapshot: &CellStateSnapshot,
+        changes: &CellChanges,
+    ) -> Result<()> {
+        writeln_value1d_change_info(
+            out,
             "  energy",
             start_snapshot.energy.value() - self.received_donated_energy.value(),
             self.energy().value(),
-        );
-        println!("    received {:+.4}", self.received_donated_energy.value());
+        )?;
+        writeln!(
+            out,
+            "    received {:+.4}",
+            self.received_donated_energy.value()
+        )?;
         if let Some(energy_changes) = &changes.energy_changes {
             for energy_change in energy_changes {
-                println!(
+                writeln!(
+                    out,
                     "    {}{} {:+.4}",
                     energy_change.label,
                     if energy_change.index < usize::MAX {
@@ -386,15 +410,27 @@ impl Cell {
                         "".to_string()
                     },
                     energy_change.energy_delta.value()
-                );
+                )?;
             }
         }
+        Ok(())
     }
 
-    fn print_layers_info(&self, start_snapshot: &CellStateSnapshot, changes: &CellChanges) {
+    fn print_layers_info(
+        &self,
+        out: &mut StdoutLock,
+        start_snapshot: &CellStateSnapshot,
+        changes: &CellChanges,
+    ) -> Result<()> {
         for (index, layer) in self.layers.iter().enumerate() {
-            layer.print_tick_info(index, &start_snapshot.layers[index], &changes.layers[index]);
+            layer.print_tick_info(
+                out,
+                index,
+                &start_snapshot.layers[index],
+                &changes.layers[index],
+            )?;
         }
+        Ok(())
     }
 
     fn print_bond_request_info(out: &mut StdoutLock, changes: &CellChanges) -> Result<()> {

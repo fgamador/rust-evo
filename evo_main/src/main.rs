@@ -204,9 +204,9 @@ fn create_control(randomness: SeededMutationRandomness) -> NeuralNetControl {
     });
 
     let desired_y_velocity_index =
-        builder.add_hidden_node("desired y velocity", &[(cell_y_input_index, -1.0)], -100.0);
+        builder.add_node("desired y velocity", &[(cell_y_input_index, -1.0)], -100.0);
     let donation_energy_index =
-        builder.add_hidden_node("donation", &[(cell_energy_input_index, 0.1)], -100.0);
+        builder.add_node("donation", &[(cell_energy_input_index, 0.1)], -100.0);
 
     builder.add_output_node(
         ">float healing",

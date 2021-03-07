@@ -270,7 +270,7 @@ impl NeuralNetControlBuilder {
         node_index
     }
 
-    pub fn add_hidden_node(
+    pub fn add_node(
         &mut self,
         node_label: &'static str,
         from_value_weights: &[(VecIndex, Coefficient)],
@@ -375,7 +375,7 @@ mod tests {
         let energy_input_index =
             builder.add_input_node("energy", |cell_state| cell_state.energy.value());
         let adjusted_energy_index =
-            builder.add_hidden_node("adj energy", &[(energy_input_index, -1.0)], -2.0);
+            builder.add_node("adj energy", &[(energy_input_index, -1.0)], -2.0);
         builder.add_output_node("resize", &[(adjusted_energy_index, 10.0)], 2.0, |value| {
             CellLayer::resize_request(0, AreaDelta::new(value as f64))
         });

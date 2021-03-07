@@ -80,7 +80,7 @@ fn create_control(randomness: SeededMutationRandomness) -> NeuralNetControl {
     const NEUTRALLY_BUOYANT_AREA_RATIO: Value1D =
         (FLUID_DENSITY - PHOTO_LAYER_DENSITY) / (FLOAT_LAYER_DENSITY - FLUID_DENSITY);
 
-    let desired_y_delta_index = builder.add_hidden_node(
+    let desired_y_delta_index = builder.add_node(
         "desired y delta",
         &[(center_y_input_index, -1.0)],
         GOAL_DEPTH as f32,

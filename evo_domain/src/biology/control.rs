@@ -293,11 +293,8 @@ impl NeuralNetControlBuilder {
     where
         F: 'static + Fn(Value1D) -> ControlRequest + Send + Sync,
     {
-        let node_index = self.next_node_index();
-        self.genome
-            .connect_node(node_index, bias, from_value_weights);
+        let node_index = self.add_node(node_label, from_value_weights, bias);
         self.add_node_output(node_index, value_to_request);
-        self.add_node_label(node_index, node_label);
         node_index
     }
 

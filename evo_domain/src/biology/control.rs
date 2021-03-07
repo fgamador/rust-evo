@@ -296,8 +296,7 @@ impl NeuralNetControlBuilder {
         let node_index = self.next_node_index();
         self.genome
             .connect_node(node_index, bias, from_value_weights);
-        self.value_to_request_fns
-            .push((node_index, Box::new(value_to_request)));
+        self.add_node_output(node_index, value_to_request);
         self.add_node_label(node_index, node_label);
         node_index
     }
@@ -306,6 +305,14 @@ impl NeuralNetControlBuilder {
         let node_index = self.next_index;
         self.next_index += 1;
         node_index
+    }
+
+    pub fn add_node_output<F>(&mut self, node_index: VecIndex, value_to_request: F)
+    where
+        F: 'static + Fn(Value1D) -> ControlRequest + Send + Sync,
+    {
+        self.value_to_request_fns
+            .push((node_index, Box::new(value_to_request)));
     }
 
     fn add_node_label(&mut self, node_index: VecIndex, node_label: &'static str) {

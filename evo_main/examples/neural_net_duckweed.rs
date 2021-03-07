@@ -197,20 +197,14 @@ fn create_control(randomness: SeededMutationRandomness) -> NeuralNetControl {
         |value| CellLayer::healing_request(BUDDING_LAYER_INDEX, HealthDelta::new(value.max(0.0))),
     );
 
-    builder.add_output_node(
-        ">retain bond",
-        &[(cell_energy_input_index, 0.1)],
-        -100.0,
-        |value| BondingCellLayerSpecialty::retain_bond_request(BUDDING_LAYER_INDEX, 0, value > 0.0),
-    );
-    builder.add_output_node(">budding angle", &[], 0.0, |_value| {
+    builder.add_output_node(">budding angle", &[], 0.0, |value| {
         BondingCellLayerSpecialty::budding_angle_request(
             BUDDING_LAYER_INDEX,
             0,
-            Angle::from_radians(0.0),
+            Angle::from_radians(value),
         )
     });
-    builder.add_output_node(
+    let donation_energy_output_index = builder.add_output_node(
         ">donation energy",
         &[(cell_energy_input_index, 0.1)],
         -100.0,
@@ -222,6 +216,9 @@ fn create_control(randomness: SeededMutationRandomness) -> NeuralNetControl {
             )
         },
     );
+    builder.add_node_output(donation_energy_output_index, |value| {
+        BondingCellLayerSpecialty::retain_bond_request(BUDDING_LAYER_INDEX, 0, value > 0.0)
+    });
 
     builder.build(randomness)
 }

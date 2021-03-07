@@ -294,6 +294,15 @@ impl<N: ObjectWithHandle<N>> GraphNodeData<N> {
         &self.edge_handles
     }
 
+    pub fn index_of_edge_handle(&self, handle: EdgeHandle) -> Option<usize> {
+        for (index, edge_handle) in self.edge_handles.iter().enumerate() {
+            if *edge_handle == Some(handle) {
+                return Some(index);
+            }
+        }
+        None
+    }
+
     fn set_edge_handle(&mut self, node_edge_index: usize, handle: EdgeHandle) {
         assert_eq!(self.edge_handles[node_edge_index], None);
         self.edge_handles[node_edge_index] = Some(handle);

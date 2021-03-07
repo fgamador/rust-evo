@@ -399,7 +399,7 @@ impl World {
             let cell1 = self.cell(bond.node1_handle());
             let cell2 = self.cell(bond.node2_handle());
             if cell1.is_selected() || cell2.is_selected() {
-                println!("Bond {}-{}", cell1.node_handle(), cell2.node_handle());
+                Self::print_bond_info(cell1, cell2, bond);
             }
         }
 
@@ -407,6 +407,24 @@ impl World {
             "End of tick: {} cells, {} bonds",
             self.cells().len(),
             self.bonds().len()
+        );
+    }
+
+    fn print_bond_info(cell1: &Cell, cell2: &Cell, bond: &Bond<Cell>) {
+        let bond_index1 = cell1
+            .graph_node_data()
+            .index_of_edge_handle(bond.edge_handle())
+            .unwrap();
+        let bond_index2 = cell2
+            .graph_node_data()
+            .index_of_edge_handle(bond.edge_handle())
+            .unwrap();
+        println!(
+            "Bond: Cell {} bond {} - Cell {} bond {}",
+            cell1.node_handle(),
+            bond_index1,
+            cell2.node_handle(),
+            bond_index2
         );
     }
 }

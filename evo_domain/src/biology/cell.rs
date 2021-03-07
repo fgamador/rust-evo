@@ -397,7 +397,7 @@ impl Cell {
         child.set_initial_position(self.center() + offset);
         child.set_initial_velocity(self.velocity());
         child.set_initial_energy(initial_energy);
-        child.set_selected(self.is_selected());
+        // child.set_selected(self.is_selected());
         child
     }
 

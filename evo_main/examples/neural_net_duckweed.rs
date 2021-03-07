@@ -38,11 +38,11 @@ fn create_world(seed: u64) -> World {
 }
 
 fn create_cell(seed: u64) -> Cell {
-    // const SOME_MUTATION: MutationParameters = MutationParameters {
-    //     weight_mutation_probability: 0.5,
-    //     weight_mutation_stdev: 1.0,
-    //     ..MutationParameters::NO_MUTATION
-    // };
+    const SOME_MUTATION: MutationParameters = MutationParameters {
+        // weight_mutation_probability: 0.5,
+        // weight_mutation_stdev: 1.0,
+        ..MutationParameters::NO_MUTATION
+    };
 
     Cell::new(
         Position::ORIGIN,
@@ -55,7 +55,7 @@ fn create_cell(seed: u64) -> Cell {
     )
     .with_control(Box::new(create_control(SeededMutationRandomness::new(
         seed,
-        &MutationParameters::NO_MUTATION,
+        &SOME_MUTATION,
     ))))
 }
 

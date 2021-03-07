@@ -266,6 +266,8 @@ impl PrintableNode {
             format!(" + {:.4}", self.bias)
         } else if self.bias < 0.0 {
             format!(" - {:.4}", -self.bias)
+        } else if self.inputs.is_empty() {
+            format!("{:.4}", self.bias)
         } else {
             "".to_string()
         }

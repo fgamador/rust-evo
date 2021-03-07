@@ -395,6 +395,11 @@ impl World {
             return;
         }
 
+        self.print_bonds_info();
+        self.print_end_tick_info();
+    }
+
+    fn print_bonds_info(&self) {
         for bond in self.bonds() {
             let cell1 = self.cell(bond.node1_handle());
             let cell2 = self.cell(bond.node2_handle());
@@ -402,12 +407,6 @@ impl World {
                 Self::print_bond_info(cell1, cell2, bond);
             }
         }
-
-        println!(
-            "End of tick: {} cells, {} bonds",
-            self.cells().len(),
-            self.bonds().len()
-        );
     }
 
     fn print_bond_info(cell1: &Cell, cell2: &Cell, bond: &Bond<Cell>) {
@@ -425,6 +424,14 @@ impl World {
             bond_index1,
             cell2.node_handle(),
             bond_index2
+        );
+    }
+
+    fn print_end_tick_info(&self) {
+        println!(
+            "End of tick: {} cells, {} bonds",
+            self.cells().len(),
+            self.bonds().len()
         );
     }
 }

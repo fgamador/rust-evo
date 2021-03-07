@@ -206,8 +206,8 @@ fn create_control(randomness: SeededMutationRandomness) -> NeuralNetControl {
     });
     let donation_energy_output_index = builder.add_output_node(
         ">donation energy",
-        &[(cell_energy_input_index, 0.1)],
-        -100.0,
+        &[(cell_energy_input_index, 1.0)],
+        -1000.0,
         |value| {
             BondingCellLayerSpecialty::donation_energy_request(
                 BUDDING_LAYER_INDEX,
@@ -219,6 +219,13 @@ fn create_control(randomness: SeededMutationRandomness) -> NeuralNetControl {
     builder.add_node_output(donation_energy_output_index, |value| {
         BondingCellLayerSpecialty::retain_bond_request(BUDDING_LAYER_INDEX, 1, value > 0.0)
     });
+
+    builder.add_output_node(
+        ">retain parent",
+        &[(cell_energy_input_index, 1.0)],
+        -500.0,
+        |value| BondingCellLayerSpecialty::retain_bond_request(BUDDING_LAYER_INDEX, 0, value < 0.0),
+    );
 
     builder.build(randomness)
 }

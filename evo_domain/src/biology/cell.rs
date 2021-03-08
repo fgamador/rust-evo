@@ -167,7 +167,7 @@ impl Cell {
         self.calculate_automatic_changes(&mut changes);
         self.calculate_requested_changes(&mut changes);
         self.apply_changes(&changes);
-        self.print_tick_info(&start_snapshot, &changes).ok();
+        self.print_tick_info(&start_snapshot, &changes).unwrap();
         self.clear_environment();
         changes.bond_requests
     }

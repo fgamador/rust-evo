@@ -231,7 +231,7 @@ impl World {
         let cell_bond_requests = self.tick_cells();
         self.tick_clouds();
         self.apply_world_changes(&cell_bond_requests);
-        self.print_end_tick_info().ok();
+        self.print_end_tick_info().unwrap();
     }
 
     fn apply_cross_cell_influences(&mut self) {

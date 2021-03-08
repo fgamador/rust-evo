@@ -231,7 +231,7 @@ impl World {
         let cell_bond_requests = self.tick_cells();
         self.tick_clouds();
         self.apply_world_changes(&cell_bond_requests);
-        self.print_debug_info().ok();
+        self.print_end_tick_info().ok();
     }
 
     fn apply_cross_cell_influences(&mut self) {
@@ -392,7 +392,7 @@ impl World {
         });
     }
 
-    fn print_debug_info(&self) -> Result<()> {
+    fn print_end_tick_info(&self) -> Result<()> {
         if self.num_selected_cells == 0 {
             return Ok(());
         }
@@ -401,7 +401,12 @@ impl World {
         let mut out = stdout.lock();
 
         self.print_bonds_info(&mut out)?;
-        self.print_end_tick_info(&mut out)
+        writeln!(
+            out,
+            "End of tick: {} cells, {} bonds",
+            self.cells().len(),
+            self.bonds().len()
+        )
     }
 
     fn print_bonds_info(&self, out: &mut StdoutLock) -> Result<()> {
@@ -436,15 +441,6 @@ impl World {
             bond_index1,
             cell2.node_handle(),
             bond_index2
-        )
-    }
-
-    fn print_end_tick_info(&self, out: &mut StdoutLock) -> Result<()> {
-        writeln!(
-            out,
-            "End of tick: {} cells, {} bonds",
-            self.cells().len(),
-            self.bonds().len()
         )
     }
 }

@@ -79,7 +79,7 @@ fn create_cell(seed: u64) -> Cell {
 }
 
 fn create_float_layer() -> CellLayer {
-    const PARAMS: LayerParameters = LayerParameters {
+    const LAYER_PARAMS: LayerParameters = LayerParameters {
         healing_energy_delta: BioEnergyDelta::new(-1.0),
         entropic_damage_health_delta: HealthDelta::new(-0.01),
         overlap_damage_health_delta: HealthDelta::new(OVERLAP_DAMAGE_HEALTH_DELTA),
@@ -97,11 +97,11 @@ fn create_float_layer() -> CellLayer {
         Tissue::AirBubble,
         Box::new(NullCellLayerSpecialty::new()),
     )
-    .with_parameters(&PARAMS)
+    .with_parameters(&LAYER_PARAMS)
 }
 
 fn create_photo_layer() -> CellLayer {
-    const PARAMS: LayerParameters = LayerParameters {
+    const LAYER_PARAMS: LayerParameters = LayerParameters {
         healing_energy_delta: BioEnergyDelta::new(-1.0),
         entropic_damage_health_delta: HealthDelta::new(-0.01),
         overlap_damage_health_delta: HealthDelta::new(OVERLAP_DAMAGE_HEALTH_DELTA),
@@ -118,11 +118,11 @@ fn create_photo_layer() -> CellLayer {
         Tissue::Photosynthetic,
         Box::new(PhotoCellLayerSpecialty::new(Fraction::new(0.1))), // 0.02
     )
-    .with_parameters(&PARAMS)
+    .with_parameters(&LAYER_PARAMS)
 }
 
 fn create_bonding_layer() -> CellLayer {
-    const PARAMS: LayerParameters = LayerParameters {
+    const LAYER_PARAMS: LayerParameters = LayerParameters {
         healing_energy_delta: BioEnergyDelta::new(-1.0),
         entropic_damage_health_delta: HealthDelta::new(-0.01),
         overlap_damage_health_delta: HealthDelta::new(OVERLAP_DAMAGE_HEALTH_DELTA),
@@ -143,11 +143,11 @@ fn create_bonding_layer() -> CellLayer {
         Tissue::Bonding,
         Box::new(BondingCellLayerSpecialty::new().with_parameters(&BONDING_PARAMS)),
     )
-    .with_parameters(&PARAMS)
+    .with_parameters(&LAYER_PARAMS)
 }
 
 fn create_cell_wall() -> CellLayer {
-    const PARAMS: LayerParameters = LayerParameters {
+    const LAYER_PARAMS: LayerParameters = LayerParameters {
         healing_energy_delta: BioEnergyDelta::new(-1.0),
         entropic_damage_health_delta: HealthDelta::new(-0.01),
         overlap_damage_health_delta: HealthDelta::new(OVERLAP_DAMAGE_HEALTH_DELTA),
@@ -165,7 +165,7 @@ fn create_cell_wall() -> CellLayer {
         Tissue::CellWall,
         Box::new(NullCellLayerSpecialty::new()),
     )
-    .with_parameters(&PARAMS)
+    .with_parameters(&LAYER_PARAMS)
 }
 
 fn create_control(randomness: SeededMutationRandomness) -> NeuralNetControl {

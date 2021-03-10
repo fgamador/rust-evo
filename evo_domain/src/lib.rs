@@ -4,15 +4,19 @@ pub mod physics;
 pub mod world;
 
 use crate::biology::cloud::CloudParameters;
+use crate::physics::quantities::Area;
+use std::f64::consts::PI;
 use std::time;
 
 #[derive(Debug, Clone, Copy)]
 pub struct Parameters {
+    pub initial_layer_area: Area,
     pub cloud_params: CloudParameters,
 }
 
 impl Parameters {
     pub const DEFAULT: Parameters = Parameters {
+        initial_layer_area: Area::unchecked(10.0 * PI),
         cloud_params: CloudParameters::DEFAULT,
     };
 

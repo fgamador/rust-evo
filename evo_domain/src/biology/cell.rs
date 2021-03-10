@@ -446,8 +446,9 @@ impl Cell {
         &mut self,
         budding_angle: Angle,
         initial_energy: BioEnergy,
+        initial_layer_area: Area,
     ) -> Cell {
-        let mut child = self.spawn(Area::new(10.0 * PI));
+        let mut child = self.spawn(initial_layer_area);
         let offset = Displacement::from_polar(self.radius + child.radius(), budding_angle);
         child.set_initial_position(self.center() + offset);
         child.set_initial_velocity(self.velocity());
@@ -790,7 +791,11 @@ mod tests {
             vec![simple_cell_layer(Area::new(10.0), Density::new(1.0))],
         );
 
-        let child = cell.create_and_place_child_cell(Angle::from_radians(0.0), BioEnergy::new(1.0));
+        let child = cell.create_and_place_child_cell(
+            Angle::from_radians(0.0),
+            BioEnergy::new(1.0),
+            Area::new(PI),
+        );
 
         assert_eq!(
             child.center(),

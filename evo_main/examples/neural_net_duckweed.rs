@@ -29,6 +29,7 @@ const CELL_WALL_INDEX: usize = 3;
 
 fn create_world(seed: u64) -> World {
     let parameters = Parameters {
+        initial_layer_area: Area::new(1.0 * PI),
         cloud_params: CloudParameters {
             resize_factor: Positive::new(1.01),
             minimum_concentration: Fraction::new(0.1),

@@ -15,6 +15,7 @@ fn create_world() -> World {
             resize_factor: Positive::new(1.01),
             minimum_concentration: Fraction::new(0.1),
         },
+        ..Parameters::DEFAULT
     };
     World::new(Position::new(-100.0, -100.0), Position::new(100.0, 100.0))
         .with_parameters(parameters)

@@ -20,6 +20,7 @@ fn create_world() -> World {
             resize_factor: Positive::new(1.01),
             minimum_concentration: Fraction::new(0.1),
         },
+        ..Parameters::DEFAULT
     };
     const LAYER_PARAMS: LayerParameters = LayerParameters {
         healing_energy_delta: BioEnergyDelta::ZERO,

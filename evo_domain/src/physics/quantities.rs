@@ -490,6 +490,10 @@ impl Area {
         Area { value }
     }
 
+    pub const fn unchecked(value: Value1D) -> Self {
+        Area { value }
+    }
+
     #[allow(dead_code)]
     pub fn value(self) -> Value1D {
         self.value

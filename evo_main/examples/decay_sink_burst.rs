@@ -27,6 +27,7 @@ fn create_world() -> World {
             resize_factor: Positive::new(1.01),
             minimum_concentration: Fraction::new(0.1),
         },
+        ..Parameters::DEFAULT
     };
     const FLOAT_LAYER_PARAMS: LayerParameters = LayerParameters {
         entropic_damage_health_delta: HealthDelta::new(-0.05),

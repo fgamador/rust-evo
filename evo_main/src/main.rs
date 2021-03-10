@@ -33,6 +33,7 @@ fn create_world(seed: u64) -> World {
             resize_factor: Positive::new(1.01),
             minimum_concentration: Fraction::new(0.1),
         },
+        ..Parameters::DEFAULT
     };
     World::new(Position::new(0.0, -400.0), Position::new(1200.0, 0.0))
         .with_parameters(parameters)

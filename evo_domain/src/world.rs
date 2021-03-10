@@ -261,12 +261,14 @@ impl World {
     }
 
     fn apply_world_changes(&mut self, cell_bond_requests: &[BondRequests]) {
+        let parameters = &self.parameters;
         let mut donated_energy = vec![];
         let mut new_children = vec![];
         let mut broken_bond_handles = HashSet::new();
         let mut burst_cell_handles = vec![];
         self.cell_graph.for_each_node(|index, cell, edge_source| {
             Self::execute_bond_requests(
+                parameters,
                 cell,
                 edge_source,
                 &cell_bond_requests[index],
@@ -291,6 +293,7 @@ impl World {
     }
 
     fn execute_bond_requests(
+        parameters: &Parameters,
         cell: &mut Cell,
         edge_source: &mut EdgeSource<Cell, Bond<Cell>>,
         bond_requests: &BondRequests,
@@ -311,6 +314,7 @@ impl World {
                         let child = cell.create_and_place_child_cell(
                             bond_request.budding_angle,
                             bond_request.donation_energy,
+                            parameters.initial_layer_area,
                         );
                         new_children.push(NewChildData {
                             parent: cell.node_handle(),
@@ -796,6 +800,7 @@ mod tests {
                 resize_factor: Positive::new(1.5),
                 ..CloudParameters::DEFAULT
             },
+            ..Parameters::DEFAULT
         };
         let mut world = World::new(Position::ORIGIN, Position::ORIGIN)
             .with_parameters(parameters)
@@ -814,6 +819,7 @@ mod tests {
                 resize_factor: Positive::new(10.0),
                 minimum_concentration: Fraction::new(0.1),
             },
+            ..Parameters::DEFAULT
         };
         let mut world = World::new(Position::ORIGIN, Position::ORIGIN)
             .with_parameters(parameters)

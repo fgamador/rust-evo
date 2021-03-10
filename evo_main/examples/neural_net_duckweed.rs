@@ -14,13 +14,13 @@ fn main() {
     init_and_run(create_world);
 }
 
-//const FLUID_DENSITY: f64 = 0.001;
-const FLOAT_LAYER_DENSITY: f64 = 0.0001;
-const PHOTO_LAYER_DENSITY: f64 = 0.002;
-const BONDING_LAYER_DENSITY: f64 = 0.002;
-const CELL_WALL_DENSITY: f64 = 0.002;
+//const FLUID_DENSITY: f64 = 1.0;
+const FLOAT_LAYER_DENSITY: f64 = 0.1;
+const PHOTO_LAYER_DENSITY: f64 = 2.0;
+const BONDING_LAYER_DENSITY: f64 = 2.0;
+const CELL_WALL_DENSITY: f64 = 2.0;
 //const GRAVITY: f64 = -0.05;
-const OVERLAP_DAMAGE_HEALTH_DELTA: f64 = -0.1;
+const OVERLAP_DAMAGE_HEALTH_DELTA: f64 = -0.01;
 
 const FLOAT_LAYER_INDEX: usize = 0;
 const PHOTO_LAYER_INDEX: usize = 1;

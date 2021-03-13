@@ -1,6 +1,6 @@
 # Evo
 
-Evo aims to simulate evolution of simple digital organisms. It still has a long way to go.
+Evo aims to simulate evolution of simple digital organisms. It still has a long way to go. This "rust-evo" repo is a Rust rewrite and extension of an older Java version in my "Evo" repo.
 
 ## Getting Started
 
@@ -20,7 +20,9 @@ Run the tests.
 cargo test
 ```
 
-Run evo's latest. Often boring looking.
+### Running
+
+Run evo's latest. Often unexciting looking. Hit Esc (or q or x) to exit.
 
 ```
 cargo run --release
@@ -32,6 +34,22 @@ Run something that looks cool.
 git tag
 git checkout nice_main_2     # or other promising-looking tag
 cargo run --release
+```
+
+Run the "duckweed" example.
+
+```
+cargo run --example duckweed --release
+```
+
+Actions while evo is running.
+
+```
+Esc,q,x         - exit
+p               - toggle pause
+t               - run single tick
+f               - toggle fast-forward
+click on cell   - toggle debug output
 ```
 
 ### Development Tooling

@@ -177,7 +177,7 @@ impl Mul<Value2D> for Value1D {
     type Output = Value2D;
 
     fn mul(self, rhs: Value2D) -> Self::Output {
-        Value2D::new(self * rhs.x, self * rhs.y)
+        rhs * self
     }
 }
 
@@ -252,7 +252,7 @@ impl Mul<Positive> for Value1D {
     type Output = Value1D;
 
     fn mul(self, rhs: Positive) -> Self::Output {
-        self * rhs.value
+        rhs * self
     }
 }
 
@@ -303,7 +303,7 @@ impl Mul<Fraction> for Value1D {
     type Output = Value1D;
 
     fn mul(self, rhs: Fraction) -> Self::Output {
-        self * rhs.value
+        rhs * self
     }
 }
 
@@ -464,7 +464,7 @@ impl Mul<Length> for Value1D {
     type Output = Length;
 
     fn mul(self, rhs: Length) -> Self::Output {
-        Length::new(self * rhs.value)
+        rhs * self
     }
 }
 
@@ -550,7 +550,7 @@ impl Mul<Area> for Value1D {
     type Output = Area;
 
     fn mul(self, rhs: Area) -> Self::Output {
-        Area::new(self * rhs.value)
+        rhs * self
     }
 }
 
@@ -707,7 +707,7 @@ impl Mul<HealthDelta> for Value1D {
     type Output = HealthDelta;
 
     fn mul(self, rhs: HealthDelta) -> Self::Output {
-        HealthDelta::new(self * rhs.value)
+        rhs * self
     }
 }
 
@@ -804,7 +804,7 @@ impl Mul<BioEnergy> for Value1D {
     type Output = BioEnergy;
 
     fn mul(self, rhs: BioEnergy) -> Self::Output {
-        BioEnergy::new(self * rhs.value)
+        rhs * self
     }
 }
 
@@ -899,7 +899,7 @@ impl Mul<BioEnergyDelta> for Value1D {
     type Output = BioEnergyDelta;
 
     fn mul(self, rhs: BioEnergyDelta) -> Self::Output {
-        BioEnergyDelta::new(self * rhs.value)
+        rhs * self
     }
 }
 
@@ -1426,7 +1426,7 @@ impl Mul<Mass> for Value1D {
     type Output = Mass;
 
     fn mul(self, rhs: Mass) -> Self::Output {
-        Mass::new(self * rhs.value)
+        rhs * self
     }
 }
 

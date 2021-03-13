@@ -62,7 +62,7 @@ impl World {
     }
 
     pub fn with_pair_collisions(self) -> Self {
-        self.with_cross_cell_influence(Box::new(PairCollisions::new()))
+        self.with_cross_cell_influence(Box::new(PairCollisions::new(Fraction::ONE)))
     }
 
     pub fn with_bond_forces(self) -> Self {

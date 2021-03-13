@@ -68,12 +68,15 @@ impl CrossCellInfluence for WallCollisions {
 }
 
 #[derive(Debug)]
-pub struct PairCollisions {}
+pub struct PairCollisions {
+    force_adjustment_factor: Fraction,
+}
 
 impl PairCollisions {
-    #[allow(clippy::new_without_default)]
-    pub fn new() -> Self {
-        PairCollisions {}
+    pub fn new(force_adjustment_factor: Fraction) -> Self {
+        PairCollisions {
+            force_adjustment_factor,
+        }
     }
 
     fn add_overlap(cell: &mut Cell, overlap: Overlap) {
@@ -539,7 +542,7 @@ mod tests {
     fn pair_collisions_add_overlaps_and_forces() {
         let mut cell_graph = NodeGraph::new();
         let mut circle_handles = SortableHandles::new();
-        let pair_collisions = PairCollisions::new();
+        let pair_collisions = PairCollisions::new(Fraction::ONE);
         let cell1_handle = cell_graph.add_node(Cell::ball(
             Length::new(1.0),
             Mass::new(1.0),

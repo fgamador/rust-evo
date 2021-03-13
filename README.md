@@ -46,10 +46,10 @@ Actions while evo is running.
 
 ```
 Esc,q,x         - exit
-p               - toggle pause
-t               - run single tick
-f               - toggle fast-forward
-click on cell   - toggle debug output
+p               - pause (toggle)
+t               - single tick
+f               - fast forward (toggle)
+click on cell   - select for debug output (toggle)
 ```
 
 ### Development Tooling

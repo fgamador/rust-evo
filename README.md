@@ -50,4 +50,4 @@ rustup component add clippy
 
 ## Authors
 
-* **Franz Amador** - *Initial work*
+* **Franz Amador** - *Primary*

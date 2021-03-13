@@ -48,7 +48,7 @@ impl World {
 
     pub fn with_standard_influences(self) -> Self {
         self.with_perimeter_walls()
-            .with_pair_collisions()
+            .with_pair_collisions(Fraction::ONE)
             .with_bond_forces()
     }
 
@@ -61,8 +61,8 @@ impl World {
         )))
     }
 
-    pub fn with_pair_collisions(self) -> Self {
-        self.with_cross_cell_influence(Box::new(PairCollisions::new(Fraction::ONE)))
+    pub fn with_pair_collisions(self, force_adjustment_factor: Fraction) -> Self {
+        self.with_cross_cell_influence(Box::new(PairCollisions::new(force_adjustment_factor)))
     }
 
     pub fn with_bond_forces(self) -> Self {

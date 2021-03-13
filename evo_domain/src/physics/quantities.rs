@@ -1513,6 +1513,22 @@ impl AddAssign for Force {
     }
 }
 
+impl Mul<Fraction> for Force {
+    type Output = Force;
+
+    fn mul(self, rhs: Fraction) -> Self::Output {
+        Force::new(self.x * rhs.value, self.y * rhs.value)
+    }
+}
+
+impl Mul<Force> for Fraction {
+    type Output = Force;
+
+    fn mul(self, rhs: Force) -> Self::Output {
+        rhs * self
+    }
+}
+
 impl Mul<Value1D> for Force {
     type Output = Force;
 
@@ -1525,7 +1541,7 @@ impl Mul<Force> for Value1D {
     type Output = Force;
 
     fn mul(self, rhs: Force) -> Self::Output {
-        Force::new(self * rhs.x, self * rhs.y)
+        rhs * self
     }
 }
 

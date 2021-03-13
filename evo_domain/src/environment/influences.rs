@@ -90,7 +90,7 @@ impl PairCollisions {
         let relative_position1_unit = relative_position1.value().to_unit_vector();
         let closing_speed = -relative_velocity1.value().dot(relative_position1_unit);
 
-        let cell1_collision_force = self.force_adjustment_factor.value()
+        let cell1_collision_force = self.force_adjustment_factor
             * if closing_speed > 0.0 {
                 Self::body1_elastic_collision_force(
                     mass_factor,
@@ -101,7 +101,7 @@ impl PairCollisions {
                 Force::ZERO
             };
 
-        let cell1_overlap_force = self.force_adjustment_factor.value()
+        let cell1_overlap_force = self.force_adjustment_factor
             * Self::body1_undo_overlap_force(mass_factor, overlap1, closing_speed);
 
         Self::update_net_force(cell1, cell1_collision_force, cell1_overlap_force);

@@ -37,7 +37,9 @@ fn create_world(seed: u64) -> World {
     };
     World::new(Position::new(0.0, -400.0), Position::new(400.0, 0.0))
         .with_parameters(parameters)
-        .with_standard_influences()
+        .with_perimeter_walls()
+        .with_pair_collisions(Fraction::ONE)
+        .with_bond_forces()
         .with_sunlight(0.0, 1.0)
         .with_per_cell_influence(Box::new(SimpleForceInfluence::new(Box::new(
             DragForce::new(0.005),

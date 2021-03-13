@@ -723,7 +723,7 @@ impl Mul<HealthDelta> for Fraction {
     type Output = HealthDelta;
 
     fn mul(self, rhs: HealthDelta) -> Self::Output {
-        HealthDelta::new(self.value * rhs.value)
+        rhs * self
     }
 }
 
@@ -915,7 +915,7 @@ impl Mul<BioEnergyDelta> for Fraction {
     type Output = BioEnergyDelta;
 
     fn mul(self, rhs: BioEnergyDelta) -> Self::Output {
-        BioEnergyDelta::new(self.value * rhs.value)
+        rhs * self
     }
 }
 

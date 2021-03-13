@@ -20,16 +20,18 @@ Run the tests.
 cargo test
 ```
 
-Run evo.
+Run evo's latest. Is often boring looking.
 
 ```
-cargo run
+cargo run --release
 ```
 
-Run the most interesting-looking demo.
+Run something that looks cool.
 
 ```
-cargo run --example duckweed
+git tag
+git checkout nice_main_2     # or other promising-looking tag
+cargo run --release
 ```
 
 ### Development Tooling

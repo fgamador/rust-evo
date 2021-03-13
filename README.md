@@ -1,6 +1,6 @@
 # Evo
 
-Evo aims to simulate evolution of simple digital organisms.
+Evo aims to simulate evolution of simple digital organisms. It still has a long way to go.
 
 ## Getting Started
 

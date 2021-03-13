@@ -83,7 +83,7 @@ impl PairCollisions {
         cell.environment_mut().add_overlap(overlap);
     }
 
-    fn add_forces(cell1: &mut Cell, cell2: &mut Cell, overlap1: Overlap) {
+    fn add_forces(&self, cell1: &mut Cell, cell2: &mut Cell, overlap1: Overlap) {
         let mass_factor = Self::mass_factor(cell1.mass(), cell2.mass());
         let relative_velocity1 = cell1.velocity() - cell2.velocity();
         let relative_position1 = cell1.position() - cell2.position();
@@ -163,7 +163,7 @@ impl CrossCellInfluence for PairCollisions {
             }
 
             cell_graph.with_nodes(handle1, handle2, |cell1, cell2| {
-                Self::add_forces(cell1, cell2, overlap1);
+                self.add_forces(cell1, cell2, overlap1);
             });
         }
     }
@@ -589,7 +589,8 @@ mod tests {
         );
         let overlap1 = calc_overlap(&cell1, &cell2).unwrap();
 
-        PairCollisions::add_forces(&mut cell1, &mut cell2, overlap1);
+        let subject = PairCollisions::new(Fraction::ONE);
+        subject.add_forces(&mut cell1, &mut cell2, overlap1);
 
         cell1.tick();
         assert_eq!(cell1.velocity(), Velocity::ZERO);
@@ -614,7 +615,8 @@ mod tests {
         );
         let overlap1 = calc_overlap(&cell1, &cell2).unwrap();
 
-        PairCollisions::add_forces(&mut cell1, &mut cell2, overlap1);
+        let subject = PairCollisions::new(Fraction::ONE);
+        subject.add_forces(&mut cell1, &mut cell2, overlap1);
 
         cell1.tick();
         assert_eq!(
@@ -649,7 +651,8 @@ mod tests {
         );
         let overlap1 = calc_overlap(&cell1, &cell2).unwrap();
 
-        PairCollisions::add_forces(&mut cell1, &mut cell2, overlap1);
+        let subject = PairCollisions::new(Fraction::ONE);
+        subject.add_forces(&mut cell1, &mut cell2, overlap1);
 
         cell1.tick();
         assert_eq!(cell1.velocity(), initial_velocity1);
@@ -673,7 +676,8 @@ mod tests {
         );
         let overlap1 = calc_overlap(&cell1, &cell2).unwrap();
 
-        PairCollisions::add_forces(&mut cell1, &mut cell2, overlap1);
+        let subject = PairCollisions::new(Fraction::ONE);
+        subject.add_forces(&mut cell1, &mut cell2, overlap1);
 
         cell1.tick();
         cell2.tick();
@@ -696,7 +700,8 @@ mod tests {
         );
         let overlap1 = calc_overlap(&cell1, &cell2).unwrap();
 
-        PairCollisions::add_forces(&mut cell1, &mut cell2, overlap1);
+        let subject = PairCollisions::new(Fraction::ONE);
+        subject.add_forces(&mut cell1, &mut cell2, overlap1);
 
         cell1.tick();
         cell2.tick();

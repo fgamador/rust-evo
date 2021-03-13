@@ -20,7 +20,7 @@ Run the tests.
 cargo test
 ```
 
-Run evo's latest. Is often boring looking.
+Run evo's latest. Often boring looking.
 
 ```
 cargo run --release

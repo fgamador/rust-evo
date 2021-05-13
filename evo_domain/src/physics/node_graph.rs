@@ -96,12 +96,10 @@ impl<N: GraphNode<N>, E: GraphEdge<N>, ME: GraphMetaEdge> NodeGraph<N, E, ME> {
         new_handle: Handle<N>,
         edges: &mut [E],
     ) {
-        for edge_handle in node.graph_node_data().edge_handles.clone().iter() {
-            if let Some(edge_handle) = edge_handle {
-                let edge = &mut edges[edge_handle.index()];
-                edge.graph_edge_data_mut()
-                    .replace_node_handle(old_handle, new_handle);
-            }
+        for edge_handle in node.graph_node_data().edge_handles.clone().iter().flatten() {
+            let edge = &mut edges[edge_handle.index()];
+            edge.graph_edge_data_mut()
+                .replace_node_handle(old_handle, new_handle);
         }
     }
 

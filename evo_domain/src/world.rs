@@ -164,7 +164,7 @@ impl World {
     }
 
     pub fn cells(&self) -> &[Cell] {
-        &self.cell_graph.nodes()
+        self.cell_graph.nodes()
     }
 
     pub fn cell(&self, handle: Handle<Cell>) -> &Cell {
@@ -186,11 +186,11 @@ impl World {
     }
 
     pub fn bonds(&self) -> &[Bond<Cell>] {
-        &self.cell_graph.edges()
+        self.cell_graph.edges()
     }
 
     pub fn bond(&self, handle: EdgeHandle) -> &Bond<Cell> {
-        &self.cell_graph.edge(handle)
+        self.cell_graph.edge(handle)
     }
 
     pub fn add_angle_gusset(&mut self, gusset: AngleGusset) {
@@ -205,7 +205,7 @@ impl World {
     }
 
     pub fn clouds(&self) -> &[Cloud] {
-        &self.clouds.objects()
+        self.clouds.objects()
     }
 
     pub fn debug_print_cells(&self) {

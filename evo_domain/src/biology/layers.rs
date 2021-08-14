@@ -382,12 +382,12 @@ impl CellLayerBrain for LivingCellLayerBrain {
             CellLayer::HEALING_CHANNEL_INDEX => {
                 let delta_health = body.actual_delta_health(request);
                 changes.layers[request.layer_index()].add_healing(delta_health, request);
-                CellLayer::record_request_energy_change(&request, "healing", changes);
+                CellLayer::record_request_energy_change(request, "healing", changes);
             }
             CellLayer::RESIZE_CHANNEL_INDEX => {
                 let delta_area = body.actual_delta_area(request);
                 changes.layers[request.layer_index()].add_resize(delta_area, request);
-                CellLayer::record_request_energy_change(&request, "resize", changes);
+                CellLayer::record_request_energy_change(request, "resize", changes);
             }
             _ => specialty.execute_control_request(body, request, changes),
         }
@@ -817,7 +817,7 @@ impl CellLayerSpecialty for BondingCellLayerSpecialty {
             Self::DONATION_ENERGY_CHANNEL_INDEX => {
                 bond_request.donation_energy =
                     request.budgeted_fraction().value() * BioEnergy::new(request.allowed_value());
-                CellLayer::record_request_energy_change(&request, "donated", changes);
+                CellLayer::record_request_energy_change(request, "donated", changes);
             }
             _ => panic!("Invalid control channel index: {}", request.channel_index()),
         }

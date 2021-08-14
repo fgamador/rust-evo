@@ -223,9 +223,9 @@ impl GliumView {
         layer_colors: [[f32; 4]; 8],
         bonds: &[BondSprite],
     ) {
-        let clouds_vb = glium::VertexBuffer::new(&self.display, &clouds).unwrap();
-        let cells_vb = glium::VertexBuffer::new(&self.display, &cells).unwrap();
-        let bonds_vb = glium::VertexBuffer::new(&self.display, &bonds).unwrap();
+        let clouds_vb = glium::VertexBuffer::new(&self.display, clouds).unwrap();
+        let cells_vb = glium::VertexBuffer::new(&self.display, cells).unwrap();
+        let bonds_vb = glium::VertexBuffer::new(&self.display, bonds).unwrap();
         let screen_transform = self.current_screen_transform();
         let mut frame = self.display.draw();
         frame.clear_color(0.0, 0.0, 0.0, 1.0);

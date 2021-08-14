@@ -145,7 +145,7 @@ fn await_next_tick(next_tick: Instant) {
 
 fn toggle_select_cell_action(world: &mut World, view: &mut View, x: f64, y: f64) -> UserAction {
     world.toggle_select_cell_at(Position::new(x, y));
-    view.render(&world);
+    view.render(world);
     view.wait_for_user_action()
 }
 

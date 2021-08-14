@@ -118,7 +118,7 @@ impl SparseNeuralNetGenome {
 
     pub fn print(&self, node_labels: &[&str]) {
         for printable_node in self.get_printable_nodes() {
-            printable_node.println(&node_labels);
+            printable_node.println(node_labels);
         }
     }
 
